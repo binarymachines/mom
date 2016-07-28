@@ -7,7 +7,6 @@ from mutagen.id3 import ID3, ID3NoHeaderError
 import pprint
 import sys
 
-reload(sys)
 sys.setdefaultencoding('utf8')
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -30,7 +29,7 @@ class MediaObject:
         self.unsorted = False
 
 class MediaObjectManager:
-    def __init__(self, hostname, portnum):
+    def __init__(self, hostname, portnum=9200): # set the default here and you don't have to pass it unless it's different
         self._x = None
         self.port = portnum;
         self.host = hostname
@@ -38,9 +37,10 @@ class MediaObjectManager:
         self.document_type = 'mediafile'
         self.do_clear_index = False
 
-        print('Connecting to ' + hostname +':' + str(portnum))
+        print('Connecting to %s:%d...' % (hostname, portnum))
 
-        self.es = Elasticsearch([{'host': '54.82.250.249', 'port': 9200}])
+        self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
+
 
     def clear_index(self):
         if self.es.indices.exists(self.index_name):
@@ -176,13 +176,13 @@ class MediaObjectManager:
 
             media = self.file_to_media_object(loc, root, filename, extension)
 
-            if self.document_exists(media) == True:
+            if self.document_exists(media):
                 return
 
             data = self.make_data(media)
             mediafile = ID3(os.path.join(root, filename))
             metadata = mediafile.pprint() # gets all metadata
-            tags = [x.split('=',1) for x in metadata[0:].split('\n')]
+            tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
             for tag in tags:
                 if tag[0] in FIELDS:
@@ -194,10 +194,11 @@ class MediaObjectManager:
                             key=subtags[0].replace(' ', '_').upper()
                             data[key] = subtags[1]
 
-        except ID3NoHeaderError, e:
-            data['scan_error'] = str(e)
-            print str(e)
-            # return
+        except ID3NoHeaderError, err:
+            data['scan_error'] = err.message
+            print err.message
+            traceback.print_exc(file=sys.stdout) 
+            
 
         # except Exception, e:
         #     # data['scan_error'] = str(e)
@@ -210,9 +211,9 @@ class MediaObjectManager:
 
             self.es.index(index='media', doc_type=self.document_type, body=json_str)
 
-        except UnicodeEncodeError, e:
-            print str(e)
-            raise
+        except UnicodeEncodeError, err:
+            print err.message
+            raise err
 
 def findDoc(self, media):
     # print("searching for " + media.location + media.folder_name + "/" + media.file_name + media.ext + '...')
@@ -277,12 +278,20 @@ class ScanCriteria:
         self.locations = []
         self.extensions = []
 
-start_folder = "/media/removable/Audio/music/"
 
-s = ScanCriteria()
-s.extensions = ['mp3', 'flac']
-s.locations.append("/media/removable/Audio/music/")
+def main():
+    start_folder = "/media/removable/Audio/music/"
 
-m = MediaObjectManager('54.82.250.249', 9200);
-m.do_clear_index = True
-m.scan(s)
+    s = ScanCriteria()
+    s.extensions = ['mp3', 'flac']
+    s.locations.append("/media/removable/Audio/music/")
+
+    m = MediaObjectManager('54.82.250.249', 9200);
+    m.do_clear_index = True
+    m.scan(s)
+
+
+if __name__ == '__main__':
+    main()
+
+
