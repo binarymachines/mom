@@ -19,6 +19,16 @@ class MediaObject:
 
 class MediaObjectManager:
 
+    COMP = ['/compilations', '/random compilations']
+    UNSORTED = ['/unsorted', '/Media/Music/mp3']
+    LIVE = '/live recordings'
+    EXTENDED = '/webcasts and custom mixes'
+    RECENT = ['/recently downloaded']
+    RANDOM = '/random'
+    INCOMPLETE = '/downloading'
+    LIVE = '/live recordings'
+    NEW = ['/slsk/', 'incoming']
+
     def __init__(self, hostname, portnum=9200, indexname='media', documenttype='mediafile'):
 
         self._x = None
@@ -30,7 +40,6 @@ class MediaObjectManager:
 
         print('Connecting to %s:%d...' % (hostname, portnum))
         self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
-
 
     def clear_index(self):
         if self.es.indices.exists(self.index_name):
@@ -47,17 +56,34 @@ class MediaObjectManager:
     def document_exists(self, media):
 
         res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "file_name": media.file_name }}})
-
         # print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
-            if doc['_source']['file_name'] == media.file_name and doc['_source']['folder_name'] == media.folder_name \
-                and doc['_source']['folder_location'] == media.location and doc['_source']['file_ext'] == media.ext \
-                and doc['_source']['file_size'] == media.file_size:
-
-                media.data = doc
+            if doc_refers_to(doc, media):
+                # media.data = doc
                 return True
 
         return False
+
+    def doc_refers_to(self, doc, media):
+        if doc['_source']['file_name'] == media.file_name and doc['_source']['folder_name'] == media.folder_name \
+            and doc['_source']['folder_location'] == media.location and doc['_source']['file_ext'] == media.ext \
+            and doc['_source']['file_size'] == media.file_size:
+
+            return True
+
+    def findDoc(self, media):
+        # print("searching for " + media.location + media.folder_name + "/" + media.file_name + media.ext + '...')
+        res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+        {
+            "query": { "match" : { "file_name": media.file_name }}
+        })
+
+        # print("%d documents found" % res['hits']['total'])
+        for doc in res['hits']['hits']:
+            if doc_refers_to(doc, media):
+                return doc
+
+        return None
 
     def scan(self, criteria):
         if self.do_clear_index:
@@ -91,16 +117,6 @@ class MediaObjectManager:
 
     def file_to_media_object(self, loc, root, filename, extension):
 
-        COMP = ['/compilations', '/random compilations']
-        UNSORTED = ['/unsorted', '/Media/Music/mp3']
-        LIVE = '/live recordings'
-        EXTENDED = '/webcasts and custom mixes'
-        RECENT = ['/recently downloaded']
-        RANDOM = '/random'
-        INCOMPLETE = '/downloading'
-        LIVE = '/live recordings'
-        NEW = ['/slsk/', 'incoming']
-
         media = MediaObject()
         media.location = unicode(loc)
         media.ext = unicode(extension)
@@ -113,25 +129,21 @@ class MediaObjectManager:
         media.live = True if LIVE in media.location else False
         media.random = True if RANDOM in media.location else False
 
-        media.compilation = False
         for name in COMP:
              if name in media.location:
                  media.compilation = True
                  break
 
-        media.new = False
         for name in NEW:
              if name in media.location:
                  media.new = True
                  break
 
-        media.recent_download = False
         for name in RECENT:
              if name in media.location:
                  media.recent_download = True
                  break
 
-        media.unsorted = False
         for name in UNSORTED:
              if name in media.location:
                  media.unsorted = True
@@ -182,28 +194,7 @@ class MediaObjectManager:
             print err.message
             raise err
 
-def findDoc(self, media):
-    # print("searching for " + media.location + media.folder_name + "/" + media.file_name + media.ext + '...')
-
-    params = {}
-    params['file_name'] = media.file_name
-    params['folder_name'] = media.folder_name
-    res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
-    {
-        "query": { "match" : { "file_name": media.file_name }}
-    })
-
-    # print("%d documents found" % res['hits']['total'])
-    for doc in res['hits']['hits']:
-        if doc['_source']['file_name'] == media.file_name and doc['_source']['folder_name'] == media.folder_name \
-            and doc['_source']['folder_location'] == media.location and doc['_source']['file_ext'] == media.ext \
-            and doc['_source']['file_size'] == media.file_size:
-
-            return doc
-
-    return None
-
-def matchSongAlbumAristIDv2(self, artist, album, song, include_compilations):
+def matchSongAlbumArtistIDv2(self, artist, album, song, include_compilations):
 
     res = self.es.search(index="media", doc_type="mediafile", body=
     {
@@ -238,7 +229,6 @@ class ScanCriteria:
         self.locations = []
         self.extensions = []
 
-
 def main():
     start_folder = "/media/removable/Audio/music/"
 
@@ -249,7 +239,6 @@ def main():
     m = MediaObjectManager('54.82.250.249');
     # m.do_clear_index = True
     m.scan(s)
-
 
 if __name__ == '__main__':
     main()
