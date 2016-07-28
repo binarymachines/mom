@@ -1,12 +1,10 @@
 #!/usr/bin/python
 
+import os, json, pprint, sys, traceback
 from elasticsearch import Elasticsearch
-import os
-import json
 from mutagen.id3 import ID3, ID3NoHeaderError
-import pprint
-import sys
 
+reload(sys)
 sys.setdefaultencoding('utf8')
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -14,31 +12,23 @@ pp = pprint.PrettyPrinter(indent=4)
 class MediaObject:
     def __init__(self):
         self.data = None
-        self.ext = ''
         self.file_size = 0
-        self.file_name = ''
-        self.folder_name = ''
-        self.location = ''
-        self.compilation = False
-        self.extended_mix = False
-        self.incomplete = False
-        self.live = False
-        self.new = False
-        self.random = False
-        self.recent_download = False
-        self.unsorted = False
+        self.ext = self.file_name = self.folder_name = self.location = u''
+        self.compilation = self.extended_mix = self.incomplete = self.live = False
+        self.new = self.random = self.recent_download = self.unsorted = False
 
 class MediaObjectManager:
-    def __init__(self, hostname, portnum=9200): # set the default here and you don't have to pass it unless it's different
+
+    def __init__(self, hostname, portnum=9200, indexname='media', documenttype='mediafile'):
+
         self._x = None
         self.port = portnum;
         self.host = hostname
-        self.index_name = 'media'
-        self.document_type = 'mediafile'
+        self.index_name = indexname
+        self.document_type = documenttype
         self.do_clear_index = False
 
         print('Connecting to %s:%d...' % (hostname, portnum))
-
         self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
 
 
@@ -48,12 +38,7 @@ class MediaObjectManager:
             res = self.es.indices.delete(index = self.index_name)
             print(" response: '%s'" % (res))
 
-        request_body = {
-            "settings" : {
-                "number_of_shards": 1,
-                "number_of_replicas": 0
-            }
-        }
+        request_body = { "settings" : { "number_of_shards": 1, "number_of_replicas": 0 }}
 
         print("creating '%s' index..." % (self.index_name))
         res = self.es.indices.create(index = self.index_name, body = request_body)
@@ -61,28 +46,17 @@ class MediaObjectManager:
 
     def document_exists(self, media):
 
-        # print(media.location + media.folder_name + "/" + media.file_name + media.ext)
-
-        params = {}
-        params['file_name'] = media.file_name
-        params['folder_name'] = media.folder_name
-        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={
-            "query": {
-                "match" : {
-                    "file_name": media.file_name
-                    }
-                }
-            })
+        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "file_name": media.file_name }}})
 
         # print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
-            if doc['_source']['file_name'] == media.file_name:
-                if doc['_source']['folder_name'] == media.folder_name:
-                    if doc['_source']['folder_location'] == media.location:
-                        if doc['_source']['file_ext'] == media.ext:
-                            if doc['_source']['file_size'] == media.file_size:
-                                media.data = doc
-                                return True
+            if doc['_source']['file_name'] == media.file_name and doc['_source']['folder_name'] == media.folder_name \
+                and doc['_source']['folder_location'] == media.location and doc['_source']['file_ext'] == media.ext \
+                and doc['_source']['file_size'] == media.file_size:
+
+                media.data = doc
+                return True
+
         return False
 
     def scan(self, criteria):
@@ -103,8 +77,8 @@ class MediaObjectManager:
 
     def make_data(self, media):
 
-        data = {'file_ext': media.ext, 'file_name': media.file_name, 'folder_name': media.folder_name,
-                'file_size': media.file_size, 'folder_location': media.location }
+        data = { 'file_ext': media.ext, 'file_name': media.file_name, 'folder_name': media.folder_name,
+                 'file_size': media.file_size, 'folder_location': media.location }
 
         data['compilation'] = media.compilation
         data['extended_mix']= media.extended
@@ -197,18 +171,11 @@ class MediaObjectManager:
         except ID3NoHeaderError, err:
             data['scan_error'] = err.message
             print err.message
-            traceback.print_exc(file=sys.stdout) 
-            
-
-        # except Exception, e:
-        #     # data['scan_error'] = str(e)
-        #     print str(e)
-        #     return
+            # traceback.print_exc(file=sys.stdout)
 
         try:
             json_str = json.dumps(data)
             # pp.pprint(json_str)
-
             self.es.index(index='media', doc_type=self.document_type, body=json_str)
 
         except UnicodeEncodeError, err:
@@ -221,57 +188,50 @@ def findDoc(self, media):
     params = {}
     params['file_name'] = media.file_name
     params['folder_name'] = media.folder_name
-    res = self.es.search(index=self.index_name, doc_type=self.document_type, body={
-        "query": {
-            "match" : {
-                "file_name": media.file_name
-                }
-            }
-        })
+    res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+    {
+        "query": { "match" : { "file_name": media.file_name }}
+    })
 
     # print("%d documents found" % res['hits']['total'])
     for doc in res['hits']['hits']:
-        if doc['_source']['file_name'] == media.file_name:
-            if doc['_source']['folder_name'] == media.folder_name:
-                if doc['_source']['folder_location'] == media.location:
-                    if doc['_source']['file_ext'] == media.ext:
-                        if doc['_source']['file_size'] == media.file_size:
-                            # pp.pprint(doc)
-                            return doc
+        if doc['_source']['file_name'] == media.file_name and doc['_source']['folder_name'] == media.folder_name \
+            and doc['_source']['folder_location'] == media.location and doc['_source']['file_ext'] == media.ext \
+            and doc['_source']['file_size'] == media.file_size:
+
+            return doc
+
     return None
 
-def matchSongAlbumAristIDv2(self, media):
+def matchSongAlbumAristIDv2(self, artist, album, song, include_compilations):
 
     res = self.es.search(index="media", doc_type="mediafile", body=
-        {
-            "query": {
-                "bool": {
-                    "should": [
-                            { "match": {
-                                "TPE1":  {
-                                  "query": "clan of xymox",
-                                  "boost": 2
-                            }}},
-                            { "match": {
-                                "TIT2":  {
-                                  "query": "muscoviet mosquito",
-                                  "boost": 2
-                            }}},
-                            { "match": {
-                                "TALB":  {
-                                  "query": "the best of",
-                                  "boost": 7
-                            }}},
-                            { "bool":  {
-                                "should": [
-                                #   { "match": { "TALB": "the best of" }},
-                                  { "match": { "compilation": False }}
-                                ]
-                            }}]
-                }
-              }
-          }
-    )
+    {
+        "query": {
+            "bool": {
+                "should": [
+                    { "match": {
+                        "TPE1":  {
+                            "query": artist,
+                            "boost": 2
+                    }}},
+                    { "match": {
+                    "TALB":  {
+                    "query": album,
+                    "boost": 7
+                    }}},
+                    { "match": {
+                        "TIT2":  {
+                        "query": song,
+                        "boost": 2
+                    }}},
+                    { "bool":  {
+                        "should": [
+                        { "match": { "compilation": include_compilations }}
+        ]}}]}}
+    })
+
+    return res
 
 class ScanCriteria:
     def __init__(self):
@@ -286,12 +246,10 @@ def main():
     s.extensions = ['mp3', 'flac']
     s.locations.append("/media/removable/Audio/music/")
 
-    m = MediaObjectManager('54.82.250.249', 9200);
-    m.do_clear_index = True
+    m = MediaObjectManager('54.82.250.249');
+    # m.do_clear_index = True
     m.scan(s)
 
 
 if __name__ == '__main__':
     main()
-
-
