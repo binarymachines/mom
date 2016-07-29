@@ -1,33 +1,17 @@
-#!/usr/bin/python
+#! /usr/bin/python
 
 import os, json, pprint, sys, traceback
 from elasticsearch import Elasticsearch
 from mutagen.id3 import ID3, ID3NoHeaderError
-
-reload(sys)
-sys.setdefaultencoding('utf8')
+from mediaDataObjects import MediaObject, ScanCriteria
+from mediaFolderManager import MediaFolderManager
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class MediaObject:
-    def __init__(self):
-        self.data = None
-        self.file_size = 0
-        self.ext = self.file_name = self.folder_name = self.location = u''
-        self.compilation = self.extended_mix = self.incomplete = self.live = False
-        self.new = self.random = self.recent_download = self.unsorted = False
-
 class MediaObjectManager:
 
-    COMP = ['/compilations', '/random compilations']
-    UNSORTED = ['/unsorted', '/Media/Music/mp3']
-    LIVE = '/live recordings'
-    EXTENDED = '/webcasts and custom mixes'
-    RECENT = ['/recently downloaded']
-    RANDOM = '/random'
-    INCOMPLETE = '/downloading'
-    LIVE = '/live recordings'
-    NEW = ['/slsk/', 'incoming']
+    COMP = EXTENDED = IGNORE = INCOMPLETE = LIVE = NEW = RANDOM = RECENT = UNSORTED = []
+    EXPUNGE = NOSCAN = None
 
     def __init__(self, hostname, portnum=9200, indexname='media', documenttype='mediafile'):
 
@@ -41,7 +25,9 @@ class MediaObjectManager:
         print('Connecting to %s:%d...' % (hostname, portnum))
         self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
 
-    def clear_index(self):
+        self.mediaFolderManager = MediaFolderManager(self.es)
+
+    def clear_indexes(self):
         if self.es.indices.exists(self.index_name):
             print("deleting '%s' index..." % (self.index_name))
             res = self.es.indices.delete(index = self.index_name)
@@ -58,7 +44,7 @@ class MediaObjectManager:
         res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "file_name": media.file_name }}})
         # print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
-            if doc_refers_to(doc, media):
+            if self.doc_refers_to(doc, media):
                 # media.data = doc
                 return True
 
@@ -71,7 +57,7 @@ class MediaObjectManager:
 
             return True
 
-    def findDoc(self, media):
+    def find_doc(self, media):
         # print("searching for " + media.location + media.folder_name + "/" + media.file_name + media.ext + '...')
         res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
         {
@@ -80,26 +66,25 @@ class MediaObjectManager:
 
         # print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
-            if doc_refers_to(doc, media):
+            if self.doc_refers_to(doc, media):
                 return doc
 
         return None
 
+    def folder_scanned(self, foldername):
+        pass
+
+
     def scan(self, criteria):
         if self.do_clear_index:
-            self.clear_index()
+            self.clear_indexes()
 
         for loc in criteria.locations:
             print(loc + '\n')
             for root, dirs, files in os.walk(loc, topdown=True, followlinks=False):
                 for filename in files:
                     for ext in criteria.extensions:
-                        if filename.endswith(''.join(['.', ext])):
-                            try:
-                                self.handle_file(loc, root, filename, ext)
-                            except UnicodeDecodeError, e:
-                                print str(e)
-                                raise
+                        if filename.endswith(''.join(['.', ext])): self.handle_file(loc, root, filename, ext)
 
     def make_data(self, media):
 
@@ -107,7 +92,7 @@ class MediaObjectManager:
                  'file_size': media.file_size, 'folder_location': media.location }
 
         data['compilation'] = media.compilation
-        data['extended_mix']= media.extended
+        data['extended_mix']= media.extended_mix
         data['unsorted'] = media.unsorted
         data['random'] = media.random
         data['new'] = media.new
@@ -118,36 +103,38 @@ class MediaObjectManager:
     def file_to_media_object(self, loc, root, filename, extension):
 
         media = MediaObject()
-        media.location = unicode(loc)
-        media.ext = unicode(extension)
-        media.file_name = unicode(filename.replace(''.join(['.', extension]), ''))
-        media.folder_name = unicode(root.replace(loc, ''))
+        media.location = unicode(loc, "utf-8")
+        media.ext = unicode(extension, "utf-8")
+        media.file_name = unicode(filename.replace(''.join(['.', extension]), ''), "utf-8")
+        media.folder_name = unicode(root.replace(loc, ''), "utf-8")
         media.file_size = os.path.getsize(os.path.join(root, filename))
 
-        media.extended = True if EXTENDED in media.location else False
-        media.incomplete = True if INCOMPLETE in media.location else False
-        media.live = True if LIVE in media.location else False
-        media.random = True if RANDOM in media.location else False
+        if EXPUNGE in media.location: media.expunged = True
+        if NOSCAN in media.location: media.noscan = True
 
-        for name in COMP:
-             if name in media.location:
-                 media.compilation = True
-                 break
+        for name in self.INCOMPLETE:
+             if name in media.location: media.incomplete = True
 
-        for name in NEW:
-             if name in media.location:
-                 media.new = True
-                 break
+        for name in self.EXTENDED:
+             if name in media.location: media.extended = True
 
-        for name in RECENT:
-             if name in media.location:
-                 media.recent_download = True
-                 break
+        for name in self.RANDOM:
+             if name in media.location: media.random = True
 
-        for name in UNSORTED:
-             if name in media.location:
-                 media.unsorted = True
-                 break
+        for name in self.LIVE:
+             if name in media.location: media.live = True
+
+        for name in self.COMP:
+             if name in media.location: media.compilation = True
+
+        for name in self.NEW:
+             if name in media.location: media.new = True
+
+        for name in self.RECENT:
+             if name in media.location: media.recent_download = True
+
+        for name in self.UNSORTED:
+             if name in media.location: media.unsorted = True
 
         return media
 
@@ -156,10 +143,9 @@ class MediaObjectManager:
         FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON', 'TPUB', 'TRCK', 'MCID', 'TSSE', 'TLAN', 'TSO2', 'TSOP', 'TMED', 'UFID']
         SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']
 
-        try:
-            # print('\n')
-            # print('\n' + os.path.join(root, filename))
+        self.mediaFolderManager.set_active_folder(os.path.join(root, filename).replace(filename, ''))
 
+        try:
             media = self.file_to_media_object(loc, root, filename, extension)
 
             if self.document_exists(media):
@@ -183,7 +169,12 @@ class MediaObjectManager:
         except ID3NoHeaderError, err:
             data['scan_error'] = err.message
             print err.message
-            # traceback.print_exc(file=sys.stdout)
+            traceback.print_exc(file=sys.stdout)
+
+        except Exception, err:
+            data['scan_error'] = err.message
+            print err.message
+            traceback.print_exc(file=sys.stdout)
 
         try:
             json_str = json.dumps(data)
@@ -194,50 +185,64 @@ class MediaObjectManager:
             print err.message
             raise err
 
-def matchSongAlbumArtistIDv2(self, artist, album, song, include_compilations):
+    def matchSongAlbumArtistIDv2(self, artist, album, song, include_compilations):
 
-    res = self.es.search(index="media", doc_type="mediafile", body=
-    {
-        "query": {
-            "bool": {
-                "should": [
-                    { "match": {
-                        "TPE1":  {
-                            "query": artist,
+        res = self.es.search(index="media", doc_type="mediafile", body=
+        {
+            "query": {
+                "bool": {
+                    "should": [
+                        { "match": {
+                            "TPE1":  {
+                                "query": artist,
+                                "boost": 2
+                        }}},
+                        { "match": {
+                        "TALB":  {
+                        "query": album,
+                        "boost": 7
+                        }}},
+                        { "match": {
+                            "TIT2":  {
+                            "query": song,
                             "boost": 2
-                    }}},
-                    { "match": {
-                    "TALB":  {
-                    "query": album,
-                    "boost": 7
-                    }}},
-                    { "match": {
-                        "TIT2":  {
-                        "query": song,
-                        "boost": 2
-                    }}},
-                    { "bool":  {
-                        "should": [
-                        { "match": { "compilation": include_compilations }}
-        ]}}]}}
-    })
+                        }}},
+                        { "bool":  {
+                            "should": [
+                            { "match": { "compilation": include_compilations }}
+            ]}}]}}
+        })
 
-    return res
-
-class ScanCriteria:
-    def __init__(self):
-        self.locations = []
-        self.extensions = []
+        return res
 
 def main():
     start_folder = "/media/removable/Audio/music/"
 
     s = ScanCriteria()
     s.extensions = ['mp3', 'flac']
-    s.locations.append("/media/removable/Audio/music/")
+    s.locations.append("/media/removable/Audio/music [expunged]/")
+    s.locations.append("/media/removable/Audio/music [noscan]/")
+
+    folders =  next(os.walk(start_folder))[1]
+    count = len(folders)
+    while count > 0:
+        count = count - 1
+        s.locations.append(start_folder + folders[count])
 
     m = MediaObjectManager('54.82.250.249');
     # m.do_clear_index = True
+    m.EXPUNGE = "/media/removable/Audio/music [expunged]/"
+    m.NOSCAN = "/media/removable/Audio/music [noscan]/"
+    m.COMP = ['/compilations', '/random compilations']
+    m.IGNORE = [, '/bak/mp3', '/bak/incoming']
+    m.UNSORTED = ['/unsorted']
+    m.LIVE = ['/live recordings']
+    m.EXTENDED = ['/webcasts and custom mixes']
+    m.RECENT = ['/recently downloaded']
+    m.RANDOM = ['/random']
+    m.INCOMPLETE = ['/downloading']
+    m.NEW = ['/slsk/', 'incoming']
+
     m.scan(s)
 
 if __name__ == '__main__':
