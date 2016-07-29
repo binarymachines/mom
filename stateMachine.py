@@ -34,7 +34,7 @@ class StateMachine:
         return self._currentState
 
     def get_rules(self, state):
-        print("get rules")
+        # print("get rules")
         results = []
 
         for rule in self.rules:
@@ -44,7 +44,7 @@ class StateMachine:
         return results
 
     def get_destinations(self):
-        print("get destinations")
+        # print("get destinations")
         results = []
 
         rules = self.get_rules(self.current_state)
@@ -57,12 +57,12 @@ class StateMachine:
         return results
 
     def make_transition(self):
-        print("make_transition")
+        # print("make_transition")
         destinations = self.get_destinations()
         if self.complete == False and len(destinations) == 1:
             self.make_state_transition(destinations[0])
         else:
-            self.complete = true
+            self.complete = True
 
     def make_state_transition(self, state):
         print("make_state_transition(" + state.description + ")")
@@ -84,18 +84,30 @@ def apply_b():
     print("applying transition rule 2")
     return True
 
+def apply_c():
+    print("applying transition rule 3")
+    return True
 
-start = State("start")
-middle = State("middle")
-end = State("end")
+def apply_d():
+    print("applying transition rule 4")
+    return True
 
-r1 = StateTransitionRule(start, middle, apply_a);
-r2 = StateTransitionRule(middle, end, apply_b);
+
+a = State("start")
+b = State("state b")
+c = State("state c")
+d = State("state d")
+e = State("end")
+
+r1 = StateTransitionRule(a, b, apply_a);
+r2 = StateTransitionRule(b, c, apply_b);
+r3 = StateTransitionRule(c, d, apply_c);
+r4 = StateTransitionRule(d, e, apply_d);
 
 sm = StateMachine()
-sm.states = [start, middle, end]
-sm.rules = [r1, r2]
-sm.begin_state = start
-sm.end_state = end
+sm.states = [a, b, c, d, e]
+sm.rules = [r1, r2, r3, r4]
+sm.begin_state = a
+sm.end_state = e
 
 sm.run()
