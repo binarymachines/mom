@@ -86,23 +86,13 @@ class MediaObjectManager:
                 for filename in files:
                     for ext in criteria.extensions:
                         try:
+                            # print(filename)
                             if filename.endswith(''.join(['.', ext])) and not filename.startswith('INCOMPLETE~'):
                                 self.handle_file(loc, root, filename, ext)
-                        except UnicodeEncodeError, err:
-                            print err.message
-                            traceback.print_exc(file=sys.stdout)
-                            # raise err
-                            continue
-
                         except IOError, err:
                             print err.message
                             traceback.print_exc(file=sys.stdout)
-                            continue
 
-                        except TypeError, err:
-                            print err.message
-                            traceback.print_exc(file=sys.stdout)
-                            continue
 
 
     def make_data(self, media):
@@ -190,13 +180,8 @@ class MediaObjectManager:
             print err.message
             traceback.print_exc(file=sys.stdout)
 
-        # except Exception, err:
-        #     data['scan_error'] = err.message
-        #     print err.message
-        #     traceback.print_exc(file=sys.stdout)
-
         json_str = json.dumps(data)
-        # pp.pprint(json_str)
+        pp.pprint(json_str)
         self.es.index(index='media', doc_type=self.document_type, body=json_str)
 
 
@@ -235,16 +220,12 @@ def main():
 
     s = ScanCriteria()
     s.extensions = ['mp3', 'flac']
-    # s.locations.append("/media/removable/Audio/music [expunged]/")
-    # s.locations.append("/media/removable/Audio/music [noscan]/")
-    #
-    # folders =  next(os.walk(start_folder))[1]
-    # count = len(folders)
-    # while count > 0:
-    #     count = count - 1
-    #     s.locations.append(start_folder + folders[count])
+    # s.locations.append("/media/removable/Audio/music/random tracks/")
+    s.locations.append("/media/removable/Audio/music [expunged]/")
+    s.locations.append("/media/removable/Audio/music [noscan]/")
 
-    s.locations.append("/media/removable/Audio/music/random tracks/")
+    for folder in next(os.walk(start_folder))[1]:
+        s.locations.append(start_folder + folder)
 
     m = MediaObjectManager('54.82.250.249');
     # m.do_clear_index = True
@@ -256,7 +237,7 @@ def main():
     m.LIVE = ['/live recordings']
     m.EXTENDED = ['/webcasts and custom mixes']
     m.RECENT = ['/recently downloaded']
-    m.RANDOM = ['/random']
+    m.RANDOM = ['/random tracks', '/random compilations']
     m.INCOMPLETE = ['/downloading']
     m.NEW = ['/slsk/', 'incoming']
 
