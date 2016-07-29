@@ -61,9 +61,10 @@ class StateMachine:
         destinations = self.get_destinations()
         if self.complete == False and len(destinations) == 1:
             self.make_state_transition(destinations[0])
-        else:
+        elif len(destinations) == 0:
             self.complete = True
-
+        else:
+            raise Exception("You haven't coded for the possibility of multiple destinations from one state")
     def make_state_transition(self, state):
         print("make_state_transition(" + state.description + ")")
         self.current_state = state
