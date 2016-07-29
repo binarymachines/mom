@@ -14,7 +14,7 @@ class StateTransitionRule:
         self.conditional_method = method
 
     def applies(self):
-        return boolean(self.conditional_method())
+        return self.conditional_method()
 
 
 class StateMachine:
@@ -34,18 +34,20 @@ class StateMachine:
         return self._currentState
 
     def get_rules(self, state):
+        print("get rules")
         results = []
 
-        for rule in self.rule:
+        for rule in self.rules:
             if rule.begin_state == state:
                 results.append(rule)
 
         return results
 
     def get_destinations(self):
+        print("get destinations")
         results = []
 
-        rules = get_rules(self.current_state)
+        rules = self.get_rules(self.current_state)
         for rule in rules:
             if rule.applies():
                 state = rule.end_state
@@ -55,17 +57,45 @@ class StateMachine:
         return results
 
     def make_transition(self):
-
-        destinations = get_destinations()
+        print("make_transition")
+        destinations = self.get_destinations()
         if self.complete == False and len(destinations) == 1:
-            make_transition(destinations[0])
+            self.make_state_transition(destinations[0])
         else:
             self.complete = true
 
-    def make_transition(self, state):
+    def make_state_transition(self, state):
+        print("make_state_transition(" + state.description + ")")
         self.current_state = state
-        if self.current_state.description == self.end_state.description:
-            self.complete = true
+        if self.current_state == self.end_state:
+            self.complete = True
 
     def run(self):
-        make_transition(self.begin_state)
+        print("run")
+        self.make_state_transition(self.begin_state)
+        while not self.complete:
+            self.make_transition()
+
+def apply_a():
+    print("applying transition rule 1")
+    return True
+
+def apply_b():
+    print("applying transition rule 2")
+    return True
+
+
+start = State("start")
+middle = State("middle")
+end = State("end")
+
+r1 = StateTransitionRule(start, middle, apply_a);
+r2 = StateTransitionRule(middle, end, apply_b);
+
+sm = StateMachine()
+sm.states = [start, middle, end]
+sm.rules = [r1, r2]
+sm.begin_state = start
+sm.end_state = end
+
+sm.run()
