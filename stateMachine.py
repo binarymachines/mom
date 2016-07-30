@@ -1,10 +1,10 @@
 #! /usr/bin/python
 
+import random
+
 class State:
-	# DEFAULT_STATE = "uninitialized";
     def __init__(self, description):
         self.description = description
-        # is_initialized = False
 
 class StateTransitionRule:
 
@@ -18,7 +18,8 @@ class StateTransitionRule:
 
 
 class StateMachine:
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self._current_state = None
         self.begin_state = self.end_state = None
         self.states = []
@@ -29,8 +30,7 @@ class StateMachine:
     def current_state(self):
         if self._currentState == None:
             self._currentState = self.begin_state
-            return self._currentState
-        # (else)
+
         return self._currentState
 
     def get_rules(self, state):
@@ -58,57 +58,98 @@ class StateMachine:
 
     def make_transition(self):
         # print("make_transition")
-        destinations = self.get_destinations()
-        if self.complete == False and len(destinations) == 1:
-            self.make_state_transition(destinations[0])
-        elif len(destinations) == 0:
-            self.complete = True
-        else:
-            raise Exception("You haven't coded for the possibility of multiple destinations from one state")
+        if self.complete == False:
+            destinations = self.get_destinations()
+            if len(destinations) == 1:
+                self.make_state_transition(destinations[0])
+            elif len(destinations) > 1:
+                raise Exception("You haven't coded for the possibility of multiple destinations from one state!")
+
     def make_state_transition(self, state):
-        print("make_state_transition(" + state.description + ")")
+        if state == self.begin_state:
+            print(self.name + " starting in state " + state.description)
+        elif state == self.end_state:
+            print(self.name + " ending in state " + state.description)
+        else:
+            print(self.name + " making transition to state " + state.description)
+
         self.current_state = state
         if self.current_state == self.end_state:
             self.complete = True
 
     def run(self):
-        print("run")
+        # print("run")
+        self.complete = False
         self.make_state_transition(self.begin_state)
-        while not self.complete:
-            self.make_transition()
 
-def apply_a():
-    print("applying transition rule 1")
-    return True
+class StateMachineContainer:
+    def __init__(self):
+        self.activemachines = []
+        self.inactivemachines = []
+        self.running = False
 
-def apply_b():
-    print("applying transition rule 2")
-    return True
+    def add_machine(self, machine):
+        self.activemachines.append(machine)
+        if self.running:
+            machine.run()
 
-def apply_c():
-    print("applying transition rule 3")
-    return True
+    def run(self):
 
-def apply_d():
-    print("applying transition rule 4")
-    return True
+        self.running = True
 
+        for machine in self.activemachines:
+            if not machine.complete:
+                machine.run()
 
-a = State("start")
-b = State("state b")
-c = State("state c")
-d = State("state d")
-e = State("end")
+        while len(self.activemachines) > 0:
+            for machine in self.activemachines:
+                if not machine.complete:
+                    machine.make_transition()
+                elif machine.complete:
+                    self.inactivemachines.append(machine)
+
+            for machine in self.inactivemachines:
+                if machine in self.activemachines:
+                    self.activemachines.remove(machine)
+
+        self.running = False
+
+def apply_a(): return bool(random.getrandbits(1))
+def apply_b(): return bool(random.getrandbits(1))
+def apply_c(): return bool(random.getrandbits(1))
+def apply_d(): return bool(random.getrandbits(1))
+
+a = State("A")
+b = State("B")
+c = State("C")
+d = State("D")
+e = State("E")
 
 r1 = StateTransitionRule(a, b, apply_a);
 r2 = StateTransitionRule(b, c, apply_b);
 r3 = StateTransitionRule(c, d, apply_c);
 r4 = StateTransitionRule(d, e, apply_d);
 
-sm = StateMachine()
+sm = StateMachine("SM-1")
 sm.states = [a, b, c, d, e]
 sm.rules = [r1, r2, r3, r4]
 sm.begin_state = a
 sm.end_state = e
 
-sm.run()
+sm2 = StateMachine("SM-2")
+sm2.states = [a, b, c, d, e]
+sm2.rules = [r1, r2, r3, r4]
+sm2.begin_state = a
+sm2.end_state = e
+
+sm3 = StateMachine("SM-3")
+sm3.states = [a, b, c, d, e]
+sm3.rules = [r1, r2, r3, r4]
+sm3.begin_state = a
+sm3.end_state = e
+
+smc = StateMachineContainer()
+smc.add_machine(sm)
+smc.add_machine(sm2)
+smc.add_machine(sm3)
+smc.run()
