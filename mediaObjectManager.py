@@ -1,247 +1,325 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, traceback
+import os, json, pprint, sys, random, logging, traceback
 from elasticsearch import Elasticsearch
 from mutagen.id3 import ID3, ID3NoHeaderError
 from mediaDataObjects import MediaObject, ScanCriteria
 from mediaFolderManager import MediaFolderManager
+import constants, mySQL4elasticsearch, util
+from matcher import BasicMatcher
+from scanner import Scanner
 
 pp = pprint.PrettyPrinter(indent=4)
 
 class MediaObjectManager:
 
+    def __init__(self, hostname, portnum, indexname, documenttype):
 
-    def __init__(self, hostname, portnum=9200, indexname='media', documenttype='mediafile'):
-
-        self.COMP = self.EXTENDED = self.IGNORE = self.INCOMPLETE = self.LIVE = self.NEW = self.RANDOM = self.RECENT = self.UNSORTED = []
-        self.EXPUNGE = self.NOSCAN = None
-
-        self._x = None
         self.port = portnum;
         self.host = hostname
         self.index_name = indexname
         self.document_type = documenttype
-        self.do_clear_index = False
+        self.id_cache = None
+        self.debug = False
+        self.do_match = False
 
-        print('Connecting to %s:%d...' % (hostname, portnum))
+        self.EXPUNGE = constants.EXPUNGED
+        self.NOSCAN = constants.NOSCAN
+        self.COMP = util.get_folder_constants('compilation')
+        self.EXTENDED = util.get_folder_constants('extended')
+        self.IGNORE = util.get_folder_constants('ignore')
+        self.INCOMPLETE = util.get_folder_constants('incomplete')
+        self.LIVE = util.get_folder_constants('live_recordings')
+        self.NEW = util.get_folder_constants('new')
+        self.RANDOM = util.get_folder_constants('random')
+        self.RECENT = util.get_folder_constants('recent')
+        self.UNSORTED = util.get_folder_constants('unsorted')
+
+        if self.debug: print('Connecting to %s:%d...' % (hostname, portnum))
         self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
+        self.folder_manager = MediaFolderManager(self.es, self.index_name)
+        if self.debug: print('Connected.')
 
-        self.mediaFolderManager = MediaFolderManager(self.es)
+    def cached_id_for(self, path):
 
-    def clear_indexes(self):
-        if self.es.indices.exists(self.index_name):
-            print("deleting '%s' index..." % (self.index_name))
-            res = self.es.indices.delete(index = self.index_name)
-            print(" response: '%s'" % (res))
-
-        request_body = { "settings" : { "number_of_shards": 1, "number_of_replicas": 0 }}
-
-        print("creating '%s' index..." % (self.index_name))
-        res = self.es.indices.create(index = self.index_name, body = request_body)
-        print(" response: '%s'" % (res))
-
-    def document_exists(self, media):
-
-        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "file_name": media.file_name }}})
-        # print("%d documents found" % res['hits']['total'])
-        for doc in res['hits']['hits']:
-            if self.doc_refers_to(doc, media):
-                # media.data = doc
-                return True
-
-        return False
-
-    def doc_refers_to(self, doc, media):
-        if doc['_source']['file_name'] == media.file_name and doc['_source']['folder_name'] == media.folder_name \
-            and doc['_source']['folder_location'] == media.location and doc['_source']['file_ext'] == media.ext \
-            and doc['_source']['file_size'] == media.file_size:
-
-            return True
-
-    def find_doc(self, media):
-        # print("searching for " + media.location + media.folder_name + "/" + media.file_name + media.ext + '...')
-        res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
-        {
-            "query": { "match" : { "file_name": media.file_name }}
-        })
-
-        # print("%d documents found" % res['hits']['total'])
-        for doc in res['hits']['hits']:
-            if self.doc_refers_to(doc, media):
-                return doc
+        if self.id_cache is not None:
+            for row in self.id_cache:
+                if path in row[0]:
+                    return row[1]
 
         return None
 
-    def folder_scanned(self, foldername):
-        pass
+    def cache_ids(self, path):
+        self.id_cache = mySQL4elasticsearch.retrieve_esids(self.index_name, self.document_type, path)
+
+    def clear_indexes(self):
+
+        choice = raw_input("Delete '%s' index? " % (self.index_name))
+        if choice.lower() == 'yes':
+            if self.es.indices.exists(self.index_name):
+                print("deleting '%s' index..." % (self.index_name))
+                res = self.es.indices.delete(index = self.index_name)
+                print(" response: '%s'" % (res))
+
+            # since we are running locally, use one shard and no replicas
+            request_body = {
+                "settings" : {
+                    "number_of_shards": 1,
+                    "number_of_replicas": 0
+                }
+            }
+
+            print("creating '%s' index..." % (self.index_name))
+            res = self.es.indices.create(index = self.index_name, body = request_body)
+            print(" response: '%s'" % (res))
+
+    # TODO: refactor
+    def doc_exists(self, media):
+
+        # look in local MySQL
+        esid = mySQL4elasticsearch.retrieve_esid(self.index_name, self.document_type, media.absolute_file_path)
+        if esid is not None:
+            return True
+
+        # not found, query elasticsearch
+        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
+        # if self.debug: print("%d documents found" % res['hits']['total'])
+        for doc in res['hits']['hits']:
+            if self.doc_refers_to(doc, media):
+                esid = doc['_id']
+                # found, update local MySQL
+                mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
+                return True
+
+    def doc_id(self, media):
+
+        # not found, query elasticsearch
+        esid = mySQL4elasticsearch.retrieve_esid(self.index_name, self.document_type, media.absolute_file_path)
+        if esid is not None:
+            return esid
+
+        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
+        # if self.debug: print("%d documents found" % res['hits']['total'])
+        for doc in res['hits']['hits']:
+            if self.doc_refers_to(doc, media):
+                esid = doc['_id']
+                # found, update local MySQL
+                mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
+                return doc['_id']
+
+    def doc_refers_to(self, doc, media):
+        if doc['_source']['absolute_file_path'] == unicode(media.absolute_file_path):
+            return True
+
+    def ensure_exists_in_mysql(self, esid, absolute_file_path):
+        rows = mySQL4elasticsearch.retrieve_values('elasticsearch_doc', ['absolute_file_path'], [absolute_file_path])
+        if len(rows) ==0:
+            # if self.debug: print('Updating local MySQL...')
+            mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, absolute_file_path)
+        else:
+            self.es.delete(index=self.index_name,doc_type=self.document_type,id=esid)
 
 
-    def scan(self, criteria):
-        if self.do_clear_index:
-            self.clear_indexes()
+    def get_doc(self, media):
+        res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+        {
+            "query": { "match" : { "absolute_file_path": unicode(media.absolute_file_path) }}
+        })
 
-        for loc in criteria.locations:
-            print(loc + '\n')
-            for root, dirs, files in os.walk(loc, topdown=True, followlinks=False):
-                for filename in files:
-                    for ext in criteria.extensions:
-                        try:
-                            # print(filename)
-                            if filename.endswith(''.join(['.', ext])) and not filename.startswith('INCOMPLETE~'):
-                                self.handle_file(loc, root, filename, ext)
-                        except IOError, err:
-                            print err.message
-                            traceback.print_exc(file=sys.stdout)
+        # if self.debug: print("%d documents found" % res['hits']['total'])
+        for doc in res['hits']['hits']:
+            # if self.debug: pp.pprint(doc)
+            if self.doc_refers_to(doc, media):
+                return doc
 
+    # TODO: write this method
+    def path_contains_media(self, path, criteria):
+        # if self.debug: print path
+        if not os.path.isdir(path):
+            raise Exception('Path does not exist: "' + path + '"')
 
+        return False
 
-    def make_data(self, media):
+    def get_dictionary(self, media):
 
-        data = { 'file_ext': media.ext, 'file_name': media.file_name, 'folder_name': media.folder_name,
-                 'file_size': media.file_size, 'folder_location': media.location }
+        data = { 'absolute_file_path': media.absolute_file_path, 'file_ext': media.ext, 'file_name': media.file_name, 'folder_name': media.folder_name,
+                 'file_size': media.file_size }
+        try:
 
-        data['compilation'] = media.compilation
-        data['extended_mix']= media.extended_mix
-        data['unsorted'] = media.unsorted
-        data['random'] = media.random
-        data['new'] = media.new
-        data['recent'] = media.recent_download
+            if media.location is not None: data['folder_location'] = media.location
 
-        return data
+            data['filed'] = media.is_filed()
+            data['compilation'] = media.is_filed_as_compilation()
+            data['webcast']= media.is_webcast()
+            data['unsorted'] = media.is_unsorted()
+            data['random'] = media.is_random()
+            data['new'] = media.is_new()
+            data['recent'] = media.is_recent()
+            data['active'] = media.active
+            data['deleted'] = media.deleted
+            data['live_recording'] = media.is_filed_as_live()
 
-    def file_to_media_object(self, loc, root, filename, extension):
+            return data
+        except Exception, err:
 
-        media = MediaObject()
+            print ('\n')
+            print err.message
+            if self.debug: traceback.print_exc(file=sys.stdout)
+            print ('\n')
+
+            pp.pprint(data)
+            sys.exit(1)
+
+    #TODO: refactor this method to take an absolute path and break it up using constants from db
+    def get_media_object(self, loc, root, filename, extension):
+
+        media = MediaObject(self)
+
+        media.absolute_file_path = os.path.join(root, unicode(filename, "utf-8"))
         media.location = unicode(loc, "utf-8")
         media.ext = unicode(extension, "utf-8")
-        media.file_name = unicode(filename.replace(''.join(['.', extension]), ''), "utf-8")
+        media.file_name = unicode(filename, "utf-8").replace(''.join(['.', extension]), '')
         media.folder_name = unicode(root.replace(loc, ''), "utf-8")
         media.file_size = os.path.getsize(os.path.join(root, filename))
 
-        if self.EXPUNGE in media.location: media.expunged = True
-        if self.NOSCAN in media.location: media.noscan = True
-
-        for name in self.INCOMPLETE:
-             if name in media.location: media.incomplete = True
-
-        for name in self.EXTENDED:
-             if name in media.location: media.extended = True
-
-        for name in self.RANDOM:
-             if name in media.location: media.random = True
-
-        for name in self.LIVE:
-             if name in media.location: media.live = True
-
-        for name in self.COMP:
-             if name in media.location: media.compilation = True
-
-        for name in self.NEW:
-             if name in media.location: media.new = True
-
-        for name in self.RECENT:
-             if name in media.location: media.recent_download = True
-
-        for name in self.UNSORTED:
-             if name in media.location: media.unsorted = True
+        media.esid = self.cached_id_for(media.absolute_file_path)
 
         return media
 
-    def handle_file(self, loc, root, filename, extension):
+    def scan(self, criteria):
 
-        FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON', 'TPUB', 'TRCK', 'MCID', 'TSSE', 'TLAN', 'TSO2', 'TSOP', 'TMED', 'UFID']
-        SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']
+        active_dir = ''
 
-        self.mediaFolderManager.set_active_folder(os.path.join(root, filename).replace(filename, ''))
+        matcher = BasicMatcher(self)
+        scanner = Scanner(self)
 
-        try:
-            media = self.file_to_media_object(loc, root, filename, extension)
+        for location in criteria.locations:
+            self.cache_ids(location)
+            for root, dirs, files in os.walk(location, topdown=True, followlinks=False):
+                for filename in files:
+                    for extension in criteria.extensions:
+                        try:
+                            if filename.lower().endswith(''.join(['.', extension])) and not filename.lower().startswith('incomplete~'):
 
-            if self.document_exists(media):
-                return
+                                # if self.folder_manager.media_folder != None and self.folder_manager.media_folder.latest_operation != 'scanned':
+                                if root != active_dir:
+                                    active_dir = root
+                                    self.folder_manager.set_active_folder(root)
 
-            data = self.make_data(media)
-            mediafile = ID3(os.path.join(root, filename))
-            metadata = mediafile.pprint() # gets all metadata
-            tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
+                                media = self.get_media_object(location, root,filename, extension)
 
-            for tag in tags:
-                if tag[0] in FIELDS:
-                    data[tag[0]] = tag[1]
-                if tag[0] == "TXXX":
-                    for sub_field in SUB_FIELDS:
-                        if sub_field in tag[1]:
-                            subtags = tag[1].split('=')
-                            key=subtags[0].replace(' ', '_').upper()
-                            data[key] = subtags[1]
+                                if media is not None:
+                                    if media.ignore(): continue
+                                    # scan tag info
+                                    media = scanner.scan_file(media)
+                                    if media  is not None and media.esid is not None:
+                                        # find dupes
+                                        if self.do_match: matcher.match(media)
 
-        except ID3NoHeaderError, err:
-            data['scan_error'] = err.message
-            print err.message
-            traceback.print_exc(file=sys.stdout)
+                        except IOError, err:
+                            print('\nIOError: ' + os.path.join(root, filename))
+                            print err.message
+                            if self.debug: traceback.print_exc(file=sys.stdout)
+                            self.folder_manager.record_error("\nUnicodeEncodeError=" + err.message)
+                            return
 
-        json_str = json.dumps(data)
-        pp.pprint(json_str)
-        self.es.index(index='media', doc_type=self.document_type, body=json_str)
+                        except UnicodeEncodeError, err:
+                            print('\nUnicodeEncodeError: ' + os.path.join(root, filename))
+                            print err.message
+                            # if self.debug: traceback.print_exc(file=sys.stdout)
+                            self.folder_manager.record_error("\nUnicodeEncodeError=" + err.message)
+                            return
+
+                        except UnicodeDecodeError, err:
+                            print('\nUnicodeDecodeError: ' + os.path.join(root, filename))
+                            print err.message
+                            # if self.debug: traceback.print_exc(file=sys.stdout)
+                            self.folder_manager.record_error("\nUnicodeDecodeError=" + err.message)
+
+                        except Exception, err:
+                            print('\nException: ' + os.path.join(root, filename))
+                            print err.message
+                            if self.debug: traceback.print_exc(file=sys.stdout)
+                            self.folder_manager.record_error("\nException=" + err.message)
+                            print('\n')
+                            return
+                # root
+                # self.folder_manager.set_active_folder(None)
+            # location
+            self.id_cache = None
+
+    def delete_docs_for_path(self, path):
+
+        rows = mySQL4elasticsearch.retrieve_like_values('elasticsearch_doc', ['absolute_file_path', 'id'], [path])
+        for r in rows:
+            res = self.es.delete(index=self.index_name,doc_type=self.document_type,id=r[1])
 
 
-    def matchSongAlbumArtistIDv2(self, artist, album, song, include_compilations):
+    def import_from_es(self, criteria):
+        for location in criteria.locations:
+            self.cache_ids(location)
+            for root, dirs, files in os.walk(location, topdown=True, followlinks=False):
+                split = root.split('/')
+                print root
+                if len(split) == 10:
+                    try:
+                        res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+                        {
+                            "from" : 0, "size" : 1500,
+                            "query": { "match" : { "absolute_file_path": unicode(root) }}
+                        })
 
-        res = self.es.search(index="media", doc_type="mediafile", body=
-        {
-            "query": {
-                "bool": {
-                    "should": [
-                        { "match": {
-                            "TPE1":  {
-                                "query": artist,
-                                "boost": 2
-                        }}},
-                        { "match": {
-                        "TALB":  {
-                        "query": album,
-                        "boost": 7
-                        }}},
-                        { "match": {
-                            "TIT2":  {
-                            "query": song,
-                            "boost": 2
-                        }}},
-                        { "bool":  {
-                            "should": [
-                            { "match": { "compilation": include_compilations }}
-            ]}}]}}
-        })
+                        for doc in res['hits']['hits']:
+                            esid = doc['_id']
+                            source = doc['_source']
+                            absolute_file_path = source['absolute_file_path']
+                            # print absolute_file_path
+                            # pp.pprint(doc['_source'])
+                            if self.cached_id_for(absolute_file_path) is None:
+                                if os.path.isfile(absolute_file_path):
+                                    self.ensure_exists_in_mysql(esid, absolute_file_path)
 
-        return res
+                    except Exception, err:
+                        print err.message
+
+                    # sys.exit(1)
+
+
+def cointoss(): return bool(random.getrandbits(1))
+
+# # logging
+# LOG = "ccd.log"
+# logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
+#
+# # console handler
+# console = logging.StreamHandler()
+# console.setLevel(logging.ERROR)
+# logging.getLogger("").addHandler(console)
 
 def main():
-    start_folder = "/media/removable/Audio/music/"
+
+    random.seed()
 
     s = ScanCriteria()
-    s.extensions = ['mp3', 'flac']
-    # s.locations.append("/media/removable/Audio/music/random tracks/")
-    s.locations.append("/media/removable/Audio/music [expunged]/")
-    s.locations.append("/media/removable/Audio/music [noscan]/")
+    s.extensions = ['mp3', 'flac', 'ape', 'iso', 'ogg', 'mpc', 'wav', 'aac']
 
-    for folder in next(os.walk(start_folder))[1]:
-        s.locations.append(start_folder + folder)
+    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+    s.locations.append(constants.EXPUNGED)
+    s.locations.append(constants.NOSCAN)
+    for folder in next(os.walk(constants.START_FOLDER))[1]:
+        s.locations.append(constants.START_FOLDER + folder)
+    s.locations.reverse()
 
-    m = MediaObjectManager('54.82.250.249');
-    # m.do_clear_index = True
-    m.EXPUNGE = "/media/removable/Audio/music [expunged]/"
-    m.NOSCAN = "/media/removable/Audio/music [noscan]/"
-    m.COMP = ['/compilations', '/random compilations']
-    m.IGNORE = ['/bak/mp3', '/bak/incoming']
-    m.UNSORTED = ['/unsorted']
-    m.LIVE = ['/live recordings']
-    m.EXTENDED = ['/webcasts and custom mixes']
-    m.RECENT = ['/recently downloaded']
-    m.RANDOM = ['/random tracks', '/random compilations']
-    m.INCOMPLETE = ['/downloading']
-    m.NEW = ['/slsk/', 'incoming']
+    m = MediaObjectManager('54.82.250.249', 9200, 'media', 'media_file');
+    # m.delete_docs_for_path('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
+    # m.clear_indexes()
+    m.debug = True
 
     m.scan(s)
 
+# main
 if __name__ == '__main__':
     main()

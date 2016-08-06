@@ -16,7 +16,6 @@ class StateTransitionRule:
     def applies(self):
         return self.conditional_method()
 
-
 class StateMachine:
     def __init__(self, name):
         self.name = name
@@ -114,42 +113,48 @@ class StateMachineContainer:
 
         self.running = False
 
-def apply_a(): return bool(random.getrandbits(1))
-def apply_b(): return bool(random.getrandbits(1))
-def apply_c(): return bool(random.getrandbits(1))
-def apply_d(): return bool(random.getrandbits(1))
+def main():
+    random.seed()
 
-a = State("A")
-b = State("B")
-c = State("C")
-d = State("D")
-e = State("E")
+    def apply_a(): return bool(random.getrandbits(1))
+    def apply_b(): return bool(random.getrandbits(1))
+    def apply_c(): return bool(random.getrandbits(1))
+    def apply_d(): return bool(random.getrandbits(1))
 
-r1 = StateTransitionRule(a, b, apply_a);
-r2 = StateTransitionRule(b, c, apply_b);
-r3 = StateTransitionRule(c, d, apply_c);
-r4 = StateTransitionRule(d, e, apply_d);
+    a = State("A")
+    b = State("B")
+    c = State("C")
+    d = State("D")
+    e = State("E")
 
-sm = StateMachine("SM-1")
-sm.states = [a, b, c, d, e]
-sm.rules = [r1, r2, r3, r4]
-sm.begin_state = a
-sm.end_state = e
+    r1 = StateTransitionRule(a, b, apply_a);
+    r2 = StateTransitionRule(b, c, apply_b);
+    r3 = StateTransitionRule(c, d, apply_c);
+    r4 = StateTransitionRule(d, e, apply_d);
 
-sm2 = StateMachine("SM-2")
-sm2.states = [a, b, c, d, e]
-sm2.rules = [r1, r2, r3, r4]
-sm2.begin_state = a
-sm2.end_state = e
+    sm = StateMachine("SM-1")
+    sm.states = [a, b, c, d, e]
+    sm.rules = [r1, r2, r3, r4]
+    sm.begin_state = a
+    sm.end_state = e
 
-sm3 = StateMachine("SM-3")
-sm3.states = [a, b, c, d, e]
-sm3.rules = [r1, r2, r3, r4]
-sm3.begin_state = a
-sm3.end_state = e
+    sm2 = StateMachine("SM-2")
+    sm2.states = [a, b, c, d, e]
+    sm2.rules = [r1, r2, r3, r4]
+    sm2.begin_state = a
+    sm2.end_state = e
 
-smc = StateMachineContainer()
-smc.add_machine(sm)
-smc.add_machine(sm2)
-smc.add_machine(sm3)
-smc.run()
+    sm3 = StateMachine("SM-3")
+    sm3.states = [a, b, c, d, e]
+    sm3.rules = [r1, r2, r3, r4]
+    sm3.begin_state = a
+    sm3.end_state = e
+
+    smc = StateMachineContainer()
+    smc.add_machine(sm)
+    smc.add_machine(sm2)
+    smc.add_machine(sm3)
+    smc.run()
+
+if __name__ == '__main__':
+    main()
