@@ -24,7 +24,7 @@ class Scanner:
 
             if  media.esid == None and self.mom.doc_exists(media):
                 doc = self.mom.get_doc(media)
-                if self.debug: print("attaching esid: " + doc['_id'] + " to " + media.file_name)
+                if self.debug: print("attaching EXISTING esid: " + doc['_id'] + " to " + media.file_name)
                 media.esid = doc['_id']
                 return media
 
@@ -72,7 +72,8 @@ class Scanner:
 
         if self.debug: print("indexing file: " + media.absolute_file_path)
         res = self.es.index(index=self.mom.index_name, doc_type=self.mom.document_type, body=json.dumps(data))
-
+        # pp.pprint(res)
+        if self.debug: print("attaching NEW esid: " + res['_id'] + " to " + media.file_name)
         media.esid = res['_id']
 
         if self.debug: print("storing document id: " + str(media.esid))

@@ -130,6 +130,15 @@ class MediaObject:
 
         return False
 
+    def to_string(self):
+        print self.esid
+        print "absolute path: " + self.absolute_file_path
+        print "file name: " + self.file_name
+        print "ext: " + self.ext
+        print "file location: " + self.location
+        print "folder name: " + self.folder_name
+        print "file size: " + str(self.file_size)
+
 class MediaFolder:
     def __init__(self):
         self.absolute_file_path = None

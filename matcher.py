@@ -24,6 +24,8 @@ class MediaMatcher:
     def match(self, media):
         pass
 
+    # TODO: add index_name
+    # TODO: add matcher to match record. assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
         rows = mySQL4elasticsearch.retrieve_values('matched', ['media_doc_id', 'match_doc_id'], [media_id, match_id])
         if len(rows) == 1:
@@ -32,14 +34,16 @@ class MediaMatcher:
     def name(self):
         return None
 
+    # TODO: add index_name
     def record_match(self, media_id, match_id, match_fields):
-        if not self.match_recorded(media_id, match_id):
+        if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
             mySQL4elasticsearch.insert_values('matched', ['media_doc_id', 'match_doc_id', 'match_fields'], [media_id, match_id, str(match_fields)])
 
 class ElasticSearchMatcher(MediaMatcher):
     def get_query(self, media):
         return None
 
+# TODO: add index_name
 class BasicMatcher(ElasticSearchMatcher):
 
     def name(self):
@@ -71,16 +75,16 @@ class BasicMatcher(ElasticSearchMatcher):
 
         try:
             if self.mom.debug:
-                print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.absolute_file_path, media.ext]))
+                print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.file_name, media.ext]))
+
+            if not self.mom.doc_exists(media):
+                raise Exception("doc doesn't exist")
 
             orig = self.mom.get_doc(media)
-            # if orig is None:
-            #     raise Exception('No doc found (get_doc) for: ' + media.esid)
-            #     return
 
             res = self.es.search(index=self.mom.index_name, doc_type=self.mom.document_type, body=self.get_query(media))
             for match in res['hits']['hits']:
-                if match['_score'] > 3:
+                if match['_score'] > 5:
                     if match['_id'] == orig['_id']:
                         continue
 
@@ -110,7 +114,7 @@ class BasicMatcher(ElasticSearchMatcher):
         except Exception, err:
             print '\n' + err.message
             if self.mom.debug: traceback.print_exc(file=sys.stdout)
-            # pp.pprint(last_match)
+            # if match is not None: pp.pprint(match)
 
     def print_match_details(self, orig, match):
 

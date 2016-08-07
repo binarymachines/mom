@@ -187,8 +187,8 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
 
 def truncate(table_name):
 
-    query = 'truncate %t' % (table_name)
-    
+    query = 'truncate ' + table_name
+
     try:
         con = mdb.connect(HOST, USER, PASS, SCHEMA)
         cur = con.cursor()
