@@ -61,9 +61,6 @@ class MediaObjectManager:
             res = self.es.indices.create(index = self.index_name, body = request_body)
             print(" response: '%s'" % (res))
 
-            mySQL4elasticsearch.truncate('elasticsearch_doc')
-            mySQL4elasticsearch.truncate('matches')
-
     def connect(self):
         if self.debug: print('Connecting to %s:%d...' % (hostname, portnum))
         self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
@@ -82,20 +79,25 @@ class MediaObjectManager:
         res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
         # if self.debug: print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
-            if self.doc_refers_to(doc, media):
+            # if self.doc_refers_to(doc, media):
+            if doc['_source']['absolute_file_path'] == media.absolute_file_path:
                 esid = doc['_id']
                 # found, update local MySQL
                 mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
                 return True
 
-    def doc_refers_to(self, doc, media):
-        # print doc['_source']['absolute_file_path']
-        if doc['_source']['absolute_file_path'] == unicode(media.absolute_file_path):
-            return True
+        return False
+
+    # def doc_refers_to(self, doc, media):
+    #     # print doc['_source']['absolute_file_path']
+    #     if doc['_source']['absolute_file_path'] == unicode(media.absolute_file_path):
+    #         return True
+    #
+    #     return False
 
     def ensure_exists_in_mysql(self, esid, absolute_file_path):
         if self.debug: print("checking for row for: "+ absolute_file_path)
-        rows = mySQL4elasticsearch.retrieve_values('elasticsearch_doc', ['absolute_file_path'], [absolute_file_path])
+        rows = mySQL4elasticsearch.retrieve_values('elasticsearch_doc', ['absolute_file_path', 'index_name'], [absolute_file_path, self.index_name])
         if len(rows) ==0:
             if self.debug: print('Updating local MySQL...')
             mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, absolute_file_path)
@@ -141,16 +143,32 @@ class MediaObjectManager:
             print ('\n')
 
     def get_doc(self, media):
-        res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+        res1 = self.es.search(index=self.index_name, doc_type=self.document_type, body=
         {
             "query": { "match" : { "absolute_file_path": unicode(media.absolute_file_path) }}
         })
         # # if self.debug: print("%d documents found" % res['hits']['total'])
-        for doc in res['hits']['hits']:
-            if self.doc_refers_to(doc, media):
+        for doc in res1['hits']['hits']:
+            # if self.doc_refers_to(doc, media):
+            if doc['_source']['absolute_file_path'] == media.absolute_file_path:
                 return doc
 
-        raise Exception('Doc not found: ' + media.esid)
+        res2 = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+        {
+            "query": { "match" : { "absolute_file_path": media.absolute_file_path }}
+        })
+        # # if self.debug: print("%d documents found" % res['hits']['total'])
+        for doc in res2['hits']['hits']:
+            # if self.doc_refers_to(doc, media):
+            if doc['_source']['absolute_file_path'] == media.absolute_file_path:
+                return doc
+
+        # print media.to_string()
+
+        pp.pprint(res1)
+        pp.pprint(res2)
+        sys.exit(1)
+        raise Exception('Doc not found: ' + media.absolute_file_path)
 
     def get_doc_id(self, media):
 
@@ -162,7 +180,8 @@ class MediaObjectManager:
             res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
             # if self.debug: print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
-                if self.doc_refers_to(doc, media):
+                # if self.doc_refers_to(doc, media):
+                if doc['_source']['absolute_file_path'] == media.absolute_file_path:
                     esid = doc['_id']
                     # found, update local MySQL
                     mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
@@ -205,14 +224,6 @@ class MediaObjectManager:
         media.file_size = os.path.getsize(absolute_file_path)
 
         media.esid = self.get_cached_id_for(absolute_file_path)
-
-        # print "absolute path: " + media.absolute_file_path
-        # print "file name: " + media.file_name
-        # print "folder name: " + media.folder_name
-        # print "ext: " + media.ext
-        # print "file size: " + str(media.file_size)
-        # print "file location: " + media.location
-        # print media.esid
 
         return media
 
@@ -355,7 +366,7 @@ class MediaObjectManager:
 
     def delete_docs_for_path(self, path):
 
-        rows = mySQL4elasticsearch.retrieve_like_values('elasticsearch_doc', ['absolute_file_path', 'id'], [path])
+        rows = mySQL4elasticsearch.retrieve_like_values('elasticsearch_doc', ['index_name', 'absolute_file_path', 'id'], [self.index_name, path])
         for r in rows:
             res = self.es.delete(index=self.index_name,doc_type=self.document_type,id=r[1])
 
@@ -371,23 +382,27 @@ class MediaObjectManager:
 
 def main():
 
+    mySQL4elasticsearch.truncate('elasticsearch_doc')
+    mySQL4elasticsearch.truncate('matched')
+
     s = ScanCriteria()
     s.extensions = ['mp3', 'flac', 'ape', 'iso', 'ogg', 'mpc', 'wav', 'aac']
 
-    # s.locations.append('/media/removable/SEAGATE 932/Media/radio')
-    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
     s.locations.append(constants.EXPUNGED)
     s.locations.append(constants.NOSCAN)
-    s.locations.append('/media/removable/Audio/music/incoming/slsk/complete/')
+    # s.locations.append('/media/removable/Audio/music/incoming/slsk/complete/')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
-    # for folder in next(os.walk(constants.START_FOLDER))[1]:
-    #     s.locations.append(constants.START_FOLDER + folder)
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
+    for folder in next(os.walk(constants.START_FOLDER))[1]:
+        s.locations.append(constants.START_FOLDER + folder)
     # s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
 
     m = MediaObjectManager('54.82.250.249', 9200, 'media2', 'media_file');
     # m.delete_docs_for_path('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
     m.clear_indexes()
+
     m.debug = True
     m.do_match = True
     m.scan(s)
