@@ -19,7 +19,7 @@ class Scanner:
 
         try:
             if media.esid is not None:
-                if self.debug: print("*** esid exists, skipping file: " + '.'.join([media.file_name, media.ext]))
+                # if self.debug: print("*** esid exists, skipping file: " + '.'.join([media.file_name, media.ext]))
                 return media
 
             if  media.esid == None and self.mom.doc_exists(media):
@@ -77,5 +77,3 @@ class Scanner:
 
         if self.debug: print("storing document id: " + str(media.esid))
         mySQL4elasticsearch.insert_esid(self.mom.index_name, self.mom.document_type, media.esid, media.absolute_file_path)
-
-        return media

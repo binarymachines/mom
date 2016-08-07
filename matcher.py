@@ -26,18 +26,15 @@ class MediaMatcher:
 
     def match_recorded(self, media_id, match_id):
         rows = mySQL4elasticsearch.retrieve_values('matched', ['media_doc_id', 'match_doc_id'], [media_id, match_id])
-        if len(rows) == 0:
-            rows = mySQL4elasticsearch.retrieve_values('matched', ['media_doc_id', 'match_doc_id'], [match_id, media_id])
-            if len(rows) == 0:
-                return False
-
-        return True
+        if len(rows) == 1:
+            return True
 
     def name(self):
         return None
 
-    def record_match(self, media_id, match_id):
-        mySQL4elasticsearch.insert_values('matched', ['media_doc_id', 'match_doc_id', 'match_fields'], [media_id, match_id, str(self.comparison_fields)])
+    def record_match(self, media_id, match_id, match_fields):
+        if not self.match_recorded(media_id, match_id):
+            mySQL4elasticsearch.insert_values('matched', ['media_doc_id', 'match_doc_id', 'match_fields'], [media_id, match_id, str(match_fields)])
 
 class ElasticSearchMatcher(MediaMatcher):
     def get_query(self, media):
@@ -49,77 +46,79 @@ class BasicMatcher(ElasticSearchMatcher):
         return 'basic'
 
     def get_query(self, media):
+        # print media.file_name
         return { "query": { "match" : { "file_name": unicode(media.file_name) }}}
 
-        # {
+        # org = self.mom.get_doc(media)
+        # pp.pprint(org)
+        # return {
         #   "query": {
         #     "bool": {
-        #     #   "should":   { "match": { "TIT2": org['TIT2'] }},
-        #     #   "should":   { "match": { "TPE1": org['TPE1'] }},
-        #     #   "should":   { "match": { "TALB": org['TALB'] }}
-        #       "should":   { "match": { "TIT2": org['TIT2'] }}
+        #       "should":   { "term": { "TIT2": org['_source']['TIT2'] }},
+        #       "should":   { "term": { "TPE1": org['_source']['TPE1'] }},
+        #       "should":   { "term": { "TALB": org['_source']['TALB'] }}
         #     }
         #   }
-        # })
+        # }
 
     def match(self, media):
 
         if media.esid is None:
-            if self.mom.debug:
-                print("--- No esid: " + media.file_name)
+            if self.mom.debug: print("--- No esid: " + media.file_name)
             return
 
-        last_match = None
+        match = None
 
         try:
             if self.mom.debug:
-                print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.file_name, media.ext]))
-                if not self.mom.doc_exists(media):
-                    print "NO DOC EXISTS"
-                    sys.exit(1)
+                print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.absolute_file_path, media.ext]))
 
-            doc = self.mom.get_doc(media)
-            if doc is None: return
-            org = doc['_source']
+            orig = self.mom.get_doc(media)
+            # if orig is None:
+            #     raise Exception('No doc found (get_doc) for: ' + media.esid)
+            #     return
 
             res = self.es.search(index=self.mom.index_name, doc_type=self.mom.document_type, body=self.get_query(media))
-
-            # match_shown = False
             for match in res['hits']['hits']:
-                if match['_id'] != media.esid:
-                    last_match = match
+                if match['_score'] > 3:
+                    if match['_id'] == orig['_id']:
+                        continue
+
                     try:
-                        doc = match['_source']
-                        # if self.mom.debug: print("possible match: " + doc['absolute_file_path'])
+                        # if self.mom.debug: print("possible match: " + match['_id'] + " - " + match['_source']['absolute_file_path'])
                         match_fails = False
+                        match_fields = []
+
                         for field in self.comparison_fields:
-                            if clean_str(doc[field]) != clean_str(org[field]):
-                                match_fails = True
+                                if field in match['_source'] and field in orig['_source']:
+                                    match_fields +' field'
+                                    if util.str_clean4comp( match['_source'][field]) != util.str_clean4comp(orig['_source'][field]):
+                                        match_fails = True
 
                         if match_fails == False:
-                            if not self.match_recorded(media.esid, match['_id']):
-                                self.print_match_details(org, match)
-                                self.mom.ensure_exists_in_mysql(match['_id'], match['_source']['_absolute_file_path'])
-                                self.record_match(media.esid, match['_id'])
-                            sys.exit(1)
+                            self.print_match_details(orig, match)
+                            # mySQL4elasticsearch.DEBUG = True
+                            self.mom.ensure_exists_in_mysql(match['_id'], match['_source']['absolute_file_path'])
+                            self.record_match(media.esid,  match['_id'], match_fields)
+                            # mySQL4elasticsearch.DEBUG = False
+
                     except KeyError, err:
-                        pass
+                        print err.message
+                        traceback.print_exc(file=sys.stdout)
+
 
         except Exception, err:
             print '\n' + err.message
             if self.mom.debug: traceback.print_exc(file=sys.stdout)
-            pp.pprint(last_match)
-            sys.exit(1)
+            # pp.pprint(last_match)
 
-    def print_match_details(self, org, match):
+    def print_match_details(self, orig, match):
 
-        doc = match['_source']
+        if orig['_source']['file_size'] >  match['_source']['file_size']:
+            print(orig['_id'] + ': ' + orig['_source']['file_name'] +' >>> ' + match['_id'] + ': ' + match['_source']['absolute_file_path'] + ', ' + str(match['_source']['file_size']))
 
-        if org['file_size'] > doc['file_size']:
-            print('>>> ' + match['_id'] + ': ' + doc['absolute_file_path'] + ', ' + str(doc['file_size']))
+        elif orig['_source']['file_size'] ==  match['_source']['file_size']:
+            print(orig['_id'] + orig['_source']['file_name'] + ' === ' + match['_id'] + ': ' + match['_source']['absolute_file_path'] + ', ' + str(match['_source']['file_size']))
 
-        elif org['file_size'] == doc['file_size']:
-            print('=== ' + match['_id'] + ': ' + doc['absolute_file_path'] + ', ' + str(doc['file_size']))
-
-        elif org['file_size'] < doc['file_size']:
-            print('<<< ' + match['_id'] + ': ' + doc['absolute_file_path'] + ', ' + str(doc['file_size']))
+        elif orig['_source']['file_size'] <  match['_source']['file_size']:
+            print(orig['_id'] + orig['_source']['file_name'] + ' <<< ' + match['_id'] + ': ' + match['_source']['absolute_file_path'] + ', ' + str(match['_source']['file_size']))
