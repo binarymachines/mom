@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "media": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer" },
+        "fileSize": { "type": "integer" },
+        "shortName": { "type": "string" },
+        "ext": { "type": "string" },
+        "parent-folder": { "type": "string" },
+        "relativePath": { "type": "string" },
+        "genreFolder": { "type": "string" },
+        "location": { "type": "string" },
+        "id3v1Album": { "type": "string" },
+        "id3v1Artist": { "type": "string" },
+        "id3v1Title": { "type": "string" },
+        "id3v2Album": { "type": "string" },
+        "id3v2Artist": { "type": "string" },
+        "id3v2Title": { "type": "string" },
+        "compilationFlag": { "type": "boolean", "default": false },
+        "extendedMixFlag": { "type": "boolean", "default": false },
+        "filedFlag": { "type": "boolean", "default": false },
+        "incomingFolderFlag": { "type": "boolean", "default": false },
+        "incompleteAlbumFlag": { "type": "boolean", "default": false },
+        "iTunesFolderFlag": { "type": "boolean", "default": false },
+        "liveRecordingFlag": { "type": "boolean", "default": false },
+        "newDownloadFlag": { "type": "boolean", "default": false },
+        "noScanFlag": { "type": "boolean", "default": false },
+        "randomFolderFlag": { "type": "boolean", "default": false },
+        "recentDownloadFlag": { "type": "boolean", "default": false },
+        "removeFlag": { "type": "boolean", "default": false },
+        "tempFolderFlag": { "type": "boolean", "default": false }
+      },
+      "required": [
+        "id",
+        "fileSize",
+        "shortName",
+        "ext",
+        "location",
+        "compilationFlag",
+        "extendedMixFlag",
+        "filedFlag",
+        "incomingFolderFlag",
+        "incompleteAlbumFlag",
+        "iTunesFolderFlag",
+        "liveRecordingFlag",
+        "newDownloadFlag",
+        "noScanFlag",
+        "randomFolderFlag",
+        "recentDownloadFlag",
+        "removeFlag",
+        "tempFolderFlag"
+      ]
+    }
+  },
+  "required": [
+    "media"
+  ]
+}
