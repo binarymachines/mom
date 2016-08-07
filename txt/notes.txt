@@ -1,0 +1,52 @@
+Use Cases
+
+1. Index media
+
+2. Remove lower quality duplicates of the same format
+
+3. Remove same-quality duplicates in recent downloads, complete, temp and random folders 
+
+4. Determine when a download has been completed
+	- file is flac, mp3 version exists, duplicate hierarchy in flac folder
+	- artist exists on compilation(s) but has no albums, move to the albums/genre folder that matches compilations/genre
+
+5. Move completed downloads to proper location based on existing file locations
+
+6. Move mp3 duplicates of flac files to noscan folder system
+
+7. Suggest placement for files and folders based on existing file locations and move them on agreement
+	- move recent downloads into albums and compilations
+	- find compilations not in compilations folder
+	- find albums not in albums folder
+	- find badly placed folders
+
+
+for each file:
+
+	- verify index
+		a. 	find document
+		b. 	eliminate extraneous documents
+		c.	associate document id with filename
+
+	- fix filenames
+		a. detect differences between filename and tag info
+		b. queue suggested changes
+
+	- find duplicates
+		a.	find exact matches for file name and parent folder
+		b.	find exact matches for file size
+		c. 	find exact matches for ID3 tags
+		d.	determine highest quality version
+		e.	queue suggested changes
+
+	- determine if preferred file in proper media type location
+	- determine if preferred file in proper parent directory
+
+	- location/genre folder contains folder or file with other genre name
+
+in Kodi:
+	- deal with news shows in real time
+	- add a mix-length feature to each listening day
+
+- schedule operations against locations
+- operation results enter change queue
