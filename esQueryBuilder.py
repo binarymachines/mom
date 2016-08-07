@@ -65,13 +65,13 @@ class QueryBuilder:
 
             return { 'query' : term }
 
-
+    #UNIT TESTS
     def test_simple_term(self):
         fname = 'file_name'
         values = {}
         values[fname] = 'agitate'
 
-        self.execute_query('simple', values)
+        self.execute_query('filename_term_matcher', values)
 
     def test_multi_term(self):
         values = {}
@@ -83,7 +83,7 @@ class QueryBuilder:
         values['TALB'] = 'are we not men'
         values['deleted'] = 'false'
 
-        self.execute_query('basic', values)
+        self.execute_query('tag_term_matcher_artist_album_song', values)
 
 # main
 def main():
