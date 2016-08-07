@@ -73,13 +73,6 @@ class Scanner:
         if self.debug: print("indexing file: " + media.absolute_file_path)
         res = self.es.index(index=self.mom.index_name, doc_type=self.mom.document_type, body=json.dumps(data))
 
-        # if self.debug:
-        #     print('\n')
-        #     pp.pprint(json.dumps(data))
-        #     print('\n')
-        #     pp.pprint(res)
-        #     print('\n')
-
         media.esid = res['_id']
 
         if self.debug: print("storing document id: " + str(media.esid))

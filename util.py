@@ -3,19 +3,13 @@
 import os
 import sys
 import pprint
+import random
 import _mysql
 import mySQL4elasticsearch
 import constants
 from elasticsearch import Elasticsearch
 
 pp = pprint.PrettyPrinter(indent=2)
-
-def get_folder_constants(foldertype):
-    result = []
-    rows = mySQL4elasticsearch.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
-    for r in rows:
-        result.append(r[1])
-    return result
 
 def get_genre_folder_names():
 
@@ -71,6 +65,17 @@ def find_docs_missing_field(field):
 
     # def expunge(self, path):
 
-# def cointoss(): return bool(random.getrandbits(1))
-#
-# random.seed()
+def str_clean4comp(input):
+    alphanum = "1234567890abcdefghijklmnopqrstuvwxyz"
+    output = ''
+    for letter in input:
+        if letter.lower()  in alphanum:
+            output += letter.lower()
+
+    return output
+
+# init
+random.seed()
+
+
+print str_clean4comp('01_-_Hilt - Call the Ambulance before I hurt Myself - Get Out of the Grave, Alan.mp3')

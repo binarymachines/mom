@@ -19,74 +19,73 @@ class QueryBuilder:
             print '\n'
 
     def get_query(self, name, values):
-        rows = mySQL4elasticsearch.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
-        if len(rows) == 1:
-            if rows[0][1] is not None:
-                boost = rows[0][1]
-                print boost
-            return self.get_simple_term(rows[0][1], values, options)
-        elif len(rows) > 1:
-            fnames = []
+
+        match_fields = mySQL4elasticsearch.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
+
+        if len(match_fields) == 1:
+            if match_fields[0][1] is not None:
+                boost = match_fields[0][1]
+            # TODO: add options to simple query
+            return self.get_simple_term(match_fields[0][1], values, [])
+
+        elif len(match_fields) > 1:
+
+            fieldnames = []
             options = {}
             options['boost'] = {}
 
-            for r in rows:
-                fname = r[1]
-                fnames.append(fname)
-                if r[2] is not None:
-                    boost = r[2]
+            for field in match_fields:
+                fname = field[1]
+                fieldnames.append(fname)
+                if field[2] is not None:
+                    boost = field[2]
                     options['boost'][fname] = boost
 
-            return self.get_multi_term(fnames, values, options)
+            return self.get_multi_term(fieldnames, values, options)
 
-    def get_multi_term(self, fnames, vals, options):
+    #TODO: learn how to concatenate (builder variable)
+    def get_multi_term(self, fieldnames, values, options):
         termset = []
-        for name in fnames:
-            param = vals[name]
-            if not name in options['boost']:
-                term = { "term" : { name : { "value" : param }}}
+        for fname in fieldnames:
+            param = values[fname]
+            if not fname in options['boost']:
+                term = { "term" : { fname : { "value" : param }}}
                 # builder = [{ "value" : param }]
             else:
-                term = { "term" : { name : { "boost" : options['boost'][name], "value" : param }}}
+                term = { "term" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
                 # builder += [{"boost" : options['boost'][name]}]
             termset.append(term)
 
-        query = { 'query' : { 'bool' : { 'should' : termset }}}
+        return { 'query' : { 'bool' : { 'should' : termset }}}
 
-        pp.pprint(query)
-        print('\n-------------------------------')
-        raw_input('')
-        return query
-
-    def get_simple_term(self, fname, vals, options):
+    def get_simple_term(self, fname, values, options):
         if len(options) == 0:
-            param = vals[fname]
+            param = values[fname]
             term = { 'term' : { fname : param }}
-            query = { 'query' : term }
-            pp.pprint(query)
-            print('\n-------------------------------')
-            raw_input('')
-            return query
+
+            return { 'query' : term }
+
 
     def test_simple_term(self):
         fname = 'file_name'
-        vals = {}
-        vals[fname] = 'agitate'
+        values = {}
+        values[fname] = 'agitate'
 
-        self.execute_query('simple', vals)
+        self.execute_query('simple', values)
 
     def test_multi_term(self):
+        values = {}
+        # values['TPE1'] = 'skinny puppy'
+        # values['TIT2'] = 'punk in park zoos'
+        # values['TALB'] = 'Vivisect VI'
+        values['TPE1'] = 'devo'
+        values['TIT2'] = 'jocko homo'
+        values['TALB'] = 'are we not men'
+        values['deleted'] = 'false'
 
-        vals = {}
-        vals['TPE1'] = 'skinny puppy'
-        vals['TIT2'] = 'choke'
-        vals['TALB'] = 'Bites and Remission'
-        vals['deleted'] = 'false'
-
-        self.execute_query('basic', vals)
+        self.execute_query('basic', values)
 
 # main
 q = QueryBuilder()
+q.test_simple_term()
 q.test_multi_term()
-
-# q.get_multi_term(fnames, vals, [])

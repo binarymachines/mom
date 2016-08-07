@@ -25,30 +25,18 @@ class MediaObjectManager:
 
         self.EXPUNGE = constants.EXPUNGED
         self.NOSCAN = constants.NOSCAN
-        self.COMP = util.get_folder_constants('compilation')
-        self.EXTENDED = util.get_folder_constants('extended')
-        self.IGNORE = util.get_folder_constants('ignore')
-        self.INCOMPLETE = util.get_folder_constants('incomplete')
-        self.LIVE = util.get_folder_constants('live_recordings')
-        self.NEW = util.get_folder_constants('new')
-        self.RANDOM = util.get_folder_constants('random')
-        self.RECENT = util.get_folder_constants('recent')
-        self.UNSORTED = util.get_folder_constants('unsorted')
+        self.COMP = self.get_folder_constants('compilation')
+        self.EXTENDED = self.get_folder_constants('extended')
+        self.IGNORE = self.get_folder_constants('ignore')
+        self.INCOMPLETE = self.get_folder_constants('incomplete')
+        self.LIVE = self.get_folder_constants('live_recordings')
+        self.NEW = self.get_folder_constants('new')
+        self.RANDOM = self.get_folder_constants('random')
+        self.RECENT = self.get_folder_constants('recent')
+        self.UNSORTED = self.get_folder_constants('unsorted')
 
-        if self.debug: print('Connecting to %s:%d...' % (hostname, portnum))
-        self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
-        self.folder_manager = MediaFolderManager(self.es, self.index_name)
-        if self.debug: print('Connected.')
-
-    def cached_id_for(self, path):
-
-        if self.id_cache is not None:
-            for row in self.id_cache:
-                if path in row[0]:
-                    return row[1]
-
-        return None
-
+        connect()
+        
     def cache_ids(self, path):
         self.id_cache = mySQL4elasticsearch.retrieve_esids(self.index_name, self.document_type, path)
 
@@ -73,6 +61,13 @@ class MediaObjectManager:
             res = self.es.indices.create(index = self.index_name, body = request_body)
             print(" response: '%s'" % (res))
 
+    def connect(self):
+        if self.debug: print('Connecting to %s:%d...' % (hostname, portnum))
+        self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
+        self.folder_manager = MediaFolderManager(self.es, self.index_name)
+        if self.debug: print('Connected.')
+
+
     # TODO: refactor
     def doc_exists(self, media):
 
@@ -91,22 +86,6 @@ class MediaObjectManager:
                 mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
                 return True
 
-    def doc_id(self, media):
-
-        # not found, query elasticsearch
-        esid = mySQL4elasticsearch.retrieve_esid(self.index_name, self.document_type, media.absolute_file_path)
-        if esid is not None:
-            return esid
-
-        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
-        # if self.debug: print("%d documents found" % res['hits']['total'])
-        for doc in res['hits']['hits']:
-            if self.doc_refers_to(doc, media):
-                esid = doc['_id']
-                # found, update local MySQL
-                mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
-                return doc['_id']
-
     def doc_refers_to(self, doc, media):
         if doc['_source']['absolute_file_path'] == unicode(media.absolute_file_path):
             return True
@@ -114,36 +93,24 @@ class MediaObjectManager:
     def ensure_exists_in_mysql(self, esid, absolute_file_path):
         rows = mySQL4elasticsearch.retrieve_values('elasticsearch_doc', ['absolute_file_path'], [absolute_file_path])
         if len(rows) ==0:
-            # if self.debug: print('Updating local MySQL...')
+            if self.debug: print('Updating local MySQL...')
             mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, absolute_file_path)
         else:
             self.es.delete(index=self.index_name,doc_type=self.document_type,id=esid)
 
+    def get_cached_id_for(self, path):
 
-    def get_doc(self, media):
-        res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
-        {
-            "query": { "match" : { "absolute_file_path": unicode(media.absolute_file_path) }}
-        })
+        if self.id_cache is not None:
+            for row in self.id_cache:
+                if path in row[0]:
+                    return row[1]
 
-        # if self.debug: print("%d documents found" % res['hits']['total'])
-        for doc in res['hits']['hits']:
-            # if self.debug: pp.pprint(doc)
-            if self.doc_refers_to(doc, media):
-                return doc
-
-    # TODO: write this method
-    def path_contains_media(self, path, criteria):
-        # if self.debug: print path
-        if not os.path.isdir(path):
-            raise Exception('Path does not exist: "' + path + '"')
-
-        return False
+                    return None
 
     def get_dictionary(self, media):
 
         data = { 'absolute_file_path': media.absolute_file_path, 'file_ext': media.ext, 'file_name': media.file_name, 'folder_name': media.folder_name,
-                 'file_size': media.file_size }
+        'file_size': media.file_size }
         try:
 
             if media.location is not None: data['folder_location'] = media.location
@@ -170,6 +137,42 @@ class MediaObjectManager:
             pp.pprint(data)
             sys.exit(1)
 
+    def get_doc(self, media):
+        res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+        {
+            "query": { "match" : { "absolute_file_path": unicode(media.absolute_file_path) }}
+        })
+
+        # if self.debug: print("%d documents found" % res['hits']['total'])
+        for doc in res['hits']['hits']:
+            # if self.debug: pp.pprint(doc)
+            if self.doc_refers_to(doc, media):
+                return doc
+
+    def get_doc_id(self, media):
+
+        # not found, query elasticsearch
+        esid = mySQL4elasticsearch.retrieve_esid(self.index_name, self.document_type, media.absolute_file_path)
+        if esid is not None:
+            return esid
+
+            res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
+            # if self.debug: print("%d documents found" % res['hits']['total'])
+            for doc in res['hits']['hits']:
+                if self.doc_refers_to(doc, media):
+                    esid = doc['_id']
+                    # found, update local MySQL
+                    mySQL4elasticsearch.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
+                    return doc['_id']
+
+    def get_folder_constants(self, foldertype):
+        result = []
+        rows = mySQL4elasticsearch.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
+        for r in rows:
+            result.append(r[1])
+        return result
+
+
     #TODO: refactor this method to take an absolute path and break it up using constants from db
     def get_media_object(self, loc, root, filename, extension):
 
@@ -182,9 +185,22 @@ class MediaObjectManager:
         media.folder_name = unicode(root.replace(loc, ''), "utf-8")
         media.file_size = os.path.getsize(os.path.join(root, filename))
 
-        media.esid = self.cached_id_for(media.absolute_file_path)
+        media.esid = self.get_cached_id_for(media.absolute_file_path)
 
         return media
+
+    def path_contains_media(self, path, criteria):
+        # if self.debug: print path
+        if not os.path.isdir(path):
+            raise Exception('Path does not exist: "' + path + '"')
+
+        for f in os.listdir(path):
+            if os.path.isfile(os.path.join(path, f)):
+                for ext in criteria.extensions:
+                    if f.lower().endswith('.' + ext):
+                        return True
+
+        return False
 
     def scan(self, criteria):
 
@@ -254,7 +270,6 @@ class MediaObjectManager:
         for r in rows:
             res = self.es.delete(index=self.index_name,doc_type=self.document_type,id=r[1])
 
-
     def import_from_es(self, criteria):
         for location in criteria.locations:
             self.cache_ids(location)
@@ -275,17 +290,12 @@ class MediaObjectManager:
                             absolute_file_path = source['absolute_file_path']
                             # print absolute_file_path
                             # pp.pprint(doc['_source'])
-                            if self.cached_id_for(absolute_file_path) is None:
+                            if self.get_cached_id_for(absolute_file_path) is None:
                                 if os.path.isfile(absolute_file_path):
                                     self.ensure_exists_in_mysql(esid, absolute_file_path)
 
                     except Exception, err:
                         print err.message
-
-                    # sys.exit(1)
-
-
-def cointoss(): return bool(random.getrandbits(1))
 
 # # logging
 # LOG = "ccd.log"
@@ -298,8 +308,6 @@ def cointoss(): return bool(random.getrandbits(1))
 
 def main():
 
-    random.seed()
-
     s = ScanCriteria()
     s.extensions = ['mp3', 'flac', 'ape', 'iso', 'ogg', 'mpc', 'wav', 'aac']
 
@@ -311,14 +319,18 @@ def main():
     s.locations.append(constants.NOSCAN)
     for folder in next(os.walk(constants.START_FOLDER))[1]:
         s.locations.append(constants.START_FOLDER + folder)
-    s.locations.reverse()
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
 
     m = MediaObjectManager('54.82.250.249', 9200, 'media', 'media_file');
     # m.delete_docs_for_path('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
     # m.clear_indexes()
     m.debug = True
+    # m.scan(s)
 
-    m.scan(s)
+    for path in s.locations:
+        if m.path_contains_media(path, s):
+            print path
+
 
 # main
 if __name__ == '__main__':
