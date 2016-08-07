@@ -11,26 +11,6 @@ PASS = 'stainless'
 SCHEMA = 'media'
 DEBUG = False
 
-def show_version():
-    try:
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
-
-        con.query("SELECT VERSION()")
-        result = con.use_result()
-
-        print "MySQL version: %s" % \
-            result.fetch_row()[0]
-
-    except _mysql.Error, e:
-
-        print "Error %d: %s" % (e.args[0], e.args[1])
-        sys.exit(1)
-
-    finally:
-
-        if con:
-            con.close()
-
 def insert_values(table_name, field_names, field_values):
     try:
 
@@ -266,8 +246,8 @@ def get_document_ids():
         if con:
             con.close()
 
-def main():
-    print('hello')
+# def main():
+#     print('hello')
 
 if __name__ == '__main__':
     main()

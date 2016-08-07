@@ -86,6 +86,11 @@ class QueryBuilder:
         self.execute_query('basic', values)
 
 # main
-q = QueryBuilder()
-q.test_simple_term()
-q.test_multi_term()
+def main():
+    q = QueryBuilder()
+    q.test_simple_term()
+    q.test_multi_term()
+
+# main
+if __name__ == '__main__':
+    main()

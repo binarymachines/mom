@@ -36,7 +36,7 @@ class MediaObjectManager:
         self.UNSORTED = self.get_folder_constants('unsorted')
 
         connect()
-        
+
     def cache_ids(self, path):
         self.id_cache = mySQL4elasticsearch.retrieve_esids(self.index_name, self.document_type, path)
 
@@ -66,7 +66,6 @@ class MediaObjectManager:
         self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
         self.folder_manager = MediaFolderManager(self.es, self.index_name)
         if self.debug: print('Connected.')
-
 
     # TODO: refactor
     def doc_exists(self, media):
@@ -172,6 +171,9 @@ class MediaObjectManager:
             result.append(r[1])
         return result
 
+    #TODO:
+    def get_location_name(self, path):
+        pass
 
     #TODO: refactor this method to take an absolute path and break it up using constants from db
     def get_media_object(self, loc, root, filename, extension):
@@ -189,18 +191,38 @@ class MediaObjectManager:
 
         return media
 
-    def path_contains_media(self, path, criteria):
+    #TODO:
+    def path_contains_album_folders(self, path):
+        pass
+
+    #TODO:
+    def path_contains_genre_folders(self, path):
+        pass
+
+    def path_contains_media(self, path, extensions):
         # if self.debug: print path
         if not os.path.isdir(path):
             raise Exception('Path does not exist: "' + path + '"')
 
         for f in os.listdir(path):
             if os.path.isfile(os.path.join(path, f)):
-                for ext in criteria.extensions:
+                for ext in extensions:
                     if f.lower().endswith('.' + ext):
                         return True
 
         return False
+
+    #TODO:
+    def path_is_album_folder(self, path):
+        pass
+
+    #TODO:
+    def path_is_genre_folder(self, path):
+        pass
+
+    #TODO:
+    def path_is_location_folder(self, path):
+        pass
 
     def scan(self, criteria):
 
@@ -328,7 +350,7 @@ def main():
     # m.scan(s)
 
     for path in s.locations:
-        if m.path_contains_media(path, s):
+        if m.path_contains_media(path, s.extensions):
             print path
 
 

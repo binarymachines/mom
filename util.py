@@ -77,5 +77,9 @@ def str_clean4comp(input):
 # init
 random.seed()
 
+# main
+def main():
+    print str_clean4comp('01_-_Hilt - Call the Ambulance before I hurt Myself - Get Out of the Grave, Alan.mp3')
 
-print str_clean4comp('01_-_Hilt - Call the Ambulance before I hurt Myself - Get Out of the Grave, Alan.mp3')
+if __name__ == '__main__':
+    main()
