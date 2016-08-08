@@ -22,7 +22,7 @@ class MediaMatcher:
                 self.comparison_fields.append(r[1])
 
     def match(self, media):
-        pass
+        raise Exception('Not Implemented!')
 
     # TODO: add index_name
     # TODO: add matcher to match record. assign weights to various matchers.
@@ -32,16 +32,20 @@ class MediaMatcher:
             return True
 
     def name(self):
-        return None
+        raise Exception("Not Implemented!")
 
-    # TODO: add index_name
-    def record_match(self, media_id, match_id, match_fields):
+    def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields):
         if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
-            mySQL4es.insert_values('matched', ['media_doc_id', 'match_doc_id', 'match_fields'], [media_id, match_id, str(match_fields)])
+            mySQL4es.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields'], [media_id, match_id, matcher_name, index_name, str(matched_fields)])
+
+class FolderNameMatcher:
+    def match(self, media):
+        pass
+        raise Exception('Not Implemented!')
 
 class ElasticSearchMatcher(MediaMatcher):
     def get_query(self, media):
-        return None
+        raise Exception('Not Implemented!')
 
 # TODO: add index_name
 class BasicMatcher(ElasticSearchMatcher):
@@ -91,11 +95,11 @@ class BasicMatcher(ElasticSearchMatcher):
                     try:
                         # if self.mom.debug: print("possible match: " + match['_id'] + " - " + match['_source']['absolute_file_path'])
                         match_fails = False
-                        match_fields = []
+                        matched_fields = ['file_name']
 
                         for field in self.comparison_fields:
                                 if field in match['_source'] and field in orig['_source']:
-                                    match_fields +' field'
+                                    matched_fields +' field'
                                     if util.str_clean4comp( match['_source'][field]) != util.str_clean4comp(orig['_source'][field]):
                                         match_fails = True
 
@@ -103,7 +107,7 @@ class BasicMatcher(ElasticSearchMatcher):
                             self.print_match_details(orig, match)
                             # mySQL4es.DEBUG = True
                             self.mom.ensure_exists_in_mysql(match['_id'], match['_source']['absolute_file_path'])
-                            self.record_match(media.esid,  match['_id'], match_fields)
+                            self.record_match(media.esid,  match['_id'], self.name(), self.mom.index_name, matched_fields)
                             # mySQL4es.DEBUG = False
 
                     except KeyError, err:

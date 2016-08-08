@@ -199,19 +199,19 @@ def truncate(table_name):
 
 #NOTE: The methods that follow are specific to this es application and should live elsewehere
 
-def insert_esid(index, document_type, elasticsearch_id, absolute_file_path):
-    insert_values('elasticsearch_doc', ['index_name', 'doc_type', 'id', 'absolute_file_path'],
-        [index, document_type, elasticsearch_id, absolute_file_path])
+def insert_esid(index, document_type, elasticsearch_id, absolute_path):
+    insert_values('elasticsearch_doc', ['index_name', 'doc_type', 'id', 'absolute_path'],
+        [index, document_type, elasticsearch_id, absolute_path])
 
-def retrieve_esid(index, document_type, absolute_file_path):
+def retrieve_esid(index, document_type, absolute_path):
 
-    rows = retrieve_values('elasticsearch_doc', ['index_name', 'doc_type', 'absolute_file_path', 'id'], [index, document_type, absolute_file_path])
+    rows = retrieve_values('elasticsearch_doc', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
 
     if rows == None:
         return []
 
     if len(rows) > 1:
-        text = "Multiple Ids for '" + absolute_file_path + "' returned"
+        text = "Multiple Ids for '" + absolute_path + "' returned"
         raise Exception(text)
 
     if len(rows) == 1:
@@ -221,7 +221,7 @@ def retrieve_esids(index, document_type, file_path):
 
     rows = None
     try:
-        query = 'SELECT absolute_file_path, id FROM elasticsearch_doc WHERE absolute_file_path LIKE '
+        query = 'SELECT absolute_path, id FROM elasticsearch_doc WHERE absolute_path LIKE '
         query += '"' + file_path + '%"'
 
         con = mdb.connect(HOST, USER, PASS, SCHEMA)
