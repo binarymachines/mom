@@ -35,7 +35,7 @@ class MediaObjectManager:
         self.RECENT = self.get_folder_constants('recent')
         self.UNSORTED = self.get_folder_constants('unsorted')
 
-        connect()
+        self.connect()
 
     def cache_ids(self, path):
         self.id_cache = mySQL4elasticsearch.retrieve_esids(self.index_name, self.document_type, path)
@@ -343,15 +343,11 @@ def main():
         s.locations.append(constants.START_FOLDER + folder)
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
 
-    m = MediaObjectManager('54.82.250.249', 9200, 'media', 'media_file');
+    m = MediaObjectManager('54.82.250.249', 9200, 'media2', 'media_file');
     # m.delete_docs_for_path('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
     # m.clear_indexes()
     m.debug = True
-    # m.scan(s)
-
-    for path in s.locations:
-        if m.path_contains_media(path, s.extensions):
-            print path
+    m.scan(s)
 
 
 # main
