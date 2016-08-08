@@ -1,17 +1,37 @@
-#! /usr/bin/python
+#!/usr/bin/env python
+
+'''esquerybuilder.py
+
+   Usage: esquerybuilder.py [elasticsearch_host] [-p PORT] 
+
+   Arguments:
+       elasticsearch_host              host running es (default localhost)
+       -p PORT --port=PORT             port es is listening on (default 9200)
+
+'''
+
 
 import os
 import json
 import pprint
 from elasticsearch import Elasticsearch
 import constants, mySQL4elasticsearch
+from docopt import docopt
+
+
+
+
+
 
 pp = pprint.PrettyPrinter(indent=2)
 
 class QueryBuilder:
-
+    def __init__(self, es_host, es_port=9200):
+        self.es_host = es_host
+        self.es_port = es_port
+        
     def execute_query(self, name, values):
-        es = Elasticsearch([{'host': '54.82.250.249', 'port': 9200}])
+        es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
         res = es.search(index='media', doc_type='media_file', body=self.get_query(name, values))
 
         for doc in res['hits']['hits']:
@@ -86,11 +106,15 @@ class QueryBuilder:
         self.execute_query('tag_term_matcher_artist_album_song', values)
 
 # main
-def main():
-    q = QueryBuilder()
+def main(args):
+
+    elastic_host = args['<elasticsearch_host>']
+    elastic_port = args.get('[elasticsearch_port]', 9200)
+    q = QueryBuilder(elastic_host, elastic_port)
     q.test_simple_term()
     q.test_multi_term()
 
-# main
+
 if __name__ == '__main__':
-    main()
+    args = docopt(__doc__)
+    main(args)

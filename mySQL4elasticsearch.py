@@ -1,48 +1,40 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 
 import os
 import sys
-import _mysql
 import MySQLdb as mdb
 
 HOST = 'localhost'
 USER = 'root'
 PASS = 'stainless'
 SCHEMA = 'media'
-DEBUG = False
+DEBUG = True
+
+
+def quote_if_string(value):
+    if isinstance(value, basestring):
+        return '"%s"' % value
+    return value
+    
 
 def insert_values(table_name, field_names, field_values):
     try:
-
-        query = 'INSERT INTO ' + table_name + '('
-
-        pos = 0
-        for name in field_names:
-            query += name
-            pos += 1
-            if pos < len(field_names):
-                query += ', '
-
-        query += ') values ('
-
-        pos = 0
-        # for value in field_values:
-        while pos < len(field_values):
-            query += '"' + field_values[pos] + '"'
-            pos += 1
-            if pos < len(field_values):
-                query += ', '
-        query += ')'
+        formatted_values = [quote_if_string(val) for value in field_values]
+        
+        query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
 
         if DEBUG:
             print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', '(\n\t\t').replace(')', '\n\t\t)') + '\n'
 
+
+        print query
+        
         con = mdb.connect(HOST, USER, PASS, SCHEMA)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
 
-    except _mysql.Error, e:
+    except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
         raise e
