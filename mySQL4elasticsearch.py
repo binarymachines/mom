@@ -76,13 +76,13 @@ def retrieve_values(table_name, field_names, field_values):
         cur.execute(query)
         rows = cur.fetchall()
 
-        # if DEBUG:
-        #     if len(rows) > 0: print('\nreturning rows:\n')
-        #     for row in rows:
-        #         print row
+        if DEBUG:
+            if len(rows) > 0: print('\nreturning rows:\n')
+            for row in rows:
+                print row
 
         return rows
-    except _mysql.Error, e:
+    except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
         sys.exit(1)
@@ -127,7 +127,7 @@ def retrieve_like_values(table_name, field_names, field_values):
                 print row
 
         return rows
-    except _mysql.Error, e:
+    except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
         sys.exit(1)
@@ -169,7 +169,7 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
         cur.execute(query)
         con.commit()
 
-    except _mysql.Error, e:
+    except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
         sys.exit(1)
@@ -177,6 +177,27 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
     finally:
         if con:
             con.close()
+
+def truncate(table_name):
+
+    query = 'truncate ' + table_name
+
+    try:
+        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        cur = con.cursor()
+        cur.execute(query)
+        con.commit()
+
+    except mdb.Error, e:
+
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        sys.exit(1)
+
+    finally:
+        if con:
+            con.close()
+
+#NOTE: The methods that follow are specific to this es application and should live elsewehere
 
 def insert_esid(index, document_type, elasticsearch_id, absolute_file_path):
     insert_values('elasticsearch_doc', ['index_name', 'doc_type', 'id', 'absolute_file_path'],
@@ -210,7 +231,7 @@ def retrieve_esids(index, document_type, file_path):
 
         return rows
 
-    except _mysql.Error, e:
+    except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
         sys.exit(1)
@@ -218,28 +239,3 @@ def retrieve_esids(index, document_type, file_path):
     finally:
         if con:
             con.close()
-
-def get_document_ids():
-    rows = None
-    try:
-        query = 'SELECT id, absolute_file_path FROM elasticsearch_doc'
-
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
-        cur = con.cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-        return rows
-
-    except _mysql.Error, e:
-        print "Error %d: %s" % (e.args[0], e.args[1])
-        sys.exit(1)
-
-    finally:
-        if con:
-            con.close()
-
-# def main():
-#     print('hello')
-
-if __name__ == '__main__':
-    main()

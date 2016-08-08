@@ -11,9 +11,7 @@
 '''
 
 
-import os
-import json
-import pprint
+import os, json, pprint
 from elasticsearch import Elasticsearch
 import constants, mySQL4elasticsearch
 from docopt import docopt
@@ -66,6 +64,7 @@ class QueryBuilder:
     #TODO: learn how to concatenate (builder variable)
     def get_multi_term(self, fieldnames, values, options):
         termset = []
+
         for fname in fieldnames:
             param = values[fname]
             if not fname in options['boost']:
