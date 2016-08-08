@@ -3,7 +3,7 @@
 import os, json, pprint, sys, random, logging, traceback
 from elasticsearch import Elasticsearch
 from mutagen.id3 import ID3, ID3NoHeaderError
-from data import MediaObject, ScanCriteria
+from data import MediaFile, ScanCriteria
 from folders import MediaFolderManager
 import constants, mySQL4es, util
 from matcher import BasicMatcher
@@ -11,7 +11,7 @@ from scanner import Scanner
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class MediaObjectManager:
+class MediaFileManager:
 
     def __init__(self, hostname, portnum, indexname, documenttype):
 
@@ -64,7 +64,7 @@ class MediaObjectManager:
     def connect(self):
         if self.debug: print('Connecting to %s:%d...' % (hostname, portnum))
         self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
-        self.folder_manager = MediaFolderManager(self.es, self.index_name)
+        self.folderman = MediaFolderManager(self.es, self.index_name)
         if self.debug: print('Connected.')
 
     # TODO: refactor
@@ -105,7 +105,7 @@ class MediaObjectManager:
 
     def ensure_exists_in_mysql(self, esid, absolute_file_path):
         if self.debug: print("checking for row for: "+ absolute_file_path)
-        rows = mySQL4es.retrieve_values('elasticsearch_doc', ['absolute_file_path', 'index_name'], [absolute_file_path, self.index_name])
+        rows = mySQL4es.retrieve_values('elasticsearch_doc', ['absolute_path', 'index_name'], [absolute_file_path, self.index_name])
         if len(rows) ==0:
             if self.debug: print('Updating local MySQL...')
             mySQL4es.insert_esid(self.index_name, self.document_type, esid, absolute_file_path)
@@ -217,7 +217,7 @@ class MediaObjectManager:
 
     def get_media_object(self, absolute_file_path):
 
-        media = MediaObject(self)
+        media = MediaFile(self)
         path, filename = os.path.split(absolute_file_path)
         extension = os.path.splitext(absolute_file_path)[1]
         filename = filename.replace(extension, '')
@@ -322,11 +322,23 @@ class MediaObjectManager:
             self.cache_ids(location)
             for root, dirs, files in os.walk(location, topdown=True, followlinks=False):
                 if root != active_dir:
-                    if self.path_contains_media(root, criteria.extensions):
-                        active_dir = root
-                        self.folder_manager.set_active_folder(root)
-                        print root
-                        sys.exit(1)
+                    try:
+                        if self.folderman.get_latest_operation(root) == 'scan':
+                            if self.debug:
+                                print '\nskipping folder: %s' % (root)
+                            continue
+
+                        if self.path_contains_media(root, criteria.extensions):
+                            active_dir = root
+                            self.folderman.set_active_folder(unicode(root), 'scan')
+                        # sys.exit(1)
+                    except Exception, err:
+                        # print('\nException: ' + os.path.join(root, filename))
+                        print err.message
+                        if self.debug: traceback.print_exc(file=sys.stdout)
+                        # self.folderman.record_error("\nException=" + err.message)
+                        print '\nskipping folder: %s' % (root)
+                        continue
 
                 for filename in files:
                     for extension in criteria.extensions:
@@ -346,37 +358,37 @@ class MediaObjectManager:
                             print('\nIOError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folder_manager.record_error("\nUnicodeEncodeError=" + err.message)
+                            self.folderman.record_error(self.folderman.folder, "\nUnicodeEncodeError=" + err.message)
                             return
 
                         except UnicodeEncodeError, err:
                             print('\nUnicodeEncodeError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folder_manager.record_error("\nUnicodeEncodeError=" + err.message)
+                            self.folderman.record_error(self.folderman.folder, "\nUnicodeEncodeError=" + err.message)
                             return
 
                         except UnicodeDecodeError, err:
                             print('\nUnicodeDecodeError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folder_manager.record_error("\nUnicodeDecodeError=" + err.message)
+                            self.folderman.record_error(self.folderman.folder, "\nUnicodeDecodeError=" + err.message)
 
                         except Exception, err:
                             print('\nException: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folder_manager.record_error("\nException=" + err.message)
+                            self.folderman.record_error(self.folderman.folder, "\nException=" + err.message)
                             print('\n')
                             return
                 # root
-                # self.folder_manager.set_active_folder(None)
+                # self.folderman.set_active_folder(None)
             # location
             self.id_cache = None
 
     def delete_docs_for_path(self, path):
 
-        rows = mySQL4es.retrieve_like_values('elasticsearch_doc', ['index_name', 'absolute_file_path', 'id'], [self.index_name, path])
+        rows = mySQL4es.retrieve_like_values('elasticsearch_doc', ['index_name', 'absolute_path', 'id'], [self.index_name, path])
         for r in rows:
             res = self.es.delete(index=self.index_name,doc_type=self.document_type,id=r[1])
 
@@ -394,25 +406,27 @@ def main():
 
     mySQL4es.truncate('elasticsearch_doc')
     mySQL4es.truncate('matched')
+    mySQL4es.truncate('media_folder')
 
     s = ScanCriteria()
     s.extensions = ['mp3', 'flac', 'ape', 'iso', 'ogg', 'mpc', 'wav', 'aac']
 
-    for folder in next(os.walk(constants.START_FOLDER))[1]:
-        s.locations.append(constants.START_FOLDER + folder)
+    # for folder in next(os.walk(constants.START_FOLDER))[1]:
+    #     s.locations.append(constants.START_FOLDER + folder)
     s.locations.append(constants.EXPUNGED)
     s.locations.append(constants.NOSCAN)
-    # s.locations.append('/media/removable/Audio/music/incoming/slsk/complete/')
+    s.locations.append('/media/removable/Audio/music/incoming/slsk/complete/')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
-    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
-    # s.locations.append('/media/removable/Audio/music/incoming/slsk/complete/electronic/')
+    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
+    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+    # s.locations.append('/media/removable/SEAGATE 932/Media/radio')
+    s.locations.append('/media/removable/Audio/music/random tracks/')
+    s.locations.append('/media/removable/Audio/music/random compilations/')
     # s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
 
-    m = MediaObjectManager('54.82.250.249', 9200, 'media2', 'media_file');
+    m = MediaFileManager('54.82.250.249', 9200, 'media2', 'media_file');
     # m.delete_docs_for_path('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
-    # m.clear_indexes()
+    m.clear_indexes()
     m.debug = True
     m.do_match = True
     m.scan(s)

@@ -1,8 +1,6 @@
 #! /usr/bin/python
 
-# import mediaObjectManager
-
-class MediaObject:
+class MediaFile:
     def __init__(self, manager):
         self.absolute_file_path = u'UNKNOWN'
         self.active = True
@@ -141,11 +139,11 @@ class MediaObject:
 
 class MediaFolder:
     def __init__(self):
-        self.absolute_file_path = None
+        self.absolute_folder_path = None
         self.has_errors = False
         self.latest_error = u''
         self.latest_operation = u''
-        self.elastic_id = u''
+        self.esid = u''
 
 class ScanCriteria:
     def __init__(self):
