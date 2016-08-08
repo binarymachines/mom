@@ -27,7 +27,13 @@ class MediaMatcher:
     # TODO: add index_name
     # TODO: add matcher to match record. assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id'], [media_id, match_id])
+
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name(), self.index_name])
+        if len(rows) == 1:
+            return True
+
+        # check for reverse match
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_doc_id, self.name()], self.index_name)
         if len(rows) == 1:
             return True
 

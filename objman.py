@@ -49,6 +49,7 @@ class MediaFileManager:
                 res = self.es.indices.delete(index = self.index_name)
                 print(" response: '%s'" % (res))
 
+
             # since we are running locally, use one shard and no replicas
             request_body = {
                 "settings" : {
@@ -324,19 +325,18 @@ class MediaFileManager:
                 if root != active_dir:
                     try:
                         if self.folderman.get_latest_operation(root) == 'scan':
-                            if self.debug:
-                                print '\nskipping folder: %s' % (root)
+                            if self.debug: print 'skipping folder: %s' % (root)
                             continue
 
                         if self.path_contains_media(root, criteria.extensions):
                             active_dir = root
                             self.folderman.set_active_folder(unicode(root), 'scan')
-                        # sys.exit(1)
+
                     except Exception, err:
                         # print('\nException: ' + os.path.join(root, filename))
                         print err.message
                         if self.debug: traceback.print_exc(file=sys.stdout)
-                        # self.folderman.record_error("\nException=" + err.message)
+                        # self.folderman.record_error("Exception=" + err.message)
                         print '\nskipping folder: %s' % (root)
                         continue
 
@@ -358,27 +358,27 @@ class MediaFileManager:
                             print('\nIOError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folderman.record_error(self.folderman.folder, "\nUnicodeEncodeError=" + err.message)
+                            self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                             return
 
                         except UnicodeEncodeError, err:
                             print('\nUnicodeEncodeError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folderman.record_error(self.folderman.folder, "\nUnicodeEncodeError=" + err.message)
+                            self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                             return
 
                         except UnicodeDecodeError, err:
                             print('\nUnicodeDecodeError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folderman.record_error(self.folderman.folder, "\nUnicodeDecodeError=" + err.message)
+                            self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
 
                         except Exception, err:
                             print('\nException: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folderman.record_error(self.folderman.folder, "\nException=" + err.message)
+                            self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
                             print('\n')
                             return
                 # root

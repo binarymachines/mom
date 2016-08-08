@@ -48,7 +48,7 @@ class Scanner:
             print('\n!!!ID3NoHeaderError: ' + media.file_name)
             data['scan_error'] = err.message
             print err.message
-            self.mfm.folderman.record_error(folder, "\nID3NoHeaderError=" + err.message)
+            self.mfm.folderman.record_error(folder, "ID3NoHeaderError=" + err.message)
             if self.debug: traceback.print_exc(file=sys.stdout)
             print('\n')
 
@@ -56,7 +56,7 @@ class Scanner:
             # print('\nException: ' + media.absolute_file_path)
             print err.message
             if self.debug: traceback.print_exc(file=sys.stdout)
-            self.mfm.folderman.record_error(folder, "\nUnicodeEncodeError=" + err.message)
+            self.mfm.folderman.record_error(folder, "UnicodeEncodeError=" + err.message)
             print('\n')
             return
 
@@ -64,7 +64,7 @@ class Scanner:
             # print('\nException: ' + media.absolute_file_path)
             print err.message
             if self.debug: traceback.print_exc(file=sys.stdout)
-            self.mfm.folderman.record_error(folder, "\nUnicodeDecodeError=" + err.message)
+            self.mfm.folderman.record_error(folder, "UnicodeDecodeError=" + err.message)
             print('\n')
             return
 
