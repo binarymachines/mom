@@ -2,9 +2,9 @@
 
 import os, json, pprint, sys, random, logging, traceback
 from elasticsearch import Elasticsearch
-import mySQL4elasticsearch
+import mySQL4es
 from mutagen.id3 import ID3, ID3NoHeaderError
-from mediaDataObjects import MediaObject, ScanCriteria
+from data import MediaObject, ScanCriteria
 import constants
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -19,14 +19,14 @@ class Scanner:
 
         try:
             if media.esid is not None:
-                # if self.debug: print("*** esid exists, skipping file: " + '.'.join([media.file_name, media.ext]))
+                if self.debug: print("*** esid exists, skipping file: " + '.'.join([media.file_name, media.ext]))
                 return media
 
-            if  media.esid == None and self.mom.doc_exists(media):
-                doc = self.mom.get_doc(media)
-                if self.debug: print("attaching EXISTING esid: " + doc['_id'] + " to " + media.file_name)
-                media.esid = doc['_id']
+            if  media.esid == None and self.mom.doc_exists(media, True):
                 return media
+                # doc = self.mom.get_doc(media)
+                # if self.debug: print("attaching EXISTING esid: " + doc['_id'] + " to " + media.file_name)
+                # media.esid = doc['_id']
 
             data = self.mom.get_dictionary(media)
 
@@ -70,11 +70,11 @@ class Scanner:
             print('\n')
             return
 
-        if self.debug: print("indexing file: " + media.absolute_file_path)
+        if self.debug: "indexing file: %s" % (media.file_name)
         res = self.es.index(index=self.mom.index_name, doc_type=self.mom.document_type, body=json.dumps(data))
         # pp.pprint(res)
-        if self.debug: print("attaching NEW esid: " + res['_id'] + " to " + media.file_name)
-        media.esid = res['_id']
-
-        if self.debug: print("storing document id: " + str(media.esid))
-        mySQL4elasticsearch.insert_esid(self.mom.index_name, self.mom.document_type, media.esid, media.absolute_file_path)
+        esid = res['_id']
+        if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
+        media.esid = esid
+        if self.debug: print "storing document id: %s" % (media.esid)
+        mySQL4es.insert_esid(self.mom.index_name, self.mom.document_type, media.esid, media.absolute_file_path)

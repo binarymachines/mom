@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 
-'''esquerybuilder.py
+'''
+   Usage: esquerybuilder.py <elasticsearch_host>
 
-   Usage: esquerybuilder.py [elasticsearch_host] [-p PORT] 
 
-   Arguments:
-       elasticsearch_host              host running es (default localhost)
-       -p PORT --port=PORT             port es is listening on (default 9200)
 
 '''
 
 
 import os, json, pprint
 from elasticsearch import Elasticsearch
-import constants, mySQL4elasticsearch
+import constants, mySQL4es
 from docopt import docopt
 
 
@@ -27,7 +24,7 @@ class QueryBuilder:
     def __init__(self, es_host, es_port=9200):
         self.es_host = es_host
         self.es_port = es_port
-        
+
     def execute_query(self, name, values):
         es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
         res = es.search(index='media', doc_type='media_file', body=self.get_query(name, values))
@@ -38,7 +35,7 @@ class QueryBuilder:
 
     def get_query(self, name, values):
 
-        match_fields = mySQL4elasticsearch.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
+        match_fields = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(match_fields) == 1:
             if match_fields[0][1] is not None:
@@ -108,7 +105,8 @@ class QueryBuilder:
 def main(args):
 
     elastic_host = args['<elasticsearch_host>']
-    elastic_port = args.get('[elasticsearch_port]', 9200)
+    elastic_port = 9200
+    print 'Will connect to ES host %s:%s' % (elastic_host, elastic_port)
     q = QueryBuilder(elastic_host, elastic_port)
     q.test_simple_term()
     q.test_multi_term()

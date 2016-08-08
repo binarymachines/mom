@@ -2,8 +2,8 @@
 
 import os, json, pprint, sys, traceback
 from elasticsearch import Elasticsearch
-from mediaDataObjects import MediaFolder
-import mySQL4elasticsearch
+from data import MediaFolder
+import mySQL4es
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -80,17 +80,17 @@ class MediaFolderManager:
             # raw_input('continue after operation ')
 
     def record_exists(self, mediafolder):
-        rows = mySQL4elasticsearch.retrieve_values('media_folder', ['absolute_folder_path'], [mediafolder.absolute_file_path])
+        rows = mySQL4es.retrieve_values('media_folder', ['absolute_folder_path'], [mediafolder.absolute_file_path])
         if len(rows) == 0: return False
 
         return True
 
     def insert_record(self, mediafolder):
-        mySQL4elasticsearch.insert_values('media_folder', ['absolute_folder_path', 'latest_operation'],
+        mySQL4es.insert_values('media_folder', ['absolute_folder_path', 'latest_operation'],
             [mediafolder.absolute_file_path, 'record_inserted'])
 
     def update_record(self, mediafolder, update):
-        mySQL4elasticsearch.insert_values('media_folder', ['absolute_folder_path', 'latest_operation'],
+        mySQL4es.insert_values('media_folder', ['absolute_folder_path', 'latest_operation'],
             [mediafolder.absolute_file_path, 'record_inserted'])
 
     def set_active_folder(self, foldername):
@@ -110,7 +110,7 @@ class MediaFolderManager:
                 # self.record_operation('scanned')
                 # if self.mediafoldermanager.media_folder != None and self.mediafoldermanager.media_folder.absolute_file_path != None:
                 #     print("latest operation (scanned): " + self.mediafoldermanager.media_folder.absolute_file_path)
-                #     mySQL4elasticsearch.update_values('media_folder', ['latest_operation'], ['scanned'],
+                #     mySQL4es.update_values('media_folder', ['latest_operation'], ['scanned'],
                 #         ['absolute_folder_path'], [self.mediafoldermanager.media_folder.absolute_file_path])
 
                 print('\n### setting active: ' + unicode(foldername))
