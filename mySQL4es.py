@@ -8,27 +8,27 @@ HOST = 'localhost'
 USER = 'root'
 PASS = 'stainless'
 SCHEMA = 'media'
-DEBUG = True
+DEBUG = False
 
 
 def quote_if_string(value):
     if isinstance(value, basestring):
         return '"%s"' % value
     return value
-    
+
 
 def insert_values(table_name, field_names, field_values):
+
+    con = None
+
     try:
-        formatted_values = [quote_if_string(val) for value in field_values]
-        
+        formatted_values = [quote_if_string(value) for value in field_values]
+
         query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
 
         if DEBUG:
             print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', '(\n\t\t').replace(')', '\n\t\t)') + '\n'
 
-
-        print query
-        
         con = mdb.connect(HOST, USER, PASS, SCHEMA)
         cur = con.cursor()
         cur.execute(query)
@@ -215,7 +215,7 @@ def retrieve_esid(index, document_type, absolute_file_path):
         raise Exception(text)
 
     if len(rows) == 1:
-        return [rows[0][1]]
+        return rows[0][3]
 
 def retrieve_esids(index, document_type, file_path):
 

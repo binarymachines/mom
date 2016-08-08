@@ -4,7 +4,7 @@ import os
 import sys
 import pprint
 import random
-import mySQL4elasticsearch
+import mySQL4es
 import constants
 from elasticsearch import Elasticsearch
 
@@ -28,7 +28,7 @@ def get_genre_folder_names():
 
 def delete_docs_for_path(path):
 
-    rows = mySQL4elasticsearch.retrieve_like_values('elasticsearch_doc', ['absolute_file_path', 'id'], [path])
+    rows = mySQL4es.retrieve_like_values('elasticsearch_doc', ['absolute_file_path', 'id'], [path])
     for r in rows:
         res = self.es.delete(index="media",doc_type="media_file",id=r[1])
 
@@ -40,18 +40,18 @@ def setup_genre_folders():
     folders = get_genre_folder_names()
     for f in folders:
         print f
-        rows = mySQL4elasticsearch.retrieve_values('media_genre_folder', ['name'], [f.lower()])
+        rows = mySQL4es.retrieve_values('media_genre_folder', ['name'], [f.lower()])
         if len(rows) == 0:
-            mySQL4elasticsearch.insert_values('media_genre_folder', ['name'], [f.lower()])
+            mySQL4es.insert_values('media_genre_folder', ['name'], [f.lower()])
 
 def setup_location_folder_names():
 
     folders = get_location_names()
     for f in folders:
         print f
-        rows = mySQL4elasticsearch.retrieve_values('media_location_folder', ['name'], [f.lower()])
+        rows = mySQL4es.retrieve_values('media_location_folder', ['name'], [f.lower()])
         if len(rows) == 0:
-            mySQL4elasticsearch.insert_values('media_location_folder', ['name'], [f.lower()])
+            mySQL4es.insert_values('media_location_folder', ['name'], [f.lower()])
 
 def find_docs_missing_field(field):
     query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : field }}}}}

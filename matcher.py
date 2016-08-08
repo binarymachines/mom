@@ -2,8 +2,8 @@
 
 import os, json, pprint, sys, random, logging, traceback
 from elasticsearch import Elasticsearch
-import mediaDataObjects
-import mySQL4elasticsearch
+import data
+import mySQL4es
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -17,7 +17,7 @@ class MediaMatcher:
         self.comparison_fields = []
 
         if self.name() is not None:
-            rows = mySQL4elasticsearch.retrieve_values('matcher_field', ['matcher_name', 'field_name'], [self.name()])
+            rows = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name'], [self.name()])
             for r in rows:
                 self.comparison_fields.append(r[1])
 
@@ -27,7 +27,7 @@ class MediaMatcher:
     # TODO: add index_name
     # TODO: add matcher to match record. assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
-        rows = mySQL4elasticsearch.retrieve_values('matched', ['media_doc_id', 'match_doc_id'], [media_id, match_id])
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id'], [media_id, match_id])
         if len(rows) == 1:
             return True
 
@@ -37,7 +37,7 @@ class MediaMatcher:
     # TODO: add index_name
     def record_match(self, media_id, match_id, match_fields):
         if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
-            mySQL4elasticsearch.insert_values('matched', ['media_doc_id', 'match_doc_id', 'match_fields'], [media_id, match_id, str(match_fields)])
+            mySQL4es.insert_values('matched', ['media_doc_id', 'match_doc_id', 'match_fields'], [media_id, match_id, str(match_fields)])
 
 class ElasticSearchMatcher(MediaMatcher):
     def get_query(self, media):
@@ -77,7 +77,7 @@ class BasicMatcher(ElasticSearchMatcher):
             if self.mom.debug:
                 print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.file_name, media.ext]))
 
-            if not self.mom.doc_exists(media):
+            if not self.mom.doc_exists(media, True):
                 raise Exception("doc doesn't exist")
 
             orig = self.mom.get_doc(media)
@@ -101,10 +101,10 @@ class BasicMatcher(ElasticSearchMatcher):
 
                         if match_fails == False:
                             self.print_match_details(orig, match)
-                            # mySQL4elasticsearch.DEBUG = True
+                            # mySQL4es.DEBUG = True
                             self.mom.ensure_exists_in_mysql(match['_id'], match['_source']['absolute_file_path'])
                             self.record_match(media.esid,  match['_id'], match_fields)
-                            # mySQL4elasticsearch.DEBUG = False
+                            # mySQL4es.DEBUG = False
 
                     except KeyError, err:
                         print err.message
