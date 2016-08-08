@@ -73,15 +73,12 @@ class MediaFolderManager:
         if folder is not None and error is not None:
             # self.folder.latest_operation = operation
             # print("error: " + error + ", " + folder.esid + ", " + folder.absolute_folder_path)
-            data = self.make_data(folder)
-            res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error }})
-
+            res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
 
     def record_operation(self, folder, operation):
         if folder is not None and operation is not None:
             # self.folder.latest_operation = operation
             # print("operation: " + operation + ", " + folder.esid + ", " + folder.absolute_folder_path)
-            data = self.make_data(folder)
             res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_operation": operation }})
 
     def record_exists(self, mediafolder):
