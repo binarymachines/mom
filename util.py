@@ -4,7 +4,6 @@ import os
 import sys
 import pprint
 import random
-import _mysql
 import mySQL4elasticsearch
 import constants
 from elasticsearch import Elasticsearch
@@ -63,7 +62,7 @@ def find_docs_missing_field(field):
     for doc in res['hits']['hits']:
         pp.pprint(doc)
 
-    # def expunge(self, path):
+# def expunge(self, path):
 
 def str_clean4comp(input):
     alphanum = "1234567890abcdefghijklmnopqrstuvwxyz"
@@ -79,7 +78,8 @@ random.seed()
 
 # main
 def main():
-    print str_clean4comp('01_-_Hilt - Call the Ambulance before I hurt Myself - Get Out of the Grave, Alan.mp3')
+    # print str_clean4comp('01_-_Hilt - Call the Ambulance before I hurt Myself - Get Out of the Grave, Alan.mp3')
+    print get_location_name("/media/removable/Audio/music/albums/industrial/portion control/code002/07 - micro box 2.mp3")
 
 if __name__ == '__main__':
     main()
