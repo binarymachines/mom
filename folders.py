@@ -13,6 +13,7 @@ class MediaFolderManager:
         self.folder = None
         self.index_name = indexname
         self.document_type = 'media_folder'
+        self.debug = False
 
     def folder_scanned(self, foldername):
         pass
@@ -56,7 +57,7 @@ class MediaFolderManager:
         return None
 
     def doc_exists(self, folder):
-        print 'checking for document for: %s' % (folder.absolute_folder_path)
+        # if mom.debug: print 'checking for document for: %s' % (folder.absolute_folder_path)
 
         res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_folder_path": folder.absolute_folder_path }}})
         # print("%d documents found" % res['hits']['total'])
@@ -72,13 +73,13 @@ class MediaFolderManager:
     def record_error(self, folder, error):
         if folder is not None and error is not None:
             # self.folder.latest_operation = operation
-            # print("error: " + error + ", " + folder.esid + ", " + folder.absolute_folder_path)
+            if self.debug: print("reccording error: " + error + ", " + folder.esid + ", " + folder.absolute_folder_path)
             res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
 
     def record_operation(self, folder, operation):
         if folder is not None and operation is not None:
             # self.folder.latest_operation = operation
-            # print("operation: " + operation + ", " + folder.esid + ", " + folder.absolute_folder_path)
+            if self.debug: print("recording operation: " + operation + ", " + folder.esid + ", " + folder.absolute_folder_path)
             res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_operation": operation }})
 
     def record_exists(self, mediafolder):
@@ -111,7 +112,8 @@ class MediaFolderManager:
                 #         ['absolute_folder_path'], [self.mediafoldermanager.media_folder.absolute_folder_path])
 
 
-                print '\n### setting active: %s' % (foldername)
+                # if self.debug: 
+                print '### setting active: %s' % (foldername)
                 self.folder.absolute_folder_path = foldername
                 if not(self.doc_exists(self.folder)):
                         data = self.make_data(self.folder)
@@ -142,5 +144,3 @@ class MediaFolderManager:
             self.folder = None
             print(err.message)
             traceback.print_exc(file=sys.stdout)
-            # raw_input('continue ')
-            sys.exit(1)
