@@ -28,12 +28,12 @@ class MediaMatcher:
     # TODO: add matcher to match record. assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
 
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name(), self.index_name])
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name(), self.mom.index_name])
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_doc_id, self.name()], self.index_name)
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name(), self.mom.index_name])
         if len(rows) == 1:
             return True
 
@@ -122,10 +122,9 @@ class BasicMatcher(ElasticSearchMatcher):
 
 
         except Exception, err:
-            print '\n' + err.message
-            if self.mom.debug: traceback.print_exc(file=sys.stdout)
-            # if match is not None: pp.pprint(match)
-
+            print err.message
+            traceback.print_exc(file=sys.stdout)
+            
     def print_match_details(self, orig, match):
 
         if orig['_source']['file_size'] >  match['_source']['file_size']:

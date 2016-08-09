@@ -145,12 +145,10 @@ class MediaFileManager:
 
             return data
         except Exception, err:
-
-            print ('\n')
             print err.message
             if self.debug: traceback.print_exc(file=sys.stdout)
-            print ('\n')
 
+    #TODO: DEBUG DEBUG DEBUG
     def get_doc(self, media):
         try:
             res1 = self.es.search(index=self.index_name, doc_type=self.document_type, body=
@@ -333,11 +331,11 @@ class MediaFileManager:
                             self.folderman.set_active_folder(unicode(root), 'scan')
 
                     except Exception, err:
-                        # print('\nException: ' + os.path.join(root, filename))
+                        # print('Exception: ' + os.path.join(root, filename))
                         print err.message
                         if self.debug: traceback.print_exc(file=sys.stdout)
                         # self.folderman.record_error("Exception=" + err.message)
-                        print '\nskipping folder: %s' % (root)
+                        print 'skipping folder: %s' % (root)
                         continue
 
                 for filename in files:
@@ -355,31 +353,30 @@ class MediaFileManager:
                                         matcher.match(media)
 
                         except IOError, err:
-                            print('\nIOError: ' + os.path.join(root, filename))
+                            # print('IOError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
                             self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                             return
 
                         except UnicodeEncodeError, err:
-                            print('\nUnicodeEncodeError: ' + os.path.join(root, filename))
+                            # print('UnicodeEncodeError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
                             self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                             return
 
                         except UnicodeDecodeError, err:
-                            print('\nUnicodeDecodeError: ' + os.path.join(root, filename))
+                            # print('UnicodeDecodeError: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
                             self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
 
                         except Exception, err:
-                            print('\nException: ' + os.path.join(root, filename))
+                            # print('Exception: ' + os.path.join(root, filename))
                             print err.message
                             if self.debug: traceback.print_exc(file=sys.stdout)
                             self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
-                            print('\n')
                             return
                 # root
                 # self.folderman.set_active_folder(None)
@@ -427,7 +424,7 @@ def main():
     m = MediaFileManager('54.82.250.249', 9200, 'media2', 'media_file');
     # m.delete_docs_for_path('/media/removable/SEAGATE 932/Media/Music/incoming/complete/compilations/Various - Tobacco Perfecto (LTM CD) [2013]/')
     m.clear_indexes()
-    m.debug = True
+    m.debug = False
     m.do_match = True
     m.scan(s)
 

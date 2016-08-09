@@ -16,18 +16,15 @@ def quote_if_string(value):
         return '"%s"' % value
     return value
 
-
 def insert_values(table_name, field_names, field_values):
-
     con = None
-
     try:
         formatted_values = [quote_if_string(value) for value in field_values]
 
         query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
 
         if DEBUG:
-            print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', '(\n\t\t').replace(')', '\n\t\t)') + '\n'
+            print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', ' (\n\t\t').replace(')', '\n\t\t)') + '\n'
 
         con = mdb.connect(HOST, USER, PASS, SCHEMA)
         cur = con.cursor()

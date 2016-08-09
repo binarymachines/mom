@@ -13,11 +13,6 @@ from elasticsearch import Elasticsearch
 import constants, mySQL4es
 from docopt import docopt
 
-
-
-
-
-
 pp = pprint.PrettyPrinter(indent=2)
 
 class QueryBuilder:
