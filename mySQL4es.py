@@ -33,14 +33,18 @@ def insert_values(table_name, field_names, field_values):
 
     except mdb.Error, e:
 
-        print "Error %d: %s" % (e.args[0], e.args[1])
-        raise e
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        raise Exception(message)
 
     finally:
         if con:
             con.close()
 
+# TODO: add handling for boolean values
 def retrieve_values(table_name, field_names, field_values):
+
+    con = None
+
     try:
 
         query = 'SELECT '
@@ -57,13 +61,13 @@ def retrieve_values(table_name, field_names, field_values):
         if len(field_values) > 0:
             query += ' WHERE '
 
-        pos = 0
-        for name in field_names:
-            query += name + ' = ' + '"' + field_values[pos] + '"'
-            pos += 1
-            if pos < len(field_values):
-                query += ' AND '
-            else: break
+            pos = 0
+            for name in field_names:
+                query += name + ' = ' + '"' + field_values[pos] + '"'
+                pos += 1
+                if pos < len(field_values):
+                    query += ' AND '
+                else: break
 
         if DEBUG:
             print '\n\t' + query.replace('WHERE', '\n\t      WHERE').replace('AND', '\n\t\tAND').replace('FROM', '\n\t       FROM')

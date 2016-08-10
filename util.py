@@ -26,20 +26,112 @@ def get_genre_folder_names():
 
     return genre_folders
 
-def delete_docs_for_path(path):
+def get_active_media_formats():
+    results = []
+    rows = mySQL4es.retrieve_values('media_format', ['active_flag', 'ext'], ['1'])
+    for r in rows: results.append(r[1])
+    return results
 
-    rows = mySQL4es.retrieve_like_values('elasticsearch_doc', ['absolute_file_path', 'id'], [path])
-    for r in rows:
-        res = self.es.delete(index="media",doc_type="media_file",id=r[1])
+def get_location_names():
+    results = []
+    rows = mySQL4es.retrieve_values('media_location_folder', ['name'], [])
+    for r in rows: results.append(r[0])
+    return results
 
 def get_location_folder_names():
     return  next(os.walk(constants.START_FOLDER))[1]
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_contains_album_folders(path):
+    raise Exception('not implemented!')
+
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_contains_genre_folders(path):
+    raise Exception('not implemented!')
+
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_contains_media(path, extensions):
+    # if self.debug: print path
+    if not os.path.isdir(path):
+        raise Exception('Path does not exist: "' + path + '"')
+
+    for f in os.listdir(path):
+        if os.path.isfile(os.path.join(path, f)):
+            for ext in extensions:
+                if f.lower().endswith('.' + ext):
+                    return True
+
+    return False
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_contains_multiple_media_types(path, extensions):
+    # if self.debug: print path
+    if not os.path.isdir(path):
+        raise Exception('Path does not exist: "' + path + '"')
+
+    found = []
+
+    for f in os.listdir(path):
+        if os.path.isfile(os.path.join(path, f)):
+            for ext in extensions:
+                if f.lower().endswith('.' + ext):
+                    if ext not in found:
+                        found.append(ext)
+
+    return len(found) > 1
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_has_location_name(path, names):
+    # if path.endswith('/'):
+    for name in names():
+        if path.endswith(name):
+            print path
+
+    # sys.exit(1)
+    # raise Exception('not implemented!')
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_in_album_folder(path):
+    # if self.debug: print path
+    if not os.path.isdir(path):
+        raise Exception('Path does not exist: "' + path + '"')
+
+    raise Exception('not implemented!')
+
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_in_genre_folder(path):
+    raise Exception('not implemented!')
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_in_location_folder(path):
+    raise Exception('not implemented!')
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_is_album_folder(path):
+    # if self.debug: print path
+    if not os.path.isdir(path):
+        raise Exception('Path does not exist: "' + path + '"')
+
+    raise Exception('not implemented!')
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_is_genre_folder(path):
+    raise Exception('not implemented!')
+
+#TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_is_location_folder(path):
+    raise Exception('not implemented!')
+
+# config for new setup
 
 def setup_genre_folders():
 
     folders = get_genre_folder_names()
     for f in folders:
-        print f
+        # print f
         rows = mySQL4es.retrieve_values('media_genre_folder', ['name'], [f.lower()])
         if len(rows) == 0:
             mySQL4es.insert_values('media_genre_folder', ['name'], [f.lower()])
@@ -53,16 +145,9 @@ def setup_location_folder_names():
         if len(rows) == 0:
             mySQL4es.insert_values('media_location_folder', ['name'], [f.lower()])
 
-def find_docs_missing_field(field):
-    query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : field }}}}}
+# def expunge(path):
 
-    es = Elasticsearch([{'host': '54.82.250.249', 'port': 9200}])
-    res = es.search(index='media', doc_type='media_file', body=query)
-
-    for doc in res['hits']['hits']:
-        pp.pprint(doc)
-
-# def expunge(self, path):
+# string utilities
 
 def str_clean4comp(input):
     alphanum = "1234567890abcdefghijklmnopqrstuvwxyz"
@@ -72,14 +157,3 @@ def str_clean4comp(input):
             output += letter.lower()
 
     return output
-
-# init
-random.seed()
-
-# main
-def main():
-    # print str_clean4comp('01_-_Hilt - Call the Ambulance before I hurt Myself - Get Out of the Grave, Alan.mp3')
-    print get_location_name("/media/removable/Audio/music/albums/industrial/portion control/code002/07 - micro box 2.mp3")
-
-if __name__ == '__main__':
-    main()

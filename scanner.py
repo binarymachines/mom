@@ -35,6 +35,7 @@ class Scanner:
             #         mySQL4es.insert_values('album', ['name', 'artist_id'], [album, artistid])
             except Exception, err:
                 print err.message
+                # sys.exit(1)
 
     def scan_file(self, media):
 
