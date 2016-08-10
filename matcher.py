@@ -42,6 +42,19 @@ class MediaMatcher:
     def name(self):
         raise Exception("Not Implemented!")
 
+    def match_comparison_result(self, orig, match):
+        if orig['_source']['file_size'] > match['_source']['file_size']:
+            return '>'
+        if orig['_source']['file_size'] == match['_source']['file_size']:
+            return '='
+        if orig['_source']['file_size'] < match['_source']['file_size']:
+            return '<'
+
+    def match_extensions_match(self, orig, match):
+        if orig['_source']['file_ext'] == match['_source']['file_ext']:
+            return 1
+        return 0
+
     def print_match_details(self, orig, match):
 
         if orig['_source']['file_size'] >  match['_source']['file_size']:
@@ -53,11 +66,11 @@ class MediaMatcher:
         elif orig['_source']['file_size'] <  match['_source']['file_size']:
             print(orig['_id'] + orig['_source']['file_name'] + ' <<< ' + match['_id'] + ': ' + match['_source']['absolute_file_path'] + ', ' + str(match['_source']['file_size']))
 
-    def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score):
+    def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
         # if self.mfm.debug == True: print 'recording match'
         if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
-            mySQL4es.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score'],
-                [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score)])
+            mySQL4es.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
+                [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
 
 class FolderNameMatcher(MediaMatcher):
     def match(self, media):
@@ -134,12 +147,18 @@ class BasicMatcher(ElasticSearchMatcher):
                             except Exception, err:
                                 print err.message
                                 traceback.print_exc(file=sys.stdout)
-                            self.record_match(media.esid,  match['_id'], self.name(), self.index_name, matched_fields, match['_score'])
-                            # try:
-                            #     thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name(), self.index_name, matched_fields, match['_score'], ) )
-                            # except Exception, err:
-                            #     print err.message
-                            # mySQL4es.DEBUG = False
+
+                            # self.record_match(media.esid,  match['_id'], self.name(), self.index_name, matched_fields, match['_score'],
+                            #     self.match_comparison_result(orig, match), str(self.match_extensions_match(orig, match)))
+
+                            try:
+                                thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name(), self.index_name, matched_fields, match['_score'],
+                                    self.match_comparison_result(orig, match), str(self.match_extensions_match(orig, match)), ) )
+                            except Exception, err:
+                                print err.message
+                                traceback.print_exc(file=sys.stdout)
+
+                            mySQL4es.DEBUG = False
 
                     except KeyError, err:
                         print err.message

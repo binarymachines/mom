@@ -252,14 +252,14 @@ class MediaManager:
             # location
             self.id_cache = None
 
-# logging
-LOG = "objman.log"
-logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
-
-# console handler
-console = logging.StreamHandler()
-console.setLevel(logging.ERROR)
-logging.getLogger("").addHandler(console)
+# # logging
+# LOG = "mom.log"
+# logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
+#
+# # console handler
+# console = logging.StreamHandler()
+# console.setLevel(logging.ERROR)
+# logging.getLogger("").addHandler(console)
 
 # main
 def main():
@@ -277,11 +277,11 @@ def main():
     s = ScanCriteria()
     s.extensions = ['mp3', 'flac', 'ape', 'iso', 'ogg', 'mpc', 'wav', 'aac']
 
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    for folder in next(os.walk(constants.START_FOLDER))[1]:
+        s.locations.append(os.path.join(constants.START_FOLDER + folder))
     s.locations.append(constants.EXPUNGED)
     s.locations.append(constants.NOSCAN)
-    for folder in next(os.walk(constants.START_FOLDER))[1]:
-        s.locations.append(constants.START_FOLDER + folder)
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
     s.locations.append('/media/removable/SEAGATE 932/Media/radio')

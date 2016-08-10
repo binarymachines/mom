@@ -200,11 +200,15 @@ def truncate(table_name):
 #NOTE: The methods that follow are specific to this es application and should live elsewehere
 
 def ensure_exists_in_mysql(esid, path, indexname, documenttype):
-    if DEBUG: print("checking for row for: "+ path)
-    rows = retrieve_values('elasticsearch_doc', ['absolute_path', 'index_name'], [path, indexname])
-    if len(rows) ==0:
-        if DEBUG: print('Updating local MySQL...')
-        insert_esid(indexname, documenttype, esid, path)
+    try:
+        if DEBUG: print("checking for row for: "+ path)
+        rows = retrieve_values('elasticsearch_doc', ['absolute_path', 'index_name'], [path, indexname])
+        if len(rows) ==0:
+            if DEBUG: print('Updating local MySQL...')
+            insert_esid(indexname, documenttype, esid, path)
+    except mdb.Error, e:
+
+        print "Error %d: %s" % (e.args[0], e.args[1])
 
 
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
