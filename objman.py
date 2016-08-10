@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, random, logging, traceback
+import os, json, pprint, sys, random, logging, traceback, thread
 from elasticsearch import Elasticsearch
 from mutagen.id3 import ID3, ID3NoHeaderError
 from data import MediaFile, ScanCriteria
@@ -11,9 +11,11 @@ from scanner import Scanner
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class MediaFileManager:
+class MediaManager:
 
     def __init__(self, hostname, portnum, indexname, documenttype):
+
+        self.pid = os.getpid()
 
         self.port = portnum;
         self.host = hostname
@@ -35,38 +37,17 @@ class MediaFileManager:
         self.RECENT = self.get_folder_constants('recent')
         self.UNSORTED = self.get_folder_constants('unsorted')
 
-        self.connect()
+        self.es = esutil.connect(hostname, portnum)
+        self.folderman = MediaFolderManager(self.es, self.index_name)
 
     def cache_ids(self, path):
         self.id_cache = mySQL4es.retrieve_esids(self.index_name, self.document_type, path)
 
-    def clear_indexes(self):
-
-        choice = raw_input("Delete '%s' index? " % (self.index_name))
-        if choice.lower() == 'yes':
-            if self.es.indices.exists(self.index_name):
-                print("deleting '%s' index..." % (self.index_name))
-                res = self.es.indices.delete(index = self.index_name)
-                print(" response: '%s'" % (res))
-
-
-            # since we are running locally, use one shard and no replicas
-            request_body = {
-                "settings" : {
-                    "number_of_shards": 1,
-                    "number_of_replicas": 0
-                }
-            }
-
-            print("creating '%s' index..." % (self.index_name))
-            res = self.es.indices.create(index = self.index_name, body = request_body)
-            print(" response: '%s'" % (res))
-
-    def connect(self):
-        if self.debug: print('Connecting to %s:%d...' % (hostname, portnum))
-        self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
-        self.folderman = MediaFolderManager(self.es, self.index_name)
-        if self.debug: print('Connected.')
+    # def connect(self):
+    #     if self.debug: print('Connecting to %s:%d...' % (hostname, portnum))
+    #     self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
+    #     self.folderman = MediaFolderManager(self.es, self.index_name)
+    #     if self.debug: print('Connected.')
 
     # TODO: refactor
     def doc_exists(self, media, attach_if_found):
@@ -92,24 +73,12 @@ class MediaFileManager:
                     if self.debug == True: print "attaching esid %s to %s." % (esid, media.file_name)
                     media.esid = esid
                 # found, update local MySQL
+                # if self.debug == True: print 'inserting esid'
                 mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
+                # if self.debug == True: print 'esid inserted'
                 return True
 
         return False
-
-    # def doc_refers_to(self, doc, media):
-    #     # print doc['_source']['absolute_file_path']
-    #     if doc['_source']['absolute_file_path'] == unicode(media.absolute_file_path):
-    #         return True
-    #
-    #     return False
-
-    def ensure_exists_in_mysql(self, esid, absolute_file_path):
-        if self.debug: print("checking for row for: "+ absolute_file_path)
-        rows = mySQL4es.retrieve_values('elasticsearch_doc', ['absolute_path', 'index_name'], [absolute_file_path, self.index_name])
-        if len(rows) ==0:
-            if self.debug: print('Updating local MySQL...')
-            mySQL4es.insert_esid(self.index_name, self.document_type, esid, absolute_file_path)
 
     def get_cached_id_for(self, path):
 
@@ -119,34 +88,6 @@ class MediaFileManager:
                     return row[1]
 
         return None
-
-    def get_dictionary(self, media):
-        try:
-            data = {
-                    'absolute_file_path': media.absolute_file_path,
-                    'file_ext': media.ext,
-                    'file_name': media.file_name,
-                    'folder_name': media.folder_name,
-                    'file_size': media.file_size
-                    }
-
-            if media.location is not None: data['folder_location'] = media.location
-
-            data['filed'] = media.is_filed()
-            data['compilation'] = media.is_filed_as_compilation()
-            data['webcast']= media.is_webcast()
-            data['unsorted'] = media.is_unsorted()
-            data['random'] = media.is_random()
-            data['new'] = media.is_new()
-            data['recent'] = media.is_recent()
-            data['active'] = media.active
-            data['deleted'] = media.deleted
-            data['live_recording'] = media.is_filed_as_live()
-
-            return data
-        except Exception, err:
-            print err.message
-            if self.debug: traceback.print_exc(file=sys.stdout)
 
     #TODO: DEBUG DEBUG DEBUG
     def get_doc(self, media):
@@ -272,7 +213,13 @@ class MediaFileManager:
                                     scanner.scan_file(media)
                                     # find dupes
                                     if media.esid is not None and self.do_match:
-                                        matcher.match(media)
+                                        # matcher.match(media)
+                                        try:
+                                            # print 'adding %s to MySQL...' % (artist)
+                                            thread.start_new_thread( matcher.match, ( media, ) )
+                                        except Exception, err:
+                                            print err.message
+
 
                         except IOError, err:
                             # print('IOError: ' + os.path.join(root, filename))
@@ -305,14 +252,14 @@ class MediaFileManager:
             # location
             self.id_cache = None
 
-# # logging
-# LOG = "ccd.log"
-# logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
-#
-# # console handler
-# console = logging.StreamHandler()
-# console.setLevel(logging.ERROR)
-# logging.getLogger("").addHandler(console)
+# logging
+LOG = "objman.log"
+logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
+
+# console handler
+console = logging.StreamHandler()
+console.setLevel(logging.ERROR)
+logging.getLogger("").addHandler(console)
 
 # main
 def main():
@@ -322,19 +269,19 @@ def main():
     # mySQL4es.truncate('media_folder')
     # esutil.delete_docs_for_path(self.es, self.index_name, self.document_type, constants.START_FOLDER)
 
-    mfm = MediaFileManager('54.82.250.249', 9200, 'media', 'media_file');
-    # mfm.clear_indexes()
+    mfm = MediaManager('54.82.250.249', 9200, 'media', 'media_file');
+    # esutil.clear_indexes(mfm.es, mfm.index_name)
     mfm.debug = True
     mfm.do_match = True
 
     s = ScanCriteria()
     s.extensions = ['mp3', 'flac', 'ape', 'iso', 'ogg', 'mpc', 'wav', 'aac']
 
-    for folder in next(os.walk(constants.START_FOLDER))[1]:
-        s.locations.append(constants.START_FOLDER + folder)
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
     s.locations.append(constants.EXPUNGED)
     s.locations.append(constants.NOSCAN)
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    for folder in next(os.walk(constants.START_FOLDER))[1]:
+        s.locations.append(constants.START_FOLDER + folder)
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
     s.locations.append('/media/removable/SEAGATE 932/Media/radio')

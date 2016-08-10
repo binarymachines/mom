@@ -128,6 +128,34 @@ class MediaFile:
 
         return False
 
+    def get_dictionary(self):
+        try:
+            data = {
+                    'absolute_file_path': self.absolute_file_path,
+                    'file_ext': self.ext,
+                    'file_name': self.file_name,
+                    'folder_name': self.folder_name,
+                    'file_size': self.file_size
+                    }
+
+            if self.location is not None: data['folder_location'] = self.location
+
+            data['filed'] = self.is_filed()
+            data['compilation'] = self.is_filed_as_compilation()
+            data['webcast']= self.is_webcast()
+            data['unsorted'] = self.is_unsorted()
+            data['random'] = self.is_random()
+            data['new'] = self.is_new()
+            data['recent'] = self.is_recent()
+            data['active'] = self.active
+            data['deleted'] = self.deleted
+            data['live_recording'] = self.is_filed_as_live()
+
+            return data
+        except Exception, err:
+            print err.message
+            # if self.debug: traceback.print_exc(file=sys.stdout)
+
     def to_str(self):
         print "esid: " + str(self.esid)
         print "absolute path: " + self.absolute_file_path

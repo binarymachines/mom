@@ -6,14 +6,18 @@ import mySQL4es
 from mutagen.id3 import ID3, ID3NoHeaderError
 from data import MediaFile, ScanCriteria
 import constants
+import thread
 
 pp = pprint.PrettyPrinter(indent=4)
 
 class Scanner:
-    def __init__(self, MediaFileManager):
-        self.mfm = MediaFileManager
-        self.es = MediaFileManager.es
-        self.debug = MediaFileManager.debug
+    def __init__(self, mediaManager):
+        self.mfm = mediaManager
+        self.es = mediaManager.es
+        self.debug = mediaManager.debug
+        self.folderman = mediaManager.folderman
+        self.index_name = mediaManager.index_name
+        self.document_type = mediaManager.document_type
 
     # TODO: figure out why this fails
     def add_artist_and_album_to_db(self, data):
@@ -23,7 +27,14 @@ class Scanner:
                 artist = data['TPE1'].lower()
                 rows = mySQL4es.retrieve_values('artist', ['name', 'id'], [artist])
                 if len(rows) == 0:
-                    mySQL4es.insert_values('artist', ['name'], [artist])
+                    try:
+                        print 'adding %s to MySQL...' % (artist)
+                        thread.start_new_thread( mySQL4es.insert_values, ( 'artist', ['name'], [artist], ) )
+                    except Exception, err:
+                        print err.message
+                        traceback.print_exc(file=sys.stdout)
+
+                    # mySQL4es.insert_values('artist', ['name'], [artist])
             #     rows = mySQL4es.retrieve_values('artist', ['name', 'id'], [artist])
             #
             # artistid = rows[0][1]
@@ -35,12 +46,13 @@ class Scanner:
             #         mySQL4es.insert_values('album', ['name', 'artist_id'], [album, artistid])
             except Exception, err:
                 print err.message
+                traceback.print_exc(file=sys.stdout)
                 # sys.exit(1)
 
     def scan_file(self, media):
 
-        folder = self.mfm.folderman.folder
-        data = self.mfm.get_dictionary(media)
+        folder =  self.folderman.folder
+        data = media.get_dictionary()
 
         try:
             if media.esid is not None:
@@ -49,7 +61,6 @@ class Scanner:
 
             if  media.esid == None and self.mfm.doc_exists(media, True):
                 return media
-
 
             if self.debug: print("scanning file: " + media.file_name)
             mutagen_mediafile = ID3(media.absolute_file_path)
@@ -73,25 +84,25 @@ class Scanner:
             data['scan_error'] = err.message
             data['has_error'] = True
             print err.message
-            self.mfm.folderman.record_error(folder, "ID3NoHeaderError=" + err.message)
+            self.folderman.record_error(folder, "ID3NoHeaderError=" + err.message)
             if self.debug: traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
             # print('Exception: ' + media.absolute_file_path)
             print err.message
             if self.debug: traceback.print_exc(file=sys.stdout)
-            self.mfm.folderman.record_error(folder, "UnicodeEncodeError=" + err.message)
+            self.folderman.record_error(folder, "UnicodeEncodeError=" + err.message)
             return
 
         except UnicodeDecodeError, err:
             # print('Exception: ' + media.absolute_file_path)
             print err.message
             if self.debug: traceback.print_exc(file=sys.stdout)
-            self.mfm.folderman.record_error(folder, "UnicodeDecodeError=" + err.message)
+            self.folderman.record_error(folder, "UnicodeDecodeError=" + err.message)
             return
 
         if self.debug: "indexing file: %s" % (media.file_name)
-        res = self.es.index(index=self.mfm.index_name, doc_type=self.mfm.document_type, body=json.dumps(data))
+        res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json.dumps(data))
         # pp.pprint(res)
 
         if res['_shards']['successful'] == 1:
@@ -99,6 +110,6 @@ class Scanner:
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
             if self.debug: print "storing document id: %s" % (media.esid)
-            mySQL4es.insert_esid(self.mfm.index_name, self.mfm.document_type, media.esid, media.absolute_file_path)
+            mySQL4es.insert_esid(self.index_name, self.document_type, media.esid, media.absolute_file_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))

@@ -34,8 +34,8 @@ def insert_values(table_name, field_names, field_values):
     except mdb.Error, e:
 
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        raise Exception(message)
-
+        # raise Exception(message)
+        print message
     finally:
         if con:
             con.close()
@@ -192,13 +192,20 @@ def truncate(table_name):
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
-        sys.exit(1)
 
     finally:
         if con:
             con.close()
 
 #NOTE: The methods that follow are specific to this es application and should live elsewehere
+
+def ensure_exists_in_mysql(esid, path, indexname, documenttype):
+    if DEBUG: print("checking for row for: "+ path)
+    rows = retrieve_values('elasticsearch_doc', ['absolute_path', 'index_name'], [path, indexname])
+    if len(rows) ==0:
+        if DEBUG: print('Updating local MySQL...')
+        insert_esid(indexname, documenttype, esid, path)
+
 
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
     insert_values('elasticsearch_doc', ['index_name', 'doc_type', 'id', 'absolute_path'],
@@ -235,7 +242,6 @@ def retrieve_esids(index, document_type, file_path):
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
-        sys.exit(1)
 
     finally:
         if con:

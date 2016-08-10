@@ -81,9 +81,9 @@ class Walker(object):
             except Exception, err:
                 self.handle_file_error(err)
 
-class DirectoryProblemFinder(Walker):
+class MediaLibraryWalker(Walker):
     def __init__(self):
-        super(DirectoryProblemFinder, self).__init__()
+        super(MediaLibraryWalker, self).__init__()
 
         self.album_checkers = []
         self.artist_checkers = []
@@ -113,11 +113,12 @@ class DirectoryProblemFinder(Walker):
             checker.check_dir(path)
 
     def handle_dir(self, directory):
-        super(DirectoryProblemFinder, self).handle_dir(directory)
+        super(MediaLibraryWalker, self).handle_dir(directory)
         path = os.path.join(self.current_root, directory)
         if directory in self.genre_names:
             self.check_genre_dir(path)
         else: self.check_album_dir(path)
+
 
 # NOTE: This DirectorChecker is the worker class, its subclasses will run matchers, find duplicates, etc
 # NOTE: album_checkers apply at whatever level of granularity (location, genre, album, artist)
@@ -130,7 +131,15 @@ class AbstractDirectoryChecker(object):
     def check_dir(self, path):
         raise Exception("Not implemented!")
 
+class AlbumInWrongArtist(AbstractDirectoryChecker):
+    # NOTE: this checker applies at the location, genre, artist and side_project levels
+    pass
+
 class DirectoriesDeleted(AbstractDirectoryChecker):
+    # NOTE: this checker applies at the location, genre, artist and side_project levels
+    pass
+
+class FileNamesContainFolderName(AbstractDirectoryChecker):
     # NOTE: this checker applies at the location, genre, artist and side_project levels
     pass
 
@@ -163,11 +172,13 @@ class IsInGenreFolder(AbstractDirectoryChecker):
                 print "%s contains music but hasn't been filed." % (path)
 
 def main():
-    walker = DirectoryProblemFinder()
+    walker = MediaLibraryWalker()
     walker.debug = False
     walker.album_checkers.append(IsInGenreFolder(walker))
     walker.album_checkers.append(HasDuplicates(walker))
     walker.walk('/media/removable/Audio/music/incoming/slsk/complete')
+
+
 
 if __name__ == '__main__':
     main()
