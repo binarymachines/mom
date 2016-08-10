@@ -112,8 +112,7 @@ class MediaFolderManager:
                 #         ['absolute_folder_path'], [self.mediafoldermanager.media_folder.absolute_folder_path])
 
 
-                # if self.debug: 
-                print '### setting active: %s' % (foldername)
+                if self.debug: print '### setting active: %s' % (foldername)
                 self.folder.absolute_folder_path = foldername
                 if not(self.doc_exists(self.folder)):
                         data = self.make_data(self.folder)
