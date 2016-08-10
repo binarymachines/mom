@@ -5,6 +5,36 @@ import sys
 from elasticsearch import Elasticsearch
 import mySQL4es
 
+def clear_indexes(es, indexname):
+
+    choice = raw_input("Delete '%s' index? " % (indexname))
+    if choice.lower() == 'yes':
+        if es.indices.exists(indexname):
+            print("deleting '%s' index..." % (indexname))
+            res = es.indices.delete(index = indexname)
+            print(" response: '%s'" % (res))
+
+
+        # since we are running locally, use one shard and no replicas
+        request_body = {
+            "settings" : {
+                "number_of_shards": 1,
+                "number_of_replicas": 0
+            }
+        }
+
+        print("creating '%s' index..." % (indexname))
+        res = es.indices.create(index = indexname, body = request_body)
+        print(" response: '%s'" % (res))
+
+def connect(hostname, portnum):
+    # if self.debug:
+    print('Connecting to %s:%d...' % (hostname, portnum))
+    es = Elasticsearch([{'host': hostname, 'port': portnum}])
+    # if self.debug:
+    print('Connected.')
+    return es
+
 def delete_docs_for_path(es, indexname, doctype, path):
 
     rows = mySQL4es.retrieve_like_values('elasticsearch_doc', ['index_name', 'document_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, True])
