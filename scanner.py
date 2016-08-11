@@ -5,6 +5,7 @@ from elasticsearch import Elasticsearch
 import mySQL4es
 from mutagen.id3 import ID3, ID3NoHeaderError
 from data import MediaFile, ScanCriteria
+
 import constants
 import thread
 
@@ -77,6 +78,7 @@ class Scanner:
                             key=subtags[0].replace(' ', '_').upper()
                             data[key] = subtags[1]
 
+                            
             self.add_artist_and_album_to_db(data)
 
         except ID3NoHeaderError, err:

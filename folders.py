@@ -79,7 +79,8 @@ class MediaFolderManager:
     def record_operation(self, folder, operation):
         if folder is not None and operation is not None:
             # self.folder.latest_operation = operation
-            if self.debug: print("recording operation: " + operation + ", " + folder.esid + ", " + folder.absolute_folder_path)
+            # if self.debug:
+            print("recording operation: " + operation + ", " + folder.esid + ", " + folder.absolute_folder_path)
             res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_operation": operation }})
 
     def record_exists(self, mediafolder):
@@ -97,10 +98,6 @@ class MediaFolderManager:
             [mediafolder.absolute_folder_path, update])
 
     def set_active_folder(self, foldername, operation):
-
-        # if foldername is None:
-        #     self.folder = None
-        #     return
 
         try:
             if self.folder == None: self.folder = MediaFolder()

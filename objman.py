@@ -8,10 +8,11 @@ from folders import MediaFolderManager
 import constants, mySQL4es, util, esutil
 from matcher import BasicMatcher
 from scanner import Scanner
+from walker import MediaLibraryWalker
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class MediaManager:
+class MediaManager(MediaLibraryWalker):
 
     def __init__(self, hostname, portnum, indexname, documenttype):
 
@@ -39,15 +40,91 @@ class MediaManager:
 
         self.es = esutil.connect(hostname, portnum)
         self.folderman = MediaFolderManager(self.es, self.index_name)
+        self.active_criteria = None
+
+        self.matcher = BasicMatcher(self)
+        self.scanner = Scanner(self)
+
+    def after_handle_root(self, root):
+        op = 'scanned'
+        folder = self.folderman.folder
+        if folder is not None and folder.absolute_folder_path == root:
+            # if self.debug:
+            print 'updating record for folder: %s' % (root)
+            self.folderman.record_operation(folder, op)
+
+    def before_handle_root(self, root):
+        op = 'scanning'
+        try:
+            if util.path_contains_media(root, self.active_criteria.extensions):
+                if self.folderman.get_latest_operation(root) != 'scanned':
+                    self.folderman.set_active_folder(unicode(root), op)
+                else:
+                    # if self.debug:
+                    print 'skipping folder: %s' % (root)
+                    self.folderman.folder = None
+
+        except Exception, err:
+            print err.message
+            if self.debug: traceback.print_exc(file=sys.stdout)
+
+    def handle_root(self, root):
+        folder = self.folderman.folder
+        if folder is not None:
+            if self.debug: print 'scanning folder: %s' % (root)
+            for filename in os.listdir(root):
+                self.handle_media_folder(os.path.join(root, filename))
+
+    def handle_root_error(self, err):
+        print err.message
+
+    def handle_media_folder(self, filename):
+        for extension in self.active_criteria.extensions:
+            try:
+                if filename.lower().endswith(''.join(['.', extension])) \
+                    and not filename.lower().startswith('incomplete~'):
+                        media = self.get_media_object(filename)
+                        if media is None or media.ignore(): continue
+                        # scan tag info if this file hasn't been assigned na esid
+                        if media.esid is not None: self.scanner.scan_file(media)
+                        # start matchers
+                        if media.esid is not None and self.do_match:
+                            self.matcher.match(media)
+            except IOError, err:
+                # print('IOError: ' + os.path.join(root, filename))
+                print err.message
+                if self.debug: traceback.print_exc(file=sys.stdout)
+                self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
+                return
+
+            except UnicodeEncodeError, err:
+                # print('UnicodeEncodeError: ' + os.path.join(root, filename))
+                print err.message
+                if self.debug: traceback.print_exc(file=sys.stdout)
+                self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
+                return
+
+            except UnicodeDecodeError, err:
+                # print('UnicodeDecodeError: ' + os.path.join(root, filename))
+                print err.message
+                if self.debug: traceback.print_exc(file=sys.stdout)
+                self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+
+            except Exception, err:
+                # print('Exception: ' + os.path.join(root, filename))
+                print err.message
+                if self.debug: traceback.print_exc(file=sys.stdout)
+                self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
+                return
 
     def cache_ids(self, path):
         self.id_cache = mySQL4es.retrieve_esids(self.index_name, self.document_type, path)
 
-    # def connect(self):
-    #     if self.debug: print('Connecting to %s:%d...' % (hostname, portnum))
-    #     self.es = Elasticsearch([{'host': self.host, 'port': self.port}])
-    #     self.folderman = MediaFolderManager(self.es, self.index_name)
-    #     if self.debug: print('Connected.')
+    def get_cached_id_for(self, path):
+        if self.id_cache is not None:
+            for row in self.id_cache:
+                if path in row[0]:
+                    return row[1]
 
     # TODO: refactor
     def doc_exists(self, media, attach_if_found):
@@ -79,15 +156,6 @@ class MediaManager:
                 return True
 
         return False
-
-    def get_cached_id_for(self, path):
-
-        if self.id_cache is not None:
-            for row in self.id_cache:
-                if path in row[0]:
-                    return row[1]
-
-        return None
 
     #TODO: DEBUG DEBUG DEBUG
     def get_doc(self, media):
@@ -150,7 +218,6 @@ class MediaManager:
 
         return result
 
-
     def get_media_object(self, absolute_file_path):
 
         media = MediaFile(self)
@@ -162,9 +229,9 @@ class MediaManager:
         foldername = path.replace(location, '')
 
         media.absolute_file_path = unicode(absolute_file_path, "utf-8")
+        media.file_name = unicode(filename, "utf-8")
         media.location = location
         media.ext = unicode(extension, "utf-8")
-        media.file_name = unicode(filename, "utf-8")
         media.folder_name = foldername
         media.file_size = os.path.getsize(absolute_file_path)
 
@@ -174,83 +241,12 @@ class MediaManager:
 
     #TODO: Offline mode - skip scan, go directly to match operation
     def scan(self, criteria):
-
-        active_dir = ''
-
-        matcher = BasicMatcher(self)
-        scanner = Scanner(self)
-
+        self.active_criteria = criteria
         for location in criteria.locations:
             self.cache_ids(location)
-            for root, dirs, files in os.walk(location, topdown=True, followlinks=False):
-                if root != active_dir:
-                    try:
-                        if self.folderman.get_latest_operation(root) == 'tag-scan':
-                            if not self.debug: print 'skipping folder: %s' % (root)
-                            continue
-
-                        if util.path_contains_media(root, criteria.extensions):
-                            active_dir = root
-                            self.folderman.set_active_folder(unicode(root), 'tag-scan')
-
-                    except Exception, err:
-                        # print('Exception: ' + os.path.join(root, filename))
-                        print err.message
-                        if self.debug: traceback.print_exc(file=sys.stdout)
-                        # self.folderman.record_error("Exception=" + err.message)
-                        print 'skipping folder: %s' % (root)
-                        continue
-
-                for filename in files:
-                    for extension in criteria.extensions:
-                        try:
-                            if filename.lower().endswith(''.join(['.', extension])) and not filename.lower().startswith('incomplete~'):
-                                media = self.get_media_object(os.path.join(root, filename))
-
-                                if media is not None:
-                                    if media.ignore(): continue
-                                    # scan tag info
-                                    scanner.scan_file(media)
-                                    # find dupes
-                                    if media.esid is not None and self.do_match:
-                                        # matcher.match(media)
-                                        try:
-                                            # print 'adding %s to MySQL...' % (artist)
-                                            thread.start_new_thread( matcher.match, ( media, ) )
-                                        except Exception, err:
-                                            print err.message
-
-
-                        except IOError, err:
-                            # print('IOError: ' + os.path.join(root, filename))
-                            print err.message
-                            if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
-                            return
-
-                        except UnicodeEncodeError, err:
-                            # print('UnicodeEncodeError: ' + os.path.join(root, filename))
-                            print err.message
-                            if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
-                            return
-
-                        except UnicodeDecodeError, err:
-                            # print('UnicodeDecodeError: ' + os.path.join(root, filename))
-                            print err.message
-                            if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
-
-                        except Exception, err:
-                            # print('Exception: ' + os.path.join(root, filename))
-                            print err.message
-                            if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
-                            return
-                # root
-                # self.folderman.set_active_folder(None)
-            # location
+            self.walk(location)
             self.id_cache = None
+
 
 # # logging
 # LOG = "mom.log"
@@ -261,33 +257,108 @@ class MediaManager:
 # console.setLevel(logging.ERROR)
 # logging.getLogger("").addHandler(console)
 
-# main
 def main():
 
+    s = ScanCriteria()
+    s.extensions = util.get_active_media_formats()
+    s.locations.append(constants.EXPUNGED)
+    s.locations.append(constants.NOSCAN)
+    for folder in next(os.walk(constants.START_FOLDER))[1]:
+        s.locations.append(os.path.join(constants.START_FOLDER, folder))
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
+    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
+
+    mfm = MediaManager('54.82.250.249', 9200, 'media', 'media_file');
+    mfm.debug = True
+    mfm.do_match = True
+
+    # esutil.clear_indexes(mfm.es, mfm.index_name)
     # mySQL4es.truncate('elasticsearch_doc')
     # mySQL4es.truncate('matched')
     # mySQL4es.truncate('media_folder')
     # esutil.delete_docs_for_path(self.es, self.index_name, self.document_type, constants.START_FOLDER)
 
-    mfm = MediaManager('54.82.250.249', 9200, 'media', 'media_file');
-    # esutil.clear_indexes(mfm.es, mfm.index_name)
-    mfm.debug = True
-    mfm.do_match = True
-
-    s = ScanCriteria()
-    s.extensions = ['mp3', 'flac', 'ape', 'iso', 'ogg', 'mpc', 'wav', 'aac']
-
-    for folder in next(os.walk(constants.START_FOLDER))[1]:
-        s.locations.append(os.path.join(constants.START_FOLDER + folder))
-    s.locations.append(constants.EXPUNGED)
-    s.locations.append(constants.NOSCAN)
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
-    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
-
     mfm.scan(s)
 
 
+# main
 if __name__ == '__main__':
     main()
+
+    # def scan(self, criteria):
+    #
+    #     active_dir = ''
+    #
+    #     for location in criteria.locations:
+    #         self.cache_ids(location)
+    #         for root, dirs, files in os.walk(location, topdown=True, followlinks=False):
+    #             if root != active_dir:
+    #                 try:
+    #                     if self.folderman.get_latest_operation(root) == 'tag-scan':
+    #                         if not self.debug: print 'skipping folder: %s' % (root)
+    #                         continue
+    #
+    #                     if util.path_contains_media(root, criteria.extensions):
+    #                         active_dir = root
+    #                         self.folderman.set_active_folder(unicode(root), 'tag-scan')
+    #
+    #                 except Exception, err:
+    #                     # print('Exception: ' + os.path.join(root, filename))
+    #                     print err.message
+    #                     if self.debug: traceback.print_exc(file=sys.stdout)
+    #                     # self.folderman.record_error("Exception=" + err.message)
+    #                     print 'skipping folder: %s' % (root)
+    #                     continue
+    #
+    #             for filename in files:
+    #                 for extension in criteria.extensions:
+    #                     try:
+    #                         if filename.lower().endswith(''.join(['.', extension])) and not filename.lower().startswith('incomplete~'):
+    #                             media = self.get_media_object(os.path.join(root, filename))
+    #
+    #                             if media is not None:
+    #                                 if media.ignore(): continue
+    #                                 # scan tag info
+    #                                 self.scanner.scan_file(media)
+    #                                 # find dupes
+    #                                 if media.esid is not None and self.do_match:
+    #                                     # matcher.match(media)
+    #                                     try:
+    #                                         # print 'adding %s to MySQL...' % (artist)
+    #                                         thread.start_new_thread( self.matcher.match, ( media, ) )
+    #                                     except Exception, err:
+    #                                         print err.message
+    #
+    #
+    #                     except IOError, err:
+    #                         # print('IOError: ' + os.path.join(root, filename))
+    #                         print err.message
+    #                         if self.debug: traceback.print_exc(file=sys.stdout)
+    #                         self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
+    #                         return
+    #
+    #                     except UnicodeEncodeError, err:
+    #                         # print('UnicodeEncodeError: ' + os.path.join(root, filename))
+    #                         print err.message
+    #                         if self.debug: traceback.print_exc(file=sys.stdout)
+    #                         self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
+    #                         return
+    #
+    #                     except UnicodeDecodeError, err:
+    #                         # print('UnicodeDecodeError: ' + os.path.join(root, filename))
+    #                         print err.message
+    #                         if self.debug: traceback.print_exc(file=sys.stdout)
+    #                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+    #
+    #                     except Exception, err:
+    #                         # print('Exception: ' + os.path.join(root, filename))
+    #                         print err.message
+    #                         if self.debug: traceback.print_exc(file=sys.stdout)
+    #                         self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
+    #                         return
+    #             # root
+    #             # self.folderman.set_active_folder(None)
+    #         # location
+    #         self.id_cache = None
