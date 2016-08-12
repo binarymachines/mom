@@ -95,9 +95,9 @@ class MediaFolderManager:
 
     def record_exists(self, mediafolder):
         rows = mySQL4es.retrieve_values('media_folder', ['absolute_folder_path'], [mediafolder.absolute_folder_path])
-        if len(rows) == 0: return False
-
-        return True
+        if len(rows) == 0:
+            return False
+        else: return True
 
     def insert_record(self, mediafolder):
         mySQL4es.insert_values('media_folder', ['absolute_folder_path', 'latest_operation'],
@@ -114,7 +114,7 @@ class MediaFolderManager:
             if path == self.folder.absolute_folder_path: return
             if path != self.folder.absolute_folder_path:
 
-                # if self.debug: 
+                # if self.debug:
                 print '### setting active: %s' % (path)
 
                 self.folder.absolute_folder_path = path
@@ -133,6 +133,7 @@ class MediaFolderManager:
                     res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json_str)
                     if res['_shards']['successful'] == 1:
                         self.folder.esid = res['_id']
+                        # update elasticsearch_doc with media_folder
                         mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_folder_path)
                     else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 

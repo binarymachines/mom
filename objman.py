@@ -73,12 +73,12 @@ class MediaManager(MediaLibraryWalker):
         if folder is not None:
             if self.debug: print 'scanning folder: %s' % (root)
             for filename in os.listdir(root):
-                self.handle_media_folder(os.path.join(root, filename))
+                self.process_file(os.path.join(root, filename))
 
     def handle_root_error(self, err):
         print ': '.join([err.__class__.__name__, err.message])
 
-    def handle_media_folder(self, filename):
+    def process_file(self, filename):
         for extension in self.active_criteria.extensions:
             try:
                 if filename.lower().endswith(''.join(['.', extension])) \
@@ -283,7 +283,7 @@ def main():
     s.locations.append('/media/removable/SEAGATE 932/Media/radio')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
 
-    mfm = MediaManager('54.82.250.249', 9200, 'media', 'media_file');
+    mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
     mfm.debug = False
     mfm.do_match = True
 
