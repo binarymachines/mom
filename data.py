@@ -1,5 +1,7 @@
 #! /usr/bin/python
 
+import os, sys, time
+
 class MediaFile:
     def __init__(self, manager):
         self.absolute_file_path = u'UNKNOWN'
@@ -140,6 +142,8 @@ class MediaFile:
 
             if self.location is not None: data['folder_location'] = self.location
 
+            data['ctime'] = time.ctime(os.path.getctime(self.absolute_file_path))
+            data['mtime'] = time.ctime(os.path.getmtime(self.absolute_file_path))
             data['filed'] = self.is_filed()
             data['compilation'] = self.is_filed_as_compilation()
             data['webcast']= self.is_webcast()

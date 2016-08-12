@@ -2,7 +2,14 @@
 
 import os
 import sys
+import time
 import MySQLdb as mdb
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import NotFoundError
+
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 HOST = 'localhost'
 USER = 'root'
@@ -17,6 +24,7 @@ def quote_if_string(value):
     return value
 
 def insert_values(table_name, field_names, field_values):
+
     con = None
     try:
         formatted_values = [quote_if_string(value) for value in field_values]
@@ -250,3 +258,49 @@ def retrieve_esids(index, document_type, file_path):
     finally:
         if con:
             con.close()
+
+# def main():
+#     es = Elasticsearch([{'host': '54.82.250.249', 'port': 9200}])
+#     rows = None
+#
+#     try:
+#         query = "SELECT id, absolute_path FROM elasticsearch_doc WHERE index_name = 'media' and doc_type='media_file'"
+#
+#         con = mdb.connect(HOST, USER, PASS, SCHEMA)
+#         cur = con.cursor()
+#         cur.execute(query)
+#         rows = cur.fetchall()
+#
+#         for row in rows:
+#             print ', '.join([row[0], row[1]])
+#             print row[1]
+#             if os.path.isfile(row[1]):
+#                 try:
+#                     doc = es.get(index='media', doc_type='media_file', id=row[0])
+#                     if doc is not None:
+#                         if not 'mtime' in doc['_source']:
+#                             res = es.update(index='media', doc_type='media_file', id=row[0], body={"doc": {"ctime": time.ctime(os.path.getctime(row[1])), "mtime": time.ctime(os.path.getmtime(row[1])) }})
+#
+#                 except Exception, err:
+#                     print ': '.join([err.__class__.__name__, err.message])
+#                     query = "DELETE FROM elasticsearch_doc WHERE id = '%s'" % (row[0])
+#                     con2 = mdb.connect(HOST, USER, PASS, SCHEMA)
+#                     cur2 = con2.cursor()
+#                     cur2.execute(query)
+#                     con2.commit()
+#                     con2.close()
+#             else:
+#                 query = "DELETE FROM elasticsearch_doc WHERE id = '%s'" % (row[0])
+#                 con2 = mdb.connect(HOST, USER, PASS, SCHEMA)
+#                 cur2 = con2.cursor()
+#                 cur2.execute(query)
+#                 con2.commit()
+#                 con2.close()
+#
+#     finally:
+#         if con:
+#             con.close()
+#
+# # main
+# if __name__ == '__main__':
+#     main()

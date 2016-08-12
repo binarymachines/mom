@@ -1,5 +1,9 @@
 #! /usr/bin/python
 
+ES_HOST = '54.82.250.249'
+ES_INDEX_NAME = 'media'
+ES_PORT = 9200
+
 EXPUNGED = "/media/removable/Audio/music [expunged]/"
 NOSCAN = "/media/removable/Audio/music [noscan]/"
 START_FOLDER = "/media/removable/Audio/music/"
