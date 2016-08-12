@@ -58,13 +58,16 @@ class MediaMatcher:
     def print_match_details(self, orig, match):
 
         if orig['_source']['file_size'] >  match['_source']['file_size']:
-            print(orig['_id'] + ': ' + orig['_source']['file_name'] +' >>> ' + match['_id'] + ': ' + match['_source']['absolute_file_path'] + ', ' + str(match['_source']['file_size']))
+            # print(orig['_id'] + ': ' + orig['_source']['file_name'] +' >>> ' + match['_id'] + ': ' + match['_source']['absolute_file_path'])
+            print(orig['_source']['file_name'] +' >>> ' + match['_source']['absolute_file_path'])
 
         elif orig['_source']['file_size'] ==  match['_source']['file_size']:
-            print(orig['_id'] + orig['_source']['file_name'] + ' === ' + match['_id'] + ': ' + match['_source']['absolute_file_path'] + ', ' + str(match['_source']['file_size']))
+            # print(orig['_id'] + orig['_source']['file_name'] + ' === ' + match['_id'] + ': ' + match['_source']['absolute_file_path'])
+            print(orig['_source']['file_name'] + ' === ' + match['_source']['absolute_file_path'])
 
         elif orig['_source']['file_size'] <  match['_source']['file_size']:
-            print(orig['_id'] + orig['_source']['file_name'] + ' <<< ' + match['_id'] + ': ' + match['_source']['absolute_file_path'] + ', ' + str(match['_source']['file_size']))
+            # print(orig['_id'] + orig['_source']['file_name'] + ' <<< ' + match['_id'] + ': ' + match['_source']['absolute_file_path'])
+            print(orig['_source']['file_name'] + ' <<< ' + match['_source']['absolute_file_path'])
 
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
         # if self.mfm.debug == True: print 'recording match'
@@ -78,11 +81,21 @@ class FolderNameMatcher(MediaMatcher):
         raise Exception('Not Implemented!')
 
 class ElasticSearchMatcher(MediaMatcher):
+    # def __init__(self, mediaManager, name):
+    # super(ElasticSearchMatcher, self).__init__(mediaManager)
+
     def get_query(self, media):
+        data = media.get_dictionary()
+
+        # compose query based on name, query type and minimum score
+
         raise Exception('Not Implemented!')
 
+    def name(self):
+        return name
+
 # TODO: add index_name
-class BasicMatcher(ElasticSearchMatcher):
+class BasicMatcher(MediaMatcher):
 
     def name(self):
         return 'basic'
@@ -112,12 +125,8 @@ class BasicMatcher(ElasticSearchMatcher):
         match = None
         try:
 
-            if self.mfm.debug:
-                print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.file_name, media.ext]))
-
-            if not self.mfm.doc_exists(media, True):
-                raise Exception("doc doesn't exist")
-
+            if self.mfm.debug: print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.file_name, media.ext]))
+            if not self.mfm.doc_exists(media, True): raise Exception("doc doesn't exist")
             orig = self.mfm.get_doc(media)
 
             res = self.es.search(index=self.index_name, doc_type=self.document_type, body=self.get_query(media))

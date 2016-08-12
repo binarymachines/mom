@@ -31,7 +31,9 @@ def connect(hostname, portnum):
     # if self.debug:
     print('Connecting to %s:%d...' % (hostname, portnum))
     es = Elasticsearch([{'host': hostname, 'port': portnum}])
-    # if self.debug:
+
+    if es == None: raise Exception("Unable to establish connnection to Elasticsearch")
+
     print('Connected.')
     return es
 
