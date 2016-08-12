@@ -7,6 +7,7 @@ import thread
 import util
 
 class Walker(object):
+
     def __init__(self):
         self.current_root = None
         self.current_filename = None
@@ -84,6 +85,7 @@ class Walker(object):
                 self.handle_file_error(err)
 
 class MediaLibraryWalker(Walker):
+
     def __init__(self):
         super(MediaLibraryWalker, self).__init__()
 
@@ -121,7 +123,6 @@ class MediaLibraryWalker(Walker):
             self.check_genre_dir(path)
         else: self.check_album_dir(path)
 
-
 # NOTE: This DirectorChecker is the worker class, its subclasses will run matchers, find duplicates, etc
 # NOTE: album_checkers apply at whatever level of granularity (location, genre, album, artist)
 # NOTE: A multithreaded implementation should work out to lining these up and setting them off
@@ -133,7 +134,7 @@ class AbstractDirectoryChecker(object):
     def check_dir(self, path):
         raise Exception("Not implemented!")
 
-class AlbumInWrongArtist(AbstractDirectoryChecker):
+class AlbumInWrongArtistPath(AbstractDirectoryChecker):
     # NOTE: this checker applies at the location, genre, artist and side_project levels
     pass
 
@@ -160,10 +161,10 @@ class HasMisnamedFiles(AbstractDirectoryChecker):
 class IsInArtistAlbum(AbstractDirectoryChecker):
     pass
 
-class IsInMediaTypeFolder(AbstractDirectoryChecker):
+class IsInMediaTypePath(AbstractDirectoryChecker):
     pass
 
-class IsInGenreFolder(AbstractDirectoryChecker):
+class IsInGenrePath(AbstractDirectoryChecker):
     def check_dir(self, path):
         if util.path_contains_media(path, self.finder.media_formats):
             filed = False
@@ -176,7 +177,7 @@ class IsInGenreFolder(AbstractDirectoryChecker):
 def main():
     walker = MediaLibraryWalker()
     walker.debug = False
-    walker.album_checkers.append(IsInGenreFolder(walker))
+    walker.album_checkers.append(IsInGenrePath(walker))
     walker.album_checkers.append(HasDuplicates(walker))
     walker.walk('/media/removable/Audio/music/incoming/slsk/complete')
 

@@ -32,7 +32,7 @@ class Scanner:
                         print 'adding %s to MySQL...' % (artist)
                         thread.start_new_thread( mySQL4es.insert_values, ( 'artist', ['name'], [artist], ) )
                     except Exception, err:
-                        print err.message
+                        print ': '.join([err.__class__.__name__, err.message])
                         traceback.print_exc(file=sys.stdout)
 
                     # mySQL4es.insert_values('artist', ['name'], [artist])
@@ -46,7 +46,7 @@ class Scanner:
             #     if len(rows2) == 0:
             #         mySQL4es.insert_values('album', ['name', 'artist_id'], [album, artistid])
             except Exception, err:
-                print err.message
+                print ': '.join([err.__class__.__name__, err.message])
                 traceback.print_exc(file=sys.stdout)
                 # sys.exit(1)
 
@@ -78,27 +78,27 @@ class Scanner:
                             key=subtags[0].replace(' ', '_').upper()
                             data[key] = subtags[1]
 
-                            
+
             self.add_artist_and_album_to_db(data)
 
         except ID3NoHeaderError, err:
             # print('!!!ID3NoHeaderError: ' + media.file_name)
             data['scan_error'] = err.message
             data['has_error'] = True
-            print err.message
+            print ': '.join([err.__class__.__name__, err.message])
             self.folderman.record_error(folder, "ID3NoHeaderError=" + err.message)
             if self.debug: traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
             # print('Exception: ' + media.absolute_file_path)
-            print err.message
+            print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
             self.folderman.record_error(folder, "UnicodeEncodeError=" + err.message)
             return
 
         except UnicodeDecodeError, err:
             # print('Exception: ' + media.absolute_file_path)
-            print err.message
+            print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
             self.folderman.record_error(folder, "UnicodeDecodeError=" + err.message)
             return

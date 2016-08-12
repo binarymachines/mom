@@ -165,7 +165,10 @@ class MediaFile:
         print "folder name: " + self.folder_name
         print "file size: " + str(self.file_size)
 
+        print self.get_dictionary()
+
 class MediaFolder:
+
     def __init__(self):
         self.absolute_folder_path = None
         self.has_errors = False
@@ -173,7 +176,30 @@ class MediaFolder:
         self.latest_operation = u''
         self.esid = u''
 
+    def get_dictionary(self):
+
+        data = {    'absolute_folder_path': self.absolute_folder_path,
+                    'has_errors': self.has_errors,
+                    'latest_error': self.latest_error,
+                    'latest_operation': self.latest_operation }
+
+        return data
+
+    def all_files_have_matches():
+        return False
+
+    def is_proper_compilation():
+        return False
+
+    def has_matches():
+        return False
+
+    def match_count():
+        return 0
+
+
 class ScanCriteria:
+
     def __init__(self):
         self.locations = []
         self.extensions = []
