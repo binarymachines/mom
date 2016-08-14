@@ -1,6 +1,9 @@
 #! /usr/bin/python
 
 import os, sys, time
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 class MediaFile:
     def __init__(self, manager):
@@ -15,7 +18,7 @@ class MediaFile:
         self.folder_name = u''
         self.has_changed = False
         self.location = u''
-
+        self.doc = None
         self.manager = manager
 
     ##@property
@@ -162,14 +165,14 @@ class MediaFile:
 
     def to_str(self):
         print "esid: " + str(self.esid)
-        print "absolute path: " + self.absolute_file_path
-        print "file name: " + self.file_name
-        print "ext: " + self.ext
-        print "file location: " + self.location
-        print "folder name: " + self.folder_name
-        print "file size: " + str(self.file_size)
+        # print "absolute path: " + self.absolute_file_path
+        # print "file name: " + self.file_name
+        # print "ext: " + self.ext
+        # print "file location: " + self.location
+        # print "folder name: " + self.folder_name
+        # print "file size: " + str(self.file_size)
 
-        print self.get_dictionary()
+        pp.pprint(self.get_dictionary())
 
 class MediaFolder:
 
@@ -178,6 +181,7 @@ class MediaFolder:
         self.has_errors = False
         self.latest_error = u''
         self.latest_operation = u''
+        self.latest_operation_start_time = None
         self.esid = u''
 
     def get_dictionary(self):
@@ -201,6 +205,9 @@ class MediaFolder:
     def match_count():
         return 0
 
+    def to_str(self):
+        print "esid: " + str(self.esid)
+        print "absolute path: " + self.absolute_folder_path
 
 class ScanCriteria:
 

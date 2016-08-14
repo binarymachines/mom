@@ -2,7 +2,8 @@
 
 import os, json, pprint, sys, random, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import data
+import data, constants
+from esquery import QueryBuilder
 import mySQL4es
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -10,18 +11,14 @@ pp = pprint.PrettyPrinter(indent=4)
 def clean_str(string):
     return string.lower().replace(', ', ' ').replace('_', ' ').replace(':', ' ').replace(' ', '')
 
-class MediaMatcher:
-    def __init__(self, mediaManager):
+class MediaMatcher(object):
+    def __init__(self, name, mediaManager):
         self.mfm = mediaManager
         self.es = mediaManager.es
         self.comparison_fields = []
         self.index_name = mediaManager.index_name
         self.document_type = mediaManager.document_type
-
-        if self.name() is not None:
-            rows = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name'], [self.name()])
-            for r in rows:
-                self.comparison_fields.append(r[1])
+        self.name = name
 
     def match(self, media):
         raise Exception('Not Implemented!')
@@ -30,17 +27,17 @@ class MediaMatcher:
     # TODO: add matcher to match record. assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
 
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name(), self.index_name])
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, self.index_name])
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name(), self.index_name])
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, self.index_name])
         if len(rows) == 1:
             return True
 
-    def name(self):
-        raise Exception("Not Implemented!")
+    # def name(self):
+    #     raise Exception("Not Implemented!")
 
     def match_comparison_result(self, orig, match):
         if orig['_source']['file_size'] > match['_source']['file_size']:
@@ -81,18 +78,34 @@ class FolderNameMatcher(MediaMatcher):
         raise Exception('Not Implemented!')
 
 class ElasticSearchMatcher(MediaMatcher):
-    # def __init__(self, mediaManager, name):
-    # super(ElasticSearchMatcher, self).__init__(mediaManager)
+    def __init__(self, name, mediaManager):
+        super(ElasticSearchMatcher, self).__init__(name, mediaManager)
+        self.query_type = None
+
+        if self.name is not None:
+            row = mySQL4es.retrieve_values('matcher', ['name', 'query_type'], [self.name])
+            if len(row) == 1:
+                self.query_type = row[0][1]
+
+            rows = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name'], [self.name])
+            for r in rows:
+                self.comparison_fields.append(r[1])
+
+        if len(self.comparison_fields) > 0 and self.query_type != None:
+            print '%s %s matcher configured.' % (self.name, self.query_type)
 
     def get_query(self, media):
-        data = media.get_dictionary()
 
-        # compose query based on name, query type and minimum score
+        values = {}
+        for field in self.comparison_fields:
+            if field in media.doc['_source']:
+                values[field] = media.doc['_source'][field]
 
-        raise Exception('Not Implemented!')
+            qb = QueryBuilder(constants.ES_HOST, constants.ES_PORT)
+            qb.execute_query(self.name, values)
 
     def name(self):
-        return name
+        return self.name
 
 # TODO: add index_name
 class BasicMatcher(MediaMatcher):
@@ -161,13 +174,13 @@ class BasicMatcher(MediaMatcher):
                             #     self.match_comparison_result(orig, match), str(self.match_extensions_match(orig, match)))
 
                             try:
-                                thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name(), self.index_name, matched_fields, match['_score'],
+                                thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name, self.index_name, matched_fields, match['_score'],
                                     self.match_comparison_result(orig, match), str(self.match_extensions_match(orig, match)), ) )
                             except Exception, err:
                                 print err.message
                                 traceback.print_exc(file=sys.stdout)
 
-                            mySQL4es.DEBUG = False
+                            # mySQL4es.DEBUG = False
 
                     except KeyError, err:
                         print err.message

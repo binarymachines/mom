@@ -33,8 +33,7 @@ def connect(hostname, portnum):
     es = Elasticsearch([{'host': hostname, 'port': portnum}])
 
     if es == None: raise Exception("Unable to establish connnection to Elasticsearch")
-
-    print('Connected.')
+    print('Connected to %s on port %i.') % (hostname, portnum)
     return es
 
 def delete_docs_for_path(es, indexname, doctype, path):

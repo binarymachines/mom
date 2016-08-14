@@ -12,13 +12,13 @@ import thread
 pp = pprint.PrettyPrinter(indent=4)
 
 class Scanner:
-    def __init__(self, mediaManager):
-        self.mfm = mediaManager
-        self.es = mediaManager.es
-        self.debug = mediaManager.debug
-        self.folderman = mediaManager.folderman
-        self.index_name = mediaManager.index_name
-        self.document_type = mediaManager.document_type
+    def __init__(self, mediamanager):
+        self.mfm = mediamanager
+        self.es = mediamanager.es
+        self.debug = mediamanager.debug
+        self.folderman = mediamanager.folderman
+        self.index_name = mediamanager.index_name
+        self.document_type = mediamanager.document_type
 
     # TODO: figure out why this fails
     def add_artist_and_album_to_db(self, data):
@@ -33,6 +33,7 @@ class Scanner:
                         thread.start_new_thread( mySQL4es.insert_values, ( 'artist', ['name'], [artist], ) )
                     except Exception, err:
                         print ': '.join([err.__class__.__name__, err.message])
+                        # if self.debug:
                         traceback.print_exc(file=sys.stdout)
 
                     # mySQL4es.insert_values('artist', ['name'], [artist])
@@ -47,8 +48,8 @@ class Scanner:
             #         mySQL4es.insert_values('album', ['name', 'artist_id'], [album, artistid])
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
+                # if self.debug:
                 traceback.print_exc(file=sys.stdout)
-                # sys.exit(1)
 
     def scan_file(self, media):
 
@@ -78,11 +79,10 @@ class Scanner:
                             key=subtags[0].replace(' ', '_').upper()
                             data[key] = subtags[1]
 
-
+            # NOTE: do this somewhere else
             self.add_artist_and_album_to_db(data)
 
         except ID3NoHeaderError, err:
-            # print('!!!ID3NoHeaderError: ' + media.file_name)
             data['scan_error'] = err.message
             data['has_error'] = True
             print ': '.join([err.__class__.__name__, err.message])
@@ -90,14 +90,12 @@ class Scanner:
             if self.debug: traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
-            # print('Exception: ' + media.absolute_file_path)
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
             self.folderman.record_error(folder, "UnicodeEncodeError=" + err.message)
             return
 
         except UnicodeDecodeError, err:
-            # print('Exception: ' + media.absolute_file_path)
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
             self.folderman.record_error(folder, "UnicodeDecodeError=" + err.message)
@@ -105,7 +103,6 @@ class Scanner:
 
         if self.debug: "indexing file: %s" % (media.file_name)
         res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json.dumps(data))
-        # pp.pprint(res)
 
         if res['_shards']['successful'] == 1:
             esid = res['_id']

@@ -58,14 +58,15 @@ class QueryBuilder:
         termset = []
 
         for fname in fieldnames:
-            param = values[fname]
-            if not fname in options['boost']:
-                term = { "term" : { fname : { "value" : param }}}
-                # builder = [{ "value" : param }]
-            else:
-                term = { "term" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
-                # builder += [{"boost" : options['boost'][name]}]
-            termset.append(term)
+            if fname in values:
+                param = values[fname]
+                if not fname in options['boost']:
+                    term = { "term" : { fname : { "value" : param }}}
+                    # builder = [{ "value" : param }]
+                else:
+                    term = { "term" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
+                    # builder += [{"boost" : options['boost'][name]}]
+                termset.append(term)
 
         return { 'query' : { 'bool' : { 'should' : termset }}}
 
@@ -107,6 +108,6 @@ def main(args):
     q.test_multi_term()
 
 
-if __name__ == '__main__':
-    args = docopt(__doc__)
-    main(args)
+# if __name__ == '__main__':
+#     args = docopt(__doc__)
+#     main(args)
