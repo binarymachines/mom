@@ -47,5 +47,5 @@ def delete_docs_for_path(es, indexname, doctype, path):
 
 def find_docs_missing_field(es, field):
     query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : field }}}}}
-    res = es.search(index='media', doc_type='media_file', body=query)
+    res = es.search(index=constants.ES_INDEX_NAME, doc_type='media_file', body=query)
     return res
