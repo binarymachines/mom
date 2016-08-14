@@ -101,8 +101,27 @@ class ElasticSearchMatcher(MediaMatcher):
             if field in media.doc['_source']:
                 values[field] = media.doc['_source'][field]
 
-            qb = QueryBuilder(constants.ES_HOST, constants.ES_PORT)
-            qb.execute_query(self.name, values)
+        qb = QueryBuilder(constants.ES_HOST, constants.ES_PORT)
+        return qb.get_query(self.name, values)
+
+    def match(self, media):
+
+        query = self.get_query(media)
+        pp.pprint(query)
+        print '\n'
+        res = self.es.search(index='media', doc_type='media_file', body=query)
+        pp.pprint(res)
+        print '\n'
+        # for match in res['hits']['hits']:
+        #     # if match['_score'] > 5:
+        #     # if match['_id'] == media.doc['_id']:
+        #     #     continue
+        #     # else: pp.pprint(match)
+        #     pp.pprint(match)
+
+        # qb.execute_query(self.name, values)
+        # qb.execute_query(self.name, values)
+
 
     def name(self):
         return self.name
@@ -116,18 +135,6 @@ class BasicMatcher(MediaMatcher):
     def get_query(self, media):
         # print media.file_name
         return { "query": { "match" : { "file_name": unicode(media.file_name) }}}
-
-        # org = self.mfm.get_doc(media)
-        # pp.pprint(org)
-        # return {
-        #   "query": {
-        #     "bool": {
-        #       "should":   { "term": { "TIT2": org['_source']['TIT2'] }},
-        #       "should":   { "term": { "TPE1": org['_source']['TPE1'] }},
-        #       "should":   { "term": { "TALB": org['_source']['TALB'] }}
-        #     }
-        #   }
-        # }
 
     def match(self, media):
 
