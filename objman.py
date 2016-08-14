@@ -1,13 +1,13 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, random, logging, traceback, thread
+import os, json, pprint, sys, random, logging, traceback, thread, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from mutagen.id3 import ID3, ID3NoHeaderError
 from data import MediaFile, ScanCriteria
 from folders import MediaFolderManager
 import constants, mySQL4es, util, esutil
-from matcher import BasicMatcher
+from matcher import BasicMatcher, ElasticSearchMatcher
 from scanner import Scanner
 from walker import MediaLibraryWalker
 
@@ -24,7 +24,7 @@ class MediaManager(MediaLibraryWalker):
         self.index_name = indexname
         self.document_type = documenttype
         self.id_cache = None
-        self.debug = False
+        self.debug = True
         self.do_match = False
 
         self.EXPUNGE = constants.EXPUNGED
@@ -43,30 +43,31 @@ class MediaManager(MediaLibraryWalker):
         self.folderman = MediaFolderManager(self.es, self.index_name)
         self.active_criteria = None
 
-        self.matchers = [ BasicMatcher(self) ]
+        # self.matchers = [ BasicMatcher(self, 'BasicMatcher') ]
+        self.matchers = []
         self.scanner = Scanner(self)
 
     def after_handle_root(self, root):
-        op = 'scanned'
+        op = 'match'
         folder = self.folderman.folder
         if folder is not None and folder.absolute_folder_path == root:
             if self.debug: print 'updating record for folder: %s' % (root)
-            self.folderman.record_operation(folder, op)
+            self.folderman.record_operation(folder, 'BasicMatcher', op)
 
     def before_handle_root(self, root):
-        op = 'scanning'
+        op = 'match'
         try:
             if util.path_contains_media(root, self.active_criteria.extensions):
-                if self.folderman.get_latest_operation(root) != 'scanned':
-                    self.folderman.set_active_folder(unicode(root), op)
+                if self.folderman.get_latest_operation(root) != 'match':
+                    self.folderman.set_active_folder(unicode(root), 'BasicMatcher', op)
                 else:
-                    # if self.debug:
-                    print 'skipping folder: %s' % (root)
+                    if self.debug: print 'skipping folder: %s' % (root)
                     self.folderman.folder = None
 
         except Exception, err:
             print ': '.join([err.__class__.__name__, err.message])
-            if self.debug: traceback.print_exc(file=sys.stdout)
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
 
     def handle_root(self, root):
         folder = self.folderman.folder
@@ -92,29 +93,29 @@ class MediaManager(MediaLibraryWalker):
                             for matcher in self.matchers:
                                 matcher.match(media)
             except IOError, err:
-                # print('IOError: ' + os.path.join(root, filename))
                 print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
+                # if self.debug:
+                traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                 return
 
             except UnicodeEncodeError, err:
-                # print('UnicodeEncodeError: ' + os.path.join(root, filename))
                 print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
+                # if self.debug:
+                traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                 return
 
             except UnicodeDecodeError, err:
-                # print('UnicodeDecodeError: ' + os.path.join(root, filename))
                 print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
+                # if self.debug:
+                traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
 
             except Exception, err:
-                # print('Exception: ' + os.path.join(root, filename))
                 print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
+                # if self.debug:
+                traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
                 return
 
@@ -127,9 +128,8 @@ class MediaManager(MediaLibraryWalker):
                 if path in row[0]:
                     return row[1]
 
-    # TODO: refactor
+    # TODO: refactor, generalize, move to esutil
     def doc_exists(self, media, attach_if_found):
-
         # look in local MySQL
         esid = mySQL4es.retrieve_esid(self.index_name, self.document_type, media.absolute_file_path)
         if esid is not None:
@@ -137,8 +137,8 @@ class MediaManager(MediaLibraryWalker):
             if attach_if_found and media.esid is None:
                 if self.debug == True: print "attaching esid %s to %s." % (esid, media.file_name)
                 media.esid = esid
+                # media.doc = doc
             return True
-
         # not found, query elasticsearch
         res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
         # if self.debug: print("%d documents found" % res['hits']['total'])
@@ -150,12 +150,13 @@ class MediaManager(MediaLibraryWalker):
                 if attach_if_found and media.esid is None:
                     if self.debug == True: print "attaching esid %s to %s." % (esid, media.file_name)
                     media.esid = esid
+                    media.doc = doc
                 # found, update local MySQL
                 # if self.debug == True: print 'inserting esid'
                 mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
                 # if self.debug == True: print 'esid inserted'
-                return True
 
+                return True
         return False
 
     #TODO: DEBUG DEBUG DEBUG
@@ -176,15 +177,17 @@ class MediaManager(MediaLibraryWalker):
             for doc in res['hits']['hits']:
                 if doc['_source']['absolute_file_path'] == media.absolute_file_path:
                     return doc
-        except ConnectionError, ce:
-            print ce.message
+        except ConnectionError, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
         except Exception, err:
-            print media.to_str()
             print ': '.join([err.__class__.__name__, err.message])
-            if self.debug: traceback.print_exc(file=sys.stdout)
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
             # raise Exception('Doc not found: ' + media.absolute_file_path)
 
     def get_doc_id(self, media):
@@ -206,8 +209,10 @@ class MediaManager(MediaLibraryWalker):
                     mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
                     return doc['_id']
 
-        except ConnectionError, ce:
-            print ce.message
+        except ConnectionError, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
@@ -261,6 +266,49 @@ class MediaManager(MediaLibraryWalker):
     def setup_matchers(self):
         pass
 
+
+def reset_all():
+    # esutil.clear_indexes(mfm.es, mfm.index_name)
+    # mySQL4es.truncate('elasticsearch_doc')
+    # mySQL4es.truncate('matched')
+    # mySQL4es.truncate('media_folder')
+    # esutil.delete_docs_for_path(self.es, self.index_name, self.document_type, constants.START_FOLDER)
+    pass
+
+def main():
+
+    # s = ScanCriteria()
+    # s.extensions = util.get_active_media_formats()
+    # s.locations.append(constants.EXPUNGED)
+    # s.locations.append(constants.NOSCAN)
+    # for folder in next(os.walk(constants.START_FOLDER))[1]:
+    #     s.locations.append(os.path.join(constants.START_FOLDER, folder))
+    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
+    # s.locations.append('/media/removable/SEAGATE 932/Media/radio')
+    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+
+    mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
+    mfm.debug = True
+    # mfm.do_match = True
+    #
+    # mfm.scan(s)
+
+    filename = '/media/removable/Audio/music/albums/pop/Shakira/Loba (Deluxe Edition)/12 - Mon Amour.mp3'
+    media = mfm.get_media_object(filename)
+    media.esid = 'AVZ0-56Dj9LJ-Pt7GauB'
+
+    matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
+    if mfm.doc_exists(media, True):
+        media.doc = mfm.get_doc(media)
+        pp.pprint(media.doc)
+
+        q = matcher.get_query(media)
+
+
+    # matcher.match(filename)
+
+
 # # logging
 # LOG = "mom.log"
 # logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
@@ -269,31 +317,6 @@ class MediaManager(MediaLibraryWalker):
 # console = logging.StreamHandler()
 # console.setLevel(logging.ERROR)
 # logging.getLogger("").addHandler(console)
-
-def main():
-
-    s = ScanCriteria()
-    s.extensions = util.get_active_media_formats()
-    s.locations.append(constants.EXPUNGED)
-    s.locations.append(constants.NOSCAN)
-    for folder in next(os.walk(constants.START_FOLDER))[1]:
-        s.locations.append(os.path.join(constants.START_FOLDER, folder))
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
-
-    mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
-    mfm.debug = False
-    mfm.do_match = True
-
-    # esutil.clear_indexes(mfm.es, mfm.index_name)
-    # mySQL4es.truncate('elasticsearch_doc')
-    # mySQL4es.truncate('matched')
-    # mySQL4es.truncate('media_folder')
-    # esutil.delete_docs_for_path(self.es, self.index_name, self.document_type, constants.START_FOLDER)
-
-    mfm.scan(s)
 
 # main
 if __name__ == '__main__':

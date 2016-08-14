@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, json, pprint, sys, traceback
+import os, json, pprint, sys, traceback, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from data import MediaFolder
@@ -16,6 +16,7 @@ class MediaFolderManager:
         self.index_name = indexname
         self.document_type = 'media_folder'
         self.debug = False
+        self.pid = os.getpid()
 
     def folder_scanned(self, path):
         pass
@@ -35,12 +36,13 @@ class MediaFolderManager:
 
     def find_doc(self, folder):
         try:
-            # print("searching for " + mediafolder.absolute_folder_path + '...')
+            if debug == true: print("searching for " + mediafolder.absolute_folder_path + '...')
             res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
             {
                 "query": { "match" : { "absolute_folder_path": unicode(folder.absolute_folder_path) }}
             })
 
+            # if res['_shards']['successful'] == 1:
             # print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
                 # print(doc)
@@ -48,8 +50,10 @@ class MediaFolderManager:
                     return doc
 
             return None
-        except ConnectionError, ce:
-            print ce.message
+        except ConnectionError, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
@@ -62,8 +66,10 @@ class MediaFolderManager:
                 if self.doc_refers_to(doc, folder):
                     # media.data = doc
                     return True
-        except ConnectionError, ce:
-            print ce.message
+        except ConnectionError, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
@@ -77,19 +83,41 @@ class MediaFolderManager:
                 self.folder.latest_error = error
                 if self.debug: print("recording error: " + error + ", " + folder.esid + ", " + folder.absolute_folder_path)
                 res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
-        except ConnectionError, ce:
-            print ce.message
+        except ConnectionError, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
-    def record_operation(self, folder, operation):
+    def record_operation(self, folder, operator, operation):
         try:
             if folder is not None and operation is not None:
-                self.folder.latest_operation = operation
                 if self.debug: print("recording operation: " + operation + ", " + folder.esid + ", " + folder.absolute_folder_path)
+                dt = datetime.datetime.now().isoformat()
+                # update es with operation
                 res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_operation": operation }})
-        except ConnectionError, ce:
-            print ce.message
+
+                if folder.latest_operation_start_time == None:
+                    folder.latest_operation = operation
+                    folder.latest_operation_start_time = dt
+                    # insert operation into MySQL
+                    mySQL4es.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time'],
+                        [str(self.pid), operator, operation, folder.esid, dt])
+                else:
+                    # update operation status in MySQL
+                    mySQL4es.update_values('op_record', ['end_time'], [dt], ['operator_name', 'operation_name', 'target_esid'],
+                        [operator, operation, folder.esid])
+                    folder.latest_operation = None
+                    folder.latest_operation_start_time = None
+                    # mySQL4es.update_values('op_record', ['end_time'], [dt], ['operator_name', 'operation_name', 'target_esid', 'start_time'],
+                    #     [self.__class__.__name__, operation, folder.esid, folder.latest_operation_start_time])
+
+
+        except ConnectionError, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
@@ -107,7 +135,7 @@ class MediaFolderManager:
         mySQL4es.insert_values('media_folder', ['absolute_folder_path', 'latest_operation'],
             [mediafolder.absolute_folder_path, update])
 
-    def set_active_folder(self, path, operation):
+    def set_active_folder(self, path, operator, operation):
 
         try:
             if self.folder == None: self.folder = MediaFolder()
@@ -137,7 +165,7 @@ class MediaFolderManager:
                         mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_folder_path)
                     else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 
-                if operation is not  None: self.record_operation(self.folder, operation)
+                if operation is not  None: self.record_operation(self.folder, operator, operation)
 
                 # if not self.record_exists(self.folder): self.insert_record(self.folder)
                 # doc = self.find_doc(self.folder)
@@ -146,12 +174,15 @@ class MediaFolderManager:
                 # self.folder.has_errors = doc['_source']['has_errors']
                 # self.folder.latest_operation = doc['_source']['latest_operation']
 
-        except ConnectionError, ce:
-            print ce.message
+        except ConnectionError, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
         except Exception, err:
             self.folder = None
-            print(err.message)
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
             traceback.print_exc(file=sys.stdout)

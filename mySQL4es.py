@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
-import os
-import sys
-import time
+import os, sys, datetime, traceback
+
 import MySQLdb as mdb
-from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import NotFoundError
 
 import pprint
 
@@ -15,7 +12,7 @@ HOST = 'localhost'
 USER = 'root'
 PASS = 'stainless'
 SCHEMA = 'media'
-DEBUG = False
+DEBUG = True
 
 
 def quote_if_string(value):
