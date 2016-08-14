@@ -261,7 +261,7 @@ def retrieve_esids(index, document_type, file_path):
 #     rows = None
 #
 #     try:
-#         query = "SELECT id, absolute_path FROM elasticsearch_doc WHERE index_name = 'media' and doc_type='media_file'"
+#         query = "SELECT id, absolute_path FROM elasticsearch_doc WHERE index_name = constants.ES_INDEX_NAME and doc_type='media_file'"
 #
 #         con = mdb.connect(HOST, USER, PASS, SCHEMA)
 #         cur = con.cursor()
@@ -273,10 +273,10 @@ def retrieve_esids(index, document_type, file_path):
 #             print row[1]
 #             if os.path.isfile(row[1]):
 #                 try:
-#                     doc = es.get(index='media', doc_type='media_file', id=row[0])
+#                     doc = es.get(index=constants.ES_INDEX_NAME, doc_type='media_file', id=row[0])
 #                     if doc is not None:
 #                         if not 'mtime' in doc['_source']:
-#                             res = es.update(index='media', doc_type='media_file', id=row[0], body={"doc": {"ctime": time.ctime(os.path.getctime(row[1])), "mtime": time.ctime(os.path.getmtime(row[1])) }})
+#                             res = es.update(index=constants.ES_INDEX_NAME, doc_type='media_file', id=row[0], body={"doc": {"ctime": time.ctime(os.path.getctime(row[1])), "mtime": time.ctime(os.path.getmtime(row[1])) }})
 #
 #                 except Exception, err:
 #                     print ': '.join([err.__class__.__name__, err.message])

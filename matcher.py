@@ -109,7 +109,7 @@ class ElasticSearchMatcher(MediaMatcher):
         query = self.get_query(media)
         pp.pprint(query)
         print '\n'
-        res = self.es.search(index='media', doc_type='media_file', body=query)
+        res = self.es.search(index=constants.ES_INDEX_NAME, doc_type='media_file', body=query)
         pp.pprint(res)
         print '\n'
         for match in res['hits']['hits']:
