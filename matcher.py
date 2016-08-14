@@ -112,12 +112,12 @@ class ElasticSearchMatcher(MediaMatcher):
         res = self.es.search(index='media', doc_type='media_file', body=query)
         pp.pprint(res)
         print '\n'
-        # for match in res['hits']['hits']:
-        #     # if match['_score'] > 5:
-        #     # if match['_id'] == media.doc['_id']:
-        #     #     continue
-        #     # else: pp.pprint(match)
-        #     pp.pprint(match)
+        for match in res['hits']['hits']:
+            # if match['_score'] > 5:
+            # if match['_id'] == media.doc['_id']:
+            #     continue
+            # else: pp.pprint(match)
+            pp.pprint(match)
 
         # qb.execute_query(self.name, values)
         # qb.execute_query(self.name, values)

@@ -294,20 +294,14 @@ def main():
     #
     # mfm.scan(s)
 
-    # filename = '/media/removable/Audio/music/albums/pop/Shakira/Loba (Deluxe Edition)/12 - Mon Amour.mp3'
     filename = "/media/removable/Audio/music/albums/industrial/skinny puppy/Remission/07 Ice Breaker.mp3"
     media = mfm.get_media_object(filename)
     if mfm.doc_exists(media, True):
         media.doc = mfm.get_doc(media)
-        # matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
+        matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
         # matcher = ElasticSearchMatcher('filename_term_matcher', mfm)
-        matcher = ElasticSearchMatcher('filesize_term_matcher', mfm)
-
+        # matcher = ElasticSearchMatcher('filesize_term_matcher', mfm)
         matcher.match(media)
-
-
-    # matcher.match(filename)
-
 
 # # logging
 # LOG = "mom.log"
