@@ -80,7 +80,7 @@ class QueryBuilder:
     def get_simple_term(self, fname, values, options):
         if len(options) == 0:
             param = values[fname]
-            term = { 'match' : { fname : param }}
+            term = { 'term' : { fname : param }}
 
             return { 'query' : term }
 
@@ -107,7 +107,7 @@ class QueryBuilder:
 # main
 def main(args):
 
-    elastic_host = args['<elasticsearch_host>']
+    elastic_host = '54.82.250.249' # args['<elasticsearch_host>']
     elastic_port = 9200
     print 'Will connect to ES host %s:%s' % (elastic_host, elastic_port)
     q = QueryBuilder(elastic_host, elastic_port)
@@ -115,6 +115,6 @@ def main(args):
     q.test_multi_term()
 
 
-# if __name__ == '__main__':
-#     args = docopt(__doc__)
-#     main(args)
+if __name__ == '__main__':
+    args = docopt(__doc__)
+    main(args)
