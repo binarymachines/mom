@@ -21,10 +21,17 @@ class QueryBuilder:
         self.es_port = es_port
 
     def execute_query(self, name, values):
-        es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
-        res = es.search(index='media', doc_type='media_file', body=self.get_query(name, values))
 
+        print 'query\n----------------------\n'
+        query = self.get_query(name, values)
+        pp.pprint(query)
+
+        es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
+        res = es.search(index='media', doc_type='media_file', body=query)
+
+        print 'results\n----------------------\n'
         for doc in res['hits']['hits']:
+            # if doc['_score'] > 3:
             pp.pprint(doc)
             print '\n'
 
@@ -73,7 +80,7 @@ class QueryBuilder:
     def get_simple_term(self, fname, values, options):
         if len(options) == 0:
             param = values[fname]
-            term = { 'term' : { fname : param }}
+            term = { 'match' : { fname : param }}
 
             return { 'query' : term }
 

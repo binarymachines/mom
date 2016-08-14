@@ -12,7 +12,7 @@ HOST = 'localhost'
 USER = 'root'
 PASS = 'stainless'
 SCHEMA = 'media'
-DEBUG = True
+DEBUG = False
 
 
 def quote_if_string(value):

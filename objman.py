@@ -289,21 +289,21 @@ def main():
     # s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
 
     mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
-    mfm.debug = True
+    # mfm.debug = True
     # mfm.do_match = True
     #
     # mfm.scan(s)
 
-    filename = '/media/removable/Audio/music/albums/pop/Shakira/Loba (Deluxe Edition)/12 - Mon Amour.mp3'
+    # filename = '/media/removable/Audio/music/albums/pop/Shakira/Loba (Deluxe Edition)/12 - Mon Amour.mp3'
+    filename = "/media/removable/Audio/music/albums/industrial/skinny puppy/Remission/07 Ice Breaker.mp3"
     media = mfm.get_media_object(filename)
-    media.esid = 'AVZ0-56Dj9LJ-Pt7GauB'
-
-    matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
     if mfm.doc_exists(media, True):
         media.doc = mfm.get_doc(media)
-        pp.pprint(media.doc)
+        # matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
+        # matcher = ElasticSearchMatcher('filename_term_matcher', mfm)
+        matcher = ElasticSearchMatcher('filesize_term_matcher', mfm)
 
-        q = matcher.get_query(media)
+        matcher.match(media)
 
 
     # matcher.match(filename)
