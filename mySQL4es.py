@@ -8,12 +8,12 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
-HOST = 'localhost'
-AWS_HOST = '54.82.250.249'
-USER = 'root'
-AWS_USER = 'remote'
-PASS = 'stainless'
-AWS_PASS = 'remote'
+# HOST = 'localhost'
+HOST = '54.82.250.249'
+# USER = 'root'
+USER = 'remote'
+# PASS = 'stainless'
+PASS = 'remote'
 SCHEMA = 'media'
 DEBUG = False
 
@@ -235,7 +235,7 @@ def truncate(table_name):
 def ensure_exists_in_mysql(esid, path, indexname, documenttype):
     try:
         if DEBUG: print("checking for row for: "+ path)
-        rows = retrieve_values('elasticsearch_doc', ['absolute_path', 'index_name'], [path, indexname])
+        rows = retrieve_values('es_document', ['absolute_path', 'index_name'], [path, indexname])
         if len(rows) ==0:
             if DEBUG: print('Updating local MySQL...')
             insert_esid(indexname, documenttype, esid, path)
@@ -245,12 +245,12 @@ def ensure_exists_in_mysql(esid, path, indexname, documenttype):
 
 
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
-    insert_values('elasticsearch_doc', ['index_name', 'doc_type', 'id', 'absolute_path'],
+    insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
         [index, document_type, elasticsearch_id, absolute_path])
 
 def retrieve_esid(index, document_type, absolute_path):
 
-    rows = retrieve_values('elasticsearch_doc', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
+    rows = retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
 
     if rows == None:
         return []
@@ -266,7 +266,7 @@ def retrieve_esids(index, document_type, file_path):
 
     rows = None
     try:
-        query = 'SELECT absolute_path, id FROM elasticsearch_doc WHERE absolute_path LIKE '
+        query = 'SELECT absolute_path, id FROM es_document WHERE absolute_path LIKE '
         query += '"' + file_path + '%"'
 
         con = mdb.connect(HOST, USER, PASS, SCHEMA)
@@ -284,9 +284,19 @@ def retrieve_esids(index, document_type, file_path):
         if con:
             con.close()
 
+def transfer_data(table, fields):
+    con = mdb.connect('54.82.250.249', 'remote', 'remote', 'media')
+    rows = retrieve_values(table, fields, [])
+    for r in rows:
+        print r
+        aws_insert_values(con, table, fields, r)
+
+    con.commit()
+    con.close()
+    pass
 
 def main():
-    pass
+    transfer_data('matcher', ['name', 'query_type'])
 
 # main
 if __name__ == '__main__':

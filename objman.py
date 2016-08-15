@@ -53,7 +53,7 @@ class MediaManager(MediaLibraryWalker):
         folder = self.folderman.folder
         if folder is not None and folder.absolute_path == root:
             if self.debug: print 'updating record for folder: %s' % (root)
-            self.folderman.record_operation(folder, 'mp3 scanner', op)
+            operation.record(self.es, folder, 'mp3 scanner', op)
 
     def before_handle_root(self, root):
         op = 'scan'
@@ -265,12 +265,11 @@ class MediaManager(MediaLibraryWalker):
     def setup_matchers(self):
         pass
 
-
 def reset_all(mfm):
     # esutil.clear_indexes(mfm.es, constants.ES_INDEX_NAME)
     esutil.clear_indexes(mfm.es, 'media2')
     esutil.clear_indexes(mfm.es, 'media3')
-    mySQL4es.truncate('elasticsearch_doc')
+    mySQL4es.truncate('es_document')
     mySQL4es.truncate('matched')
     mySQL4es.truncate('op_record')
     # mySQL4es.truncate('media_folder')
@@ -292,7 +291,7 @@ def scan_library():
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
 
     mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
-    # mfm.debug = True
+    mfm.debug = True
     # mfm.do_match = True
     # reset_all(mfm)
     mfm.scan(s)

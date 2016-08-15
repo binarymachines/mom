@@ -90,51 +90,6 @@ class MediaFolderManager:
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
-    def record_operation(self, folder, operator, operation):
-        try:
-            if folder is not None and operation is not None:
-                if self.debug: print("recording operation: " + operation + ", " + folder.esid + ", " + folder.absolute_path)
-                dt = datetime.datetime.now().isoformat()
-                # update es with operation
-                res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_operation": operation }})
-
-                if folder.latest_operation_start_time == None:
-                    folder.latest_operation = operation
-                    folder.latest_operation_start_time = dt
-                    # insert operation into MySQL
-                    mySQL4es.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time'],
-                        [str(self.pid), operator, operation, folder.esid, dt])
-                else:
-                    # update operation status in MySQL
-                    mySQL4es.update_values('op_record', ['end_time'], [dt], ['operator_name', 'operation_name', 'target_esid'],
-                        [operator, operation, folder.esid])
-                    folder.latest_operation = None
-                    folder.latest_operation_start_time = None
-                    # mySQL4es.update_values('op_record', ['end_time'], [dt], ['operator_name', 'operation_name', 'target_esid', 'start_time'],
-                    #     [self.__class__.__name__, operation, folder.esid, folder.latest_operation_start_time])
-
-
-        except ConnectionError, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug:
-            traceback.print_exc(file=sys.stdout)
-            print '\nConnection lost, please verify network connectivity and restart.'
-            sys.exit(1)
-
-    def record_exists(self, mediafolder):
-        rows = mySQL4es.retrieve_values('media_folder', ['absolute_path'], [mediafolder.absolute_path])
-        if len(rows) == 0:
-            return False
-        else: return True
-
-    def insert_record(self, mediafolder):
-        mySQL4es.insert_values('media_folder', ['absolute_path', 'latest_operation'],
-            [mediafolder.absolute_path, 'record_inserted'])
-
-    def update_record(self, mediafolder, update):
-        mySQL4es.insert_values('media_folder', ['absolute_path', 'latest_operation'],
-            [mediafolder.absolute_path, update])
-
     def set_active_folder(self, path, operator, operation):
 
         try:
@@ -161,11 +116,11 @@ class MediaFolderManager:
                     res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json_str)
                     if res['_shards']['successful'] == 1:
                         self.folder.esid = res['_id']
-                        # update elasticsearch_doc with media_folder
+                        # update es_document with media_folder
                         mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_path)
                     else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 
-                if operation is not  None: self.record_operation(self.folder, operator, operation)
+                if operation is not  None: operation.record(self.es, self.folder, operator, operation)
 
                 # if not self.record_exists(self.folder): self.insert_record(self.folder)
                 # doc = self.find_doc(self.folder)

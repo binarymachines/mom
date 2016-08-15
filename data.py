@@ -5,26 +5,112 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class ElasticsearchRef(object):
+class Asset(object):
     def __init__(self):
         self.absolute_path = None
-        self.esid = None
-
-class MediaFile(ElasticsearchRef):
-    def __init__(self, manager):
-        super(MediaFile, self).__init__()
-
         self.active = True
+        self.esid = None
         self.data = None
         self.deleted = False
-        self.ext = u''
-        self.file_name = u''
-        self.file_size = 0
-        self.folder_name = u''
-        self.has_changed = False
-        self.location = u''
         self.doc = None
+        self.document_type = None
+        self.has_changed = False
+        self.has_errors = False
+        self.latest_error = u''
+        self.latest_operation = u''
+        self.latest_operation_start_time = None
+
+class MediaFile(Asset):
+    def __init__(self, manager):
+        super(MediaFile, self).__init__()
+        self.document_type = 'media_file'
+        self.ext = None
+        self.file_name = None
+        self.file_size = 0
+        self.folder_name = None
+        self.location = None
         self.manager = manager
+
+    ##@property
+    def ignore(self):
+        for f in self.manager.IGNORE:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_expunged(self):
+        folders = ['[expunged]']
+        for f in folders:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_filed(self):
+        folders = ['/albums', 'compilations']
+        for f in folders:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_filed_as_compilation(self):
+        for f in self.manager.COMP:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_filed_as_live(self):
+        for f in self.manager.LIVE:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_new(self):
+        for f in self.manager.NEW:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_noscan(self):
+        folders = ['[noscan]']
+        for f in folders:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_random(self):
+        for f in self.manager.RANDOM:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_recent(self):
+        for f in self.manager.RECENT:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_unsorted(self):
+        for f in self.manager.UNSORTED:
+            if f in self.absolute_path:
+                return True
+        return False
+
+    ##@property
+    def is_webcast(self):
+        folders = ['/webcasts']
+        for f in folders:
+            if f in self.absolute_path:
+                return True
+        return False
 
     ##@property
     def duplicates(self):
@@ -45,98 +131,6 @@ class MediaFile(ElasticsearchRef):
     def originals(self):
                 # return True
         return []
-
-    ##@property
-    def ignore(self):
-        for f in self.manager.IGNORE:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_expunged(self):
-        folders = ['[expunged]']
-        for f in folders:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_filed(self):
-        folders = ['/albums', 'compilations']
-        for f in folders:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_filed_as_compilation(self):
-        for f in self.manager.COMP:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_filed_as_live(self):
-        for f in self.manager.LIVE:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_new(self):
-        for f in self.manager.NEW:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_noscan(self):
-        folders = ['[noscan]']
-        for f in folders:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_random(self):
-        for f in self.manager.RANDOM:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_recent(self):
-        for f in self.manager.RECENT:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_unsorted(self):
-        for f in self.manager.UNSORTED:
-            if f in self.absolute_path:
-                return True
-
-        return False
-
-    ##@property
-    def is_webcast(self):
-        folders = ['/webcasts']
-        for f in folders:
-            if f in self.absolute_path:
-                return True
-
-        return False
 
     def get_dictionary(self):
         try:
@@ -179,14 +173,10 @@ class MediaFile(ElasticsearchRef):
 
         pp.pprint(self.get_dictionary())
 
-class MediaFolder(ElasticsearchRef):
+class MediaFolder(Asset):
     def __init__(self):
         super(MediaFolder, self).__init__()
-
-        self.has_errors = False
-        self.latest_error = u''
-        self.latest_operation = u''
-        self.latest_operation_start_time = None
+        self.document_type = 'media_folder'
 
     def get_dictionary(self):
 
