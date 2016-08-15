@@ -9,8 +9,11 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 HOST = 'localhost'
+AWS_HOST = '54.82.250.249'
 USER = 'root'
+AWS_USER = 'remote'
 PASS = 'stainless'
+AWS_PASS = 'remote'
 SCHEMA = 'media'
 DEBUG = False
 
@@ -19,6 +22,31 @@ def quote_if_string(value):
     if isinstance(value, basestring):
         return '"%s"' % value
     return value
+
+def aws_insert_values(con, table_name, field_names, field_values):
+
+    # con = None
+    try:
+        formatted_values = [quote_if_string(value) for value in field_values]
+
+        query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
+
+        if DEBUG:
+            print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', ' (\n\t\t').replace(')', '\n\t\t)') + '\n'
+
+        # con = mdb.connect(AWS_HOST, AWS_USER, AWS_PASS, SCHEMA)
+        cur = con.cursor()
+        cur.execute(query)
+        # con.commit()
+
+    except mdb.Error, e:
+
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        # raise Exception(message)
+        print message
+    # finally:
+    #     if con:
+    #         con.close()
 
 def insert_values(table_name, field_names, field_values):
 
@@ -256,48 +284,10 @@ def retrieve_esids(index, document_type, file_path):
         if con:
             con.close()
 
-# def main():
-#     es = Elasticsearch([{'host': '54.82.250.249', 'port': 9200}])
-#     rows = None
-#
-#     try:
-#         query = "SELECT id, absolute_path FROM elasticsearch_doc WHERE index_name = constants.ES_INDEX_NAME and doc_type='media_file'"
-#
-#         con = mdb.connect(HOST, USER, PASS, SCHEMA)
-#         cur = con.cursor()
-#         cur.execute(query)
-#         rows = cur.fetchall()
-#
-#         for row in rows:
-#             print ', '.join([row[0], row[1]])
-#             print row[1]
-#             if os.path.isfile(row[1]):
-#                 try:
-#                     doc = es.get(index=constants.ES_INDEX_NAME, doc_type='media_file', id=row[0])
-#                     if doc is not None:
-#                         if not 'mtime' in doc['_source']:
-#                             res = es.update(index=constants.ES_INDEX_NAME, doc_type='media_file', id=row[0], body={"doc": {"ctime": time.ctime(os.path.getctime(row[1])), "mtime": time.ctime(os.path.getmtime(row[1])) }})
-#
-#                 except Exception, err:
-#                     print ': '.join([err.__class__.__name__, err.message])
-#                     query = "DELETE FROM elasticsearch_doc WHERE id = '%s'" % (row[0])
-#                     con2 = mdb.connect(HOST, USER, PASS, SCHEMA)
-#                     cur2 = con2.cursor()
-#                     cur2.execute(query)
-#                     con2.commit()
-#                     con2.close()
-#             else:
-#                 query = "DELETE FROM elasticsearch_doc WHERE id = '%s'" % (row[0])
-#                 con2 = mdb.connect(HOST, USER, PASS, SCHEMA)
-#                 cur2 = con2.cursor()
-#                 cur2.execute(query)
-#                 con2.commit()
-#                 con2.close()
-#
-#     finally:
-#         if con:
-#             con.close()
-#
-# # main
-# if __name__ == '__main__':
-#     main()
+
+def main():
+    pass
+
+# main
+if __name__ == '__main__':
+    main()

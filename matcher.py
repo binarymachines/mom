@@ -84,8 +84,9 @@ class ElasticSearchMatcher(MediaMatcher):
 
         if self.name is not None:
             row = mySQL4es.retrieve_values('matcher', ['name', 'query_type'], [self.name])
-            if len(row) == 1:
-                self.query_type = row[0][1]
+            if len(row) == 0:
+                error_message = "There is no configuation data for %s matcher." % (self.name)
+                raise Exception(error_message)
 
             rows = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name'], [self.name])
             for r in rows:
@@ -134,7 +135,7 @@ class BasicMatcher(MediaMatcher):
 
     def get_query(self, media):
         # print media.file_name
-        return { "query": { "match" : { "file_name": unicode(media.file_name) }}}
+        return { "query": { "match" : { "file_name": media.file_name }}}
 
     def match(self, media):
 

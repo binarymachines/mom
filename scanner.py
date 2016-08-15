@@ -80,7 +80,7 @@ class Scanner:
                             data[key] = subtags[1]
 
             # NOTE: do this somewhere else
-            self.add_artist_and_album_to_db(data)
+            # self.add_artist_and_album_to_db(data)
 
         except ID3NoHeaderError, err:
             data['scan_error'] = err.message
