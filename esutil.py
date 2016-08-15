@@ -2,8 +2,12 @@
 
 import os
 import sys
+import pprint
 from elasticsearch import Elasticsearch
 import mySQL4es
+import constants
+
+pp = pprint.PrettyPrinter(indent=4)
 
 def clear_indexes(es, indexname):
 
@@ -45,7 +49,41 @@ def delete_docs_for_path(es, indexname, doctype, path):
         if res['_shards']['successful'] == 1:
             update_values('elasticsearch_doc', 'active_flag', False, ['id'], [esid])
 
-def find_docs_missing_field(es, field):
+def find_docs_missing_field(es, index_name, document_type, field):
     query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : field }}}}}
-    res = es.search(index=constants.ES_INDEX_NAME, doc_type='media_file', body=query)
+    res = es.search(index=index_name, doc_type=document_type, body=query,size=1000)
     return res
+
+# def transform_docs():
+#     rows = retrieve_values('elasticsearch_doc', ['index_name', 'id', 'doc_type', 'absolute_path'], [])
+#     for r in rows:
+#         print r
+#         aws_insert_values(con, 'elasticsearch_doc', ['id', 'index_name', 'doc_type', 'absolute_path'], [r[0], r[1], r[2], r[3]])
+#
+#     con.commit()
+    # con.close()
+
+def main():
+    es = connect(constants.ES_HOST, constants.ES_PORT)
+
+    cycle = True
+    while cycle == True:
+        res = find_docs_missing_field(es, 'media2', 'media_folder', 'absolute_path')
+        if res['hits']['total'] > 0:
+            for doc in res['hits']['hits']:
+
+                data = {}
+                for field in doc['_source']:
+                    if field == 'absolute_folder_path':
+                        data['absolute_path'] = doc['_source'][field]
+                    else:
+                        data[field] = doc['_source'][field]
+
+                print repr(data['absolute_path'])
+                es.index(index="media2", doc_type="media_folder", id=doc['_id'], body=data)
+
+    sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

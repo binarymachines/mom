@@ -36,10 +36,10 @@ class MediaFolderManager:
 
     def find_doc(self, folder):
         try:
-            if debug == true: print("searching for " + mediafolder.absolute_folder_path + '...')
+            if self.debug == True: print("searching for " + mediafolder.absolute_folder_path + '...')
             res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
             {
-                "query": { "match" : { "absolute_folder_path": unicode(folder.absolute_folder_path) }}
+                "query": { "match" : { "absolute_folder_path": folder.absolute_folder_path }}
             })
 
             # if res['_shards']['successful'] == 1:
@@ -143,7 +143,7 @@ class MediaFolderManager:
             if path != self.folder.absolute_folder_path:
 
                 # if self.debug:
-                print '### setting active: %s' % (path)
+                print '--- setting active: %s' % (path)
 
                 self.folder.absolute_folder_path = path
 
@@ -184,5 +184,4 @@ class MediaFolderManager:
         except Exception, err:
             self.folder = None
             print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug:
-            traceback.print_exc(file=sys.stdout)
+            if self.debug: traceback.print_exc(file=sys.stdout)

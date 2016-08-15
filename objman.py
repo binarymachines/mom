@@ -1,3 +1,4 @@
+varself.es = esutil.connect(hostname, portnum)
 #! /usr/bin/python
 
 import os, json, pprint, sys, random, logging, traceback, thread, datetime
@@ -24,7 +25,7 @@ class MediaManager(MediaLibraryWalker):
         self.index_name = indexname
         self.document_type = documenttype
         self.id_cache = None
-        self.debug = True
+        self.debug = False
         self.do_match = False
 
         self.EXPUNGE = constants.EXPUNGED
@@ -39,7 +40,6 @@ class MediaManager(MediaLibraryWalker):
         self.RECENT = self.get_folder_constants('recent')
         self.UNSORTED = self.get_folder_constants('unsorted')
 
-        self.es = esutil.connect(hostname, portnum)
         self.folderman = MediaFolderManager(self.es, self.index_name)
         self.active_criteria = None
 
@@ -48,20 +48,21 @@ class MediaManager(MediaLibraryWalker):
         self.scanner = Scanner(self)
 
     def after_handle_root(self, root):
-        op = 'match'
+        op = 'scan'
         folder = self.folderman.folder
         if folder is not None and folder.absolute_folder_path == root:
             if self.debug: print 'updating record for folder: %s' % (root)
-            self.folderman.record_operation(folder, 'BasicMatcher', op)
+            self.folderman.record_operation(folder, 'mp3 scanner', op)
 
     def before_handle_root(self, root):
-        op = 'match'
+        op = 'scan'
         try:
             if util.path_contains_media(root, self.active_criteria.extensions):
-                if self.folderman.get_latest_operation(root) != 'match':
-                    self.folderman.set_active_folder(unicode(root), 'BasicMatcher', op)
+                if self.folderman.get_latest_operation(root) != 'scan':
+                    self.folderman.set_active_folder(root, 'mp3 scanner', op)
                 else:
-                    if self.debug: print 'skipping folder: %s' % (root)
+                    # if self.debug:
+                    print 'skipping folder: %s' % (root)
                     self.folderman.folder = None
 
         except Exception, err:
@@ -87,7 +88,7 @@ class MediaManager(MediaLibraryWalker):
                         media = self.get_media_object(filename)
                         if media is None or media.ignore(): continue
                         # scan tag info if this file hasn't been assigned na esid
-                        if media.esid is not None: self.scanner.scan_file(media)
+                        if media.esid is None: self.scanner.scan_file(media)
                         # start matchers
                         if media.esid is not None and self.do_match:
                             for matcher in self.matchers:
@@ -101,21 +102,18 @@ class MediaManager(MediaLibraryWalker):
 
             except UnicodeEncodeError, err:
                 print ': '.join([err.__class__.__name__, err.message])
-                # if self.debug:
-                traceback.print_exc(file=sys.stdout)
+                if self.debug: traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                 return
 
             except UnicodeDecodeError, err:
                 print ': '.join([err.__class__.__name__, err.message])
-                # if self.debug:
-                traceback.print_exc(file=sys.stdout)
+                if self.debug: traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
-                # if self.debug:
-                traceback.print_exc(file=sys.stdout)
+                if self.debug: traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
                 return
 
@@ -244,10 +242,10 @@ class MediaManager(MediaLibraryWalker):
         location = self.get_location(absolute_file_path)
         foldername = path.replace(location, '')
 
-        media.absolute_file_path = unicode(absolute_file_path, "utf-8")
-        media.file_name = unicode(filename, "utf-8")
+        media.absolute_file_path = absolute_file_path
+        media.file_name = filename
         media.location = location
-        media.ext = unicode(extension, "utf-8")
+        media.ext = extension
         media.folder_name = foldername
         media.file_size = os.path.getsize(absolute_file_path)
 
@@ -267,51 +265,69 @@ class MediaManager(MediaLibraryWalker):
         pass
 
 
-def reset_all():
-    # esutil.clear_indexes(mfm.es, mfm.index_name)
-    # mySQL4es.truncate('elasticsearch_doc')
-    # mySQL4es.truncate('matched')
+def reset_all(mfm):
+    # esutil.clear_indexes(mfm.es, constants.ES_INDEX_NAME)
+    esutil.clear_indexes(mfm.es, 'media2')
+    esutil.clear_indexes(mfm.es, 'media3')
+    mySQL4es.truncate('elasticsearch_doc')
+    mySQL4es.truncate('matched')
+    mySQL4es.truncate('op_record')
     # mySQL4es.truncate('media_folder')
     # esutil.delete_docs_for_path(self.es, self.index_name, self.document_type, constants.START_FOLDER)
     pass
 
-def main():
+def scan_library():
+    constants.ES_INDEX_NAME = 'media'
 
-    # s = ScanCriteria()
-    # s.extensions = util.get_active_media_formats()
-    # s.locations.append(constants.EXPUNGED)
-    # s.locations.append(constants.NOSCAN)
-    # for folder in next(os.walk(constants.START_FOLDER))[1]:
-    #     s.locations.append(os.path.join(constants.START_FOLDER, folder))
-    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
-    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-    # s.locations.append('/media/removable/SEAGATE 932/Media/radio')
-    # s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+    s = ScanCriteria()
+    s.extensions = util.get_active_media_formats()
+    s.locations.append(constants.EXPUNGED)
+    s.locations.append(constants.NOSCAN)
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    for folder in next(os.walk(constants.START_FOLDER))[1]:
+        s.locations.append(os.path.join(constants.START_FOLDER, folder))
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
+    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
 
     mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
     # mfm.debug = True
     # mfm.do_match = True
-    #
-    # mfm.scan(s)
+    # reset_all(mfm)
+    mfm.scan(s)
 
-    filename = "/media/removable/Audio/music/albums/industrial/skinny puppy/Remission/07 Ice Breaker.mp3"
+def test_matchers():
+    constants.ES_INDEX_NAME = 'media'
+    mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
+    mfm.debug = True
+    # filename = "/media/removable/Audio/music/albums/industrial/skinny puppy/Remission/07 Ice Breaker.mp3"
+    # filename = "/media/removable/Audio/music/albums/hip-hop/wordburglar/06-wordburglar-best_in_show.mp3"
+    filename = '/media/removable/Audio/music [noscan]/albums/industrial/skinny puppy/the.b-sides.collect/11 - tin omen i.mp3'
     media = mfm.get_media_object(filename)
     if mfm.doc_exists(media, True):
         media.doc = mfm.get_doc(media)
         matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
-        # matcher = ElasticSearchMatcher('filename_term_matcher', mfm)
+        # matcher = ElasticSearchMatcher('artist_matcher', mfm)
         # matcher = ElasticSearchMatcher('filesize_term_matcher', mfm)
         matcher.match(media)
+    else: print "%s has not been scanned into the library" % (filename)
 
-# # logging
-# LOG = "mom.log"
-# logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
-#
-# # console handler
-# console = logging.StreamHandler()
-# console.setLevel(logging.ERROR)
-# logging.getLogger("").addHandler(console)
+def start_logging():
+    LOG = "mom.log"
+    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
+
+    # console handler
+    console = logging.StreamHandler()
+    console.setLevel(logging.ERROR)
+    logging.getLogger("").addHandler(console)
+
+def main():
+    constants.ES_INDEX_NAME = 'media'
+    scan_library()
+    # test_matchers()
+    # pass
 
 # main
 if __name__ == '__main__':
+    # logging
     main()
