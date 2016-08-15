@@ -74,7 +74,7 @@ def main():
 
                 data = {}
                 for field in doc['_source']:
-                    if field == 'absolute_folder_path':
+                    if field == 'absolute_path':
                         data['absolute_path'] = doc['_source'][field]
                     else:
                         data[field] = doc['_source'][field]

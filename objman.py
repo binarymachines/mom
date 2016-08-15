@@ -1,4 +1,3 @@
-varself.es = esutil.connect(hostname, portnum)
 #! /usr/bin/python
 
 import os, json, pprint, sys, random, logging, traceback, thread, datetime
@@ -40,6 +39,8 @@ class MediaManager(MediaLibraryWalker):
         self.RECENT = self.get_folder_constants('recent')
         self.UNSORTED = self.get_folder_constants('unsorted')
 
+        self.es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
+
         self.folderman = MediaFolderManager(self.es, self.index_name)
         self.active_criteria = None
 
@@ -50,7 +51,7 @@ class MediaManager(MediaLibraryWalker):
     def after_handle_root(self, root):
         op = 'scan'
         folder = self.folderman.folder
-        if folder is not None and folder.absolute_folder_path == root:
+        if folder is not None and folder.absolute_path == root:
             if self.debug: print 'updating record for folder: %s' % (root)
             self.folderman.record_operation(folder, 'mp3 scanner', op)
 
@@ -129,7 +130,7 @@ class MediaManager(MediaLibraryWalker):
     # TODO: refactor, generalize, move to esutil
     def doc_exists(self, media, attach_if_found):
         # look in local MySQL
-        esid = mySQL4es.retrieve_esid(self.index_name, self.document_type, media.absolute_file_path)
+        esid = mySQL4es.retrieve_esid(self.index_name, self.document_type, media.absolute_path)
         if esid is not None:
             if self.debug == True: print "found esid %s for %s in mySQL." % (esid, media.file_name)
             if attach_if_found and media.esid is None:
@@ -138,11 +139,11 @@ class MediaManager(MediaLibraryWalker):
                 # media.doc = doc
             return True
         # not found, query elasticsearch
-        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
+        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": media.absolute_path }}})
         # if self.debug: print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
             # if self.doc_refers_to(doc, media):
-            if doc['_source']['absolute_file_path'] == media.absolute_file_path:
+            if doc['_source']['absolute_path'] == media.absolute_path:
                 esid = doc['_id']
                 if self.debug == True: print "found esid %s for %s in Elasticsearch." % (esid, media.file_name)
                 if attach_if_found and media.esid is None:
@@ -151,7 +152,7 @@ class MediaManager(MediaLibraryWalker):
                     media.doc = doc
                 # found, update local MySQL
                 # if self.debug == True: print 'inserting esid'
-                mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
+                mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_path)
                 # if self.debug == True: print 'esid inserted'
 
                 return True
@@ -166,14 +167,14 @@ class MediaManager(MediaLibraryWalker):
                 if doc is not None:
                     return doc
 
-            if self.debug: print 'searching for document for: %s' % (media.absolute_file_path)
+            if self.debug: print 'searching for document for: %s' % (media.absolute_path)
             res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
             {
-                "query": { "match" : { "absolute_file_path": media.absolute_file_path }}
+                "query": { "match" : { "absolute_path": media.absolute_path }}
             })
             # # if self.debug: print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
-                if doc['_source']['absolute_file_path'] == media.absolute_file_path:
+                if doc['_source']['absolute_path'] == media.absolute_path:
                     return doc
         except ConnectionError, err:
             print ': '.join([err.__class__.__name__, err.message])
@@ -186,25 +187,25 @@ class MediaManager(MediaLibraryWalker):
             print ': '.join([err.__class__.__name__, err.message])
             # if self.debug:
             traceback.print_exc(file=sys.stdout)
-            # raise Exception('Doc not found: ' + media.absolute_file_path)
+            # raise Exception('Doc not found: ' + media.absolute_path)
 
     def get_doc_id(self, media):
 
         # look for esid in local MySQL
-        esid = mySQL4es.retrieve_esid(self.index_name, self.document_type, media.absolute_file_path)
+        esid = mySQL4es.retrieve_esid(self.index_name, self.document_type, media.absolute_path)
         if esid is not None:
             return esid
 
         try:
             # not found, query elasticsearch
-            res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_file_path": media.absolute_file_path }}})
+            res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": media.absolute_path }}})
             # if self.debug: print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
                 # if self.doc_refers_to(doc, media):
-                if doc['_source']['absolute_file_path'] == media.absolute_file_path:
+                if doc['_source']['absolute_path'] == media.absolute_path:
                     esid = doc['_id']
                     # found, update local MySQL
-                    mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_file_path)
+                    mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_path)
                     return doc['_id']
 
         except ConnectionError, err:
@@ -232,24 +233,24 @@ class MediaManager(MediaLibraryWalker):
 
         return result
 
-    def get_media_object(self, absolute_file_path):
+    def get_media_object(self, absolute_path):
 
         media = MediaFile(self)
-        path, filename = os.path.split(absolute_file_path)
-        extension = os.path.splitext(absolute_file_path)[1]
+        path, filename = os.path.split(absolute_path)
+        extension = os.path.splitext(absolute_path)[1]
         filename = filename.replace(extension, '')
         extension = extension.replace('.', '')
-        location = self.get_location(absolute_file_path)
+        location = self.get_location(absolute_path)
         foldername = path.replace(location, '')
 
-        media.absolute_file_path = absolute_file_path
+        media.absolute_path = absolute_path
         media.file_name = filename
         media.location = location
         media.ext = extension
         media.folder_name = foldername
-        media.file_size = os.path.getsize(absolute_file_path)
+        media.file_size = os.path.getsize(absolute_path)
 
-        media.esid = self.get_cached_id_for(absolute_file_path)
+        media.esid = self.get_cached_id_for(absolute_path)
 
         return media
 

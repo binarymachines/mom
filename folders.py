@@ -27,7 +27,7 @@ class MediaFolderManager:
     def get_latest_operation(self, path):
 
         folder = MediaFolder()
-        folder.absolute_folder_path = path
+        folder.absolute_path = path
 
         doc = self.find_doc(folder)
         if doc is not None:
@@ -36,10 +36,10 @@ class MediaFolderManager:
 
     def find_doc(self, folder):
         try:
-            if self.debug == True: print("searching for " + mediafolder.absolute_folder_path + '...')
+            if self.debug == True: print("searching for " + mediafolder.absolute_path + '...')
             res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
             {
-                "query": { "match" : { "absolute_folder_path": folder.absolute_folder_path }}
+                "query": { "match" : { "absolute_path": folder.absolute_path }}
             })
 
             # if res['_shards']['successful'] == 1:
@@ -58,9 +58,9 @@ class MediaFolderManager:
             sys.exit(1)
 
     def doc_exists(self, folder):
-        # if mom.debug: print 'checking for document for: %s' % (folder.absolute_folder_path)
+        # if mom.debug: print 'checking for document for: %s' % (folder.absolute_path)
         try:
-            res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_folder_path": folder.absolute_folder_path }}})
+            res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": folder.absolute_path }}})
             # print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
                 if self.doc_refers_to(doc, folder):
@@ -74,14 +74,14 @@ class MediaFolderManager:
             sys.exit(1)
 
     def doc_refers_to(self, doc, folder):
-        if doc['_source']['absolute_folder_path'] == folder.absolute_folder_path:
+        if doc['_source']['absolute_path'] == folder.absolute_path:
             return True
 
     def record_error(self, folder, error):
         try:
             if folder is not None and error is not None:
                 self.folder.latest_error = error
-                if self.debug: print("recording error: " + error + ", " + folder.esid + ", " + folder.absolute_folder_path)
+                if self.debug: print("recording error: " + error + ", " + folder.esid + ", " + folder.absolute_path)
                 res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
         except ConnectionError, err:
             print ': '.join([err.__class__.__name__, err.message])
@@ -93,7 +93,7 @@ class MediaFolderManager:
     def record_operation(self, folder, operator, operation):
         try:
             if folder is not None and operation is not None:
-                if self.debug: print("recording operation: " + operation + ", " + folder.esid + ", " + folder.absolute_folder_path)
+                if self.debug: print("recording operation: " + operation + ", " + folder.esid + ", " + folder.absolute_path)
                 dt = datetime.datetime.now().isoformat()
                 # update es with operation
                 res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_operation": operation }})
@@ -122,30 +122,30 @@ class MediaFolderManager:
             sys.exit(1)
 
     def record_exists(self, mediafolder):
-        rows = mySQL4es.retrieve_values('media_folder', ['absolute_folder_path'], [mediafolder.absolute_folder_path])
+        rows = mySQL4es.retrieve_values('media_folder', ['absolute_path'], [mediafolder.absolute_path])
         if len(rows) == 0:
             return False
         else: return True
 
     def insert_record(self, mediafolder):
-        mySQL4es.insert_values('media_folder', ['absolute_folder_path', 'latest_operation'],
-            [mediafolder.absolute_folder_path, 'record_inserted'])
+        mySQL4es.insert_values('media_folder', ['absolute_path', 'latest_operation'],
+            [mediafolder.absolute_path, 'record_inserted'])
 
     def update_record(self, mediafolder, update):
-        mySQL4es.insert_values('media_folder', ['absolute_folder_path', 'latest_operation'],
-            [mediafolder.absolute_folder_path, update])
+        mySQL4es.insert_values('media_folder', ['absolute_path', 'latest_operation'],
+            [mediafolder.absolute_path, update])
 
     def set_active_folder(self, path, operator, operation):
 
         try:
             if self.folder == None: self.folder = MediaFolder()
-            if path == self.folder.absolute_folder_path: return
-            if path != self.folder.absolute_folder_path:
+            if path == self.folder.absolute_path: return
+            if path != self.folder.absolute_path:
 
                 # if self.debug:
                 print '--- setting active: %s' % (path)
 
-                self.folder.absolute_folder_path = path
+                self.folder.absolute_path = path
 
                 if self.doc_exists(self.folder):
                     doc = self.find_doc(self.folder)
@@ -162,7 +162,7 @@ class MediaFolderManager:
                     if res['_shards']['successful'] == 1:
                         self.folder.esid = res['_id']
                         # update elasticsearch_doc with media_folder
-                        mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_folder_path)
+                        mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_path)
                     else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 
                 if operation is not  None: self.record_operation(self.folder, operator, operation)

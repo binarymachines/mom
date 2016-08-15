@@ -55,16 +55,16 @@ class MediaMatcher(object):
     def print_match_details(self, orig, match):
 
         if orig['_source']['file_size'] >  match['_source']['file_size']:
-            # print(orig['_id'] + ': ' + orig['_source']['file_name'] +' >>> ' + match['_id'] + ': ' + match['_source']['absolute_file_path'])
-            print(orig['_source']['file_name'] +' >>> ' + match['_source']['absolute_file_path'])
+            # print(orig['_id'] + ': ' + orig['_source']['file_name'] +' >>> ' + match['_id'] + ': ' + match['_source']['absolute_path'])
+            print(orig['_source']['file_name'] +' >>> ' + match['_source']['absolute_path'])
 
         elif orig['_source']['file_size'] ==  match['_source']['file_size']:
-            # print(orig['_id'] + orig['_source']['file_name'] + ' === ' + match['_id'] + ': ' + match['_source']['absolute_file_path'])
-            print(orig['_source']['file_name'] + ' === ' + match['_source']['absolute_file_path'])
+            # print(orig['_id'] + orig['_source']['file_name'] + ' === ' + match['_id'] + ': ' + match['_source']['absolute_path'])
+            print(orig['_source']['file_name'] + ' === ' + match['_source']['absolute_path'])
 
         elif orig['_source']['file_size'] <  match['_source']['file_size']:
-            # print(orig['_id'] + orig['_source']['file_name'] + ' <<< ' + match['_id'] + ': ' + match['_source']['absolute_file_path'])
-            print(orig['_source']['file_name'] + ' <<< ' + match['_source']['absolute_file_path'])
+            # print(orig['_id'] + orig['_source']['file_name'] + ' <<< ' + match['_id'] + ': ' + match['_source']['absolute_path'])
+            print(orig['_source']['file_name'] + ' <<< ' + match['_source']['absolute_path'])
 
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
         # if self.mfm.debug == True: print 'recording match'
@@ -157,7 +157,7 @@ class BasicMatcher(MediaMatcher):
                         continue
 
                     try:
-                        # if self.mfm.debug: print("possible match: " + match['_id'] + " - " + match['_source']['absolute_file_path'])
+                        # if self.mfm.debug: print("possible match: " + match['_id'] + " - " + match['_source']['absolute_path'])
                         match_fails = False
                         matched_fields = ['file_name']
 
@@ -171,9 +171,9 @@ class BasicMatcher(MediaMatcher):
                             self.print_match_details(orig, match)
                             # mySQL4es.DEBUG = True
 
-                            # self.mfm.ensure_exists_in_mysql(match['_id'], match['_source']['absolute_file_path'])
+                            # self.mfm.ensure_exists_in_mysql(match['_id'], match['_source']['absolute_path'])
                             try:
-                                thread.start_new_thread( mySQL4es.ensure_exists_in_mysql, ( match['_id'], match['_source']['absolute_file_path'], self.index_name, self.document_type, ) )
+                                thread.start_new_thread( mySQL4es.ensure_exists_in_mysql, ( match['_id'], match['_source']['absolute_path'], self.index_name, self.document_type, ) )
                             except Exception, err:
                                 print err.message
                                 traceback.print_exc(file=sys.stdout)

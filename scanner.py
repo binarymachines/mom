@@ -65,7 +65,7 @@ class Scanner:
                 return media
 
             if self.debug: print("scanning file: " + media.file_name)
-            mutagen_mediafile = ID3(media.absolute_file_path)
+            mutagen_mediafile = ID3(media.absolute_path)
             metadata = mutagen_mediafile.pprint() # gets all metadata
             tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
@@ -109,6 +109,6 @@ class Scanner:
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
             if self.debug: print "storing document id: %s" % (media.esid)
-            mySQL4es.insert_esid(self.index_name, self.document_type, media.esid, media.absolute_file_path)
+            mySQL4es.insert_esid(self.index_name, self.document_type, media.esid, media.absolute_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))
