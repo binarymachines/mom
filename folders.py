@@ -16,7 +16,7 @@ class MediaFolderManager:
         self.folder = None
         self.index_name = indexname
         self.document_type = 'media_folder'
-        self.debug = False
+        self.debug = True
         self.pid = os.getpid()
 
     def folder_scanned(self, path):
@@ -37,7 +37,7 @@ class MediaFolderManager:
 
     def find_doc(self, folder):
         try:
-            if self.debug == True: print("searching for " + mediafolder.absolute_path + '...')
+            if self.debug == True: print("searching for " + folder.absolute_path + '...')
             res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
             {
                 "query": { "match" : { "absolute_path": folder.absolute_path }}
@@ -75,8 +75,14 @@ class MediaFolderManager:
             sys.exit(1)
 
     def doc_refers_to(self, doc, folder):
-        if doc['_source']['absolute_path'] == folder.absolute_path:
-            return True
+        try:
+            if doc['_source']['absolute_path'] == folder.absolute_path:
+                return True
+        except UnicodeDecodeError, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug:
+            traceback.print_exc(file=sys.stdout)
+            raise err
 
     def record_error(self, folder, error):
         try:
@@ -92,10 +98,11 @@ class MediaFolderManager:
             sys.exit(1)
 
     def sync_folder_state(self, folder):
-
+        if self.debug: print 'syncing data for %s' % folder.absolute_path
         if self.doc_exists(folder):
             doc = self.find_doc(folder)
             if doc is not None:
+                if self.debug: print 'data retrieved from Elasticsearch'
                 folder.esid = doc['_id']
                 folder.latest_error = doc['_source']['latest_error']
                 folder.has_errors = doc['_source']['has_errors']
@@ -106,6 +113,7 @@ class MediaFolderManager:
 
             res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json_str)
             if res['_shards']['successful'] == 1:
+                if self.debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
                 # update MySQL
                 mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_path)
@@ -121,7 +129,7 @@ class MediaFolderManager:
         if self.folder != None and self.folder.absolute_path == path: return
 
         try:
-            if self.debug: print '--- setting active: %s' % (path)
+            if self.debug: print 'setting folder active: %s' % (path)
             self.folder = MediaFolder()
             self.folder.absolute_path = path
             self.sync_folder_state(self.folder)

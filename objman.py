@@ -4,11 +4,11 @@ import os, json, pprint, sys, random, logging, traceback, thread, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from mutagen.id3 import ID3, ID3NoHeaderError
-from data import MediaFile, ScanCriteria
+from data import MediaFile
 from folders import MediaFolderManager
 import constants, mySQL4es, util, esutil
 from matcher import BasicMatcher, ElasticSearchMatcher
-from scanner import Scanner
+from scanner import ScanCriteria, Scanner
 from walker import MediaLibraryWalker
 import operations
 
@@ -56,10 +56,12 @@ class MediaManager(MediaLibraryWalker):
 
     def before_handle_root(self, root):
         # if self.debug: print 'examining: %s' % (root)
-        self.folderman.set_active(None)
+        # self.folderman.set_active(None)
+        self.folderman.folder = None
         if root in self.path_cache:
-            if self.debug: print 'skipping folder: %s' % (root)
+            # if self.debug: print 'skipping folder: %s' % (root)
             return
+
         try:
             if util.path_contains_media(root, self.active_criteria.extensions):
                 self.folderman.set_active(root)
@@ -93,18 +95,23 @@ class MediaManager(MediaLibraryWalker):
         for extension in self.active_criteria.extensions:
             try:
                 if filename.lower().endswith(''.join(['.', extension])) \
-                    and not filename.lower().startswith('incomplete~'):
+                    and not filename.lower().startswith('incomplete~') \
+                    and not filename.lower().startswith('~incomplete'):
                         media = self.get_media_object(filename)
                         # TODO: remove es and MySQL records for nonexistent files
                         if media is None or media.ignore(): continue
                         # scan tag info if this file hasn't been assigned an esid
                         if media.esid is None: self.scanner.scan_file(media)
-                        elif self.debug: print 'skipping file: %s' % (filename)
+                        # elif self.debug: print 'skipping file: %s' % (filename)
 
-                    # start matchers
-                    # if media.esid is not None and self.do_match:
-                    #     for matcher in self.matchers:
-                    #         matcher.match(media)
+                        # start matchers
+                        # if media.esid is not None and self.do_match:
+                        #     for matcher in self.matchers:
+                        #         matcher.match(media)
+
+                else:
+                    if self.debug: print 'skipping file: %s' % (filename)
+
             except IOError, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 # if self.debug:
@@ -144,53 +151,53 @@ class MediaManager(MediaLibraryWalker):
                     return row[1]
 
     # TODO: refactor, generalize, move to esutil
-    def doc_exists(self, media, attach_if_found):
+    def doc_exists(self, asset, attach_if_found):
         # look in local MySQL
-        esid = mySQL4es.retrieve_esid(self.index_name, self.document_type, media.absolute_path)
+        esid = mySQL4es.retrieve_esid(self.index_name, asset.document_type, asset.absolute_path)
         if esid is not None:
-            if self.debug == True: print "found esid %s for %s in mySQL." % (esid, media.file_name)
-            if attach_if_found and media.esid is None:
-                if self.debug == True: print "attaching esid %s to %s." % (esid, media.file_name)
-                media.esid = esid
+            if self.debug == True: print "found esid %s for '%s' in mySQL." % (esid, asset.short_name())
+            if attach_if_found and asset.esid is None:
+                if self.debug == True: print "attaching esid %s to ''%s'." % (esid, asset.short_name())
+                asset.esid = esid
                 # media.doc = doc
             return True
         # not found, query elasticsearch
-        res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": media.absolute_path }}})
+        res = self.es.search(index=self.index_name, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
         # if self.debug: print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
             # if self.doc_refers_to(doc, media):
-            if doc['_source']['absolute_path'] == media.absolute_path:
+            if doc['_source']['absolute_path'] == asset.absolute_path:
                 esid = doc['_id']
-                if self.debug == True: print "found esid %s for %s in Elasticsearch." % (esid, media.file_name)
-                if attach_if_found and media.esid is None:
-                    if self.debug == True: print "attaching esid %s to %s." % (esid, media.file_name)
-                    media.esid = esid
-                    media.doc = doc
+                if self.debug == True: print "found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name())
+                if attach_if_found and asset.esid is None:
+                    if self.debug == True: print "attaching esid %s to '%s'." % (esid, asset.short_name())
+                    asset.esid = esid
+                    asset.doc = doc
                 # found, update local MySQL
-                # if self.debug == True: print 'inserting esid'
-                mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_path)
+                if self.debug == True: print 'inserting esid into MySQL'
+                mySQL4es.insert_esid(self.index_name, asset.document_type, esid, asset.absolute_path)
                 # if self.debug == True: print 'esid inserted'
 
                 return True
         return False
 
     #TODO: DEBUG DEBUG DEBUG
-    def get_doc(self, media):
+    def get_doc(self, asset):
         try:
-            if media.esid is not None:
-                if self.debug: print 'searching for document for: %s' % (media.esid)
-                doc = self.es.get(index=self.index_name, doc_type=self.document_type, id=media.esid)
+            if asset.esid is not None:
+                if self.debug: print 'searching for document for: %s' % (asset.esid)
+                doc = self.es.get(index=self.index_name, doc_type=asset.document_type, id=asset.esid)
                 if doc is not None:
                     return doc
 
-            if self.debug: print 'searching for document for: %s' % (media.absolute_path)
-            res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+            if self.debug: print 'searching for document for: %s' % (asset.absolute_path)
+            res = self.es.search(index=self.index_name, doc_type=asset.document_type, body=
             {
-                "query": { "match" : { "absolute_path": media.absolute_path }}
+                "query": { "match" : { "absolute_path": asset.absolute_path }}
             })
             # # if self.debug: print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
-                if doc['_source']['absolute_path'] == media.absolute_path:
+                if doc['_source']['absolute_path'] == asset.absolute_path:
                     return doc
         except ConnectionError, err:
             print ': '.join([err.__class__.__name__, err.message])
@@ -204,23 +211,23 @@ class MediaManager(MediaLibraryWalker):
             traceback.print_exc(file=sys.stdout)
             # raise Exception('Doc not found: ' + media.absolute_path)
 
-    def get_doc_id(self, media):
+    def get_doc_id(self, asset):
 
         # look for esid in local MySQL
-        esid = mySQL4es.retrieve_esid(self.index_name, self.document_type, media.absolute_path)
+        esid = mySQL4es.retrieve_esid(self.index_name, asset.document_type, asset.absolute_path)
         if esid is not None:
             return esid
 
         try:
             # not found, query elasticsearch
-            res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": media.absolute_path }}})
+            res = self.es.search(index=self.index_name, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
             # if self.debug: print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
                 # if self.doc_refers_to(doc, media):
-                if doc['_source']['absolute_path'] == media.absolute_path:
+                if doc['_source']['absolute_path'] == asset.absolute_path:
                     esid = doc['_id']
                     # found, update local MySQL
-                    mySQL4es.insert_esid(self.index_name, self.document_type, esid, media.absolute_path)
+                    mySQL4es.insert_esid(self.index_name, asset.document_type, esid, asset.absolute_path)
                     return doc['_id']
 
         except ConnectionError, err:
@@ -302,15 +309,16 @@ def scan_library():
     constants.ES_INDEX_NAME = 'media'
 
     s = ScanCriteria()
-    s.extensions = util.get_active_media_formats()
-    s.locations.append(constants.EXPUNGED)
-    s.locations.append(constants.NOSCAN)
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    s.extensions = ['mp3'] # util.get_active_media_formats()
     for folder in next(os.walk(constants.START_FOLDER))[1]:
         s.locations.append(os.path.join(constants.START_FOLDER, folder))
+        # s.locations.insert(0, os.path.join(constants.START_FOLDER, folder))
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
     s.locations.append('/media/removable/SEAGATE 932/Media/radio')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+    s.locations.append(constants.NOSCAN)
+    # s.locations.append(constants.EXPUNGED)
 
     mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
     mfm.debug = True
