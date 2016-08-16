@@ -54,29 +54,24 @@ def find_docs_missing_field(es, index_name, document_type, field):
     res = es.search(index=index_name, doc_type=document_type, body=query,size=1000)
     return res
 
-def transform_docs():
-    es = connect(constants.ES_HOST, constants.ES_PORT)
-
-    cycle = True
-    while cycle == True:
-        res = find_docs_missing_field(es, 'media2', 'media_folder', 'absolute_path')
-        if res['hits']['total'] > 0:
-            for doc in res['hits']['hits']:
-
-                data = {}
-                for field in doc['_source']:
-                    if field == 'absolute_path':
-                        data['absolute_path'] = doc['_source'][field]
-                    else:
-                        data[field] = doc['_source'][field]
-
-                print repr(data['absolute_path'])
-                es.index(index="media2", doc_type="media_folder", id=doc['_id'], body=data)
-
-    sys.exit(1)
-
-def main():
-    pass
-
-if __name__ == '__main__':
-    main()
+# def transform_docs():
+#     es = connect(constants.ES_HOST, constants.ES_PORT)
+#
+#     cycle = True
+#     while cycle == True:
+#         res = find_docs_missing_field(es, 'media2', 'media_folder', 'absolute_path')
+#         if res['hits']['total'] > 0:
+#             for doc in res['hits']['hits']:
+#
+#                 data = {}
+#                 for field in doc['_source']:
+#                     if field == 'absolute_path':
+#                         data['absolute_path'] = doc['_source'][field]
+#                     else:
+#                         data[field] = doc['_source'][field]
+#
+#                 print repr(data['absolute_path'])
+#                 es.index(index="media2", doc_type="media_folder", id=doc['_id'], body=data)
+#
+#     sys.exit(1)
+#
