@@ -296,8 +296,8 @@ def transfer_data(table, fields):
     pass
 
 def main():
-    transfer_data('matcher', ['name', 'query_type'])
-
+    # transfer_data('matcher', ['name', 'query_type'])
+    retrieve_values('')
 # main
 if __name__ == '__main__':
     main()
