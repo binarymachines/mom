@@ -50,22 +50,25 @@ class MediaManager(MediaLibraryWalker):
         self.scanner = Scanner(self)
 
     def after_handle_root(self, root):
-        op = 'scan'
         folder = self.folderman.folder
         if folder is not None and folder.absolute_path == root:
-            if self.debug: print 'updating record for folder: %s' % (root)
-            operations.record(self.es, folder, 'mp3 scanner', op)
+            if folder is not None and not operations.operation_completed(folder, 'mp3 scanner', 'scan'):
+                operations.record_op_complete(self.pid, folder, 'mp3 scanner', 'scan')
 
     def before_handle_root(self, root):
-        op = 'scan'
+
+        # if self.debug: print 'examining: %s' % (root)
+        self.folderman.set_active(None)
         try:
             if util.path_contains_media(root, self.active_criteria.extensions):
-                if self.folderman.get_latest_operation(root) != 'scan':
-                    self.folderman.set_active_folder(root, 'mp3 scanner', op)
-                else:
-                    # if self.debug:
-                    print 'skipping folder: %s' % (root)
-                    self.folderman.folder = None
+                self.folderman.set_active(root)
+
+                # if self.folderman.get_latest_operation(root) != 'scan':
+                #     self.folderman.set_active_folder(root, 'mp3 scanner', op)
+                # else:
+                #     # if self.debug:
+                #     print 'skipping folder: %s' % (root)
+                #     self.folderman.folder = None
 
         except Exception, err:
             print ': '.join([err.__class__.__name__, err.message])
@@ -74,8 +77,11 @@ class MediaManager(MediaLibraryWalker):
 
     def handle_root(self, root):
         folder = self.folderman.folder
-        if folder is not None:
+        if folder is not None and operations.operation_completed(folder, 'mp3 scanner', 'scan'):
+            print '%s has been scanned.' % (root)
+        elif folder is not None:
             if self.debug: print 'scanning folder: %s' % (root)
+            operations.record_op_begin(self.pid, folder, 'mp3 scanner', 'scan')
             for filename in os.listdir(root):
                 self.process_file(os.path.join(root, filename))
 
