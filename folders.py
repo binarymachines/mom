@@ -5,6 +5,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from data import MediaFolder
 import mySQL4es
+import operations
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -120,7 +121,7 @@ class MediaFolderManager:
                         mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_path)
                     else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 
-                if operation is not  None: operation.record(self.es, self.folder, operator, operation)
+                if operation is not  None: operations.record(self.es, self.folder, operator, operation)
 
                 # if not self.record_exists(self.folder): self.insert_record(self.folder)
                 # doc = self.find_doc(self.folder)
