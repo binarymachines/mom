@@ -56,9 +56,11 @@ class MediaManager(MediaLibraryWalker):
                 operations.record_op_complete(self.pid, folder, 'mp3 scanner', 'scan')
 
     def before_handle_root(self, root):
-
         # if self.debug: print 'examining: %s' % (root)
         self.folderman.set_active(None)
+        if root in self.path_cache:
+            if self.debug: print 'skipping %s' % (root)
+            return
         try:
             if util.path_contains_media(root, self.active_criteria.extensions):
                 self.folderman.set_active(root)
@@ -125,10 +127,13 @@ class MediaManager(MediaLibraryWalker):
                 self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
                 return
 
-    def cache_ids(self, path):
+    def cache_esids(self, path):
         self.id_cache = mySQL4es.retrieve_esids(self.index_name, self.document_type, path)
 
-    def get_cached_id_for(self, path):
+    def cache_paths(self, operator, operation, path):
+        self.path_cache = mySQL4es.retrieve_complete_ops(operator, operation, path)
+
+    def get_cached_esid(self, path):
         if self.id_cache is not None:
             for row in self.id_cache:
                 if path in row[0]:
@@ -257,7 +262,7 @@ class MediaManager(MediaLibraryWalker):
         media.folder_name = foldername
         media.file_size = os.path.getsize(absolute_path)
 
-        media.esid = self.get_cached_id_for(absolute_path)
+        media.esid = self.get_cached_esid(absolute_path)
 
         return media
 
@@ -265,9 +270,11 @@ class MediaManager(MediaLibraryWalker):
     def scan(self, criteria):
         self.active_criteria = criteria
         for location in criteria.locations:
-            self.cache_ids(location)
+            self.cache_esids(location)
+            self.cache_paths('mp3 scanner', 'scan', location)
             self.walk(location)
             self.id_cache = None
+            self.path_cache = None
 
     def setup_matchers(self):
         pass
