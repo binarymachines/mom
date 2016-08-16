@@ -248,6 +248,33 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
     insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
         [index, document_type, elasticsearch_id, absolute_path])
 
+def retrieve_complete_ops(operator, operation, parentpath):
+
+    result = []
+    # query = "select target_path from op_record where index_name = '%s' and operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
+    query = "select target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
+        % (operator, operation, parentpath, '%')
+
+    try:
+        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        cur = con.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        for r in rows:
+            result += r
+
+    except mdb.Error, e:
+
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        sys.exit(1)
+
+    finally:
+        if con:
+            con.close()
+
+    return result
+
 def retrieve_esid(index, document_type, absolute_path):
 
     rows = retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
@@ -296,8 +323,8 @@ def transfer_data(table, fields):
     pass
 
 def main():
-    # transfer_data('matcher', ['name', 'query_type'])
-    retrieve_values('')
+    retrieve_complete_ops('media', 'mp3 scanner', 'scan', '/media/removable/Audio/music/incoming/slsk/complete/')
+
 # main
 if __name__ == '__main__':
     main()
