@@ -20,6 +20,11 @@ class Asset(object):
         self.latest_operation = u''
         self.latest_operation_start_time = None
 
+    def short_name(self):
+        if self.absolute_path == None:
+            return None
+        return self.absolute_path.split('/')[-1]
+
 class MediaFile(Asset):
     def __init__(self, manager):
         super(MediaFile, self).__init__()
@@ -190,10 +195,10 @@ class MediaFolder(Asset):
     def all_files_have_matches():
         return False
 
-    def is_proper_compilation():
+    def has_matches():
         return False
 
-    def has_matches():
+    def is_proper_compilation():
         return False
 
     def match_count():
@@ -205,8 +210,3 @@ class MediaFolder(Asset):
     def to_str(self):
         print "esid: " + str(self.esid)
         print "absolute path: " + self.absolute_path
-
-class ScanCriteria:
-    def __init__(self):
-        self.locations = []
-        self.extensions = []

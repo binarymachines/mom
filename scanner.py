@@ -4,12 +4,17 @@ import os, json, pprint, sys, random, logging, traceback
 from elasticsearch import Elasticsearch
 import mySQL4es
 from mutagen.id3 import ID3, ID3NoHeaderError
-from data import MediaFile, ScanCriteria
+from data import MediaFile
 
 import constants
 import thread
 
 pp = pprint.PrettyPrinter(indent=4)
+
+class ScanCriteria:
+    def __init__(self):
+        self.locations = []
+        self.extensions = []
 
 class Scanner:
     def __init__(self, mediamanager):
@@ -62,6 +67,7 @@ class Scanner:
                 return media
 
             if  media.esid == None and self.mfm.doc_exists(media, True):
+                if self.debug: print("*** document exists, skipping file: " + '.'.join([media.file_name, media.ext]))
                 return media
 
             if self.debug: print("scanning file: " + media.file_name)
@@ -108,7 +114,7 @@ class Scanner:
             esid = res['_id']
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
-            if self.debug: print "storing document id: %s" % (media.esid)
+            if self.debug: print "inserting esid into MySQL"
             mySQL4es.insert_esid(self.index_name, self.document_type, media.esid, media.absolute_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))

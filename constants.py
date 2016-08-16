@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 ES_HOST = '54.82.250.249'
-ES_INDEX_NAME = 'media2'
+ES_INDEX_NAME = 'media'
 ES_PORT = 9200
 
 EXPUNGED = "/media/removable/Audio/music [expunged]/"
