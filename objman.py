@@ -10,6 +10,7 @@ import constants, mySQL4es, util, esutil
 from matcher import BasicMatcher, ElasticSearchMatcher
 from scanner import Scanner
 from walker import MediaLibraryWalker
+import operations
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -53,7 +54,7 @@ class MediaManager(MediaLibraryWalker):
         folder = self.folderman.folder
         if folder is not None and folder.absolute_path == root:
             if self.debug: print 'updating record for folder: %s' % (root)
-            operation.record(self.es, folder, 'mp3 scanner', op)
+            operations.record(self.es, folder, 'mp3 scanner', op)
 
     def before_handle_root(self, root):
         op = 'scan'
@@ -91,9 +92,9 @@ class MediaManager(MediaLibraryWalker):
                         # scan tag info if this file hasn't been assigned na esid
                         if media.esid is None: self.scanner.scan_file(media)
                         # start matchers
-                        if media.esid is not None and self.do_match:
-                            for matcher in self.matchers:
-                                matcher.match(media)
+                        # if media.esid is not None and self.do_match:
+                        #     for matcher in self.matchers:
+                        #         matcher.match(media)
             except IOError, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 # if self.debug:

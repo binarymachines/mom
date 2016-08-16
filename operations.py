@@ -18,7 +18,7 @@ import data, mySQL4es
 #     mySQL4es.insert_values(asset.document_type, ['absolute_path', 'latest_operation'],
 #         [asset.absolute_path, update])
 
-def record(self, es, asset, operator, operation):
+def record(es, asset, operator, operation):
     try:
         if asset is not None and operation is not None:
             if self.debug: print("recording operation: " + operation + ", " + asset.esid + ", " + folder.absolute_path)
@@ -41,7 +41,7 @@ def record(self, es, asset, operator, operation):
                 # mySQL4es.update_values('op_record', ['end_time'], [dt], ['operator_name', 'operation_name', 'target_esid', 'start_time'],
                 #     [self.__class__.__name__, operation, folder.esid, folder.latest_operation_start_time])
 
-    except ConnectionError, err:
+    except Exception, err:
         print ': '.join([err.__class__.__name__, err.message])
         # if self.debug:
         traceback.print_exc(file=sys.stdout)
