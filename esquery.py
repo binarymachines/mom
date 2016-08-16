@@ -166,32 +166,6 @@ def main():
     elastic_host = '54.82.250.249' # args['<elasticsearch_host>']
     elastic_port = 9200
     print 'Will connect to ES host %s:%s' % (elastic_host, elastic_port)
-    #
-    # query = {
-    #   "query": {
-    #     "bool": {
-    #       "must":     { "match": { "TIT2": "punk in park zoos" }},
-    #       "must_not": { "match": { "deleted": "true"  }},
-    #       "should": [
-    #                   { "match": { "TPE1": "skinny puppy" }},
-    #                   { "match": { "TALB": "vivisect vi"   }}
-    #       ]
-    #     }
-    #   }
-    # }
-    #
-    # pp.pprint(query)
-    # es = Elasticsearch([{'host': elastic_host, 'port': elastic_port}])
-    # res = es.search(index='media', doc_type='media_file', body=query)
-    # # print 'results\n----------------------\n'
-    # # pp.pprint(res)
-    # print '\ndocs\n----------------------\n'
-    # for doc in res['hits']['hits']:
-    #     # if doc['_score'] > 2:
-    #     # print(doc)
-    #     pp.pprint(doc)
-    #     print '\n'
-
 
     q = QueryBuilder(elastic_host, elastic_port)
     q.test_multi_match()

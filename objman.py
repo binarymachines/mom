@@ -41,7 +41,6 @@ class MediaManager(MediaLibraryWalker):
         self.UNSORTED = self.get_folder_constants('unsorted')
 
         self.es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
-
         self.folderman = MediaFolderManager(self.es, self.index_name)
         self.active_criteria = None
 
@@ -59,7 +58,7 @@ class MediaManager(MediaLibraryWalker):
         # if self.debug: print 'examining: %s' % (root)
         self.folderman.set_active(None)
         if root in self.path_cache:
-            if self.debug: print 'skipping %s' % (root)
+            if self.debug: print 'skipping folder: %s' % (root)
             return
         try:
             if util.path_contains_media(root, self.active_criteria.extensions):
@@ -96,13 +95,16 @@ class MediaManager(MediaLibraryWalker):
                 if filename.lower().endswith(''.join(['.', extension])) \
                     and not filename.lower().startswith('incomplete~'):
                         media = self.get_media_object(filename)
+                        # TODO: remove es and MySQL records for nonexistent files
                         if media is None or media.ignore(): continue
-                        # scan tag info if this file hasn't been assigned na esid
+                        # scan tag info if this file hasn't been assigned an esid
                         if media.esid is None: self.scanner.scan_file(media)
-                        # start matchers
-                        # if media.esid is not None and self.do_match:
-                        #     for matcher in self.matchers:
-                        #         matcher.match(media)
+                        elif self.debug: print 'skipping file: %s' % (filename)
+
+                    # start matchers
+                    # if media.esid is not None and self.do_match:
+                    #     for matcher in self.matchers:
+                    #         matcher.match(media)
             except IOError, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 # if self.debug:
@@ -128,9 +130,11 @@ class MediaManager(MediaLibraryWalker):
                 return
 
     def cache_esids(self, path):
+        if self.debug: print 'caching esids for %s' % (path)
         self.id_cache = mySQL4es.retrieve_esids(self.index_name, self.document_type, path)
 
-    def cache_paths(self, operator, operation, path):
+    def cache_op_records(self, operator, operation, path):
+        if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
         self.path_cache = mySQL4es.retrieve_complete_ops(operator, operation, path)
 
     def get_cached_esid(self, path):
@@ -194,7 +198,6 @@ class MediaManager(MediaLibraryWalker):
             traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
-
         except Exception, err:
             print ': '.join([err.__class__.__name__, err.message])
             # if self.debug:
@@ -238,14 +241,19 @@ class MediaManager(MediaLibraryWalker):
 
     #TODO: Offline mode - query MySQL and ES before looking at the file system
     def get_location(self, path):
-        result = ''
-        for dir in next(os.walk(constants.START_FOLDER))[1]:
-            if dir in path:
-                result = os.path.join(constants.START_FOLDER, dir)
+        result = None
+
+        for folder in next(os.walk(constants.START_FOLDER))[1]:
+            if folder in path:
+                result = os.path.join(constants.START_FOLDER, folder)
 
         return result
 
     def get_media_object(self, absolute_path):
+
+        if not os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK):
+            print "Either file is missing or is not readable"
+            return null
 
         media = MediaFile(self)
         path, filename = os.path.split(absolute_path)
@@ -271,7 +279,7 @@ class MediaManager(MediaLibraryWalker):
         self.active_criteria = criteria
         for location in criteria.locations:
             self.cache_esids(location)
-            self.cache_paths('mp3 scanner', 'scan', location)
+            self.cache_op_records('mp3 scanner', 'scan', location)
             self.walk(location)
             self.id_cache = None
             self.path_cache = None

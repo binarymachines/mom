@@ -199,6 +199,9 @@ class MediaFolder(Asset):
     def match_count():
         return 0
 
+    def has_multiple_artists():
+        return False
+
     def to_str(self):
         print "esid: " + str(self.esid)
         print "absolute path: " + self.absolute_path
