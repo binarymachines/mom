@@ -5,6 +5,13 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
+# class AssetRecord():
+#     def __init__(self):
+#         self.id = None
+#         self.index_name = None
+#         self.document_type = None
+#         self.absolute_path = None
+
 class Asset(object):
     def __init__(self):
         self.absolute_path = None

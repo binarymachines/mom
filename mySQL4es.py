@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 
 import os, sys, datetime, traceback
-
 import MySQLdb as mdb
 
-import pprint
-
-pp = pprint.PrettyPrinter(indent=4)
-
-# HOST = 'localhost'
-HOST = '54.82.250.249'
-# USER = 'root'
-USER = 'remote'
-# PASS = 'stainless'
-PASS = 'remote'
+HOST = 'localhost'
+# HOST = '54.82.250.249'
+USER = 'root'
+# USER = 'remote'
+PASS = 'stainless'
+# PASS = 'remote'
 SCHEMA = 'media'
 DEBUG = False
 
@@ -21,6 +16,8 @@ DEBUG = False
 def quote_if_string(value):
     if isinstance(value, basestring):
         return '"%s"' % value
+    if isinstance(value, unicode):
+        return u'"' + value + u'"'
     return value
 
 def aws_insert_values(con, table_name, field_names, field_values):
@@ -52,6 +49,7 @@ def insert_values(table_name, field_names, field_values):
 
     con = None
     try:
+
         formatted_values = [quote_if_string(value) for value in field_values]
 
         query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
@@ -65,10 +63,17 @@ def insert_values(table_name, field_names, field_values):
         con.commit()
 
     except mdb.Error, e:
-
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        # raise Exception(message)
         print message
+        raise e
+
+    # except UnicodeDecodeError, e:
+    #     raise e
+    #
+    # except Exception, e:
+    #     # raise Exception(message)
+    #     print e.message
+    #     raise e
     finally:
         if con:
             con.close()
@@ -240,9 +245,7 @@ def ensure_exists_in_mysql(esid, path, indexname, documenttype):
             if DEBUG: print('Updating local MySQL...')
             insert_esid(indexname, documenttype, esid, path)
     except mdb.Error, e:
-
         print "Error %d: %s" % (e.args[0], e.args[1])
-
 
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
     insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
@@ -323,8 +326,8 @@ def transfer_data(table, fields):
     pass
 
 def main():
-    retrieve_complete_ops('media', 'mp3 scanner', 'scan', '/media/removable/Audio/music/incoming/slsk/complete/')
-
+    # retrieve_complete_ops('media', 'mp3 scanner', 'scan', '/media/removable/Audio/music/incoming/slsk/complete/')
+    pass
 # main
 if __name__ == '__main__':
     main()

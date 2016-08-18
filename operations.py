@@ -48,6 +48,20 @@ import data, mySQL4es
 #         print '\nConnection lost, please verify network connectivity and restart.'
 #         sys.exit(1)
 
+def check_for_stop_request(pid, start_time):
+    rows = mySQL4es.retrieve_values('exec_record', ['pid', 'start_time', 'stop_requested'],
+        [str(pid)])
+    if rows[0][2] is not None:
+        return True
+
+def record_exec_begin(pid):
+    start_time = datetime.datetime.now().isoformat()
+    # print start_time
+    mySQL4es.insert_values('exec_record', ['pid', 'start_time'],
+        [str(pid), start_time])
+
+    return start_time
+
 def operation_completed(asset, operator, operation):
     rows = mySQL4es.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [operator, operation, asset.esid])

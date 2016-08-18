@@ -14,19 +14,29 @@ import operations
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class MediaManager(MediaLibraryWalker):
+class MediaFileManager(MediaLibraryWalker):
 
     def __init__(self, hostname, portnum, indexname, documenttype):
 
         self.pid = os.getpid()
+        self.start_time = None
 
         self.port = portnum;
         self.host = hostname
         self.index_name = indexname
         self.document_type = documenttype
-        self.id_cache = None
+
         self.debug = False
+
         self.do_match = False
+
+        self.do_cache_esids = True
+        self.do_cache_ops = True
+        self.do_cache_locations = True
+
+        self.esid_cache = []
+        self.ops_cache = []
+        self.location_cache = {}
 
         self.EXPUNGE = constants.EXPUNGED
         self.NOSCAN = constants.NOSCAN
@@ -55,28 +65,24 @@ class MediaManager(MediaLibraryWalker):
                 operations.record_op_complete(self.pid, folder, 'mp3 scanner', 'scan')
 
     def before_handle_root(self, root):
+        if operations.check_for_stop_request(self.pid, self.start_time):
+            print 'stop requested, terminating.'
+            sys.exit(1)
+
         # if self.debug: print 'examining: %s' % (root)
         # self.folderman.set_active(None)
         self.folderman.folder = None
-        if root in self.path_cache:
-            # if self.debug: print 'skipping folder: %s' % (root)
+        if root in self.ops_cache:
+            if self.debug: print 'a scan operation record already exists for: %s' % (root)
             return
 
         try:
             if util.path_contains_media(root, self.active_criteria.extensions):
                 self.folderman.set_active(root)
 
-                # if self.folderman.get_latest_operation(root) != 'scan':
-                #     self.folderman.set_active_folder(root, 'mp3 scanner', op)
-                # else:
-                #     # if self.debug:
-                #     print 'skipping folder: %s' % (root)
-                #     self.folderman.folder = None
-
         except Exception, err:
             print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug:
-            traceback.print_exc(file=sys.stdout)
+            if self.debug: traceback.print_exc(file=sys.stdout)
 
     def handle_root(self, root):
         folder = self.folderman.folder
@@ -102,20 +108,19 @@ class MediaManager(MediaLibraryWalker):
                         if media is None or media.ignore(): continue
                         # scan tag info if this file hasn't been assigned an esid
                         if media.esid is None: self.scanner.scan_file(media)
-                        # elif self.debug: print 'skipping file: %s' % (filename)
+                        elif self.debug: print 'skipping file: %s' % (filename)
 
                         # start matchers
                         # if media.esid is not None and self.do_match:
                         #     for matcher in self.matchers:
                         #         matcher.match(media)
 
-                else:
-                    if self.debug: print 'skipping file: %s' % (filename)
+                # else:
+                #     if self.debug: print 'skipping file: %s' % (filename)
 
             except IOError, err:
                 print ': '.join([err.__class__.__name__, err.message])
-                # if self.debug:
-                traceback.print_exc(file=sys.stdout)
+                if self.debug: traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                 return
 
@@ -138,15 +143,15 @@ class MediaManager(MediaLibraryWalker):
 
     def cache_esids(self, path):
         if self.debug: print 'caching esids for %s' % (path)
-        self.id_cache = mySQL4es.retrieve_esids(self.index_name, self.document_type, path)
+        self.esid_cache = mySQL4es.retrieve_esids(self.index_name, self.document_type, path)
 
-    def cache_op_records(self, operator, operation, path):
+    def cache_ops(self, operator, operation, path):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
-        self.path_cache = mySQL4es.retrieve_complete_ops(operator, operation, path)
+        self.ops_cache = mySQL4es.retrieve_complete_ops(operator, operation, path)
 
     def get_cached_esid(self, path):
-        if self.id_cache is not None:
-            for row in self.id_cache:
+        if self.esid_cache is not None:
+            for row in self.esid_cache:
                 if path in row[0]:
                     return row[1]
 
@@ -166,7 +171,7 @@ class MediaManager(MediaLibraryWalker):
         # if self.debug: print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
             # if self.doc_refers_to(doc, media):
-            if doc['_source']['absolute_path'] == asset.absolute_path:
+            if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
                 esid = doc['_id']
                 if self.debug == True: print "found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name())
                 if attach_if_found and asset.esid is None:
@@ -176,7 +181,7 @@ class MediaManager(MediaLibraryWalker):
                 # found, update local MySQL
                 if self.debug == True: print 'inserting esid into MySQL'
                 mySQL4es.insert_esid(self.index_name, asset.document_type, esid, asset.absolute_path)
-                # if self.debug == True: print 'esid inserted'
+                if self.debug == True: print 'esid inserted'
 
                 return True
         return False
@@ -197,18 +202,16 @@ class MediaManager(MediaLibraryWalker):
             })
             # # if self.debug: print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
-                if doc['_source']['absolute_path'] == asset.absolute_path:
+                if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
                     return doc
         except ConnectionError, err:
             print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug:
-            traceback.print_exc(file=sys.stdout)
+            if self.debug: traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
         except Exception, err:
             print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug:
-            traceback.print_exc(file=sys.stdout)
+            if self.debug: traceback.print_exc(file=sys.stdout)
             # raise Exception('Doc not found: ' + media.absolute_path)
 
     def get_doc_id(self, asset):
@@ -216,6 +219,7 @@ class MediaManager(MediaLibraryWalker):
         # look for esid in local MySQL
         esid = mySQL4es.retrieve_esid(self.index_name, asset.document_type, asset.absolute_path)
         if esid is not None:
+            if self.debug: print "esid found in MySQL"
             return esid
 
         try:
@@ -224,22 +228,24 @@ class MediaManager(MediaLibraryWalker):
             # if self.debug: print("%d documents found" % res['hits']['total'])
             for doc in res['hits']['hits']:
                 # if self.doc_refers_to(doc, media):
-                if doc['_source']['absolute_path'] == asset.absolute_path:
+                if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
+                    if self.debug: print "esid found in Elasticsearch"
                     esid = doc['_id']
                     # found, update local MySQL
+                    if self.debug: print "inserting esid into MySQL"
                     mySQL4es.insert_esid(self.index_name, asset.document_type, esid, asset.absolute_path)
                     return doc['_id']
 
         except ConnectionError, err:
             print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug:
-            traceback.print_exc(file=sys.stdout)
+            if self.debug: traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
         # raise Exception('Doc not found: ' + media.esid)
 
     def get_folder_constants(self, foldertype):
+        if self.debug: print "retrieving constants for %s folders." % (foldertype)
         result = []
         rows = mySQL4es.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
         for r in rows:
@@ -248,18 +254,26 @@ class MediaManager(MediaLibraryWalker):
 
     #TODO: Offline mode - query MySQL and ES before looking at the file system
     def get_location(self, path):
-        result = None
+        parent = os.path.abspath(os.path.join(path, os.pardir))
+        if parent in self.location_cache:
+            # if self.debug: print "location for path %s found." % (path)
+            return self.location_cache[parent]
 
+        self.location_cache = {}
+
+        # if self.debug: print "determining location for %s." % (parent.split('/')[-1])
         for folder in next(os.walk(constants.START_FOLDER))[1]:
             if folder in path:
-                result = os.path.join(constants.START_FOLDER, folder)
+                self.location_cache[parent] = os.path.join(constants.START_FOLDER, folder)
+                return self.location_cache[parent]
 
-        return result
+        return None
 
     def get_media_object(self, absolute_path):
 
+        # if self.debug: print "creating instance for %s." % (absolute_path)
         if not os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK):
-            print "Either file is missing or is not readable"
+            if self.debug: print "Either file is missing or is not readable"
             return null
 
         media = MediaFile(self)
@@ -283,13 +297,19 @@ class MediaManager(MediaLibraryWalker):
 
     #TODO: Offline mode - skip scan, go directly to match operation
     def scan(self, criteria):
+        self.start_time =  operations.record_exec_begin(self.pid)
         self.active_criteria = criteria
         for location in criteria.locations:
-            self.cache_esids(location)
-            self.cache_op_records('mp3 scanner', 'scan', location)
+            if self.do_cache_esids == True: self.cache_esids(location)
+            if self.do_cache_ops == True: self.cache_ops('mp3 scanner', 'scan', location)
+
             self.walk(location)
-            self.id_cache = None
-            self.path_cache = None
+
+            self.esid_cache = []
+            self.ops_cache = []
+            self.location_cache = {}
+
+        print '\n scan complete'
 
     def setup_matchers(self):
         pass
@@ -310,25 +330,27 @@ def scan_library():
 
     s = ScanCriteria()
     s.extensions = ['mp3'] # util.get_active_media_formats()
-    for folder in next(os.walk(constants.START_FOLDER))[1]:
-        s.locations.append(os.path.join(constants.START_FOLDER, folder))
-        # s.locations.insert(0, os.path.join(constants.START_FOLDER, folder))
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
-    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
     s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+    s.locations.append('/media/removable/SEAGATE 932/Media/radio')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
+    s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    for folder in next(os.walk(constants.START_FOLDER))[1]:
+        s.locations.insert(0, os.path.join(constants.START_FOLDER, folder))
+        # s.locations.append(os.path.join(constants.START_FOLDER, folder))
     s.locations.append(constants.NOSCAN)
-    # s.locations.append(constants.EXPUNGED)
+    s.locations.append(constants.EXPUNGED)
 
-    mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
+    mfm = MediaFileManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
     mfm.debug = True
+    mfm.do_cache_ops = True
+    mfm.do_cache_esids = True
     # mfm.do_match = True
     # reset_all(mfm)
     mfm.scan(s)
 
 def test_matchers():
     constants.ES_INDEX_NAME = 'media'
-    mfm = MediaManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
+    mfm = MediaFileManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
     mfm.debug = True
     # filename = "/media/removable/Audio/music/albums/industrial/skinny puppy/Remission/07 Ice Breaker.mp3"
     # filename = "/media/removable/Audio/music/albums/hip-hop/wordburglar/06-wordburglar-best_in_show.mp3"
