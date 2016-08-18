@@ -120,7 +120,7 @@ class QueryBuilder:
     def get_simple_match(self, fname, values, options):
         if len(options) == 0:
             param = values[fname]
-            term = { 'term' : { fname : param }}
+            term = { 'match' : { fname : param }}
 
             return { 'query' : term }
 
@@ -160,20 +160,19 @@ class QueryBuilder:
         self.execute_query('match_artist_album_song', values)
 
 # main
-# def main(args):
-def main():
+def main(args):
     # constants.ES_INDEX_NAME = 'media'
-    elastic_host = '54.82.250.249' # args['<elasticsearch_host>']
-    elastic_port = 9200
-    print 'Will connect to ES host %s:%s' % (elastic_host, elastic_port)
+    # elastic_host = args['<elasticsearch_host>']
+    # elastic_port = 9200
+    # print 'Will connect to ES host %s:%s' % (elastic_host, elastic_port)
 
-    q = QueryBuilder(elastic_host, elastic_port)
-    q.test_multi_match()
+    # q = QueryBuilder(elastic_host, elastic_port)
+    # q.test_multi_match()
     # q.test_simple_term()
     # q.test_multi_term()
-
+    pass
 
 if __name__ == '__main__':
-    # args = docopt(__doc__)
-    # main(args)
+    args = docopt(__doc__)
+    main(args)
     main()

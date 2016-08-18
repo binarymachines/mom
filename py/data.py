@@ -5,12 +5,15 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
-# class AssetRecord():
-#     def __init__(self):
-#         self.id = None
-#         self.index_name = None
-#         self.document_type = None
-#         self.absolute_path = None
+    # doc = "The doc_name property."
+    # def fget(self):
+    #     return self._doc_name
+    # def fset(self, value):
+    #     self._doc_name = value
+    # def fdel(self):
+    #     del self._doc_name
+    # return locals()
+    # doc_name = property(**doc_name()))
 
 class Asset(object):
     def __init__(self):
