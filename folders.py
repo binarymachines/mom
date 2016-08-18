@@ -6,6 +6,7 @@ from elasticsearch.exceptions import ConnectionError
 from data import MediaFolder
 import mySQL4es
 import operations
+import alchemy
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -76,13 +77,12 @@ class MediaFolderManager:
 
     def doc_refers_to(self, doc, folder):
         try:
-            if doc['_source']['absolute_path'] == folder.absolute_path:
+            if repr(doc['_source']['absolute_path']) == repr(folder.absolute_path):
                 return True
         except UnicodeDecodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             # if self.debug:
             traceback.print_exc(file=sys.stdout)
-            raise err
 
     def record_error(self, folder, error):
         try:
@@ -98,7 +98,7 @@ class MediaFolderManager:
             sys.exit(1)
 
     def sync_folder_state(self, folder):
-        if self.debug: print 'syncing data for %s' % folder.absolute_path
+        # if self.debug: print 'syncing data for %s' % folder.absolute_path
         if self.doc_exists(folder):
             doc = self.find_doc(folder)
             if doc is not None:
@@ -113,10 +113,11 @@ class MediaFolderManager:
 
             res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json_str)
             if res['_shards']['successful'] == 1:
-                if self.debug: print 'data indexed, updating MySQL'
+                # if self.debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
                 # update MySQL
-                mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_path)
+                mySQL4es.insert_esid(self.index_name, folder.document_type, folder.esid, folder.absolute_path)
+                # alchemy.insert_asset(folder.esid, self.index_name, folder.document_type, folder.absolute_path)
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 

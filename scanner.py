@@ -38,23 +38,22 @@ class Scanner:
                         thread.start_new_thread( mySQL4es.insert_values, ( 'artist', ['name'], [artist], ) )
                     except Exception, err:
                         print ': '.join([err.__class__.__name__, err.message])
-                        # if self.debug:
-                        traceback.print_exc(file=sys.stdout)
+                        if self.debug: traceback.print_exc(file=sys.stdout)
 
-                    # mySQL4es.insert_values('artist', ['name'], [artist])
-            #     rows = mySQL4es.retrieve_values('artist', ['name', 'id'], [artist])
-            #
-            # artistid = rows[0][1]
-            #
-            # if 'TALB' in data:
-            #     album = data['TALB'].lower()
-            #     rows2 = mySQL4es.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
-            #     if len(rows2) == 0:
-            #         mySQL4es.insert_values('album', ['name', 'artist_id'], [album, artistid])
+                # mySQL4es.insert_values('artist', ['name'], [artist])
+                #     rows = mySQL4es.retrieve_values('artist', ['name', 'id'], [artist])
+                #
+                # artistid = rows[0][1]
+                #
+                # if 'TALB' in data:
+                #     album = data['TALB'].lower()
+                #     rows2 = mySQL4es.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
+                #     if len(rows2) == 0:
+                #         mySQL4es.insert_values('album', ['name', 'artist_id'], [album, artistid])
+
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
-                # if self.debug:
-                traceback.print_exc(file=sys.stdout)
+                if self.debug: traceback.print_exc(file=sys.stdout)
 
     def scan_file(self, media):
 
@@ -63,14 +62,15 @@ class Scanner:
 
         try:
             if media.esid is not None:
-                if self.debug: print("*** esid exists, skipping file: " + '.'.join([media.file_name, media.ext]))
+                if self.debug: print "esid exists, skipping file: %s" % (media.short_name())
                 return media
 
             if  media.esid == None and self.mfm.doc_exists(media, True):
-                if self.debug: print("*** document exists, skipping file: " + '.'.join([media.file_name, media.ext]))
+                if self.debug: print "document exists, skipping file: %s" % (media.short_name())
                 return media
 
-            if self.debug: print("scanning file: " + media.file_name)
+            if self.debug: print "scanning file: %s" % (media.short_name())
+
             mutagen_mediafile = ID3(media.absolute_path)
             metadata = mutagen_mediafile.pprint() # gets all metadata
             tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
@@ -114,7 +114,7 @@ class Scanner:
             esid = res['_id']
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
-            if self.debug: print "inserting esid into MySQL"
+            if self.debug: print "inserting NEW esid into MySQL"
             mySQL4es.insert_esid(self.index_name, self.document_type, media.esid, media.absolute_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))
