@@ -4,6 +4,7 @@ import os, sys, datetime, traceback
 import MySQLdb as mdb
 
 HOST = 'localhost'
+PORT = 3306
 # HOST = '54.82.250.249'
 USER = 'root'
 # USER = 'remote'

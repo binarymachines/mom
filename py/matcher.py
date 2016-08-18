@@ -107,21 +107,27 @@ class ElasticSearchMatcher(MediaMatcher):
 
     def match(self, media):
 
-        query = self.get_query(media)
-        pp.pprint(query)
-        print '\n'
-        res = self.es.search(index=constants.ES_INDEX_NAME, doc_type='media_file', body=query)
-        pp.pprint(res)
-        print '\n'
-        for match in res['hits']['hits']:
-            # if match['_score'] > 5:
-            # if match['_id'] == media.doc['_id']:
-            #     continue
-            # else: pp.pprint(match)
-            pp.pprint(match)
+        print '[%s (%s, %i)]:::seeking matches for %s...'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
 
-        # qb.execute_query(self.name, values)
-        # qb.execute_query(self.name, values)
+        query = self.get_query(media)
+        print '\n'
+        pp.pprint(query)
+        res = self.es.search(index=constants.ES_INDEX_NAME, doc_type='media_file', body=query)
+        # pp.pprint(res)
+        # print '\n'
+        for match in res['hits']['hits']:
+            if match['_id'] == media.doc['_id']:
+                continue
+
+            if self.minimum_score is not None:
+                if match['_score'] < self.minimum_score:
+                    continue
+
+            print '\n[%f] %s' % (match['_score'], match['_source']['absolute_path'])
+            for field in self.comparison_fields:
+                if field in match['_source']:
+                    print '%s: %s' % (field, match['_source'][field])
+            # pp.pprint(match)
 
 
     def name(self):
@@ -145,7 +151,6 @@ class BasicMatcher(MediaMatcher):
 
         match = None
         try:
-
             if self.mfm.debug: print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.file_name, media.ext]))
             if not self.mfm.doc_exists(media, True): raise Exception("doc doesn't exist")
             orig = self.mfm.get_doc(media)

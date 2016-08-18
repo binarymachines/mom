@@ -6,6 +6,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+import mySQL4es
+
 Base = declarative_base()
 
 class AssetRecord(Base):
@@ -29,16 +31,7 @@ class AssetRecord(Base):
 #     absolute_path = Column(String(1024), nullable=False)
 #
 
-# class Address(Base):
-#     __tablename__ = 'address'
-#     # Here we define columns for the table address.
-#     # Notice that each column is also a normal Python instance attribute.
-#     id = Column(Integer, primary_key=True)
-#     street_name = Column(String(250))
-#     street_number = Column(String(250))
-#     post_code = Column(String(250), nullable=False)
-#     person_id = Column(Integer, ForeignKey('person.id'))
-#     person = relationship(Person)
+# URL = 'mysql://%s:%s@%s:%i/%s' % (mySQL4es.USER, mySQL4es.PASS, mySQL4es.HOST, mySQL4es.PORT, mySQL4es.SCHEMA)
 
 engine = create_engine('mysql://root:stainless@localhost:3306/media')
 # Bind the engine to the metadata of the Base class so that the
@@ -65,3 +58,17 @@ def insert_asset(id, indexname, documenttype, absolutepath):
     asset = AssetRecord(id=folder.esid, index_name=indexname, doc_type=documenttype, absolute_path=absolutepath)
     session.add(asset)
     session.commit()
+
+
+
+
+# class Address(Base):
+#     __tablename__ = 'address'
+#     # Here we define columns for the table address.
+#     # Notice that each column is also a normal Python instance attribute.
+#     id = Column(Integer, primary_key=True)
+#     street_name = Column(String(250))
+#     street_number = Column(String(250))
+#     post_code = Column(String(250), nullable=False)
+#     person_id = Column(Integer, ForeignKey('person.id'))
+#     person = relationship(Person)
