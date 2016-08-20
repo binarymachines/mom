@@ -63,20 +63,28 @@ def record_exec_begin(pid):
     return start_time
 
 def operation_completed(asset, operator, operation):
+    print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
+    # mySQL4es.DEBUG = True
     rows = mySQL4es.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [operator, operation, asset.esid])
+    # mySQL4es.DEBUG = False
 
     if len(rows) == 1 and rows[0][4] is not None:
+        print 'found record %s:::%s on %s' % (operator, operation, asset.short_name())
         return True
 
     return False
 
 def record_op_begin(pid, asset, operator, operation):
-    # print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
+    # mySQL4es.DEBUG = True
+    print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
     mySQL4es.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
         [str(pid), operator, operation, asset.esid, datetime.datetime.now().isoformat(), asset.absolute_path])
+    # mySQL4es.DEBUG = False
 
 def record_op_complete(pid, asset, operator, operation):
-    # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
+    print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
+    # mySQL4es.DEBUG = True
     mySQL4es.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['operator_name', 'operation_name', 'target_esid'],
         [operator, operation, asset.esid])
+    # mySQL4es.DEBUG = False

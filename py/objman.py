@@ -11,6 +11,7 @@ from matcher import BasicMatcher, ElasticSearchMatcher
 from scanner import ScanCriteria, Scanner
 from walker import MediaLibraryWalker
 import operations
+from data import AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -29,6 +30,7 @@ class MediaFileManager(MediaLibraryWalker):
         self.debug = False
 
         self.do_match = False
+        self.do_scan = True
 
         self.do_cache_esids = True
         self.do_cache_ops = True
@@ -51,7 +53,7 @@ class MediaFileManager(MediaLibraryWalker):
         self.UNSORTED = self.get_folder_constants('unsorted')
 
         self.es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
-        self.folderman = MediaFolderManager(self.es, self.index_name)
+        self.folderman = MediaFolderManager(self.es, self.index_name, self.doc_exists)
         self.active_criteria = None
 
         # self.matchers = [ BasicMatcher(self, 'BasicMatcher') ]
@@ -59,40 +61,47 @@ class MediaFileManager(MediaLibraryWalker):
         self.scanner = Scanner(self)
 
     def after_handle_root(self, root):
-        folder = self.folderman.folder
-        if folder is not None and folder.absolute_path == root:
-            if folder is not None and not operations.operation_completed(folder, 'mp3 scanner', 'scan'):
-                operations.record_op_complete(self.pid, folder, 'mp3 scanner', 'scan')
+        if self.do_scan:
+            folder = self.folderman.folder
+            if folder is not None and folder.absolute_path == root:
+                if folder is not None and not operations.operation_completed(folder, 'mp3 scanner', 'scan'):
+                    operations.record_op_complete(self.pid, folder, 'mp3 scanner', 'scan')
 
     def before_handle_root(self, root):
-        if operations.check_for_stop_request(self.pid, self.start_time):
-            print 'stop requested, terminating.'
-            sys.exit(1)
+        if self.do_scan:
+            self.check_for_stop_request()
+            # if self.debug: print 'examining: %s' % (root)
+            # self.folderman.set_active(None)
+            self.folderman.folder = None
+            if root in self.ops_cache:
+                if self.debug: print 'a scan operation record already exists for: %s' % (root)
+                return
 
-        # if self.debug: print 'examining: %s' % (root)
-        # self.folderman.set_active(None)
-        self.folderman.folder = None
-        if root in self.ops_cache:
-            if self.debug: print 'a scan operation record already exists for: %s' % (root)
-            return
+            try:
+                if util.path_contains_media(root, self.active_criteria.extensions):
+                    self.folderman.set_active(root)
 
-        try:
-            if util.path_contains_media(root, self.active_criteria.extensions):
-                self.folderman.set_active(root)
+            except AssetException, err:
+                self.folderman.folder = None
+                print ': '.join([err.__class__.__name__, err.message])
+                if self.debug: traceback.print_exc(file=sys.stdout)
+                self.handle_asset_exception(err, root)
 
-        except Exception, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            if self.debug: traceback.print_exc(file=sys.stdout)
+            except Exception, err:
+                print ': '.join([err.__class__.__name__, err.message])
+                if self.debug: traceback.print_exc(file=sys.stdout)
 
     def handle_root(self, root):
-        folder = self.folderman.folder
-        if folder is not None and operations.operation_completed(folder, 'mp3 scanner', 'scan'):
-            print '%s has been scanned.' % (root)
-        elif folder is not None:
-            if self.debug: print 'scanning folder: %s' % (root)
-            operations.record_op_begin(self.pid, folder, 'mp3 scanner', 'scan')
-            for filename in os.listdir(root):
-                self.process_file(os.path.join(root, filename))
+        if self.do_scan:
+            folder = self.folderman.folder
+            if folder is not None and operations.operation_completed(folder, 'mp3 scanner', 'scan'):
+                print '%s has been scanned.' % (root)
+            elif folder is not None:
+                if self.debug: print 'scanning folder: %s' % (root)
+                operations.record_op_begin(self.pid, folder, 'mp3 scanner', 'scan')
+                for filename in os.listdir(root):
+                    self.process_file(os.path.join(root, filename))
+        else: self.folderman.set_active(root)
 
     def handle_root_error(self, err):
         print ': '.join([err.__class__.__name__, err.message])
@@ -296,29 +305,54 @@ class MediaFileManager(MediaLibraryWalker):
 
         return media
 
+    def handle_asset_exception(self, error, path):
+        if error.message.lower().startswith('multiple'):
+            for item in  error.data:
+                mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+        elif error.message.lower().startswith('unable'):
+            mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [self.index_name, error.data.document_type, error.data.esid, error.message])
+
     def run_match_ops(self, criteria):
         self.active_criteria = criteria
         for location in criteria.locations:
-            self.cache_esids(location)
-            for record in self.esid_cache:
 
-                if operations.check_for_stop_request(self.pid, self.start_time):
-                    print 'stop requested, terminating.'
-                    sys.exit(1)
+            self.cache_ops('mp3 scanner', 'scan', location)
+            for path in self.ops_cache:
+                try:
+                    if self.folderman.set_active(path):
+                        self.cache_esids(path)
 
-                media = MediaFile(self)
-                media.absolute_path = record[0]
-                media.esid = record[1]
-                media.document_type = 'media_file'
+                        for matcher in self.matchers:
+                            if operations.operation_completed(self.folderman.folder, matcher.name, 'match'): continue
 
-                if (self.doc_exists(media, True)):
-                    for matcher in self.matchers:
-                        matcher.match(media)
+                            operations.record_op_begin(self.pid, self.folderman.folder, matcher.name, 'match')
 
-                print '\n\nexiting MediaFileManager.run_match_ops()...'
-                sys.exit(1)
+                            try:
+                                for record in self.esid_cache:
+                                    media = MediaFile(self)
+                                    media.absolute_path = record[0]
+                                    media.esid = record[1]
+                                    media.document_type = 'media_file'
+                                    if (self.doc_exists(media, True)):
+                                        matcher.match(media)
+                            except Exception, err:
+                                print ': '.join([err.__class__.__name__, err.message])
+                                if self.debug: traceback.print_exc(file=sys.stdout)
 
-            self.esid_cache = []
+                            operations.record_op_complete(self.pid, self.folderman.folder, matcher.name, 'match')
+                            self.check_for_stop_request()
+                            if operations.operation_completed(self.folderman.folder, matcher.name, 'match') == False:
+                                raise AssetException('Unable to store/retrieve operation record', self.folderman.folder)
+
+                        self.esid_cache = []
+                except AssetException, err:
+                    print ': '.join([err.__class__.__name__, err.message])
+                    if self.debug: traceback.print_exc(file=sys.stdout)
+                    self.handle_asset_exception(err, path)
+
+                finally:
+                    self.folderman.folder = None
+                    self.ops_cache = []
 
         print '\nmatching complete'
 
@@ -351,6 +385,11 @@ class MediaFileManager(MediaLibraryWalker):
             matcher.minimum_score = r[3]
             self.matchers += [matcher]
 
+    def check_for_stop_request(self):
+        if operations.check_for_stop_request(self.pid, self.start_time):
+            print 'stop requested, terminating.'
+            sys.exit(1)
+
 
 def reset_all(mfm):
     # esutil.clear_indexes(mfm.es, constants.ES_INDEX_NAME)
@@ -364,9 +403,9 @@ def reset_all(mfm):
     pass
 
 def scan_library():
-    start_logging()
-
     constants.ES_INDEX_NAME = 'media'
+
+    # start_logging()
 
     s = ScanCriteria()
     try:
@@ -386,16 +425,18 @@ def scan_library():
 
     mfm = MediaFileManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
     mfm.debug = True
+    # esutil.delete_docs_for_path(mfm.es, 'media', 'media_folder',  '/media/removable/Audio/music [noscan]/')
     mfm.do_cache_ops = True
     mfm.do_cache_esids = True
-    mfm.do_match = True
+    mfm.do_scan = True
+    mfm.do_match = False
     # reset_all(mfm)
     mfm.scan(s)
 
 def test_matchers():
     constants.ES_INDEX_NAME = 'media'
     mfm = MediaFileManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
-    mfm.debug = True
+    mfm.debug = False
     # filename = "/media/removable/Audio/music/albums/industrial/skinny puppy/Remission/07 Ice Breaker.mp3"
     # filename = "/media/removable/Audio/music/albums/hip-hop/wordburglar/06-wordburglar-best_in_show.mp3"
     filename = '/media/removable/Audio/music [noscan]/albums/industrial/skinny puppy/the.b-sides.collect/11 - tin omen i.mp3'

@@ -220,3 +220,8 @@ class MediaFolder(Asset):
     def to_str(self):
         print "esid: " + str(self.esid)
         print "absolute path: " + self.absolute_path
+
+class AssetException(Exception):
+    def __init__(self, message, data):
+        super(AssetException, self).__init__(message)
+        self.data = data

@@ -2,15 +2,9 @@
 
 import os, sys, datetime, traceback
 import MySQLdb as mdb
+from data import AssetException
+import constants
 
-HOST = 'localhost'
-PORT = 3306
-# HOST = '54.82.250.249'
-USER = 'root'
-# USER = 'remote'
-PASS = 'stainless'
-# PASS = 'remote'
-SCHEMA = 'media'
 DEBUG = False
 
 
@@ -58,7 +52,7 @@ def insert_values(table_name, field_names, field_values):
         if DEBUG:
             print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', ' (\n\t\t').replace(')', '\n\t\t)') + '\n'
 
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
@@ -111,7 +105,7 @@ def retrieve_values(table_name, field_names, field_values):
         if DEBUG:
             print '\n\t' + query.replace('WHERE', '\n\t      WHERE').replace('AND', '\n\t\tAND').replace('FROM', '\n\t       FROM')
 
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
@@ -132,6 +126,7 @@ def retrieve_values(table_name, field_names, field_values):
             con.close()
 
 def retrieve_like_values(table_name, field_names, field_values):
+    con = None
     try:
 
         query = 'SELECT '
@@ -156,7 +151,7 @@ def retrieve_like_values(table_name, field_names, field_values):
         if DEBUG:
             print '\n\t' + query.replace('WHERE', '\n\t      WHERE').replace('AND', '\n\t\tAND').replace('FROM', '\n\t       FROM')
 
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
@@ -204,7 +199,7 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
         print '\n\t' + query.replace('WHERE', '\n\t WHERE').replace(', ', ',\n\t       ').replace('SET', '\n\t   SET').replace('AND', '\n\t   AND')
 
     try:
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
@@ -223,7 +218,7 @@ def truncate(table_name):
     query = 'truncate ' + table_name
 
     try:
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
@@ -260,7 +255,7 @@ def retrieve_complete_ops(operator, operation, parentpath):
         % (operator, operation, parentpath, '%')
 
     try:
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
@@ -288,7 +283,7 @@ def retrieve_esid(index, document_type, absolute_path):
 
     if len(rows) > 1:
         text = "Multiple Ids for '" + absolute_path + "' returned"
-        raise Exception(text)
+        raise AssetException(text, rows)
 
     if len(rows) == 1:
         return rows[0][3]
@@ -300,7 +295,7 @@ def retrieve_esids(index, document_type, file_path):
         query = 'SELECT absolute_path, id FROM es_document WHERE absolute_path LIKE '
         query += '"' + file_path + '%"'
 
-        con = mdb.connect(HOST, USER, PASS, SCHEMA)
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
