@@ -42,12 +42,12 @@ def connect(hostname, portnum):
 
 def delete_docs_for_path(es, indexname, doctype, path):
 
-    rows = mySQL4es.retrieve_like_values('es_document', ['index_name', 'document_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, True])
+    rows = mySQL4es.retrieve_like_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, str(1)])
     for r in rows:
         esid = r[4]
         res = es.delete(index=indexname,doc_type=doctype,id=esid)
         if res['_shards']['successful'] == 1:
-            update_values('es_document', 'active_flag', False, ['id'], [esid])
+            mySQL4es.update_values('es_document', 'active_flag', False, ['id'], [esid])
 
 def find_docs_missing_field(es, index_name, document_type, field):
     query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : field }}}}}

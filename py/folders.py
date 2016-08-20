@@ -7,18 +7,20 @@ from data import MediaFolder
 import mySQL4es
 import operations
 import alchemy
+from data import AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
 
 class MediaFolderManager:
 
-    def __init__(self, elasticsearchinstance, indexname):
+    def __init__(self, elasticsearchinstance, indexname, doc_exists_func):
         self.es = elasticsearchinstance
         self.folder = None
         self.index_name = indexname
         self.document_type = 'media_folder'
         self.debug = True
         self.pid = os.getpid()
+        self.doc_exists = doc_exists_func
 
     def folder_scanned(self, path):
         pass
@@ -59,23 +61,24 @@ class MediaFolderManager:
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
 
-    def doc_exists(self, folder):
-        # if mom.debug: print 'checking for document for: %s' % (folder.absolute_path)
-        try:
-            res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": folder.absolute_path }}})
-            # print("%d documents found" % res['hits']['total'])
-            for doc in res['hits']['hits']:
-                if self.doc_refers_to(doc, folder):
-                    # media.data = doc
-                    return True
-        except ConnectionError, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug:
-            traceback.print_exc(file=sys.stdout)
-            print '\nConnection lost, please verify network connectivity and restart.'
-            sys.exit(1)
+    # def doc_exists(self, folder):
+    #     # if mom.debug: print 'checking for document for: %s' % (folder.absolute_path)
+    #     try:
+    #         res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": folder.absolute_path }}})
+    #         # print("%d documents found" % res['hits']['total'])
+    #         for doc in res['hits']['hits']:
+    #             if self.doc_refers_to(doc, folder):
+    #                 # media.data = doc
+    #                 return True
+    #     except ConnectionError, err:
+    #         print ': '.join([err.__class__.__name__, err.message])
+    #         # if self.debug:
+    #         traceback.print_exc(file=sys.stdout)
+    #         print '\nConnection lost, please verify network connectivity and restart.'
+    #         sys.exit(1)
 
     def doc_refers_to(self, doc, folder):
+        # if self.debug == True: print("verifying doc for " + folder.absolute_path + '...')
         try:
             if repr(doc['_source']['absolute_path']) == repr(folder.absolute_path):
                 return True
@@ -98,16 +101,19 @@ class MediaFolderManager:
             sys.exit(1)
 
     def sync_folder_state(self, folder):
-        # if self.debug: print 'syncing data for %s' % folder.absolute_path
-        if self.doc_exists(folder):
+        if self.debug: print 'syncing metadata for %s' % folder.absolute_path
+        if self.doc_exists(folder, True):
             doc = self.find_doc(folder)
             if doc is not None:
                 if self.debug: print 'data retrieved from Elasticsearch'
-                folder.esid = doc['_id']
+                # folder.esid = doc['_id']
                 folder.latest_error = doc['_source']['latest_error']
                 folder.has_errors = doc['_source']['has_errors']
                 folder.latest_operation = doc['_source']['latest_operation']
+
+                print folder.esid
         else:
+            if self.debug: print 'indexing %s' % folder.absolute_path
             data = folder.get_dictionary()
             json_str = json.dumps(data)
 
@@ -121,16 +127,18 @@ class MediaFolderManager:
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 
+
     def set_active(self, path):
 
         if path == None:
             self.folder = None
-            return
+            return False
 
-        if self.folder != None and self.folder.absolute_path == path: return
+        if self.folder != None and self.folder.absolute_path == path: return False
 
         try:
-            if self.debug: print 'setting folder active: %s' % (path)
+            # if self.debug:
+            print 'setting folder active: %s' % (path)
             self.folder = MediaFolder()
             self.folder.absolute_path = path
             self.sync_folder_state(self.folder)
@@ -141,11 +149,14 @@ class MediaFolderManager:
             traceback.print_exc(file=sys.stdout)
             print '\nConnection lost, please verify network connectivity and restart.'
             sys.exit(1)
+        #
+        # except AssetException, err:
+        #     self.folder = None
+        #     print ': '.join([err.__class__.__name__, err.message])
+        #     if self.debug: traceback.print_exc(file=sys.stdout)
+        #     return False
 
-        except Exception, err:
-            self.folder = None
-            print ': '.join([err.__class__.__name__, err.message])
-            if self.debug: traceback.print_exc(file=sys.stdout)
+        return True
 
     # def set_active_folder(self, path, operator, operation):
     #
