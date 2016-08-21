@@ -233,7 +233,7 @@ def truncate(table_name):
 
 #NOTE: The methods that follow are specific to this es application and should live elsewehere
 
-def ensure_exists_in_mysql(esid, path, indexname, documenttype):
+def ensure_exists(esid, path, indexname, documenttype):
     try:
         if DEBUG: print("checking for row for: "+ path)
         rows = retrieve_values('es_document', ['absolute_path', 'index_name'], [path, indexname])

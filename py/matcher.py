@@ -13,10 +13,9 @@ def clean_str(string):
 
 class MediaMatcher(object):
     def __init__(self, name, mediaManager):
-        self.mfm = mediaManager
+        self.debug = mediaManager.debug
         self.es = mediaManager.es
         self.comparison_fields = []
-        self.index_name = mediaManager.index_name
         self.document_type = mediaManager.document_type
         self.name = name
 
@@ -27,17 +26,14 @@ class MediaMatcher(object):
     # TODO: add matcher to match record. assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
 
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, self.index_name])
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, constants.ES_INDEX_NAME])
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, self.index_name])
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, constants.ES_INDEX_NAME])
         if len(rows) == 1:
             return True
-
-    # def name(self):
-    #     raise Exception("Not Implemented!")
 
     def match_comparison_result(self, orig, match):
         if orig['_source']['file_size'] > match['_source']['file_size']:
@@ -67,15 +63,10 @@ class MediaMatcher(object):
             print(orig['_source']['file_name'] + ' <<< ' + match['_source']['absolute_path'])
 
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
-        # if self.mfm.debug == True: print 'recording match'
+        # if self.debug == True: print 'recording match'
         if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
             mySQL4es.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
                 [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
-
-class FolderNameMatcher(MediaMatcher):
-    def match(self, media):
-        pass
-        raise Exception('Not Implemented!')
 
 class ElasticSearchMatcher(MediaMatcher):
     def __init__(self, name, mediaManager):
@@ -109,7 +100,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
         query = self.get_query(media)
         query_printed = False
-        if self.mfm.debug == True:
+        if self.debug == True:
             print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
             pp.pprint(query)
             print '\n'
@@ -120,9 +111,9 @@ class ElasticSearchMatcher(MediaMatcher):
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id']:
                 continue
-
             orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
             match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
+
             if match_parent == orig_parent:
                 continue
 
@@ -133,7 +124,7 @@ class ElasticSearchMatcher(MediaMatcher):
             matches = True
 
             try:
-                thread.start_new_thread( mySQL4es.ensure_exists_in_mysql, ( match['_id'], match['_source']['absolute_path'], self.index_name, self.document_type, ) )
+                thread.start_new_thread( mySQL4es.ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
             except Exception, err:
                 print err.message
                 # traceback.print_exc(file=sys.stdout)
@@ -143,7 +134,7 @@ class ElasticSearchMatcher(MediaMatcher):
                     if field in match['_source'] and field in media.doc['_source']:
                         matched_fields += [field]
             try:
-                thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name, self.index_name, matched_fields, match['_score'],
+                thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name, constants.ES_INDEX_NAME, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)), ) )
             except Exception, err:
                 print err.message
@@ -166,77 +157,6 @@ class ElasticSearchMatcher(MediaMatcher):
             pp.pprint( matchrecord )
             print '\n'
 
-
-    def name(self):
-        return self.name
-
-# TODO: add index_name
-class BasicMatcher(MediaMatcher):
-
-    def name(self):
-        return 'basic'
-
-    def get_query(self, media):
-        # print media.file_name
-        return { "query": { "match" : { "file_name": media.file_name }}}
-
+class FolderNameMatcher(MediaMatcher):
     def match(self, media):
-
-        if media.esid is None:
-            if self.mfm.debug: print("--- No esid: " + media.file_name)
-            return
-
-        match = None
-        try:
-            if self.mfm.debug: print("seeking matches: " + media.esid + ' ::: ' + '.'.join([media.file_name, media.ext]))
-            if not self.mfm.doc_exists(media, True): raise Exception("doc doesn't exist")
-            orig = self.mfm.get_doc(media)
-
-            res = self.es.search(index=self.index_name, doc_type=self.document_type, body=self.get_query(media))
-            for match in res['hits']['hits']:
-                if match['_score'] > 5:
-                    if match['_id'] == orig['_id']:
-                        continue
-
-                    try:
-                        # if self.mfm.debug: print("possible match: " + match['_id'] + " - " + match['_source']['absolute_path'])
-                        match_fails = False
-                        matched_fields = ['file_name']
-
-                        for field in self.comparison_fields:
-                                if field in match['_source'] and field in orig['_source']:
-                                    matched_fields +' field'
-                                    if util.str_clean4comp( match['_source'][field]) != util.str_clean4comp(orig['_source'][field]):
-                                        match_fails = True
-
-                        if match_fails == False:
-                            self.print_match_details(orig, match)
-                            # mySQL4es.DEBUG = True
-
-                            # self.mfm.ensure_exists_in_mysql(match['_id'], match['_source']['absolute_path'])
-                            try:
-                                thread.start_new_thread( mySQL4es.ensure_exists_in_mysql, ( match['_id'], match['_source']['absolute_path'], self.index_name, self.document_type, ) )
-                            except Exception, err:
-                                print err.message
-                                traceback.print_exc(file=sys.stdout)
-
-                            # self.record_match(media.esid,  match['_id'], self.name(), self.index_name, matched_fields, match['_score'],
-                            #     self.match_comparison_result(orig, match), str(self.match_extensions_match(orig, match)))
-
-                            try:
-                                thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name, self.index_name, matched_fields, match['_score'],
-                                    self.match_comparison_result(orig, match), str(self.match_extensions_match(orig, match)), ) )
-                            except Exception, err:
-                                print err.message
-                                traceback.print_exc(file=sys.stdout)
-
-                            # mySQL4es.DEBUG = False
-
-                    except KeyError, err:
-                        print err.message
-                        traceback.print_exc(file=sys.stdout)
-
-
-        except Exception, err:
-            print err.message
-            traceback.print_exc(file=sys.stdout)
+        raise Exception('Not Implemented!')
