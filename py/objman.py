@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, random, logging, traceback, thread, datetime
+import os, json, pprint, sys, random, logging, traceback, thread, datetime, ConfigParser
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from data import MediaFile
@@ -19,13 +19,15 @@ class MediaFileManager(MediaLibraryWalker):
 
     def __init__(self, hostname, portnum, indexname, documenttype):
 
+        # self.config()
+
         self.pid = os.getpid()
         self.start_time = None
 
         self.port = portnum;
         self.host = hostname
         self.index_name = indexname
-        self.document_type = documenttype
+        self.document_type = 'media_file'
 
         self.debug = False
 
@@ -74,7 +76,7 @@ class MediaFileManager(MediaLibraryWalker):
             # self.folderman.set_active(None)
             self.folderman.folder = None
             if root in self.ops_cache:
-                if self.debug: print 'a scan operation record already exists for: %s' % (root)
+                # if self.debug: print 'scan operation record found for: %s' % (root)
                 return
 
             try:
@@ -90,6 +92,52 @@ class MediaFileManager(MediaLibraryWalker):
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
+
+    def config(self):
+        try:
+            CONFIG = 'config.ini'
+
+            if os.path.isfile(os.path.join(os.getcwd(),CONFIG)):
+                config = ConfigParser.ConfigParser()
+                config.read(CONFIG)
+
+                self.host = self.configure_section_map(config, "Elasticsearch")['host']
+                self.port = self.configure_section_map(config, "Elasticsearch")['port']
+                self.index_name = self.configure_section_map(config, "Elasticsearch")['index']
+
+                print "Connecting to index %s Elasticsearch on host %s:%s" % (es_index, es_host, es_port)
+
+                mysql_host = self.configure_section_map(config, "MySQL")['host']
+                mysql_schema = self.configure_section_map(config, "MySQL")['schema']
+                mysql_user = self.configure_section_map(config, "MySQL")['user']
+                mysql_pass = self.configure_section_map(config, "MySQL")['pass']
+
+                print "Connecting to schema %s MySQL on host %s as %s:%s" % (mysql_schema, mysql_host, mysql_user, mysql_pass)
+
+                do_scan = self.configure_section_map(config, "Action")['do-scan']
+                do_match = self.configure_section_map(config, "Action")['do-match']
+
+                print "Performing scan:%s, match:%s" % (do_scan, do_match)
+        except Exception, err:
+            print err.message
+            print 'Invalid or missing configuration file, exiting...'
+            sys.exit(1)
+
+    def configure_section_map(self, config, section):
+        dict1 = {}
+        options = config.options(section)
+        for option in options:
+            try:
+                dict1[option] = config.get(section, option)
+                if dict1[option] == -1:
+                    DebugPrint("skip: %s" % option)
+            except:
+                print("exception on %s!" % option)
+                dict1[option] = None
+        return dict1
+
+    Config = ConfigParser.ConfigParser()
+    Config.read('../config.ini')
 
     def handle_root(self, root):
         if self.do_scan:
@@ -315,7 +363,6 @@ class MediaFileManager(MediaLibraryWalker):
     def run_match_ops(self, criteria):
         self.active_criteria = criteria
         for location in criteria.locations:
-
             self.cache_ops('mp3 scanner', 'scan', location)
             for path in self.ops_cache:
                 try:
@@ -357,32 +404,35 @@ class MediaFileManager(MediaLibraryWalker):
         print '\nmatching complete'
 
     #TODO: Offline mode - skip scan, go directly to match operation
-    def scan(self, criteria):
+    def run(self, criteria):
         self.start_time =  operations.record_exec_begin(self.pid)
         self.active_criteria = criteria
-        for location in criteria.locations:
-            if self.do_cache_esids == True: self.cache_esids(location)
-            if self.do_cache_ops == True: self.cache_ops('mp3 scanner', 'scan', location)
+        if self.do_scan:
+            for location in criteria.locations:
+                if os.path.isdir(location) and os.access(location, os.R_OK):
+                    if self.do_cache_esids == True: self.cache_esids(location)
+                    if self.do_cache_ops == True: self.cache_ops('mp3 scanner', 'scan', location)
 
-            self.walk(location)
+                    self.walk(location)
 
-            self.esid_cache = []
-            self.ops_cache = []
-            self.location_cache = {}
-        print '\nscan complete'
+                    self.esid_cache = []
+                    self.ops_cache = []
+                    self.location_cache = {}
+                elif self.debug:  print "%s isn't currently available." % (location)
 
-        if self.do_match == True:
+            print '\nscan complete'
+
+        if self.do_match:
             self.setup_matchers()
             self.run_match_ops(criteria)
 
     def setup_matchers(self):
         rows = mySQL4es.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
         for r in rows:
-            print r
-
             matcher = ElasticSearchMatcher(r[1], self)
             matcher.query_type = r[2]
             matcher.minimum_score = r[3]
+            print 'matcher %s configured' % (r[1])
             self.matchers += [matcher]
 
     def check_for_stop_request(self):
@@ -410,28 +460,35 @@ def scan_library():
     s = ScanCriteria()
     try:
         s.extensions = ['mp3'] # util.get_active_media_formats()
+
+        # if os.path.isdir(constants.START_FOLDER) and os.access(location, os.R_OK):
+        #     for folder in next(os.walk(constants.START_FOLDER))[1]:
+        #         s.locations.append(os.path.join(constants.START_FOLDER, folder))
+
+        rows = mySQL4es.retrieve_values('media_location_folder', ['file_type', 'name'], ['mp3'])
+        for row in rows:
+            s.locations.append(os.path.join(constants.START_FOLDER, row[1]))
+
         s.locations.append(constants.NOSCAN)
         s.locations.append(constants.EXPUNGED)
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
         s.locations.append('/media/removable/SEAGATE 932/Media/radio')
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
-        for folder in next(os.walk(constants.START_FOLDER))[1]:
             # s.locations.insert(0, os.path.join(constants.START_FOLDER, folder))
-            s.locations.append(os.path.join(constants.START_FOLDER, folder))
 
     except Exception, err:
         print err.message
 
     mfm = MediaFileManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
-    mfm.debug = True
     # esutil.delete_docs_for_path(mfm.es, 'media', 'media_folder',  '/media/removable/Audio/music [noscan]/')
+    mfm.debug = True
     mfm.do_cache_ops = True
     mfm.do_cache_esids = True
     mfm.do_scan = True
     mfm.do_match = False
     # reset_all(mfm)
-    mfm.scan(s)
+    mfm.run(s)
 
 def test_matchers():
     constants.ES_INDEX_NAME = 'media'

@@ -107,26 +107,28 @@ class ElasticSearchMatcher(MediaMatcher):
 
     def match(self, media):
 
-        orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
-
         query = self.get_query(media)
-        # print '\n'
-        res = self.es.search(index=constants.ES_INDEX_NAME, doc_type='media_file', body=query)
-        # pp.pprint(res)
-        # print '\n'
-        matches = False
         query_printed = False
+        if self.mfm.debug == True:
+            print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
+            pp.pprint(query)
+            print '\n'
+            query_printed = True
+
+        matches = False
+        res = self.es.search(index=constants.ES_INDEX_NAME, doc_type='media_file', body=query)
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id']:
+                continue
+
+            orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
+            match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
+            if match_parent == orig_parent:
                 continue
 
             if self.minimum_score is not None:
                 if match['_score'] < self.minimum_score:
                     continue
-
-            match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
-            if match_parent == orig_parent:
-                continue
 
             matches = True
 
@@ -135,7 +137,6 @@ class ElasticSearchMatcher(MediaMatcher):
             except Exception, err:
                 print err.message
                 # traceback.print_exc(file=sys.stdout)
-
 
             matched_fields = []
             for field in self.comparison_fields:
@@ -152,6 +153,7 @@ class ElasticSearchMatcher(MediaMatcher):
                 print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
                 pp.pprint(query)
                 query_printed = True
+                print '\n'
 
             matchrecord = {}
             matchrecord['score'] = match['_score']
