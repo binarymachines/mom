@@ -17,12 +17,11 @@ class ScanCriteria:
         self.extensions = []
 
 class Scanner:
-    def __init__(self, mediamanager):
-        self.mfm = mediamanager
+    def __init__(self, mediamanager, doc_exists_func):
+        self.doc_exists = doc_exists_func
         self.es = mediamanager.es
         self.debug = mediamanager.debug
         self.folderman = mediamanager.folderman
-        self.index_name = mediamanager.index_name
         self.document_type = mediamanager.document_type
 
     # TODO: figure out why this fails
@@ -65,7 +64,7 @@ class Scanner:
                 if self.debug: print "esid exists, skipping file: %s" % (media.short_name())
                 return media
 
-            if  media.esid == None and self.mfm.doc_exists(media, True):
+            if  media.esid == None and self.doc_exists(media, True):
                 if self.debug: print "document exists, skipping file: %s" % (media.short_name())
                 return media
 
@@ -108,13 +107,13 @@ class Scanner:
             return
 
         if self.debug: "indexing file: %s" % (media.file_name)
-        res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json.dumps(data))
+        res = self.es.index(index=constants.ES_INDEX_NAME, doc_type=self.document_type, body=json.dumps(data))
 
         if res['_shards']['successful'] == 1:
             esid = res['_id']
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
             if self.debug: print "inserting NEW esid into MySQL"
-            mySQL4es.insert_esid(self.index_name, self.document_type, media.esid, media.absolute_path)
+            mySQL4es.insert_esid(constants.ES_INDEX_NAME, self.document_type, media.esid, media.absolute_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))

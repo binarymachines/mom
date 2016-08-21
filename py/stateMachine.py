@@ -27,10 +27,10 @@ class StateMachine:
 
     @property
     def current_state(self):
-        if self._currentState == None:
-            self._currentState = self.begin_state
+        if self.current_state == None:
+            self.current_state = self.begin_state
 
-        return self._currentState
+        return self.current_state
 
     def get_rules(self, state):
         # print("get rules")
