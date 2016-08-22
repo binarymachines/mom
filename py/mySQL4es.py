@@ -5,8 +5,7 @@ import MySQLdb as mdb
 from data import AssetException
 import constants
 
-DEBUG = False
-
+DEBUG = True
 
 def quote_if_string(value):
     if isinstance(value, basestring):
