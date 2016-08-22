@@ -13,7 +13,7 @@ def clean_str(string):
 
 class MediaMatcher(object):
     def __init__(self, name, mediaManager):
-        self.debug = mediaManager.debug
+        self.debug = constants.MATCHER_DEBUG
         self.es = mediaManager.es
         self.comparison_fields = []
         self.document_type = mediaManager.document_type

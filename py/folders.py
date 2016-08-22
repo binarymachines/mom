@@ -6,6 +6,7 @@ from elasticsearch.exceptions import ConnectionError
 from data import MediaFolder
 import mySQL4es
 import operations
+import constants
 import alchemy
 from data import AssetException
 
@@ -16,9 +17,9 @@ class MediaFolderManager:
     def __init__(self, elasticsearchinstance, indexname, doc_exists_func):
         self.es = elasticsearchinstance
         self.folder = None
-        self.index_name = indexname
+        self.index_name = constants.ES_INDEX_NAME
         self.document_type = 'media_folder'
-        self.debug = True
+        self.debug = constants.FOLDER_DEBUG
         self.pid = os.getpid()
         self.doc_exists = doc_exists_func
 

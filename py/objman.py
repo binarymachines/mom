@@ -15,7 +15,7 @@ from data import AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
 
-def config():
+def configure():
     try:
         CONFIG = 'config.ini'
 
@@ -40,6 +40,12 @@ def config():
 
             constants.DO_SCAN = configure_section_map(config, "Action")['do-scan'].lower() == 'true'
             constants.DO_MATCH = configure_section_map(config, "Action")['do-match'].lower() == 'true'
+
+            constants.OBJMAN_DEBUG = configure_section_map(config, "Debug")['objman'].lower() == 'true'
+            constants.SCANNER_DEBUG = configure_section_map(config, "Debug")['scanner'].lower() == 'true'
+            constants.MATCHER_DEBUG = configure_section_map(config, "Debug")['matcher'].lower() == 'true'
+            constants.FOLDER_DEBUG = configure_section_map(config, "Debug")['folder'].lower() == 'true'
+            mySQL4es.DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true'
 
             print "Performing scan:%s, match:%s" % (constants.DO_SCAN, constants.DO_MATCH)
     except Exception, err:
@@ -76,7 +82,7 @@ class MediaFileManager(MediaLibraryWalker):
         self.start_time = None
 
         self.active_criteria = None
-        self.debug = False
+        self.debug = constants.OBJMAN_DEBUG
         self.document_type = 'media_file'
         self.do_cache_esids = True
         self.do_cache_locations = True
@@ -456,7 +462,6 @@ def reset_all(mfm):
 
 def scan_library():
     # start_logging()
-    config()
 
     print 'Setting up scan criteria...'
     s = ScanCriteria()
@@ -495,8 +500,7 @@ def scan_library():
 def test_matchers():
     mfm = MediaFileManager();
     mfm.debug = False
-    # filename = "/media/removable/Audio/music/albums/industrial/skinny puppy/Remission/07 Ice Breaker.mp3"
-    # filename = "/media/removable/Audio/music/albums/hip-hop/wordburglar/06-wordburglar-best_in_show.mp3"
+
     filename = '/media/removable/Audio/music [noscan]/albums/industrial/skinny puppy/the.b-sides.collect/11 - tin omen i.mp3'
     media = mfm.get_media_object(filename)
     if mfm.doc_exists(media, True):
@@ -508,6 +512,7 @@ def test_matchers():
     else: print "%s has not been scanned into the library" % (filename)
 
 def main():
+    configure()
     scan_library()
 
 # main
