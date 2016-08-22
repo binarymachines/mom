@@ -110,8 +110,6 @@ class MediaFolderManager:
                 folder.latest_error = doc['_source']['latest_error']
                 folder.has_errors = doc['_source']['has_errors']
                 folder.latest_operation = doc['_source']['latest_operation']
-
-                print folder.esid
         else:
             if self.debug: print 'indexing %s' % folder.absolute_path
             data = folder.get_dictionary()
