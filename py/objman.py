@@ -29,17 +29,17 @@ def configure():
             constants.ES_PORT = int(configure_section_map(config, "Elasticsearch")['port'])
             constants.ES_INDEX_NAME = configure_section_map(config, "Elasticsearch")['index']
 
-            print "Connecting to index %s Elasticsearch on host %s:%s" % (constants.ES_INDEX_NAME, constants.ES_HOST, constants.ES_PORT)
+            # print "Connecting to index %s Elasticsearch on host %s:%s" % (constants.ES_INDEX_NAME, constants.ES_HOST, constants.ES_PORT)
 
             constants.MYSQL_HOST = configure_section_map(config, "MySQL")['host']
             constants.MYSQL_SCHEMA = configure_section_map(config, "MySQL")['schema']
             constants.MYSQL_USER = configure_section_map(config, "MySQL")['user']
             constants.MYSQL_PASS = configure_section_map(config, "MySQL")['pass']
 
-            print "Connecting to schema %s MySQL on host %s as %s:%s" % (constants.MYSQL_SCHEMA, constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS)
+            # print "Connecting to schema %s MySQL on host %s as %s:%s" % (constants.MYSQL_SCHEMA, constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS)
 
-            constants.DO_SCAN = configure_section_map(config, "Action")['do-scan'].lower() == 'true'
-            constants.DO_MATCH = configure_section_map(config, "Action")['do-match'].lower() == 'true'
+            constants.DO_SCAN = configure_section_map(config, "Action")['scan'].lower() == 'true'
+            constants.DO_MATCH = configure_section_map(config, "Action")['match'].lower() == 'true'
 
             constants.OBJMAN_DEBUG = configure_section_map(config, "Debug")['objman'].lower() == 'true'
             constants.SCANNER_DEBUG = configure_section_map(config, "Debug")['scanner'].lower() == 'true'
@@ -47,7 +47,7 @@ def configure():
             constants.FOLDER_DEBUG = configure_section_map(config, "Debug")['folder'].lower() == 'true'
             mySQL4es.DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true'
 
-            print "Performing scan:%s, match:%s" % (constants.DO_SCAN, constants.DO_MATCH)
+            # print "Performing scan:%s, match:%s" % (constants.DO_SCAN, constants.DO_MATCH)
     except Exception, err:
         print err.message
         print 'Invalid or missing configuration file, exiting...'
@@ -87,10 +87,6 @@ class MediaFileManager(MediaLibraryWalker):
         self.do_cache_esids = True
         self.do_cache_locations = True
         self.do_cache_ops = True
-        # self.do_match = constants.DO_MATCH
-        # self.do_scan = constants.DO_SCAN
-        self.do_match = False
-        self.do_scan = True
 
         self.esid_cache = []
         self.ops_cache = []
@@ -116,15 +112,16 @@ class MediaFileManager(MediaLibraryWalker):
         self.scanner = Scanner(self, self.doc_exists)
 
     def after_handle_root(self, root):
-        if self.do_scan:
+        if constants.DO_SCAN:
             folder = self.folderman.folder
             if folder is not None and folder.absolute_path == root:
                 if folder is not None and not operations.operation_completed(folder, 'mp3 scanner', 'scan'):
                     operations.record_op_complete(self.pid, folder, 'mp3 scanner', 'scan')
 
     def before_handle_root(self, root):
-        if self.do_scan:
+        if constants.DO_SCAN:
             self.check_for_stop_request()
+            self.check_for_reconfig_request()
             # if self.debug: print 'examining: %s' % (root)
             # self.folderman.set_active(None)
             self.folderman.folder = None
@@ -147,7 +144,7 @@ class MediaFileManager(MediaLibraryWalker):
                 if self.debug: traceback.print_exc(file=sys.stdout)
 
     def handle_root(self, root):
-        if self.do_scan:
+        if constants.DO_SCAN:
             folder = self.folderman.folder
             if folder is not None and operations.operation_completed(folder, 'mp3 scanner', 'scan'):
                 print '%s has been scanned.' % (root)
@@ -203,9 +200,10 @@ class MediaFileManager(MediaLibraryWalker):
         if self.debug: print 'caching esids for %s' % (path)
         self.esid_cache = mySQL4es.retrieve_esids(constants.ES_INDEX_NAME, self.document_type, path)
 
-    def cache_ops(self, operator, operation, path):
+    def cache_ops(self, path, operation, operator=None):
+        # retrieve_complete_ops(parentpath, operation, operator=None):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
-        self.ops_cache = mySQL4es.retrieve_complete_ops(operator, operation, path)
+        self.ops_cache = mySQL4es.retrieve_complete_ops(path, operation, operator)
 
     def get_cached_esid(self, path):
         if self.esid_cache is not None:
@@ -367,13 +365,48 @@ class MediaFileManager(MediaLibraryWalker):
         elif error.message.lower().startswith('unable'):
             mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [constants.ES_INDEX_NAME, error.data.document_type, error.data.esid, error.message])
 
+    # def retrieve_completed_match_ops(self, path):
+    #     match_ops = {}
+    #     for matcher in self.matchers:
+    #         ops = mySQL4es.retrieve_complete_ops(path, 'match', matcher.name)
+    #         match_ops[matcher.name] = ops
+    #
+    # def all_matchers_have_run(self, path, match_ops):
+    #     skip_path = False
+    #     for matcher in self.matchers:
+    #         if path in match_ops[matcher.name]:
+    #             skip_path = True
+    #             break
+
     def run_match_ops(self, criteria):
 
         self.active_criteria = criteria
         for location in criteria.locations:
-            self.cache_ops('mp3 scanner', 'scan', location)
+            self.cache_ops(location, 'scan', 'mp3 scanner')
+
+            match_ops = {}
+            for matcher in self.matchers:
+                ops = mySQL4es.retrieve_complete_ops(location, 'match', matcher.name)
+                match_ops[matcher.name] = ops
+
             for path in self.ops_cache:
                 try:
+                    self.check_for_stop_request()
+                    # self.check_for_reconfig_request()
+
+                    skip_path = False
+                    for matcher in self.matchers:
+                        if path in match_ops[matcher.name]:
+                            skip_path = True
+                            if self.debug: print 'skipping %s' % (path)
+                            break
+
+                    if skip_path: continue
+
+                    print 'running match ops on %s' % (path)
+
+                    # sys.exit(1)
+
                     if self.folderman.set_active(path):
                         # self.cache_esids(path)
 
@@ -395,7 +428,6 @@ class MediaFileManager(MediaLibraryWalker):
                                 if self.debug: traceback.print_exc(file=sys.stdout)
 
                             operations.record_op_complete(self.pid, self.folderman.folder, matcher.name, 'match')
-                            self.check_for_stop_request()
                             if operations.operation_completed(self.folderman.folder, matcher.name, 'match') == False:
                                 raise AssetException('Unable to store/retrieve operation record', self.folderman.folder)
 
@@ -409,17 +441,17 @@ class MediaFileManager(MediaLibraryWalker):
                     self.folderman.folder = None
                     self.ops_cache = []
 
-        print '\nmatching complete'
+        print '\n-----match operations complete-----\n'
 
     #TODO: Offline mode - skip scan, go directly to match operation
     def run(self, criteria):
         self.start_time =  operations.record_exec_begin(self.pid)
         self.active_criteria = criteria
-        if self.do_scan:
+        if constants.DO_SCAN:
             for location in criteria.locations:
                 if os.path.isdir(location) and os.access(location, os.R_OK):
                     if self.do_cache_esids == True: self.cache_esids(location)
-                    if self.do_cache_ops == True: self.cache_ops('mp3 scanner', 'scan', location)
+                    if self.do_cache_ops == True: self.cache_ops(location, 'scan', 'mp3 scanner')
 
                     self.walk(location)
 
@@ -428,9 +460,9 @@ class MediaFileManager(MediaLibraryWalker):
                     self.location_cache = {}
                 elif self.debug:  print "%s isn't currently available." % (location)
 
-            print '\nscan complete'
+            print '\n-----scan complete-----\n'
 
-        if self.do_match:
+        if constants.DO_MATCH:
             self.setup_matchers()
             self.run_match_ops(criteria)
 
@@ -443,22 +475,26 @@ class MediaFileManager(MediaLibraryWalker):
             print 'matcher %s configured' % (r[1])
             self.matchers += [matcher]
 
+
+    def check_for_reconfig_request(self):
+        # FLAG = mySQL4es.DEBUG
+        # mySQL4es.DEBUG = False
+        # if operations.check_for_reconfig_request(self.pid, self.start_time):
+        #     print 'reconfig requested, loading config file.'
+        #     mySQL4es.update_values('exec_record', 'reconfig_requested', False, ['pid', 'start_time'], [self.pid, self.start_time])
+        # configure()
+        # mySQL4es.DEBUG = FLAG
+        pass
+
     def check_for_stop_request(self):
+        FLAG = mySQL4es.DEBUG
+        mySQL4es.DEBUG = False
+
         if operations.check_for_stop_request(self.pid, self.start_time):
             print 'stop requested, terminating.'
             sys.exit(1)
 
-
-def reset_all(mfm):
-    # esutil.clear_indexes(mfm.es, constants.ES_INDEX_NAME)
-    esutil.clear_indexes(mfm.es, 'media2')
-    esutil.clear_indexes(mfm.es, 'media3')
-    mySQL4es.truncate('es_document')
-    mySQL4es.truncate('matched')
-    mySQL4es.truncate('op_record')
-    # mySQL4es.truncate('media_folder')
-    # esutil.delete_docs_for_path(self.es, constants.ES_INDEX_NAME, self.document_type, constants.START_FOLDER)
-    pass
+        mySQL4es.DEBUG = FLAG
 
 def scan_library():
     # start_logging()

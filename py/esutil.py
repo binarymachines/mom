@@ -54,6 +54,14 @@ def find_docs_missing_field(es, index_name, document_type, field):
     res = es.search(index=index_name, doc_type=document_type, body=query,size=1000)
     return res
 
+def reset_all(es):
+    esutil.clear_indexes(es, 'media')
+    esutil.clear_indexes(es, 'media2')
+    esutil.clear_indexes(es, 'media3')
+    mySQL4es.truncate('es_document')
+    mySQL4es.truncate('matched')
+    mySQL4es.truncate('op_record')
+
 # def transform_docs():
 #     es = connect(constants.ES_HOST, constants.ES_PORT)
 #
