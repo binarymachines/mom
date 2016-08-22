@@ -15,33 +15,82 @@ from data import AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
 
+def config():
+    try:
+        CONFIG = 'config.ini'
+
+        if os.path.isfile(os.path.join(os.getcwd(),CONFIG)):
+            config = ConfigParser.ConfigParser()
+            config.read(CONFIG)
+
+            # TODO: these constants should be assigned to config and config should be a constructor parameter for whatever needs config
+
+            constants.ES_HOST = configure_section_map(config, "Elasticsearch")['host']
+            constants.ES_PORT = int(configure_section_map(config, "Elasticsearch")['port'])
+            constants.ES_INDEX_NAME = configure_section_map(config, "Elasticsearch")['index']
+
+            print "Connecting to index %s Elasticsearch on host %s:%s" % (constants.ES_INDEX_NAME, constants.ES_HOST, constants.ES_PORT)
+
+            constants.MYSQL_HOST = configure_section_map(config, "MySQL")['host']
+            constants.MYSQL_SCHEMA = configure_section_map(config, "MySQL")['schema']
+            constants.MYSQL_USER = configure_section_map(config, "MySQL")['user']
+            constants.MYSQL_PASS = configure_section_map(config, "MySQL")['pass']
+
+            print "Connecting to schema %s MySQL on host %s as %s:%s" % (constants.MYSQL_SCHEMA, constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS)
+
+            constants.DO_SCAN = configure_section_map(config, "Action")['do-scan'].lower() == 'true'
+            constants.DO_MATCH = configure_section_map(config, "Action")['do-match'].lower() == 'true'
+
+            print "Performing scan:%s, match:%s" % (constants.DO_SCAN, constants.DO_MATCH)
+    except Exception, err:
+        print err.message
+        print 'Invalid or missing configuration file, exiting...'
+        sys.exit(1)
+
+def configure_section_map(config, section):
+    dict1 = {}
+    options = config.options(section)
+    for option in options:
+        try:
+            dict1[option] = config.get(section, option)
+            if dict1[option] == -1:
+                DebugPrint("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
+
+def start_logging():
+    LOG = "logs/mom.log"
+    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
+
+    # console handler
+    console = logging.StreamHandler()
+    console.setLevel(logging.ERROR)
+    logging.getLogger("").addHandler(console)
+
 class MediaFileManager(MediaLibraryWalker):
 
-    def __init__(self, hostname, portnum, indexname, documenttype):
-
-        # self.config()
-
+    def __init__(self):
         self.pid = os.getpid()
         self.start_time = None
 
-        self.document_type = 'media_file'
-
-        constants.ES_HOST = hostname
-        constants.ES_PORT = portnum;
-        constants.ES_INDEX_NAME = indexname
-
+        self.active_criteria = None
         self.debug = False
-
+        self.document_type = 'media_file'
+        self.do_cache_esids = True
+        self.do_cache_locations = True
+        self.do_cache_ops = True
+        # self.do_match = constants.DO_MATCH
+        # self.do_scan = constants.DO_SCAN
         self.do_match = False
         self.do_scan = True
-
-        self.do_cache_esids = True
-        self.do_cache_ops = True
-        self.do_cache_locations = True
 
         self.esid_cache = []
         self.ops_cache = []
         self.location_cache = {}
+
+        self.matchers = []
 
         self.EXPUNGE = constants.EXPUNGED
         self.NOSCAN = constants.NOSCAN
@@ -57,9 +106,7 @@ class MediaFileManager(MediaLibraryWalker):
 
         self.es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
         self.folderman = MediaFolderManager(self.es, constants.ES_INDEX_NAME, self.doc_exists)
-        self.active_criteria = None
 
-        self.matchers = []
         self.scanner = Scanner(self, self.doc_exists)
 
     def after_handle_root(self, root):
@@ -93,52 +140,6 @@ class MediaFileManager(MediaLibraryWalker):
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
 
-    def config(self):
-        try:
-            CONFIG = 'config.ini'
-
-            if os.path.isfile(os.path.join(os.getcwd(),CONFIG)):
-                config = ConfigParser.ConfigParser()
-                config.read(CONFIG)
-
-                constants.ES_HOST = self.configure_section_map(config, "Elasticsearch")['host']
-                constants.ES_PORT = self.configure_section_map(config, "Elasticsearch")['port']
-                constants.ES_INDEX_NAME = self.configure_section_map(config, "Elasticsearch")['index']
-
-                print "Connecting to index %s Elasticsearch on host %s:%s" % (es_index, es_host, es_port)
-
-                mysql_host = self.configure_section_map(config, "MySQL")['host']
-                mysql_schema = self.configure_section_map(config, "MySQL")['schema']
-                mysql_user = self.configure_section_map(config, "MySQL")['user']
-                mysql_pass = self.configure_section_map(config, "MySQL")['pass']
-
-                print "Connecting to schema %s MySQL on host %s as %s:%s" % (mysql_schema, mysql_host, mysql_user, mysql_pass)
-
-                # self.do_scan = self.configure_section_map(config, "Action")['do-scan']
-                # self.do_match = self.configure_section_map(config, "Action")['do-match']
-
-                print "Performing scan:%s, match:%s" % (self.do_scan, self.do_match)
-        except Exception, err:
-            print err.message
-            print 'Invalid or missing configuration file, exiting...'
-            sys.exit(1)
-
-    def configure_section_map(self, config, section):
-        dict1 = {}
-        options = config.options(section)
-        for option in options:
-            try:
-                dict1[option] = config.get(section, option)
-                if dict1[option] == -1:
-                    DebugPrint("skip: %s" % option)
-            except:
-                print("exception on %s!" % option)
-                dict1[option] = None
-        return dict1
-
-    Config = ConfigParser.ConfigParser()
-    Config.read('../config.ini')
-
     def handle_root(self, root):
         if self.do_scan:
             folder = self.folderman.folder
@@ -149,7 +150,7 @@ class MediaFileManager(MediaLibraryWalker):
                 operations.record_op_begin(self.pid, folder, 'mp3 scanner', 'scan')
                 for filename in os.listdir(root):
                     self.process_file(os.path.join(root, filename))
-        else: self.folderman.set_active(root)
+        # else: self.folderman.set_active(root)
 
     def handle_root_error(self, err):
         print ': '.join([err.__class__.__name__, err.message])
@@ -361,13 +362,14 @@ class MediaFileManager(MediaLibraryWalker):
             mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [constants.ES_INDEX_NAME, error.data.document_type, error.data.esid, error.message])
 
     def run_match_ops(self, criteria):
+
         self.active_criteria = criteria
         for location in criteria.locations:
             self.cache_ops('mp3 scanner', 'scan', location)
             for path in self.ops_cache:
                 try:
                     if self.folderman.set_active(path):
-                        self.cache_esids(path)
+                        # self.cache_esids(path)
 
                         for matcher in self.matchers:
                             if operations.operation_completed(self.folderman.folder, matcher.name, 'match'): continue
@@ -453,10 +455,10 @@ def reset_all(mfm):
     pass
 
 def scan_library():
-    constants.ES_INDEX_NAME = 'media'
-
     # start_logging()
+    config()
 
+    print 'Setting up scan criteria...'
     s = ScanCriteria()
     try:
         s.extensions = ['mp3'] # util.get_active_media_formats()
@@ -480,19 +482,18 @@ def scan_library():
     except Exception, err:
         print err.message
 
-    mfm = MediaFileManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
+    print 'Configuring Media Object Manager...'
+    mfm = MediaFileManager();
     # esutil.delete_docs_for_path(mfm.es, 'media', 'media_folder',  '/media/removable/Audio/music [noscan]/')
     mfm.debug = True
     mfm.do_cache_ops = True
     mfm.do_cache_esids = True
-    mfm.do_scan = False
-    mfm.do_match = True
     # reset_all(mfm)
+    print 'starting Media Object Manager...'
     mfm.run(s)
 
 def test_matchers():
-    constants.ES_INDEX_NAME = 'media'
-    mfm = MediaFileManager(constants.ES_HOST, constants.ES_PORT, constants.ES_INDEX_NAME, 'media_file');
+    mfm = MediaFileManager();
     mfm.debug = False
     # filename = "/media/removable/Audio/music/albums/industrial/skinny puppy/Remission/07 Ice Breaker.mp3"
     # filename = "/media/removable/Audio/music/albums/hip-hop/wordburglar/06-wordburglar-best_in_show.mp3"
@@ -506,22 +507,9 @@ def test_matchers():
         matcher.match(media)
     else: print "%s has not been scanned into the library" % (filename)
 
-def start_logging():
-    LOG = "logs/mom.log"
-    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
-
-    # console handler
-    console = logging.StreamHandler()
-    console.setLevel(logging.ERROR)
-    logging.getLogger("").addHandler(console)
-
 def main():
-    constants.ES_INDEX_NAME = 'media'
     scan_library()
-    # test_matchers()
-    # pass
 
 # main
 if __name__ == '__main__':
-    # logging
     main()

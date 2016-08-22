@@ -1,21 +1,5 @@
 #! /usr/bin/python
 
-ES_HOST = '54.82.250.249'
-# ES_HOST = 'localhost'
-ES_INDEX_NAME = 'media'
-ES_PORT = 9200
-
-# MySQL
-
-MYSQL_HOST = '54.82.250.249'
-# MYSQL_USER = 'root'
-# MYSQL_PASS = 'stainless'
-# MYSQL_HOST = 'localhost'
-MYSQL_USER = 'remote'
-MYSQL_PASS = 'remote'
-MYSQL_PORT = 3306
-MYSQL_SCHEMA = 'media'
-
 EXPUNGED = "/media/removable/Audio/music [expunged]/"
 NOSCAN = "/media/removable/Audio/music [noscan]/"
 START_FOLDER = "/media/removable/Audio/music/"

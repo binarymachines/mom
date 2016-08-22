@@ -70,7 +70,7 @@ def operation_completed(asset, operator, operation):
     # mySQL4es.DEBUG = False
 
     if len(rows) == 1 and rows[0][4] is not None:
-        print 'found record %s:::%s on %s' % (operator, operation, asset.short_name())
+        print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
         return True
 
     return False
