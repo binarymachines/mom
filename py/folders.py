@@ -17,7 +17,6 @@ class MediaFolderManager:
     def __init__(self, elasticsearchinstance, indexname, doc_exists_func):
         self.es = elasticsearchinstance
         self.folder = None
-        self.index_name = constants.ES_INDEX_NAME
         self.document_type = 'media_folder'
         self.debug = constants.FOLDER_DEBUG
         self.pid = os.getpid()
@@ -42,7 +41,7 @@ class MediaFolderManager:
     def find_doc(self, folder):
         try:
             if self.debug == True: print("searching for " + folder.absolute_path + '...')
-            res = self.es.search(index=self.index_name, doc_type=self.document_type, body=
+            res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=self.document_type, body=
             {
                 "query": { "match" : { "absolute_path": folder.absolute_path }}
             })
@@ -65,7 +64,7 @@ class MediaFolderManager:
     # def doc_exists(self, folder):
     #     # if mom.debug: print 'checking for document for: %s' % (folder.absolute_path)
     #     try:
-    #         res = self.es.search(index=self.index_name, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": folder.absolute_path }}})
+    #         res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=self.document_type, body={ "query": { "match" : { "absolute_path": folder.absolute_path }}})
     #         # print("%d documents found" % res['hits']['total'])
     #         for doc in res['hits']['hits']:
     #             if self.doc_refers_to(doc, folder):
@@ -93,7 +92,7 @@ class MediaFolderManager:
             if folder is not None and error is not None:
                 self.folder.latest_error = error
                 if self.debug: print("recording error: " + error + ", " + folder.esid + ", " + folder.absolute_path)
-                res = self.es.update(index=self.index_name, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
+                res = self.es.update(index=constants.ES_INDEX_NAME, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
         except ConnectionError, err:
             print ': '.join([err.__class__.__name__, err.message])
             # if self.debug:
@@ -116,13 +115,13 @@ class MediaFolderManager:
             data = folder.get_dictionary()
             json_str = json.dumps(data)
 
-            res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json_str)
+            res = self.es.index(index=constants.ES_INDEX_NAME, doc_type=self.document_type, body=json_str)
             if res['_shards']['successful'] == 1:
                 # if self.debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
                 # update MySQL
-                mySQL4es.insert_esid(self.index_name, folder.document_type, folder.esid, folder.absolute_path)
-                # alchemy.insert_asset(folder.esid, self.index_name, folder.document_type, folder.absolute_path)
+                mySQL4es.insert_esid(constants.ES_INDEX_NAME, folder.document_type, folder.esid, folder.absolute_path)
+                # alchemy.insert_asset(folder.esid, constants.ES_INDEX_NAME, folder.document_type, folder.absolute_path)
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 
@@ -180,14 +179,14 @@ class MediaFolderManager:
     #                 data = self.folder.get_dictionary()
     #                 json_str = json.dumps(data)
     #                 # pp.pprint(json_str)
-    #                 res = self.es.index(index=self.index_name, doc_type=self.document_type, body=json_str)
+    #                 res = self.es.index(index=constants.ES_INDEX_NAME, doc_type=self.document_type, body=json_str)
     #                 if res['_shards']['successful'] == 1:
     #                     self.folder.esid = res['_id']
     #                     # update es_document with media_folder
-    #                     mySQL4es.insert_esid(self.index_name, 'media_folder', self.folder.esid, self.folder.absolute_path)
+    #                     mySQL4es.insert_esid(constants.ES_INDEX_NAME, 'media_folder', self.folder.esid, self.folder.absolute_path)
     #                 else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
     #
-    #             if operation is not  None: operations.record(self.pid, self.index_name, self.es, self.folder, operator, operation)
+    #             if operation is not  None: operations.record(self.pid, constants.ES_INDEX_NAME, self.es, self.folder, operator, operation)
     #
     #             # if not self.record_exists(self.folder): self.insert_record(self.folder)
     #             # doc = self.find_doc(self.folder)

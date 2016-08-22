@@ -246,12 +246,15 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
     insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
         [index, document_type, elasticsearch_id, absolute_path])
 
-def retrieve_complete_ops(operator, operation, parentpath):
+def retrieve_complete_ops(parentpath, operation, operator=None):
 
     result = []
-    # query = "select target_path from op_record where index_name = '%s' and operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
-    query = "select target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
-        % (operator, operation, parentpath, '%')
+    if operator is None:
+        query = "select target_path from op_record where operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
+            % (operation, parentpath, '%')
+    else:        
+        query = "select target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
+            % (operator, operation, parentpath, '%')
 
     try:
         con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
@@ -321,8 +324,8 @@ def transfer_data(table, fields):
     pass
 
 def main():
-    # retrieve_complete_ops('media', 'mp3 scanner', 'scan', '/media/removable/Audio/music/incoming/slsk/complete/')
     pass
+
 # main
 if __name__ == '__main__':
     main()
