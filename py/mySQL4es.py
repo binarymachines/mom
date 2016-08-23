@@ -118,7 +118,7 @@ def retrieve_values(table_name, field_names, field_values):
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
-        sys.exit(1)
+        raise Exception(e.message)
 
     finally:
         if con:
@@ -164,7 +164,7 @@ def retrieve_like_values(table_name, field_names, field_values):
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
-        sys.exit(1)
+        raise Exception(e.message)
 
     finally:
         if con:
@@ -206,7 +206,7 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
-        sys.exit(1)
+        raise Exception(e.message)
 
     finally:
         if con:
@@ -252,7 +252,7 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
     if operator is None:
         query = "select target_path from op_record where operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
             % (operation, parentpath, '%')
-    else:        
+    else:
         query = "select target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
             % (operator, operation, parentpath, '%')
 
@@ -268,7 +268,7 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
-        sys.exit(1)
+        # raise Exception(e.message)
 
     finally:
         if con:

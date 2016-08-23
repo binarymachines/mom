@@ -98,6 +98,8 @@ class ElasticSearchMatcher(MediaMatcher):
 
     def match(self, media):
 
+        print 'matching: %s' % (media.absolute_path)
+
         query = self.get_query(media)
         query_printed = False
         if self.debug == True:
