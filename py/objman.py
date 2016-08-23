@@ -47,6 +47,9 @@ def configure():
             constants.FOLDER_DEBUG = configure_section_map(config, "Debug")['folder'].lower() == 'true'
             mySQL4es.DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true'
 
+            constants.LOG = configure_section_map(config, "Log")['logging'].lower() == 'true'
+            constants.ES_LOG_NAME = configure_section_map(config, "Log")['logname']
+
             # print "Performing scan:%s, match:%s" % (constants.DO_SCAN, constants.DO_MATCH)
     except Exception, err:
         print err.message
@@ -67,7 +70,7 @@ def configure_section_map(config, section):
     return dict1
 
 def start_logging():
-    LOG = "logs/mom.log"
+    LOG = "logs/%s" % (constants.ES_LOG_NAME)
     logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
 
     # console handler
@@ -169,7 +172,7 @@ class MediaFileManager(MediaLibraryWalker):
                         if media is None or media.ignore(): continue
                         # scan tag info if this file hasn't been assigned an esid
                         if media.esid is None: self.scanner.scan_file(media)
-                        elif self.debug: print 'skipping file: %s' % (filename)
+                        elif self.debug: print 'skipping scan: %s' % (filename)
                 # else:
                 #     if self.debug: print 'skipping file: %s' % (filename)
 
@@ -197,7 +200,7 @@ class MediaFileManager(MediaLibraryWalker):
                 return
 
     def cache_esids(self, path):
-        if self.debug: print 'caching esids for %s' % (path)
+        if self.debug: print 'caching %s esids for %s' % (self.document_type, path)
         self.esid_cache = mySQL4es.retrieve_esids(constants.ES_INDEX_NAME, self.document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
@@ -247,6 +250,9 @@ class MediaFileManager(MediaLibraryWalker):
                     if self.debug == True: print 'esid inserted'
 
                 return True
+
+        if self.debug: print 'No document found for %s, %s' % (asset.esid, asset.absolute_path)
+
         return False
 
     #TODO: DEBUG DEBUG DEBUG
@@ -362,88 +368,101 @@ class MediaFileManager(MediaLibraryWalker):
         if error.message.lower().startswith('multiple'):
             for item in  error.data:
                 mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-        elif error.message.lower().startswith('unable'):
+        # elif error.message.lower().startswith('unable'):
+        # elif error.message.lower().startswith('NO DOCUMENT'):
+        else:
             mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [constants.ES_INDEX_NAME, error.data.document_type, error.data.esid, error.message])
 
-    # def retrieve_completed_match_ops(self, path):
-    #     match_ops = {}
-    #     for matcher in self.matchers:
-    #         ops = mySQL4es.retrieve_complete_ops(path, 'match', matcher.name)
-    #         match_ops[matcher.name] = ops
-    #
-    # def all_matchers_have_run(self, path, match_ops):
-    #     skip_path = False
-    #     for matcher in self.matchers:
-    #         if path in match_ops[matcher.name]:
-    #             skip_path = True
-    #             break
+    def retrieve_completed_match_ops(self, path):
+        match_ops = {}
+        for matcher in self.matchers:
+            ops = mySQL4es.retrieve_complete_ops(path, 'match', matcher.name)
+            match_ops[matcher.name] = ops
+
+        return match_ops
+
+    def all_matchers_have_run(self, media, match_ops):
+        skip_entirely = True
+
+        for matcher in self.matchers:
+            if not media.absolute_path in match_ops[matcher.name]:
+                skip_entirely = False
+                break
+
+        return skip_entirely
 
     def run_match_ops(self, criteria):
 
         self.active_criteria = criteria
         for location in criteria.locations:
-            self.cache_ops(location, 'scan', 'mp3 scanner')
-
-            match_ops = {}
-            for matcher in self.matchers:
-                ops = mySQL4es.retrieve_complete_ops(location, 'match', matcher.name)
-                match_ops[matcher.name] = ops
-
-            for path in self.ops_cache:
-                try:
+            try:
+                match_ops = self.retrieve_completed_match_ops(location)
+                self.cache_ops(location, 'scan', 'mp3 scanner')
+                for path in self.ops_cache:
                     self.check_for_stop_request()
-                    # self.check_for_reconfig_request()
+                    try:
+                        # if self.folderman.set_active(path):
+                        self.cache_esids(path)
 
-                    skip_path = False
-                    for matcher in self.matchers:
-                        if path in match_ops[matcher.name]:
-                            skip_path = True
-                            if self.debug: print 'skipping %s' % (path)
-                            break
-
-                    if skip_path: continue
-
-                    print 'running match ops on %s' % (path)
-
-                    # sys.exit(1)
-
-                    if self.folderman.set_active(path):
-                        # self.cache_esids(path)
-
-                        for matcher in self.matchers:
-                            if operations.operation_completed(self.folderman.folder, matcher.name, 'match'): continue
-
-                            operations.record_op_begin(self.pid, self.folderman.folder, matcher.name, 'match')
-
+                        for record in self.esid_cache:
                             try:
-                                for record in self.esid_cache:
-                                    media = MediaFile(self)
-                                    media.absolute_path = record[0]
-                                    media.esid = record[1]
-                                    media.document_type = 'media_file'
-                                    if (self.doc_exists(media, True)):
+                                media = MediaFile(self)
+                                media.absolute_path = record[0]
+                                media.esid = record[1]
+                                media.document_type = 'media_file'
+
+                                if self.all_matchers_have_run(media, match_ops):
+                                    if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
+                                    continue
+
+                                if not (self.doc_exists(media, True)):
+                                    message = 'NO DOCUMENT EXISTS:::%s, %s' % (media.esid, media.absolute_path)
+                                    raise AssetException(message, media)
+
+                                for matcher in self.matchers:
+                                    if media.absolute_path not in match_ops[matcher.name]:
+                                        if self.debug: print '%s seeking matches for %s' % (matcher.name, media.absolute_path)
+
+                                        operations.record_op_begin(self.pid, media, matcher.name, 'match')
                                         matcher.match(media)
-                            except Exception, err:
+                                        self.record_match_ops_complete(matcher, media, path)
+
+                                    elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+
+                            except AssetException, err:
                                 print ': '.join([err.__class__.__name__, err.message])
-                                if self.debug: traceback.print_exc(file=sys.stdout)
+                                # if self.debug: traceback.print_exc(file=sys.stdout)
+                                try:
+                                    thread.start_new_thread( self.handle_asset_exception, ( err, path, ) )
+                                except Exception, err2:
+                                    print err2.message
+                                # self.handle_asset_exception(err, path)
 
-                            operations.record_op_complete(self.pid, self.folderman.folder, matcher.name, 'match')
-                            if operations.operation_completed(self.folderman.folder, matcher.name, 'match') == False:
-                                raise AssetException('Unable to store/retrieve operation record', self.folderman.folder)
+                    except Exception, err:
+                        print ': '.join([err.__class__.__name__, err.message])
+                        if self.debug: traceback.print_exc(file=sys.stdout)
 
-                        self.esid_cache = []
-                except AssetException, err:
-                    print ': '.join([err.__class__.__name__, err.message])
-                    if self.debug: traceback.print_exc(file=sys.stdout)
-                    self.handle_asset_exception(err, path)
+            except Exception, err:
+                print ': '.join([err.__class__.__name__, err.message])
+                if self.debug: traceback.print_exc(file=sys.stdout)
 
-                finally:
-                    self.folderman.folder = None
-                    self.ops_cache = []
+            finally:
+                self.esid_cache = []
+                self.folderman.folder = None
+                self.ops_cache = []
 
         print '\n-----match operations complete-----\n'
 
-    #TODO: Offline mode - skip scan, go directly to match operation
+    def record_match_ops_complete(self, matcher, media, path):
+        try:
+            operations.record_op_complete(self.pid, media, matcher.name, 'match')
+            if operations.operation_completed(media, matcher.name, 'match', self.pid) == False:
+                raise AssetException('Unable to store/retrieve operation record', media)
+        except AssetException, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug: traceback.print_exc(file=sys.stdout)
+            self.handle_asset_exception(media, path)
+
     def run(self, criteria):
         self.start_time =  operations.record_exec_begin(self.pid)
         self.active_criteria = criteria
@@ -496,9 +515,23 @@ class MediaFileManager(MediaLibraryWalker):
 
         mySQL4es.DEBUG = FLAG
 
-def scan_library():
-    # start_logging()
+    def record_matches_as_ops(self):
+        pid = os.getpid()
+        rows = mySQL4es.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
+        for r in rows:
+            media = MediaFile(self)
+            matcher_name = r[1]
+            media.esid = r[0]
+            media.absolute_path = r[2]
 
+            if operations.operation_completed(media, matcher_name, 'match') == False:
+                operations.record_op_begin(pid, media, matcher_name, 'match')
+                operations.record_op_complete(pid, media, matcher_name, 'match')
+                print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')
+
+
+
+def scan_library():
     print 'Setting up scan criteria...'
     s = ScanCriteria()
     try:
@@ -516,8 +549,8 @@ def scan_library():
         s.locations.append(constants.EXPUNGED)
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-        s.locations.append('/media/removable/SEAGATE 932/Media/radio')
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+        s.locations.append('/media/removable/SEAGATE 932/Media/radio')
             # s.locations.insert(0, os.path.join(constants.START_FOLDER, folder))
 
     except Exception, err:
@@ -547,10 +580,13 @@ def test_matchers():
         matcher.match(media)
     else: print "%s has not been scanned into the library" % (filename)
 
+
+
 def main():
     configure()
+    if constants.LOG:
+        start_logging()
     scan_library()
-
 # main
 if __name__ == '__main__':
     main()

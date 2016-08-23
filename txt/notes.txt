@@ -4,7 +4,7 @@ Use Cases
 
 2. Remove lower quality duplicates of the same format
 
-3. Remove same-quality duplicates in recent downloads, complete, temp and random folders 
+3. Remove same-quality duplicates in recent downloads, complete, temp and random folders
 
 4. Determine when a download has been completed
 	- file is flac, mp3 version exists, duplicate hierarchy in flac folder
@@ -19,7 +19,6 @@ Use Cases
 	- find compilations not in compilations folder
 	- find albums not in albums folder
 	- find badly placed folders
-
 
 for each file:
 
@@ -50,3 +49,21 @@ in Kodi:
 
 - schedule operations against locations
 - operation results enter change queue
+
+Folder Match Weighting Scheme:
+
++1	file in unsorted, random, incoming, new or temp	---
++1  for each matching file in folder
++1	when all files in folder match
+-1	for live, version, remix, rmx, edit							---
+-1	for 'proper' compilation
++1	for assembled compilation
+-1	for properly filed different album
+-1	for intro, outro, untitled											---
++1	for each matcher
++1	for each matched field
+-1	for ep or single
+-1	same album, different track
+-1	file contains artist/album
+
++ 	sum of match scores in folder
