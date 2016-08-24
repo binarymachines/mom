@@ -418,14 +418,14 @@ class MediaFileManager(MediaLibraryWalker):
 
                                 operations.record_op_begin(self.pid, media, matcher.name, 'match')
                                 matcher.match(media)
-                                self.record_match_ops_complete(matcher, media,  media.absolute_path)
+                                operations.record_op_complete(self.pid, media, matcher.name, 'match')
+                                # self.record_match_ops_complete(matcher, media,  media.absolute_path)
 
                             elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
-
             finally:
                 self.esid_cache = []
                 self.folderman.folder = None
