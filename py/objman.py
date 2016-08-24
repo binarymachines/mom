@@ -414,7 +414,7 @@ class MediaFileManager(MediaLibraryWalker):
                     if self.doc_exists(media, True):
                         for matcher in self.matchers:
                             if media.absolute_path not in match_ops[matcher.name]:
-                                if self.debug: print '%s seeking matches for %s' % (matcher.name, media.absolute_path)
+                                if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
 
                                 operations.record_op_begin(self.pid, media, matcher.name, 'match')
                                 matcher.match(media)
