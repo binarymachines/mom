@@ -397,27 +397,28 @@ class MediaFileManager(MediaLibraryWalker):
         for location in criteria.locations:
             try:
                 match_ops = self.retrieve_completed_match_ops(location)
-                self.cache_ops(location, 'scan', 'mp3 scanner')
-                for path in self.ops_cache:
-                    self.check_for_stop_request()
-                    self.cache_esids(path)
-                    for record in self.esid_cache:
-                        media = MediaFile(self)
-                        media.absolute_path = record[0]
-                        media.esid = record[1]
-                        media.document_type = 'media_file'
+                # self.cache_ops(location, 'scan', 'mp3 scanner')
+                # for path in self.ops_cache:
+                self.check_for_stop_request()
+                self.cache_esids(location)
+                for record in self.esid_cache:
+                    media = MediaFile(self)
+                    media.absolute_path = record[0]
+                    media.esid = record[1]
+                    media.document_type = 'media_file'
 
-                        if self.all_matchers_have_run(media, match_ops):
-                            if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
-                            continue
+                    if self.all_matchers_have_run(media, match_ops):
+                        if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
+                        continue
 
+                    if self.doc_exists(media, True):
                         for matcher in self.matchers:
                             if media.absolute_path not in match_ops[matcher.name]:
                                 if self.debug: print '%s seeking matches for %s' % (matcher.name, media.absolute_path)
 
                                 operations.record_op_begin(self.pid, media, matcher.name, 'match')
                                 matcher.match(media)
-                                self.record_match_ops_complete(matcher, media, path)
+                                self.record_match_ops_complete(matcher, media,  media.absolute_path)
 
                             elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
 
