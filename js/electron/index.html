@@ -49,18 +49,33 @@
 
           <div>
             <input type="path" class="form-control" placeholder="/media/removable/Audio/albums [flac]/skinny puppy/cleanse, fold, and manipulate" disabled="true">
-            <table>
+
+            <div>
+
+              <span>
+                <em>File Count: </em>10
+                <em>Total Size: </em>10                    
+                Min Score:
+                <span class="icon icon-up"> </span>
+                <input type="min-score" placeholder="Minimum Score" disabled="true">
+                <span class="icon icon-down"> </span>
+              </span>
+            </div>
+
+            <!-- <table>
               <tr>
-                  <!--td>File Count: <input type="count" class="form-control" placeholder="File Count" disabled="true"></td-->
+                  <d>File Count: <input type="count" class="form-control" placeholder="File Count" disabled="true"></td>
                   <td>File Count: <input type="count" placeholder="File Count" disabled="true"></td>
                   <td>Total Size: <input type="size" placeholder="File Size" disabled="true"></td>
                   <td>Min Score to Match: <span class="icon icon-down"><input type="score" placeholder="Match Score" disabled="true"><span class="icon icon-up"></span></td>
-                  <!--td><span class="icon icon-up-open-big"></span></td>
-                  <td><span class="icon icon-down-open-big"></span></td-->
+                  <td><span class="icon icon-up-open-big"></span></td>
+                  <td><span class="icon icon-down-open-big"></span></td>
               </tr>
-            </table>
+            </table> -->
+
+
             <!--input type="path" class="form-control" placeholder="/media/removable/Audio/albums [flac]/skinny puppy/cleanse, fold, and manipulate" disabled="true"-->
-            <table class="table-striped">
+            <table class="table-striped" width="100%">
               <thead>
                 <tr>
                   <th>Trk #</th>
@@ -138,22 +153,16 @@
       </div>
     </div>
 
-    <table border="1"><tr><td>
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" disabled="true"> Ignore
-        </label>
-        <label>
-          <input type="checkbox"> Select
-        </label>
-        <label>
-          <input type="checkbox"> Show matched files only
-        </label>
-        <label>
-          <input type="checkbox" disabled="true"> Grab filenames
-        </label>
-      </div>
-    </td></tr></table>
+    <table width="100%"><tr>
+      <!--div class="checkbox"-->
+        <td>
+          <label> <input type="checkbox" disabled="true"> Ignore</label>
+          <label> <input type="checkbox"> Select</label>
+          <label> <input type="checkbox"> Show matched files only</label>
+          <label> <input type="checkbox" disabled="true"> Grab filenames</label>
+        </td>
+      <!--/div-->
+    </tr></table>
     <footer class="toolbar toolbar-footer">
       <div class="toolbar-actions">
         <button class="btn btn-primary">Prev</button>
