@@ -294,9 +294,11 @@ def retrieve_esids(index, document_type, file_path):
 
     rows = None
     try:
-        query = 'SELECT absolute_path, id FROM es_document WHERE absolute_path LIKE '
-        query += '"' + file_path + '%"'
+        # query = 'SELECT absolute_path, id FROM es_document WHERE absolute_path LIKE '
+        # query += '"' + file_path + '%"'
+        print 'retrieving %s esids for %s' % (document_type, file_path)
 
+        query = 'SELECT absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s' % (quote_if_string(document_type), quote_if_string(''.join([file_path, '%'])))
         con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
@@ -305,7 +307,6 @@ def retrieve_esids(index, document_type, file_path):
         return rows
 
     except mdb.Error, e:
-
         print "Error %d: %s" % (e.args[0], e.args[1])
 
     finally:
