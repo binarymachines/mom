@@ -170,6 +170,64 @@ def retrieve_like_values(table_name, field_names, field_values):
         if con:
             con.close()
 
+def run_query(query):
+
+    print query
+    con = None
+    rows = []
+
+    try:
+
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        cur = con.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        if DEBUG:
+            if len(rows) > 0: print('\nreturning rows:\n')
+            for row in rows:
+                print row
+
+    except mdb.Error, e:
+
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        raise Exception(e.message)
+
+    finally:
+        if con:
+            con.close()
+
+    return rows
+
+def execute_query(query):
+
+    print query
+    con = None
+    rows = []
+
+    try:
+
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        cur = con.cursor()
+        cur.execute(query)
+        # rows = cur.fetchall()
+        #
+        # if DEBUG:
+        #     if len(rows) > 0: print('\nreturning rows:\n')
+        #     for row in rows:
+        #         print row
+        con.commit()
+    except mdb.Error, e:
+
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        raise Exception(e.message)
+
+    finally:
+        if con:
+            con.close()
+
+    return rows
+
 def update_values(table_name, update_field_names, update_field_values, where_field_names, where_field_values):
 
     query = 'UPDATE '

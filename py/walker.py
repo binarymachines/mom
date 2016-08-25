@@ -61,6 +61,7 @@ class Walker(object):
 
     def walk(self, startfolder):
         for root, dirs, files in os.walk(startfolder, topdown=True, followlinks=False):
+            self.current_root = root
             try:
                 self.before_handle_root(root)
                 self.handle_root(root)
@@ -95,8 +96,8 @@ class MediaLibraryWalker(Walker):
         self.location_checkers = []
 
         print 'loading metadata...'
-        self.location_names = util.get_location_names()
-        print 'retrieved location names'
+        # self.location_names = util.get_location_names()
+        # print 'retrieved location names'
         self.location_folders = util.get_location_folder_names()
         print 'retrieved location folder names'
         self.genre_names = util.get_genre_folder_names()
