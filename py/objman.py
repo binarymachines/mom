@@ -18,7 +18,7 @@ pp = pprint.PrettyPrinter(indent=4)
 def configure():
     try:
         CONFIG = 'config.ini'
-
+        
         if os.path.isfile(os.path.join(os.getcwd(),CONFIG)):
             config = ConfigParser.ConfigParser()
             config.read(CONFIG)
@@ -29,14 +29,14 @@ def configure():
             constants.ES_PORT = int(configure_section_map(config, "Elasticsearch")['port'])
             constants.ES_INDEX_NAME = configure_section_map(config, "Elasticsearch")['index']
 
-            # print "Connecting to index %s Elasticsearch on host %s:%s" % (constants.ES_INDEX_NAME, constants.ES_HOST, constants.ES_PORT)
+            print "Connecting to index %s Elasticsearch on host %s:%s" % (constants.ES_INDEX_NAME, constants.ES_HOST, constants.ES_PORT)
 
             constants.MYSQL_HOST = configure_section_map(config, "MySQL")['host']
             constants.MYSQL_SCHEMA = configure_section_map(config, "MySQL")['schema']
             constants.MYSQL_USER = configure_section_map(config, "MySQL")['user']
             constants.MYSQL_PASS = configure_section_map(config, "MySQL")['pass']
 
-            # print "Connecting to schema %s MySQL on host %s as %s:%s" % (constants.MYSQL_SCHEMA, constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS)
+            print "Connecting to schema %s MySQL on host %s as %s:%s" % (constants.MYSQL_SCHEMA, constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS)
 
             constants.DO_SCAN = configure_section_map(config, "Action")['scan'].lower() == 'true'
             constants.DO_MATCH = configure_section_map(config, "Action")['match'].lower() == 'true'
@@ -79,8 +79,9 @@ def start_logging():
     logging.getLogger("").addHandler(console)
 
 class MediaFileManager(MediaLibraryWalker):
-
     def __init__(self):
+        super(MediaFileManager, self).__init__()
+
         self.pid = os.getpid()
         self.start_time = None
 
@@ -125,7 +126,7 @@ class MediaFileManager(MediaLibraryWalker):
         if constants.DO_SCAN:
             self.check_for_stop_request()
             self.check_for_reconfig_request()
-            # if self.debug: print 'examining: %s' % (root)
+            if self.debug: print 'examining: %s' % (root)
             # self.folderman.set_active(None)
             self.folderman.folder = None
             if root in self.ops_cache:
@@ -256,60 +257,60 @@ class MediaFileManager(MediaLibraryWalker):
         return False
 
     #TODO: DEBUG DEBUG DEBUG
-    def get_doc(self, asset):
-        try:
-            if asset.esid is not None:
-                if self.debug: print 'searching for document for: %s' % (asset.esid)
-                doc = self.es.get(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, id=asset.esid)
-                if doc is not None:
-                    return doc
-
-            if self.debug: print 'searching for document for: %s' % (asset.absolute_path)
-            res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body=
-            {
-                "query": { "match" : { "absolute_path": asset.absolute_path }}
-            })
-            # # if self.debug: print("%d documents found" % res['hits']['total'])
-            for doc in res['hits']['hits']:
-                if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
-                    return doc
-        except ConnectionError, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            if self.debug: traceback.print_exc(file=sys.stdout)
-            print '\nConnection lost, please verify network connectivity and restart.'
-            sys.exit(1)
-        except Exception, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            if self.debug: traceback.print_exc(file=sys.stdout)
-            # raise Exception('Doc not found: ' + media.absolute_path)
-
-    def get_doc_id(self, asset):
-
-        # look for esid in local MySQL
-        esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
-        if esid is not None:
-            if self.debug: print "esid found in MySQL"
-            return esid
-
-        try:
-            # not found, query elasticsearch
-            res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
-            # if self.debug: print("%d documents found" % res['hits']['total'])
-            for doc in res['hits']['hits']:
-                # if self.doc_refers_to(doc, media):
-                if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
-                    if self.debug: print "esid found in Elasticsearch"
-                    esid = doc['_id']
-                    # found, update local MySQL
-                    if self.debug: print "inserting esid into MySQL"
-                    mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
-                    return doc['_id']
-
-        except ConnectionError, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            if self.debug: traceback.print_exc(file=sys.stdout)
-            print '\nConnection lost, please verify network connectivity and restart.'
-            sys.exit(1)
+    # def get_doc(self, asset):
+    #     try:
+    #         if asset.esid is not None:
+    #             if self.debug: print 'searching for document for: %s' % (asset.esid)
+    #             doc = self.es.get(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, id=asset.esid)
+    #             if doc is not None:
+    #                 return doc
+    #
+    #         if self.debug: print 'searching for document for: %s' % (asset.absolute_path)
+    #         res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body=
+    #         {
+    #             "query": { "match" : { "absolute_path": asset.absolute_path }}
+    #         })
+    #         # # if self.debug: print("%d documents found" % res['hits']['total'])
+    #         for doc in res['hits']['hits']:
+    #             if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
+    #                 return doc
+    #     except ConnectionError, err:
+    #         print ': '.join([err.__class__.__name__, err.message])
+    #         if self.debug: traceback.print_exc(file=sys.stdout)
+    #         print '\nConnection lost, please verify network connectivity and restart.'
+    #         sys.exit(1)
+    #     except Exception, err:
+    #         print ': '.join([err.__class__.__name__, err.message])
+    #         if self.debug: traceback.print_exc(file=sys.stdout)
+    #         # raise Exception('Doc not found: ' + media.absolute_path)
+    #
+    # def get_doc_id(self, asset):
+    #
+    #     # look for esid in local MySQL
+    #     esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
+    #     if esid is not None:
+    #         if self.debug: print "esid found in MySQL"
+    #         return esid
+    #
+    #     try:
+    #         # not found, query elasticsearch
+    #         res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
+    #         # if self.debug: print("%d documents found" % res['hits']['total'])
+    #         for doc in res['hits']['hits']:
+    #             # if self.doc_refers_to(doc, media):
+    #             if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
+    #                 if self.debug: print "esid found in Elasticsearch"
+    #                 esid = doc['_id']
+    #                 # found, update local MySQL
+    #                 if self.debug: print "inserting esid into MySQL"
+    #                 mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
+    #                 return doc['_id']
+    #
+    #     except ConnectionError, err:
+    #         print ': '.join([err.__class__.__name__, err.message])
+    #         if self.debug: traceback.print_exc(file=sys.stdout)
+    #         print '\nConnection lost, please verify network connectivity and restart.'
+    #         sys.exit(1)
 
         # raise Exception('Doc not found: ' + media.esid)
 
@@ -330,7 +331,7 @@ class MediaFileManager(MediaLibraryWalker):
 
         self.location_cache = {}
 
-        # if self.debug: print "determining location for %s." % (parent.split('/')[-1])
+        if self.debug: print "determining location for %s." % (parent.split('/')[-1])
         for folder in next(os.walk(constants.START_FOLDER))[1]:
             if folder in path:
                 self.location_cache[parent] = os.path.join(constants.START_FOLDER, folder)
@@ -340,7 +341,7 @@ class MediaFileManager(MediaLibraryWalker):
 
     def get_media_object(self, absolute_path):
 
-        # if self.debug: print "creating instance for %s." % (absolute_path)
+        if self.debug: print "creating instance for %s." % (absolute_path)
         if not os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK):
             if self.debug: print "Either file is missing or is not readable"
             return null
@@ -517,21 +518,21 @@ def scan_library():
     try:
         s.extensions = ['mp3'] # util.get_active_media_formats()
 
-        # if os.path.isdir(constants.START_FOLDER) and os.access(location, os.R_OK):
-        #     for folder in next(os.walk(constants.START_FOLDER))[1]:
-        #         s.locations.append(os.path.join(constants.START_FOLDER, folder))
+        if os.path.isdir(constants.START_FOLDER) and os.access(location, os.R_OK):
+            for folder in next(os.walk(constants.START_FOLDER))[1]:
+                s.locations.append(os.path.join(constants.START_FOLDER, folder))
 
-        rows = mySQL4es.retrieve_values('media_location_folder', ['file_type', 'name'], ['mp3'])
-        for row in rows:
-            s.locations.append(os.path.join(constants.START_FOLDER, row[1]))
-
+        # rows = mySQL4es.retrieve_values('media_location_folder', ['file_type', 'name'], ['mp3'])
+        # for row in rows:
+        #     s.locations.append(os.path.join(constants.START_FOLDER, row[1]))
+        # s.locations.insert(0, os.path.join(constants.START_FOLDER, folder))
+        
         s.locations.append(constants.NOSCAN)
         s.locations.append(constants.EXPUNGED)
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
         s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
         s.locations.append('/media/removable/SEAGATE 932/Media/radio')
-            # s.locations.insert(0, os.path.join(constants.START_FOLDER, folder))
 
     except Exception, err:
         print err.message
@@ -539,7 +540,6 @@ def scan_library():
     print 'Configuring Media Object Manager...'
     mfm = MediaFileManager();
     # esutil.delete_docs_for_path(mfm.es, 'media', 'media_folder',  '/media/removable/Audio/music [noscan]/')
-    mfm.debug = True
     mfm.do_cache_ops = True
     mfm.do_cache_esids = True
     # reset_all(mfm)
@@ -553,7 +553,7 @@ def test_matchers():
     filename = '/media/removable/Audio/music [noscan]/albums/industrial/skinny puppy/the.b-sides.collect/11 - tin omen i.mp3'
     media = mfm.get_media_object(filename)
     if mfm.doc_exists(media, True):
-        media.doc = mfm.get_doc(media)
+        media.doc = esutil.get_doc(media)
         matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
         # matcher = ElasticSearchMatcher('artist_matcher', mfm)
         # matcher = ElasticSearchMatcher('filesize_term_matcher', mfm)
@@ -563,10 +563,20 @@ def test_matchers():
 
 
 def main():
+    
+    print os.getcwd()
+
+    try:
+        os.chdir('/home/mpippins/dev/mom')
+    except Exception, err:
+        print err.message
+
     configure()
-    if constants.LOG:
-        start_logging()
+
+    # if constants.LOG:
+    #     start_logging()
     scan_library()
+    # esutil.purge_problem_esids()
 # main
 if __name__ == '__main__':
     main()

@@ -1,11 +1,9 @@
 #! /usr/bin/python
 
-import os
-import sys
-import pprint
-from elasticsearch import Elasticsearch
-import mySQL4es
-import constants
+import os, sys, traceback, pprint
+from elasticsearch import Elasticsearch, NotFoundError
+import constants, mySQL4es
+from data import Asset, MediaFile, MediaFolder
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -54,6 +52,47 @@ def find_docs_missing_field(es, index_name, document_type, field):
     res = es.search(index=index_name, doc_type=document_type, body=query,size=1000)
     return res
 
+#TODO: DEBUG DEBUG DEBUG
+def get_doc(asset):
+
+    es = connect(constants.ES_HOST, constants.ES_PORT)
+
+    if asset.absolute_path is not None:
+        print 'searching for document for: %s' % (asset.absolute_path)
+        res = es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body=
+        {
+            "query": { "match" : { "absolute_path": asset.absolute_path }}
+        })
+        # # if self.debug: print("%d documents found" % res['hits']['total'])
+        for doc in res['hits']['hits']:
+            if doc['_source']['absolute_path'] == asset.absolute_path:
+                return doc
+
+    if asset.esid is not None:
+        # if self.debug:
+        print 'searching for document for: %s' % (asset.esid)
+        doc = es.get(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, id=asset.esid)
+        if doc is not None:
+            return doc
+
+def get_doc_id(es, asset):
+
+    # look for esid in local MySQL
+    esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
+    if esid is not None:
+        # if self.debug:
+        print "esid found in MySQL"
+        return esid
+    # else
+    doc = get_doc(asset)
+    if doc is not None:
+        esid = doc['_id']
+        # found, update local MySQL
+        # if self.debug:
+        print "inserting esid into MySQL"
+        mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
+        return doc['_id']
+
 def reset_all(es):
     esutil.clear_indexes(es, 'media')
     esutil.clear_indexes(es, 'media2')
@@ -61,6 +100,70 @@ def reset_all(es):
     mySQL4es.truncate('es_document')
     mySQL4es.truncate('matched')
     mySQL4es.truncate('op_record')
+
+def purge_problem_esids():
+
+    mySQL4es.DEBUG = False
+    problems = mySQL4es.run_query(
+        """select distinct pe.esid, pe.document_type, esd.absolute_path, pe.problem_description
+             from problem_esid pe, es_document esd
+            where pe.esid = esd.id""")
+
+    # if len(problems) > 0:
+    for row in problems:
+        # row = problems[0]
+
+        a = Asset()
+        a.esid = row[0]
+        a.document_type = row[1]
+        a.absolute_path = row[2]
+        problem = row[3]
+
+        if a.document_type == 'media_folder' and problem.lower().startswith('mult'):
+            mySQL4es.DEBUG = True
+            print '%s, %s' % (a.esid, a.absolute_path)
+            docs = mySQL4es.retrieve_values('es_document', ['absolute_path', 'id'], [a.absolute_path])
+            for doc in docs:
+                esid = doc[1]
+
+                query = "delete from es_document where id = %s" % (mySQL4es.quote_if_string(esid))
+                mySQL4es.execute_query(query)
+                query = "delete from op_record where target_esid = %s" % (mySQL4es.quote_if_string(esid))
+                mySQL4es.execute_query(query)
+                query = "delete from problem_esid where esid = %s" % (mySQL4es.quote_if_string(esid))
+                mySQL4es.execute_query(query)
+
+                try:
+                    es = connect(constants.ES_HOST, constants.ES_PORT)
+                    es.delete(index=constants.ES_INDEX_NAME,doc_type=a.document_type,id=esid)
+                except Exception, err:
+                    print err.message
+
+
+            # parent = os.path.abspath(os.path.join(a.absolute_path, os.pardir))
+            # print parent
+            # try:
+            #     doc = get_doc(a)
+            #     if doc is not None:
+            #         pp.pprint(doc)
+
+            # print docs
+                # b = Asset()
+                # b.document_type = 'media_folder'
+                # b.absolute_path = parent
+                #
+                # doc = get_doc(b)
+                # if doc is not None:
+                #     pp.pprint(doc)
+            # except NotFoundError, err:
+            #     print 'Doc for %s not found.' % (parent)
+            # query = "id, absolute_path from es_document where absolute_path = '%s'" % (parent)
+            # parents = mySQL4es.run_query(query)
+            # for p_row in parents:
+            #     print p_row
+
+
+            # sys.exit(1)
 
 # def transform_docs():
 #     es = connect(constants.ES_HOST, constants.ES_PORT)
