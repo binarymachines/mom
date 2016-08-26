@@ -1,4 +1,10 @@
-html,
+.stretch {
+
+  width: 100%;
+}
+
+
+/*html,
 body {
 	padding: 0;
 	margin: 0;
@@ -32,7 +38,7 @@ header h2 {
 	margin: 0;
 	padding: 0;
 	text-align: left;
-}
+}*/
 
 /*.testthis tr {
 

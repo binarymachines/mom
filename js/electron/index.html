@@ -5,40 +5,51 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/photon.css">
-    <!-- <link rel="stylesheet" href="index.css"> -->
+    <link rel="stylesheet" href="index.css"> 
 
     <!-- Javascript -->
     <!--script src="js/menu.js" charset="utf-8"></script-->
-  </head>
-<body>
+    <script>
+  
+      function setTitles() {
+        document.getElementById('min-score').title = "adjusting the minimum score dynamically adds or removes match items or entire match tabs";
+        document.getElementById('tab-a').title = "item 'A' is always the item that matches were found; on subsequent tabs, these results are repeated with nested matches"
+        document.getElementById('inc-min-btn').title = "increment minimum score to tighten strengthen match requirements"
+        document.getElementById('dec-min-btn').title = "decrement minimum score to tighten weaken match requirements"
+        document.getElementById('table-header-text').title = "reflects directory name for selected tab"
+
+      }
+    </script>
+  </head> 
+<body onload="setTitles()">
   <div class="window">
     <header class="toolbar toolbar-header">
-      <h1 class="title">
-        <b>Matched Source: [ </b><em>/media/removable/Audio/albums [flac]/skinny puppy/cleanse, fold, and manipulate</em><b> ]</b>
-      </h1>
+      <h2 class="title">
+        <b>Matched Source: [ </b><em>/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate</em><b> ]</b>
+      </h2>
     </header>
     <div class="window-content">
       <div class="pane-group">
         <!--div class="pane-sm sidebar">...</div-->
         <div class="pane">
           <div class="tab-group">
-            <div class="tab-item active">
+            <div id="tab-a" class="tab-item active">
               <!--span class="icon icon-cancel icon-close-tab"></span-->
               A
             </div>
-            <div class="tab-item">
+            <div id="tab-b" class="tab-item" >
               <!--span class="icon icon-cancel icon-close-tab"></span-->
               B
             </div>
-            <div class="tab-item">
+            <div id="tab-c" class="tab-item">
               <!--span class="icon icon-cancel icon-close-tab"></span-->
               C
             </div>
-            <div class="tab-item">
+            <div id="tab-d" class="tab-item">
               <!--span class="icon icon-cancel icon-close-tab"></span-->
               D
             </div>
-            <div class="tab-item">
+            <div id="tab-e" class="tab-item">
               <!--span class="icon icon-cancel icon-close-tab"></span-->
               E
             </div>
@@ -48,17 +59,23 @@
           </div>
 
           <div>
-            <input type="path" class="form-control" placeholder="/media/removable/Audio/albums [flac]/skinny puppy/cleanse, fold, and manipulate" disabled="true">
-
+            <span>
+            <!--<input id="esid" type="esid" class="pull-left" placeholder="0f92hfgjh4gj2h4g" title="Elasticseearch ID" disabled="true"/>-->
+            <input id="table-header-text" type="path" class="textarea stretch padded" placeholder="/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate" disabled="true">
+            </span>
             <div>
-              <span width="100%">
+              <span width="100%" class="padded">
               <!--<tr>-->
-                <td>File Count: <b>10</b></td>
-                <td>Total Size: <b>374963213301</b></td>
-                <td>Min Score:
-                <span class="icon icon-up"> </span>
-                <input type="min-score" placeholder="12.4683643" disabled="true">
-                <span class="icon icon-down"> </span></td>
+                <span>File Count: <b>10</b></span>
+                <spant>Total Size: <b>374963213301</b></span>
+                <!--<td>Min Score:-->
+              </span>
+              <span width="100%">
+                <span>
+                  <button id="inc-minimum-btn" class="icon icon-up pull-right" > </button>
+                  <input id="min-score" type="min-score" class="pull-right" placeholder="Minimum Score" disabled="true"/>
+                  <button id="dec-minimum-btn" class="icon icon-down pull-right"> </button>
+                </span>
               <!--</tr>-->
             </span>
             </div>
@@ -76,75 +93,108 @@
 
 
             <!--input type="path" class="form-control" placeholder="/media/removable/Audio/albums [flac]/skinny puppy/cleanse, fold, and manipulate" disabled="true"-->
-            <table class="table-striped" width="100%">
+            <table id="results-table" class="table-striped" width="100%">
               <thead>
                 <tr>
                   <th>Trk #</th>
                   <th>File Name</th>
-                  <th>File Size</th>
+                  <th>File Size</th>                              
                   <th>Comp %</th>
+                  <th>Artist</th>
+                  <th>Album</th>
+                  <th>Title</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td>1</td>
-                  <td>First Aid</td>
+                  <td>01 - first aid.mp3</td>
                   <td>987922</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>First Aid</td>
                 </tr>
                 <tr>
                   <td>2</td>
-                  <td>Addiction</td>
+                  <td>02 - addiction.mp3</td>
                   <td>746593</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>Addiction</td>
                 </tr>
                 <tr>
                   <td>3</td>
-                  <td>Shadow Cast</td>
+                  <td>03 - shadow cast.mp3</td>
                   <td>847463</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>Shadow Cast</td>
                 </tr>
                 <tr>
                   <td>4</td>
-                  <td>Draining Faces</td>
+                  <td>04 - draining faces.mp3</td>
                   <td>643934</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>Draining Faces</td>
                 </tr>
                 <tr>
                   <td>5</td>
-                  <td>The Mourn</td>
+                  <td>05 - the mourn.mp3</td>
                   <td>847463</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>The Mourn</td>
                 </tr>
                 <tr>
                   <td>6</td>
-                  <td>Second Tooth</td>
+                  <td>06 - second tooth.mp3</td>
                   <td>374957</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>Second Tooth</td>
                 </tr>
                 <tr>
                   <td>7</td>
-                  <td>Tear or Beat</td>
+                  <td>07 - tear or beat.mp3</td>
                   <td>847472</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>Tear or Beat</td>
                 </tr>
                 <tr>
                   <td>8</td>
-                  <td>Deep Down Trauma Hounds</td>
+                  <td>08 - deep down trauma hounds.mp3</td>
                   <td>847483</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>Deep Down Trauma Hounds</td>
                 </tr>
                 <tr>
                   <td>9</td>
-                  <td>Anger</td>
+                  <td>09 - anger.mp3</td>
                   <td>352628</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>Anger</td>
                 </tr>
                 <tr>
                   <td>10</td>
-                  <td>Epilogue</td>
+                  <td>10 - epilogue.mp3</td>
                   <td>92343</td>
                   <td>100%</td>
+                  <td>Skinny Puppy</td>
+                  <td>Cleanse, Fold, and Manipulate</td>
+                  <td>Epilogue</td>
                 </tr>
               </tbody>
             </table>
@@ -155,15 +205,16 @@
     </div>
 
     <!--<table width="100%"><tr>-->
-      <!--div class="checkbox"-->
-        <span item-width="100%">
+      <div class="checkbox">
+        <span class="padded" item-width="100%">
           <label> <input type="checkbox" disabled="true"> Ignore</label>
           <label> <input type="checkbox"> Select</label>
           <label> <input type="checkbox"> Show matched files only</label>
           <label> <input type="checkbox" disabled="true"> Grab filenames</label>
         </span>
-      <!--/div-->
-    </tr></table>
+      </div>
+    <!--</tr></table>-->
+    
     <footer class="toolbar toolbar-footer">
       <div class="toolbar-actions">
         <button class="btn btn-primary">Prev</button>
