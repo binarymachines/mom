@@ -15,13 +15,14 @@
       function initialize() {
         // getMatchResolutionSourceFolders()
 
-        fillAlbumTable()
+        addTab()
+        fillAlbumTable()      
         setTitles()
       }
 
       function setTitles() {
         document.getElementById('min-score').title = "adjusting the minimum score dynamically adds or removes match items or entire match tabs";
-        document.getElementById('tab-a').title = "item 'A' is always the item that matches were found; on subsequent tabs, these results are repeated with nested matches"
+        document.getElementById('tab-prime').title = "item 'A' is always the item that matches were found; on subsequent tabs, these results are repeated with nested matches"
       //   document.getElementById('inc-min-btn').title = "increment minimum score to tighten strengthen match requirements"
       //   document.getElementById('dec-min-btn').title = "decrement minimum score to tighten weaken match requirements"
       //   document.getElementById('table-header-text').title = "reflects directory name for selected tab"
@@ -61,20 +62,20 @@
         }
       }
 
- function minimumScoreChanged() {
+      function minimumScoreChanged() {
 
-    element = document.getElementById('min-score');
+          element = document.getElementById('min-score');
 
-    if (element.value == '') {
-			return;
-    }
+          if (element.value == '') {
+            return;
+          }
 
-    else {
-      val = parseFloat(element.value);
-      element.value = val.toFixed(6);
+          else {
+            val = parseFloat(element.value);
+            element.value = val.toFixed(6);
 
-    }
-  }
+          }
+        }
 
     </script>
 
@@ -204,44 +205,65 @@
         }
       }
     </script>
+
+    <script>
+        function addTab() {
+
+          var tabSet = document.getElementById("tab-set");
+          tabCount = "A"
+          
+            // var tabCount = parent.childNodes.length
+          
+          
+          
+          // alert(tabCount.toString())
+
+          var newdiv = document.createElement('div');
+
+          // var divIdName = 'my'+num+'Div';
+
+          newdiv.setAttribute('id',"test");
+
+          HTML = "<div id='tab-____' class='tab-item'>Tab ____ </div>";
+          // HTML = HTML.replace("____", tabCount.toString());
+          newdiv.innerHTML = HTML 
+          tabSet.appendChild(newdiv);
+        }
+    </script>
   </head>
 <body onload="initialize()">
   <div class="window">
     <header class="toolbar toolbar-header">
-      <h2 class="title">
+      <!--<h2 class="title">
         <b>Matched Source: [ </b><em>/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate</em><b> ]</b>
-      </h2>
+      </h2>-->
 
-    <div class="tab-group">
-      <div id="tab-a" class="tab-item active">
+    <div id="tab-set" class="tab-group">
+      <!--<div id="tab-prime" class="tab-item active">-->
         <!--span class="icon icon-cancel icon-close-tab"></span-->
-        A
-      </div>
-      <div id="tab-b" class="tab-item" >
-        <!--span class="icon icon-cancel icon-close-tab"></span-->
+        <!--A-->
+      <!--</div>-->
+      <!--<div id="tab-b" class="tab-item" >
         B
       </div>
       <div id="tab-c" class="tab-item">
-        <!--span class="icon icon-cancel icon-close-tab"></span-->
         C
       </div>
       <div id="tab-d" class="tab-item">
-        <!--span class="icon icon-cancel icon-close-tab"></span-->
         D
       </div>
       <div id="tab-e" class="tab-item">
-        <!--span class="icon icon-cancel icon-close-tab"></span-->
         E
       </div>
-      <!--div class="tab-item tab-item-fixed">
+      <div class="tab-item tab-item-fixed">
         <span class="icon icon-plus"></span>
-      </div-->
+      </div>-->
     </div>
 
       <div>        
         <span>
          <!--<input id="esid" type="esid" class="pull-left" placeholder="0f92hfgjh4gj2h4g" title="Elasticseearch ID" disabled="true"/>-->
-          <input id="table-header-text" type="path" class="textarea stretch padded" placeholder="/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate" disabled="true">
+          <input id="table-header-text" type="path" class="textarea stretch padded-horizontally" placeholder="/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate" disabled="true">
         </span>
       </div>
       
@@ -276,26 +298,28 @@
 
     <!--<table width="100%"><tr>-->
      
-    <!--</tr></table>-->
-      <div>
-      <span width="100%" class="padded">
-      <!--<tr>-->
-        <span>File Count: <b>10</b></span>
-        <spant>Total Size: <b>374963213301</b></span>
-        <!--<td>Min Score:-->
-      </span>
-      <span width="100%" class="pull-right">
-        <span>
-          <!--label>Minimum Match Score: </label-->
-          <button id="inc-minimum-btn" class="icon icon-up pull-right" onclick="incrementMinimumScore()"> </button>
-          <input id="min-score" type="min-score" class="pull-right" placeholder="Min. Score" size="8" onchange="minimumScoreChanged()" style="text-align: center;" />
-          <button id="dec-minimum-btn" class="icon icon-down pull-right" onclick="decrementMinimumScore()"> </button>
-        </span>
-      <!--</tr>-->
-      </span>
-    </div>
+  <!--</tr></table>-->
 
     <footer class="toolbar toolbar-footer">
+
+      <div>
+        <span width="100%" class="padded">
+        <!--<tr>-->
+          <span>File Count: <b>10</b></span>
+          <spant>Total Size: <b>374963213301</b></span>
+          <!--<td>Min Score:-->
+        </span>
+        <span width="100%" class="pull-right">
+          <span>
+            <!--label>Minimum Match Score: </label-->
+            <button id="inc-minimum-btn" class="icon icon-up pull-right" onclick="incrementMinimumScore()"> </button>
+            <input id="min-score" type="min-score" class="pull-right" placeholder="Min. Score" size="8" onchange="minimumScoreChanged()" style="text-align: center;" />
+            <button id="dec-minimum-btn" class="icon icon-down pull-right" onclick="decrementMinimumScore()"> </button>
+          </span>
+        <!--</tr>-->
+        </span>
+      </div>
+
        <div class="checkbox">
         <span class="padded" item-width="100%">
           <label> <input type="checkbox" disabled="true"> Ignore</label>
@@ -304,13 +328,17 @@
           <label> <input type="checkbox" disabled="true"> Grab filenames</label>
         </span>
       </div>
+
       <div class="toolbar-actions">
-        <button class="btn btn-primary pull-left" onclick="fillAlbumTable()">Prev</button>
+        <button class="btn btn-primary pull-left">Prev</button>
         <button class="btn btn-warning">Delete</button>
         <button class="btn btn-positive">Migrate</button>
         <button class="btn btn-negative">Replace</button>
         <button class="btn btn-default" disabled="true">Consolidate</button>
-        <button class="btn btn-primary pull-right" onclick="clearAlbumTable()">Next</button>
+        <button class="btn btn-primary" onclick="fillAlbumTable()">Fill Table</button>
+        <button class="btn btn-primary" onclick="clearAlbumTable()">Clear Table</button>
+        <button class="btn btn-primary" onclick="addTab()">Add Tab</button>
+        <button class="btn btn-primary pull-right">Next</button>
       </div>
     </footer>
   </div>
