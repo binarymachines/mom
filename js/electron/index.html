@@ -210,7 +210,7 @@
       function addTab() {
 
           var tabSet = document.getElementById("tab-set");
-          var c = tabSet.childNodes;
+          var children = tabSet.childNodes;
 
 
           var newdiv = document.createElement('div');
@@ -218,14 +218,29 @@
           // <span class="icon icon-plus"></span>
           // <span class="icon icon-cancel icon-close-tab"></span>
           // newdiv.setAttribute('id',divIdName);
-          // newdiv.setAttribute('class',"tab-item);
           // newdiv.setAttribute('onclick',"tabClicked(id));
+          // newdiv.setAttribute('class',"tab-item);
           
-          var size = c.length - 1;
+          var size = children.length - 1;
           var name = "tab-" + size.toString();
-          newdiv.innerHTML = '<div id="' + name + '" class="tab-item" onclick="tabClicked(id)">' + name + '</div>';
-
+          var tabText = "Match #" + size.toString()
+          if (size == 0) 
+            newdiv.innerHTML = '<div id="' + name + '" class="tab-item active" onclick="tabClicked(id)">Matched Folder</div>';
+          else 
+            newdiv.innerHTML = '<div id="' + name + '" class="tab-item" onclick="tabClicked(id)">' + tabText + '</div>';
+          
           tabSet.appendChild(newdiv);
+      }
+
+      function clearTabs() {
+          var tabset = document.getElementById("tab-set");
+          var c = document.getElementById("tab-set").childNodes;
+          for (i = c.length-1; i > 0; i--) {
+            var element = c[i];
+            element.parentNode.removeChild(element);
+          }
+
+          addTab();
       }
 
       function tabClicked(senderId) {
@@ -328,6 +343,7 @@
         <button class="btn btn-primary" onclick="fillAlbumTable()">Fill Table</button>
         <button class="btn btn-primary" onclick="clearAlbumTable()">Clear Table</button>
         <button class="btn btn-primary" onclick="addTab()">Add Tab</button>
+        <button class="btn btn-primary" onclick="clearTabs()">Clear Tabs</button>
         <button class="btn btn-primary pull-right">Next</button>
       </div>
     </footer>
