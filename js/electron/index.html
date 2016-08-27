@@ -1,213 +1,302 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Match Disposition</title>
+    <title>Match Resolution</title>
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/photon.css">
-    <link rel="stylesheet" href="index.css"> 
+    <link rel="stylesheet" href="index.css">
 
     <!-- Javascript -->
     <!--script src="js/menu.js" charset="utf-8"></script-->
+    <!--script src="./dbintf.js" charset="utf-8"></script-->
+
     <script>
-  
+      function initialize() {
+        // getMatchResolutionSourceFolders()
+
+        fillAlbumTable()
+        setTitles()
+      }
+
       function setTitles() {
         document.getElementById('min-score').title = "adjusting the minimum score dynamically adds or removes match items or entire match tabs";
         document.getElementById('tab-a').title = "item 'A' is always the item that matches were found; on subsequent tabs, these results are repeated with nested matches"
-        document.getElementById('inc-min-btn').title = "increment minimum score to tighten strengthen match requirements"
-        document.getElementById('dec-min-btn').title = "decrement minimum score to tighten weaken match requirements"
-        document.getElementById('table-header-text').title = "reflects directory name for selected tab"
-
+      //   document.getElementById('inc-min-btn').title = "increment minimum score to tighten strengthen match requirements"
+      //   document.getElementById('dec-min-btn').title = "decrement minimum score to tighten weaken match requirements"
+      //   document.getElementById('table-header-text').title = "reflects directory name for selected tab"
       }
     </script>
-  </head> 
-<body onload="setTitles()">
+
+    <script>
+
+      function decrementMinimumScore() {
+        //alert('test')
+        element = document.getElementById('min-score');
+        if (element.value == '') {
+          element.value = '5.000000';
+          document.getElementById('dec-min-btn').disabled = false;
+        }
+
+        else {
+          val = parseFloat(element.value) - 0.1
+          element.value = val.toFixed(6);
+
+        }
+      }
+
+      function incrementMinimumScore() {
+
+        element = document.getElementById('min-score');
+
+        if (element.value == '') {
+          element.value = '5.000000';
+          document.getElementById('dec-min-btn').disabled = false;
+        }
+
+        else {
+          val = parseFloat(element.value) + 0.1
+          element.value = val.toFixed(6);
+
+        }
+      }
+
+ function minimumScoreChanged() {
+
+    element = document.getElementById('min-score');
+
+    if (element.value == '') {
+			return;
+    }
+
+    else {
+      val = parseFloat(element.value);
+      element.value = val.toFixed(6);
+
+    }
+  }
+
+    </script>
+
+    <script>
+      function getSongs() {
+
+        album = {};
+
+        song = {};
+        song.trackNum = '1';
+        song.filename = '01 - first aid.mp3';
+        song.filesize = '987922';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'First Aid';
+        album[0] = song;
+
+        song = {};
+        song.trackNum = '2';
+        song.filename = '02 - addiction.mp3';
+        song.filesize = '746593';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'Addiction';
+        album[1] = song;
+
+        song = {};
+        song.trackNum = '3';
+        song.filename = '03 - shadow cast.mp3';
+        song.filesize = '746593';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'Shadow Cast';
+        album[2] = song;
+
+        song = {};
+        song.trackNum = '3';
+        song.filename = '04 - draining faces.mp3';
+        song.filesize = '746593';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'Draining Faces';
+        album[3] = song;
+
+        song = {};
+        song.trackNum = '5';
+        song.filename = '05 - the mourn.mp3';
+        song.filesize = '746593';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'The Mourn';
+        album[4] = song;
+
+        song = {};
+        song.trackNum = '6';
+        song.filename = '06 - second tooth.mp3';
+        song.filesize = '746593';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'Second Tooth';
+        album[5] = song;
+
+        song = {};
+        song.trackNum = '7';
+        song.filename = '07 - tear or beat.mp3';
+        song.filesize = '746593';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'Tear or Beat';
+        album[6] = song;
+
+        song = {};
+        song.trackNum = '8';
+        song.filename = '08 - deep down trauma hounds.mp3';
+        song.filesize = '762482';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'Deep Down Trauma Hounds';
+        album[7] = song;
+
+        song = {};
+        song.trackNum = '9';
+        song.filename = '09 - anger.mp3';
+        song.filesize = '847483';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'Anger';
+        album[8] = song;
+
+        song = {};
+        song.trackNum = '10';
+        song.filename = '00 - epilogue.mp3';
+        song.filesize = '352628';
+        song.artist = 'Skinny Puppy';
+        song.album = 'Cleanse, Fold, and Manipulate';
+        song.title = 'Epilogue';
+        album[9] = song;
+
+        return album;
+      }
+
+      function clearAlbumTable() {
+
+        var table = document.getElementById("source-table");
+
+        for (var i = table.rows.length-1; i > 0; i--) {
+          table.deleteRow(i);
+        }
+      }
+
+      function fillAlbumTable() {
+
+        var table = document.getElementById("source-table");
+
+        songs = getSongs();
+
+        for (var i = 0; i <= 9; i++) {
+
+          var x = table.insertRow(table.rows.length);
+          // x.insertCell(0).class = "text-right"
+          x.insertCell(0).innerHTML = songs[i].trackNum;
+          x.insertCell(1).innerHTML = songs[i].filename;
+          x.insertCell(2).innerHTML = songs[i].filesize;
+          x.insertCell(3).innerHTML = songs[i].artist;
+          x.insertCell(4).innerHTML = songs[i].album;
+          x.insertCell(5).innerHTML = songs[i].title;
+        }
+      }
+    </script>
+  </head>
+<body onload="initialize()">
   <div class="window">
-    <header class="toolbar toolbar-header padded">
+    <header class="toolbar toolbar-header">
       <h2 class="title">
-        <button class="btn btn-primary pull-left">Prev</button>
         <b>Matched Source: [ </b><em>/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate</em><b> ]</b>
-        <button class="btn btn-primary pull-right">Next</button>
       </h2>
+
+    <div class="tab-group">
+      <div id="tab-a" class="tab-item active">
+        <!--span class="icon icon-cancel icon-close-tab"></span-->
+        A
+      </div>
+      <div id="tab-b" class="tab-item" >
+        <!--span class="icon icon-cancel icon-close-tab"></span-->
+        B
+      </div>
+      <div id="tab-c" class="tab-item">
+        <!--span class="icon icon-cancel icon-close-tab"></span-->
+        C
+      </div>
+      <div id="tab-d" class="tab-item">
+        <!--span class="icon icon-cancel icon-close-tab"></span-->
+        D
+      </div>
+      <div id="tab-e" class="tab-item">
+        <!--span class="icon icon-cancel icon-close-tab"></span-->
+        E
+      </div>
+      <!--div class="tab-item tab-item-fixed">
+        <span class="icon icon-plus"></span>
+      </div-->
+    </div>
+
+      <div>        
+        <span>
+         <!--<input id="esid" type="esid" class="pull-left" placeholder="0f92hfgjh4gj2h4g" title="Elasticseearch ID" disabled="true"/>-->
+          <input id="table-header-text" type="path" class="textarea stretch padded" placeholder="/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate" disabled="true">
+        </span>
+      </div>
+      
     </header>
     <div class="window-content">
       <div class="pane-group">
         <!--div class="pane-sm sidebar">...</div-->
         <div class="pane">
-          <div class="tab-group">
-            <div id="tab-a" class="tab-item active">
-              <!--span class="icon icon-cancel icon-close-tab"></span-->
-              A
-            </div>
-            <div id="tab-b" class="tab-item" >
-              <!--span class="icon icon-cancel icon-close-tab"></span-->
-              B
-            </div>
-            <div id="tab-c" class="tab-item">
-              <!--span class="icon icon-cancel icon-close-tab"></span-->
-              C
-            </div>
-            <div id="tab-d" class="tab-item">
-              <!--span class="icon icon-cancel icon-close-tab"></span-->
-              D
-            </div>
-            <div id="tab-e" class="tab-item">
-              <!--span class="icon icon-cancel icon-close-tab"></span-->
-              E
-            </div>
-            <!--div class="tab-item tab-item-fixed">
-              <span class="icon icon-plus"></span>
-            </div-->
-          </div>
 
           <div>
-            <span>
-            <!--<input id="esid" type="esid" class="pull-left" placeholder="0f92hfgjh4gj2h4g" title="Elasticseearch ID" disabled="true"/>-->
-            <input id="table-header-text" type="path" class="textarea stretch padded" placeholder="/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate" disabled="true">
-            </span>
-            <div>
-              <span width="100%" class="padded">
-              <!--<tr>-->
-                <span>File Count: <b>10</b></span>
-                <spant>Total Size: <b>374963213301</b></span>
-                <!--<td>Min Score:-->
-              </span>
-              <span width="100%">
-                <span>
-                  <button id="inc-minimum-btn" class="icon icon-up pull-right" > </button>
-                  <input id="min-score" type="min-score" class="pull-right" placeholder="Minimum Score" disabled="true"/>
-                  <button id="dec-minimum-btn" class="icon icon-down pull-right"> </button>
-                </span>
-              <!--</tr>-->
-            </span>
-            </div>
-
-            <!-- <table>
-              <tr>
-                  <d>File Count: <input type="count" class="form-control" placeholder="File Count" disabled="true"></td>
-                  <td>File Count: <input type="count" placeholder="File Count" disabled="true"></td>
-                  <td>Total Size: <input type="size" placeholder="File Size" disabled="true"></td>
-                  <td>Min Score to Match: <span class="icon icon-down"><input type="score" placeholder="Match Score" disabled="true"><span class="icon icon-up"></span></td>
-                  <td><span class="icon icon-up-open-big"></span></td>
-                  <td><span class="icon icon-down-open-big"></span></td>
-              </tr>
-            </table> -->
-
+           
 
             <!--input type="path" class="form-control" placeholder="/media/removable/Audio/albums [flac]/skinny puppy/cleanse, fold, and manipulate" disabled="true"-->
-            <table id="results-table" class="table-striped" width="100%">
+             <table id="source-table" class="table-striped" width="100%">
               <thead>
                 <tr>
                   <th>Trk #</th>
                   <th>File Name</th>
-                  <th>File Size</th>                              
-                  <!--<th>Comp %</th>-->
+                  <th>File Size</th>
                   <th>Artist</th>
                   <th>Album</th>
                   <th>Title</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>01 - first aid.mp3</td>
-                  <td>987922</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>First Aid</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>02 - addiction.mp3</td>
-                  <td>746593</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>Addiction</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>03 - shadow cast.mp3</td>
-                  <td>847463</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>Shadow Cast</td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>04 - draining faces.mp3</td>
-                  <td>643934</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>Draining Faces</td>
-                </tr>
-                <tr>
-                  <td>5</td>
-                  <td>05 - the mourn.mp3</td>
-                  <td>847463</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>The Mourn</td>
-                </tr>
-                <tr>
-                  <td>6</td>
-                  <td>06 - second tooth.mp3</td>
-                  <td>374957</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>Second Tooth</td>
-                </tr>
-                <tr>
-                  <td>7</td>
-                  <td>07 - tear or beat.mp3</td>
-                  <td>847472</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>Tear or Beat</td>
-                </tr>
-                <tr>
-                  <td>8</td>
-                  <td>08 - deep down trauma hounds.mp3</td>
-                  <td>847483</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>Deep Down Trauma Hounds</td>
-                </tr>
-                <tr>
-                  <td>9</td>
-                  <td>09 - anger.mp3</td>
-                  <td>352628</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>Anger</td>
-                </tr>
-                <tr>
-                  <td>10</td>
-                  <td>10 - epilogue.mp3</td>
-                  <td>92343</td>
-                  <!--<td>100%</td>-->
-                  <td>Skinny Puppy</td>
-                  <td>Cleanse, Fold, and Manipulate</td>
-                  <td>Epilogue</td>
-                </tr>
-              </tbody>
-            </table>
+            </table> 
           </div>
 
+
         </div>
-      </div>
+     </div>
     </div>
 
     <!--<table width="100%"><tr>-->
-      <div class="checkbox">
+     
+    <!--</tr></table>-->
+      <div>
+      <span width="100%" class="padded">
+      <!--<tr>-->
+        <span>File Count: <b>10</b></span>
+        <spant>Total Size: <b>374963213301</b></span>
+        <!--<td>Min Score:-->
+      </span>
+      <span width="100%" class="pull-right">
+        <span>
+          <!--label>Minimum Match Score: </label-->
+          <button id="inc-minimum-btn" class="icon icon-up pull-right" onclick="incrementMinimumScore()"> </button>
+          <input id="min-score" type="min-score" class="pull-right" placeholder="Min. Score" size="8" onchange="minimumScoreChanged()" style="text-align: center;" />
+          <button id="dec-minimum-btn" class="icon icon-down pull-right" onclick="decrementMinimumScore()"> </button>
+        </span>
+      <!--</tr>-->
+      </span>
+    </div>
+
+    <footer class="toolbar toolbar-footer">
+       <div class="checkbox">
         <span class="padded" item-width="100%">
           <label> <input type="checkbox" disabled="true"> Ignore</label>
           <label> <input type="checkbox"> Select</label>
@@ -215,14 +304,13 @@
           <label> <input type="checkbox" disabled="true"> Grab filenames</label>
         </span>
       </div>
-    <!--</tr></table>-->
-    
-    <footer class="toolbar toolbar-footer">
       <div class="toolbar-actions">
+        <button class="btn btn-primary pull-left" onclick="fillAlbumTable()">Prev</button>
         <button class="btn btn-warning">Delete</button>
         <button class="btn btn-positive">Migrate</button>
         <button class="btn btn-negative">Replace</button>
         <button class="btn btn-default" disabled="true">Consolidate</button>
+        <button class="btn btn-primary pull-right" onclick="clearAlbumTable()">Next</button>
       </div>
     </footer>
   </div>
