@@ -167,7 +167,7 @@
 
         song = {};
         song.trackNum = '10';
-        song.filename = '00 - epilogue.mp3';
+        song.filename = '10 - epilogue.mp3';
         song.filesize = '352628';
         song.artist = 'Skinny Puppy';
         song.album = 'Cleanse, Fold, and Manipulate';
@@ -207,28 +207,37 @@
     </script>
 
     <script>
-        function addTab() {
+      function addTab() {
 
           var tabSet = document.getElementById("tab-set");
-          tabCount = "A"
-          
-            // var tabCount = parent.childNodes.length
-          
-          
-          
-          // alert(tabCount.toString())
+          var c = tabSet.childNodes;
+
 
           var newdiv = document.createElement('div');
 
-          // var divIdName = 'my'+num+'Div';
+          // <span class="icon icon-plus"></span>
+          // <span class="icon icon-cancel icon-close-tab"></span>
+          // newdiv.setAttribute('id',divIdName);
+          // newdiv.setAttribute('class',"tab-item);
+          // newdiv.setAttribute('onclick',"tabClicked(id));
+          
+          var size = c.length - 1;
+          var name = "tab-" + size.toString();
+          newdiv.innerHTML = '<div id="' + name + '" class="tab-item" onclick="tabClicked(id)">' + name + '</div>';
 
-          newdiv.setAttribute('id',"test");
-
-          HTML = "<div id='tab-____' class='tab-item'>Tab ____ </div>";
-          // HTML = HTML.replace("____", tabCount.toString());
-          newdiv.innerHTML = HTML 
           tabSet.appendChild(newdiv);
-        }
+      }
+
+      function tabClicked(senderId) {
+          
+          var c = document.getElementById("tab-set").childNodes;
+          for (i = 0; i < c.length-1; i++) {
+            id = "tab-" + i.toString();
+      
+            document.getElementById(id).setAttribute("class", "tab-item")
+          }
+          document.getElementById(senderId).setAttribute("class", "tab-item active")
+      }
     </script>
   </head>
 <body onload="initialize()">
@@ -239,25 +248,6 @@
       </h2>-->
 
     <div id="tab-set" class="tab-group">
-      <!--<div id="tab-prime" class="tab-item active">-->
-        <!--span class="icon icon-cancel icon-close-tab"></span-->
-        <!--A-->
-      <!--</div>-->
-      <!--<div id="tab-b" class="tab-item" >
-        B
-      </div>
-      <div id="tab-c" class="tab-item">
-        C
-      </div>
-      <div id="tab-d" class="tab-item">
-        D
-      </div>
-      <div id="tab-e" class="tab-item">
-        E
-      </div>
-      <div class="tab-item tab-item-fixed">
-        <span class="icon icon-plus"></span>
-      </div>-->
     </div>
 
       <div>        
