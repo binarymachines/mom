@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title>Match Resolution</title>
 
     <!-- Stylesheets -->
@@ -12,341 +13,330 @@
     <!--script src="./dbintf.js" charset="utf-8"></script-->
 
     <script>
-      function initialize() {
-        // getMatchResolutionSourceFolders()
+        function initialize() {
+            // getMatchResolutionSourceFolders()
 
-        addTab()
-        fillAlbumTable()      
-        setTitles()
-      }
+            addTab()
+            fillAlbumTable()
+            setTitles()
+        }
 
-      function setTitles() {
-        document.getElementById('min-score').title = "adjusting the minimum score dynamically adds or removes match items or entire match tabs";
-        document.getElementById('tab-prime').title = "item 'A' is always the item that matches were found; on subsequent tabs, these results are repeated with nested matches"
-      //   document.getElementById('inc-min-btn').title = "increment minimum score to tighten strengthen match requirements"
-      //   document.getElementById('dec-min-btn').title = "decrement minimum score to tighten weaken match requirements"
-      //   document.getElementById('table-header-text').title = "reflects directory name for selected tab"
-      }
+        function setTitles() {
+            document.getElementById('min-score').title = "adjusting the minimum score dynamically adds or removes match items or entire match tabs";
+            document.getElementById('tab-prime').title = "item 'A' is always the item that matches were found; on subsequent tabs, these results are repeated with nested matches"
+                //   document.getElementById('inc-min-btn').title = "increment minimum score to tighten strengthen match requirements"
+                //   document.getElementById('dec-min-btn').title = "decrement minimum score to tighten weaken match requirements"
+                //   document.getElementById('table-header-text').title = "reflects directory name for selected tab"
+        }
     </script>
 
     <script>
+        function decrementMinimumScore() {
+            //alert('test')
+            var element = document.getElementById('min-score');
+            if (element.value == '') {
+                element.value = '5.000000';
+                document.getElementById('dec-min-btn').disabled = false;
+            } else {
+                var val = parseFloat(element.value) - 0.1
+                element.value = val.toFixed(6);
 
-      function decrementMinimumScore() {
-        //alert('test')
-        element = document.getElementById('min-score');
-        if (element.value == '') {
-          element.value = '5.000000';
-          document.getElementById('dec-min-btn').disabled = false;
+            }
         }
 
-        else {
-          val = parseFloat(element.value) - 0.1
-          element.value = val.toFixed(6);
+        function incrementMinimumScore() {
 
-        }
-      }
+            var element = document.getElementById('min-score');
 
-      function incrementMinimumScore() {
+            if (element.value == '') {
+                element.value = '5.000000';
+                document.getElementById('dec-min-btn').disabled = false;
+            } else {
+                val = parseFloat(element.value) + 0.1
+                element.value = val.toFixed(6);
 
-        element = document.getElementById('min-score');
-
-        if (element.value == '') {
-          element.value = '5.000000';
-          document.getElementById('dec-min-btn').disabled = false;
+            }
         }
 
-        else {
-          val = parseFloat(element.value) + 0.1
-          element.value = val.toFixed(6);
+        function minimumScoreChanged() {
 
+            var element = document.getElementById('min-score');
+
+            if (element.value == '') {
+                return;
+            } else {
+                val = parseFloat(element.value);
+                element.value = val.toFixed(6);
+
+            }
         }
-      }
-
-      function minimumScoreChanged() {
-
-          element = document.getElementById('min-score');
-
-          if (element.value == '') {
-            return;
-          }
-
-          else {
-            val = parseFloat(element.value);
-            element.value = val.toFixed(6);
-
-          }
-        }
-
     </script>
 
     <script>
-      function getSongs() {
+        function getSongs() {
 
-        album = {};
+            var album = {};
+ 
+            var song = {};
+            song.trackNum = '1';
+            song.filename = '01 - first aid.mp3';
+            song.filesize = '987922';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'First Aid';
+            album[0] = song;
 
-        song = {};
-        song.trackNum = '1';
-        song.filename = '01 - first aid.mp3';
-        song.filesize = '987922';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'First Aid';
-        album[0] = song;
+            song = {};
+            song.trackNum = '2';
+            song.filename = '02 - addiction.mp3';
+            song.filesize = '746593';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'Addiction';
+            album[1] = song;
 
-        song = {};
-        song.trackNum = '2';
-        song.filename = '02 - addiction.mp3';
-        song.filesize = '746593';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'Addiction';
-        album[1] = song;
+            song = {};
+            song.trackNum = '3';
+            song.filename = '03 - shadow cast.mp3';
+            song.filesize = '746593';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'Shadow Cast';
+            album[2] = song;
 
-        song = {};
-        song.trackNum = '3';
-        song.filename = '03 - shadow cast.mp3';
-        song.filesize = '746593';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'Shadow Cast';
-        album[2] = song;
+            song = {};
+            song.trackNum = '3';
+            song.filename = '04 - draining faces.mp3';
+            song.filesize = '746593';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'Draining Faces';
+            album[3] = song;
 
-        song = {};
-        song.trackNum = '3';
-        song.filename = '04 - draining faces.mp3';
-        song.filesize = '746593';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'Draining Faces';
-        album[3] = song;
+            song = {};
+            song.trackNum = '5';
+            song.filename = '05 - the mourn.mp3';
+            song.filesize = '746593';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'The Mourn';
+            album[4] = song;
 
-        song = {};
-        song.trackNum = '5';
-        song.filename = '05 - the mourn.mp3';
-        song.filesize = '746593';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'The Mourn';
-        album[4] = song;
+            song = {};
+            song.trackNum = '6';
+            song.filename = '06 - second tooth.mp3';
+            song.filesize = '746593';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'Second Tooth';
+            album[5] = song;
 
-        song = {};
-        song.trackNum = '6';
-        song.filename = '06 - second tooth.mp3';
-        song.filesize = '746593';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'Second Tooth';
-        album[5] = song;
+            song = {};
+            song.trackNum = '7';
+            song.filename = '07 - tear or beat.mp3';
+            song.filesize = '746593';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'Tear or Beat';
+            album[6] = song;
 
-        song = {};
-        song.trackNum = '7';
-        song.filename = '07 - tear or beat.mp3';
-        song.filesize = '746593';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'Tear or Beat';
-        album[6] = song;
+            song = {};
+            song.trackNum = '8';
+            song.filename = '08 - deep down trauma hounds.mp3';
+            song.filesize = '762482';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'Deep Down Trauma Hounds';
+            album[7] = song;
 
-        song = {};
-        song.trackNum = '8';
-        song.filename = '08 - deep down trauma hounds.mp3';
-        song.filesize = '762482';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'Deep Down Trauma Hounds';
-        album[7] = song;
+            song = {};
+            song.trackNum = '9';
+            song.filename = '09 - anger.mp3';
+            song.filesize = '847483';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'Anger';
+            album[8] = song;
 
-        song = {};
-        song.trackNum = '9';
-        song.filename = '09 - anger.mp3';
-        song.filesize = '847483';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'Anger';
-        album[8] = song;
+            song = {};
+            song.trackNum = '10';
+            song.filename = '10 - epilogue.mp3';
+            song.filesize = '352628';
+            song.artist = 'Skinny Puppy';
+            song.album = 'Cleanse, Fold, and Manipulate';
+            song.title = 'Epilogue';
+            album[9] = song;
 
-        song = {};
-        song.trackNum = '10';
-        song.filename = '10 - epilogue.mp3';
-        song.filesize = '352628';
-        song.artist = 'Skinny Puppy';
-        song.album = 'Cleanse, Fold, and Manipulate';
-        song.title = 'Epilogue';
-        album[9] = song;
-
-        return album;
-      }
-
-      function clearAlbumTable() {
-
-        var table = document.getElementById("source-table");
-
-        for (var i = table.rows.length-1; i > 0; i--) {
-          table.deleteRow(i);
+            return album;
         }
-      }
 
-      function fillAlbumTable() {
+        function clearAlbumTable() {
 
-        var table = document.getElementById("source-table");
+            var table = document.getElementById("source-table");
 
-        songs = getSongs();
-
-        for (var i = 0; i <= 9; i++) {
-
-          var x = table.insertRow(table.rows.length);
-          // x.insertCell(0).class = "text-right"
-          x.insertCell(0).innerHTML = songs[i].trackNum;
-          x.insertCell(1).innerHTML = songs[i].filename;
-          x.insertCell(2).innerHTML = songs[i].filesize;
-          x.insertCell(3).innerHTML = songs[i].artist;
-          x.insertCell(4).innerHTML = songs[i].album;
-          x.insertCell(5).innerHTML = songs[i].title;
+            for (var i = table.rows.length - 1; i > 0; i--) {
+                table.deleteRow(i);
+            }
         }
-      }
+
+        function fillAlbumTable() {
+
+            var table = document.getElementById("source-table");
+
+            var songs = getSongs();
+
+            for (var i = 0; i <= 9; i++) {
+
+                var x = table.insertRow(table.rows.length);
+                
+                x.insertCell(0).innerHTML = songs[i].trackNum;
+                x.insertCell(1).innerHTML = songs[i].filename;
+                x.insertCell(2).innerHTML = songs[i].filesize;
+                x.insertCell(3).innerHTML = songs[i].artist;
+                x.insertCell(4).innerHTML = songs[i].album;
+                x.insertCell(5).innerHTML = songs[i].title;                
+            }
+        }
     </script>
 
     <script>
-      function addTab() {
+        function addTab() {
 
-          var tabSet = document.getElementById("tab-set");
-          var children = tabSet.childNodes;
+            var tabSet = document.getElementById("tab-set");
+            var children = tabSet.childNodes;
 
 
-          var newdiv = document.createElement('div');
+            var newdiv = document.createElement('div');
 
-          // <span class="icon icon-plus"></span>
-          // <span class="icon icon-cancel icon-close-tab"></span>
-          // newdiv.setAttribute('id',divIdName);
-          // newdiv.setAttribute('onclick',"tabClicked(id));
-          // newdiv.setAttribute('class',"tab-item);
-          
-          var size = children.length - 1;
-          var name = "tab-" + size.toString();
-          var tabText = "Match #" + size.toString()
-          if (size == 0) 
-            newdiv.innerHTML = '<div id="' + name + '" class="tab-item active" onclick="tabClicked(id)">Matched Folder</div>';
-          else 
-            newdiv.innerHTML = '<div id="' + name + '" class="tab-item" onclick="tabClicked(id)">' + tabText + '</div>';
-          
-          tabSet.appendChild(newdiv);
-      }
+            // <span class="icon icon-plus"></span>
+            // <span class="icon icon-cancel icon-close-tab"></span>
+            // newdiv.setAttribute('id',divIdName);
+            // newdiv.setAttribute('onclick',"tabClicked(id));
+            // newdiv.setAttribute('class',"tab-item);
 
-      function clearTabs() {
-          var tabset = document.getElementById("tab-set");
-          var c = document.getElementById("tab-set").childNodes;
-          for (i = c.length-1; i > 0; i--) {
-            var element = c[i];
-            element.parentNode.removeChild(element);
-          }
+            var size = children.length - 1;
+            var name = "tab-" + size.toString();
+            var tabText = "Match #" + size.toString()
+            if (size == 0)
+                newdiv.innerHTML = '<div id="' + name + '" class="tab-item active" onclick="tabClicked(id)">Matched Folder</div>';
+            else
+                newdiv.innerHTML = '<div id="' + name + '" class="tab-item" onclick="tabClicked(id)">' + tabText + '</div>';
 
-          addTab();
-      }
+            tabSet.appendChild(newdiv);
+        }
 
-      function tabClicked(senderId) {
-          
-          var c = document.getElementById("tab-set").childNodes;
-          for (i = 0; i < c.length-1; i++) {
-            id = "tab-" + i.toString();
-      
-            document.getElementById(id).setAttribute("class", "tab-item")
-          }
-          document.getElementById(senderId).setAttribute("class", "tab-item active")
-      }
+        function resetTabs() {
+            var tabset = document.getElementById("tab-set");
+            var c = document.getElementById("tab-set").childNodes;
+            for (var i = c.length - 1; i > 0; i--) {
+                var element = c[i];
+                element.parentNode.removeChild(element);
+            }
+
+            addTab();
+        }
+
+        function tabClicked(senderId) {
+
+            var c = document.getElementById("tab-set").childNodes;
+            for (var i = 0; i < c.length - 1; i++) {
+                id = "tab-" + i.toString();
+
+                document.getElementById(id).setAttribute("class", "tab-item")
+            }
+            document.getElementById(senderId).setAttribute("class", "tab-item active")
+        }
     </script>
-  </head>
+</head>
+
 <body onload="initialize()">
-  <div class="window">
-    <header class="toolbar toolbar-header">
-      <!--<h2 class="title">
+    <div class="window">
+        <header class="toolbar toolbar-header">
+            <!--<h2 class="title">
         <b>Matched Source: [ </b><em>/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate</em><b> ]</b>
       </h2>-->
 
-    <div id="tab-set" class="tab-group">
-    </div>
+            <div id="tab-set" class="tab-group">
+            </div>
 
-      <div>        
-        <span>
+            <div>
+                <span>
          <!--<input id="esid" type="esid" class="pull-left" placeholder="0f92hfgjh4gj2h4g" title="Elasticseearch ID" disabled="true"/>-->
           <input id="table-header-text" type="path" class="textarea stretch padded-horizontally" placeholder="/media/removable/Audio/albums/industrial/skinny puppy/cleanse, fold, and manipulate" disabled="true">
         </span>
-      </div>
-      
-    </header>
-    <div class="window-content">
-      <div class="pane-group">
-        <!--div class="pane-sm sidebar">...</div-->
-        <div class="pane">
+            </div>
 
-          <div>
-           
-
-            <!--input type="path" class="form-control" placeholder="/media/removable/Audio/albums [flac]/skinny puppy/cleanse, fold, and manipulate" disabled="true"-->
-             <table id="source-table" class="table-striped" width="100%">
-              <thead>
-                <tr>
-                  <th>Trk #</th>
-                  <th>File Name</th>
-                  <th>File Size</th>
-                  <th>Artist</th>
-                  <th>Album</th>
-                  <th>Title</th>
-                </tr>
-              </thead>
-            </table> 
-          </div>
-
-
+        </header>
+        <div class="window-content">
+            <div class="pane-group">
+                <!--<div class="pane-sm sidebar">...</div>-->
+                <div class="pane">
+                    <div>
+                        <!--input type="path" class="form-control" placeholder="/media/removable/Audio/albums [flac]/skinny puppy/cleanse, fold, and manipulate" disabled="true"-->
+                        <table id="source-table" class="table-striped" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Trk #</th>
+                                    <th>File Name</th>
+                                    <th>File Size</th>
+                                    <th>Artist</th>
+                                    <th>Album</th>
+                                    <th>Title</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-     </div>
-    </div>
 
-    <!--<table width="100%"><tr>-->
-     
-  <!--</tr></table>-->
+        <!--<table width="100%"><tr>-->
 
-    <footer class="toolbar toolbar-footer">
+        <!--</tr></table>-->
 
-      <div>
-        <span width="100%" class="padded">
+        <footer class="toolbar toolbar-footer">
+
+            <div>
+                <span width="100%" class="padded">
         <!--<tr>-->
           <span>File Count: <b>10</b></span>
-          <spant>Total Size: <b>374963213301</b></span>
-          <!--<td>Min Score:-->
-        </span>
-        <span width="100%" class="pull-right">
+                <spant>Total Size: <b>374963213301</b></span>
+                    <!--<td>Min Score:-->
+                    </span>
+                    <span width="100%" class="pull-right">
           <span>
             <!--label>Minimum Match Score: </label-->
             <button id="inc-minimum-btn" class="icon icon-up pull-right" onclick="incrementMinimumScore()"> </button>
             <input id="min-score" type="min-score" class="pull-right" placeholder="Min. Score" size="8" onchange="minimumScoreChanged()" style="text-align: center;" />
             <button id="dec-minimum-btn" class="icon icon-down pull-right" onclick="decrementMinimumScore()"> </button>
           </span>
-        <!--</tr>-->
-        </span>
-      </div>
+                    <!--</tr>-->
+                    </span>
+            </div>
 
-       <div class="checkbox">
-        <span class="padded" item-width="100%">
+            <div class="checkbox">
+                <span class="padded" item-width="100%">
           <label> <input type="checkbox" disabled="true"> Ignore</label>
           <label> <input type="checkbox"> Select</label>
           <label> <input type="checkbox"> Show matched files only</label>
           <label> <input type="checkbox" disabled="true"> Grab filenames</label>
         </span>
-      </div>
+            </div>
 
-      <div class="toolbar-actions">
-        <button class="btn btn-primary pull-left">Prev</button>
-        <button class="btn btn-warning">Delete</button>
-        <button class="btn btn-positive">Migrate</button>
-        <button class="btn btn-negative">Replace</button>
-        <button class="btn btn-default" disabled="true">Consolidate</button>
-        <button class="btn btn-primary" onclick="fillAlbumTable()">Fill Table</button>
-        <button class="btn btn-primary" onclick="clearAlbumTable()">Clear Table</button>
-        <button class="btn btn-primary" onclick="addTab()">Add Tab</button>
-        <button class="btn btn-primary" onclick="clearTabs()">Clear Tabs</button>
-        <button class="btn btn-primary pull-right">Next</button>
-      </div>
-    </footer>
-  </div>
+            <div class="toolbar-actions">
+                <button class="btn btn-primary pull-left">Prev</button>
+                <button class="btn btn-warning">Delete</button>
+                <button class="btn btn-positive">Migrate</button>
+                <button class="btn btn-negative">Replace</button>
+                <button class="btn btn-default" disabled="true">Consolidate</button>
+                <button class="btn btn-primary" onclick="fillAlbumTable()">Fill Table</button>
+                <button class="btn btn-primary" onclick="clearAlbumTable()">Clear Table</button>
+                <button class="btn btn-primary" onclick="addTab()">Add Tab</button>
+                <button class="btn btn-primary" onclick="resetTabs()">Reset Tabs</button>
+                <button class="btn btn-primary pull-right">Next</button>
+            </div>
+        </footer>
+    </div>
 </body>
+
 </html>
