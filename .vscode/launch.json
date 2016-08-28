@@ -15,6 +15,21 @@
                 "RedirectOutput"
             ]
         },
+
+        {
+            "name": "Matches",
+            "type": "node",
+            "program": "${workspaceRoot}/js/electron/index.js",
+            "stopOnEntry": false,
+            "args": [],
+            "cwd": "${workspaceRoot}/",
+            "runtimeExecutable": "${workspaceRoot}/js/electron/node_modules/.bin/electron",
+            // "runtimeExecutable": "${workspaceRoot}/js/electron/node_modules/.bin/electron",
+            "runtimeArgs": [],
+            "env": { },
+            "sourceMaps": false,
+            "outDir": null
+        },
         {
             "name": "Python Console App",
             "type": "python",
