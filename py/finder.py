@@ -85,7 +85,7 @@ def build_match_docs(source_path):
                 parentfolder = os.path.abspath(os.path.join(matchpath, os.pardir))
                 # '_match_id': matchid, 
                 match_data = { 'matcher': matchername, 'match_score': matchscore, '_match_esid': matchfileid, '_match_filename': matchfile }
-
+                get_media_meta_data(matchfileid, match_data)
                 if not parentfolder in parent_data:
                     parent_data[parentfolder] = {'_match_folder': parentfolder }
                     parent_data[parentfolder]['matching_files'] = []
