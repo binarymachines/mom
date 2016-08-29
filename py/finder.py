@@ -10,7 +10,7 @@ def build_match_docs():
 
     q = """SELECT id, absolute_path FROM es_document 
             WHERE index_name = '%s' and doc_type = 'media_folder' 
-              and absolute_path like '%sword up%s' limit 10""" % (constants.ES_INDEX_NAME, '%', '%')
+              and absolute_path like '%svivisect%s' ORDER BY absolute_path""" % (constants.ES_INDEX_NAME, '%', '%')
 
     folders = mySQL4es.run_query(q)
     for folder in folders:
@@ -19,22 +19,22 @@ def build_match_docs():
         
         files = []
         folder_data = {}
-        folder_data["search_path"] = folder_path
-        folder_data["search_path_id"] = folder_id
-        folder_data["files"] = []
+        folder_data["file_path"] = folder_path
+        folder_data["file_path_id"] = folder_id
+        folder_data["match_records"] = []
 
         matches_exist = False
 
         q = """SELECT es.id, es.absolute_path FROM es_document es 
                 WHERE index_name = '%s' 
                   and es.absolute_path LIKE "%s%s" 
-                  and es.id IN (SELECT media_doc_id FROM matched)""" % (constants.ES_INDEX_NAME, folder_path, '%')
+                  and es.id IN (SELECT media_doc_id FROM matched) ORDER BY es.absolute_path""" % (constants.ES_INDEX_NAME, folder_path, '%')
                   
         mediafiles = mySQL4es.run_query(q)
         for media in mediafiles:
             # TODO: add tag data from elasticsearch to this record 
             parentfolder = os.path.abspath(os.path.join(media[1], os.pardir))
-            file_data = { 'file_id': media[0], 'file_path': parentfolder, 'file_name': media[1].split('/')[-1] }
+            file_data = { 'file_esid': media[0], 'file_name': media[1].split('/')[-1] }
 
             parent_data = {}
             match_list = []
@@ -57,7 +57,7 @@ def build_match_docs():
                 matchfile = matchpath.split('/')[-1]
                 parentfolder = os.path.abspath(os.path.join(matchpath, os.pardir))
 
-                match_data = { 'match_id': matchid, 'matcher': matchername, 'match_score': matchscore, 'match_file_id': matchfileid, 'match_file': matchfile }
+                match_data = { 'match_id': matchid, 'matcher': matchername, 'match_score': matchscore, 'match_file_esid': matchfileid, 'match_file': matchfile }
 
                 if not parentfolder in parent_data:
                     parent_data[parentfolder] = {'match_folder': parentfolder }
@@ -75,7 +75,7 @@ def build_match_docs():
             files.append(file_data)
 
         # add file list to folder data
-        folder_data["files"] = files
+        folder_data["match_records"] = files
 
         # result = json.dumps(folder_data)
         if matches_exist:
