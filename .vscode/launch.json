@@ -15,9 +15,36 @@
                 "RedirectOutput"
             ]
         },
-
         {
-            "name": "Matches",
+            "name": "finder",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/py/finder.py",
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "validator",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/py/valid.py",
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "matches",
             "type": "node",
             "program": "${workspaceRoot}/js/electron/index.js",
             "stopOnEntry": false,
