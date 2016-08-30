@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, random, logging, traceback, thread, datetime, ConfigParser
+import os, json, pprint, sys, random, logging, traceback, thread, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from data import MediaFile
@@ -10,73 +10,10 @@ import constants, mySQL4es, util, esutil
 from matcher import ElasticSearchMatcher
 from scanner import ScanCriteria, Scanner
 from walker import MediaLibraryWalker
-import operations
+import config, operations
 from data import AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
-
-def configure():
-    try:
-        CONFIG = 'config.ini'
-        
-        if os.path.isfile(os.path.join(os.getcwd(),CONFIG)):
-            config = ConfigParser.ConfigParser()
-            config.read(CONFIG)
-
-            # TODO: these constants should be assigned to config and config should be a constructor parameter for whatever needs config
-
-            constants.ES_HOST = configure_section_map(config, "Elasticsearch")['host']
-            constants.ES_PORT = int(configure_section_map(config, "Elasticsearch")['port'])
-            constants.ES_INDEX_NAME = configure_section_map(config, "Elasticsearch")['index']
-
-            print "Connecting to index %s Elasticsearch on host %s:%s" % (constants.ES_INDEX_NAME, constants.ES_HOST, constants.ES_PORT)
-
-            constants.MYSQL_HOST = configure_section_map(config, "MySQL")['host']
-            constants.MYSQL_SCHEMA = configure_section_map(config, "MySQL")['schema']
-            constants.MYSQL_USER = configure_section_map(config, "MySQL")['user']
-            constants.MYSQL_PASS = configure_section_map(config, "MySQL")['pass']
-
-            print "Connecting to schema %s MySQL on host %s as %s:%s" % (constants.MYSQL_SCHEMA, constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS)
-
-            constants.DO_SCAN = configure_section_map(config, "Action")['scan'].lower() == 'true'
-            constants.DO_MATCH = configure_section_map(config, "Action")['match'].lower() == 'true'
-
-            constants.OBJMAN_DEBUG = configure_section_map(config, "Debug")['objman'].lower() == 'true'
-            constants.SCANNER_DEBUG = configure_section_map(config, "Debug")['scanner'].lower() == 'true'
-            constants.MATCHER_DEBUG = configure_section_map(config, "Debug")['matcher'].lower() == 'true'
-            constants.FOLDER_DEBUG = configure_section_map(config, "Debug")['folder'].lower() == 'true'
-            mySQL4es.DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true'
-
-            constants.LOG = configure_section_map(config, "Log")['logging'].lower() == 'true'
-            constants.ES_LOG_NAME = configure_section_map(config, "Log")['logname']
-
-            # print "Performing scan:%s, match:%s" % (constants.DO_SCAN, constants.DO_MATCH)
-    except Exception, err:
-        print err.message
-        print 'Invalid or missing configuration file, exiting...'
-        sys.exit(1)
-
-def configure_section_map(config, section):
-    dict1 = {}
-    options = config.options(section)
-    for option in options:
-        try:
-            dict1[option] = config.get(section, option)
-            if dict1[option] == -1:
-                DebugPrint("skip: %s" % option)
-        except:
-            print("exception on %s!" % option)
-            dict1[option] = None
-    return dict1
-
-def start_logging():
-    LOG = "logs/%s" % (constants.ES_LOG_NAME)
-    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
-
-    # console handler
-    console = logging.StreamHandler()
-    console.setLevel(logging.ERROR)
-    logging.getLogger("").addHandler(console)
 
 class MediaFileManager(MediaLibraryWalker):
     def __init__(self):
@@ -91,29 +28,17 @@ class MediaFileManager(MediaLibraryWalker):
         self.do_cache_esids = True
         self.do_cache_locations = True
         self.do_cache_ops = True
-
+        self.do_deep_scan = constants.DEEP_SCAN
         self.esid_cache = []
         self.ops_cache = []
         self.location_cache = {}
 
         self.matchers = []
 
-        self.EXPUNGE = constants.EXPUNGED
-        self.NOSCAN = constants.NOSCAN
-        self.COMP = self.get_folder_constants('compilation')
-        self.EXTENDED = self.get_folder_constants('extended')
-        self.IGNORE = self.get_folder_constants('ignore')
-        self.INCOMPLETE = self.get_folder_constants('incomplete')
-        self.LIVE = self.get_folder_constants('live_recordings')
-        self.NEW = self.get_folder_constants('new')
-        self.RANDOM = self.get_folder_constants('random')
-        self.RECENT = self.get_folder_constants('recent')
-        self.UNSORTED = self.get_folder_constants('unsorted')
-
         self.es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
-        self.folderman = MediaFolderManager(self.es, constants.ES_INDEX_NAME, self.doc_exists)
+        self.folderman = MediaFolderManager(self.es, constants.ES_INDEX_NAME)
 
-        self.scanner = Scanner(self, self.doc_exists)
+        self.scanner = Scanner(self.es, self.folderman)
 
     def after_handle_root(self, root):
         if constants.DO_SCAN:
@@ -129,8 +54,9 @@ class MediaFileManager(MediaLibraryWalker):
             if self.debug: print 'examining: %s' % (root)
             # self.folderman.set_active(None)
             self.folderman.folder = None
-            if root in self.ops_cache:
-                # if self.debug: print 'scan operation record found for: %s' % (root)
+            # NOTE: folders in constants.LOCATIONS_EXTENDED are ALWAYS scanned deeply
+            if root in self.ops_cache and not self.do_deep_scan and not root in constants.LOCATIONS_EXTENDED:
+                if self.debug: print 'scan operation record found for: %s' % (root)
                 return
 
             try:
@@ -215,114 +141,6 @@ class MediaFileManager(MediaLibraryWalker):
                 if path in row[0]:
                     return row[1]
 
-    # TODO: refactor, generalize, move to esutil
-    def doc_exists(self, asset, attach_if_found):
-        # look in local MySQL
-        esid_in_mysql = False
-        esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
-        if esid is not None:
-            esid_in_mysql = True
-            if self.debug == True: print "found esid %s for '%s' in mySQL." % (esid, asset.short_name())
-
-            if attach_if_found and asset.esid is None:
-                if self.debug == True: print "attaching esid %s to ''%s'." % (esid, asset.short_name())
-                asset.esid = esid
-
-            if attach_if_found == False: return True
-
-        # not found, query elasticsearch
-        res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
-        for doc in res['hits']['hits']:
-            # if self.doc_refers_to(doc, media):
-            if doc['_source']['absolute_path'] == asset.absolute_path or asset.esid == doc['_id']:
-                esid = doc['_id']
-                if self.debug == True: print "found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name())
-
-                if attach_if_found:
-                    asset.doc = doc
-                    if asset.esid is None:
-                        if self.debug == True: print "attaching esid %s to '%s'." % (esid, asset.short_name())
-                        asset.esid = esid
-
-                if esid_in_mysql == False:
-                    # found, update local MySQL
-                    if self.debug == True: print 'inserting esid into MySQL'
-                    mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
-                    if self.debug == True: print 'esid inserted'
-
-                return True
-
-        if self.debug: print 'No document found for %s, %s' % (asset.esid, asset.absolute_path)
-
-        return False
-
-    #TODO: DEBUG DEBUG DEBUG
-    # def get_doc(self, asset):
-    #     try:
-    #         if asset.esid is not None:
-    #             if self.debug: print 'searching for document for: %s' % (asset.esid)
-    #             doc = self.es.get(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, id=asset.esid)
-    #             if doc is not None:
-    #                 return doc
-    #
-    #         if self.debug: print 'searching for document for: %s' % (asset.absolute_path)
-    #         res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body=
-    #         {
-    #             "query": { "match" : { "absolute_path": asset.absolute_path }}
-    #         })
-    #         # # if self.debug: print("%d documents found" % res['hits']['total'])
-    #         for doc in res['hits']['hits']:
-    #             if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
-    #                 return doc
-    #     except ConnectionError, err:
-    #         print ': '.join([err.__class__.__name__, err.message])
-    #         if self.debug: traceback.print_exc(file=sys.stdout)
-    #         print '\nConnection lost, please verify network connectivity and restart.'
-    #         sys.exit(1)
-    #     except Exception, err:
-    #         print ': '.join([err.__class__.__name__, err.message])
-    #         if self.debug: traceback.print_exc(file=sys.stdout)
-    #         # raise Exception('Doc not found: ' + media.absolute_path)
-    #
-    # def get_doc_id(self, asset):
-    #
-    #     # look for esid in local MySQL
-    #     esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
-    #     if esid is not None:
-    #         if self.debug: print "esid found in MySQL"
-    #         return esid
-    #
-    #     try:
-    #         # not found, query elasticsearch
-    #         res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
-    #         # if self.debug: print("%d documents found" % res['hits']['total'])
-    #         for doc in res['hits']['hits']:
-    #             # if self.doc_refers_to(doc, media):
-    #             if repr(doc['_source']['absolute_path']) == repr(asset.absolute_path):
-    #                 if self.debug: print "esid found in Elasticsearch"
-    #                 esid = doc['_id']
-    #                 # found, update local MySQL
-    #                 if self.debug: print "inserting esid into MySQL"
-    #                 mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
-    #                 return doc['_id']
-    #
-    #     except ConnectionError, err:
-    #         print ': '.join([err.__class__.__name__, err.message])
-    #         if self.debug: traceback.print_exc(file=sys.stdout)
-    #         print '\nConnection lost, please verify network connectivity and restart.'
-    #         sys.exit(1)
-
-        # raise Exception('Doc not found: ' + media.esid)
-
-    def get_folder_constants(self, foldertype):
-        if self.debug: print "retrieving constants for %s folders." % (foldertype)
-        result = []
-        rows = mySQL4es.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
-        for r in rows:
-            result.append(r[1])
-        return result
-
-    #TODO: Offline mode - query MySQL and ES before looking at the file system
     def get_location(self, path):
         parent = os.path.abspath(os.path.join(path, os.pardir))
         if parent in self.location_cache:
@@ -332,9 +150,15 @@ class MediaFileManager(MediaLibraryWalker):
         self.location_cache = {}
 
         if self.debug: print "determining location for %s." % (parent.split('/')[-1])
-        for folder in next(os.walk(constants.START_FOLDER))[1]:
-            if folder in path:
+    
+        for location in constants.LOCATIONS:
+            if location in path:
                 self.location_cache[parent] = os.path.join(constants.START_FOLDER, folder)
+                return self.location_cache[parent]
+
+        for location in constants.LOCATIONS_EXTENDED:
+            if location in path:
+                self.location_cache[parent] = os.path.join(folder)
                 return self.location_cache[parent]
 
         return None
@@ -346,13 +170,14 @@ class MediaFileManager(MediaLibraryWalker):
             if self.debug: print "Either file is missing or is not readable"
             return null
 
-        media = MediaFile(self)
+        media = MediaFile()
         path, filename = os.path.split(absolute_path)
         extension = os.path.splitext(absolute_path)[1]
         filename = filename.replace(extension, '')
         extension = extension.replace('.', '')
         location = self.get_location(absolute_path)
-        foldername = path.replace(location, '')
+
+        foldername = parent = os.path.abspath(os.path.join(absolute_path, os.pardir))
 
         media.absolute_path = absolute_path
         media.file_name = filename
@@ -403,7 +228,7 @@ class MediaFileManager(MediaLibraryWalker):
                 self.check_for_stop_request()
                 self.cache_esids(location)
                 for record in self.esid_cache:
-                    media = MediaFile(self)
+                    media = MediaFile()
                     media.absolute_path = record[0]
                     media.esid = record[1]
                     media.document_type = 'media_file'
@@ -412,7 +237,7 @@ class MediaFileManager(MediaLibraryWalker):
                         if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
                         continue
 
-                    if self.doc_exists(media, True):
+                    if esutil.doc_exists(self.es, media, True):
                         for matcher in self.matchers:
                             if media.absolute_path not in match_ops[matcher.name]:
                                 if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
@@ -500,7 +325,7 @@ class MediaFileManager(MediaLibraryWalker):
         pid = os.getpid()
         rows = mySQL4es.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
         for r in rows:
-            media = MediaFile(self)
+            media = MediaFile()
             matcher_name = r[1]
             media.esid = r[0]
             media.absolute_path = r[2]
@@ -509,8 +334,6 @@ class MediaFileManager(MediaLibraryWalker):
                 operations.record_op_begin(pid, media, matcher_name, 'match')
                 operations.record_op_complete(pid, media, matcher_name, 'match')
                 print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')
-
-
 
 def scan_library():
     print 'Setting up scan criteria...'
@@ -546,13 +369,25 @@ def scan_library():
     print 'starting Media Object Manager...'
     mfm.run(s)
 
+def scan_library_threaded(scancriteria):
+    try:
+        print 'Configuring Media Object Manager...'
+        mfm = MediaFileManager();
+        mfm.do_cache_ops = True
+        mfm.do_cache_esids = True
+        print 'starting Media Object Manager...'
+        mfm.run(scancriteria)
+
+    except Exception, err:
+        print err.message
+
 def test_matchers():
     mfm = MediaFileManager();
     mfm.debug = False
 
     filename = '/media/removable/Audio/music [noscan]/albums/industrial/skinny puppy/the.b-sides.collect/11 - tin omen i.mp3'
     media = mfm.get_media_object(filename)
-    if mfm.doc_exists(media, True):
+    if esutil.doc_exists(mfm.es, media, True):
         media.doc = esutil.get_doc(media)
         matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
         # matcher = ElasticSearchMatcher('artist_matcher', mfm)
@@ -560,23 +395,38 @@ def test_matchers():
         matcher.match(media)
     else: print "%s has not been scanned into the library" % (filename)
 
-
-
 def main():
     
-    print os.getcwd()
+    config.configure()
 
-    try:
-        os.chdir('/home/mpippins/dev/mom')
-    except Exception, err:
-        print err.message
+    if constants.LOG:
+        config.start_logging()
 
-    configure()
-
-    # if constants.LOG:
-    #     start_logging()
     scan_library()
-    # esutil.purge_problem_esids()
+
+    # print 'Setting up scan criteria...'
+    
+    # locations = []
+    # locations.append(constants.NOSCAN)
+    # locations.append(constants.EXPUNGED)
+    # locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
+    # locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
+    # locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
+    # locations.append('/media/removable/SEAGATE 932/Media/radio')
+    # rows = mySQL4es.retrieve_values('media_location_folder', ['file_type', 'name'], ['mp3'])
+    # for row in rows:
+    #     locations.append(os.path.join(constants.START_FOLDER, row[1]))
+    
+    # for location in locations:
+    #     criteria = ScanCriteria()
+    #     criteria.extensions = ['mp3'] # util.get_active_media_formats()
+    #     criteria.locations.append(location)
+
+    #     try:
+    #         thread.start_new_thread( scan_library_threaded, ( criteria, ) )
+    #     except Exception, err:
+    #         print err.message
+
 # main
 if __name__ == '__main__':
     main()

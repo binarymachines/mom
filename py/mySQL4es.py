@@ -172,7 +172,7 @@ def retrieve_like_values(table_name, field_names, field_values):
 
 def run_query(query):
 
-    print query
+    if DEBUG: print query
     con = None
     rows = []
 
