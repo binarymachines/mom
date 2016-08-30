@@ -15,7 +15,7 @@ def get_folders(path):
 
     return mySQL4es.run_query(q)
 
-def generate_match_doc(source_path, outputfile=None):
+def generate_match_doc(source_path, always_generate= False, outputfile=None):
     
     folders = get_folders(source_path)
     for folder in folders:
@@ -76,11 +76,8 @@ def generate_match_doc(source_path, outputfile=None):
 
         folder_data["matches"] = match_files
 
-        if matches_exist:
-            if outputfile is None: pp.pprint(folder_data)
-            else:
-                with open(outputfile, 'wt') as out:
-                    pprint.pprint(folder_data, stream=out)
+        if matches_exist or always_generate: 
+            handle_results(folder_data, outputfile)
             
 def get_matches(esid):
     
@@ -99,6 +96,14 @@ def get_media_files(path):
                 and es.id IN (SELECT media_doc_id FROM matched) ORDER BY es.absolute_path""" % (constants.ES_INDEX_NAME,path, '%')
                 
     return mySQL4es.run_query(q)
+
+def handle_results(results, outputfile):
+    if outputfile is None: 
+        pp.pprint(folder_data)
+    else:
+        with open(outputfile, 'wt') as out:
+            pprint.pprint(results, stream=out)
+            out.close()
 
 # TODO:make this return a boolean based on whether or not the doc is actually available and gracefully deal with the case where it is not
 def get_media_meta_data(esid, media_data):
@@ -122,10 +127,8 @@ def get_media_meta_data(esid, media_data):
     media_data['meta'].append(meta_data)
 
 def main():
-    # print 'running finder'
     config.configure()
-    print os.getcwd()
-    generate_match_doc('front 242/geography', 'geography.json') 
+    generate_match_doc('front 242/geography', False, 'geography.json') 
 
 # main
 if __name__ == '__main__':
