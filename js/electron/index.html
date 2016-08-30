@@ -22,7 +22,7 @@
         }
 
         function setTitles() {
-            document.getElementById('min-score').title = "adjusting the minimum score dynamically adds or removes match items or entire match tabs";
+            document.getElementById('min-score').title = "defaults to media match score of loaded matches; adjusting the minimum score dynamically adds or removes match items or entire match tabs";
             document.getElementById('tab-prime').title = "item 'A' is always the item that matches were found; on subsequent tabs, these results are repeated with nested matches"
                 //   document.getElementById('inc-min-btn').title = "increment minimum score to tighten strengthen match requirements"
                 //   document.getElementById('dec-min-btn').title = "decrement minimum score to tighten weaken match requirements"
@@ -299,13 +299,28 @@
             <div>
                 <span width="100%" class="padded">
         <!--<tr>-->
-          <span>File Count: <b>10</b></span>
+              <span>File Count: <b>10</b></span>
                 <spant>Total Size: <b>374963213301</b></span>
                     <!--<td>Min Score:-->
                     </span>
-                    <span width="100%" class="pull-right">
-          <span>
-            <!--label>Minimum Match Score: </label-->
+                <!--<span width="100%" class="pull-right">-->
+              <span>
+
+            Filter by Matcher:
+            <select name="select-matcher">
+                <option value="all">all</option>
+                <option value="match_filename_matcher">File Name Matcher</option>
+                <option value="match_artist_album_song" selected>ID3v2 Tag Matcher</option>
+            </select>
+
+            Show Tags: 
+            <select name="select-tags">
+                <option value="ID3v1">ID3v1</option>
+                <option value="ID3v2" selected>ID3v2</option>
+                <option value="Vorbis">Vorbis</option>
+                <!--<option value="audi">Audi</option>-->
+            </select>
+                    <!--label>Minimum Match Score: </label-->
             <button id="inc-minimum-btn" class="icon icon-up pull-right" onclick="incrementMinimumScore()"> </button>
             <input id="min-score" type="min-score" class="pull-right" placeholder="Min. Score" size="8" onchange="minimumScoreChanged()" style="text-align: center;" />
             <button id="dec-minimum-btn" class="icon icon-down pull-right" onclick="decrementMinimumScore()"> </button>
@@ -316,11 +331,14 @@
 
             <div class="checkbox">
                 <span class="padded" item-width="100%">
-          <label> <input type="checkbox" disabled="true"> Ignore</label>
-          <label> <input type="checkbox"> Select</label>
-          <label> <input type="checkbox"> Show matched files only</label>
-          <label> <input type="checkbox" disabled="true"> Grab filenames</label>
-        </span>
+                    <label> <input type="checkbox" disabled="true"> Ignore</label>
+                    <label> <input type="checkbox"> Select</label>
+                    <label> <input type="checkbox"> Show matched files only</label>
+                    <label> <input type="checkbox"> Strict tag match</label>
+                    <label> <input type="checkbox" disabled="true"> Grab filenames</label>
+                    <label> <input type="checkbox" disabled="true"> Grab tags</label>
+                    <label> <input type="checkbox"> Show raw tag names</label>
+                </span>
             </div>
 
             <div class="toolbar-actions">
