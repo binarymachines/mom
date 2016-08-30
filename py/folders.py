@@ -4,7 +4,7 @@ import os, json, pprint, sys, traceback, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from data import MediaFolder
-import mySQL4es
+import mySQL4es, esutil
 import operations
 import constants
 import alchemy
@@ -14,13 +14,12 @@ pp = pprint.PrettyPrinter(indent=4)
 
 class MediaFolderManager:
 
-    def __init__(self, elasticsearchinstance, indexname, doc_exists_func):
-        self.es = elasticsearchinstance
+    def __init__(self, es, indexname):
+        self.es = es
         self.folder = None
         self.document_type = 'media_folder'
         self.debug = constants.FOLDER_DEBUG
         self.pid = os.getpid()
-        self.doc_exists = doc_exists_func
 
     def folder_scanned(self, path):
         pass
@@ -86,7 +85,7 @@ class MediaFolderManager:
 
     def sync_folder_state(self, folder):
         if self.debug: print 'syncing metadata for %s' % folder.absolute_path
-        if self.doc_exists(folder, True):
+        if esutil.doc_exists(self.es, folder, True):
             doc = self.find_doc(folder)
             if doc is not None:
                 if self.debug: print 'data retrieved from Elasticsearch'

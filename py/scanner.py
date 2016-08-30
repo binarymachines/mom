@@ -2,7 +2,7 @@
 
 import os, json, pprint, sys, random, logging, traceback
 from elasticsearch import Elasticsearch
-import mySQL4es
+import constants, mySQL4es, esutil
 from mutagen.id3 import ID3, ID3NoHeaderError
 from data import MediaFile
 
@@ -17,12 +17,11 @@ class ScanCriteria:
         self.extensions = []
 
 class Scanner:
-    def __init__(self, mediamanager, doc_exists_func):
-        self.doc_exists = doc_exists_func
-        self.es = mediamanager.es
-        self.debug = mediamanager.debug
-        self.folderman = mediamanager.folderman
-        self.document_type = mediamanager.document_type
+    def __init__(self, es, foldermanager):
+        self.es = es
+        self.debug = constants.SCANNER_DEBUG
+        self.foldermanager = foldermanager
+        self.document_type = 'media_file'
 
     # TODO: figure out why this fails
     def add_artist_and_album_to_db(self, data):
@@ -56,7 +55,7 @@ class Scanner:
 
     def scan_file(self, media):
 
-        folder =  self.folderman.folder
+        folder =  self.foldermanager.folder
         data = media.get_dictionary()
 
         try:
@@ -64,7 +63,7 @@ class Scanner:
                 if self.debug: print "esid exists, skipping file: %s" % (media.short_name())
                 return media
 
-            if  media.esid == None and self.doc_exists(media, True):
+            if  media.esid == None and esutil.doc_exists(self.es, media, True):
                 if self.debug: print "document exists, skipping file: %s" % (media.short_name())
                 return media
 
@@ -91,19 +90,19 @@ class Scanner:
             data['scan_error'] = err.message
             data['has_error'] = True
             print ': '.join([err.__class__.__name__, err.message])
-            self.folderman.record_error(folder, "ID3NoHeaderError=" + err.message)
+            self.foldermanager.record_error(folder, "ID3NoHeaderError=" + err.message)
             if self.debug: traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
-            self.folderman.record_error(folder, "UnicodeEncodeError=" + err.message)
+            self.foldermanager.record_error(folder, "UnicodeEncodeError=" + err.message)
             return
 
         except UnicodeDecodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
-            self.folderman.record_error(folder, "UnicodeDecodeError=" + err.message)
+            self.foldermanager.record_error(folder, "UnicodeDecodeError=" + err.message)
             return
 
         if self.debug: "indexing file: %s" % (media.file_name)

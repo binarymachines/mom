@@ -2,6 +2,7 @@
 
 import os, sys, time
 import pprint
+import constants
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -36,7 +37,7 @@ class Asset(object):
         return self.absolute_path.split('/')[-1]
 
 class MediaFile(Asset):
-    def __init__(self, manager):
+    def __init__(self):
         super(MediaFile, self).__init__()
         self.document_type = 'media_file'
         self.ext = None
@@ -44,11 +45,10 @@ class MediaFile(Asset):
         self.file_size = 0
         self.folder_name = None
         self.location = None
-        self.manager = manager
 
     ##@property
     def ignore(self):
-        for f in self.manager.IGNORE:
+        for f in constants.IGNORE:
             if f in self.absolute_path:
                 return True
         return False
@@ -71,21 +71,21 @@ class MediaFile(Asset):
 
     ##@property
     def is_filed_as_compilation(self):
-        for f in self.manager.COMP:
+        for f in constants.COMP:
             if f in self.absolute_path:
                 return True
         return False
 
     ##@property
     def is_filed_as_live(self):
-        for f in self.manager.LIVE:
+        for f in constants.LIVE:
             if f in self.absolute_path:
                 return True
         return False
 
     ##@property
     def is_new(self):
-        for f in self.manager.NEW:
+        for f in constants.NEW:
             if f in self.absolute_path:
                 return True
         return False
@@ -100,21 +100,21 @@ class MediaFile(Asset):
 
     ##@property
     def is_random(self):
-        for f in self.manager.RANDOM:
+        for f in constants.RANDOM:
             if f in self.absolute_path:
                 return True
         return False
 
     ##@property
     def is_recent(self):
-        for f in self.manager.RECENT:
+        for f in constants.RECENT:
             if f in self.absolute_path:
                 return True
         return False
 
     ##@property
     def is_unsorted(self):
-        for f in self.manager.UNSORTED:
+        for f in constants.UNSORTED:
             if f in self.absolute_path:
                 return True
         return False
