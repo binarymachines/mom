@@ -24,7 +24,7 @@ class MediaFileManager(MediaLibraryWalker):
 
         self.active_criteria = None
         self.debug = constants.OBJMAN_DEBUG
-        self.document_type = 'media_file'
+        self.document_type = constants.MEDIA_FILE
         self.do_cache_esids = True
         self.do_cache_locations = True
         self.do_cache_ops = True
@@ -222,16 +222,19 @@ class MediaFileManager(MediaLibraryWalker):
         self.active_criteria = criteria
         for location in criteria.locations:
             try:
+                if constants.CHECK_FOR_BUGS: raw_input('check for bugs')
                 match_ops = self.retrieve_completed_match_ops(location)
                 # self.cache_ops(location, 'scan', 'mp3 scanner')
                 # for path in self.ops_cache:
                 self.check_for_stop_request()
                 self.cache_esids(location)
+                
+                
                 for record in self.esid_cache:
                     media = MediaFile()
                     media.absolute_path = record[0]
                     media.esid = record[1]
-                    media.document_type = 'media_file'
+                    media.document_type = constants.MEDIA_FILE
 
                     if self.all_matchers_have_run(media, match_ops):
                         if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
@@ -302,24 +305,24 @@ class MediaFileManager(MediaLibraryWalker):
 
 
     def check_for_reconfig_request(self):
-        # FLAG = mySQL4es.DEBUG
-        # mySQL4es.DEBUG = False
+        # FLAG = constants.SQL_DEBUG
+        # constants.SQL_DEBUG = False
         # if operations.check_for_reconfig_request(self.pid, self.start_time):
         #     print 'reconfig requested, loading config file.'
         #     mySQL4es.update_values('exec_record', 'reconfig_requested', False, ['pid', 'start_time'], [self.pid, self.start_time])
         # configure()
-        # mySQL4es.DEBUG = FLAG
+        # constants.SQL_DEBUG = FLAG
         pass
 
     def check_for_stop_request(self):
-        FLAG = mySQL4es.DEBUG
-        mySQL4es.DEBUG = False
+        FLAG = constants.SQL_DEBUG
+        constants.SQL_DEBUG = False
 
         if operations.check_for_stop_request(self.pid, self.start_time):
             print 'stop requested, terminating.'
             sys.exit(1)
 
-        mySQL4es.DEBUG = FLAG
+        constants.SQL_DEBUG = FLAG
 
     def record_matches_as_ops(self):
         pid = os.getpid()
@@ -336,50 +339,23 @@ class MediaFileManager(MediaLibraryWalker):
                 print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')
 
 def scan_library():
+
+    config.configure()
+
     print 'Setting up scan criteria...'
     s = ScanCriteria()
-    try:
-        s.extensions = ['mp3'] # util.get_active_media_formats()
 
-        if os.path.isdir(constants.START_FOLDER) and os.access(location, os.R_OK):
-            for folder in next(os.walk(constants.START_FOLDER))[1]:
-                s.locations.append(os.path.join(constants.START_FOLDER, folder))
-
-        # rows = mySQL4es.retrieve_values('media_location_folder', ['file_type', 'name'], ['mp3'])
-        # for row in rows:
-        #     s.locations.append(os.path.join(constants.START_FOLDER, row[1]))
-        # s.locations.insert(0, os.path.join(constants.START_FOLDER, folder))
+    s.extensions = ['mp3'] # util.get_active_media_formats()
+    for location in constants.LOCATIONS: s.locations.append(location)
+    for location in constants.LOCATIONS_EXTENDED: s.locations.append(location)
         
-        s.locations.append(constants.NOSCAN)
-        s.locations.append(constants.EXPUNGED)
-        s.locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
-        s.locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-        s.locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
-        s.locations.append('/media/removable/SEAGATE 932/Media/radio')
-
-    except Exception, err:
-        print err.message
+    s.locations.append(constants.NOSCAN)
+    # s.locations.append(constants.EXPUNGED)
 
     print 'Configuring Media Object Manager...'
     mfm = MediaFileManager();
-    # esutil.delete_docs_for_path(mfm.es, 'media', 'media_folder',  '/media/removable/Audio/music [noscan]/')
-    mfm.do_cache_ops = True
-    mfm.do_cache_esids = True
-    # reset_all(mfm)
     print 'starting Media Object Manager...'
     mfm.run(s)
-
-def scan_library_threaded(scancriteria):
-    try:
-        print 'Configuring Media Object Manager...'
-        mfm = MediaFileManager();
-        mfm.do_cache_ops = True
-        mfm.do_cache_esids = True
-        print 'starting Media Object Manager...'
-        mfm.run(scancriteria)
-
-    except Exception, err:
-        print err.message
 
 def test_matchers():
     mfm = MediaFileManager();
@@ -396,36 +372,7 @@ def test_matchers():
     else: print "%s has not been scanned into the library" % (filename)
 
 def main():
-    
-    config.configure()
-
-    if constants.LOG:
-        config.start_logging()
-
     scan_library()
-
-    # print 'Setting up scan criteria...'
-    
-    # locations = []
-    # locations.append(constants.NOSCAN)
-    # locations.append(constants.EXPUNGED)
-    # locations.append('/media/removable/SEAGATE 932/Media/Music/incoming/complete/')
-    # locations.append('/media/removable/SEAGATE 932/Media/Music/mp3')
-    # locations.append('/media/removable/SEAGATE 932/Media/Music/shared')
-    # locations.append('/media/removable/SEAGATE 932/Media/radio')
-    # rows = mySQL4es.retrieve_values('media_location_folder', ['file_type', 'name'], ['mp3'])
-    # for row in rows:
-    #     locations.append(os.path.join(constants.START_FOLDER, row[1]))
-    
-    # for location in locations:
-    #     criteria = ScanCriteria()
-    #     criteria.extensions = ['mp3'] # util.get_active_media_formats()
-    #     criteria.locations.append(location)
-
-    #     try:
-    #         thread.start_new_thread( scan_library_threaded, ( criteria, ) )
-    #     except Exception, err:
-    #         print err.message
 
 # main
 if __name__ == '__main__':

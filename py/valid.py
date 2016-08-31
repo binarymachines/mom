@@ -9,14 +9,14 @@ def main():
     folders = mySQL4es.retrieve_values('media_location_folder', ['name'], [])
     for folder in folders:
         asset = os.path.join(constants.START_FOLDER, folder[0])
-        files = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, 'media_folder'])
+        files = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, constants.MEDIA_FOLDER])
         for f in files:
             filename = f[0]
             doc_type = f[1]
     
             try:
                 esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, doc_type, filename)
-                mySQL4es.DEBUG = True
+                constants.SQL_DEBUG = True
                 if esid is not None:
                     print ','.join([esid, filename]) 
                 else:
@@ -30,7 +30,7 @@ def main():
             except Exception, error:
                 print error.message
             finally:
-                mySQL4es.DEBUG = False
+                constants.SQL_DEBUG = False
 
 
 # main

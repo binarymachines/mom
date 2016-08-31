@@ -21,7 +21,7 @@ class Scanner:
         self.es = es
         self.debug = constants.SCANNER_DEBUG
         self.foldermanager = foldermanager
-        self.document_type = 'media_file'
+        self.document_type = constants.MEDIA_FILE
 
     # TODO: figure out why this fails
     def add_artist_and_album_to_db(self, data):

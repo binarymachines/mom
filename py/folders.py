@@ -17,7 +17,7 @@ class MediaFolderManager:
     def __init__(self, es, indexname):
         self.es = es
         self.folder = None
-        self.document_type = 'media_folder'
+        self.document_type = constants.MEDIA_FOLDER
         self.debug = constants.FOLDER_DEBUG
         self.pid = os.getpid()
 

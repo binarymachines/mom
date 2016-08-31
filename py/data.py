@@ -16,6 +16,11 @@ pp = pprint.PrettyPrinter(indent=4)
     # return locals()
     # doc_name = property(**doc_name()))
 
+class AssetException(Exception):
+    def __init__(self, message, data):
+        super(AssetException, self).__init__(message)
+        self.data = data
+
 class Asset(object):
     def __init__(self):
         self.absolute_path = None
@@ -39,7 +44,7 @@ class Asset(object):
 class MediaFile(Asset):
     def __init__(self):
         super(MediaFile, self).__init__()
-        self.document_type = 'media_file'
+        self.document_type = constants.MEDIA_FILE
         self.ext = None
         self.file_name = None
         self.file_size = 0
@@ -191,7 +196,7 @@ class MediaFile(Asset):
 class MediaFolder(Asset):
     def __init__(self):
         super(MediaFolder, self).__init__()
-        self.document_type = 'media_folder'
+        self.document_type = constants.MEDIA_FOLDER
 
     def get_dictionary(self):
 
@@ -221,7 +226,3 @@ class MediaFolder(Asset):
         print "esid: " + str(self.esid)
         print "absolute path: " + self.absolute_path
 
-class AssetException(Exception):
-    def __init__(self, message, data):
-        super(AssetException, self).__init__(message)
-        self.data = data

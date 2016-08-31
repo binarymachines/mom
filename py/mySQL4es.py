@@ -2,8 +2,8 @@
 
 import os, sys, datetime, traceback
 import MySQLdb as mdb
-from data import AssetException
 import constants
+from data import AssetException
 
 DEBUG = True
 
@@ -344,7 +344,7 @@ def retrieve_esid(index, document_type, absolute_path):
     if len(rows) > 1:
         text = "Multiple Ids for '" + absolute_path + "' returned"
         raise AssetException(text, rows)
-
+        
     if len(rows) == 1:
         return rows[0][3]
 

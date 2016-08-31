@@ -1,6 +1,5 @@
 'use strict';
 const electron = require('electron');
-var mysql = require('mysql');
 
 const app = electron.app;
 
@@ -18,6 +17,7 @@ function onClosed() {
 }
 
 function createMainWindow() {
+	console.log('creating main window')
 	const win = new electron.BrowserWindow({
 		width: 1000,
 		height: 600
@@ -42,25 +42,5 @@ app.on('activate', () => {
 });
 
 app.on('ready', () => {
-
-	// var connection = mysql.createConnection({
-	// host     : '54.82.250.249',
-	// user     : 'remote',
-	// password : 'remote',
-	// database : 'media'
-	// });
-
-	// connection.connect();
-
-	// connection.query('SELECT * from media_format', function(err, rows, fields) {
-	// if (!err)
-	// 	console.log('The solution is: ', rows);
-	// else
-	// 	console.log('Error while performing Query.');
-	// });
-
-	// connection.end();
-
-
 	mainWindow = createMainWindow();
 });

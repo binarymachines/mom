@@ -92,16 +92,20 @@ def doc_exists(es, asset, attach_if_found):
 
             return True
 
-    if DEBUG: print 'No document found for %s, %s' % (asset.esid, asset.absolute_path)
-
+    if DEBUG: print 'No document found for %s, %s, adding scan request to queue' % (asset.esid, asset.absolute_path)
+    rows = mySQL4es.retrieve_values('op_request', ['index_name', 'operation_name', 'target_path'], [constants.ES_INDEX_NAME, 'scan', asset.absolute_path])
+    if rows == ():
+        mySQL4es.insert_values('op_request', ['index_name', 'operation_name', 'target_path'], [constants.ES_INDEX_NAME, 'scan', asset.absolute_path])
+  
     return False
         
-def get_doc(asset):
+def get_doc(asset, es=None):
 
-    es = connect(constants.ES_HOST, constants.ES_PORT)
+    if es == None:
+        es = connect(constants.ES_HOST, constants.ES_PORT)
 
     if asset.absolute_path is not None:
-        print 'searching for document for: %s' % (asset.absolute_path)
+        if DEBUG == True: print 'searching for document for: %s' % (asset.absolute_path)
         res = es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body=
         {
             "query": { "match" : { "absolute_path": asset.absolute_path }}
@@ -112,8 +116,7 @@ def get_doc(asset):
                 return doc
 
     if asset.esid is not None:
-        # if DEBUG:
-        print 'searching for document for: %s' % (asset.esid)
+        if DEBUG: print 'searching for document for: %s' % (asset.esid)
         doc = es.get(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, id=asset.esid)
         if doc is not None:
             return doc
@@ -137,16 +140,18 @@ def get_doc_id(es, asset):
         return doc['_id']
 
 def reset_all(es):
-    esutil.clear_indexes(es, 'media')
-    esutil.clear_indexes(es, 'media2')
-    esutil.clear_indexes(es, 'media3')
-    mySQL4es.truncate('es_document')
-    mySQL4es.truncate('matched')
-    mySQL4es.truncate('op_record')
+    double_check = raw_input("This will wipe all data! Type 'I really want to do this' to proceed'")
+    if double_check == 'I really want to do this':
+        esutil.clear_indexes(es, 'media')
+        esutil.clear_indexes(es, 'media2')
+        esutil.clear_indexes(es, 'media3')
+        mySQL4es.truncate('es_document')
+        mySQL4es.truncate('matched')
+        mySQL4es.truncate('op_record')
 
 def purge_problem_esids():
 
-    mySQL4es.DEBUG = False
+    constants.SQL_DEBUG = False
     problems = mySQL4es.run_query(
         """select distinct pe.esid, pe.document_type, esd.absolute_path, pe.problem_description
              from problem_esid pe, es_document esd
@@ -162,8 +167,8 @@ def purge_problem_esids():
         a.absolute_path = row[2]
         problem = row[3]
 
-        if a.document_type == 'media_folder' and problem.lower().startswith('mult'):
-            mySQL4es.DEBUG = True
+        if a.document_type == constants.MEDIA_FOLDER and problem.lower().startswith('mult'):
+            constants.SQL_DEBUG = True
             print '%s, %s' % (a.esid, a.absolute_path)
             docs = mySQL4es.retrieve_values('es_document', ['absolute_path', 'id'], [a.absolute_path])
             for doc in docs:
@@ -192,7 +197,7 @@ def purge_problem_esids():
 
             # print docs
                 # b = Asset()
-                # b.document_type = 'media_folder'
+                # b.document_type = constants.MEDIA_FOLDER
                 # b.absolute_path = parent
                 #
                 # doc = get_doc(b)
@@ -213,7 +218,7 @@ def purge_problem_esids():
 #
 #     cycle = True
 #     while cycle == True:
-#         res = find_docs_missing_field(es, 'media2', 'media_folder', 'absolute_path')
+#         res = find_docs_missing_field(es, 'media2', constants.MEDIA_FOLDER, 'absolute_path')
 #         if res['hits']['total'] > 0:
 #             for doc in res['hits']['hits']:
 #
