@@ -27,11 +27,11 @@ def record_exec_begin(pid):
 
 def operation_completed(asset, operator, operation, pid=None):
     print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
-    # mySQL4es.DEBUG = True
+    # constants.SQL_DEBUG = True
     if pid is None:
         rows = mySQL4es.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
             [operator, operation, asset.esid])
-        # mySQL4es.DEBUG = False
+        # constants.SQL_DEBUG = False
 
         if len(rows) > 0 and rows[0][4] is not None:
             print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
@@ -39,7 +39,7 @@ def operation_completed(asset, operator, operation, pid=None):
     else:
         rows = mySQL4es.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
             [str(pid), operator, operation, asset.esid])
-        # mySQL4es.DEBUG = False
+        # constants.SQL_DEBUG = False
 
         if len(rows) > 0 and rows[0][5] is not None:
             print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
@@ -48,15 +48,15 @@ def operation_completed(asset, operator, operation, pid=None):
     return False
 
 def record_op_begin(pid, asset, operator, operation):
-    # mySQL4es.DEBUG = True
+    # constants.SQL_DEBUG = True
     print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
     mySQL4es.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
         [str(pid), operator, operation, asset.esid, datetime.datetime.now().isoformat(), asset.absolute_path])
-    # mySQL4es.DEBUG = False
+    # constants.SQL_DEBUG = False
 
 def record_op_complete(pid, asset, operator, operation):
     print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
-    # mySQL4es.DEBUG = True
+    # constants.SQL_DEBUG = True
     mySQL4es.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
         [str(pid), operator, operation, asset.esid])
-    # mySQL4es.DEBUG = False
+    # constants.SQL_DEBUG = False

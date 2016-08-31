@@ -19,8 +19,9 @@ def configure():
             constants.SCANNER_DEBUG = configure_section_map(config, "Debug")['scanner'].lower() == 'true'
             constants.MATCHER_DEBUG = configure_section_map(config, "Debug")['matcher'].lower() == 'true'
             constants.FOLDER_DEBUG = configure_section_map(config, "Debug")['folder'].lower() == 'true'
-            mySQL4es.DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true'
-            esutil.DEBUG = configure_section_map(config, "Debug")['esutil'].lower() == 'true'
+            constants.SQL_DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true'
+            constants.ESUTIL_DEBUG = configure_section_map(config, "Debug")['esutil'].lower() == 'true'
+            constants.CHECK_FOR_BUGS = configure_section_map(config, "Debug")['checkforbugs'].lower() == 'true'
 
             constants.LOG = configure_section_map(config, "Log")['logging'].lower() == 'true'
             constants.ES_LOG_NAME = configure_section_map(config, "Log")['logname']
@@ -57,7 +58,11 @@ def configure():
             constants.UNSORTED = get_folder_constants('unsorted')
 
             constants.LOCATIONS = get_locations() 
-            constants.LOCATIONS_EXTENDED = get_locations_ext() 
+            constants.LOCATIONS_EXTENDED = get_locations_ext()
+
+            if constants.LOG:
+                start_logging()
+ 
     except Exception, err:
         print err.message
         traceback.print_exc(file=sys.stdout)
