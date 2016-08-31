@@ -5,8 +5,6 @@ from elasticsearch import Elasticsearch, NotFoundError
 import constants, mySQL4es
 from data import Asset, MediaFile, MediaFolder
 
-DEBUG = True
-
 pp = pprint.PrettyPrinter(indent=4)
 
 def clear_indexes(es, indexname):
@@ -32,7 +30,7 @@ def clear_indexes(es, indexname):
         print(" response: '%s'" % (res))
 
 def connect(hostname, portnum):
-    # if DEBUG:
+    # if constants.ESUTIL_DEBUG:
     print('Connecting to %s:%d...' % (hostname, portnum))
     es = Elasticsearch([{'host': hostname, 'port': portnum}])
 
@@ -92,7 +90,7 @@ def doc_exists(es, asset, attach_if_found):
 
             return True
 
-    if DEBUG: print 'No document found for %s, %s, adding scan request to queue' % (asset.esid, asset.absolute_path)
+    if constants.ESUTIL_DEBUG: print 'No document found for %s, %s, adding scan request to queue' % (asset.esid, asset.absolute_path)
     rows = mySQL4es.retrieve_values('op_request', ['index_name', 'operation_name', 'target_path'], [constants.ES_INDEX_NAME, 'scan', asset.absolute_path])
     if rows == ():
         mySQL4es.insert_values('op_request', ['index_name', 'operation_name', 'target_path'], [constants.ES_INDEX_NAME, 'scan', asset.absolute_path])
@@ -110,13 +108,13 @@ def get_doc(asset, es=None):
         {
             "query": { "match" : { "absolute_path": asset.absolute_path }}
         })
-        # # if DEBUG: print("%d documents found" % res['hits']['total'])
+        # # if constants.ESUTIL_DEBUG: print("%d documents found" % res['hits']['total'])
         for doc in res['hits']['hits']:
             if doc['_source']['absolute_path'] == asset.absolute_path:
                 return doc
 
     if asset.esid is not None:
-        if DEBUG: print 'searching for document for: %s' % (asset.esid)
+        if constants.ESUTIL_DEBUG: print 'searching for document for: %s' % (asset.esid)
         doc = es.get(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, id=asset.esid)
         if doc is not None:
             return doc
@@ -126,7 +124,7 @@ def get_doc_id(es, asset):
     # look for esid in local MySQL
     esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
     if esid is not None:
-        # if DEBUG:
+        # if constants.ESUTIL_DEBUG:
         print "esid found in MySQL"
         return esid
     # else
@@ -134,7 +132,7 @@ def get_doc_id(es, asset):
     if doc is not None:
         esid = doc['_id']
         # found, update local MySQL
-        # if DEBUG:
+        # if constants.ESUTIL_DEBUG:
         print "inserting esid into MySQL"
         mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
         return doc['_id']
