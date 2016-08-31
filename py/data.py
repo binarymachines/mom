@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, sys, time
+import os, sys, time, json
 import pprint
 import constants
 
@@ -183,15 +183,7 @@ class MediaFile(Asset):
             # if self.debug: traceback.print_exc(file=sys.stdout)
 
     def to_str(self):
-        print "esid: " + str(self.esid)
-        # print "absolute path: " + self.absolute_path
-        # print "file name: " + self.file_name
-        # print "ext: " + self.ext
-        # print "file location: " + self.location
-        # print "folder name: " + self.folder_name
-        # print "file size: " + str(self.file_size)
-
-        pp.pprint(self.get_dictionary())
+        return json.dumps(get_dictionary())
 
 class MediaFolder(Asset):
     def __init__(self):
@@ -223,6 +215,4 @@ class MediaFolder(Asset):
         return False
 
     def to_str(self):
-        print "esid: " + str(self.esid)
-        print "absolute path: " + self.absolute_path
-
+        return json.dumps(get_dictionary())
