@@ -10,19 +10,21 @@
 
     <!-- Javascript -->
     <!--script src="js/menu.js" charset="utf-8"></script-->
-    <!--script src="./dbintf.js" charset="utf-8"></script-->
+    <script>
+
+    </script>
 
     <script>
         function initialize() {
-            // getMatchResolutionSourceFolders()
 
             addTab()
             fillAlbumTable()
             setTitles()
+            test.sayHello()
         }
 
         function setTitles() {
-            document.getElementById('min-score').title = "defaults to media match score of loaded matches; adjusting the minimum score dynamically adds or removes match items or entire match tabs";
+            document.getElementById('min-score').title = "defaults to median match score of loaded matches; adjusting the minimum score dynamically adds or removes match items or entire match tabs";
             document.getElementById('tab-prime').title = "item 'A' is always the item that matches were found; on subsequent tabs, these results are repeated with nested matches"
                 //   document.getElementById('inc-min-btn').title = "increment minimum score to tighten strengthen match requirements"
                 //   document.getElementById('dec-min-btn').title = "decrement minimum score to tighten weaken match requirements"
@@ -250,6 +252,7 @@
 </head>
 
 <body onload="initialize()">
+    <script src="js/electron/test.js"></script>
     <div class="window">
         <header class="toolbar toolbar-header">
             <!--<h2 class="title">

@@ -34,7 +34,7 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
 
     folders = get_folders(source_path)
     for folder in folders:
-        
+        match_scores = []
         matches_exist = False
         folder_data = { FOLDER: folder[1], FOLDER_ESID: folder[0], 'matches': [], '_media': [], 'match_results': [] }
         
@@ -54,7 +54,8 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
                 match_data = { '_matcher': match[0], '_match_score': match[1], '_match_esid': match[2], '_match_filename': match[3].split('/')[-1], 
                     'suggestion': 'DELETE' if match[4] in ['=', '>'] else 'PROMOTE' }
                 media_data['suggestion'] = suggestion = 'DELETE' if match[4] in ['<'] else 'KEEP'
-
+                match_scores.append(match_data['_match_score'])
+                
                 get_media_meta_data(es, match_data['_match_esid'], match_data)
                 if not match_parent_dir in parent_data:
                     parent_data[match_parent_dir] = {'_match_folder': match_parent_dir }
@@ -67,30 +68,120 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
 
             folder_data['match_results'].append(file_data)
 
+        if match_scores != []: 
+            folder_data['_match_score_median'] = median(match_scores)
+
         if matches_exist or always_generate: 
             all_data[SOURCE].append(folder_data)
     
     handle_results(all_data, outputfile, append_existing)
             
-def get_matches(esid):
-    print 'retrieving matches for file "%s":' % (esid)
+# def get_matches(esid):
+#     print 'retrieving matches for file "%s":' % (esid)
 
-    q = """SELECT DISTINCT m.matcher_name, m.match_score, m.match_doc_id, es.absolute_path, m.comparison_result 
-                FROM matched m, es_document es 
-            WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.media_doc_id = '%s'
-            ORDER BY m.matcher_name, es.absolute_path""" % (constants.ES_INDEX_NAME, esid)
+#     q = """SELECT DISTINCT m.matcher_name, m.match_score, m.match_doc_id, es.absolute_path, m.comparison_result 
+#                 FROM matched m, es_document es 
+#             WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.media_doc_id = '%s'
+#             ORDER BY m.matcher_name, es.absolute_path""" % (constants.ES_INDEX_NAME, esid)
     
-    return mySQL4es.run_query(q)
+#     return mySQL4es.run_query(q)
 
-def get_media_files(path):
-    print 'retrieving matched files for path "%s":' % (path)
+# def get_media_files(path):
+#     print 'retrieving matched files for path "%s":' % (path)
 
-    q = """SELECT es.id, es.absolute_path FROM es_document es 
-            WHERE index_name = '%s' 
-                and es.absolute_path LIKE "%s%s" 
-                and es.id IN (SELECT media_doc_id FROM matched) ORDER BY es.absolute_path""" % (constants.ES_INDEX_NAME,path, '%')
+#     q = """SELECT es.id, es.absolute_path FROM es_document es 
+#             WHERE index_name = '%s' 
+#                 and es.absolute_path LIKE "%s%s" 
+#                 and es.id IN (SELECT media_doc_id FROM matched) ORDER BY es.absolute_path""" % (constants.ES_INDEX_NAME,path, '%')
                 
-    return mySQL4es.run_query(q)
+#     return mySQL4es.run_query(q)
+
+def get_matches(esid, reverse=False, union=False):
+    
+    query = {'match': """SELECT DISTINCT m.matcher_name, m.match_score, m.match_doc_id, es.absolute_path, m.comparison_result 
+                           FROM matched m, es_document es 
+                         WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.media_doc_id = '%s'
+                         ORDER BY m.matcher_name, es.absolute_path""" % (constants.ES_INDEX_NAME, esid) }
+
+    
+    query['reverse'] = """SELECT DISTINCT m.matcher_name, m.match_score, m.match_doc_id, es.absolute_path, m.comparison_result 
+                                  FROM matched m, es_document es 
+                                WHERE es.index_name = '%s' and es.id = m.media_doc_id and m.match_doc_id = '%s'
+                                ORDER BY m.matcher_name, es.absolute_path""" % (constants.ES_INDEX_NAME, esid)
+
+    query['union'] = query['match'] + ' union ' + query['reverse']
+
+    if reverse: return mySQL4es.run_query(query['reverse'])
+    elif union: return mySQL4es.run_query(query['union'])
+    else: return mySQL4es.run_query(query['match'])
+
+def get_media_files(path, reverse=False, union=False):
+
+    query = {'match':  """SELECT es.id, es.absolute_path FROM es_document es 
+                        WHERE index_name = '%s' 
+                            and es.absolute_path LIKE "%s%s" 
+                            and es.id IN (SELECT media_doc_id FROM matched) ORDER BY es.absolute_path""" % (constants.ES_INDEX_NAME, path, '%') }
+                
+    query['reverse'] = """SELECT es.id, es.absolute_path FROM es_document es 
+                WHERE index_name = '%s' 
+                    and es.absolute_path LIKE "%s%s" 
+                    and es.id IN (SELECT match_doc_id FROM matched) ORDER BY es.absolute_path""" % (constants.ES_INDEX_NAME, path, '%')
+        
+    query['union'] = query['match'] + ' union ' + query['reverse']
+
+    if reverse: return mySQL4es.run_query(query['reverse'])
+    elif union: return mySQL4es.run_query(query['union'])
+    else: return mySQL4es.run_query(query['match'])
+
+def get_matches_for(pattern):
+    
+    folders = []
+    q = """select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match' 
+             from matched m, es_document es1, es_document es2 
+            where m.same_ext_flag = 1 
+              and m.matcher_name = 'match_artist_album_song' 
+              and es1.id = m.media_doc_id 
+              and es2.id = m.match_doc_id 
+              and es1.absolute_path like '%s%s%s' 
+           UNION
+           select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match' 
+             from matched m, es_document es1, es_document es2 
+            where m.same_ext_flag = 1 
+              and m.matcher_name = 'match_artist_album_song' 
+              and es2.id = m.media_doc_id 
+              and es1.id = m.match_doc_id 
+              and es2.absolute_path like '%s%s%s' 
+            order by original""" % ('%', pattern, '%', '%', pattern, '%')
+
+    rows = mySQL4es.run_query(q)
+    for row in rows:
+        if row[1] in ['>', '=']:
+            filename = row[0]
+            path = os.path.abspath(os.path.join(filename, os.pardir))
+            if path in folders:
+                continue
+
+            folders.append(path)
+            output = '.'.join(['results', path.split('/')[-1], 'json'])
+            try:
+                generate_match_doc(path, False, False, output) 
+            except Exception, err:
+                print err.message
+
+def median(values):
+    print values
+    try:
+        values = sorted(values)
+
+        #IF EVEN
+        if len(values) % 2 == 0:
+            return (values[(len(values)/2)-1] + values[len(values)/2])/2.0
+
+        #IF ODD
+        elif len(values) % 2 != 0:
+            return values[int((len(values)/2))]
+    except Exception, err:
+        print err.message
 
 def handle_results(results, outputfile, append_existing):
     if outputfile is None: 
