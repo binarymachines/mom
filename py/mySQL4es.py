@@ -344,13 +344,14 @@ def retrieve_esid(index, document_type, absolute_path):
     if len(rows) > 1:
         text = "Multiple Ids for '" + absolute_path + "' returned"
         raise AssetException(text, rows)
-        
+
     if len(rows) == 1:
         return rows[0][3]
 
 def retrieve_esids(index, document_type, file_path):
 
-    rows = None
+    rows = []
+
     try:
         # query = 'SELECT absolute_path, id FROM es_document WHERE absolute_path LIKE '
         # query += '"' + file_path + '%"'
