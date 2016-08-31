@@ -353,8 +353,6 @@ def retrieve_esids(index, document_type, file_path):
     rows = []
 
     try:
-        # query = 'SELECT absolute_path, id FROM es_document WHERE absolute_path LIKE '
-        # query += '"' + file_path + '%"'
         print 'retrieving %s esids for %s' % (document_type, file_path)
 
         query = 'SELECT absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s' % (quote_if_string(document_type), quote_if_string(''.join([file_path, '%'])))
