@@ -7,18 +7,18 @@ from data import MediaFile, MediaFolder
 
 pp = pprint.PrettyPrinter(indent=4)
 
-PATTERN = 'match_pattern'
+PATTERN = '_match_pattern'
 SOURCE = 'folders'
 FOLDER = '_folder'
 FOLDER_ESID = '_folder_esid'
 FILE = '_filename'
 FILE_ESID = '_file_esid'
 
-def calculate_boost(path, boost_values):
+def calculate_boost(path, weights):
     result = 0
-    for value in boost_values:
+    for value in weights:
         if value.lower() in path.lower():
-            result += boost_values[value]
+            result += weights[value]
 
     return result 
 
@@ -29,7 +29,7 @@ def calculate_suggestion(media_data, match_data, comparison_result):
 def generate_match_doc(source_path, always_generate= False, outputfile=None, append_existing=False):
     es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
 
-    boost_values = get_boost_values();
+    weights = get_weights();
 
     all_data = { PATTERN: source_path}
     all_data[SOURCE] = []
@@ -38,13 +38,13 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
     for folder in folders:
         match_scores = []
         matches_exist = False
-        folder_data = { FOLDER: folder[1], FOLDER_ESID: folder[0], 'matches': [], '_media': [], 'match_results': {'matched_items': []} }
+        folder_data = { FOLDER: folder[1], FOLDER_ESID: folder[0], '_media': [], 'match_results': {'matched_items': []} }
         
         mediafiles = get_media_files(folder_data[FOLDER])
         for media in mediafiles:
             media_data = { FILE_ESID: media[0], FILE: media[1].split('/')[-1], 'suggestion': 'KEEP' }
             file_data = { FOLDER: os.path.abspath(os.path.join(folder_data[FOLDER], os.pardir)), 
-                FILE_ESID: media_data[FILE_ESID], FILE: media_data[FILE], 'matches': [], 'boost': calculate_boost(media[1], boost_values) }
+                FILE_ESID: media_data[FILE_ESID], FILE: media_data[FILE], 'matches': [], 'weight': calculate_boost(media[1], weights) }
 
             folder_data['_media'].append(get_media_meta_data(es, media_data[FILE_ESID], media_data))
             matcher_data, match_folder_data, parent_data = {}, {}, {}
@@ -56,10 +56,10 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
                 match_parent_dir = os.path.abspath(os.path.join(match[3], os.pardir))
                 # match_data = { 'matcher': match[0], 'match_score': match[1], '_match_esid': match[2], '_match_filename': match[3].split('/')[-1], 
                 #     'suggestion': 'DELETE' if match[4] in ['=', '>'] else 'PROMOTE',
-                #     'boost': calculate_boost(match[3], boost_values) }
+                #     'weight': calculate_boost(match[3], weights) }
                 # media_data['suggestion'] = suggestion = 'DELETE' if match[4] in ['<'] else 'KEEP'
                 match_data = { 'matcher': match[0], 'match_score': match[1], '_match_esid': match[2], '_match_filename': match[3].split('/')[-1], 
-                    'boost': calculate_boost(match[3], boost_values) }
+                    'weight': calculate_boost(match[3], weights) }
                 
                 calculate_suggestion(media_data, match_data, match[4])
 
@@ -68,9 +68,9 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
                 get_media_meta_data(es, match_data['_match_esid'], match_data)
                 if not match_parent_dir in parent_data:
                     parent_data[match_parent_dir] = {'_match_folder': match_parent_dir }
-                    parent_data[match_parent_dir]['matching_files'] = []
+                    parent_data[match_parent_dir]['matched_files'] = []
 
-                parent_data[match_parent_dir]['matching_files'].append(match_data)
+                parent_data[match_parent_dir]['matched_files'].append(match_data)
 
             for folder in parent_data:
                 file_data['matches'].append(parent_data[folder])
@@ -86,14 +86,6 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
     
     handle_results(all_data, outputfile, append_existing)
        
-def get_boost_values():
-    boost_values = {}
-    rows = mySQL4es.retrieve_values('match_weight', ['target', 'pattern', 'value'], [constants.MEDIA_FILE])
-    for row in rows:
-        boost_values[row[1]] = float(row[2])
-
-    return boost_values
-
 def get_folders(path):
     print 'retrieving folders matching pattern: "%s"' % (path)
 
@@ -105,6 +97,8 @@ def get_folders(path):
 
 def get_matches(esid, reverse=False, union=False):
     
+    print 'retrieving matches for: "%s"' % (esid)
+
     query = {'match': """SELECT DISTINCT m.matcher_name, m.match_score, m.match_doc_id, es.absolute_path, m.comparison_result 
                            FROM matched m, es_document es 
                          WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.media_doc_id = '%s'
@@ -124,6 +118,8 @@ def get_matches(esid, reverse=False, union=False):
 
 def get_media_files(path, reverse=False, union=False):
 
+    print 'retrieving mediafiles for path: "%s"' % (path)
+
     query = {'match':  """SELECT es.id, es.absolute_path FROM es_document es 
                         WHERE index_name = '%s' 
                             and es.absolute_path LIKE "%s%s" 
@@ -141,6 +137,7 @@ def get_media_files(path, reverse=False, union=False):
     else: return mySQL4es.run_query(query['match'])
 
 def get_media_meta_data(es, esid, media_data):
+
     mediaFile = MediaFile()
     mediaFile.esid = esid
     mediaFile.document_type = constants.MEDIA_FILE
@@ -150,11 +147,11 @@ def get_media_meta_data(es, esid, media_data):
         media_data['file_size'] = doc['_source']['file_size']
 
         tag_data = {}
-        for field in ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2']:
+        for field in ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
         
-        meta_data = { 'encoding': 'ID3v2' }
+        meta_data = { 'encoding': 'ID3v2' if len(tag_data) > 0 else doc['_source']['file_ext'], 'format': doc['_source']['file_ext'] }
         meta_data['tags'] = tag_data
 
         media_data['meta'] = [] 
@@ -199,6 +196,14 @@ def get_matches_for(pattern):
             except Exception, err:
                 print err.message
 
+def get_weights():
+    weights = {}
+    rows = mySQL4es.retrieve_values('match_weight', ['target', 'pattern', 'value'], [constants.MEDIA_FILE])
+    for row in rows:
+        weights[row[1]] = float(row[2])
+
+    return weights
+
 def handle_results(results, outputfile, append_existing):
     if outputfile is None: 
         pp.pprint(folder_data)
@@ -235,7 +240,7 @@ def median(values):
 
 def main():
     config.configure()
-    folder = 'tyranny for you'
+    folder = 'manipulate'
     outputfile = '.'.join([folder.split('/')[-1].replace(' ', '_'), 'json'])
     generate_match_doc(folder, False, outputfile, False) 
 
