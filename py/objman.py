@@ -106,7 +106,7 @@ class MediaFileManager(MediaLibraryWalker):
             except IOError, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
-                self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
+                self.folderman.record_error(self.folderman.folder, "IOError=" + err.message)
                 return
 
             except UnicodeEncodeError, err:
@@ -236,22 +236,32 @@ class MediaFileManager(MediaLibraryWalker):
                     media.esid = record[1]
                     media.document_type = constants.MEDIA_FILE
 
-                    if self.all_matchers_have_run(media, match_ops):
-                        if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
-                        continue
+                    try:
+                        if self.all_matchers_have_run(media, match_ops):
+                            if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
+                            continue
 
-                    if esutil.doc_exists(self.es, media, True):
-                        for matcher in self.matchers:
-                            if media.absolute_path not in match_ops[matcher.name]:
-                                if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
+                        if esutil.doc_exists(self.es, media, True):
+                            for matcher in self.matchers:
+                                if media.absolute_path not in match_ops[matcher.name]:
+                                    if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
 
-                                operations.record_op_begin(self.pid, media, matcher.name, 'match')
-                                matcher.match(media)
-                                operations.record_op_complete(self.pid, media, matcher.name, 'match')
-                                # self.record_match_ops_complete(matcher, media,  media.absolute_path)
+                                    operations.record_op_begin(self.pid, media, matcher.name, 'match')
+                                    matcher.match(media)
+                                    operations.record_op_complete(self.pid, media, matcher.name, 'match')
+                                    # self.record_match_ops_complete(matcher, media,  media.absolute_path)
 
-                            elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
-
+                                elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+                    except AssetException, err:
+                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+                        print ': '.join([err.__class__.__name__, err.message])
+                        # if self.debug: traceback.print_exc(file=sys.stdout)
+                        self.handle_asset_exception(err, media.absolute_path)
+                    
+                    except UnicodeDecodeError, u:
+                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+                        print ': '.join([u.__class__.__name__, u.message])
+                    
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
@@ -270,7 +280,7 @@ class MediaFileManager(MediaLibraryWalker):
         except AssetException, err:
             print ': '.join([err.__class__.__name__, err.message])
             # if self.debug: traceback.print_exc(file=sys.stdout)
-            self.handle_asset_exception(media, path)
+            self.handle_asset_exception(err, path)
 
     def run(self, criteria):
         self.start_time =  operations.record_exec_begin(self.pid)

@@ -1,6 +1,14 @@
 #! /usr/bin/python
 
+'''
+   Usage: finder.py <pattern>
+
+
+
+'''
+
 import os, sys, pprint, json
+from docopt import docopt
 
 import config, constants, mySQL4es, esutil
 from data import MediaFile, MediaFolder
@@ -23,8 +31,8 @@ def calculate_boost(path, weights):
     return result 
 
 def calculate_suggestion(media_data, match_data, comparison_result):
-    media_data['suggestion'] = suggestion = 'DELETE' if comparison_result in ['<'] else 'KEEP'
-    match_data['suggestion'] = 'DELETE' if comparison_result in ['=', '>'] else 'PROMOTE',
+    media_data['_suggestion'] = 'DELETE' if comparison_result in ['<'] else 'KEEP'
+    match_data['_suggestion'] = 'DELETE' if comparison_result in ['=', '>'] else 'PROMOTE'
                   
 def generate_match_doc(source_path, always_generate= False, outputfile=None, append_existing=False):
     es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
@@ -38,48 +46,44 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
     for folder in folders:
         match_scores = []
         matches_exist = False
-        folder_data = { FOLDER: folder[1], FOLDER_ESID: folder[0], '_media': [], 'match_results': {'matched_items': []} }
+        folder_data = { FOLDER: folder[1], FOLDER_ESID: folder[0], 'results': {'files': []} }
         
+        # print 'retrieving matches for: "%s"' % (folder_data[FOLDER])
         mediafiles = get_media_files(folder_data[FOLDER])
         for media in mediafiles:
-            media_data = { FILE_ESID: media[0], FILE: media[1].split('/')[-1], 'suggestion': 'KEEP' }
-            file_data = { FOLDER: os.path.abspath(os.path.join(folder_data[FOLDER], os.pardir)), 
-                FILE_ESID: media_data[FILE_ESID], FILE: media_data[FILE], 'matches': [], 'weight': calculate_boost(media[1], weights) }
+            match_folder_data, parent_data = {}, {}
+            file_data = { FILE_ESID: media[0], FILE: media[1].split('/')[-1], FOLDER: folder_data[FOLDER], 
+                            'matches': [], '_weight': calculate_boost(media[1], weights) }
 
-            folder_data['_media'].append(get_media_meta_data(es, media_data[FILE_ESID], media_data))
-            matcher_data, match_folder_data, parent_data = {}, {}, {}
+            get_media_meta_data(es, file_data[FILE_ESID], file_data)
 
-            matches = get_matches(media_data[FILE_ESID])
+            matches = get_matches(file_data[FILE_ESID])
             for match in matches:
 
                 matches_exist = True 
-                match_parent_dir = os.path.abspath(os.path.join(match[3], os.pardir))
-                # match_data = { 'matcher': match[0], 'match_score': match[1], '_match_esid': match[2], '_match_filename': match[3].split('/')[-1], 
-                #     'suggestion': 'DELETE' if match[4] in ['=', '>'] else 'PROMOTE',
-                #     'weight': calculate_boost(match[3], weights) }
-                # media_data['suggestion'] = suggestion = 'DELETE' if match[4] in ['<'] else 'KEEP'
+                match_parent = os.path.abspath(os.path.join(match[3], os.pardir))
                 match_data = { 'matcher': match[0], 'match_score': match[1], '_match_esid': match[2], '_match_filename': match[3].split('/')[-1], 
-                    'weight': calculate_boost(match[3], weights) }
+                    '_weight': calculate_boost(match[3], weights) }
                 
-                calculate_suggestion(media_data, match_data, match[4])
+                calculate_suggestion(file_data, match_data, match[4])
 
                 match_scores.append(match_data['match_score'])
                 
                 get_media_meta_data(es, match_data['_match_esid'], match_data)
-                if not match_parent_dir in parent_data:
-                    parent_data[match_parent_dir] = {'_match_folder': match_parent_dir }
-                    parent_data[match_parent_dir]['matched_files'] = []
+                if not match_parent in parent_data:
+                    parent_data[match_parent] = {'_match_folder': match_parent }
+                    parent_data[match_parent]['matched_files'] = []
 
-                parent_data[match_parent_dir]['matched_files'].append(match_data)
+                parent_data[match_parent]['matched_files'].append(match_data)
 
             for folder in parent_data:
                 file_data['matches'].append(parent_data[folder])
 
-            folder_data['match_results']['matched_items'].append(file_data)
+            folder_data['results']['files'].append(file_data)
 
         if match_scores != []: 
-            folder_data['match_results']['_median_match_score'] = median(match_scores)
-            folder_data['match_results']['_average_match_score'] = average(match_scores)
+            folder_data['results']['_median_match_score'] = median(match_scores)
+            folder_data['results']['_average_match_score'] = average(match_scores)
 
         if matches_exist or always_generate: 
             all_data[SOURCE].append(folder_data)
@@ -97,8 +101,6 @@ def get_folders(path):
 
 def get_matches(esid, reverse=False, union=False):
     
-    print 'retrieving matches for: "%s"' % (esid)
-
     query = {'match': """SELECT DISTINCT m.matcher_name, m.match_score, m.match_doc_id, es.absolute_path, m.comparison_result 
                            FROM matched m, es_document es 
                          WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.media_doc_id = '%s'
@@ -154,8 +156,8 @@ def get_media_meta_data(es, esid, media_data):
         meta_data = { 'encoding': 'ID3v2' if len(tag_data) > 0 else doc['_source']['file_ext'], 'format': doc['_source']['file_ext'] }
         meta_data['tags'] = tag_data
 
-        media_data['meta'] = [] 
-        media_data['meta'].append(meta_data)
+        media_data['_meta'] = [] 
+        media_data['_meta'].append(meta_data)
     except Exception, err:
         media_data['error'] = err.message
 
@@ -238,12 +240,13 @@ def median(values):
         print err.message
         return 0
 
-def main():
+def main(args):
     config.configure()
-    folder = 'manipulate'
-    outputfile = '.'.join([folder.split('/')[-1].replace(' ', '_'), 'json'])
-    generate_match_doc(folder, False, outputfile, False) 
+    pattern = args['<pattern>']
+    outputfile = '.'.join([pattern.split('/')[-1].replace(' ', '_'), 'json'])
+    generate_match_doc(pattern, False, outputfile, False) 
 
 # main
 if __name__ == '__main__':
-    main()
+    args = docopt(__doc__)
+    main(args)

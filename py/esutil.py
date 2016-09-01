@@ -52,17 +52,17 @@ def find_docs_missing_field(es, index_name, document_type, field):
     res = es.search(index=index_name, doc_type=document_type, body=query,size=1000)
     return res
 
-#TODO: DEBUG DEBUG DEBUG
+#TODO: constants.ESUTIL_DEBUG constants.ESUTIL_DEBUG constants.ESUTIL_DEBUG
 def doc_exists(es, asset, attach_if_found):
     # look in local MySQL
     esid_in_mysql = False
     esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
     if esid is not None:
         esid_in_mysql = True
-        if DEBUG == True: print "found esid %s for '%s' in mySQL." % (esid, asset.short_name())
+        if constants. ESUTIL_DEBUG: print "found esid %s for '%s' in mySQL." % (esid, asset.short_name())
 
         if attach_if_found and asset.esid is None:
-            if DEBUG == True: print "attaching esid %s to ''%s'." % (esid, asset.short_name())
+            if constants. ESUTIL_DEBUG: print "attaching esid %s to ''%s'." % (esid, asset.short_name())
             asset.esid = esid
 
         if attach_if_found == False: return True
@@ -74,19 +74,19 @@ def doc_exists(es, asset, attach_if_found):
         # if self.doc_refers_to(doc, media):
         if doc['_source']['absolute_path'] == asset.absolute_path or asset.esid == doc['_id']:
             esid = doc['_id']
-            if DEBUG == True: print "found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name())
+            if constants. ESUTIL_DEBUG: print "found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name())
 
             if attach_if_found:
                 asset.doc = doc
                 if asset.esid is None:
-                    if DEBUG == True: print "attaching esid %s to '%s'." % (esid, asset.short_name())
+                    if constants. ESUTIL_DEBUG: print "attaching esid %s to '%s'." % (esid, asset.short_name())
                     asset.esid = esid
 
             if esid_in_mysql == False:
                 # found, update local MySQL
-                if DEBUG == True: print 'inserting esid into MySQL'
+                if constants. ESUTIL_DEBUG: print 'inserting esid into MySQL'
                 mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
-                if DEBUG == True: print 'esid inserted'
+                if constants. ESUTIL_DEBUG: print 'esid inserted'
 
             return True
 
@@ -103,7 +103,7 @@ def get_doc(asset, es=None):
         es = connect(constants.ES_HOST, constants.ES_PORT)
 
     if asset.absolute_path is not None:
-        if DEBUG == True: print 'searching for document for: %s' % (asset.absolute_path)
+        if constants. ESUTIL_DEBUG: print 'searching for document for: %s' % (asset.absolute_path)
         res = es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body=
         {
             "query": { "match" : { "absolute_path": asset.absolute_path }}
