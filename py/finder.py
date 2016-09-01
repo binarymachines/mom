@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 '''
-   Usage: finder.py <pattern>
+   Usage: finder.py (--path <pattern>) [--exclude-ignore]
 
 
 
@@ -19,10 +19,28 @@ PATTERN = '_match_pattern'
 SOURCE = 'folders'
 FOLDER = '_folder'
 FOLDER_ESID = '_folder_esid'
-FILE = '_filename'
+FILE = '_file_name'
 FILE_ESID = '_file_esid'
+FILE_LIST = 'files'
+FILES_IGNORED = 'ignored_files'
+FILES_MATCHED = 'files_matched'
+SUGGEST = '_suggestion'
+MATCHES = 'matches'
+META = '_meta'
+AVERAGE_SCORE = '_average_match_score'
+MEDIAN_SCORE = '_median_match_score'
+RESULTS = 'results'
+MATCH_SCORE = 'match_score'
+MATCH_ESID = '_match_esid'
+MATCH_FILENAME = '_match_filename'
+MATCH_FOLDER = '_match_folder'
+TAGS = 'tags'
+WEIGHT = '_weight'
+DISCOUNT = '_discount'
 
-def calculate_boost(path, weights):
+EXCLUDE_IGNORE = False;
+
+def calculate_discount(path):
     result = 0
     for value in weights:
         if value.lower() in path.lower():
@@ -30,14 +48,59 @@ def calculate_boost(path, weights):
 
     return result 
 
-def calculate_suggestion(media_data, match_data, comparison_result):
-    media_data['_suggestion'] = 'DELETE' if comparison_result in ['<'] else 'KEEP'
-    match_data['_suggestion'] = 'DELETE' if comparison_result in ['=', '>'] else 'PROMOTE'
+def calculate_SUGGEST(media_data, match_data, comparison_result):
+    media_data[SUGGEST] = 'DELETE' if comparison_result in ['<'] else 'KEEP'
+    match_data[SUGGEST] = 'DELETE' if comparison_result in ['=', '>'] else 'PROMOTE'
                   
-def generate_match_doc(source_path, always_generate= False, outputfile=None, append_existing=False):
+def calculate_discount(path, discounts):
+    result = 0
+    media = MediaFile()
+    media.absolute_path = path
+
+    for value in discounts:
+        try:
+            func = getattr(media, value)
+            if func():
+                result += discounts[value]
+        except Exception, err:
+            print err.message
+
+    return result 
+
+def calculate_weight(path, weights):
+    result = 0
+    for value in weights:
+        if value.lower() in path.lower():
+            result += weights[value]
+
+    return result 
+
+def get_discounts():
+    discounts = {}
+    rows = mySQL4es.retrieve_values('match_discount', ['target', 'method', 'value'], [constants.MEDIA_FILE])
+    for row in rows:
+        discounts[row[1]] = float(row[2])
+
+    return discounts
+
+def get_weights():
+    weights = {}
+    rows = mySQL4es.retrieve_values('match_weight', ['target', 'pattern', 'value'], [constants.MEDIA_FILE])
+    for row in rows:
+        weights[row[1]] = float(row[2])
+
+    return weights
+
+def generate_match_doc(exclude_ignore, source_path, always_generate= False, outputfile=None, append_existing=False):
     es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
+    TODO: excise EXCLUDE_IGNORE
+    if EXCLUDE_IGNORE:
+        print "EXCLUDE IGNORE"
+    else: 
+        print "INCLUDE IGNORE"
 
     weights = get_weights();
+    discounts = get_discounts();
 
     all_data = { PATTERN: source_path}
     all_data[SOURCE] = []
@@ -46,14 +109,14 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
     for folder in folders:
         match_scores = []
         matches_exist = False
-        folder_data = { FOLDER: folder[1], FOLDER_ESID: folder[0], 'results': {'files': []} }
+        folder_data = { FOLDER: folder[1], FOLDER_ESID: folder[0], RESULTS: {FILE_LIST: []} }
         
         # print 'retrieving matches for: "%s"' % (folder_data[FOLDER])
         mediafiles = get_media_files(folder_data[FOLDER])
         for media in mediafiles:
             match_folder_data, parent_data = {}, {}
             file_data = { FILE_ESID: media[0], FILE: media[1].split('/')[-1], FOLDER: folder_data[FOLDER], 
-                            'matches': [], '_weight': calculate_boost(media[1], weights) }
+                            MATCHES: [], WEIGHT: calculate_weight(media[1], weights), DISCOUNT: calculate_discount(media[1], discounts) }
 
             get_media_meta_data(es, file_data[FILE_ESID], file_data)
 
@@ -62,34 +125,71 @@ def generate_match_doc(source_path, always_generate= False, outputfile=None, app
 
                 matches_exist = True 
                 match_parent = os.path.abspath(os.path.join(match[3], os.pardir))
-                match_data = { 'matcher': match[0], 'match_score': match[1], '_match_esid': match[2], '_match_filename': match[3].split('/')[-1], 
-                    '_weight': calculate_boost(match[3], weights) }
+                match_data = { 'matcher': match[0], MATCH_SCORE: match[1], MATCH_ESID: match[2], MATCH_FILENAME: match[3].split('/')[-1], 
+                    WEIGHT: calculate_weight(match[3], weights), DISCOUNT: calculate_discount(match[3], discounts) }
                 
-                calculate_suggestion(file_data, match_data, match[4])
+                calculate_SUGGEST(file_data, match_data, match[4])
 
-                match_scores.append(match_data['match_score'])
+                match_scores.append(match_data[MATCH_SCORE])
                 
-                get_media_meta_data(es, match_data['_match_esid'], match_data)
+                get_media_meta_data(es, match_data[MATCH_ESID], match_data)
                 if not match_parent in parent_data:
-                    parent_data[match_parent] = {'_match_folder': match_parent }
-                    parent_data[match_parent]['matched_files'] = []
+                    parent_data[match_parent] = {MATCH_FOLDER: match_parent }
+                    parent_data[match_parent][FILES_MATCHED] = []
 
-                parent_data[match_parent]['matched_files'].append(match_data)
+                parent_data[match_parent][FILES_MATCHED].append(match_data)
 
             for folder in parent_data:
-                file_data['matches'].append(parent_data[folder])
+                file_data[MATCHES].append(parent_data[folder])
 
-            folder_data['results']['files'].append(file_data)
+            folder_data[RESULTS][FILE_LIST].append(file_data)
 
         if match_scores != []: 
-            folder_data['results']['_median_match_score'] = median(match_scores)
-            folder_data['results']['_average_match_score'] = average(match_scores)
+            folder_data[RESULTS][MEDIAN_SCORE] = median(match_scores)
+            folder_data[RESULTS][AVERAGE_SCORE] = average(match_scores)
+            
+            post_process_folder_data(folder_data, exclude_ignore)
 
         if matches_exist or always_generate: 
             all_data[SOURCE].append(folder_data)
     
     handle_results(all_data, outputfile, append_existing)
-       
+
+def smash(str):
+    return str.lower().replace(' ', '').replace('_', '').replace(',', '').replace('.', '').replace(':', '')
+
+def post_process_folder_data(data, exclude_ignore):
+    for result in data[RESULTS]:
+        average = data[RESULTS][AVERAGE_SCORE]
+        for files in data[RESULTS][FILE_LIST]:
+            # TODO: file post-process based on mediaFolder properties
+            for folder in files[MATCHES]:
+                for matched_file in folder[FILES_MATCHED]:
+                    file_meta = files[META] 
+                    comp_meta = matched_file[META]
+                    for item in file_meta:
+                        for tag in item[TAGS]:
+                            for comp_item in comp_meta:
+                                if tag in comp_item[TAGS]:
+                                    if smash(item[TAGS][tag]) == smash(comp_item[TAGS][tag]):
+                                        matched_file[WEIGHT] += 1
+                                    else: 
+                                        matched_file[WEIGHT] -= 1
+                    
+                    if matched_file[MATCH_SCORE] + matched_file[WEIGHT] < average:
+                        matched_file[SUGGEST] = 'IGNORE'
+                        folder[FILES_MATCHED].remove(matched_file)
+                        if exclude_ignore == False:
+                            if not FILES_IGNORED in folder:
+                                folder[FILES_IGNORED] = []
+                            folder[FILES_IGNORED].append(matched_file)
+                            
+                if len(folder[FILES_MATCHED]) == 0:
+                    files[MATCHES].remove(folder)
+
+            # if len(files[MATCHES]) == 0:
+            #     data[RESULTS][FILE_LIST].remove(files)
+
 def get_folders(path):
     print 'retrieving folders matching pattern: "%s"' % (path)
 
@@ -139,6 +239,8 @@ def get_media_files(path, reverse=False, union=False):
     else: return mySQL4es.run_query(query['match'])
 
 def get_media_meta_data(es, esid, media_data):
+    if META not in media_data:
+        media_data[META] = [] 
 
     mediaFile = MediaFile()
     mediaFile.esid = esid
@@ -154,10 +256,9 @@ def get_media_meta_data(es, esid, media_data):
                 tag_data[field] = doc['_source'][field]
         
         meta_data = { 'encoding': 'ID3v2' if len(tag_data) > 0 else doc['_source']['file_ext'], 'format': doc['_source']['file_ext'] }
-        meta_data['tags'] = tag_data
+        meta_data[TAGS] = tag_data
 
-        media_data['_meta'] = [] 
-        media_data['_meta'].append(meta_data)
+        media_data[META].append(meta_data)
     except Exception, err:
         media_data['error'] = err.message
 
@@ -192,30 +293,23 @@ def get_matches_for(pattern):
                 continue
 
             folders.append(path)
-            output = '.'.join(['results', path.split('/')[-1], 'json'])
+            output = '.'.join([RESULTS, path.split('/')[-1], 'json'])
             try:
                 generate_match_doc(path, False, False, output) 
             except Exception, err:
                 print err.message
 
-def get_weights():
-    weights = {}
-    rows = mySQL4es.retrieve_values('match_weight', ['target', 'pattern', 'value'], [constants.MEDIA_FILE])
-    for row in rows:
-        weights[row[1]] = float(row[2])
-
-    return weights
 
 def handle_results(results, outputfile, append_existing):
     if outputfile is None: 
         pp.pprint(folder_data)
     else:
-        print 'Writing output...'
+        print 'writing output...'
         write_method = 'at' if append_existing else 'wt'
         with open(outputfile, write_method) as out:
             pprint.pprint(results, stream=out)
             out.close()
-        print 'Done.'
+        print 'done.'
 
 def average(values):
     total = 0
@@ -241,12 +335,19 @@ def median(values):
         return 0
 
 def main(args):
-    config.configure()
     pattern = args['<pattern>']
+    exclude_ignore = args['--exclude-ignore']
+    EXCLUDE_IGNORE = exclude_ignore
+
     outputfile = '.'.join([pattern.split('/')[-1].replace(' ', '_'), 'json'])
-    generate_match_doc(pattern, False, outputfile, False) 
+
+    config.configure()
+
+
+    generate_match_doc(exclude_ignore, pattern, False, outputfile, False) 
 
 # main
+
 if __name__ == '__main__':
     args = docopt(__doc__)
     main(args)
