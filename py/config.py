@@ -22,7 +22,7 @@ def configure(options=None):
             constants.SCANNER_DEBUG = configure_section_map(config, "Debug")['scanner'].lower() == 'true'
             constants.MATCHER_DEBUG = configure_section_map(config, "Debug")['matcher'].lower() == 'true'
             constants.FOLDER_DEBUG = configure_section_map(config, "Debug")['folder'].lower() == 'true'
-            constants.SQL_DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true'
+            constants.SQL_DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true' or 'debug_mysql' in options
             constants.ESUTIL_DEBUG = configure_section_map(config, "Debug")['esutil'].lower() == 'true'
             constants.CHECK_FOR_BUGS = configure_section_map(config, "Debug")['checkforbugs'].lower() == 'true'
 
@@ -88,6 +88,23 @@ def configure_section_map(config, section):
             print("exception on %s!" % option)
             dict1[option] = None
     return dict1
+
+def make_options(args):
+
+    options = []
+
+
+    if '--scan' in args and args['--scan']: options.append('scan')
+    if '--match' in args and args['--match']: options.append('match')
+    if '--noscan' in args and args['--noscan']: options.append('no_scan')
+    if '--nomatch' in args and args['--nomatch']: options.append('no_match')
+    if '--debug-mysql' in args and args['--debug-mysql']: options.append('debug_mysql')
+    # if args['--debug-filter']: options.append('no_match')
+        
+    return options
+
+
+# TODO: move this stuff to somplace more appropriate
 
 def get_folder_constants(foldertype):
     # if debug: 

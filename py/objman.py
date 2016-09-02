@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 '''
-   Usage: finder.py [(--path <path>...) ][(--scan | --noscan)][(--match | --nomatch)]
+   Usage: objman.py [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql]
 
    --path, -p                   The path to scan
 
@@ -234,7 +234,7 @@ class MediaFileManager(MediaLibraryWalker):
                 match_ops = self.retrieve_completed_match_ops(location)
                 # self.cache_ops(location, 'scan', 'mp3 scanner')
                 # for path in self.ops_cache:
-                self.check_for_stop_request()
+                # self.check_for_stop_request()
                 self.cache_esids(location)
 
                 for record in self.esid_cache:
@@ -392,15 +392,16 @@ def test_matchers():
 
 def main(args):
 
+    config.configure(config.make_options(args))
     path = None if not args['--path'] else args['<path>']
-
-    options = []
-    if args['--scan']: options.append('scan')
-    if args['--match']: options.append('match')
-    if args['--noscan']: options.append('no_scan')
-    if args['--nomatch']: options.append('no_match')
-        
-    config.configure(options)
+    pattern = None if not args['--pattern'] else args['<pattern>']
+   
+    if args['--pattern']:
+        path = []
+        for p in pattern:
+            rows = mySQL4es.retrieve_like_values('es_document', ['doc_type', 'absolute_path'], [constants.MEDIA_FOLDER, p])
+            for row in rows: 
+                path.append(row[1])
 
     execute(path)
 
