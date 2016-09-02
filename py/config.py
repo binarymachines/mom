@@ -7,6 +7,8 @@ import constants, mySQL4es, esutil
 
 def configure(options=None):
     
+    if options == None: options = {}
+    
     try:
         CONFIG = 'config.ini'
         
