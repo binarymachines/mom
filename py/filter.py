@@ -1,10 +1,11 @@
 #! /usr/bin/python
 
 '''
-   Usage: finder.py (--path <pattern>) [--exclude-ignore] [--subl]
+   Usage: filter.py (--path <pattern>) [--exclude-ignore] [--subl] [--debug] [--debug-mysql]
 
    --path, -p               The source path for match results
    --subl, -sublime         Show results in Sublime
+   
 '''
 
 import os, sys, traceback, pprint, json, subprocess
@@ -203,6 +204,7 @@ def post_process_record(source_file, matched_file, records):
     match['weight'] += matched_file[WEIGHT]
     match['discount'] += matched_file[DISCOUNT]
     match['total_match_score'] += matched_file[MATCH_SCORE]
+    
     if match['total_match_score'] != 0:
         match['average_match_score'] = match['total_match_score'] / match['match_counter']
 
@@ -276,7 +278,7 @@ def get_matches(esid, reverse=False, union=False):
 
     query['union'] = query['match'] + ' union ' + query['reverse']
 
-    order_clause = + ' ORDER BY matcher_name, absolute_path'
+    order_clause = ' ORDER BY matcher_name, absolute_path'
 
     if reverse: return mySQL4es.run_query(query['reverse'] + order_clause)
     elif union: return mySQL4es.run_query(query['union'] + order_clause)
@@ -407,7 +409,7 @@ def main(args):
     
     outputfile = '.'.join([pattern.split('/')[-1].replace(' ', '_'), 'json'])
 
-    config.configure()
+    config.configure(config.make_options(args))
     generate_match_doc(exclude_ignore, show_in_subl, pattern, False, outputfile, False) 
 
 # main
