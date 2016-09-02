@@ -1,6 +1,14 @@
 #! /usr/bin/python
 
+'''
+   Usage: finder.py [(--path <path>...) ][(--scan | --noscan)][(--match | --nomatch)]
+
+   --path, -p                   The path to scan
+
+'''
+
 import os, json, pprint, sys, random, logging, traceback, thread, datetime
+from docopt import docopt
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from data import MediaFile
@@ -55,7 +63,7 @@ class MediaFileManager(MediaLibraryWalker):
             # self.folderman.set_active(None)
             self.folderman.folder = None
             # NOTE: folders in constants.LOCATIONS_EXTENDED are ALWAYS scanned deeply
-            if root in self.ops_cache and not self.do_deep_scan and not root in constants.LOCATIONS_EXTENDED:
+            if root in self.ops_cache and not self.do_deep_scan: # and not root in constants.LOCATIONS_EXTENDED:
                 if self.debug: print 'scan operation record found for: %s' % (root)
                 return
 
@@ -228,8 +236,7 @@ class MediaFileManager(MediaLibraryWalker):
                 # for path in self.ops_cache:
                 self.check_for_stop_request()
                 self.cache_esids(location)
-                
-                
+
                 for record in self.esid_cache:
                     media = MediaFile()
                     media.absolute_path = record[0]
@@ -348,19 +355,21 @@ class MediaFileManager(MediaLibraryWalker):
                 operations.record_op_complete(pid, media, matcher_name, 'match')
                 print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')
 
-def scan_library():
-
-    config.configure()
+def execute(path=None):
 
     print 'Setting up scan criteria...'
     s = ScanCriteria()
 
     s.extensions = ['mp3'] # util.get_active_media_formats()
-    for location in constants.LOCATIONS: s.locations.append(location)
-    for location in constants.LOCATIONS_EXTENDED: s.locations.append(location)
-        
-    s.locations.append(constants.NOSCAN)
-    # s.locations.append(constants.EXPUNGED)
+    if path == None:
+        for location in constants.LOCATIONS: s.locations.append(location)
+        for location in constants.LOCATIONS_EXTENDED: s.locations.append(location)
+            
+        s.locations.append(constants.NOSCAN)
+        # s.locations.append(constants.EXPUNGED)
+    else:
+        for directory in path:
+            s.locations.append(directory)
 
     print 'Configuring Media Object Manager...'
     mfm = MediaFileManager();
@@ -381,9 +390,21 @@ def test_matchers():
         matcher.match(media)
     else: print "%s has not been scanned into the library" % (filename)
 
-def main():
-    scan_library()
+def main(args):
+
+    path = None if not args['--path'] else args['<path>']
+
+    options = []
+    if args['--scan']: options.append('scan')
+    if args['--match']: options.append('match')
+    if args['--noscan']: options.append('no_scan')
+    if args['--nomatch']: options.append('no_match')
+        
+    config.configure(options)
+
+    execute(path)
 
 # main
 if __name__ == '__main__':
-    main()
+    args = docopt(__doc__)
+    main(args)

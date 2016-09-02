@@ -5,7 +5,8 @@ import sys, os, traceback, ConfigParser
 
 import constants, mySQL4es, esutil
 
-def configure():
+def configure(options=None):
+    
     try:
         CONFIG = 'config.ini'
         
@@ -40,8 +41,12 @@ def configure():
             # if constants.OBJMAN_DEBUG:
             #     print "Connecting to schema %s MySQL on host %s as %s:%s" % (constants.MYSQL_SCHEMA, constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS)
 
-            constants.DO_SCAN = configure_section_map(config, "Action")['scan'].lower() == 'true'
-            constants.DO_MATCH = configure_section_map(config, "Action")['match'].lower() == 'true'
+            if 'no_scan' not in options:
+                constants.DO_SCAN = configure_section_map(config, "Action")['scan'].lower() == 'true' or 'scan' in options
+            
+            if 'no_match' not in options:
+                constants.DO_MATCH = configure_section_map(config, "Action")['match'].lower() == 'true' or 'match' in options
+            
             constants.DEEP_SCAN = configure_section_map(config, "Action")['deep_scan'].lower() == 'true'
 
 
