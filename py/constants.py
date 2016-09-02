@@ -49,3 +49,6 @@ MYSQL_PASS = None
 DO_SCAN = False
 DO_MATCH = False
 DEEP_SCAN = False
+
+NO_SCAN = False
+NO_MATCH = False
