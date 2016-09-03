@@ -107,7 +107,7 @@ class MediaFileManager(MediaLibraryWalker):
                         if media is None or media.ignore(): continue
                         # scan tag info if this file hasn't been assigned an esid
                         if media.esid is None: self.scanner.scan_file(media)
-                        elif self.debug: print 'skipping scan: %s' % (filename)
+                        # elif self.debug: print 'skipping scan: %s' % (filename)
                 # else:
                 #     if self.debug: print 'skipping file: %s' % (filename)
 
@@ -245,7 +245,7 @@ class MediaFileManager(MediaLibraryWalker):
 
                     try:
                         if self.all_matchers_have_run(media, match_ops):
-                            if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
+                            # if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
                             continue
 
                         if esutil.doc_exists(self.es, media, True):
@@ -258,7 +258,7 @@ class MediaFileManager(MediaLibraryWalker):
                                     operations.record_op_complete(self.pid, media, matcher.name, 'match')
                                     # self.record_match_ops_complete(matcher, media,  media.absolute_path)
 
-                                elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+                                # elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
                     except AssetException, err:
                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
                         print ': '.join([err.__class__.__name__, err.message])
