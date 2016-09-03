@@ -2,7 +2,10 @@
 
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
+import redis
 import data, mySQL4es
+
+red = redis.Redis('localhost')
 
 def check_for_reconfig_request(pid, start_time):
     rows = mySQL4es.retrieve_values('exec_record', ['pid', 'start_time', 'reconfig_requested'],
@@ -11,17 +14,21 @@ def check_for_reconfig_request(pid, start_time):
         return True
 
 def check_for_stop_request(pid, start_time):
-    rows = mySQL4es.retrieve_values('exec_record', ['pid', 'start_time', 'stop_requested'],
-        [str(pid)])
-    if rows[0][2] is not None:
+    # rows = mySQL4es.retrieve_values('exec_record', ['pid', 'start_time', 'stop_requested'],
+    #     [str(pid)])
+    # if rows[0][2] is not None:
+    #     return True
+    values = red.hgetall(pid)
+    if values['start_time'] == start_time and values['stop_requested'] == 'True':
         return True
-
 
 def record_exec_begin(pid):
     start_time = datetime.datetime.now().isoformat()
     # print start_time
-    mySQL4es.insert_values('exec_record', ['pid', 'start_time'],
-        [str(pid), start_time])
+    # mySQL4es.insert_values('exec_record', ['pid', 'start_time'],
+    #     [str(pid), start_time])
+    values = { 'start_time': start_time, 'stop_requested':False }
+    red.hmset(str(pid), values)
 
     return start_time
 

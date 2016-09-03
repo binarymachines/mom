@@ -234,7 +234,7 @@ class MediaFileManager(MediaLibraryWalker):
                 match_ops = self.retrieve_completed_match_ops(location)
                 # self.cache_ops(location, 'scan', 'mp3 scanner')
                 # for path in self.ops_cache:
-                # self.check_for_stop_request()
+                self.check_for_stop_request()
                 self.cache_esids(location)
 
                 for record in self.esid_cache:
@@ -336,8 +336,7 @@ class MediaFileManager(MediaLibraryWalker):
         constants.SQL_DEBUG = False
 
         if operations.check_for_stop_request(self.pid, self.start_time):
-            print 'stop requested, terminating.'
-            sys.exit(1)
+            sys.exit('stop requested, terminating.')
 
         constants.SQL_DEBUG = FLAG
 
@@ -376,6 +375,13 @@ def execute(path=None):
     print 'starting Media Object Manager...'
     mfm.run(s)
 
+def write_pid_file():
+    pid = str(os.getpid())
+    f = open('pid', 'wt')
+    f.write(pid)
+    f.flush()
+    f.close()
+
 def test_matchers():
     mfm = MediaFileManager();
     mfm.debug = False
@@ -391,7 +397,7 @@ def test_matchers():
     else: print "%s has not been scanned into the library" % (filename)
 
 def main(args):
-
+    write_pid_file()
     config.configure(config.make_options(args))
     path = None if not args['--path'] else args['<path>']
     pattern = None if not args['--pattern'] else args['<pattern>']
