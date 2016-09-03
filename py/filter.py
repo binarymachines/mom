@@ -317,12 +317,16 @@ def get_media_meta_data(es, esid, media_data):
         media_data['file_size'] = doc['_source']['file_size']
 
         tag_data = {}
-        for field in ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in constants.FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+            if field in doc['_source']:
+                tag_data[field] = doc['_source'][field]
+
+        for field in constants.SUB_FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
         
         meta_data = { 'encoding': 'ID3v2' if len(tag_data) > 0 else doc['_source']['file_ext'], 'format': doc['_source']['file_ext'] }
-        meta_data[TAGS] = tag_data
+        meta_data[TAGS] = tag_data                                              
 
         media_data[META].append(meta_data)
     except Exception, err:
