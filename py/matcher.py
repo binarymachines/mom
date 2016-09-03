@@ -22,8 +22,7 @@ class MediaMatcher(object):
     def match(self, media):
         raise Exception('Not Implemented!')
 
-    # TODO: add index_name
-    # TODO: add matcher to match record. assign weights to various matchers.
+    # TODO: assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
 
         rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, constants.ES_INDEX_NAME])

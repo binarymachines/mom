@@ -13,21 +13,6 @@ from elasticsearch import Elasticsearch
 pp = pprint.PrettyPrinter(indent=2)
 
 def get_genre_folder_names():
-
-    # genre_folders = []
-
-    # locations =  next(os.walk(constants.START_FOLDER))[1]
-    # for location in locations:
-    #     path = os.path.join(constants.START_FOLDER, location)
-    #     folders = next(os.walk(path))[1]
-    #     for folder in folders:
-    #         for name in constants.CURATED:
-    #             if name in path:
-    #                 if not folder in genre_folders:
-    #                     genre_folders.append(folder.lower())
-
-    # return genre_folders
-
     results = []
     rows = mySQL4es.retrieve_values('media_genre_folder', ['name'], [])
     for r in rows: results.append(r[0])
@@ -38,12 +23,6 @@ def get_active_media_formats():
     rows = mySQL4es.retrieve_values('media_format', ['active_flag', 'ext'], ['1'])
     for r in rows: results.append(r[1])
     return results
-
-# def get_location_names():
-#     results = []
-#     rows = mySQL4es.retrieve_values('media_location_folder', ['name'], [])
-#     for r in rows: results.append(r[0])
-#     return results
 
 def get_location_folder_names():
     results = []
