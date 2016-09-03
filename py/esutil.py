@@ -85,8 +85,12 @@ def doc_exists(es, asset, attach_if_found):
             if esid_in_mysql == False:
                 # found, update local MySQL
                 if constants. ESUTIL_DEBUG: print 'inserting esid into MySQL'
-                mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
-                if constants. ESUTIL_DEBUG: print 'esid inserted'
+                try:
+                    mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
+                    if constants. ESUTIL_DEBUG: print 'esid inserted'
+                except Exception, err:
+                    print ': '.join([err.__class__.__name__, err.message])
+                    if constants.SQL_DEBUG: traceback.print_exc(file=sys.stdout)
 
             return True
 
@@ -166,7 +170,6 @@ def purge_problem_esids():
         problem = row[3]
 
         if a.document_type == constants.MEDIA_FOLDER and problem.lower().startswith('mult'):
-            constants.SQL_DEBUG = True
             print '%s, %s' % (a.esid, a.absolute_path)
             docs = mySQL4es.retrieve_values('es_document', ['absolute_path', 'id'], [a.absolute_path])
             for doc in docs:
@@ -183,8 +186,8 @@ def purge_problem_esids():
                     es = connect(constants.ES_HOST, constants.ES_PORT)
                     es.delete(index=constants.ES_INDEX_NAME,doc_type=a.document_type,id=esid)
                 except Exception, err:
-                    print err.message
-
+                    print ': '.join([err.__class__.__name__, err.message])
+                    if constants.SQL_DEBUG: traceback.print_exc(file=sys.stdout)
 
             # parent = os.path.abspath(os.path.join(a.absolute_path, os.pardir))
             # print parent
