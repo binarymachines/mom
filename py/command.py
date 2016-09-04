@@ -18,7 +18,7 @@ def request_stop(pid):
     values = { 'stop_requested':True }
     red.hmset(str(pid), values)
 
-def request_stop(pid):
+def request_reconfig(pid):
     red = connect_to_redis()
 
     values = { 'reconfig_requested':True }
