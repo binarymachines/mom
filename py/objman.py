@@ -262,7 +262,7 @@ class MediaFileManager(MediaLibraryWalker):
 
                     try:
                         if self.all_matchers_have_run(media, match_ops):
-                            # if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
+                            if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
                             continue
 
                         if esutil.doc_exists(self.es, media, True):
