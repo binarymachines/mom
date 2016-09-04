@@ -28,7 +28,7 @@ def record_exec_begin(red, pid):
     red.hmset(str(pid), values)
     return start_time
 
-def remove_reconfig_request(self, redcon, pid, start_time):
+def remove_reconfig_request(redcon, pid):
     values = { 'reconfig_requested': False }
     red.hmset(str(pid), values)
 
