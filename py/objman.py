@@ -334,6 +334,7 @@ class MediaFileManager(MediaLibraryWalker):
     def check_for_reconfig_request(self):
         if operations.check_for_reconfig_request(self.redcon, self.pid, self.start_time):
             config.configure()
+            operations.remove_reconfig_request(self.redcon, self.pid, self.start_time)
 
     def check_for_stop_request(self):
         if operations.check_for_stop_request(self.redcon, self.pid, self.start_time):
