@@ -135,11 +135,15 @@ class ElasticSearchMatcher(MediaMatcher):
             for field in self.comparison_fields:
                     if field in match['_source'] and field in media.doc['_source']:
                         matched_fields += [field]
-            try:
-                thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name, constants.ES_INDEX_NAME, matched_fields, match['_score'],
-                    self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)), ) )
-            except Exception, err:
-                print err.message
+
+            self.record_match(media.esid,  match['_id'], self.name, constants.ES_INDEX_NAME, matched_fields, match['_score'],
+                    self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
+                    
+            # try:
+            #     thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name, constants.ES_INDEX_NAME, matched_fields, match['_score'],
+            #         self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)), ) )
+            # except Exception, err:
+            #     print err.message
                 # traceback.print_exc(file=sys.stdout)
 
             if query_printed == False:
