@@ -1,5 +1,5 @@
 '''
-   Usage: command.py [--stop ]
+   Usage: command.py [--stop ] [--reconfig]
 
 
 
