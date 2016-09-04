@@ -24,7 +24,7 @@ def configure(options=None):
             constants.FOLDER_DEBUG = configure_section_map(config, "Debug")['folder'].lower() == 'true'
             constants.SQL_DEBUG = configure_section_map(config, "Debug")['mysql'].lower() == 'true' or 'debug_mysql' in options
             constants.ESUTIL_DEBUG = configure_section_map(config, "Debug")['esutil'].lower() == 'true'
-            constants.CHECK_FOR_BUGS = configure_section_map(config, "Debug")['checkforbugs'].lower() == 'true'
+            constants.CHECK_FOR_BUGS = configure_section_map(config, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options 
 
             constants.LOG = configure_section_map(config, "Log")['logging'].lower() == 'true'
             constants.ES_LOG_NAME = configure_section_map(config, "Log")['logname']
@@ -32,16 +32,10 @@ def configure(options=None):
             constants.ES_PORT = int(configure_section_map(config, "Elasticsearch")['port'])
             constants.ES_INDEX_NAME = configure_section_map(config, "Elasticsearch")['index']
 
-            # if constants.OBJMAN_DEBUG:
-            #     print "Connecting to index %s Elasticsearch on host %s:%s" % (constants.ES_INDEX_NAME, constants.ES_HOST, constants.ES_PORT)
-
             constants.MYSQL_HOST = configure_section_map(config, "MySQL")['host']
             constants.MYSQL_SCHEMA = configure_section_map(config, "MySQL")['schema']
             constants.MYSQL_USER = configure_section_map(config, "MySQL")['user']
             constants.MYSQL_PASS = configure_section_map(config, "MySQL")['pass']
-
-            # if constants.OBJMAN_DEBUG:
-            #     print "Connecting to schema %s MySQL on host %s as %s:%s" % (constants.MYSQL_SCHEMA, constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS)
 
             if 'no_scan' not in options:
                 constants.DO_SCAN = configure_section_map(config, "Action")['scan'].lower() == 'true' or 'scan' in options
@@ -50,9 +44,6 @@ def configure(options=None):
                 constants.DO_MATCH = configure_section_map(config, "Action")['match'].lower() == 'true' or 'match' in options
             
             constants.DEEP_SCAN = configure_section_map(config, "Action")['deep_scan'].lower() == 'true'
-
-
-            # print "Performing scan:%s, match:%s" % (constants.DO_SCAN, constants.DO_MATCH)
 
             constants.COMP = get_folder_constants('compilation')
             constants.EXTENDED = get_folder_constants('extended')
@@ -99,12 +90,12 @@ def make_options(args):
     if '--noscan' in args and args['--noscan']: options.append('no_scan')
     if '--nomatch' in args and args['--nomatch']: options.append('no_match')
     if '--debug-mysql' in args and args['--debug-mysql']: options.append('debug_mysql')
+    if '--check-for-bugs' in args and args['--debug-mysql']: options.append('check_for_bugs')
     # if args['--debug-filter']: options.append('no_match')
         
     return options
 
-
-# TODO: move this stuff to somplace more appropriate
+# TODO: move this stuff to someplace more appropriate
 
 def get_folder_constants(foldertype):
     # if debug: 

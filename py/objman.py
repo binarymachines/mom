@@ -1,13 +1,15 @@
 #! /usr/bin/python
 
 '''
-   Usage: objman.py [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql]
+   Usage: objman.py [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--checkforbugs]
 
    --path, -p                   The path to scan
 
 '''
 
 import os, json, pprint, sys, random, logging, traceback, thread, datetime
+import redis
+from redis.exceptions import *
 from docopt import docopt
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
@@ -20,12 +22,15 @@ from scanner import ScanCriteria, Scanner
 from walker import MediaLibraryWalker
 import config, operations
 from data import AssetException
+import subprocess
 
 pp = pprint.PrettyPrinter(indent=4)
 
 class MediaFileManager(MediaLibraryWalker):
     def __init__(self):
         super(MediaFileManager, self).__init__()
+
+        self.redcon = self.connect_to_redis()
 
         self.pid = os.getpid()
         self.start_time = None
@@ -47,6 +52,9 @@ class MediaFileManager(MediaLibraryWalker):
         self.folderman = MediaFolderManager(self.es, constants.ES_INDEX_NAME)
 
         self.scanner = Scanner(self.es, self.folderman)
+
+    def connect_to_redis(self):
+        return redis.Redis('localhost')
 
     def after_handle_root(self, root):
         if constants.DO_SCAN:
@@ -139,9 +147,8 @@ class MediaFileManager(MediaLibraryWalker):
         self.esid_cache = mySQL4es.retrieve_esids(constants.ES_INDEX_NAME, self.document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
-        # retrieve_complete_ops(parentpath, operation, operator=None):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
-        self.ops_cache = mySQL4es.retrieve_complete_ops(path, operation, operator)
+        self.ops_cache = operations.retrieve_complete_ops(path, operation, operator)
 
     def get_cached_esid(self, path):
         if self.esid_cache is not None:
@@ -210,7 +217,7 @@ class MediaFileManager(MediaLibraryWalker):
     def retrieve_completed_match_ops(self, path):
         match_ops = {}
         for matcher in self.matchers:
-            ops = mySQL4es.retrieve_complete_ops(path, 'match', matcher.name)
+            ops = operations.retrieve_complete_ops(path, 'match', matcher.name)
             match_ops[matcher.name] = ops
 
         return match_ops
@@ -290,7 +297,7 @@ class MediaFileManager(MediaLibraryWalker):
             self.handle_asset_exception(err, path)
 
     def run(self, criteria):
-        self.start_time =  operations.record_exec_begin(self.pid)
+        self.start_time =  operations.record_exec_begin(self.redcon, self.pid)
         self.active_criteria = criteria
         if constants.DO_SCAN:
             for location in criteria.locations:
@@ -322,23 +329,12 @@ class MediaFileManager(MediaLibraryWalker):
 
 
     def check_for_reconfig_request(self):
-        # FLAG = constants.SQL_DEBUG
-        # constants.SQL_DEBUG = False
-        # if operations.check_for_reconfig_request(self.pid, self.start_time):
-        #     print 'reconfig requested, loading config file.'
-        #     mySQL4es.update_values('exec_record', 'reconfig_requested', False, ['pid', 'start_time'], [self.pid, self.start_time])
-        # configure()
-        # constants.SQL_DEBUG = FLAG
-        pass
+        if operations.check_for_reconfig_request(self.redcon, self.pid, self.start_time):
+            config.configure()
 
     def check_for_stop_request(self):
-        FLAG = constants.SQL_DEBUG
-        constants.SQL_DEBUG = False
-
-        if operations.check_for_stop_request(self.pid, self.start_time):
+        if operations.check_for_stop_request(self.redcon, self.pid, self.start_time):
             sys.exit('stop requested, terminating.')
-
-        constants.SQL_DEBUG = FLAG
 
     def record_matches_as_ops(self):
         pid = os.getpid()
