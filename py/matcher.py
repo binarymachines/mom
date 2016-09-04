@@ -98,11 +98,11 @@ class ElasticSearchMatcher(MediaMatcher):
 
     def match(self, media):
 
-        print 'matching: %s' % (media.absolute_path)
 
         query = self.get_query(media)
         query_printed = False
         if self.debug == True:
+            print 'matching: %s' % (media.absolute_path)
             print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
             pp.pprint(query)
             print '\n'
@@ -113,6 +113,7 @@ class ElasticSearchMatcher(MediaMatcher):
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id']:
                 continue
+         
             orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
             match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
 
@@ -126,10 +127,10 @@ class ElasticSearchMatcher(MediaMatcher):
             matches = True
 
             try:
-                thread.start_new_thread( mySQL4es.ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
+                thread.start_new_thread( mySQL4es.  ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
             except Exception, err:
                 print err.message
-                # traceback.print_exc(file=sys.stdout)
+                traceback.print_exc(file=sys.stdout)
 
             matched_fields = []
             for field in self.comparison_fields:
@@ -145,23 +146,24 @@ class ElasticSearchMatcher(MediaMatcher):
             # except Exception, err:
             #     print err.message
                 # traceback.print_exc(file=sys.stdout)
+            if self.debug:
+                if query_printed == False:
+                    print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
+                    pp.pprint(query)
+                    query_printed = True
+                    print '\n'
 
-            if query_printed == False:
-                print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
-                pp.pprint(query)
-                query_printed = True
+                matchrecord = {}
+                matchrecord['score'] = match['_score']
+                matchrecord['path'] = match['_source']['absolute_path']
+                for field in self.comparison_fields:
+                    if field != 'deleted':
+                        if field in match['_source']:
+                            matchrecord[field] = match['_source'][field]
+
+         
+                pp.pprint( matchrecord )
                 print '\n'
-
-            matchrecord = {}
-            matchrecord['score'] = match['_score']
-            matchrecord['path'] = match['_source']['absolute_path']
-            for field in self.comparison_fields:
-                if field != 'deleted':
-                    if field in match['_source']:
-                        matchrecord[field] = match['_source'][field]
-
-            pp.pprint( matchrecord )
-            print '\n'
 
 class FolderNameMatcher(MediaMatcher):
     def match(self, media):

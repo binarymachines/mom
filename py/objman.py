@@ -225,8 +225,11 @@ class MediaFileManager(MediaLibraryWalker):
     def all_matchers_have_run(self, media, match_ops):
         skip_entirely = True
 
+        paths = []
         for matcher in self.matchers:
-            if not media.absolute_path in match_ops[matcher.name]:
+            for path in match_ops[matcher.name]:
+                paths.append(path[0])
+            if not media.absolute_path in paths:
                 skip_entirely = False
                 break
 
@@ -236,6 +239,10 @@ class MediaFileManager(MediaLibraryWalker):
 
         self.active_criteria = criteria
         for location in criteria.locations:
+            
+        # media_folders = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [dir, 'media_folder'])
+        # for row in media_folders:
+        #     location = row[0]            
             try:
                 if constants.CHECK_FOR_BUGS: raw_input('check for bugs')
                 match_ops = self.retrieve_completed_match_ops(location)
@@ -278,7 +285,7 @@ class MediaFileManager(MediaLibraryWalker):
                     except UnicodeDecodeError, u:
                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
                         print ': '.join([u.__class__.__name__, u.message])
-                    
+                
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
