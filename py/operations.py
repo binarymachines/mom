@@ -28,6 +28,10 @@ def record_exec_begin(red, pid):
     red.hmset(str(pid), values)
     return start_time
 
+def remove_reconfig_request(self, redcon, pid, start_time):
+    values = { 'reconfig_requested': False }
+    red.hmset(str(pid), values)
+
 def operation_completed(asset, operator, operation, pid=None):
     print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
     # constants.SQL_DEBUG = True
