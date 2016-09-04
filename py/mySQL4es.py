@@ -264,36 +264,6 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
     insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
         [index, document_type, elasticsearch_id, absolute_path])
 
-def retrieve_complete_ops(parentpath, operation, operator=None):
-
-    result = []
-    if operator is None:
-        query = "select target_path from op_record where operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
-            % (operation, parentpath, '%')
-    else:
-        query = "select target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
-            % (operator, operation, parentpath, '%')
-
-    try:
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
-        cur = con.cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-
-        for r in rows:
-            result += r
-
-    except mdb.Error, e:
-
-        print "Error %d: %s" % (e.args[0], e.args[1])
-        # raise Exception(e.message)
-
-    finally:
-        if con:
-            con.close()
-
-    return result
-
 def retrieve_esid(index, document_type, absolute_path):
 
     rows = retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
@@ -315,7 +285,7 @@ def retrieve_esids(index, document_type, file_path):
     try:
         print 'retrieving %s esids for %s' % (document_type, file_path)
 
-        query = 'SELECT absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s' % (quote_if_string(document_type), quote_if_string(''.join([file_path, '%'])))
+        query = 'SELECT absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % (quote_if_string(document_type), quote_if_string(''.join([file_path, '%'])))
         con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
         cur.execute(query)
