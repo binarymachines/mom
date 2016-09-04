@@ -241,10 +241,13 @@ class MediaFileManager(MediaLibraryWalker):
                 match_ops = self.retrieve_completed_match_ops(location)
                 # self.cache_ops(location, 'scan', 'mp3 scanner')
                 # for path in self.ops_cache:
-                self.check_for_stop_request()
+
                 self.cache_esids(location)
 
                 for record in self.esid_cache:
+                    self.check_for_stop_request()
+                    self.check_for_reconfig_request()
+
                     media = MediaFile()
                     media.absolute_path = record[0]
                     media.esid = record[1]
