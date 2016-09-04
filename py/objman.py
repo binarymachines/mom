@@ -273,7 +273,7 @@ class MediaFileManager(MediaLibraryWalker):
                         self.handle_asset_exception(err, media.absolute_path)
                     
                     except UnicodeDecodeError, u:
-                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
                         print ': '.join([u.__class__.__name__, u.message])
                     
             except Exception, err:
