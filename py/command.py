@@ -33,8 +33,8 @@ def get_pid():
 def main(args):
     pid = get_pid()
     if pid is not None:
-        if args['--stop']: request_stop(pid)
         if args['--reconfig']: request_reconfig(pid)
+        if args['--stop']: request_stop(pid)
         
 # main
 if __name__ == '__main__':
