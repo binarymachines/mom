@@ -3,33 +3,29 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import data, mySQL4es
+import data, mySQL4es, constants
+import MySQLdb as mdb
 
-red = redis.Redis('localhost')
+def cache_operations_for_path(path, operation, operator=None):
+    rows = retrieve_complete_ops(parentpath, operation, operator)
+    for row in rows:
+        op_record = { 'operation': operation, 'operator': operator, 'persisted': True }
+        red.hmset(path, op_record)
 
-def check_for_reconfig_request(pid, start_time):
-    rows = mySQL4es.retrieve_values('exec_record', ['pid', 'start_time', 'reconfig_requested'],
-        [str(pid)])
-    if rows[0][2] is not None:
+def check_for_reconfig_request(red, pid, start_time):
+    values = red.hgetall(pid)
+    if values['start_time'] == start_time and values['reconfig_requested'] == 'True':
         return True
 
-def check_for_stop_request(pid, start_time):
-    # rows = mySQL4es.retrieve_values('exec_record', ['pid', 'start_time', 'stop_requested'],
-    #     [str(pid)])
-    # if rows[0][2] is not None:
-    #     return True
+def check_for_stop_request(red, pid, start_time):
     values = red.hgetall(pid)
     if values['start_time'] == start_time and values['stop_requested'] == 'True':
         return True
 
-def record_exec_begin(pid):
+def record_exec_begin(red, pid):
     start_time = datetime.datetime.now().isoformat()
-    # print start_time
-    # mySQL4es.insert_values('exec_record', ['pid', 'start_time'],
-    #     [str(pid), start_time])
-    values = { 'start_time': start_time, 'stop_requested':False }
+    values = { 'start_time': start_time, 'stop_requested':False, 'reconfig_requested': False }
     red.hmset(str(pid), values)
-
     return start_time
 
 def operation_completed(asset, operator, operation, pid=None):
@@ -67,3 +63,33 @@ def record_op_complete(pid, asset, operator, operation):
     mySQL4es.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
         [str(pid), operator, operation, asset.esid])
     # constants.SQL_DEBUG = False
+
+def retrieve_complete_ops(parentpath, operation, operator=None):
+    
+    con = None 
+    result = []
+    if operator is None:
+        query = "select target_path from op_record where operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
+            % (operation, parentpath, '%')
+    else:
+        query = "select target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s'" \
+            % (operator, operation, parentpath, '%')
+
+    try:
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        cur = con.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        return rows
+
+    except mdb.Error, e:
+
+        print "Error %d: %s" % (e.args[0], e.args[1])
+        # raise Exception(e.message)
+
+    finally:
+        if con:
+            con.close()
+
+    return result
