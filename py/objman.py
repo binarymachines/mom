@@ -150,7 +150,8 @@ class MediaFileManager(MediaLibraryWalker):
 
     def check_for_stop_request(self):
         if operations.check_for_stop_request(self.redcon, self.pid, self.start_time):
-            sys.exit('stop requested, terminating.')
+            print 'stop requested, terminating.'
+            sys.exit(0)
 
     def connect_to_redis(self):
         return redis.Redis('localhost')
