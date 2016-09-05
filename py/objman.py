@@ -53,8 +53,7 @@ class MediaFileManager(MediaLibraryWalker):
 
         self.scanner = Scanner(self.es, self.folderman)
 
-    def connect_to_redis(self):
-        return redis.Redis('localhost')
+################################# MediaWalker Overrides #################################
 
     def after_handle_root(self, root):
         if constants.DO_SCAN:
@@ -96,7 +95,7 @@ class MediaFileManager(MediaLibraryWalker):
                 print '%s has been scanned.' % (root)
             elif folder is not None:
                 if self.debug: print 'scanning folder: %s' % (root)
-                operations.record_op_begin(self.pid, folder, 'mp3 scanner', 'scan')
+                operations.record_op_begin(self.redcon, self.pid, folder, 'mp3 scanner', 'scan')
                 for filename in os.listdir(root):
                     self.process_file(os.path.join(root, filename))
         # else: self.folderman.set_active(root)
@@ -142,6 +141,20 @@ class MediaFileManager(MediaLibraryWalker):
                 self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
                 return
 
+################################# Operations Methods #################################
+
+    def check_for_reconfig_request(self):
+        if operations.check_for_reconfig_request(self.redcon, self.pid, self.start_time):
+            config.configure()
+            operations.remove_reconfig_request(self.redcon, self.pid)
+
+    def check_for_stop_request(self):
+        if operations.check_for_stop_request(self.redcon, self.pid, self.start_time):
+            sys.exit('stop requested, terminating.')
+
+    def connect_to_redis(self):
+        return redis.Redis('localhost')
+
     def cache_esids(self, path):
         if self.debug: print 'caching %s esids for %s' % (self.document_type, path)
         self.esid_cache = mySQL4es.retrieve_esids(constants.ES_INDEX_NAME, self.document_type, path)
@@ -155,6 +168,119 @@ class MediaFileManager(MediaLibraryWalker):
             for row in self.esid_cache:
                 if path in row[0]:
                     return row[1]
+
+################################# Matcher Methods #################################
+
+    # def retrieve_completed_match_ops(self, path):
+    #     match_ops = {}
+    #     for matcher in self.matchers:
+    #         ops = operations.retrieve_complete_ops(path, 'match', matcher.name)
+    #         match_ops[matcher.name] = ops
+
+    #     return match_ops
+
+    # def all_matchers_have_run(self, media, match_ops):
+    #     skip_entirely = True
+
+    #     paths = []
+    #     for matcher in self.matchers:
+    #         for path in match_ops[matcher.name]:
+    #             paths.append(path[0])
+    #         if not media.absolute_path in paths:
+    #             skip_entirely = False
+    #             break
+
+    #     return skip_entirely
+
+    def all_matchers_have_run(self, media):
+        skip_entirely = True
+        paths = []
+        for matcher in self.matchers:
+            if not operations.operation_in_cache(self.redcon, media.absolute_path, 'match', matcher.name):
+                skip_entirely = False
+                break
+
+        return skip_entirely
+    
+    def run_match_ops(self, criteria):
+
+        self.active_criteria = criteria
+        for location in criteria.locations:
+            
+        # media_folders = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [dir, 'media_folder'])
+        # for row in media_folders:
+        #     location = row[0]            
+            try:
+                if constants.CHECK_FOR_BUGS: raw_input('check for bugs')
+                # match_ops = self.retrieve_completed_match_ops(location)
+                
+                for matcher in self.matchers:
+                    operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
+               
+                self.cache_esids(location)
+
+                for record in self.esid_cache:
+                    self.check_for_stop_request()
+                    self.check_for_reconfig_request()
+
+                    media = MediaFile()
+                    media.absolute_path = record[0]
+                    media.esid = record[1]
+                    media.document_type = constants.MEDIA_FILE
+
+                    try:
+                        # if self.all_matchers_have_run(media, match_ops):
+                        if self.all_matchers_have_run(media):
+                            if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
+                            continue
+
+                        if esutil.doc_exists(self.es, media, True):
+                            for matcher in self.matchers:
+                                # if media.absolute_path not in match_ops[matcher.name]:
+                                if not operations.operation_in_cache(self.redcon, media.absolute_path, 'match', matcher.name):
+                                    if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
+
+                                    operations.record_op_begin(self.redcon, self.pid, media, matcher.name, 'match')
+                                    matcher.match(media)
+                                    operations.record_op_complete(self.redcon, self.pid, media, matcher.name, 'match')
+                                    # self.record_match_ops_complete(matcher, media,  media.absolute_path)
+
+                                # elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+                    except AssetException, err:
+                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+                        print ': '.join([err.__class__.__name__, err.message])
+                        # if self.debug: traceback.print_exc(file=sys.stdout)
+                        self.handle_asset_exception(err, media.absolute_path)
+                    
+                    except UnicodeDecodeError, u:
+                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
+                        print ': '.join([u.__class__.__name__, u.message])
+                                
+            except Exception, err:
+                print ': '.join([err.__class__.__name__, err.message])
+                if self.debug: traceback.print_exc(file=sys.stdout)
+            finally:
+                self.esid_cache = []
+                self.folderman.folder = None
+                self.ops_cache = []
+                if self.debug: print 'writing operations for %s' % (location)
+                for matcher in self.matchers:
+                    operations.write_ops_for_path(self.redcon, self.pid, location, matcher.name, 'match')
+                operations.clear_cache_operations_for_path(self.redcon, location, True)
+        
+        print '\n-----match operations complete-----\n'
+
+    def record_match_ops_complete(self, matcher, media, path):
+        try:
+            operations.record_op_complete(self.pid, media, matcher.name, 'match')
+            if operations.operation_completed(media, matcher.name, 'match', self.pid) == False:
+                raise AssetException('Unable to store/retrieve operation record', media)
+        except AssetException, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            # if self.debug: traceback.print_exc(file=sys.stdout)
+            self.handle_asset_exception(err, path)
+
+################################# MOM Helper Methods #################################
 
     def get_location(self, path):
         parent = os.path.abspath(os.path.join(path, os.pardir))
@@ -214,99 +340,9 @@ class MediaFileManager(MediaLibraryWalker):
         else:
             mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [constants.ES_INDEX_NAME, error.data.document_type, error.data.esid, error.message])
 
-    def retrieve_completed_match_ops(self, path):
-        match_ops = {}
-        for matcher in self.matchers:
-            ops = operations.retrieve_complete_ops(path, 'match', matcher.name)
-            match_ops[matcher.name] = ops
-
-        return match_ops
-
-    def all_matchers_have_run(self, media, match_ops):
-        skip_entirely = True
-
-        paths = []
-        for matcher in self.matchers:
-            for path in match_ops[matcher.name]:
-                paths.append(path[0])
-            if not media.absolute_path in paths:
-                skip_entirely = False
-                break
-
-        return skip_entirely
-
-    def run_match_ops(self, criteria):
-
-        self.active_criteria = criteria
-        for location in criteria.locations:
-            
-        # media_folders = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [dir, 'media_folder'])
-        # for row in media_folders:
-        #     location = row[0]            
-            try:
-                if constants.CHECK_FOR_BUGS: raw_input('check for bugs')
-                match_ops = self.retrieve_completed_match_ops(location)
-                # self.cache_ops(location, 'scan', 'mp3 scanner')
-                # for path in self.ops_cache:
-
-                self.cache_esids(location)
-
-                for record in self.esid_cache:
-                    self.check_for_stop_request()
-                    self.check_for_reconfig_request()
-
-                    media = MediaFile()
-                    media.absolute_path = record[0]
-                    media.esid = record[1]
-                    media.document_type = constants.MEDIA_FILE
-
-                    try:
-                        if self.all_matchers_have_run(media, match_ops):
-                            if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
-                            continue
-
-                        if esutil.doc_exists(self.es, media, True):
-                            for matcher in self.matchers:
-                                if media.absolute_path not in match_ops[matcher.name]:
-                                    if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
-
-                                    operations.record_op_begin(self.pid, media, matcher.name, 'match')
-                                    matcher.match(media)
-                                    operations.record_op_complete(self.pid, media, matcher.name, 'match')
-                                    # self.record_match_ops_complete(matcher, media,  media.absolute_path)
-
-                                # elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
-                    except AssetException, err:
-                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
-                        print ': '.join([err.__class__.__name__, err.message])
-                        # if self.debug: traceback.print_exc(file=sys.stdout)
-                        self.handle_asset_exception(err, media.absolute_path)
-                    
-                    except UnicodeDecodeError, u:
-                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
-                        print ': '.join([u.__class__.__name__, u.message])
-                
-            except Exception, err:
-                print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
-            finally:
-                self.esid_cache = []
-                self.folderman.folder = None
-                self.ops_cache = []
-
-        print '\n-----match operations complete-----\n'
-
-    def record_match_ops_complete(self, matcher, media, path):
-        try:
-            operations.record_op_complete(self.pid, media, matcher.name, 'match')
-            if operations.operation_completed(media, matcher.name, 'match', self.pid) == False:
-                raise AssetException('Unable to store/retrieve operation record', media)
-        except AssetException, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug: traceback.print_exc(file=sys.stdout)
-            self.handle_asset_exception(err, path)
-
     def run(self, criteria):
+        print 'flushing reddis cache...'
+        self.redcon.flushall()
         self.start_time =  operations.record_exec_begin(self.redcon, self.pid)
         self.active_criteria = criteria
         if constants.DO_SCAN:
@@ -337,16 +373,6 @@ class MediaFileManager(MediaLibraryWalker):
             print 'matcher %s configured' % (r[1])
             self.matchers += [matcher]
 
-
-    def check_for_reconfig_request(self):
-        if operations.check_for_reconfig_request(self.redcon, self.pid, self.start_time):
-            config.configure()
-            operations.remove_reconfig_request(self.redcon, self.pid)
-
-    def check_for_stop_request(self):
-        if operations.check_for_stop_request(self.redcon, self.pid, self.start_time):
-            sys.exit('stop requested, terminating.')
-
     def record_matches_as_ops(self):
         pid = os.getpid()
         rows = mySQL4es.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
@@ -357,12 +383,14 @@ class MediaFileManager(MediaLibraryWalker):
             media.absolute_path = r[2]
 
             if operations.operation_completed(media, matcher_name, 'match') == False:
-                operations.record_op_begin(pid, media, matcher_name, 'match')
+                operations.record_op_begin(self.redcon, pid, media, matcher_name, 'match')
                 operations.record_op_complete(pid, media, matcher_name, 'match')
                 print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')
 
-def execute(path=None):
+################################# Functions #################################
 
+def execute(path=None):
+    
     print 'Setting up scan criteria...'
     s = ScanCriteria()
 

@@ -98,7 +98,6 @@ class ElasticSearchMatcher(MediaMatcher):
 
     def match(self, media):
 
-
         query = self.get_query(media)
         query_printed = False
         if self.debug == True:
@@ -145,7 +144,8 @@ class ElasticSearchMatcher(MediaMatcher):
             #         self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)), ) )
             # except Exception, err:
             #     print err.message
-                # traceback.print_exc(file=sys.stdout)
+            #         traceback.print_exc(file=sys.stdout)
+
             if self.debug:
                 if query_printed == False:
                     print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)

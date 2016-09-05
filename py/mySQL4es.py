@@ -39,7 +39,7 @@ def insert_values(table_name, field_names, field_values):
             con.close()
 
 # TODO: add handling for boolean values
-def retrieve_values(table_name, field_names, field_values):
+def retrieve_values(table_name, field_names, field_values, order_by=[]):
 
     con = None
 
@@ -66,6 +66,9 @@ def retrieve_values(table_name, field_names, field_values):
                 if pos < len(field_values):
                     query += ' AND '
                 else: break
+
+        # if order_by is not []:
+        #     query += " ORDER BY " + str(order_by).replace('[', '').replace(']', '')
 
         if constants.SQL_DEBUG:
             print '\n\t' + query.replace('WHERE', '\n\t      WHERE').replace('AND', '\n\t\tAND').replace('FROM', '\n\t       FROM')
