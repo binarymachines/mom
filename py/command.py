@@ -13,16 +13,18 @@ def connect_to_redis():
     return redis.Redis('localhost')
                 
 def request_stop(pid):
+    key = '-'.join(['exec', 'record', str(pid)])
     red = connect_to_redis()
 
     values = { 'stop_requested':True }
-    red.hmset(str(pid), values)
+    red.hmset(key, values)
 
 def request_reconfig(pid):
+    key = '-'.join(['exec', 'record', str(pid)])
     red = connect_to_redis()
 
     values = { 'reconfig_requested':True }
-    red.hmset(str(pid), values)
+    red.hmset(key, values)
 
 def get_pid():
     f = open('pid', 'rt')
