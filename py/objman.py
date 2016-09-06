@@ -235,16 +235,13 @@ class MediaFileManager(MediaLibraryWalker):
 
                         if esutil.doc_exists(self.es, media, True):
                             for matcher in self.matchers:
-                                # if media.absolute_path not in match_ops[matcher.name]:
                                 if not operations.operation_in_cache(self.redcon, media.absolute_path, 'match', matcher.name):
                                     if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
 
                                     operations.record_op_begin(self.redcon, self.pid, media, matcher.name, 'match')
                                     matcher.match(media)
                                     operations.record_op_complete(self.redcon, self.pid, media, matcher.name, 'match')
-                                    # self.record_match_ops_complete(matcher, media,  media.absolute_path)
-
-                                # elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+                                elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
                     except AssetException, err:
                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
                         print ': '.join([err.__class__.__name__, err.message])
