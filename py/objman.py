@@ -205,24 +205,22 @@ class MediaFileManager(MediaLibraryWalker):
     
     def run_match_ops(self, criteria):
 
+        opcount = 0
         self.active_criteria = criteria
-        for location in criteria.locations:
-            
-        # media_folders = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [dir, 'media_folder'])
-        # for row in media_folders:
-        #     location = row[0]            
+        for location in criteria.locations:            
             try:
                 if constants.CHECK_FOR_BUGS: raw_input('check for bugs')
                 # match_ops = self.retrieve_completed_match_ops(location)
                 
+                self.cache_esids(location)
                 for matcher in self.matchers:
                     operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
-               
-                self.cache_esids(location)
-
+                
                 for record in self.esid_cache:
-                    self.check_for_stop_request()
-                    self.check_for_reconfig_request()
+                    opcount += 1
+                    if opcount % constants.CHECK_FREQUENCY = 0:
+                        self.check_for_stop_request()
+                        self.check_for_reconfig_request()
 
                     media = MediaFile()
                     media.absolute_path = record[0]

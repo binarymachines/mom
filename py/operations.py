@@ -144,45 +144,28 @@ def write_ops_for_path(red, pid, path, operator, operation):
     con = None
     table_name = 'op_record'
     field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
-    try:
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
-
-        keys = red.keys(path + '*')
-        for key in keys:
-            if not operator in key:
-                continue
-            if not operation in key:
-                continue
-
-            values = red.hgetall(key)
-            if values['persisted'] == 'True':
-                continue
     
-            values['operator_name'] = operator
-            values['operation_name'] = operation
-            field_values = []
-            for field in field_names:
-                field_values.append(values[field])
+    keys = red.keys(path + '*')
+    for key in keys:
+        if not operator in key:
+            continue
+        if not operation in key:
+            continue
 
+        values = red.hgetall(key)
+        if values['persisted'] == 'True':
+            continue
+
+        values['operator_name'] = operator
+        values['operation_name'] = operation
+        field_values = []
+        for field in field_names:
+            field_values.append(values[field])
         
+        try:
+            mySQL4es.insert_values('op_record', field_names, field_values)
 
-            formatted_values = [mySQL4es.quote_if_string(value) for value in field_values]
+        except AssetException, error:
+            mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
+                [constants.ES_INDEX_NAME, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
 
-            query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
-
-            if constants.SQL_DEBUG:
-                print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', ' (\n\t\t').replace(')', '\n\t\t)') + '\n'
-
-            cur = con.cursor()
-            cur.execute(query)
-
-        con.commit()
-
-    except mdb.Error, e:
-        message = "Error %d: %s" % (e.args[0], e.args[1])
-        print message
-        raise e
-
-    finally:
-        if con:
-            con.close()
