@@ -95,7 +95,8 @@ def record_op_begin(red, pid, asset, operator, operation):
     #     [str(pid), operator, operation, asset.esid, datetime.datetime.now().isoformat(), asset.absolute_path])
 
     key = '-'.join([asset.absolute_path, operation, operator])
-    values = { 'persisted': False, 'pid': pid, 'start_time': datetime.datetime.now().isoformat(), 'target_esid': asset.esid, 'target_path': asset.absolute_path }
+    values = { 'persisted': False, 'pid': pid, 'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid, 
+        'target_path': asset.absolute_path }
     red.hmset(key, values)
 
 def record_op_complete(red, pid, asset, operator, operation):
