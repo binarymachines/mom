@@ -51,10 +51,10 @@ class QueryBuilder:
     #         print '\n'
 
 
-    def get_query(self, name, values):
+    def get_query(self, query_type, match_fields, values):
 
-        query_type = mySQL4es.retrieve_values('matcher', ['name', 'query_type'], [name])[0][1]
-        match_fields = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
+        # query_type = mySQL4es.retrieve_values('matcher', ['name', 'query_type'], [name])[0][1]
+        # match_fields = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(match_fields) == 1:
             if match_fields[0][1] is not None:

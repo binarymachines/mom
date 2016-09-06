@@ -83,6 +83,10 @@ class ElasticSearchMatcher(MediaMatcher):
             for r in rows:
                 self.comparison_fields.append(r[1])
 
+            # TODO: this is a kludge. This module uses self.comparison_fields, which is a single-dimensional array
+            # 'QueryBuilder' in esquery.py uses 'match_fields', which is a tuple. This module should be updated to use the tuple
+            self.match_fields = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
+
         if len(self.comparison_fields) > 0 and self.query_type != None:
             print '%s %s matcher configured.' % (self.name, self.query_type)
 
@@ -94,7 +98,7 @@ class ElasticSearchMatcher(MediaMatcher):
                 values[field] = media.doc['_source'][field]
 
         qb = QueryBuilder(constants.ES_HOST, constants.ES_PORT)
-        return qb.get_query(self.name, values)
+        return qb.get_query(self.query_type, self.match_fields, values)
 
     def match(self, media):
 
