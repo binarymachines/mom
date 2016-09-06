@@ -21,7 +21,6 @@ def cache_operations_for_path(red, path, operation, operator=None):
             key = '-'.join([row[0], operation, operator])
             
         values = { 'persisted': True }
-        print 'caching %s' % (key)
         red.hmset(key, values)
 
 def operation_in_cache(red, path, operation, operator=None):
