@@ -218,7 +218,7 @@ class MediaFileManager(MediaLibraryWalker):
                 
                 for record in self.esid_cache:
                     opcount += 1
-                    if opcount % constants.CHECK_FREQUENCY = 0:
+                    if opcount % constants.CHECK_FREQUENCY == 0:
                         self.check_for_stop_request()
                         self.check_for_reconfig_request()
 

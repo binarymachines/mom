@@ -1,4 +1,5 @@
 #! /usr/bin/python
+CHECK_FREQUENCY = 10
 
 MEDIA_FILE = 'media_file'
 MEDIA_FOLDER = 'media_folder'
