@@ -89,8 +89,8 @@ def operation_completed(asset, operator, operation, pid=None):
     return False
 
 def record_op_begin(red, pid, asset, operator, operation):
+    # print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
-    print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
     # mySQL4es.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
     #     [str(pid), operator, operation, asset.esid, datetime.datetime.now().isoformat(), asset.absolute_path])
 
@@ -100,15 +100,13 @@ def record_op_begin(red, pid, asset, operator, operation):
     red.hmset(key, values)
 
 def record_op_complete(red, pid, asset, operator, operation):
-    print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
+    # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     # mySQL4es.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
     #     [str(pid), operator, operation, asset.esid])
+
     key = '-'.join([asset.absolute_path, operation, operator])
     red.hset(key, 'end_time', datetime.datetime.now().isoformat())
-
-    values = red.hgetall(key)
-    print values
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
     
