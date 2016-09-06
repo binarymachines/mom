@@ -125,13 +125,13 @@ class MediaFileManager(MediaLibraryWalker):
                 return
 
             except UnicodeEncodeError, err:
-                print ': '.join([filename, err.__class__.__name__, err.message])
+                print ': '.join([err.__class__.__name__, err.message, filename])
                 if self.debug: traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                 return
 
             except UnicodeDecodeError, err:
-                print ': '.join([filename, err.__class__.__name__, err.message])
+                print ': '.join([err.__class__.__name__, err.message, filename])
                 if self.debug: traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
 
@@ -157,7 +157,7 @@ class MediaFileManager(MediaLibraryWalker):
         return redis.Redis('localhost')
 
     def cache_esids(self, path):
-        if self.debug: print 'caching %s esids for %s' % (self.document_type, path)
+        if self.debug: print 'caching %s esids for %s...' % (self.document_type, path)
         self.esid_cache = mySQL4es.retrieve_esids(constants.ES_INDEX_NAME, self.document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
@@ -213,6 +213,7 @@ class MediaFileManager(MediaLibraryWalker):
                 # match_ops = self.retrieve_completed_match_ops(location)
                 
                 self.cache_esids(location)
+                print 'caching match ops for %s...' % (location)
                 for matcher in self.matchers:
                     operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
                 
@@ -250,10 +251,10 @@ class MediaFileManager(MediaLibraryWalker):
                     
                     except UnicodeDecodeError, u:
                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
-                        print ': '.join([media.absolute_path, u.__class__.__name__, u.message])
+                        print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
                                 
             except Exception, err:
-                print ': '.join([media.absolute_path, err.__class__.__name__, err.message])
+                print ': '.join([err.__class__.__name__, err.message, media.absolute_path])
                 if self.debug: traceback.print_exc(file=sys.stdout)
             finally:
                 self.esid_cache = []
