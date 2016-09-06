@@ -125,13 +125,13 @@ class MediaFileManager(MediaLibraryWalker):
                 return
 
             except UnicodeEncodeError, err:
-                print ': '.join([err.__class__.__name__, err.message])
+                print ': '.join([filename, err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
                 return
 
             except UnicodeDecodeError, err:
-                print ': '.join([err.__class__.__name__, err.message])
+                print ': '.join([filename, err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
                 self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
 
@@ -243,17 +243,17 @@ class MediaFileManager(MediaLibraryWalker):
                                     operations.record_op_complete(self.redcon, self.pid, media, matcher.name, 'match')
                                 elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
                     except AssetException, err:
-                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+                        self.folderman.record_error(self.folderman.folder, "AssetException=" + err.message)
                         print ': '.join([err.__class__.__name__, err.message])
                         # if self.debug: traceback.print_exc(file=sys.stdout)
                         self.handle_asset_exception(err, media.absolute_path)
                     
                     except UnicodeDecodeError, u:
                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
-                        print ': '.join([u.__class__.__name__, u.message])
+                        print ': '.join([media.absolute_path, u.__class__.__name__, u.message])
                                 
             except Exception, err:
-                print ': '.join([err.__class__.__name__, err.message])
+                print ': '.join([media.absolute_path, err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
             finally:
                 self.esid_cache = []
