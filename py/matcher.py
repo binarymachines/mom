@@ -104,9 +104,9 @@ class ElasticSearchMatcher(MediaMatcher):
         
         previous_matches = []
         for row in mySQL4es.retrieve_values('matched', ['matcher_name', 'media_doc_id', 'match_doc_id'], [self.name, media.esid]):
-            previous_matches.append(row[1])
+            previous_matches.append(row[2])
         for row in mySQL4es.retrieve_values('matched', ['matcher_name', 'match_doc_id', 'media_doc_id'], [self.name, media.esid]):
-            previous_matches.append(row[1])
+            previous_matches.append(row[2])
 
         query = self.get_query(media)
         query_printed = False
