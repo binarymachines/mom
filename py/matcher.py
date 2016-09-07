@@ -101,6 +101,12 @@ class ElasticSearchMatcher(MediaMatcher):
         return qb.get_query(self.query_type, self.match_fields, values)
 
     def match(self, media):
+        
+        previous_matches = []
+        for row in mySQL4es.retrieve_values('matched', ['matcher_name', 'media_doc_id', 'match_doc_id'], [self.name, media.esid]):
+            previous_matches.append(row[1])
+        for row in mySQL4es.retrieve_values('matched', ['matcher_name', 'match_doc_id', 'media_doc_id'], [self.name, media.esid]):
+            previous_matches.append(row[1])
 
         query = self.get_query(media)
         query_printed = False
@@ -114,9 +120,10 @@ class ElasticSearchMatcher(MediaMatcher):
         matches = False
         res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=constants.MEDIA_FILE, body=query)
         for match in res['hits']['hits']:
-            if match['_id'] == media.doc['_id']:
+            match_id = match['_id']
+            if match_id == media.doc['_id'] or match_id in previous_matches:
                 continue
-         
+                
             orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
             match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
 
