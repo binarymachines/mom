@@ -168,7 +168,7 @@ def cache_operations_for_path(red, path, operation, operator=None):
         else:
             key = '-'.join([row[0], operation, operator])
         if operator is not None:
-            print 'caching %s.%s operations for %s' % (operator, operations, path) 
+            print 'caching %s.%s operations for %s' % (operator, operation, path) 
         else:
            print 'caching %s operations for %s' % (operations, path)
 
