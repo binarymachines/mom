@@ -38,11 +38,11 @@ class MediaFileManager(MediaLibraryWalker):
         self.active_criteria = None
         self.debug = constants.OBJMAN_DEBUG
         self.document_type = constants.MEDIA_FILE
-        self.do_cache_esids = True
+        
         self.do_cache_locations = True
         self.do_cache_ops = True
         self.do_deep_scan = constants.DEEP_SCAN
-        self.esid_cache = []
+        
         self.ops_cache = []
         self.location_cache = {}
 
@@ -164,19 +164,18 @@ class MediaFileManager(MediaLibraryWalker):
     def connect_to_redis(self):
         return redis.Redis('localhost')
 
-    def cache_esids(self, path):
-        if self.debug: print 'caching %s esids for %s...' % (self.document_type, path)
-        self.esid_cache = operations.retrieve_esids(constants.ES_INDEX_NAME, self.document_type, path)
+    def cache_doc_info(self, path):
+        if self.debug: print 'caching %s doc info for %s...' % (self.document_type, path)
+        operations.cache_doc_info(self.redcon, constants.MEDIA_FILE, path)
 
     def cache_ops(self, path, operation, operator=None):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
         self.ops_cache = operations.retrieve_complete_ops(path, operation, operator)
 
     def get_cached_esid(self, path):
-        if self.esid_cache is not None:
-            for row in self.esid_cache:
-                if path in row[0]:
-                    return row[1]
+        result = self.redcon.hgetall(path)
+        if result is not None:
+            return result['esid']
 
 ################################# Matcher Methods #################################
 
@@ -221,20 +220,22 @@ class MediaFileManager(MediaLibraryWalker):
                 if constants.CHECK_FOR_BUGS: raw_input('check for bugs')
                 # match_ops = self.retrieve_completed_match_ops(location)
                 
-                self.cache_esids(location)
+                self.cache_doc_info(location)
+                
                 print 'caching match ops for %s...' % (location)
                 for matcher in self.matchers:
                     operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
+            
+                for key in self.redcon.zscan_iter(operations.get_setname(constants.MEDIA_FILE)):
                 
-                for record in self.esid_cache:
                     opcount += 1
                     if opcount % constants.CHECK_FREQUENCY == 0:
                         self.check_for_stop_request()
                         self.check_for_reconfig_request()
 
                     media = MediaFile()
-                    media.absolute_path = record[0]
-                    media.esid = record[1]
+                    media.absolute_path = key[0]
+                    media.esid = self.redcon.hgetall(key[0])['esid']
                     media.document_type = constants.MEDIA_FILE
 
                     try:
@@ -263,16 +264,18 @@ class MediaFileManager(MediaLibraryWalker):
                         print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
                                 
             except Exception, err:
-                print ': '.join([err.__class__.__name__, err.message, media.absolute_path])
+                print ': '.join([err.__class__.__name__, err.message, location])
                 if self.debug: traceback.print_exc(file=sys.stdout)
             finally:
-                self.esid_cache = []
+                operations.clear_cached_doc_info(self.redcon, constants.MEDIA_FILE, location) 
                 self.folderman.folder = None
                 self.ops_cache = []
                 for matcher in self.matchers:
                     operations.write_ops_for_path(self.redcon, self.pid, location, matcher.name, 'match')
                 operations.clear_cache_operations_for_path(self.redcon, location, True)
                 operations.write_ensured_paths(self.redcon)
+               
+
         print '\n-----match operations complete-----\n'
 
     def record_match_ops_complete(self, matcher, media, path):
@@ -351,12 +354,11 @@ class MediaFileManager(MediaLibraryWalker):
         if constants.DO_SCAN:
             for location in criteria.locations:
                 if os.path.isdir(location) and os.access(location, os.R_OK):
-                    if self.do_cache_esids == True: self.cache_esids(location)
+                    self.cache_doc_info(location)
                     if self.do_cache_ops == True: self.cache_ops(location, 'scan', 'mp3 scanner')
 
                     self.walk(location)
 
-                    self.esid_cache = []
                     self.ops_cache = []
                     self.location_cache = {}
                 elif self.debug:  print "%s isn't currently available." % (location)

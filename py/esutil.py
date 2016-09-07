@@ -67,12 +67,17 @@ def doc_exists(es, asset, attach_if_found):
 
         if attach_if_found == False: return True
 
+    if esid_in_mysql:
+        doc = es.get(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, id=asset.esid)
+        asset.doc = doc
+        return True
+
     # not found, query elasticsearch
     # es = connect(constants.ES_HOST, constants.ES_PORT)
     res = es.search(index=constants.ES_INDEX_NAME, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
     for doc in res['hits']['hits']:
         # if self.doc_refers_to(doc, media):
-        if doc['_source']['absolute_path'] == asset.absolute_path or asset.esid == doc['_id']:
+        if doc['_source']['absolute_path'] == asset.absolute_path:
             esid = doc['_id']
             if constants. ESUTIL_DEBUG: print "found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name())
 

@@ -10,23 +10,41 @@ from data import AssetException
 redcon = redis.Redis('localhost')
 
 # Paths
-def cache_esids_for_path(red, document_type, source_path):
-    # if self.debug: 
-    print 'caching %s esids for %s...' % (document_type, source_path)
-    rows = retrieve_esids(constants.ES_INDEX_NAME, document_type, source_path)
-    for row in rows:
-        key = '-'.join(['path', 'esid', document_type, row[0]])
-        red.set(key, row[1])
+# def cache_esids_for_path(red, document_type, source_path):
+#     # if self.debug: 
+#     print 'caching %s esids for %s...' % (document_type, source_path)
+#     rows = retrieve_esids(constants.ES_INDEX_NAME, document_type, source_path)
+#     for row in rows:
+#         key = '-'.join(['path', 'esid', document_type, row[0]])
+#         red.set(key, row[1])
 
-def zcache_esids_for_path(red, document_type, source_path):
+def get_setname(document_type):
+    return '-'.join(['path', 'esid', document_type])
+
+def cache_doc_info(red, document_type, source_path):
     # if self.debug: 
-    print 'zcaching %s esids for %s...' % (document_type, source_path)
-    rows = retrieve_esids(constants.ES_INDEX_NAME, document_type, source_path)
-    key = '-'.join(['path', 'esid', document_type])
-    counter = 1.1 
+    print 'zcaching %s doc info for %s...' % (document_type, source_path)
+    rows = retrieve_doc_entries(constants.ES_INDEX_NAME, document_type, source_path)
+    key = get_setname(document_type)
+    counter = 1.0
     for row in rows:
-        red.zadd(key, row[1], counter)
+        path = row[0]
+        esid = row[1]
+        print 'caching %s for %s' % (esid, path)
+        red.zadd(key, path, counter)
         counter += .1
+
+        values = { 'esid': esid }
+        red.hmset(path, values)
+
+def clear_cached_doc_info(red, document_type, source_path):
+    setname = get_setname(document_type)
+    for key in red.zscan_iter(setname):
+        path = key[0]
+        values = red.hgetall(path)
+        if values is not None:
+            red.delete(path)
+            red.zrem(setname, key)
 
 def get_cached_esid_for_path(red, document_type, path):
     key = '-'.join(['path', 'esid', path])
@@ -96,7 +114,10 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
         [index, document_type, elasticsearch_id, absolute_path])
 
 def retrieve_esid(index, document_type, absolute_path):
-
+    values = redcon.hgetall(absolute_path)
+    if values is not None:
+        return values['esid']
+    
     rows = mySQL4es.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
     # rows = mySQL4es.run_query("select index_name, doc_type, absolute_path")
     if rows == None:
@@ -109,7 +130,7 @@ def retrieve_esid(index, document_type, absolute_path):
     if len(rows) == 1:
         return rows[0][3]
 
-def retrieve_esids(index, document_type, file_path):
+def retrieve_doc_entries(index, document_type, file_path):
 
     rows = []
 
