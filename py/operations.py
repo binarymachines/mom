@@ -107,7 +107,7 @@ def write_ensured_paths(red):
 
             except mdb.Error, e:
                 print "Error %d: %s" % (e.args[0], e.args[1])
-            finallY:
+            finally:
                 red.delete(key)
 
     print 'ensured paths have been updated in MySQL'
