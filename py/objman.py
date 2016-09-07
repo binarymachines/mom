@@ -227,7 +227,11 @@ class MediaFileManager(MediaLibraryWalker):
                     operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
             
                 for key in self.redcon.zscan_iter(operations.get_setname(constants.MEDIA_FILE)):
-                
+                    values = self.redcon.hgetall(key[0])
+                    
+                    if not 'esid' in values:
+                        continue
+                         
                     opcount += 1
                     if opcount % constants.CHECK_FREQUENCY == 0:
                         self.check_for_stop_request()
@@ -235,7 +239,7 @@ class MediaFileManager(MediaLibraryWalker):
 
                     media = MediaFile()
                     media.absolute_path = key[0]
-                    media.esid = self.redcon.hgetall(key[0])['esid']
+                    media.esid = values['esid']
                     media.document_type = constants.MEDIA_FILE
 
                     try:
@@ -267,13 +271,13 @@ class MediaFileManager(MediaLibraryWalker):
                 print ': '.join([err.__class__.__name__, err.message, location])
                 if self.debug: traceback.print_exc(file=sys.stdout)
             finally:
+                operations.write_ensured_paths(self.redcon)
                 operations.clear_cached_doc_info(self.redcon, constants.MEDIA_FILE, location) 
                 self.folderman.folder = None
                 self.ops_cache = []
                 for matcher in self.matchers:
                     operations.write_ops_for_path(self.redcon, self.pid, location, matcher.name, 'match')
                 operations.clear_cache_operations_for_path(self.redcon, location, True)
-                operations.write_ensured_paths(self.redcon)
                
 
         print '\n-----match operations complete-----\n'

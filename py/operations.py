@@ -47,9 +47,9 @@ def clear_cached_doc_info(red, document_type, source_path):
             red.zrem(setname, key)
 
 def get_cached_esid_for_path(red, document_type, path):
-    key = '-'.join(['path', 'esid', path])
-    value = red.get(path)
-    return value
+    values = red.hgetall(path)
+    if 'esid' in values:
+        return values['esid']
 
 def key_to_path(document_type, key):
     result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
@@ -95,17 +95,19 @@ def write_ensured_paths(red):
     search = 'ensure-*'
     for key in red.scan_iter(search):
         values = red.hgetall(key)
+        if constants.SQL_DEBUG: print("\nchecking for row for: "+ values['absolute_path'])
+        path = values['absolute_path']
+        doc_info = red.hgetall(path)
+        if not 'esid' in doc_info:
+            try:
+                rows = mySQL4es.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
+                if len(rows) ==0:
+                    if constants.SQL_DEBUG: print('Updating local mySQL4es...')
+                    insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
+                red.delete(key)
 
-        try:
-            if constants.SQL_DEBUG: print("\nchecking for row for: "+ values['absolute_path'])
-            rows = mySQL4es.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
-            if len(rows) ==0:
-                if constants.SQL_DEBUG: print('Updating local mySQL4es...')
-                insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
-            red.delete(key)
-
-        except mdb.Error, e:
-            print "Error %d: %s" % (e.args[0], e.args[1])
+            except mdb.Error, e:
+                print "Error %d: %s" % (e.args[0], e.args[1])
 
     print 'ensured paths have been updated in MySQL'
 
