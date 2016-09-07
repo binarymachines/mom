@@ -2,7 +2,7 @@
 
 import os, json, pprint, sys, random, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import data, constants
+import data, constants, operations
 from esquery import QueryBuilder
 import mySQL4es
 
@@ -130,7 +130,7 @@ class ElasticSearchMatcher(MediaMatcher):
             matches = True
 
             try:
-                thread.start_new_thread( mySQL4es.  ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
+                thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
             except Exception, err:
                 print err.message
                 traceback.print_exc(file=sys.stdout)

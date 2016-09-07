@@ -1,7 +1,7 @@
 #! /usr/bin/python
 import os, sys, pprint, json
 
-import config, constants, mySQL4es
+import config, constants, mySQL4es, operations
 from data import AssetException
 
 def main():
@@ -15,7 +15,7 @@ def main():
             doc_type = f[1]
     
             try:
-                esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, doc_type, filename)
+                esid = operations.retrieve_esid(constants.ES_INDEX_NAME, doc_type, filename)
                 constants.SQL_DEBUG = True
                 if esid is not None:
                     print ','.join([esid, filename]) 

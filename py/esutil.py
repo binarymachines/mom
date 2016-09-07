@@ -2,7 +2,7 @@
 
 import os, sys, traceback, pprint
 from elasticsearch import Elasticsearch, NotFoundError
-import constants, mySQL4es
+import constants, mySQL4es, operations
 from data import Asset, MediaFile, MediaFolder
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -56,7 +56,7 @@ def find_docs_missing_field(es, index_name, document_type, field):
 def doc_exists(es, asset, attach_if_found):
     # look in local MySQL
     esid_in_mysql = False
-    esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
+    esid = operations.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
     if esid is not None:
         esid_in_mysql = True
         if constants. ESUTIL_DEBUG: print "found esid %s for '%s' in mySQL." % (esid, asset.short_name())
@@ -86,7 +86,7 @@ def doc_exists(es, asset, attach_if_found):
                 # found, update local MySQL
                 if constants. ESUTIL_DEBUG: print 'inserting esid into MySQL'
                 try:
-                    mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
+                    operations.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
                     if constants. ESUTIL_DEBUG: print 'esid inserted'
                 except Exception, err:
                     print ': '.join([err.__class__.__name__, err.message])
@@ -126,7 +126,7 @@ def get_doc(asset, es=None):
 def get_doc_id(es, asset):
 
     # look for esid in local MySQL
-    esid = mySQL4es.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
+    esid = operations.retrieve_esid(constants.ES_INDEX_NAME, asset.document_type, asset.absolute_path)
     if esid is not None:
         # if constants.ESUTIL_DEBUG:
         print "esid found in MySQL"
@@ -138,7 +138,7 @@ def get_doc_id(es, asset):
         # found, update local MySQL
         # if constants.ESUTIL_DEBUG:
         print "inserting esid into MySQL"
-        mySQL4es.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
+        operations.insert_esid(constants.ES_INDEX_NAME, asset.document_type, esid, asset.absolute_path)
         return doc['_id']
 
 def reset_all(es):
