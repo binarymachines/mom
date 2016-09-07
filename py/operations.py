@@ -104,10 +104,11 @@ def write_ensured_paths(red):
                 if len(rows) ==0:
                     if constants.SQL_DEBUG: print('Updating local mySQL4es...')
                     insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
-                red.delete(key)
 
             except mdb.Error, e:
                 print "Error %d: %s" % (e.args[0], e.args[1])
+            finallY:
+                red.delete(key)
 
     print 'ensured paths have been updated in MySQL'
 
