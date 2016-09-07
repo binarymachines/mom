@@ -164,9 +164,9 @@ class MediaFileManager(MediaLibraryWalker):
     def connect_to_redis(self):
         return redis.Redis('localhost')
 
-    def cache_doc_info(self, path):
+    def cache_doc_info(self, document_type, path):
         if self.debug: print 'caching %s doc info for %s...' % (self.document_type, path)
-        operations.cache_doc_info(self.redcon, constants.MEDIA_FILE, path)
+        operations.cache_doc_info(self.redcon, document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
@@ -220,17 +220,19 @@ class MediaFileManager(MediaLibraryWalker):
                 if constants.CHECK_FOR_BUGS: raw_input('check for bugs')
                 # match_ops = self.retrieve_completed_match_ops(location)
                 
-                self.cache_doc_info(location)
+                self.cache_doc_info(constants.MEDIA_FILE, location)
                 
                 print 'caching match ops for %s...' % (location)
                 for matcher in self.matchers:
                     operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
-            
-                for key in self.redcon.zscan_iter(operations.get_setname(constants.MEDIA_FILE)):
-                    values = self.redcon.hgetall(key[0])
+                
+                q = "select id, absolute_path from es_document where absolute_path like '%s%s' order by absolute_path" % (location, '%')
+                for row in mySQL4es.run_query(q):
+                # for key in self.redcon.zscan_iter(operations.get_setname(constants.MEDIA_FILE)):
+                #     values = self.redcon.hgetall(key[0])
                     
-                    if not 'esid' in values:
-                        continue
+                    # if not 'esid' in values:
+                    #     continue
                          
                     opcount += 1
                     if opcount % constants.CHECK_FREQUENCY == 0:
@@ -238,8 +240,10 @@ class MediaFileManager(MediaLibraryWalker):
                         self.check_for_reconfig_request()
 
                     media = MediaFile()
-                    media.absolute_path = key[0]
-                    media.esid = values['esid']
+                    media.esid = row[0]
+                    media.absolute_path = row[1]
+                    # media.absolute_path = key[0]
+                    # media.esid = values['esid']
                     media.document_type = constants.MEDIA_FILE
 
                     try:

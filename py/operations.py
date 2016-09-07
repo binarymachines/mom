@@ -9,30 +9,20 @@ from data import AssetException
 
 redcon = redis.Redis('localhost')
 
-# Paths
-# def cache_esids_for_path(red, document_type, source_path):
-#     # if self.debug: 
-#     print 'caching %s esids for %s...' % (document_type, source_path)
-#     rows = retrieve_esids(constants.ES_INDEX_NAME, document_type, source_path)
-#     for row in rows:
-#         key = '-'.join(['path', 'esid', document_type, row[0]])
-#         red.set(key, row[1])
-
 def get_setname(document_type):
     return '-'.join(['path', 'esid', document_type])
 
 def cache_doc_info(red, document_type, source_path):
-    # if self.debug: 
-    print 'zcaching %s doc info for %s...' % (document_type, source_path)
+    # if self.debug: print 'zcaching %s doc info for %s...' % (document_type, source_path)
     rows = retrieve_doc_entries(constants.ES_INDEX_NAME, document_type, source_path)
     key = get_setname(document_type)
-    counter = 1.0
+    counter = 1.1
     for row in rows:
         path = row[0]
         esid = row[1]
-        print 'caching %s for %s' % (esid, path)
+        # print 'caching %s for %s' % (esid, path)
         red.zadd(key, path, counter)
-        counter += .1
+        counter += 0.1
 
         values = { 'esid': esid }
         red.hmset(path, values)
@@ -95,14 +85,16 @@ def write_ensured_paths(red):
     search = 'ensure-*'
     for key in red.scan_iter(search):
         values = red.hgetall(key)
-        if constants.SQL_DEBUG: print("\nchecking for row for: "+ values['absolute_path'])
+        # if constants.SQL_DEBUG: print("\nchecking for row for: "+ values['absolute_path'])
         path = values['absolute_path']
         doc_info = red.hgetall(path)
         if not 'esid' in doc_info:
             try:
                 rows = mySQL4es.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
                 if len(rows) ==0:
-                    if constants.SQL_DEBUG: print('Updating local mySQL4es...')
+                    if constants.SQL_DEBUG: 
+                        print('Updating MySQL...')
+                    
                     insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
 
             except mdb.Error, e:
@@ -118,7 +110,7 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
 
 def retrieve_esid(index, document_type, absolute_path):
     values = redcon.hgetall(absolute_path)
-    if values is not None:
+    if 'esid' in values:
         return values['esid']
     
     rows = mySQL4es.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
@@ -161,16 +153,16 @@ def retrieve_doc_entries(index, document_type, file_path):
 # Operations
 
 def cache_operations_for_path(red, path, operation, operator=None):
+    if operator is not None:
+        print 'caching %s.%s operations for %s' % (operator, operation, path) 
+    else:
+        print 'caching %s operations for %s' % (operations, path)
     rows = retrieve_complete_ops(path, operation, operator)
     for row in rows:
         if operator == None:
             key = '-'.join([row[0], operation])
         else:
             key = '-'.join([row[0], operation, operator])
-        if operator is not None:
-            print 'caching %s.%s operations for %s' % (operator, operation, path) 
-        else:
-           print 'caching %s operations for %s' % (operations, path)
 
         values = { 'persisted': True }
         red.hmset(key, values)
