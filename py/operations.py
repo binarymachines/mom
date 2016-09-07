@@ -3,14 +3,138 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import data, mySQL4es, constants
+import data, mySQL4es, constants, config
 import MySQLdb as mdb
+from data import AssetException
 
-# def cache_operations_for_path(path, operation, operator=None):
-#     rows = retrieve_complete_ops(parentpath, operation, operator)
+redcon = redis.Redis('localhost')
+
+# Paths
+def cache_esids_for_path(red, document_type, source_path):
+    # if self.debug: 
+    print 'caching %s esids for %s...' % (document_type, source_path)
+    rows = retrieve_esids(constants.ES_INDEX_NAME, document_type, source_path)
+    for row in rows:
+        key = '-'.join(['path', 'esid', document_type, row[0]])
+        red.set(key, row[1])
+
+def zcache_esids_for_path(red, document_type, source_path):
+    # if self.debug: 
+    print 'zcaching %s esids for %s...' % (document_type, source_path)
+    rows = retrieve_esids(constants.ES_INDEX_NAME, document_type, source_path)
+    key = '-'.join(['path', 'esid', document_type])
+    counter = 1.1 
+    for row in rows:
+        red.zadd(key, row[1], counter)
+        counter += .1
+
+def get_cached_esid_for_path(red, document_type, path):
+    key = '-'.join(['path', 'esid', path])
+    value = red.get(path)
+    return value
+
+def key_to_path(document_type, key):
+    result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
+    return result
+
+def clear_cached_esids_for_path(red, document_type, path):
+    search = '-'.join(['path', 'esid', path]) + '*'
+    for key in red.keys(search):
+        red.delete(key)
+
+# ESIDs
+# def cache_esids_for_path(red, document_type, path):
+#     rows = retrieve_esids(constants.ES_INDEX_NAME, document_type, path)
 #     for row in rows:
-#         op_record = { 'operation': operation, 'operator': operator, 'persisted': True }
-#         red.hmset(path, op_record)
+#         key = '-'.join(['esid', 'path', row[1]])
+#         red.set(key, row[0])
+
+
+def get_all_cached_esids_for_path(red, path):
+    # key = '-'.join(['path', 'esid', path]) + '*'
+    key = path + '*'
+    values = red.keys(key)
+    return values
+    
+# MySQL
+
+#NOTE: The methods that follow are specific to this es application and should live elsewehere
+
+def ensure_exists(esid, path, index_name, document_type):
+
+    esidforpath = get_cached_esid_for_path(redcon, document_type, path)
+    
+    if esidforpath == None:
+        key = '-'.join(['ensure', esid])
+        values = { 'index_name': index_name, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
+
+        redcon.hmset(key, values)
+
+def write_ensured_paths(red):
+
+    print 'ensuring match paths exist in MySQL...'
+
+    search = 'ensure-*'
+    for key in red.scan_iter(search):
+        values = red.hgetall(key)
+
+        try:
+            if constants.SQL_DEBUG: print("\nchecking for row for: "+ values['absolute_path'])
+            rows = mySQL4es.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
+            if len(rows) ==0:
+                if constants.SQL_DEBUG: print('Updating local mySQL4es...')
+                insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
+            red.delete(key)
+
+        except mdb.Error, e:
+            print "Error %d: %s" % (e.args[0], e.args[1])
+
+    print 'ensured paths have been updated in MySQL'
+
+def insert_esid(index, document_type, elasticsearch_id, absolute_path):
+    mySQL4es.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
+        [index, document_type, elasticsearch_id, absolute_path])
+
+def retrieve_esid(index, document_type, absolute_path):
+
+    rows = mySQL4es.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
+    # rows = mySQL4es.run_query("select index_name, doc_type, absolute_path")
+    if rows == None:
+        return []
+
+    if len(rows) > 1:
+        text = "Multiple Ids for '" + absolute_path + "' returned"
+        raise AssetException(text, rows)
+
+    if len(rows) == 1:
+        return rows[0][3]
+
+def retrieve_esids(index, document_type, file_path):
+
+    rows = []
+
+    try:
+        # print 'retrieving %s esids for %s' % (document_type, file_path)
+
+        query = 'SELECT absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
+            (mySQL4es.quote_if_string(document_type), mySQL4es.quote_if_string(''.join([file_path, '%'])))
+       
+        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        cur = con.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        return rows
+
+    except mdb.Error, e:
+        print "Error %d: %s" % (e.args[0], e.args[1])
+
+    finally:
+        if con:
+            con.close()
+
+
+# Operations
 
 def cache_operations_for_path(red, path, operation, operator=None):
     rows = retrieve_complete_ops(path, operation, operator)
@@ -139,6 +263,8 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
 
 def write_ops_for_path(red, pid, path, operator, operation):
     
+    print 'updating %s.%s operations for %s in MySQL' % (operator, operation, path)
+
     con = None
     table_name = 'op_record'
     field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
@@ -151,7 +277,7 @@ def write_ops_for_path(red, pid, path, operator, operation):
             continue
 
         values = red.hgetall(key)
-        if values['persisted'] == 'True':
+        if values['persisted'] == 'True' or values['end_time'] == 'None':
             continue
 
         values['operator_name'] = operator
@@ -167,3 +293,33 @@ def write_ops_for_path(red, pid, path, operator, operation):
             mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
                 [constants.ES_INDEX_NAME, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
 
+    print 'operations for %s have been updated in MySQL' % (path)
+
+def main():
+    config.configure()
+
+    red = redis.Redis('localhost')
+    # red.flushall()
+    # zcache_esids_for_path(red, constants.MEDIA_FILE, '/media/removable/SEAGATE 932/Media/Music/incoming/complete/golden age - industrial minimal ebm goth experimental avantgarde/')
+    
+    # for key in red.keys('-'.join(['path', 'esid']) + '*'):
+    #     print red.get(key)
+    counter = 0
+    search = '-'.join(['path', 'esid', constants.MEDIA_FILE])
+    
+    for key in red.zscan_iter(search):
+        print key[0]
+        # print ':'.join([str(counter), key.replace(search, ''), red.get(key)])
+    
+    # keys = red.scan(counter, search + '*')
+    # while keys[0] != 0:
+    #     for key in keys[1]:
+    #         print ':'.join([str(counter), key.replace(search, ''), red.get(key)])
+    #         counter += 1
+    #     test = red.scan(counter, '-'.join(['path', 'esid']) + '*')
+        
+    print counter
+
+# main
+if __name__ == '__main__':
+    main()

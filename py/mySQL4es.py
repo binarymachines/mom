@@ -251,72 +251,20 @@ def truncate(table_name):
         if con:
             con.close()
 
-#NOTE: The methods that follow are specific to this es application and should live elsewehere
+# def transfer_data(table, fields):
+#     con = mdb.connect('54.82.250.249', 'remote', 'remote', 'media')
+#     rows = retrieve_values(table, fields, [])
+#     for r in rows:
+#         print r
+#         aws_insert_values(con, table, fields, r)
 
-def ensure_exists(esid, path, indexname, documenttype):
-    try:
-        if constants.SQL_DEBUG: print("checking for row for: "+ path)
-        rows = retrieve_values('es_document', ['absolute_path', 'index_name'], [path, indexname])
-        if len(rows) ==0:
-            if constants.SQL_DEBUG: print('Updating local MySQL...')
-            insert_esid(indexname, documenttype, esid, path)
-    except mdb.Error, e:
-        print "Error %d: %s" % (e.args[0], e.args[1])
+#     con.commit()
+#     con.close()
+#     pass
 
-def insert_esid(index, document_type, elasticsearch_id, absolute_path):
-    insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
-        [index, document_type, elasticsearch_id, absolute_path])
+# def main():
+#     pass
 
-def retrieve_esid(index, document_type, absolute_path):
-
-    rows = retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
-
-    if rows == None:
-        return []
-
-    if len(rows) > 1:
-        text = "Multiple Ids for '" + absolute_path + "' returned"
-        raise AssetException(text, rows)
-
-    if len(rows) == 1:
-        return rows[0][3]
-
-def retrieve_esids(index, document_type, file_path):
-
-    rows = []
-
-    try:
-        print 'retrieving %s esids for %s' % (document_type, file_path)
-
-        query = 'SELECT absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % (quote_if_string(document_type), quote_if_string(''.join([file_path, '%'])))
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
-        cur = con.cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-
-        return rows
-
-    except mdb.Error, e:
-        print "Error %d: %s" % (e.args[0], e.args[1])
-
-    finally:
-        if con:
-            con.close()
-
-def transfer_data(table, fields):
-    con = mdb.connect('54.82.250.249', 'remote', 'remote', 'media')
-    rows = retrieve_values(table, fields, [])
-    for r in rows:
-        print r
-        aws_insert_values(con, table, fields, r)
-
-    con.commit()
-    con.close()
-    pass
-
-def main():
-    pass
-
-# main
-if __name__ == '__main__':
-    main()
+# # main
+# if __name__ == '__main__':
+#     main()

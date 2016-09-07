@@ -2,7 +2,7 @@
 
 import os, json, pprint, sys, random, logging, traceback
 from elasticsearch import Elasticsearch
-import constants, mySQL4es, esutil
+import constants, mySQL4es, esutil, operations
 from mutagen.id3 import ID3, ID3NoHeaderError
 from data import MediaFile
 
@@ -113,6 +113,6 @@ class Scanner:
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
             if self.debug: print "inserting NEW esid into MySQL"
-            mySQL4es.insert_esid(constants.ES_INDEX_NAME, self.document_type, media.esid, media.absolute_path)
+            operations.insert_esid(constants.ES_INDEX_NAME, self.document_type, media.esid, media.absolute_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))

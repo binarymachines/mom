@@ -52,6 +52,14 @@ class MediaFileManager(MediaLibraryWalker):
         self.folderman = MediaFolderManager(self.es, constants.ES_INDEX_NAME)
 
         self.scanner = Scanner(self.es, self.folderman)
+        self.setup_matchers()
+
+        print 'clearing data from previous run'
+        for matcher in self.matchers:
+            operations.write_ops_for_path(self.redcon, self.pid, '/', matcher.name, 'match')
+        operations.write_ensured_paths(self.redcon)       
+        print 'flushing reddis cache...'
+        self.redcon.flushall()
 
 ################################# MediaWalker Overrides #################################
 
@@ -158,7 +166,7 @@ class MediaFileManager(MediaLibraryWalker):
 
     def cache_esids(self, path):
         if self.debug: print 'caching %s esids for %s...' % (self.document_type, path)
-        self.esid_cache = mySQL4es.retrieve_esids(constants.ES_INDEX_NAME, self.document_type, path)
+        self.esid_cache = operations.retrieve_esids(constants.ES_INDEX_NAME, self.document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
@@ -209,6 +217,7 @@ class MediaFileManager(MediaLibraryWalker):
         self.active_criteria = criteria
         for location in criteria.locations:            
             try:
+                location += '/'
                 if constants.CHECK_FOR_BUGS: raw_input('check for bugs')
                 # match_ops = self.retrieve_completed_match_ops(location)
                 
@@ -260,11 +269,10 @@ class MediaFileManager(MediaLibraryWalker):
                 self.esid_cache = []
                 self.folderman.folder = None
                 self.ops_cache = []
-                if self.debug: print 'writing operations for %s' % (location)
                 for matcher in self.matchers:
                     operations.write_ops_for_path(self.redcon, self.pid, location, matcher.name, 'match')
                 operations.clear_cache_operations_for_path(self.redcon, location, True)
-        
+                operations.write_ensured_paths(self.redcon)
         print '\n-----match operations complete-----\n'
 
     def record_match_ops_complete(self, matcher, media, path):
@@ -338,8 +346,6 @@ class MediaFileManager(MediaLibraryWalker):
             mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [constants.ES_INDEX_NAME, error.data.document_type, error.data.esid, error.message])
 
     def run(self, criteria):
-        print 'flushing reddis cache...'
-        self.redcon.flushall()
         self.start_time =  operations.record_exec_begin(self.redcon, self.pid)
         self.active_criteria = criteria
         if constants.DO_SCAN:
@@ -358,7 +364,6 @@ class MediaFileManager(MediaLibraryWalker):
             print '\n-----scan complete-----\n'
 
         if constants.DO_MATCH:
-            self.setup_matchers()
             self.run_match_ops(criteria)
 
     def setup_matchers(self):

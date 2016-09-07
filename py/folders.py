@@ -103,7 +103,7 @@ class MediaFolderManager:
                 # if self.debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
                 # update MySQL
-                mySQL4es.insert_esid(constants.ES_INDEX_NAME, folder.document_type, folder.esid, folder.absolute_path)
+                operations.insert_esid(constants.ES_INDEX_NAME, folder.document_type, folder.esid, folder.absolute_path)
                 # alchemy.insert_asset(folder.esid, constants.ES_INDEX_NAME, folder.document_type, folder.absolute_path)
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
