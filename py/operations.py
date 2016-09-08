@@ -49,19 +49,16 @@ def cache_match_info(path):
            SELECT m.match_doc_id id, m.media_doc_id match_id FROM matched m, es_document esd 
             WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
 
-    counter = 1.1
     rows = mySQL4es.run_query(q)
     for row in rows:
-        redcon.zadd(row[0], row[1], counter)
-        counter += 1
+        redcon.sadd(row[0], row[1])
         
 def clear_cached_matches_for_esid(esid):
-    redcon.zremrangebyscore(esid, 0, 1000)        
-            
+    values = redcon.smembers(esid)
+    redcon.srem(esid, values) 
+
 def get_matches_for_esid(esid):
-    values = []
-    for value in redcon.zscan_iter(esid):
-        values.append(value)
+    values = redcon.smembers(esid)
     return values
 
 # def key_to_path(document_type, key):
