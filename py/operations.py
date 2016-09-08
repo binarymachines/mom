@@ -349,24 +349,19 @@ def main():
     for row in rows:
         path, esid = row[0], row[1]
         print 'caching %s for %s' % (esid, path)
-        red.zadd(constants.MEDIA_FILE, counter, path)
+        red.rpush(constants.MEDIA_FILE, path)
         counter += 1
 
-        # values = { 'esid': esid }
-        # red.hmset(path, values)
+        values = { 'esid': esid }
+        red.hmset(path, values)
     
-    print '\t'.join(['score', 'path'])
-    print '\t'.join(['-----', '----'])
-    for key in red.zscan_iter(constants.MEDIA_FILE):
-        print '\t'.join([str(key[1]), key[0]])
-        # values = red.hgetall(key[0])
-        # print values
+    print '\t\t\t'.join(['esid', 'path'])
+    print '\t\t\t'.join(['-----', '----'])
 
-    # cur_pos = 0
-    # cur = red.zscan(constants.MEDIA_FILE, cur_pos)
-    # count = cur[0]
-    # for key in cur[1]:
-    #     print key[0]
+    for key in red.lrange(constants.MEDIA_FILE, 0, -1):
+        esid = red.hgetall(key)['esid']
+        print '\t'.join([esid, key])
+
 
 # main
 if __name__ == '__main__':
