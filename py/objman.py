@@ -229,7 +229,8 @@ class MediaFileManager(MediaLibraryWalker):
                 print 'caching matches for %s...' % (location)
                 operations.cache_match_info(location)
                 
-                q = "select distinct id, absolute_path from es_document where absolute_path like '%s%s' order by absolute_path" % (location, '%')
+                q = "select id, absolute_path from es_document where index_name like '%s' and document_type like '%s' and absolute_path like '%s%s' order by absolute_path" % 
+                    (constants.ES_INDEX_NAME, constants.MEDIA_FILE, location, '%')
                 for row in mySQL4es.run_query(q):
                 # for key in self.redcon.zscan_iter(operations.get_setname(constants.MEDIA_FILE)):
                 #     values = self.redcon.hgetall(key[0])
@@ -383,6 +384,9 @@ class MediaFileManager(MediaLibraryWalker):
         if constants.DO_MATCH:
             self.run_match_ops(criteria)
 
+        if constants.DO_CLEAN:
+            self.run_cleanup(criteria)
+
     def setup_matchers(self):
         rows = mySQL4es.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
         for r in rows:
@@ -405,6 +409,12 @@ class MediaFileManager(MediaLibraryWalker):
                 operations.record_op_begin(self.redcon, pid, media, matcher_name, 'match')
                 operations.record_op_complete(pid, media, matcher_name, 'match')
                 print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')
+
+
+################################# Cleanup #################################
+
+def run_cleanup(self, criteria):
+    pass
 
 ################################# Functions #################################
 

@@ -150,10 +150,8 @@ def retrieve_doc_entries(index, document_type, file_path):
     rows = []
 
     try:
-        # print 'retrieving %s esids for %s' % (document_type, file_path)
-
-        query = 'SELECT distinct absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
-            (mySQL4es.quote_if_string(document_type), mySQL4es.quote_if_string(''.join([file_path, '%'])))
+        query = 'SELECT absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
+            (mySQL4es.quote_if_string(constants.ES_INDEX_NAME), mySQL4es.quote_if_string(document_type), mySQL4es.quote_if_string(''.join([file_path, '%'])))
        
         con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
         cur = con.cursor()
@@ -338,27 +336,24 @@ def write_ops_for_path(red, pid, path, operator, operation):
 def main():
     config.configure()
 
-    red = redis.Redis('localhost')
-    # red.flushall()
-    # zcache_esids_for_path(red, constants.MEDIA_FILE, '/media/removable/SEAGATE 932/Media/Music/incoming/complete/golden age - industrial minimal ebm goth experimental avantgarde/')
+    red = redis.StrictRedis('localhost')
+    red.flushall()
+
+    rows = retrieve_doc_entries(constants.ES_INDEX_NAME, constants.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb")
+    counter = 1.1
+    for row in rows:
+        path, esid = row[0], row[1]
+        print 'caching %s for %s' % (esid, path)
+        red.zadd(constants.MEDIA_FILE, counter, path)
+        counter = counter + 0.1
+
+        values = { 'esid': esid }
+        red.hmset(path, values)
     
-    # for key in red.keys('-'.join(['path', 'esid']) + '*'):
-    #     print red.get(key)
-    counter = 0
-    search = '-'.join(['path', 'esid', constants.MEDIA_FILE])
-    
-    for key in red.zscan_iter(search):
+    for key in red.zscan_iter(constants.MEDIA_FILE):
         print key[0]
-        # print ':'.join([str(counter), key.replace(search, ''), red.get(key)])
-    
-    # keys = red.scan(counter, search + '*')
-    # while keys[0] != 0:
-    #     for key in keys[1]:
-    #         print ':'.join([str(counter), key.replace(search, ''), red.get(key)])
-    #         counter += 1
-    #     test = red.scan(counter, '-'.join(['path', 'esid']) + '*')
-        
-    print counter
+        # values = red.hgetall(key[0])
+        # print values
 
 # main
 if __name__ == '__main__':
