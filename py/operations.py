@@ -152,7 +152,7 @@ def retrieve_doc_entries(index, document_type, file_path):
     try:
         # print 'retrieving %s esids for %s' % (document_type, file_path)
 
-        query = 'SELECT absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
+        query = 'SELECT distinct absolute_path, id FROM es_document WHERE doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
             (mySQL4es.quote_if_string(document_type), mySQL4es.quote_if_string(''.join([file_path, '%'])))
        
         con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
