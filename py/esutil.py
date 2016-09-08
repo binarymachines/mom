@@ -73,7 +73,7 @@ def doc_exists(es, asset, attach_if_found):
             asset.doc = doc
             return True
         except Exception, err:
-            raise AssetException('DOC NOT FOUND FOR ESID', asset)
+            raise AssetException('DOC NOT FOUND FOR ESID:' + asset.to_str(), asset)
             
     # not found, query elasticsearch
     # es = connect(constants.ES_HOST, constants.ES_PORT)

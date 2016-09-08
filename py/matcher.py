@@ -100,47 +100,54 @@ class ElasticSearchMatcher(MediaMatcher):
         qb = QueryBuilder(constants.ES_HOST, constants.ES_PORT)
         return qb.get_query(self.query_type, self.match_fields, values)
 
-    def match(self, media):
+    def print_match_query_debug_header(media, query):
+        print 'matching: %s' % (media.absolute_path)
+        print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
+        pp.pprint(query)
+        print '\n'
+        query_printed = True
         
+    def print_match_query_debug_footer(media, query, match):
+
+        matchrecord = {}
+        matchrecord['score'] = match['_score']
+        matchrecord['path'] = match['_source']['absolute_path']
+
+        for field in self.comparison_fields:
+            if field != 'deleted':
+                if field in match['_source']:
+                    matchrecord[field] = match['_source'][field]
+
+    
+        pp.pprint(matchrecord)
+        print '\n'
+
+
+    def match(self, media):
+       print 'seeking matches for %s - %s' % (media.esid, media.absolute_path) 
         previous_matches = operations.get_matches_for_esid(media.esid)
         
-        if len(previous_matches) > 0:
-            print 'previously matched esids for %s:' % (media.esid)
-            print previous_matches
-
         query = self.get_query(media)
         query_printed = False
-        if self.debug == True:
-            print 'matching: %s' % (media.absolute_path)
-            print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
-            pp.pprint(query)
-            print '\n'
+        if self.debug == True: 
+            print match_query_debug_header(media, query)
             query_printed = True
 
         matches = False
         res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=constants.MEDIA_FILE, body=query)
         for match in res['hits']['hits']:
-            match_id = match['_id']
-            if match_id == media.doc['_id'] or match_id in previous_matches:
+            if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches: 
                 continue
                 
             orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
             match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
 
-            if match_parent == orig_parent:
+            if match_parent == orig_parent: 
                 continue
 
             if self.minimum_score is not None:
                 if match['_score'] < self.minimum_score:
                     continue
-
-            matches = True
-
-            try:
-                thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
-            except Exception, err:
-                print err.message
-                traceback.print_exc(file=sys.stdout)
 
             matched_fields = []
             for field in self.comparison_fields:
@@ -149,33 +156,14 @@ class ElasticSearchMatcher(MediaMatcher):
 
             self.record_match(media.esid,  match['_id'], self.name, constants.ES_INDEX_NAME, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
-                    
-            # try:
-            #     thread.start_new_thread( self.record_match, ( media.esid,  match['_id'], self.name, constants.ES_INDEX_NAME, matched_fields, match['_score'],
-            #         self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)), ) )
-            # except Exception, err:
-            #     print err.message
-            #         traceback.print_exc(file=sys.stdout)
 
-            if self.debug:
-                if query_printed == False:
-                    print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
-                    pp.pprint(query)
-                    query_printed = True
-                    print '\n'
+            if self.debug: print_match_query_debug_footer(media, query, match)
 
-                matchrecord = {}
-                matchrecord['score'] = match['_score']
-                matchrecord['path'] = match['_source']['absolute_path']
-                for field in self.comparison_fields:
-                    if field != 'deleted':
-                        if field in match['_source']:
-                            matchrecord[field] = match['_source'][field]
-
-         
-                pp.pprint( matchrecord )
-                print '\n'
-
+            try:
+                thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
+            except Exception, err:
+                print err.message
+                traceback.print_exc(file=sys.stdout)
 
 class FolderNameMatcher(MediaMatcher):
     def match(self, media):
