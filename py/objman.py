@@ -229,7 +229,7 @@ class MediaFileManager(MediaLibraryWalker):
                 print 'caching matches for %s...' % (location)
                 operations.cache_match_info(location)
                 
-                q = "select id, absolute_path from es_document where index_name like '%s' and document_type like '%s' and absolute_path like '%s%s' order by absolute_path" % \
+                q = "select id, absolute_path from es_document where index_name like '%s' and doc_type like '%s' and absolute_path like '%s%s' order by absolute_path" % \
                     (constants.ES_INDEX_NAME, constants.MEDIA_FILE, location, '%')
                 for row in mySQL4es.run_query(q):
                 # for key in self.redcon.zscan_iter(operations.get_setname(constants.MEDIA_FILE)):
