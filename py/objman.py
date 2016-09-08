@@ -277,7 +277,8 @@ class MediaFileManager(MediaLibraryWalker):
                         print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
 
                     finally:
-                        operations.clear_cached_matches_for_esid(media.esid)
+                        for matcher in self.matchers:
+                            operations.clear_cached_matches_for_esid(matcher.name, media.esid)
            
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message, location])

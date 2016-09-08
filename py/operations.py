@@ -51,17 +51,17 @@ def cache_match_info(path):
 
     rows = mySQL4es.run_query(q)
     for row in rows:
-        key = '-'.join([row[2], row[0]) 
+        key = '-'.join([row[2], row[0]]) 
         redcon.sadd(key, row[1])
         
 def clear_cached_matches_for_esid(matcher_name, esid):
-    key = '-'.join(matcher_name, esid) 
+    key = '-'.join([matcher_name, esid]) 
     
     values = redcon.smembers(key)
     redcon.srem(esid, values) 
 
 def get_matches_for_esid(matcher_name, esid):
-    key = '-'.join(matcher_name, esid) 
+    key = '-'.join([matcher_name, esid]) 
         
     values = redcon.smembers(key)
     return values
