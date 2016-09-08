@@ -225,6 +225,9 @@ class MediaFileManager(MediaLibraryWalker):
                 print 'caching match ops for %s...' % (location)
                 for matcher in self.matchers:
                     operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
+
+                print 'caching matches for %s...' % (location)
+                operations.cache_match_info(location)
                 
                 q = "select id, absolute_path from es_document where absolute_path like '%s%s' order by absolute_path" % (location, '%')
                 for row in mySQL4es.run_query(q):
@@ -249,7 +252,7 @@ class MediaFileManager(MediaLibraryWalker):
                     try:
                         # if self.all_matchers_have_run(media, match_ops):
                         if self.all_matchers_have_run(media):
-                            if self.debug: print 'skipping all match operations on %s' % (media.absolute_path)
+                            if self.debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
                             continue
 
                         if esutil.doc_exists(self.es, media, True):
@@ -261,6 +264,7 @@ class MediaFileManager(MediaLibraryWalker):
                                     matcher.match(media)
                                     operations.record_op_complete(self.redcon, self.pid, media, matcher.name, 'match')
                                 elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+                    
                     except AssetException, err:
                         self.folderman.record_error(self.folderman.folder, "AssetException=" + err.message)
                         print ': '.join([err.__class__.__name__, err.message])
@@ -270,7 +274,10 @@ class MediaFileManager(MediaLibraryWalker):
                     except UnicodeDecodeError, u:
                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
                         print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
-                                
+
+                    finally:
+                        operations.clear_cached_matches_for_esid(media.esid)
+           
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message, location])
                 if self.debug: traceback.print_exc(file=sys.stdout)
@@ -452,9 +459,10 @@ def main(args):
     if args['--pattern']:
         path = []
         for p in pattern:
-            rows = mySQL4es.retrieve_like_values('es_document', ['doc_type', 'absolute_path'], [constants.MEDIA_FOLDER, p])
+            q = "select absolute_path from es_document where absolute_path like '%s%s%s' and doc_type = '%s' order by absolute_path" % ('%', p, '%', constants.MEDIA_FOLDER)
+            rows = mySQL4es.run_query(q)
             for row in rows: 
-                path.append(row[1])
+                path.append(row[0])
 
     execute(path)
 

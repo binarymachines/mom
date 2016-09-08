@@ -41,14 +41,42 @@ def get_cached_esid_for_path(red, document_type, path):
     if 'esid' in values:
         return values['esid']
 
-def key_to_path(document_type, key):
-    result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
-    return result
+def cache_match_info(path):
 
-def clear_cached_esids_for_path(red, document_type, path):
-    search = '-'.join(['path', 'esid', path]) + '*'
-    for key in red.keys(search):
-        red.delete(key)
+    q = """SELECT m.media_doc_id id, m.match_doc_id match_id
+            FROM matched m, es_document esd 
+            WHERE esd.id = m.media_doc_id
+            AND esd.absolute_path like '%s%s'
+            UNION
+            SELECT m.match_doc_id id, m.media_doc_id match_id
+            FROM matched m, es_document esd 
+            WHERE esd.id = m.match_doc_id
+            AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
+
+    counter = 1.1
+    rows = mySQL4es.run_query(q)
+    for row in rows:
+        redcon.zadd(row[0], row[1], counter)
+        counter += 1
+        
+def clear_cached_matches_for_esid(esid):
+    redcon.zremrangebyscore(esid, 0, 1000)        
+            
+def get_matches_for_esid(esid):
+    print 'checking for previous matches...'
+    values = []
+    for value in redcon.zscan_iter(esid):
+        values.append(value)
+    return values
+
+# def key_to_path(document_type, key):
+#     result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
+#     return result
+
+# def clear_cached_esids_for_path(red, document_type, path):
+#     search = '-'.join(['path', 'esid', path]) + '*'
+#     for key in red.keys(search):
+#         red.delete(key)
 
 # ESIDs
 # def cache_esids_for_path(red, document_type, path):
