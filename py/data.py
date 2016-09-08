@@ -75,7 +75,7 @@ class Asset(object):
         return is_webcast(self.absolute_path)
 
     def to_str(self):
-        return json.dumps(get_dictionary())
+        return json.dumps(self.get_dictionary())
 
 class MediaFile(Asset):
     def __init__(self):
