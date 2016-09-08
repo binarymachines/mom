@@ -124,7 +124,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
 
     def match(self, media):
-       print 'seeking matches for %s - %s' % (media.esid, media.absolute_path) 
+        print 'seeking matches for %s - %s' % (media.esid, media.absolute_path) 
         previous_matches = operations.get_matches_for_esid(media.esid)
         
         query = self.get_query(media)
