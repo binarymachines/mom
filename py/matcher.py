@@ -100,14 +100,14 @@ class ElasticSearchMatcher(MediaMatcher):
         qb = QueryBuilder(constants.ES_HOST, constants.ES_PORT)
         return qb.get_query(self.query_type, self.match_fields, values)
 
-    def print_match_query_debug_header(media, query):
+    def print_match_query_debug_header(self, media, query):
         print 'matching: %s' % (media.absolute_path)
         print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
         pp.pprint(query)
         print '\n'
         query_printed = True
         
-    def print_match_query_debug_footer(media, query, match):
+    def print_match_query_debug_footer(self, media, query, match):
 
         matchrecord = {}
         matchrecord['score'] = match['_score']
@@ -130,7 +130,7 @@ class ElasticSearchMatcher(MediaMatcher):
         query = self.get_query(media)
         query_printed = False
         if self.debug == True: 
-            print match_query_debug_header(media, query)
+            self.print_match_query_debug_header(media, query)
             query_printed = True
 
         matches = False
@@ -157,7 +157,7 @@ class ElasticSearchMatcher(MediaMatcher):
             self.record_match(media.esid,  match['_id'], self.name, constants.ES_INDEX_NAME, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
-            if self.debug: print_match_query_debug_footer(media, query, match)
+            if self.debug: self.print_match_query_debug_footer(media, query, match)
 
             try:
                 thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
