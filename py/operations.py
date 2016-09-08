@@ -344,21 +344,29 @@ def main():
     red = redis.StrictRedis('localhost')
     red.flushall()
 
-    rows = retrieve_doc_entries(constants.ES_INDEX_NAME, constants.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb")
+    rows = retrieve_doc_entries(constants.ES_INDEX_NAME, constants.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
     counter = 1.1
     for row in rows:
         path, esid = row[0], row[1]
         print 'caching %s for %s' % (esid, path)
         red.zadd(constants.MEDIA_FILE, counter, path)
-        counter = counter + 0.1
+        counter += 1
 
-        values = { 'esid': esid }
-        red.hmset(path, values)
+        # values = { 'esid': esid }
+        # red.hmset(path, values)
     
+    print '\t'.join(['score', 'path'])
+    print '\t'.join(['-----', '----'])
     for key in red.zscan_iter(constants.MEDIA_FILE):
-        print key[0]
+        print '\t'.join([str(key[1]), key[0]])
         # values = red.hgetall(key[0])
         # print values
+
+    # cur_pos = 0
+    # cur = red.zscan(constants.MEDIA_FILE, cur_pos)
+    # count = cur[0]
+    # for key in cur[1]:
+    #     print key[0]
 
 # main
 if __name__ == '__main__':
