@@ -43,22 +43,27 @@ def get_cached_esid_for_path(red, document_type, path):
 
 def cache_match_info(path):
 
-    q = """SELECT m.media_doc_id id, m.match_doc_id match_id FROM matched m, es_document esd 
+    q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
             WHERE esd.id = m.media_doc_id AND esd.absolute_path like '%s%s'
            UNION
-           SELECT m.match_doc_id id, m.media_doc_id match_id FROM matched m, es_document esd 
+           SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
             WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
 
     rows = mySQL4es.run_query(q)
     for row in rows:
-        redcon.sadd(row[0], row[1])
+        key = '-'.join([row[2], row[0]) 
+        redcon.sadd(key, row[1])
         
-def clear_cached_matches_for_esid(esid):
-    values = redcon.smembers(esid)
+def clear_cached_matches_for_esid(matcher_name, esid):
+    key = '-'.join(matcher_name, esid) 
+    
+    values = redcon.smembers(key)
     redcon.srem(esid, values) 
 
-def get_matches_for_esid(esid):
-    values = redcon.smembers(esid)
+def get_matches_for_esid(matcher_name, esid):
+    key = '-'.join(matcher_name, esid) 
+        
+    values = redcon.smembers(key)
     return values
 
 # def key_to_path(document_type, key):
