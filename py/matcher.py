@@ -103,10 +103,10 @@ class ElasticSearchMatcher(MediaMatcher):
     def match(self, media):
         
         previous_matches = operations.get_matches_for_esid(media.esid)
-        # for row in mySQL4es.retrieve_values('matched', ['matcher_name', 'media_doc_id', 'match_doc_id'], [self.name, media.esid]):
-        #     previous_matches.append(row[2])
-        # for row in mySQL4es.retrieve_values('matched', ['matcher_name', 'match_doc_id', 'media_doc_id'], [self.name, media.esid]):
-        #     previous_matches.append(row[2])
+        
+        if len(previous_matches) > 0:
+            print 'previously matched esids for %s:' % (media.esid)
+            print previous_matches
 
         query = self.get_query(media)
         query_printed = False

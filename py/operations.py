@@ -43,15 +43,11 @@ def get_cached_esid_for_path(red, document_type, path):
 
 def cache_match_info(path):
 
-    q = """SELECT m.media_doc_id id, m.match_doc_id match_id
-            FROM matched m, es_document esd 
-            WHERE esd.id = m.media_doc_id
-            AND esd.absolute_path like '%s%s'
-            UNION
-            SELECT m.match_doc_id id, m.media_doc_id match_id
-            FROM matched m, es_document esd 
-            WHERE esd.id = m.match_doc_id
-            AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
+    q = """SELECT m.media_doc_id id, m.match_doc_id match_id FROM matched m, es_document esd 
+            WHERE esd.id = m.media_doc_id AND esd.absolute_path like '%s%s'
+           UNION
+           SELECT m.match_doc_id id, m.media_doc_id match_id FROM matched m, es_document esd 
+            WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
 
     counter = 1.1
     rows = mySQL4es.run_query(q)
@@ -63,7 +59,6 @@ def clear_cached_matches_for_esid(esid):
     redcon.zremrangebyscore(esid, 0, 1000)        
             
 def get_matches_for_esid(esid):
-    print 'checking for previous matches...'
     values = []
     for value in redcon.zscan_iter(esid):
         values.append(value)
