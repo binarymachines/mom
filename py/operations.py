@@ -35,18 +35,20 @@ def get_cached_esid_for_path(red, document_type, path):
         return values['esid']
 
 def cache_match_info(path):
+    try:
+        q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
+                WHERE esd.id = m.media_doc_id AND esd.absolute_path like '%s%s'
+            UNION
+            SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
+                WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
 
-    q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
-            WHERE esd.id = m.media_doc_id AND esd.absolute_path like '%s%s'
-           UNION
-           SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
-            WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
+        rows = mySQL4es.run_query(q)
+        for row in rows:
+            key = '-'.join([row[2], row[0]]) 
+            redcon.sadd(key, row[1])
+    except Exception, err:
+        print err.message
 
-    rows = mySQL4es.run_query(q)
-    for row in rows:
-        key = '-'.join([row[2], row[0]]) 
-        redcon.sadd(key, row[1])
-        
 def clear_cached_matches_for_esid(matcher_name, esid):
     key = '-'.join([matcher_name, esid]) 
     
@@ -175,13 +177,16 @@ def cache_operations_for_path(red, path, operation, operator=None):
         print 'caching %s operations for %s' % (operations, path)
     rows = retrieve_complete_ops(path, operation, operator)
     for row in rows:
-        if operator == None:
-            key = '-'.join([row[0], operation])
-        else:
-            key = '-'.join([row[0], operation, operator])
+        try:
+            if operator == None:
+                key = '-'.join([row[0], operation])
+            else:
+                key = '-'.join([row[0], operation, operator])
 
-        values = { 'persisted': True }
-        red.hmset(key, values)
+            values = { 'persisted': True }
+            red.hmset(key, values)
+        except Exception, err:
+            print err.message
 
 def operation_in_cache(red, path, operation, operator=None):
     if operator == None:
