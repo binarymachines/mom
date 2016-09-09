@@ -5,7 +5,7 @@ import sys
 import pprint
 import random
 import mySQL4es
-import constants
+import config
 import MySQLdb as mdb
 
 from elasticsearch import Elasticsearch

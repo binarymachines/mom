@@ -2,7 +2,7 @@
 
 import os, sys, time, json
 import pprint
-import constants
+import config
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -80,7 +80,7 @@ class Asset(object):
 class MediaFile(Asset):
     def __init__(self):
         super(MediaFile, self).__init__()
-        self.document_type = constants.MEDIA_FILE
+        self.document_type = config.MEDIA_FILE
         self.ext = None
         self.file_name = None
         self.file_size = 0
@@ -136,7 +136,7 @@ class MediaFile(Asset):
 class MediaFolder(Asset):
     def __init__(self):
         super(MediaFolder, self).__init__()
-        self.document_type = constants.MEDIA_FOLDER
+        self.document_type = config.MEDIA_FOLDER
 
     # TODO: call Asset.get_dictionary and append values
     def get_dictionary(self):
@@ -166,7 +166,7 @@ class MediaFolder(Asset):
 # path functions for media files and folders
 
 def ignore(path):
-    for f in constants.IGNORE:
+    for f in config.ignore:
         if f in path:
             return True
     return False
@@ -186,19 +186,19 @@ def is_filed(path):
     return False
 
 def is_filed_as_compilation(path):
-    for f in constants.COMP:
+    for f in config.compilation:
         if f in path:
             return True
     return False
 
 def is_filed_as_live(path):
-    for f in constants.LIVE:
+    for f in config.live:
         if f in path:
             return True
     return False
 
 def is_new(path):
-    for f in constants.NEW:
+    for f in config.new:
         if f in path:
             return True
     return False
@@ -211,19 +211,19 @@ def is_noscan(path):
     return False
 
 def is_random(path):
-    for f in constants.RANDOM:
+    for f in config.random:
         if f in path:
             return True
     return False
 
 def is_recent(path):
-    for f in constants.RECENT:
+    for f in config.recent:
         if f in path:
             return True
     return False
 
 def is_unsorted(path):
-    for f in constants.UNSORTED:
+    for f in config.unsorted:
         if f in path:
             return True
     return False

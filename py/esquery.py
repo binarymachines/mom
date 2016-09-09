@@ -10,7 +10,7 @@
 
 import os, sys, json, pprint
 from elasticsearch import Elasticsearch
-import constants, mySQL4es
+import config, mySQL4es
 from docopt import docopt
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -27,7 +27,7 @@ class QueryBuilder:
         pp.pprint(query)
 
         es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
-        res = es.search(index=constants.ES_INDEX_NAME, doc_type=constants.MEDIA_FILE, body=query)
+        res = es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
 
         print 'results\n----------------------\n'
         for doc in res['hits']['hits']:
@@ -42,7 +42,7 @@ class QueryBuilder:
     #     pp.pprint(query)
     #
     #     es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
-    #     res = es.search(index=constants.ES_INDEX_NAME, doc_type=constants.MEDIA_FILE, body=query)
+    #     res = es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
     #
     #     print 'results\n----------------------\n'
     #     for doc in res['hits']['hits']:
@@ -161,7 +161,7 @@ class QueryBuilder:
 
 # main
 def main(args):
-    # constants.ES_INDEX_NAME = 'media'
+    # config.es_index = 'media'
     # elastic_host = args['<elasticsearch_host>']
     # elastic_port = 9200
     # print 'Will connect to ES host %s:%s' % (elastic_host, elastic_port)

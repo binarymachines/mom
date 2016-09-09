@@ -1,13 +1,10 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, random, logging, traceback
-from elasticsearch import Elasticsearch
-import constants, mySQL4es, esutil, operations
+import os, json, pprint, sys, random, logging, traceback, thread
 from mutagen.id3 import ID3, ID3NoHeaderError
+from elasticsearch import Elasticsearch
 from data import MediaFile
-
-import constants
-import thread
+import config, mySQL4es, esutil, operations
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -19,9 +16,9 @@ class ScanCriteria:
 class Scanner:
     def __init__(self, es, foldermanager):
         self.es = es
-        self.debug = constants.SCANNER_DEBUG
+        self.debug = config.scanner_debug
         self.foldermanager = foldermanager
-        self.document_type = constants.MEDIA_FILE
+        self.document_type = config.MEDIA_FILE
 
     # TODO: figure out why this fails
     def add_artist_and_album_to_db(self, data):
@@ -74,10 +71,10 @@ class Scanner:
             tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
             for tag in tags:
-                if tag[0] in constants.FIELDS:
+                if tag[0] in config.FIELDS:
                     data[tag[0]] = tag[1]
                 if tag[0] == "TXXX":
-                    for sub_field in constants.SUB_FIELDS:
+                    for sub_field in config.SUB_FIELDS:
                         if sub_field in tag[1]:
                             subtags = tag[1].split('=')
                             key=subtags[0].replace(' ', '_').upper()
@@ -106,13 +103,13 @@ class Scanner:
             return
 
         if self.debug: "indexing file: %s" % (media.file_name)
-        res = self.es.index(index=constants.ES_INDEX_NAME, doc_type=self.document_type, body=json.dumps(data))
+        res = self.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
 
         if res['_shards']['successful'] == 1:
             esid = res['_id']
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
             if self.debug: print "inserting NEW esid into MySQL"
-            operations.insert_esid(constants.ES_INDEX_NAME, self.document_type, media.esid, media.absolute_path)
+            operations.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))

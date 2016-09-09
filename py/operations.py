@@ -3,7 +3,7 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import data, mySQL4es, constants, config
+import data, mySQL4es, config, config_reader
 import MySQLdb as mdb
 from data import AssetException
 
@@ -14,7 +14,7 @@ def get_setname(document_type):
 
 def cache_doc_info(red, document_type, source_path):
     # if self.debug: print 'caching %s doc info for %s...' % (document_type, source_path)
-    rows = retrieve_doc_entries(constants.ES_INDEX_NAME, document_type, source_path)
+    rows = retrieve_doc_entries(config.es_index, document_type, source_path)
     key = get_setname(document_type)
     for row in rows:
         path = row[0]
@@ -72,7 +72,7 @@ def get_matches_for_esid(matcher_name, esid):
 
 # ESIDs
 # def cache_esids_for_path(red, document_type, path):
-#     rows = retrieve_esids(constants.ES_INDEX_NAME, document_type, path)
+#     rows = retrieve_esids(config.es_index, document_type, path)
 #     for row in rows:
 #         key = '-'.join(['esid', 'path', row[1]])
 #         red.set(key, row[0])
@@ -105,14 +105,14 @@ def write_ensured_paths(red):
     search = 'ensure-*'
     for key in red.scan_iter(search):
         values = red.hgetall(key)
-        # if constants.SQL_DEBUG: print("\nchecking for row for: "+ values['absolute_path'])
+        # if config.mysql_debug: print("\nchecking for row for: "+ values['absolute_path'])
         path = values['absolute_path']
         doc_info = red.hgetall(path)
         if not 'esid' in doc_info:
             try:
                 rows = mySQL4es.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
                 if len(rows) ==0:
-                    if constants.SQL_DEBUG: 
+                    if config.mysql_debug: 
                         print('Updating MySQL...')
                     
                     insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
@@ -151,9 +151,9 @@ def retrieve_doc_entries(index, document_type, file_path):
 
     try:
         query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
-            (mySQL4es.quote_if_string(constants.ES_INDEX_NAME), mySQL4es.quote_if_string(document_type), mySQL4es.quote_if_string(''.join([file_path, '%'])))
+            (mySQL4es.quote_if_string(config.es_index), mySQL4es.quote_if_string(document_type), mySQL4es.quote_if_string(''.join([file_path, '%'])))
        
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
@@ -284,7 +284,7 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
             % (operator, operation, parentpath, '%')
 
     try:
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
@@ -332,22 +332,22 @@ def write_ops_for_path(red, pid, path, operator, operation):
 
         except AssetException, error:
             mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
-                [constants.ES_INDEX_NAME, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
+                [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
 
     print 'operations for %s have been updated in MySQL' % (path)
 
 def main():
-    config.configure()
+    config_reader.configure()
 
     red = redis.StrictRedis('localhost')
     red.flushall()
 
-    rows = retrieve_doc_entries(constants.ES_INDEX_NAME, constants.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
+    rows = retrieve_doc_entries(config.es_index, config.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
     counter = 1.1
     for row in rows:
         path, esid = row[0], row[1]
         print 'caching %s for %s' % (esid, path)
-        red.rpush(constants.MEDIA_FILE, path)
+        red.rpush(config.MEDIA_FILE, path)
         counter += 1
 
         values = { 'esid': esid }
@@ -356,7 +356,7 @@ def main():
     print '\t\t\t'.join(['esid', 'path'])
     print '\t\t\t'.join(['-----', '----'])
 
-    for key in red.lrange(constants.MEDIA_FILE, 0, -1):
+    for key in red.lrange(config.MEDIA_FILE, 0, -1):
         esid = red.hgetall(key)['esid']
         print '\t'.join([esid, key])
 

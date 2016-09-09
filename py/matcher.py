@@ -2,7 +2,7 @@
 
 import os, json, pprint, sys, random, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import data, constants, operations
+import data, config, operations
 from esquery import QueryBuilder
 import mySQL4es
 
@@ -13,7 +13,7 @@ def clean_str(string):
 
 class MediaMatcher(object):
     def __init__(self, name, mediaManager):
-        self.debug = constants.MATCHER_DEBUG
+        self.debug = config.matcher_debug
         self.es = mediaManager.es
         self.comparison_fields = []
         self.document_type = mediaManager.document_type
@@ -25,12 +25,12 @@ class MediaMatcher(object):
     # TODO: assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
 
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, constants.ES_INDEX_NAME])
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, config.es_index])
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, constants.ES_INDEX_NAME])
+        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, config.es_index])
         if len(rows) == 1:
             return True
 
@@ -97,7 +97,7 @@ class ElasticSearchMatcher(MediaMatcher):
             if field in media.doc['_source']:
                 values[field] = media.doc['_source'][field]
 
-        qb = QueryBuilder(constants.ES_HOST, constants.ES_PORT)
+        qb = QueryBuilder(config.es_host, config.es_port)
         return qb.get_query(self.query_type, self.match_fields, values)
 
     def print_match_query_debug_header(self, media, query):
@@ -134,7 +134,7 @@ class ElasticSearchMatcher(MediaMatcher):
             query_printed = True
 
         matches = False
-        res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=constants.MEDIA_FILE, body=query)
+        res = self.es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches: 
                 continue
@@ -154,13 +154,13 @@ class ElasticSearchMatcher(MediaMatcher):
                     if field in match['_source'] and field in media.doc['_source']:
                         matched_fields += [field]
 
-            self.record_match(media.esid,  match['_id'], self.name, constants.ES_INDEX_NAME, matched_fields, match['_score'],
+            self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
             if self.debug: self.print_match_query_debug_footer(media, query, match)
 
             try:
-                thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], constants.ES_INDEX_NAME, self.document_type, ) )
+                thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], config.es_index, self.document_type, ) )
             except Exception, err:
                 print err.message
                 traceback.print_exc(file=sys.stdout)

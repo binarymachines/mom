@@ -1,26 +1,26 @@
 #! /usr/bin/python
 import os, sys, pprint, json
 
-import config, constants, mySQL4es, operations
+import config, config_reader, mySQL4es, operations
 from data import AssetException
 
 def main():
-    config.configure()
+    config_reader.configure()
     folders = mySQL4es.retrieve_values('media_location_folder', ['name'], [])
     for folder in folders:
-        asset = os.path.join(constants.START_FOLDER, folder[0])
-        files = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, constants.MEDIA_FOLDER])
+        asset = os.path.join(config.START_FOLDER, folder[0])
+        files = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.MEDIA_FOLDER])
         for f in files:
             filename = f[0]
             doc_type = f[1]
     
             try:
-                esid = operations.retrieve_esid(constants.ES_INDEX_NAME, doc_type, filename)
-                constants.SQL_DEBUG = True
+                esid = operations.retrieve_esid(config.es_index, doc_type, filename)
+                config.mysql_debug = True
                 if esid is not None:
                     print ','.join([esid, filename]) 
                 else:
-                    mySQL4es.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [constants.ES_INDEX_NAME, doc_type, filename, "NO ESID"])
+                    mySQL4es.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [config.es_index, doc_type, filename, "NO ESID"])
 
             except AssetException, error:
                 print error.message
@@ -30,7 +30,7 @@ def main():
             except Exception, error:
                 print error.message
             finally:
-                constants.SQL_DEBUG = False
+                config.mysql_debug = False
 
 
 # main

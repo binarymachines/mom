@@ -11,7 +11,7 @@
 import os, sys, traceback, pprint, json, subprocess
 from docopt import docopt
 
-import config, constants, mySQL4es, esutil
+import config, config_reader, mySQL4es, esutil
 from data import MediaFile, MediaFolder
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -76,7 +76,7 @@ def calculate_weight(path, weights):
 
 def get_discounts():
     discounts = {}
-    rows = mySQL4es.retrieve_values('match_discount', ['target', 'method', 'value'], [constants.MEDIA_FILE])
+    rows = mySQL4es.retrieve_values('match_discount', ['target', 'method', 'value'], [config.MEDIA_FILE])
     for row in rows:
         discounts[row[1]] = float(row[2])
 
@@ -84,7 +84,7 @@ def get_discounts():
 
 def get_weights():
     weights = {}
-    rows = mySQL4es.retrieve_values('match_weight', ['target', 'pattern', 'value'], [constants.MEDIA_FILE])
+    rows = mySQL4es.retrieve_values('match_weight', ['target', 'pattern', 'value'], [config.MEDIA_FILE])
     for row in rows:
         weights[row[1]] = float(row[2])
 
@@ -92,7 +92,7 @@ def get_weights():
 
 def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generate= False, outputfile=None, append_existing=False):
     try: 
-        es = esutil.connect(constants.ES_HOST, constants.ES_PORT)
+        es = esutil.connect(config.es_host, config.es_port)
 
         weights = get_weights();
         discounts = get_discounts();
@@ -259,7 +259,7 @@ def get_folders(path):
 
     q = """SELECT id, absolute_path FROM es_document 
             WHERE index_name = '%s' and doc_type = 'media_folder' 
-              and absolute_path like '%s%s%s' ORDER BY absolute_path""" % (constants.ES_INDEX_NAME, '%', path, '%')
+              and absolute_path like '%s%s%s' ORDER BY absolute_path""" % (config.es_index, '%', path, '%')
 
     return mySQL4es.run_query(q)
 
@@ -268,13 +268,13 @@ def get_matches(esid, reverse=False, union=False):
     query = {'match': """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result 
                            FROM matched m, es_document es 
                          WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.media_doc_id = '%s'
-                         """ % (constants.ES_INDEX_NAME, esid) }
+                         """ % (config.es_index, esid) }
 
     
     query['reverse'] = """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result 
                                   FROM matched m, es_document es 
                                 WHERE es.index_name = '%s' and es.id = m.media_doc_id and m.match_doc_id = '%s'
-                                """ % (constants.ES_INDEX_NAME, esid)
+                                """ % (config.es_index, esid)
 
     query['union'] = query['match'] + ' union ' + query['reverse']
 
@@ -291,12 +291,12 @@ def get_media_files(path, reverse=False, union=False):
     query = {'match':  """SELECT es.id, es.absolute_path FROM es_document es 
                         WHERE index_name = '%s' 
                             and es.absolute_path LIKE "%s%s" 
-                            and es.id IN (SELECT media_doc_id FROM matched) ORDER BY es.absolute_path""" % (constants.ES_INDEX_NAME, path, '%') }
+                            and es.id IN (SELECT media_doc_id FROM matched) ORDER BY es.absolute_path""" % (config.es_index, path, '%') }
                 
     query['reverse'] = """SELECT es.id, es.absolute_path FROM es_document es 
                 WHERE index_name = '%s' 
                     and es.absolute_path LIKE "%s%s" 
-                    and es.id IN (SELECT match_doc_id FROM matched) ORDER BY es.absolute_path""" % (constants.ES_INDEX_NAME, path, '%')
+                    and es.id IN (SELECT match_doc_id FROM matched) ORDER BY es.absolute_path""" % (config.es_index, path, '%')
         
     query['union'] = query['match'] + ' union ' + query['reverse']
 
@@ -310,18 +310,18 @@ def get_media_meta_data(es, esid, media_data):
 
     mediaFile = MediaFile()
     mediaFile.esid = esid
-    mediaFile.document_type = constants.MEDIA_FILE
+    mediaFile.document_type = config.MEDIA_FILE
     try:
         doc = esutil.get_doc(mediaFile, es)
 
         media_data['file_size'] = doc['_source']['file_size']
 
         tag_data = {}
-        for field in constants.FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in config.FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
 
-        for field in constants.SUB_FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in config.SUB_FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
         
@@ -413,7 +413,7 @@ def main(args):
     
     outputfile = '.'.join([pattern.split('/')[-1].replace(' ', '_'), 'json'])
 
-    config.configure(config.make_options(args))
+    config_reader.configure(config_reader.make_options(args))
     generate_match_doc(exclude_ignore, show_in_subl, pattern, False, outputfile, False) 
 
 # main

@@ -1,5 +1,5 @@
 import os, sys, mySQL4es, redis
-import constants, operations, config
+import operations, config, config_reader
 
 TARGET_PATH = 0
 OPERATION = 1
@@ -34,7 +34,7 @@ def cache_operations(red, path, operation, operator=None):
 #     counter_val += 1
 
 def main():
-    config.configure()
+    config_reader.configure()
     cache_operations()
 
     # main

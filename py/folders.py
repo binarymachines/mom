@@ -6,7 +6,7 @@ from elasticsearch.exceptions import ConnectionError
 from data import MediaFolder
 import mySQL4es, esutil
 import operations
-import constants
+import config
 import alchemy
 from data import AssetException
 
@@ -17,8 +17,8 @@ class MediaFolderManager:
     def __init__(self, es, indexname):
         self.es = es
         self.folder = None
-        self.document_type = constants.MEDIA_FOLDER
-        self.debug = constants.FOLDER_DEBUG
+        self.document_type = config.MEDIA_FOLDER
+        self.debug = config.folder_debug
         self.pid = os.getpid()
 
     def folder_scanned(self, path):
@@ -40,7 +40,7 @@ class MediaFolderManager:
     def find_doc(self, folder):
         try:
             if self.debug == True: print("searching for " + folder.absolute_path + '...')
-            res = self.es.search(index=constants.ES_INDEX_NAME, doc_type=self.document_type, body=
+            res = self.es.search(index=config.es_index, doc_type=self.document_type, body=
             {
                 "query": { "match" : { "absolute_path": folder.absolute_path }}
             })
@@ -75,7 +75,7 @@ class MediaFolderManager:
             if folder is not None and error is not None:
                 self.folder.latest_error = error
                 if self.debug: print("recording error: " + error + ", " + folder.esid + ", " + folder.absolute_path)
-                res = self.es.update(index=constants.ES_INDEX_NAME, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
+                res = self.es.update(index=config.es_index, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
         except ConnectionError, err:
             print ': '.join([err.__class__.__name__, err.message])
             # if self.debug:
@@ -98,13 +98,13 @@ class MediaFolderManager:
             data = folder.get_dictionary()
             json_str = json.dumps(data)
 
-            res = self.es.index(index=constants.ES_INDEX_NAME, doc_type=self.document_type, body=json_str)
+            res = self.es.index(index=config.es_index, doc_type=self.document_type, body=json_str)
             if res['_shards']['successful'] == 1:
                 # if self.debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
                 # update MySQL
-                operations.insert_esid(constants.ES_INDEX_NAME, folder.document_type, folder.esid, folder.absolute_path)
-                # alchemy.insert_asset(folder.esid, constants.ES_INDEX_NAME, folder.document_type, folder.absolute_path)
+                operations.insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                # alchemy.insert_asset(folder.esid, config.es_index, folder.document_type, folder.absolute_path)
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 
