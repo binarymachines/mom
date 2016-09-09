@@ -18,6 +18,8 @@ def configure(options=None):
 
             # TODO: these constants should be assigned to config and config should be a constructor parameter for whatever needs config
 
+            constants.REDIS_HOST = configure_section_map(config, "Redis")['host']
+
             constants.OBJMAN_DEBUG = configure_section_map(config, "Debug")['objman'].lower() == 'true'
             constants.SCANNER_DEBUG = configure_section_map(config, "Debug")['scanner'].lower() == 'true'
             constants.MATCHER_DEBUG = configure_section_map(config, "Debug")['matcher'].lower() == 'true'

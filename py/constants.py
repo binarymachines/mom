@@ -1,4 +1,6 @@
 #! /usr/bin/python
+REDIS_HOST = None
+
 CHECK_FREQUENCY = 10
 
 MEDIA_FILE = 'media_file'
