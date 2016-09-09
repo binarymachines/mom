@@ -11,7 +11,9 @@
             "program": "${workspaceRoot}/py/objman.py",
             "args": [ 
                 "--pattern", 
-                "music/compilations" 
+                "music/compilations"
+                // "--path",
+                // "/media/removable/Audio/music/compilations" 
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-import os, sys, datetime, traceback
+import os, sys, datetime, traceback, config
 import MySQLdb as mdb
-import constants
-from data import AssetException
 
 def quote_if_string(value):
     if isinstance(value, basestring):
@@ -21,10 +19,10 @@ def insert_values(table_name, field_names, field_values):
 
         query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
 
-        if constants.SQL_DEBUG:
+        if config.mysql_debug:
             print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', ' (\n\t\t').replace(')', '\n\t\t)') + '\n'
 
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
@@ -70,15 +68,15 @@ def retrieve_values(table_name, field_names, field_values, order_by=[]):
         # if order_by is not []:
         #     query += " ORDER BY " + str(order_by).replace('[', '').replace(']', '')
 
-        if constants.SQL_DEBUG:
+        if config.mysql_debug:
             print '\n\t' + query.replace('WHERE', '\n\t      WHERE').replace('AND', '\n\t\tAND').replace('FROM', '\n\t       FROM')
 
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
 
-        if constants.SQL_DEBUG:
+        if config.mysql_debug:
             if len(rows) > 0: print('\nreturning rows:\n')
             for row in rows:
                 print row
@@ -116,15 +114,15 @@ def retrieve_like_values(table_name, field_names, field_values):
                 query += ' AND '
             else: break
 
-        if constants.SQL_DEBUG:
+        if config.mysql_debug:
             print '\n\t' + query.replace('WHERE', '\n\t      WHERE').replace('AND', '\n\t\tAND').replace('FROM', '\n\t       FROM')
 
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
 
-        if constants.SQL_DEBUG:
+        if config.mysql_debug:
             if len(rows) > 0: print('\nreturning rows:\n')
             for row in rows:
                 print row
@@ -141,18 +139,18 @@ def retrieve_like_values(table_name, field_names, field_values):
 
 def run_query(query):
 
-    if constants.SQL_DEBUG: print query
+    if config.mysql_debug: print query
     con = None
     rows = []
 
     try:
 
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
 
-        if constants.SQL_DEBUG:
+        if config.mysql_debug:
             if len(rows) > 0: print('\nreturning rows:\n')
             for row in rows:
                 print row
@@ -176,7 +174,7 @@ def execute_query(query):
 
     try:
 
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
@@ -215,11 +213,11 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
             query += ' AND '
         else: break
 
-    if constants.SQL_DEBUG:
+    if config.mysql_debug:
         print '\n\t' + query.replace('WHERE', '\n\t WHERE').replace(', ', ',\n\t       ').replace('SET', '\n\t   SET').replace('AND', '\n\t   AND')
 
     try:
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
@@ -238,7 +236,7 @@ def truncate(table_name):
     query = 'truncate ' + table_name
 
     try:
-        con = mdb.connect(constants.MYSQL_HOST, constants.MYSQL_USER, constants.MYSQL_PASS, constants.MYSQL_SCHEMA)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
