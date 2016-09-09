@@ -13,29 +13,22 @@ def get_setname(document_type):
     return '-'.join(['path', 'esid', document_type])
 
 def cache_doc_info(red, document_type, source_path):
-    # if self.debug: print 'zcaching %s doc info for %s...' % (document_type, source_path)
+    # if self.debug: print 'caching %s doc info for %s...' % (document_type, source_path)
     rows = retrieve_doc_entries(constants.ES_INDEX_NAME, document_type, source_path)
     key = get_setname(document_type)
-    counter = 1.1
     for row in rows:
         path = row[0]
         esid = row[1]
         # print 'caching %s for %s' % (esid, path)
-        red.zadd(key, path, counter)
-        counter += 0.1
-
+        red.rpush(key, path)
+        
         values = { 'esid': esid }
         red.hmset(path, values)
 
 def clear_cached_doc_info(red, document_type, source_path):
     setname = get_setname(document_type)
-    for key in red.zscan_iter(setname):
-        path = key[0]
-        values = red.hgetall(path)
-        if values is not None:
-            red.delete(path)
-            red.zrem(setname, key)
-
+    red.ltrim(setname, 0, -1)
+        
 def get_cached_esid_for_path(red, document_type, path):
     values = red.hgetall(path)
     if 'esid' in values:
@@ -296,7 +289,7 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
-        # raise Exception(e.message)
+        raise Exception(e.message)
 
     finally:
         if con:

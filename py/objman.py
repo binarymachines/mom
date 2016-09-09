@@ -229,14 +229,10 @@ class MediaFileManager(MediaLibraryWalker):
                 print 'caching matches for %s...' % (location)
                 operations.cache_match_info(location)
                 
-                q = "select distinct id, absolute_path from es_document where index_name like '%s' and doc_type like '%s' and absolute_path like '%s%s' order by absolute_path" % \
-                    (constants.ES_INDEX_NAME, constants.MEDIA_FILE, location, '%')
-                for row in mySQL4es.run_query(q):
-                # for key in self.redcon.zscan_iter(operations.get_setname(constants.MEDIA_FILE)):
-                #     values = self.redcon.hgetall(key[0])
-                    
-                    # if not 'esid' in values:
-                    #     continue
+                for key in self.redcon.lrange(operations.get_setname(constants.MEDIA_FILE), 0, -1):
+                    values = self.redcon.hgetall(key)
+                    if not 'esid' in values:
+                        continue
                          
                     opcount += 1
                     if opcount % constants.CHECK_FREQUENCY == 0:
@@ -244,10 +240,8 @@ class MediaFileManager(MediaLibraryWalker):
                         self.check_for_reconfig_request()
 
                     media = MediaFile()
-                    media.esid = row[0]
-                    media.absolute_path = row[1]
-                    # media.absolute_path = key[0]
-                    # media.esid = values['esid']
+                    media.absolute_path = key
+                    media.esid = values['esid']
                     media.document_type = constants.MEDIA_FILE
 
                     try:
@@ -273,6 +267,10 @@ class MediaFileManager(MediaLibraryWalker):
                         self.handle_asset_exception(err, media.absolute_path)
                     
                     except UnicodeDecodeError, u:
+                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
+                        print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
+
+                    except Exception, u:
                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
                         print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
 

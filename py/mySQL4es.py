@@ -32,7 +32,7 @@ def insert_values(table_name, field_names, field_values):
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
         print message
-        raise e
+        raise Exception(e.message)
 
     finally:
         if con:
@@ -246,7 +246,7 @@ def truncate(table_name):
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
-
+        raise Exception(e.message)
     finally:
         if con:
             con.close()
