@@ -270,9 +270,9 @@ class MediaFileManager(MediaLibraryWalker):
                         self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
                         print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
 
-                    except Exception, u:
-                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
-                        print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
+                    except Exception, err:
+                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+                        print ': '.join([err.__class__.__name__, err.message, media.absolute_path])
 
                     finally:
                         for matcher in self.matchers:
