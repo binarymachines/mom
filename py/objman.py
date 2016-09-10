@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 '''
-   Usage: objman.py [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--checkforbugs]
+   Usage: objman.py [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs]
 
    --path, -p                   The path to scan
 
@@ -59,7 +59,8 @@ class MediaFileManager(MediaLibraryWalker):
         print 'clearing data from previous run'
         for matcher in self.matchers:
             operations.write_ops_for_path(self.redcon, self.pid, '/', matcher.name, 'match')
-        operations.write_ensured_paths(self.redcon)       
+        operations.write_ensured_paths(self.redcon)  
+
         print 'flushing reddis cache...'
         self.redcon.flushall()
 
@@ -415,8 +416,9 @@ def execute(path=None):
     s.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
-            for genre in config.genre_folders:
-                s.locations.append(os.path.join(location, genre))
+            s.locations.append(location)            
+            # for genre in config.genre_folders:
+            #     s.locations.append(os.path.join(location, genre))
 
         for location in config.locations_ext: 
             s.locations.append(location)            
