@@ -118,7 +118,7 @@ def write_ensured_paths(red):
                     insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
 
             except Exception, e:
-                print "Error %d: %s" % (e.args[0], e.args[1])
+                print e.message
             finally:
                 red.delete(key)
 
