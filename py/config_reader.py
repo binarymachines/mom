@@ -54,6 +54,7 @@ def configure(options=None):
             config.recent = get_folder_constants('recent')
             config.unsorted = get_folder_constants('unsorted')
 
+            config.genre_folders = get_genre_folders() 
             config.locations = get_locations() 
             config.locations_ext = get_locations_ext()
 
@@ -103,6 +104,14 @@ def get_folder_constants(foldertype):
     rows = mySQL4es.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
     for r in rows:
         result.append(r[1])
+    return result
+
+def get_genre_folders():
+    result  = []
+    rows = mySQL4es.retrieve_values('media_genre_folder', ['name'], [])
+    for row in rows:
+        result.append(row[0])
+
     return result
 
 def get_locations():
