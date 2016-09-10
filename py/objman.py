@@ -190,6 +190,7 @@ class MediaFileManager(MediaLibraryWalker):
         return skip_entirely
     
     def path_exists_in_data(self, path):
+        path = path.replace("'", "\'")
         q = "select * from es_document where index_name = '%s' and doc_type = '%s' and absolute_path like '%s%s' limit 1" % \
             (config.es_index, config.MEDIA_FOLDER, path, '%')
         rows = mySQLintf.run_query(q)
