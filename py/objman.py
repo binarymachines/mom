@@ -16,7 +16,7 @@ from elasticsearch.exceptions import ConnectionError
 from data import MediaFile
 from mutagen.id3 import ID3, ID3NoHeaderError
 from folders import MediaFolderManager
-import mySQL4es, util, esutil
+import mySQLintf, util, esutil
 # from matchfinder import matchfinder
 from matcher import ElasticSearchMatcher
 from scanner import ScanCriteria, Scanner
@@ -189,10 +189,10 @@ class MediaFileManager(MediaLibraryWalker):
 
         return skip_entirely
     
-    def check_for_content(self, path):
+    def path_exists_in_data(self, path):
         q = "select * from es_document where index_name = '%s' and doc_type = '%s' and absolute_path like '%s%s' limit 1" % \
             (config.es_index, config.MEDIA_FOLDER, path, '%')
-        rows = mySQL4es.run_query(q)
+        rows = mySQLintf.run_query(q)
         if len(rows) == 1:
             return True
 
@@ -201,7 +201,7 @@ class MediaFileManager(MediaLibraryWalker):
         opcount = 0
         self.active_criteria = criteria
         for location in criteria.locations:            
-            if not self.check_for_content(location):
+            if not self.path_exists_in_data(location):
                 continue
             try:
                 location += '/'
@@ -344,11 +344,11 @@ class MediaFileManager(MediaLibraryWalker):
     def handle_asset_exception(self, error, path):
         if error.message.lower().startswith('multiple'):
             for item in  error.data:
-                mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+                mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
         # elif error.message.lower().startswith('unable'):
         # elif error.message.lower().startswith('NO DOCUMENT'):
         else:
-            mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
+            mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
 
     def run(self, criteria):
         self.start_time =  operations.record_exec_begin(self.redcon, self.pid)
@@ -374,7 +374,7 @@ class MediaFileManager(MediaLibraryWalker):
         #     self.run_cleanup(criteria)
 
     def setup_matchers(self):
-        rows = mySQL4es.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
+        rows = mySQLintf.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
         for r in rows:
             matcher = ElasticSearchMatcher(r[1], self)
             matcher.query_type = r[2]
@@ -384,7 +384,7 @@ class MediaFileManager(MediaLibraryWalker):
 
     def record_matches_as_ops(self):
         pid = os.getpid()
-        rows = mySQL4es.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
+        rows = mySQLintf.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
         for r in rows:
             media = MediaFile()
             matcher_name = r[1]
@@ -464,7 +464,7 @@ def main(args):
         path = []
         for p in pattern:
             q = "select absolute_path from es_document where absolute_path like '%s%s%s' and doc_type = '%s' order by absolute_path" % ('%', p, '%', config.MEDIA_FOLDER)
-            rows = mySQL4es.run_query(q)
+            rows = mySQLintf.run_query(q)
             for row in rows: 
                 path.append(row[0])
 

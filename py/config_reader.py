@@ -1,6 +1,6 @@
 import sys, os, traceback, ConfigParser
 
-import config, mySQL4es
+import config, mySQLintf
 
 def configure(options=None):
     
@@ -56,7 +56,7 @@ def configure(options=None):
 
             config.genre_folders = get_genre_folders() 
             config.genre_folders.sort()
-            
+
             config.locations = get_locations() 
             config.locations.sort()
 
@@ -106,14 +106,14 @@ def get_folder_constants(foldertype):
     # if debug: 
     print "retrieving constants for %s folders." % (foldertype)
     result = []
-    rows = mySQL4es.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
+    rows = mySQLintf.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
     for r in rows:
         result.append(r[1])
     return result
 
 def get_genre_folders():
     result  = []
-    rows = mySQL4es.retrieve_values('media_genre_folder', ['name'], [])
+    rows = mySQLintf.retrieve_values('media_genre_folder', ['name'], [])
     for row in rows:
         result.append(row[0])
 
@@ -121,7 +121,7 @@ def get_genre_folders():
 
 def get_locations():
     result  = []
-    rows = mySQL4es.retrieve_values('media_location_folder', ['name'], [])
+    rows = mySQLintf.retrieve_values('media_location_folder', ['name'], [])
     for row in rows:
         result.append(os.path.join(config.START_FOLDER, row[0]))
 
@@ -129,7 +129,7 @@ def get_locations():
 
 def get_locations_ext():
     result  = []
-    rows = mySQL4es.retrieve_values('media_location_extended_folder', ['path'], [])
+    rows = mySQLintf.retrieve_values('media_location_extended_folder', ['path'], [])
     for row in rows:
         result.append(os.path.join(row[0]))
 

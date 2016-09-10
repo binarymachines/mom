@@ -4,7 +4,7 @@ import os, json, pprint, sys, random, logging, traceback, thread
 from mutagen.id3 import ID3, ID3NoHeaderError
 from elasticsearch import Elasticsearch
 from data import MediaFile
-import config, mySQL4es, esutil, operations
+import config, mySQLintf, esutil, operations
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -26,25 +26,25 @@ class Scanner:
         if 'TPE1' in data and 'TALB' in data:
             try:
                 artist = data['TPE1'].lower()
-                rows = mySQL4es.retrieve_values('artist', ['name', 'id'], [artist])
+                rows = mySQLintf.retrieve_values('artist', ['name', 'id'], [artist])
                 if len(rows) == 0:
                     try:
                         print 'adding %s to MySQL...' % (artist)
-                        thread.start_new_thread( mySQL4es.insert_values, ( 'artist', ['name'], [artist], ) )
+                        thread.start_new_thread( mySQLintf.insert_values, ( 'artist', ['name'], [artist], ) )
                     except Exception, err:
                         print ': '.join([err.__class__.__name__, err.message])
                         if self.debug: traceback.print_exc(file=sys.stdout)
 
-                # mySQL4es.insert_values('artist', ['name'], [artist])
-                #     rows = mySQL4es.retrieve_values('artist', ['name', 'id'], [artist])
+                # mySQLintf.insert_values('artist', ['name'], [artist])
+                #     rows = mySQLintf.retrieve_values('artist', ['name', 'id'], [artist])
                 #
                 # artistid = rows[0][1]
                 #
                 # if 'TALB' in data:
                 #     album = data['TALB'].lower()
-                #     rows2 = mySQL4es.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
+                #     rows2 = mySQLintf.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
                 #     if len(rows2) == 0:
-                #         mySQL4es.insert_values('album', ['name', 'artist_id'], [album, artistid])
+                #         mySQLintf.insert_values('album', ['name', 'artist_id'], [album, artistid])
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])

@@ -3,7 +3,7 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import data, mySQL4es, config, config_reader
+import data, mySQLintf, config, config_reader
 import MySQLdb as mdb
 from data import AssetException
 
@@ -42,7 +42,7 @@ def cache_match_info(path):
             SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
                 WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
 
-        rows = mySQL4es.run_query(q)
+        rows = mySQLintf.run_query(q)
         for row in rows:
             key = '-'.join([row[2], row[0]]) 
             redcon.sadd(key, row[1])
@@ -110,7 +110,7 @@ def write_ensured_paths(red):
         doc_info = red.hgetall(path)
         if not 'esid' in doc_info:
             try:
-                rows = mySQL4es.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
+                rows = mySQLintf.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
                 if len(rows) ==0:
                     if config.mysql_debug: 
                         print('Updating MySQL...')
@@ -125,7 +125,7 @@ def write_ensured_paths(red):
     print 'ensured paths have been updated in MySQL'
 
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
-    mySQL4es.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
+    mySQLintf.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
         [index, document_type, elasticsearch_id, absolute_path])
 
 def retrieve_esid(index, document_type, absolute_path):
@@ -133,8 +133,8 @@ def retrieve_esid(index, document_type, absolute_path):
     if 'esid' in values:
         return values['esid']
     
-    rows = mySQL4es.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
-    # rows = mySQL4es.run_query("select index_name, doc_type, absolute_path")
+    rows = mySQLintf.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
+    # rows = mySQLintf.run_query("select index_name, doc_type, absolute_path")
     if rows == None:
         return []
 
@@ -151,7 +151,7 @@ def retrieve_doc_entries(index, document_type, file_path):
 
     try:
         query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
-            (mySQL4es.quote_if_string(config.es_index), mySQL4es.quote_if_string(document_type), mySQL4es.quote_if_string(''.join([file_path, '%'])))
+            (mySQLintf.quote_if_string(config.es_index), mySQLintf.quote_if_string(document_type), mySQLintf.quote_if_string(''.join([file_path, '%'])))
        
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
@@ -236,14 +236,14 @@ def operation_completed(asset, operator, operation, pid=None):
     print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     if pid is None:
-        rows = mySQL4es.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
+        rows = mySQLintf.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
             [operator, operation, asset.esid])
 
         if len(rows) > 0 and rows[0][4] is not None:
             print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
             return True
     else:
-        rows = mySQL4es.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
+        rows = mySQLintf.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
             [str(pid), operator, operation, asset.esid])
 
         if len(rows) > 0 and rows[0][5] is not None:
@@ -255,7 +255,7 @@ def operation_completed(asset, operator, operation, pid=None):
 def record_op_begin(red, pid, asset, operator, operation):
     # print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
-    # mySQL4es.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
+    # mySQLintf.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
     #     [str(pid), operator, operation, asset.esid, datetime.datetime.now().isoformat(), asset.absolute_path])
 
     key = '-'.join([asset.absolute_path, operation, operator])
@@ -266,7 +266,7 @@ def record_op_begin(red, pid, asset, operator, operation):
 def record_op_complete(red, pid, asset, operator, operation):
     # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
-    # mySQL4es.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
+    # mySQLintf.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
     #     [str(pid), operator, operation, asset.esid])
 
     key = '-'.join([asset.absolute_path, operation, operator])
@@ -328,10 +328,10 @@ def write_ops_for_path(red, pid, path, operator, operation):
             field_values.append(values[field])
         
         try:
-            mySQL4es.insert_values('op_record', field_names, field_values)
+            mySQLintf.insert_values('op_record', field_names, field_values)
 
         except AssetException, error:
-            mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
+            mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
                 [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
 
     print 'operations for %s have been updated in MySQL' % (path)

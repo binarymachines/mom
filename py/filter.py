@@ -11,7 +11,7 @@
 import os, sys, traceback, pprint, json, subprocess
 from docopt import docopt
 
-import config, config_reader, mySQL4es, esutil
+import config, config_reader, mySQLintf, esutil
 from data import MediaFile, MediaFolder
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -76,7 +76,7 @@ def calculate_weight(path, weights):
 
 def get_discounts():
     discounts = {}
-    rows = mySQL4es.retrieve_values('match_discount', ['target', 'method', 'value'], [config.MEDIA_FILE])
+    rows = mySQLintf.retrieve_values('match_discount', ['target', 'method', 'value'], [config.MEDIA_FILE])
     for row in rows:
         discounts[row[1]] = float(row[2])
 
@@ -84,7 +84,7 @@ def get_discounts():
 
 def get_weights():
     weights = {}
-    rows = mySQL4es.retrieve_values('match_weight', ['target', 'pattern', 'value'], [config.MEDIA_FILE])
+    rows = mySQLintf.retrieve_values('match_weight', ['target', 'pattern', 'value'], [config.MEDIA_FILE])
     for row in rows:
         weights[row[1]] = float(row[2])
 
@@ -261,7 +261,7 @@ def get_folders(path):
             WHERE index_name = '%s' and doc_type = 'media_folder' 
               and absolute_path like '%s%s%s' ORDER BY absolute_path""" % (config.es_index, '%', path, '%')
 
-    return mySQL4es.run_query(q)
+    return mySQLintf.run_query(q)
 
 def get_matches(esid, reverse=False, union=False):
     
@@ -280,9 +280,9 @@ def get_matches(esid, reverse=False, union=False):
 
     order_clause = ' ORDER BY matcher_name, absolute_path'
 
-    if reverse: return mySQL4es.run_query(query['reverse'] + order_clause)
-    elif union: return mySQL4es.run_query(query['union'] + order_clause)
-    else: return mySQL4es.run_query(query['match'] + order_clause)
+    if reverse: return mySQLintf.run_query(query['reverse'] + order_clause)
+    elif union: return mySQLintf.run_query(query['union'] + order_clause)
+    else: return mySQLintf.run_query(query['match'] + order_clause)
 
 def get_media_files(path, reverse=False, union=False):
 
@@ -300,9 +300,9 @@ def get_media_files(path, reverse=False, union=False):
         
     query['union'] = query['match'] + ' union ' + query['reverse']
 
-    if reverse: return mySQL4es.run_query(query['reverse'])
-    elif union: return mySQL4es.run_query(query['union'])
-    else: return mySQL4es.run_query(query['match'])
+    if reverse: return mySQLintf.run_query(query['reverse'])
+    elif union: return mySQLintf.run_query(query['union'])
+    else: return mySQLintf.run_query(query['match'])
 
 def get_media_meta_data(es, esid, media_data):
     if META not in media_data:
@@ -354,7 +354,7 @@ def get_matches_for(pattern):
               and es2.absolute_path like '%s%s%s' 
             order by original""" % ('%', pattern, '%', '%', pattern, '%')
 
-    rows = mySQL4es.run_query(q)
+    rows = mySQLintf.run_query(q)
     for row in rows:
         if row[1] in ['>', '=']:
             filename = row[0]

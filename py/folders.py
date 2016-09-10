@@ -4,7 +4,7 @@ import os, json, pprint, sys, traceback, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from data import MediaFolder
-import mySQL4es, esutil
+import mySQLintf, esutil
 import operations
 import config
 import alchemy

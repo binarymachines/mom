@@ -1,15 +1,15 @@
 #! /usr/bin/python
 import os, sys, pprint, json
 
-import config, config_reader, mySQL4es, operations
+import config, config_reader, mySQLintf, operations
 from data import AssetException
 
 def main():
     config_reader.configure()
-    folders = mySQL4es.retrieve_values('media_location_folder', ['name'], [])
+    folders = mySQLintf.retrieve_values('media_location_folder', ['name'], [])
     for folder in folders:
         asset = os.path.join(config.START_FOLDER, folder[0])
-        files = mySQL4es.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.MEDIA_FOLDER])
+        files = mySQLintf.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.MEDIA_FOLDER])
         for f in files:
             filename = f[0]
             doc_type = f[1]
@@ -20,13 +20,13 @@ def main():
                 if esid is not None:
                     print ','.join([esid, filename]) 
                 else:
-                    mySQL4es.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [config.es_index, doc_type, filename, "NO ESID"])
+                    mySQLintf.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [config.es_index, doc_type, filename, "NO ESID"])
 
             except AssetException, error:
                 print error.message
                 if error.message.lower().startswith('multiple'):
                     for item in  error.data:
-                        mySQL4es.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+                        mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
             except Exception, error:
                 print error.message
             finally:

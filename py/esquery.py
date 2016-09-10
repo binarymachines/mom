@@ -10,7 +10,7 @@
 
 import os, sys, json, pprint
 from elasticsearch import Elasticsearch
-import config, mySQL4es
+import config, mySQLintf
 from docopt import docopt
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -53,8 +53,8 @@ class QueryBuilder:
 
     def get_query(self, query_type, match_fields, values):
 
-        # query_type = mySQL4es.retrieve_values('matcher', ['name', 'query_type'], [name])[0][1]
-        # match_fields = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
+        # query_type = mySQLintf.retrieve_values('matcher', ['name', 'query_type'], [name])[0][1]
+        # match_fields = mySQLintf.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(match_fields) == 1:
             if match_fields[0][1] is not None:

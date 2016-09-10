@@ -4,7 +4,7 @@ import os, json, pprint, sys, random, logging, traceback, thread
 from elasticsearch import Elasticsearch
 import data, config, operations
 from esquery import QueryBuilder
-import mySQL4es
+import mySQLintf
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -25,12 +25,12 @@ class MediaMatcher(object):
     # TODO: assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
 
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, config.es_index])
+        rows = mySQLintf.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, config.es_index])
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = mySQL4es.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, config.es_index])
+        rows = mySQLintf.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, config.es_index])
         if len(rows) == 1:
             return True
 
@@ -64,7 +64,7 @@ class MediaMatcher(object):
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
         if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
             if self.debug == True: print 'recording match: %s ::: %s' % (media_id, match_id)
-            mySQL4es.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
+            mySQLintf.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
                 [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
         elif self.debug == True: print 'match record for  %s ::: %s already exists.' % (media_id, match_id)
 
@@ -74,18 +74,18 @@ class ElasticSearchMatcher(MediaMatcher):
         self.query_type = None
 
         if self.name is not None:
-            row = mySQL4es.retrieve_values('matcher', ['name', 'query_type'], [self.name])
+            row = mySQLintf.retrieve_values('matcher', ['name', 'query_type'], [self.name])
             if len(row) == 0:
                 error_message = "There is no configuation data for %s matcher." % (self.name)
                 raise Exception(error_message)
 
-            rows = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name'], [self.name])
+            rows = mySQLintf.retrieve_values('matcher_field', ['matcher_name', 'field_name'], [self.name])
             for r in rows:
                 self.comparison_fields.append(r[1])
 
             # TODO: this is a kludge. This module uses self.comparison_fields, which is a single-dimensional array
             # 'QueryBuilder' in esquery.py uses 'match_fields', which is a tuple. This module should be updated to use the tuple
-            self.match_fields = mySQL4es.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
+            self.match_fields = mySQLintf.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(self.comparison_fields) > 0 and self.query_type != None:
             print '%s %s matcher configured.' % (self.name, self.query_type)
