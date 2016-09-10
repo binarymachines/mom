@@ -13,6 +13,7 @@ def get_setname(document_type):
     return '-'.join(['path', 'esid', document_type])
 
 def cache_doc_info(red, document_type, source_path):
+    clear_cached_doc_info(red, document_type, '/')
     # if self.debug: print 'caching %s doc info for %s...' % (document_type, source_path)
     rows = retrieve_doc_entries(config.es_index, document_type, source_path)
     key = get_setname(document_type)
