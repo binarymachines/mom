@@ -201,81 +201,82 @@ class MediaFileManager(MediaLibraryWalker):
         opcount = 0
         self.active_criteria = criteria
         for location in criteria.locations:            
-            if not self.path_exists_in_data(location):
-                continue
-            try:
-                location += '/'
-                if config.CHECK_FOR_BUGS: raw_input('check for bugs')
-                # match_ops = self.retrieve_completed_match_ops(location)
+            if self.path_exists_in_data(location):
+                try:
+                    location += '/'
+                    if config.CHECK_FOR_BUGS: raw_input('check for bugs')
+                    # match_ops = self.retrieve_completed_match_ops(location)
 
-                self.cache_doc_info(config.MEDIA_FILE, location)
-                
-                print 'caching match ops for %s...' % (location)
-                for matcher in self.matchers:
-                    operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
+                    self.cache_doc_info(config.MEDIA_FILE, location)
+                    
+                    print 'caching match ops for %s...' % (location)
+                    for matcher in self.matchers:
+                        operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
 
-                print 'caching matches for %s...' % (location)
-                operations.cache_match_info(location)
-                
-                for key in self.redcon.lrange(operations.get_setname(config.MEDIA_FILE), 0, -1):
-                    values = self.redcon.hgetall(key)
-                    if not 'esid' in values:
-                        continue
-                         
-                    opcount += 1
-                    if opcount % config.CHECK_FREQUENCY == 0:
-                        self.check_for_stop_request()
-                        self.check_for_reconfig_request()
-
-                    media = MediaFile()
-                    media.absolute_path = key
-                    media.esid = values['esid']
-                    media.document_type = config.MEDIA_FILE
-
-                    try:
-                        if self.all_matchers_have_run(media):
-                            if self.debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
+                    print 'caching matches for %s...' % (location)
+                    operations.cache_match_info(location)
+                    
+                    for key in self.redcon.lrange(operations.get_setname(config.MEDIA_FILE), 0, -1):
+                        if not location in key:
                             continue
+                        values = self.redcon.hgetall(key)
+                        if not 'esid' in values:
+                            continue
+                            
+                        opcount += 1
+                        if opcount % config.CHECK_FREQUENCY == 0:
+                            self.check_for_stop_request()
+                            self.check_for_reconfig_request()
 
-                        if esutil.doc_exists(self.es, media, True):
+                        media = MediaFile()
+                        media.absolute_path = key
+                        media.esid = values['esid']
+                        media.document_type = config.MEDIA_FILE
+
+                        try:
+                            if self.all_matchers_have_run(media):
+                                if self.debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
+                                continue
+
+                            if esutil.doc_exists(self.es, media, True):
+                                for matcher in self.matchers:
+                                    if not operations.operation_in_cache(self.redcon, media.absolute_path, 'match', matcher.name):
+                                        if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
+
+                                        operations.record_op_begin(self.redcon, self.pid, media, matcher.name, 'match')
+                                        matcher.match(media)
+                                        operations.record_op_complete(self.redcon, self.pid, media, matcher.name, 'match')
+                                    elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+                        
+                        except AssetException, err:
+                            self.folderman.record_error(self.folderman.folder, "AssetException=" + err.message)
+                            print ': '.join([err.__class__.__name__, err.message])
+                            # if self.debug: traceback.print_exc(file=sys.stdout)
+                            self.handle_asset_exception(err, media.absolute_path)
+                        
+                        except UnicodeDecodeError, u:
+                            self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
+                            print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
+
+                        except Exception, u:
+                            self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
+                            print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
+
+                        finally:
                             for matcher in self.matchers:
-                                if not operations.operation_in_cache(self.redcon, media.absolute_path, 'match', matcher.name):
-                                    if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
-
-                                    operations.record_op_begin(self.redcon, self.pid, media, matcher.name, 'match')
-                                    matcher.match(media)
-                                    operations.record_op_complete(self.redcon, self.pid, media, matcher.name, 'match')
-                                elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
-                    
-                    except AssetException, err:
-                        self.folderman.record_error(self.folderman.folder, "AssetException=" + err.message)
-                        print ': '.join([err.__class__.__name__, err.message])
-                        # if self.debug: traceback.print_exc(file=sys.stdout)
-                        self.handle_asset_exception(err, media.absolute_path)
-                    
-                    except UnicodeDecodeError, u:
-                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
-                        print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
-
-                    except Exception, u:
-                        self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
-                        print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
-
-                    finally:
-                        for matcher in self.matchers:
-                            operations.clear_cached_matches_for_esid(matcher.name, media.esid)
-           
-            except Exception, err:
-                print ': '.join([err.__class__.__name__, err.message, location])
-                if self.debug: traceback.print_exc(file=sys.stdout)
-            finally:
-                operations.write_ensured_paths(self.redcon)
-                operations.clear_cached_doc_info(self.redcon, config.MEDIA_FILE, location) 
-                self.folderman.folder = None
-                self.ops_cache = []
-                for matcher in self.matchers:
-                    operations.write_ops_for_path(self.redcon, self.pid, location, matcher.name, 'match')
-                operations.clear_cache_operations_for_path(self.redcon, location, True)
+                                operations.clear_cached_matches_for_esid(matcher.name, media.esid)
+            
+                except Exception, err:
+                    print ': '.join([err.__class__.__name__, err.message, location])
+                    if self.debug: traceback.print_exc(file=sys.stdout)
+                finally:
+                    operations.write_ensured_paths(self.redcon)
+                    operations.clear_cached_doc_info(self.redcon, config.MEDIA_FILE, location) 
+                    self.folderman.folder = None
+                    self.ops_cache = []
+                    for matcher in self.matchers:
+                        operations.write_ops_for_path(self.redcon, self.pid, location, matcher.name, 'match')
+                    operations.clear_cache_operations_for_path(self.redcon, location, True)
                
 
         print '\n-----match operations complete-----\n'
