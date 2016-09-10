@@ -8,6 +8,8 @@ def quote_if_string(value):
         return '"%s"' % value
     if isinstance(value, unicode):
         return u'"' + value + u'"'
+
+    value = value.replace("'", "\'")
     return value
 
 def insert_values(table_name, field_names, field_values):
