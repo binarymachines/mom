@@ -28,7 +28,7 @@ import subprocess
 pp = pprint.PrettyPrinter(indent=4)
 
 class MediaFileManager(MediaLibraryWalker):
-    def __init__(self):
+    def __init__(self, flush=True, clear=True):
         super(MediaFileManager, self).__init__()
 
         self.redcon = self.connect_to_redis()
@@ -43,7 +43,6 @@ class MediaFileManager(MediaLibraryWalker):
         self.do_cache_locations = True
         self.do_deep_scan = config.deep
         
-        self.ops_cache = []
         self.location_cache = {}
 
         self.matchers = []
@@ -55,14 +54,18 @@ class MediaFileManager(MediaLibraryWalker):
         self.setup_matchers()
 
         # self.match_finder = MatchFinder()
-        
-        print 'clearing data from previous run'
-        for matcher in self.matchers:
-            operations.write_ops_for_path(self.redcon, self.pid, '/', matcher.name, 'match')
-        operations.write_ensured_paths(self.redcon)  
 
-        print 'flushing reddis cache...'
-        self.redcon.flushall()
+        if clear:        
+            if self.debug: print 'clearing data from previous run'
+            for matcher in self.matchers:
+                operations.write_ops_for_path(self.redcon, self.pid, '/', matcher.name, 'match')
+            operations.write_ensured_paths(self.redcon)  
+            operations.clear_cache_operations_for_path(self.redcon, '/', True)
+            operations.clear_cached_doc_info(self.redcon, config.MEDIA_FILE, '/') 
+
+        if flush:
+            if self.debug: print 'flushing reddis cache...'
+            self.redcon.flushall()
 
 ################################# MediaWalker Overrides #################################
 
@@ -81,9 +84,11 @@ class MediaFileManager(MediaLibraryWalker):
             # self.folderman.set_active(None)
             self.folderman.folder = None
             # NOTE: folders in config.locations_ext are ALWAYS scanned deeply
-            if root in self.ops_cache and not self.do_deep_scan: # and not root in config.locations_ext:
-                if self.debug: print 'scan operation record found for: %s' % (root)
-                return
+            traceback.print_exc(file=sys.stdout)
+            sys.exit("OPS CACHE HAS BEEN REMOVED")
+            # if root in self.ops_cache and not self.do_deep_scan: # and not root in config.locations_ext:
+            #     if self.debug: print 'scan operation record found for: %s' % (root)
+            #     return
 
             try:
                 if util.path_contains_media(root, self.active_criteria.extensions):
@@ -173,7 +178,7 @@ class MediaFileManager(MediaLibraryWalker):
 
     def cache_ops(self, path, operation, operator=None):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
-        self.ops_cache = operations.retrieve_complete_ops(path, operation, operator)
+        operations.retrieve_complete_ops(path, operation, operator)
 
     def get_cached_esid(self, path):
         result = self.redcon.hgetall(path)
@@ -273,17 +278,16 @@ class MediaFileManager(MediaLibraryWalker):
                     print ': '.join([err.__class__.__name__, err.message, location])
                     if self.debug: traceback.print_exc(file=sys.stdout)
                 finally:
-                    operations.write_ensured_paths(self.redcon)
-                    operations.clear_cached_doc_info(self.redcon, config.MEDIA_FILE, location) 
                     self.folderman.folder = None
-                    self.ops_cache = []
+                    operations.write_ensured_paths(self.redcon)
                     for matcher in self.matchers:
                         operations.write_ops_for_path(self.redcon, self.pid, location, matcher.name, 'match')
                     operations.clear_cache_operations_for_path(self.redcon, location, True)
+                    operations.clear_cached_doc_info(self.redcon, config.MEDIA_FILE, location) 
                
 
         print '\n-----match operations complete-----\n'
-
+    
     def record_match_ops_complete(self, matcher, media, path):
         try:
             operations.record_op_complete(self.pid, media, matcher.name, 'match')
@@ -365,7 +369,6 @@ class MediaFileManager(MediaLibraryWalker):
 
                     self.walk(location)
 
-                    self.ops_cache = []
                     self.location_cache = {}
                 elif self.debug:  print "%s isn't currently available." % (location)
 
@@ -408,7 +411,7 @@ def run_cleanup(self, criteria):
 
 ################################# Functions #################################
 
-def execute(path=None):
+def execute(path=None, flush=True, clear=True):
     
     print 'Setting up scan criteria...'
     s = ScanCriteria()
@@ -416,9 +419,11 @@ def execute(path=None):
     s.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
-            s.locations.append(location)            
-            # for genre in config.genre_folders:
-            #     s.locations.append(os.path.join(location, genre))
+            if 'albums/' in location or 'compilations/' in location:                                                                                                                                                                                            in location
+                for genre in config.genre_folders:
+                    s.locations.append(os.path.join(location, genre))
+                else: 
+                    s.locations.append(location)            
 
         for location in config.locations_ext: 
             s.locations.append(location)            
@@ -434,7 +439,7 @@ def execute(path=None):
     s.locations.sort()
 
     print 'Configuring Media Object Manager...'
-    mfm = MediaFileManager();
+    mfm = MediaFileManager(flush, clear);
     print 'starting Media Object Manager...'
     mfm.run(s)
 
@@ -461,6 +466,8 @@ def test_matchers():
 
 def main(args):
     write_pid_file()
+    clear = True
+    flush = True
     config_reader.configure(config_reader.make_options(args))
     path = None if not args['--path'] else args['<path>']
     pattern = None if not args['--pattern'] else args['<pattern>']
@@ -473,7 +480,7 @@ def main(args):
             for row in rows: 
                 path.append(row[0])
 
-    execute(path)
+    execute(path, flush, clear)
 
 # main
 if __name__ == '__main__':
