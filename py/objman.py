@@ -203,8 +203,6 @@ class MediaFileManager(MediaLibraryWalker):
         opcount = 0
         self.active_criteria = criteria
         for location in criteria.locations:            
-            self.check_for_stop_request()
-            self.check_for_reconfig_request()
             if self.path_exists_in_data(location):
                 try:
                     location += '/'
@@ -417,9 +415,8 @@ def execute(path=None):
     s.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
-            s.locations.append(location)            
-            # for genre in config.genre_folders:
-            #     s.locations.append(os.path.join(location, genre))
+            for genre in config.genre_folders:
+                s.locations.append(os.path.join(location, genre))
 
         for location in config.locations_ext: 
             s.locations.append(location)            
