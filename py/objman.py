@@ -415,8 +415,9 @@ def execute(path=None):
     s.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
-            for genre in config.genre_folders:
-                s.locations.append(os.path.join(location, genre))
+            s.locations.append(location)            
+            # for genre in config.genre_folders:
+            #     s.locations.append(os.path.join(location, genre))
 
         for location in config.locations_ext: 
             s.locations.append(location)            
