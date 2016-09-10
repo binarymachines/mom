@@ -56,6 +56,8 @@ def configure(options=None):
 
             config.genre_folders = get_genre_folders() 
             config.locations = get_locations() 
+            config.locations.sort()
+
             config.locations_ext = get_locations_ext()
             config.locations_ext.sort()
 
