@@ -17,6 +17,7 @@ from data import MediaFile
 from mutagen.id3 import ID3, ID3NoHeaderError
 from folders import MediaFolderManager
 import mySQL4es, util, esutil
+# from matchfinder import matchfinder
 from matcher import ElasticSearchMatcher
 from scanner import ScanCriteria, Scanner
 from walker import MediaLibraryWalker
@@ -40,7 +41,6 @@ class MediaFileManager(MediaLibraryWalker):
         self.document_type = config.MEDIA_FILE
         
         self.do_cache_locations = True
-        self.do_cache_ops = True
         self.do_deep_scan = config.deep
         
         self.ops_cache = []
@@ -54,6 +54,8 @@ class MediaFileManager(MediaLibraryWalker):
         self.scanner = Scanner(self.es, self.folderman)
         self.setup_matchers()
 
+        # self.match_finder = MatchFinder()
+        
         print 'clearing data from previous run'
         for matcher in self.matchers:
             operations.write_ops_for_path(self.redcon, self.pid, '/', matcher.name, 'match')
@@ -176,29 +178,6 @@ class MediaFileManager(MediaLibraryWalker):
         result = self.redcon.hgetall(path)
         if result is not None:
             return result['esid']
-
-################################# Matcher Methods #################################
-
-    # def retrieve_completed_match_ops(self, path):
-    #     match_ops = {}
-    #     for matcher in self.matchers:
-    #         ops = operations.retrieve_complete_ops(path, 'match', matcher.name)
-    #         match_ops[matcher.name] = ops
-
-    #     return match_ops
-
-    # def all_matchers_have_run(self, media, match_ops):
-    #     skip_entirely = True
-
-    #     paths = []
-    #     for matcher in self.matchers:
-    #         for path in match_ops[matcher.name]:
-    #             paths.append(path[0])
-    #         if not media.absolute_path in paths:
-    #             skip_entirely = False
-    #             break
-
-    #     return skip_entirely
 
     def all_matchers_have_run(self, media):
         skip_entirely = True
@@ -370,7 +349,7 @@ class MediaFileManager(MediaLibraryWalker):
             for location in criteria.locations:
                 if os.path.isdir(location) and os.access(location, os.R_OK):
                     self.cache_doc_info(location)
-                    if self.do_cache_ops == True: self.cache_ops(location, 'scan', 'mp3 scanner')
+                    self.cache_ops(location, 'scan', 'mp3 scanner')
 
                     self.walk(location)
 
@@ -424,8 +403,14 @@ def execute(path=None):
 
     s.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
-        for location in config.locations: s.locations.append(location)
-        for location in config.locations_ext: s.locations.append(location)
+        for location in config.locations: 
+            for genre in config.genre_folders:
+                s.locations.append(os.path.join(location, genre))
+
+        for location in config.locations_ext: 
+            s.locations.append(location)            
+        # for genre in config.genre_folders:
+        #     s.locations.append(os.path.join(location, genre))
             
         s.locations.append(config.NOSCAN)
         # s.locations.append(config.EXPUNGED)
