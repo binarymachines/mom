@@ -278,10 +278,10 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
     con = None 
     result = []
     if operator is None:
-        query = "select target_path from op_record where operation_name = '%s' and end_time is not null and target_path like '%s%s' ORDER BY target_path" \
+        query = "select distinct target_path from op_record where operation_name = '%s' and end_time is not null and target_path like '%s%s' ORDER BY target_path" \
             % (operation, parentpath, '%')
     else:
-        query = "select target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s' ORDER BY target_path" \
+        query = "select distinct target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s' ORDER BY target_path" \
             % (operator, operation, parentpath, '%')
 
     try:
