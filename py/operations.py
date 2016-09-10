@@ -193,11 +193,12 @@ def operation_in_cache(red, path, operation, operator=None):
         key = '-'.join([path, operation])
     else:
         key = '-'.join([path, operation, operator])
-    keys = red.keys(key)
-    if keys == []:
-        return False
     
-    return True
+    values = red.hgetall(key)
+    if not values == None and 'persisted' in values:
+        return values['persisted'] == 'True'
+    
+    return False
 
 def clear_cache_operations_for_path(red, path, use_wildcard=False):
     if use_wildcard:
