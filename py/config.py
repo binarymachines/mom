@@ -12,9 +12,9 @@ CHECK_FOR_BUGS = False
 MEDIA_FILE = 'media_file'
 MEDIA_FOLDER = 'media_folder'
 
-EXPUNGED = "/media/removable/Audio/music [expunged]/"
-NOSCAN = "/media/removable/Audio/music [noscan]/"
-START_FOLDER = "/media/removable/Audio/music/"
+EXPUNGED = "/media/removable/Audio/music [expunged]"
+NOSCAN = "/media/removable/Audio/music [noscan]"
+START_FOLDER = "/media/removable/Audio/music"
 
 CURATED = ['/albums', '/compilations', '/random', '/recently', '/live']
 

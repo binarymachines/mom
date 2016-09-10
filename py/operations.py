@@ -112,8 +112,7 @@ def write_ensured_paths(red):
             try:
                 rows = mySQLintf.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
                 if len(rows) ==0:
-                    if config.mysql_debug: 
-                        print('Updating MySQL...')
+                    if config.mysql_debug: print('Updating MySQL...')
                     
                     insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
 
