@@ -189,16 +189,25 @@ class MediaFileManager(MediaLibraryWalker):
 
         return skip_entirely
     
+    def check_for_content(self, path):
+        q = "select * from es_document where index_name = '%s' and doc_type = '%s' and absolute_path like '%s%s' limit 1" % \
+            (config.es_index, config.MEDIA_FOLDER, path, '%')
+        rows = mySQL4es.run_query(q)
+        if len(rows) == 1:
+            return True
+
     def run_match_ops(self, criteria):
 
         opcount = 0
         self.active_criteria = criteria
         for location in criteria.locations:            
+            if not self.check_for_content(location):
+                continue
             try:
                 location += '/'
                 if config.CHECK_FOR_BUGS: raw_input('check for bugs')
                 # match_ops = self.retrieve_completed_match_ops(location)
-                
+
                 self.cache_doc_info(config.MEDIA_FILE, location)
                 
                 print 'caching match ops for %s...' % (location)
@@ -224,7 +233,6 @@ class MediaFileManager(MediaLibraryWalker):
                     media.document_type = config.MEDIA_FILE
 
                     try:
-                        # if self.all_matchers_have_run(media, match_ops):
                         if self.all_matchers_have_run(media):
                             if self.debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
                             continue
@@ -417,6 +425,8 @@ def execute(path=None):
     else:
         for directory in path:
             s.locations.append(directory)
+
+    s.locations.sort()
 
     print 'Configuring Media Object Manager...'
     mfm = MediaFileManager();
