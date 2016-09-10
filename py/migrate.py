@@ -1,4 +1,4 @@
-import os, sys, mySQL4es, redis
+import os, sys, mySQLintf, redis
 import operations, config, config_reader
 
 TARGET_PATH = 0
@@ -19,7 +19,7 @@ def cache_operations(red, path, operation, operator=None):
     # for key in  red.keys('op*'):
     #     print red.hgetall(key)
     #     red.delete(key)
-# rows = mySQL4es.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path'], [])
+# rows = mySQLintf.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path'], [])
 # for row in rows:
 #     counter_val = 100000
 #     if row[5] is not None:

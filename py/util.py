@@ -4,7 +4,7 @@ import os
 import sys
 import pprint
 import random
-import mySQL4es
+import mySQLintf
 import config
 import MySQLdb as mdb
 
@@ -14,19 +14,19 @@ pp = pprint.PrettyPrinter(indent=2)
 
 def get_genre_folder_names():
     results = []
-    rows = mySQL4es.retrieve_values('media_genre_folder', ['name'], [])
+    rows = mySQLintf.retrieve_values('media_genre_folder', ['name'], [])
     for r in rows: results.append(r[0])
     return results
 
 def get_active_media_formats():
     results = []
-    rows = mySQL4es.retrieve_values('media_format', ['active_flag', 'ext'], ['1'])
+    rows = mySQLintf.retrieve_values('media_format', ['active_flag', 'ext'], ['1'])
     for r in rows: results.append(r[1])
     return results
 
 def get_location_folder_names():
     results = []
-    rows = mySQL4es.retrieve_values('media_location_folder', ['name'], [])
+    rows = mySQLintf.retrieve_values('media_location_folder', ['name'], [])
     for r in rows: results.append(r[0])
     return results
 
@@ -121,18 +121,18 @@ def setup_genre_folders():
     folders = get_genre_folder_names()
     for f in folders:
         # print f
-        rows = mySQL4es.retrieve_values('media_genre_folder', ['name'], [f.lower()])
+        rows = mySQLintf.retrieve_values('media_genre_folder', ['name'], [f.lower()])
         if len(rows) == 0:
-            mySQL4es.insert_values('media_genre_folder', ['name'], [f.lower()])
+            mySQLintf.insert_values('media_genre_folder', ['name'], [f.lower()])
 
 def setup_location_folder_names():
 
     folders = get_location_names()
     for f in folders:
         print f
-        rows = mySQL4es.retrieve_values('media_location_folder', ['name'], [f.lower()])
+        rows = mySQLintf.retrieve_values('media_location_folder', ['name'], [f.lower()])
         if len(rows) == 0:
-            mySQL4es.insert_values('media_location_folder', ['name'], [f.lower()])
+            mySQLintf.insert_values('media_location_folder', ['name'], [f.lower()])
 
 # def expunge(path):
 
@@ -150,7 +150,7 @@ def str_clean4comp(input):
 def clear_bad_entries():
 
         data = []
-        rows  = mySQL4es.retrieve_values('problem_esid', ['distinct esid', 'index_name', 'document_type'], [])
+        rows  = mySQLintf.retrieve_values('problem_esid', ['distinct esid', 'index_name', 'document_type'], [])
         print "%i rows retrieved" % (len(rows))
 
         es = Elasticsearch([{'host': '54.82.250.249', 'port': 9200}])

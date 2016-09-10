@@ -2,7 +2,7 @@
 
 import os, sys, traceback, pprint
 from elasticsearch import Elasticsearch, NotFoundError
-import config, mySQL4es, operations
+import config, mySQLintf, operations
 from data import Asset, MediaFile, MediaFolder, AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -40,12 +40,12 @@ def connect(hostname, portnum):
 
 def delete_docs_for_path(es, indexname, doctype, path):
 
-    rows = mySQL4es.retrieve_like_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, str(1)])
+    rows = mySQLintf.retrieve_like_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, str(1)])
     for r in rows:
         esid = r[4]
         res = es.delete(index=indexname,doc_type=doctype,id=esid)
         if res['_shards']['successful'] == 1:
-            mySQL4es.update_values('es_document', 'active_flag', False, ['id'], [esid])
+            mySQLintf.update_values('es_document', 'active_flag', False, ['id'], [esid])
 
 def find_docs_missing_field(es, index_name, document_type, field):
     query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : field }}}}}
@@ -103,9 +103,9 @@ def doc_exists(es, asset, attach_if_found):
             return True
 
     if config.es_debug: print 'No document found for %s, %s, adding scan request to queue' % (asset.esid, asset.absolute_path)
-    rows = mySQL4es.retrieve_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
+    rows = mySQLintf.retrieve_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
     if rows == ():
-        mySQL4es.insert_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
+        mySQLintf.insert_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
   
     return False
         
@@ -155,14 +155,14 @@ def reset_all(es):
         esutil.clear_indexes(es, 'media')
         esutil.clear_indexes(es, 'media2')
         esutil.clear_indexes(es, 'media3')
-        mySQL4es.truncate('es_document')
-        mySQL4es.truncate('matched')
-        mySQL4es.truncate('op_record')
+        mySQLintf.truncate('es_document')
+        mySQLintf.truncate('matched')
+        mySQLintf.truncate('op_record')
 
 def purge_problem_esids():
 
     config.mysql_debug = False
-    problems = mySQL4es.run_query(
+    problems = mySQLintf.run_query(
         """select distinct pe.esid, pe.document_type, esd.absolute_path, pe.problem_description
              from problem_esid pe, es_document esd
             where pe.esid = esd.id""")
@@ -179,16 +179,16 @@ def purge_problem_esids():
 
         if a.document_type == config.MEDIA_FOLDER and problem.lower().startswith('mult'):
             print '%s, %s' % (a.esid, a.absolute_path)
-            docs = mySQL4es.retrieve_values('es_document', ['absolute_path', 'id'], [a.absolute_path])
+            docs = mySQLintf.retrieve_values('es_document', ['absolute_path', 'id'], [a.absolute_path])
             for doc in docs:
                 esid = doc[1]
 
-                query = "delete from es_document where id = %s" % (mySQL4es.quote_if_string(esid))
-                mySQL4es.execute_query(query)
-                query = "delete from op_record where target_esid = %s" % (mySQL4es.quote_if_string(esid))
-                mySQL4es.execute_query(query)
-                query = "delete from problem_esid where esid = %s" % (mySQL4es.quote_if_string(esid))
-                mySQL4es.execute_query(query)
+                query = "delete from es_document where id = %s" % (mySQLintf.quote_if_string(esid))
+                mySQLintf.execute_query(query)
+                query = "delete from op_record where target_esid = %s" % (mySQLintf.quote_if_string(esid))
+                mySQLintf.execute_query(query)
+                query = "delete from problem_esid where esid = %s" % (mySQLintf.quote_if_string(esid))
+                mySQLintf.execute_query(query)
 
                 try:
                     es = connect(config.es_host, config.es_port)
@@ -215,7 +215,7 @@ def purge_problem_esids():
             # except NotFoundError, err:
             #     print 'Doc for %s not found.' % (parent)
             # query = "id, absolute_path from es_document where absolute_path = '%s'" % (parent)
-            # parents = mySQL4es.run_query(query)
+            # parents = mySQLintf.run_query(query)
             # for p_row in parents:
             #     print p_row
 
