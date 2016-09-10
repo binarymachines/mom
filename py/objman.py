@@ -419,19 +419,14 @@ def execute(path=None, flush=True, clear=True):
     s.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
-            if 'albums/' in location or 'compilations/' in location:                                                                                                                                                                                            in location
-                for genre in config.genre_folders:
-                    s.locations.append(os.path.join(location, genre))
-                else: 
-                    s.locations.append(location)            
+            for genre in config.genre_folders:
+                s.locations.append(os.path.join(location, genre))
 
         for location in config.locations_ext: 
-            if 'albums/' in location or 'compilations/' in location:                                                                                                                                                                                            in location
-                for genre in config.genre_folders:
-                    s.locations.append(os.path.join(location, genre))
-                else: 
-                    s.locations.append(location)
-                                
+            s.locations.append(location)            
+        # for genre in config.genre_folders:
+        #     s.locations.append(os.path.join(location, genre))
+            
         s.locations.append(config.NOSCAN)
         # s.locations.append(config.EXPUNGED)
     else:
