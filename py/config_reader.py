@@ -55,6 +55,8 @@ def configure(options=None):
             config.unsorted = get_folder_constants('unsorted')
 
             config.genre_folders = get_genre_folders() 
+            config.genre_folders.sort()
+            
             config.locations = get_locations() 
             config.locations.sort()
 
