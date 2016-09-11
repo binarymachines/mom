@@ -30,10 +30,6 @@ class MediaFileManager(MediaLibraryWalker):
     def __init__(self, flush=True, clear=True):
         super(MediaFileManager, self).__init__()
 
-        # TODO write pidfile_TIMESTAMP and pass filenames to command.py
-        self.pid = os.getpid()
-        self.start_time = None
-
         self.active_param = None
         self.document_type = config.MEDIA_FILE
         
@@ -48,14 +44,15 @@ class MediaFileManager(MediaLibraryWalker):
         if clear:        
             if config.mfm_debug: print 'clearing data from previous run'
             for matcher in self.get_matchers():
-                operations.write_ops_for_path(self.pid, '/', matcher.name, 'match')
+                operations.write_ops_for_path('/', matcher.name, 'match')
             operations.write_ensured_paths()  
             operations.clear_cache_operations_for_path('/', True)
-            cache.clear_cached_doc_info(config.MEDIA_FILE, '/') 
+            cache.clear_docs(config.MEDIA_FILE, '/') 
 
-        if flush:
-            if config.mfm_debug: print 'flushing reddis cache...'
-            config.redis.flushall()
+            # do this before recording execution begin
+        # if flush:
+        #     if config.mfm_debug: print 'flushing reddis cache...'
+        #     config.redis.flushall()
 
 ################################# MediaWalker Overrides #################################
 
@@ -64,12 +61,12 @@ class MediaFileManager(MediaLibraryWalker):
             folder = self.foldermanager.folder
             if folder is not None and folder.absolute_path == root:
                 if folder is not None and not operations.operation_completed(folder, 'mp3 scanner', 'scan'):
-                    operations.record_op_complete(self.pid, folder, 'mp3 scanner', 'scan')
+                    operations.record_op_complete(folder, 'mp3 scanner', 'scan')
 
     def before_handle_root(self, root):
         if config.scan:
-            self.check_for_stop_request()
-            self.check_for_reconfig_request()
+            operations.do_status_check()
+
             # if config.mfm_debug: print 'examining: %s' % (root)
             
             self.foldermanager.folder = None
@@ -101,7 +98,7 @@ class MediaFileManager(MediaLibraryWalker):
                 print '%s has been scanned.' % (root)
             elif folder is not None:
                 if config.mfm_debug: print 'scanning folder: %s' % (root)
-                operations.record_op_begin(self.pid, folder, 'mp3 scanner', 'scan')
+                operations.record_op_begin(folder, 'mp3 scanner', 'scan')
                 for filename in os.listdir(root):
                     self.process_file(os.path.join(root, filename), foldermanager, self.scanner)
         # else: self.foldermanager.set_active(root)
@@ -125,19 +122,9 @@ class MediaFileManager(MediaLibraryWalker):
 
 ################################# Operations Methods #################################
 
-    def check_for_reconfig_request(self):
-        if operations.check_for_reconfig_request(self.pid, self.start_time):
-            config_reader.configure()
-            operations.remove_reconfig_request(self.pid)
-
-    def check_for_stop_request(self):
-        if operations.check_for_stop_request(self.pid, self.start_time):
-            print 'stop requested, terminating.'
-            sys.exit(0)
-
-    # def cache_doc_info(self, document_type, path):
+    # def cache_docs(self, document_type, path):
     #     if config.mfm_debug: print 'caching %s doc info for %s...' % (self.document_type, path)
-    #     cache.cache_doc_info(document_type, path)
+    #     cache.cache_docs(document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
         if config.mfm_debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
@@ -210,12 +197,10 @@ class MediaFileManager(MediaLibraryWalker):
         return None
 
     def run(self, param):
-        self.start_time =  operations.record_exec_begin(self.pid)
-        self.active_param = param
         if config.scan:
             for location in param.locations:
                 if os.path.isdir(location) and os.access(location, os.R_OK):
-                    cache.cache_doc_info(config.MEDIA_FILE, path)
+                    cache.cache_docs(config.MEDIA_FILE, path)
                     self.cache_ops(location, 'scan', 'mp3 scanner')
 
                     self.walk(location)
@@ -226,7 +211,7 @@ class MediaFileManager(MediaLibraryWalker):
             print '\n-----scan complete-----\n'
 
         if config.match:
-            match_calc.calculate_matches(self.get_matchers(), param, self.pid)
+            match_calc.calculate_matches(self.get_matchers(), param, )
 
         # if config.DO_CLEAN:
         #     self.run_cleanup(param)
@@ -272,13 +257,6 @@ def execute(path=None, flush=True, clear=True):
     print 'starting Media Object Manager...'
     mfm.run(param)
 
-def write_pid_file():
-    pid = str(os.getpid())
-    f = open('pid', 'wt')
-    f.write(pid)
-    f.flush()
-    f.close()
-
 def test_matchers():
     mfm = MediaFileManager();
     mfm.debug = False
@@ -294,7 +272,6 @@ def test_matchers():
     else: print "%s has not been scanned into the library" % (filename)
 
 def main(args):
-    write_pid_file()
     clear = True
     flush = True
     config_reader.configure(config_reader.make_options(args))

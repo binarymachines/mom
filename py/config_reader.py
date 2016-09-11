@@ -1,6 +1,8 @@
-import sys, os, traceback, ConfigParser
+import sys, os, datetime, traceback, ConfigParser
 
-import config, mySQLintf, esutil, redis
+import redis
+
+import config, mySQLintf, esutil, operations
 
 def configure(options=None):
     
@@ -15,37 +17,52 @@ def configure(options=None):
 
             # TODO: these constants should be assigned to parser and parser should be a constructor parameter for whatever needs parser
 
+            #Redis
             config.redis_host = configure_section_map(parser, "Redis")['host']
             config.redis = redis.Redis(config.redis_host)
 
+            # TODO write pidfile_TIMESTAMP and pass filenames to command.py
+            config.pid = os.getpid()
+            config.start_time = datetime.datetime.now().isoformat()
+            
+            write_pid_file()
+
+            # debug
             config.mfm_debug = configure_section_map(parser, "Debug")['objman'].lower() == 'true'
             config.scanner_debug = configure_section_map(parser, "Debug")['scanner'].lower() == 'true'
             config.matcher_debug = configure_section_map(parser, "Debug")['matcher'].lower() == 'true'
             config.folder_debug = configure_section_map(parser, "Debug")['folder'].lower() == 'true'
             config.mysql_debug = configure_section_map(parser, "Debug")['mysql'].lower() == 'true' or 'debug_mysql' in options
             config.es_debug = configure_section_map(parser, "Debug")['esutil'].lower() == 'true'
-            config.CHECK_FOR_BUGS = configure_section_map(parser, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options 
-
+            config.check_for_bugs = configure_section_map(parser, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options 
+            
+            # status
+            config.check_freq = int(configure_section_map(parser, "Status")['check_frequency'])
+            
+            # logging
             config.logging = configure_section_map(parser, "Log")['logging'].lower() == 'true'
+            
+            # elasticsearch
             config.es_log = configure_section_map(parser, "Log")['logname']
             config.es_host = configure_section_map(parser, "Elasticsearch")['host']
             config.es_port = int(configure_section_map(parser, "Elasticsearch")['port'])
             config.es_index = configure_section_map(parser, "Elasticsearch")['index']
             config.es = esutil.connect(config.es_host, config.es_port)
 
+            # mysql
             config.mysql_host = configure_section_map(parser, "MySQL")['host']
             config.mysql_db = configure_section_map(parser, "MySQL")['schema']
             config.mysql_user = configure_section_map(parser, "MySQL")['user']
             config.mysql_pass = configure_section_map(parser, "MySQL")['pass']
 
+            # action
+            config.deep = configure_section_map(parser, "Action")['deep_scan'].lower() == 'true'
             if 'no_scan' not in options:
                 config.scan = configure_section_map(parser, "Action")['scan'].lower() == 'true' or 'scan' in options
-            
             if 'no_match' not in options:
                 config.match = configure_section_map(parser, "Action")['match'].lower() == 'true' or 'match' in options
             
-            config.deep = configure_section_map(parser, "Action")['deep_scan'].lower() == 'true'
-
+            # folder constants
             config.compilation = get_folder_constants('compilation')
             config.extended = get_folder_constants('extended')
             config.ignore = get_folder_constants('ignore')
@@ -67,6 +84,8 @@ def configure(options=None):
 
             if config.logging:
                 start_logging()
+
+            operations.record_exec_begin()
  
     except Exception, err:
         print err.message
@@ -144,3 +163,9 @@ def start_logging():
     console = logging.StreamHandler()
     console.setLevel(logging.ERROR)
     logging.getLogger("").addHandler(console)
+
+def write_pid_file():
+    f = open('pid', 'wt')
+    f.write(str(config.pid))
+    f.flush()
+    f.close()

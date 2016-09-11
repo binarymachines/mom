@@ -30,8 +30,9 @@ def clear_indexes(indexname):
         print(" response: '%s'" % (res))
 
 def connect(hostname, portnum):
-    # if config.es_debug:
-    print('Connecting to %s:%d...' % (hostname, portnum))
+    if config.es_debug:
+        print('Connecting to %s:%d...' % (hostname, portnum))
+    
     es = Elasticsearch([{'host': hostname, 'port': portnum}])
 
     if es == None: raise Exception("Unable to establish connnection to Elasticsearch")

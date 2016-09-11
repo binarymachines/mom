@@ -135,63 +135,77 @@ def clear_cache_operations_for_path(path, use_wildcard=False):
         for key in config.redis.keys(path):
             config.redis.delete(key)
         
-def check_for_reconfig_request(pid, start_time):
-    key = '-'.join(['exec', 'record', str(pid)])
+def check_for_reconfig_request():
+    key = '-'.join(['exec', 'record', str(config.pid)])
     values = config.redis.hgetall(key)
-    if values['start_time'] == start_time and values['reconfig_requested'] == 'True':
+    if 'start_time' in values and values['start_time'] == config.start_time and values['reconfig_requested'] == 'True':
         return True
 
-def check_for_stop_request(pid, start_time):
-    key = '-'.join(['exec', 'record', str(pid)])
+def check_for_stop_request():
+    key = '-'.join(['exec', 'record', str(config.pid)])
     values = config.redis.hgetall(key)
-    if values['start_time'] == start_time and values['stop_requested'] == 'True':
+    if 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True':
         return True
 
-def record_exec_begin(pid):
-    key = '-'.join(['exec', 'record', str(pid)])    
-    start_time = datetime.datetime.now().isoformat()
-    values = { 'start_time': start_time, 'stop_requested':False, 'reconfig_requested': False }
+def do_status_check(opcount=None):
+    
+    if opcount is not None:
+        if opcount % config.check_freq != 0:
+            return
+
+    if check_for_reconfig_request():
+        config_reader.configure()
+        remove_reconfig_request()
+
+    if check_for_stop_request():
+        print 'stop requested, terminating...'
+        sys.exit(0)
+
+    #  if config.check_for_bugs: raw_input('check for bugs')
+
+def record_exec_begin():
+    key = '-'.join(['exec', 'record', str(config.pid)])   
+    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
     config.redis.hmset(key, values)
-    return start_time
-
-def remove_reconfig_request(pid):
-    key = '-'.join(['exec', 'record', str(pid)])
+    
+def remove_reconfig_request():
+    key = '-'.join(['exec', 'record', str(config.pid)])
 
     values = { 'reconfig_requested': False }
     config.redis.hmset(key, values)
 
-def operation_completed(asset, operator, operation, pid=None):
+def operation_completed(asset, operator, operation):
     print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
-    if pid is None:
-        rows = mySQLintf.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
-            [operator, operation, asset.esid])
+    # if config.pid is None:
+    #     rows = mySQLintf.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
+    #         [operator, operation, asset.esid])
 
-        if len(rows) > 0 and rows[0][4] is not None:
-            print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
-            return True
-    else:
-        rows = mySQLintf.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
-            [str(pid), operator, operation, asset.esid])
+    #     if len(rows) > 0 and rows[0][4] is not None:
+    #         print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
+    #         return True
+    # else:
+    rows = mySQLintf.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
+        [str(config.pid), operator, operation, asset.esid])
 
-        if len(rows) > 0 and rows[0][5] is not None:
-            print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
-            return True
+    if len(rows) > 0 and rows[0][5] is not None:
+        print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
+        return True
 
     return False
 
-def record_op_begin(pid, asset, operator, operation):
+def record_op_begin(asset, operator, operation):
     # print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     # mySQLintf.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
     #     [str(pid), operator, operation, asset.esid, datetime.datetime.now().isoformat(), asset.absolute_path])
 
     key = '-'.join([asset.absolute_path, operation, operator])
-    values = { 'persisted': False, 'pid': pid, 'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid, 
+    values = { 'persisted': False, 'pid': config.pid, 'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid, 
         'target_path': asset.absolute_path }
     config.redis.hmset(key, values)
 
-def record_op_complete(pid, asset, operator, operation):
+def record_op_complete(asset, operator, operation):
     # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     # mySQLintf.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
@@ -222,7 +236,7 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
     result = mySQLintf.run_query(query) 
     return result
 
-def write_ops_for_path(pid, path, operator, operation):
+def write_ops_for_path(path, operator, operation):
     
     print 'updating %s.%s operations for %s in MySQL' % (operator, operation, path)
 
@@ -262,7 +276,7 @@ def main():
     red = redis.StrictRedis('localhost')
     config.redis.flushall()
 
-    rows = cache.retrieve_doc_entries(config.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
+    rows = cache.retrieve_docs(config.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
     counter = 1.1
     for row in rows:
         path, esid = row[0], row[1]
