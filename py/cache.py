@@ -19,10 +19,12 @@ def cache_docs(document_type, source_path, clear_existing=True):
         esid = row[1]
         # print 'caching %s for %s' % (esid, path)
         config.redis.rpush(key, path)
-        
-        values = { 'esid': esid }
-        config.redis.hmset(path, values)
+        cache_esid_for_path(esid, path)    
 
+def cache_esid_for_path(esid, path):
+    values = { 'esid': esid }
+    config.redis.hmset(path, values)
+     
 def clear_docs(document_type, source_path):
     setname = get_setname(document_type)
     config.redis.delete(setname)
