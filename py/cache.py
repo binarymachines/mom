@@ -32,11 +32,11 @@ def get_keys(document_type):
 # matched files
 def cache_match_info(path):
     try:
-    q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
-            WHERE esd.id = m.media_doc_id AND esd.absolute_path like '%s%s'
-        UNION
-        SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
-            WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
+        q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
+                WHERE esd.id = m.media_doc_id AND esd.absolute_path like '%s%s'
+            UNION
+            SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
+                WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
 
     rows = mySQLintf.run_query(q)
     for row in rows:
