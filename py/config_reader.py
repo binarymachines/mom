@@ -2,7 +2,7 @@ import sys, os, datetime, traceback, ConfigParser
 
 import redis
 
-import config, mySQLintf, esutil, operations
+import cache, config, mySQLintf, esutil, match_calc, operations
 
 def configure(options=None):
     
@@ -85,6 +85,18 @@ def configure(options=None):
             if config.logging:
                 start_logging()
 
+            if 'clearmem' in options:        
+                if config.mfm_debug: print 'clearing data from previous run'
+                for matcher in match_calc.get_matchers():
+                    operations.write_ops_for_path('/', matcher.name, 'match')
+                operations.write_ensured_paths()  
+                operations.clear_cache_operations_for_path('/', True)
+                cache.clear_docs(config.MEDIA_FILE, '/') 
+
+            if not 'noflush' in options:        
+                if config.mfm_debug: print 'flushing reddis cache...'
+                config.redis.flushall()
+
             operations.record_exec_begin()
  
     except Exception, err:
@@ -110,6 +122,8 @@ def make_options(args):
 
     options = []
 
+    if '--clearmem' in args and args['--clearmem']: options.append('clearmem')
+    if '--noflush' in args and args['--noflush']: options.append('noflush')
     if '--scan' in args and args['--scan']: options.append('scan')
     if '--match' in args and args['--match']: options.append('match')
     if '--noscan' in args and args['--noscan']: options.append('no_scan')

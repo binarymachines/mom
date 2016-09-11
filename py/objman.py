@@ -8,26 +8,25 @@
 '''
 
 import os, json, pprint, sys, random, logging, traceback, thread, datetime, docopt, subprocess
+
 import redis
 from redis.exceptions import *
 from docopt import docopt
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from mutagen.id3 import ID3, ID3NoHeaderError
+
+import cache, config, config_reader, operations, match_calc, mySQLintf, util, esutil
+
+from asset import AssetException, Asset, MediaFile, MediaFile
 from folders import MediaFolderManager
-import mySQLintf, util, esutil
-# from matchfinder import matchfinder
-from matcher import ElasticSearchMatcher
 from scanner import Param, Scanner
 from walker import MediaLibraryWalker
-import cache, config, config_reader, operations, match_calc
-from asset import AssetException, Asset, MediaFile, MediaFile
-
 
 pp = pprint.PrettyPrinter(indent=4)
 
 class MediaFileManager(MediaLibraryWalker):
-    def __init__(self, flush=True, clear=True):
+    def __init__(self):
         super(MediaFileManager, self).__init__()
 
         self.active_param = None
@@ -41,19 +40,6 @@ class MediaFileManager(MediaLibraryWalker):
         self.foldermanager = MediaFolderManager()
         self.scanner = Scanner()
         
-        if clear:        
-            if config.mfm_debug: print 'clearing data from previous run'
-            for matcher in self.get_matchers():
-                operations.write_ops_for_path('/', matcher.name, 'match')
-            operations.write_ensured_paths()  
-            operations.clear_cache_operations_for_path('/', True)
-            cache.clear_docs(config.MEDIA_FILE, '/') 
-
-            # do this before recording execution begin
-        # if flush:
-        #     if config.mfm_debug: print 'flushing reddis cache...'
-        #     config.redis.flushall()
-
 ################################# MediaWalker Overrides #################################
 
     def after_handle_root(self, root):
@@ -135,18 +121,6 @@ class MediaFileManager(MediaLibraryWalker):
         if result is not None:
             return result['esid']
 
-    def get_matchers(self):
-        matchers = []
-        rows = mySQLintf.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
-        for r in rows:
-            matcher = ElasticSearchMatcher(r[1], config.MEDIA_FILE)
-            matcher.query_type = r[2]
-            matcher.minimum_score = r[3]
-            print 'matcher %s configured' % (r[1])
-            matchers += [matcher]
-
-        return matchers
-
     def get_media_object(self, absolute_path):
 
         if config.mfm_debug: print "creating instance for %s." % (absolute_path)
@@ -211,7 +185,7 @@ class MediaFileManager(MediaLibraryWalker):
             print '\n-----scan complete-----\n'
 
         if config.match:
-            match_calc.calculate_matches(self.get_matchers(), param, )
+            match_calc.calculate_matches(param)
 
         # if config.DO_CLEAN:
         #     self.run_cleanup(param)
@@ -223,7 +197,7 @@ def run_cleanup(self, param):
 
 ################################# Functions #################################
 
-def execute(path=None, flush=True, clear=True):
+def execute(path=None):
     
     print 'Setting up scan param...'
     param = Param()
@@ -253,27 +227,25 @@ def execute(path=None, flush=True, clear=True):
     param.locations.sort()
 
     print 'Configuring Media Object Manager...'
-    mfm = MediaFileManager(flush, clear);
+    mfm = MediaFileManager();
     print 'starting Media Object Manager...'
     mfm.run(param)
 
-def test_matchers():
-    mfm = MediaFileManager();
-    mfm.debug = False
+# def test_matchers():
+#     mfm = MediaFileManager();
+#     mfm.debug = False
 
-    filename = '/media/removable/Audio/music [noscan]/albums/industrial/skinny puppy/the.b-sides.collect/11 - tin omen i.mp3'
-    media = mfm.get_media_object(filename)
-    if esutil.doc_exists(mfm. media, True):
-        media.doc = esutil.get_doc(media)
-        matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
-        # matcher = ElasticSearchMatcher('artist_matcher', mfm)
-        # matcher = ElasticSearchMatcher('filesize_term_matcher', mfm)
-        matcher.match(media)
-    else: print "%s has not been scanned into the library" % (filename)
+#     filename = '/media/removable/Audio/music [noscan]/albums/industrial/skinny puppy/the.b-sides.collect/11 - tin omen i.mp3'
+#     media = mfm.get_media_object(filename)
+#     if esutil.doc_exists(mfm. media, True):
+#         media.doc = esutil.get_doc(media)
+#         matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
+#         # matcher = ElasticSearchMatcher('artist_matcher', mfm)
+#         # matcher = ElasticSearchMatcher('filesize_term_matcher', mfm)
+#         matcher.match(media)
+#     else: print "%s has not been scanned into the library" % (filename)
 
 def main(args):
-    clear = True
-    flush = True
     config_reader.configure(config_reader.make_options(args))
 
     path = None if not args['--path'] else args['<path>']
@@ -289,7 +261,7 @@ def main(args):
             for row in rows: 
                 path.append(row[0])
 
-    execute(path, flush, clear)
+    execute(path)
 
 # main
 if __name__ == '__main__':
