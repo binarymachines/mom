@@ -1,9 +1,9 @@
-import os, traceback
+import os, sys, traceback
 
 import config, operations, mySQLintf, esutil
 from matcher import ElasticSearchMatcher
 from scanner import Param
-from data import Asset, MediaFile, MediaFolder, AssetException
+from asset import Asset, MediaFile, MediaFolder, AssetException
 import redis
 
 def all_matchers_have_run(matchers, media):
@@ -47,7 +47,7 @@ def calculate_matches(matchers, param, pid):
                 
                 for key in operations.get_keys(config.MEDIA_FILE):
                     if not location in key:
-                        continue
+                        print 'skipping %s' % (key)
                     values = config.redis.hgetall(key)
                     if not 'esid' in values:
                         continue

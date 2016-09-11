@@ -3,7 +3,7 @@
 import os, json, pprint, sys, random, logging, traceback, thread
 from mutagen.id3 import ID3, ID3NoHeaderError
 from elasticsearch import Elasticsearch
-from data import MediaFile
+from asset import MediaFile
 import config, mySQLintf, esutil, operations
 
 pp = pprint.PrettyPrinter(indent=4)

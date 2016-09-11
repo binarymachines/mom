@@ -3,9 +3,9 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import config, config_reader, data, mySQLintf 
+import config, config_reader, asset, mySQLintf 
 import MySQLdb as mdb
-from data import AssetException
+from asset import AssetException
 
 def get_setname(document_type):
     return '-'.join(['path', 'esid', document_type])
@@ -285,6 +285,8 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
         query = "select distinct target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s' ORDER BY target_path" \
             % (operator, operation, parentpath, '%')
 
+    query.replace('"', "'")
+    query.replace("'", "\'")
     try:
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()

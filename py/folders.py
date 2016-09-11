@@ -3,12 +3,12 @@
 import os, json, pprint, sys, traceback, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
-from data import MediaFolder
+from asset import MediaFolder
 import mySQLintf, esutil
 import operations
 import config
 # import alchemy
-from data import AssetException
+from asset import AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
 

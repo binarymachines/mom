@@ -2,7 +2,7 @@
 
 import os, json, pprint, sys, random, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import data, config, operations
+import asset, config, operations
 from esquery import QueryBuilder
 import mySQLintf
 

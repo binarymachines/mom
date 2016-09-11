@@ -91,7 +91,6 @@ def make_options(args):
 
     options = []
 
-
     if '--scan' in args and args['--scan']: options.append('scan')
     if '--match' in args and args['--match']: options.append('match')
     if '--noscan' in args and args['--noscan']: options.append('no_scan')
