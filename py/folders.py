@@ -7,7 +7,7 @@ from data import MediaFolder
 import mySQLintf, esutil
 import operations
 import config
-import alchemy
+# import alchemy
 from data import AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
