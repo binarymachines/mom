@@ -6,62 +6,11 @@ import redis
 import config, config_reader, asset, mySQLintf 
 import MySQLdb as mdb
 from asset import AssetException
-
-def get_setname(document_type):
-    return '-'.join(['path', 'esid', document_type])
-
-def cache_doc_info(document_type, source_path):
-    clear_cached_doc_info(document_type, '/')
-    # if self.debug: print 'caching %s doc info for %s...' % (document_type, source_path)
-    rows = retrieve_doc_entries(config.es_index, document_type, source_path)
-    key = get_setname(document_type)
-    for row in rows:
-        path = row[0]
-        esid = row[1]
-        # print 'caching %s for %s' % (esid, path)
-        config.redis.rpush(key, path)
         
-        values = { 'esid': esid }
-        config.redis.hmset(path, values)
-
-def clear_cached_doc_info(document_type, source_path):
-    setname = get_setname(document_type)
-    config.redis.ltrim(setname, 0, -1)
-        
-def get_cached_esid_for_path(document_type, path):
-    values = config.redis.hgetall(path)
-    if 'esid' in values:
-        return values['esid']
-
-def cache_match_info(path):
-    try:
-        q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
-                WHERE esd.id = m.media_doc_id AND esd.absolute_path like '%s%s'
-            UNION
-            SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
-                WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
-
-        rows = mySQLintf.run_query(q)
-        for row in rows:
-            key = '-'.join([row[2], row[0]]) 
-            config.redis.sadd(key, row[1])
-    except Exception, err:
-        print err.message
-
-def clear_cached_matches_for_esid(matcher_name, esid):
-    key = '-'.join([matcher_name, esid]) 
-    
-    values = config.redis.smembers(key)
-    config.redis.srem(esid, values) 
-
-def get_matches_for_esid(matcher_name, esid):
-    key = '-'.join([matcher_name, esid]) 
-        
-    values = config.redis.smembers(key)
-    return values
-
-def get_keys(document_type):
-    return config.redis.lrange(get_setname(document_type), 0, -1)
+# def get_cached_esid_for_path(document_type, path):
+#     values = config.redis.hgetall(path)
+#     if 'esid' in values:
+#         return values['esid']
 
 # def key_to_path(document_type, key):
 #     result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
@@ -80,11 +29,11 @@ def get_keys(document_type):
 #         config.redis.set(key, row[0])
 
 
-def get_all_cached_esids_for_path(path):
-    # key = '-'.join(['path', 'esid', path]) + '*'
-    key = path + '*'
-    values = config.redis.keys(key)
-    return values
+# def get_all_cached_esids_for_path(path):
+#     # key = '-'.join(['path', 'esid', path]) + '*'
+#     key = path + '*'
+#     values = config.redis.keys(key)
+#     return values
     
 # MySQL
 
@@ -148,26 +97,10 @@ def retrieve_esid(index, document_type, absolute_path):
 
 def retrieve_doc_entries(index, document_type, file_path):
 
-    rows = []
-
-    try:
-        query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
-            (mySQLintf.quote_if_string(config.es_index), mySQLintf.quote_if_string(document_type), mySQLintf.quote_if_string(''.join([file_path, '%'])))
-       
-        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
-        cur = con.cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-
-        return rows
-
-    except mdb.Error, e:
-        print "Error %d: %s" % (e.args[0], e.args[1])
-
-    finally:
-        if con:
-            con.close()
-
+    query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
+        (mySQLintf.quote_if_string(config.es_index), mySQLintf.quote_if_string(document_type), mySQLintf.quote_if_string(''.join([file_path, '%'])))
+    
+    return mySQLintf.run_query(query)
 
 # Operations
 
@@ -276,8 +209,6 @@ def record_op_complete(pid, asset, operator, operation):
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
     
-    con = None 
-    result = []
     if operator is None:
         query = "select distinct target_path from op_record where operation_name = '%s' and end_time is not null and target_path like '%s%s' ORDER BY target_path" \
             % (operation, parentpath, '%')
@@ -287,23 +218,8 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
 
     query.replace('"', "'")
     query.replace("'", "\'")
-    try:
-        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
-        cur = con.cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-
-        return rows
-
-    except mdb.Error, e:
-
-        print "Error %d: %s" % (e.args[0], e.args[1])
-        raise Exception(e.message)
-
-    finally:
-        if con:
-            con.close()
-
+    
+    result = mySQLintf.run_query(query) 
     return result
 
 def write_ops_for_path(pid, path, operator, operation):

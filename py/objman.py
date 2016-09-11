@@ -113,10 +113,7 @@ class MediaFileManager(MediaLibraryWalker):
 
     def process_file(self, filename, foldermanager, scanner):
         for extension in self.active_param.extensions:
-            try:
-                if filename.lower().endswith(''.join(['.', extension])) \
-                    and not filename.lower().startswith('incomplete~') \
-                    and not filename.lower().startswith('~incomplete'):
+                if scanner.approves(filename):
                         media = self.get_media_object(filename)
                         # TODO: remove es and MySQL records for nonexistent files
                         if media is None or media.ignore(): continue
@@ -127,28 +124,6 @@ class MediaFileManager(MediaLibraryWalker):
                 # else:
                 #     if self.debug: print 'skipping file: %s' % (filename)
 
-            except IOError, err:
-                print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
-                foldermanager.record_error(self. foldermanager.folder, "IOError=" + err.message)
-                return
-
-            except UnicodeEncodeError, err:
-                print ': '.join([err.__class__.__name__, err.message, filename])
-                if self.debug: traceback.print_exc(file=sys.stdout)
-                foldermanager.record_error(self. foldermanager.folder, "UnicodeEncodeError=" + err.message)
-                return
-
-            except UnicodeDecodeError, err:
-                print ': '.join([err.__class__.__name__, err.message, filename])
-                if self.debug: traceback.print_exc(file=sys.stdout)
-                foldermanager.record_error(self. foldermanager.folder, "UnicodeDecodeError=" + err.message)
-
-            except Exception, err:
-                print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
-                foldermanager.record_error(self. foldermanager.folder, "Exception=" + err.message)
-                return
 
 ################################# Operations Methods #################################
 
@@ -164,7 +139,7 @@ class MediaFileManager(MediaLibraryWalker):
 
     # def cache_doc_info(self, document_type, path):
     #     if self.debug: print 'caching %s doc info for %s...' % (self.document_type, path)
-    #     operations.cache_doc_info(document_type, path)
+    #     cache.cache_doc_info(document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
@@ -242,7 +217,7 @@ class MediaFileManager(MediaLibraryWalker):
         if config.scan:
             for location in param.locations:
                 if os.path.isdir(location) and os.access(location, os.R_OK):
-                    operations.cache_doc_info(config.MEDIA_FILE, path)
+                    cache.cache_doc_info(config.MEDIA_FILE, path)
                     self.cache_ops(location, 'scan', 'mp3 scanner')
 
                     self.walk(location)
