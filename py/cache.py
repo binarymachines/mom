@@ -42,8 +42,8 @@ def cache_match_info(path):
         for row in rows:
             key = '-'.join([row[2], row[0]]) 
             config.redis.sadd(key, row[1])
-except Exception, err:
-    print err.message
+    except Exception, err:
+        print err.message
 
 def get_matches_for_esid(matcher_name, esid):
     key = '-'.join([matcher_name, esid]) 
