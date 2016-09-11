@@ -1,6 +1,6 @@
 import os, sys, traceback
 
-import config, operations, mySQLintf, esutil
+import cache, config, operations, mySQLintf, esutil
 from matcher import ElasticSearchMatcher
 from scanner import Param
 from asset import Asset, MediaFile, MediaFolder, AssetException

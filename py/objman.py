@@ -20,7 +20,7 @@ import mySQLintf, util, esutil
 from matcher import ElasticSearchMatcher
 from scanner import Param, Scanner
 from walker import MediaLibraryWalker
-import config, config_reader, operations, match_calc
+import cache, config, config_reader, operations, match_calc
 from asset import AssetException, Asset, MediaFile, MediaFile
 
 
