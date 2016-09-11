@@ -48,6 +48,11 @@ class Scanner:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
 
+    def approves(filename):
+        return filename.lower().endswith(''.join(['.', extension])) \
+                    and not filename.lower().startswith('incomplete~') \
+                    and not filename.lower().startswith('~incomplete')
+    
     def scan_file(self, media, foldermanager):
 
         folder =  foldermanager.folder

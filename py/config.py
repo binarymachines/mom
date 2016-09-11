@@ -2,9 +2,9 @@
 #! /usr/bin/python
 
 import sys, os, traceback, ConfigParser
-
+import redis
 es = None
-redis = None
+redis = redis.Redis('config.redis_host')
 
 redis_host = None
 

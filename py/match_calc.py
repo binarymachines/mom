@@ -36,18 +36,18 @@ def calculate_matches(matchers, param, pid):
                 if config.CHECK_FOR_BUGS: raw_input('check for bugs')
                 # match_ops = self.retrieve_completed_match_ops(location)
 
-                operations.cache_doc_info(config.MEDIA_FILE, location)
+                cache.cache_doc_info(config.MEDIA_FILE, location)
                 
                 print 'caching match ops for %s...' % (location)
                 for matcher in matchers:
                     operations.cache_operations_for_path(location, 'match', matcher.name)
 
                 print 'caching matches for %s...' % (location)
-                operations.cache_match_info(location)
+                cache.cache_match_info(location)
                 
-                for key in operations.get_keys(config.MEDIA_FILE):
+                for key in cache.get_keys(config.MEDIA_FILE):
                     if not location in key:
-                        print 'skipping %s' % (key)
+                        print 'match calculator skipping %s' % (key)
                     values = config.redis.hgetall(key)
                     if not 'esid' in values:
                         continue
@@ -96,7 +96,7 @@ def calculate_matches(matchers, param, pid):
 
                     finally:
                         for matcher in matchers:
-                            operations.clear_cached_matches_for_esid(matcher.name, media.esid)
+                           cache.clear_cached_matches_for_esid(matcher.name, media.esid)
         
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message, location])
@@ -108,7 +108,7 @@ def calculate_matches(matchers, param, pid):
                 for matcher in matchers:
                     operations.write_ops_for_path(pid, location, matcher.name, 'match')
                 operations.clear_cache_operations_for_path(location, True)
-                operations.clear_cached_doc_info(config.MEDIA_FILE, location) 
+                cache.clear_cached_doc_info(config.MEDIA_FILE, location) 
             
 
     print '\n-----match operations complete-----\n'
