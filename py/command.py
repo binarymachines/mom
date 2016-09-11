@@ -15,15 +15,17 @@ import config
 def connect_to_redis():
     return redis.Redis('localhost')
                 
-def request_stop():
-    key = '-'.join(['exec', 'record', str(config.pid)])
+def request_stop(pid):
+    print 'submitting stop request for %s...' % (str(pid))
+    key = '-'.join(['exec', 'record', str(pid)])
     red = connect_to_redis()
 
     values = { 'stop_requested':True }
     red.hmset(key, values)
 
-def request_reconfig():
-    key = '-'.join(['exec', 'record', str(config.pid)])
+def request_reconfig(pid):
+    print 'submitting reconfig request for %s...' % (str(pid))
+    key = '-'.join(['exec', 'record', str(pid)])
     red = connect_to_redis()
 
     values = { 'reconfig_requested':True }
@@ -38,8 +40,8 @@ def get_pid():
 def main(args):
     pid = get_pid()
     if pid is not None:
-        if args['--reconfig']: request_reconfig()
-        if args['--stop']: request_stop()
+        if args['--reconfig']: request_reconfig(pid)
+        if args['--stop']: request_stop(pid)
         
 # main
 if __name__ == '__main__':
