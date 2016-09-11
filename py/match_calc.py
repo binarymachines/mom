@@ -68,10 +68,7 @@ def calculate_matches(param):
                             for matcher in matchers:
                                 if not operations.operation_in_cache(media.absolute_path, 'match', matcher.name):
                                     if config.matcher_debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
-
-                                    operations.record_op_begin(media, matcher.name, 'match')
                                     matcher.match(media)
-                                    operations.record_op_complete(media, matcher.name, 'match')
 
                                 elif config.matcher_debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
                     
