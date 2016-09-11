@@ -53,7 +53,7 @@ class MediaFileManager(MediaLibraryWalker):
                 operations.write_ops_for_path(self.pid, '/', matcher.name, 'match')
             operations.write_ensured_paths()  
             operations.clear_cache_operations_for_path('/', True)
-            operations.clear_cached_doc_info(config.MEDIA_FILE, '/') 
+            cache.clear_cached_doc_info(config.MEDIA_FILE, '/') 
 
         if flush:
             if self.debug: print 'flushing reddis cache...'
