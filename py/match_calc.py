@@ -25,7 +25,9 @@ def path_exists_in_data(path):
     if len(rows) == 1:
         return True
 
-def calculate_matches(matchers, param):
+def calculate_matches(param):
+
+    matchers = get_matchers()
 
     opcount = 0
     for location in param.locations:
@@ -104,6 +106,18 @@ def calculate_matches(matchers, param):
             
 
     print '\n-----match operations complete-----\n'
+
+def get_matchers():
+    matchers = []
+    rows = mySQLintf.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
+    for r in rows:
+        matcher = ElasticSearchMatcher(r[1], config.MEDIA_FILE)
+        matcher.query_type = r[2]
+        matcher.minimum_score = r[3]
+        print 'matcher %s configured' % (r[1])
+        matchers += [matcher]
+
+    return matchers
     
 def record_match_ops_complete(matcher, media, path, ):
     try:

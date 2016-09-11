@@ -301,7 +301,7 @@ def handle_asset_exception(error, path):
     # elif error.message.lower().startswith('unable'):
     # elif error.message.lower().startswith('NO DOCUMENT'):
     else:
-        mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.asset.document_type, error.asset.esid, error.message])
+        mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
 
 # main
 if __name__ == '__main__':
