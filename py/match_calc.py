@@ -69,7 +69,7 @@ def calculate_matches(param):
                                 if not operations.operation_in_cache(media.absolute_path, 'match', matcher.name):
                                     if config.matcher_debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
                                     matcher.match(media)
-                                    operations.write_ops_for_path(media.absolute_path, matcher.name, 'match')
+                                    # operations.write_ops_for_path(media.absolute_path, matcher.name, 'match')
        
                             
                                 elif config.matcher_debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
@@ -97,6 +97,8 @@ def calculate_matches(param):
                 traceback.print_exc(file=sys.stdout)
             finally:
                 # self.folderman.folder = None
+                for matcher in matchers:
+                    operations.write_ops_for_path(location, matcher.name, 'match')
                 operations.write_ensured_paths()
                 operations.clear_cache_operations_for_path(location, True)
                 cache.clear_docs(config.MEDIA_FILE, location) 

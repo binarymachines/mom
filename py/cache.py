@@ -27,6 +27,11 @@ def clear_docs(document_type, source_path):
     setname = get_setname(document_type)
     config.redis.delete(setname)
 
+def get_cached_esid_for_path(document_type, path):
+    values = config.redis.hgetall(path)
+    if 'esid' in values:
+        return values['esid']
+
 def get_doc_keys(document_type):
     return config.redis.lrange(get_setname(document_type), 0, -1)
 
@@ -41,11 +46,11 @@ def retrieve_docs(document_type, file_path):
 def cache_matches(path):
     try:
         q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
-                WHERE esd.id = m.media_doc_id AND esd.absolute_path like '%s%s'
+                WHERE esd.id = m.media_doc_id AND esd.absolute_path like "%s%s"
             UNION
             SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
-                WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
-
+                WHERE esd.id = m.match_doc_id AND esd.absolute_path like "%s%s"""" % (path, "%", path, "%")
+        q = q.replace("'", "\'")
         rows = mySQLintf.run_query(q)
         for row in rows:
             key = '-'.join([row[2], row[0]]) 
