@@ -6,17 +6,11 @@ from scanner import Param
 from data import Asset, MediaFile, MediaFolder, AssetException
 import redis
 
-# def MatchCalculator(object):
-#     __init__(self, redcon):
-#         self.debug = False
-#         self.redcon = redcon
-#         self.matchers = []
-
-def all_matchers_have_run(redcon, matchers, media):
+def all_matchers_have_run(matchers, media):
     skip_entirely = True
     paths = []
     for matcher in matchers:
-        if not operations.operation_in_cache(redcon, media.absolute_path, 'match', matcher.name):
+        if not operations.operation_in_cache(media.absolute_path, 'match', matcher.name):
             skip_entirely = False
             break
 
@@ -31,7 +25,7 @@ def path_exists_in_data(path):
     if len(rows) == 1:
         return True
 
-def calculate_matches(es, redcon, matchers, param, pid):
+def calculate_matches(matchers, param, pid):
 
     opcount = 0
     # self.active_param = param
@@ -42,19 +36,19 @@ def calculate_matches(es, redcon, matchers, param, pid):
                 if config.CHECK_FOR_BUGS: raw_input('check for bugs')
                 # match_ops = self.retrieve_completed_match_ops(location)
 
-                operations.cache_doc_info(redcon, config.MEDIA_FILE, location)
+                operations.cache_doc_info(config.MEDIA_FILE, location)
                 
                 print 'caching match ops for %s...' % (location)
                 for matcher in matchers:
-                    operations.cache_operations_for_path(redcon, location, 'match', matcher.name)
+                    operations.cache_operations_for_path(location, 'match', matcher.name)
 
                 print 'caching matches for %s...' % (location)
                 operations.cache_match_info(location)
                 
-                for key in operations.get_keys(redcon, config.MEDIA_FILE):
+                for key in operations.get_keys(config.MEDIA_FILE):
                     if not location in key:
                         continue
-                    values = redcon.hgetall(key)
+                    values = config.redis.hgetall(key)
                     if not 'esid' in values:
                         continue
                         
@@ -69,20 +63,20 @@ def calculate_matches(es, redcon, matchers, param, pid):
                     media.document_type = config.MEDIA_FILE
 
                     try:
-                        if all_matchers_have_run(redcon, matchers, media):
+                        if all_matchers_have_run(matchers, media):
                             # if self.debug: 
                             print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
                             continue
 
-                        if esutil.doc_exists(es, media, True):
+                        if esutil.doc_exists(media, True):
                             for matcher in matchers:
-                                if not operations.operation_in_cache(redcon, media.absolute_path, 'match', matcher.name):
+                                if not operations.operation_in_cache(media.absolute_path, 'match', matcher.name):
                                     # if self.debug: 
                                     print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
 
-                                    operations.record_op_begin(self.redcon, self.pid, media, matcher.name, 'match')
+                                    operations.record_op_begin(self.self.pid, media, matcher.name, 'match')
                                     matcher.match(media)
-                                    operations.record_op_complete(self.redcon, self.pid, media, matcher.name, 'match')
+                                    operations.record_op_complete(self.self.pid, media, matcher.name, 'match')
                                 # elif self.debug: 
                                 else: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
                     
@@ -110,11 +104,11 @@ def calculate_matches(es, redcon, matchers, param, pid):
                 traceback.print_exc(file=sys.stdout)
             finally:
                 # self.folderman.folder = None
-                operations.write_ensured_paths(redcon)
+                operations.write_ensured_paths()
                 for matcher in matchers:
-                    operations.write_ops_for_path(redcon, pid, location, matcher.name, 'match')
-                operations.clear_cache_operations_for_path(redcon, location, True)
-                operations.clear_cached_doc_info(redcon, config.MEDIA_FILE, location) 
+                    operations.write_ops_for_path(pid, location, matcher.name, 'match')
+                operations.clear_cache_operations_for_path(location, True)
+                operations.clear_cached_doc_info(config.MEDIA_FILE, location) 
             
 
     print '\n-----match operations complete-----\n'
@@ -130,7 +124,7 @@ def record_match_ops_complete(matcher, media, path, pid):
         operations.handle_asset_exception(err, path)
 
 
-def record_matches_as_ops(redcon, pid):
+def record_matches_as_ops(pid):
 
     rows = mySQLintf.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
     for r in rows:
@@ -140,6 +134,6 @@ def record_matches_as_ops(redcon, pid):
         media.absolute_path = r[2]
 
         if operations.operation_completed(media, matcher_name, 'match') == False:
-            operations.record_op_begin(redcon, pid, media, matcher_name, 'match')
+            operations.record_op_begin(pid, media, matcher_name, 'match')
             operations.record_op_complete(pid, media, matcher_name, 'match')
             print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')

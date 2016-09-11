@@ -12,11 +12,10 @@ def clean_str(string):
     return string.lower().replace(', ', ' ').replace('_', ' ').replace(':', ' ').replace(' ', '')
 
 class MediaMatcher(object):
-    def __init__(self, name, mediaManager):
+    def __init__(self, name, doc_type):
         self.debug = config.matcher_debug
-        self.es = mediaManager.es
         self.comparison_fields = []
-        self.document_type = mediaManager.document_type
+        self.document_type = doc_type
         self.name = name
 
     def match(self, media):
@@ -69,8 +68,8 @@ class MediaMatcher(object):
         elif self.debug == True: print 'match record for  %s ::: %s already exists.' % (media_id, match_id)
 
 class ElasticSearchMatcher(MediaMatcher):
-    def __init__(self, name, mediaManager):
-        super(ElasticSearchMatcher, self).__init__(name, mediaManager)
+    def __init__(self, name, doc_type):
+        super(ElasticSearchMatcher, self).__init__(name, doc_type)
         self.query_type = None
 
         if self.name is not None:
@@ -134,7 +133,7 @@ class ElasticSearchMatcher(MediaMatcher):
             query_printed = True
 
         matches = False
-        res = self.es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
+        res = config.es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches: 
                 continue
@@ -160,7 +159,7 @@ class ElasticSearchMatcher(MediaMatcher):
             if self.debug: self.print_match_query_debug_footer(media, query, match)
 
             try:
-                thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], config.es_index, self.document_type, ) )
+                thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
             except Exception, err:
                 print err.message
                 traceback.print_exc(file=sys.stdout)

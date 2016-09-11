@@ -14,10 +14,8 @@ class Param:
         self.extensions = []
 
 class Scanner:
-    def __init__(self, es, foldermanager):
-        self.es = es
+    def __init__(self):
         self.debug = config.scanner_debug
-        self.foldermanager = foldermanager
         self.document_type = config.MEDIA_FILE
 
     # TODO: figure out why this fails
@@ -50,9 +48,9 @@ class Scanner:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
 
-    def scan_file(self, media):
+    def scan_file(self, media, foldermanager):
 
-        folder =  self.foldermanager.folder
+        folder =  foldermanager.folder
         data = media.get_dictionary()
 
         try:
@@ -60,7 +58,7 @@ class Scanner:
                 if self.debug: print "esid exists, skipping file: %s" % (media.short_name())
                 return media
 
-            if  media.esid == None and esutil.doc_exists(self.es, media, True):
+            if  media.esid == None and esutil.doc_exists(media, True):
                 if self.debug: print "document exists, skipping file: %s" % (media.short_name())
                 return media
 
@@ -87,23 +85,23 @@ class Scanner:
             data['scan_error'] = err.message
             data['has_error'] = True
             print ': '.join([err.__class__.__name__, err.message])
-            self.foldermanager.record_error(folder, "ID3NoHeaderError=" + err.message)
+            foldermanager.record_error(folder, "ID3NoHeaderError=" + err.message)
             if self.debug: traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
-            self.foldermanager.record_error(folder, "UnicodeEncodeError=" + err.message)
+            foldermanager.record_error(folder, "UnicodeEncodeError=" + err.message)
             return
 
         except UnicodeDecodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
-            self.foldermanager.record_error(folder, "UnicodeDecodeError=" + err.message)
+            foldermanager.record_error(folder, "UnicodeDecodeError=" + err.message)
             return
 
         if self.debug: "indexing file: %s" % (media.file_name)
-        res = self.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
+        res = config.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
 
         if res['_shards']['successful'] == 1:
             esid = res['_id']
