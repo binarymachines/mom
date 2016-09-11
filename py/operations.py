@@ -3,7 +3,7 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import data, mySQLintf, config, config_reader
+import config, config_reader, data, mySQLintf 
 import MySQLdb as mdb
 from data import AssetException
 
@@ -61,6 +61,9 @@ def get_matches_for_esid(matcher_name, esid):
         
     values = redcon.smembers(key)
     return values
+
+def get_keys(redcon, document_type):
+    redcon.lrange(operations.get_setname(document_type), 0, -1)
 
 # def key_to_path(document_type, key):
 #     result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
@@ -361,6 +364,14 @@ def main():
         esid = red.hgetall(key)['esid']
         print '\t'.join([esid, key])
 
+def handle_asset_exception(error, path):
+    if error.message.lower().startswith('multiple'):
+        for item in  error.data:
+            mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+    # elif error.message.lower().startswith('unable'):
+    # elif error.message.lower().startswith('NO DOCUMENT'):
+    else:
+        mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.asset.document_type, error.asset.esid, error.message])
 
 # main
 if __name__ == '__main__':

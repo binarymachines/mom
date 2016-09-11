@@ -8,7 +8,7 @@ import config, mySQLintf, esutil, operations
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class ScanCriteria:
+class Param:
     def __init__(self):
         self.locations = []
         self.extensions = []
@@ -68,7 +68,7 @@ class Scanner:
 
             mutagen_mediafile = ID3(media.absolute_path)
             metadata = mutagen_mediafile.pprint() # gets all metadata
-            tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
+            tags = [x.split('=',1) for x in metaasset.split('\n')] # substring[0:] is redundant
 
             for tag in tags:
                 if tag[0] in config.FIELDS:

@@ -7,23 +7,22 @@
 
 '''
 
-import os, json, pprint, sys, random, logging, traceback, thread, datetime
+import os, json, pprint, sys, random, logging, traceback, thread, datetime, docopt, subprocess
 import redis
 from redis.exceptions import *
 from docopt import docopt
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
-from data import MediaFile
 from mutagen.id3 import ID3, ID3NoHeaderError
 from folders import MediaFolderManager
 import mySQLintf, util, esutil
 # from matchfinder import matchfinder
 from matcher import ElasticSearchMatcher
-from scanner import ScanCriteria, Scanner
+from scanner import Param, Scanner
 from walker import MediaLibraryWalker
-import config, config_reader, operations
-from data import AssetException
-import subprocess
+import config, config_reader, operations, match_calc
+from data import AssetException, Asset, MediaFile, MediaFile
+
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -32,11 +31,11 @@ class MediaFileManager(MediaLibraryWalker):
         super(MediaFileManager, self).__init__()
 
         self.redcon = self.connect_to_redis()
-
+        # TODO write pidfile_TIMESTAMP and pass filenames to command.py
         self.pid = os.getpid()
         self.start_time = None
 
-        self.active_criteria = None
+        self.active_param = None
         self.debug =config.mfm_debug
         self.document_type = config.MEDIA_FILE
         
@@ -45,19 +44,14 @@ class MediaFileManager(MediaLibraryWalker):
         
         self.location_cache = {}
 
-        self.matchers = []
-
         self.es = esutil.connect(config.es_host, config.es_port)
         self.folderman = MediaFolderManager(self.es, config.es_index)
 
         self.scanner = Scanner(self.es, self.folderman)
-        self.setup_matchers()
-
-        # self.match_finder = MatchFinder()
-
+        
         if clear:        
             if self.debug: print 'clearing data from previous run'
-            for matcher in self.matchers:
+            for matcher in self.get_matchers():
                 operations.write_ops_for_path(self.redcon, self.pid, '/', matcher.name, 'match')
             operations.write_ensured_paths(self.redcon)  
             operations.clear_cache_operations_for_path(self.redcon, '/', True)
@@ -91,14 +85,14 @@ class MediaFileManager(MediaLibraryWalker):
             #     return
 
             try:
-                if util.path_contains_media(root, self.active_criteria.extensions):
+                if util.path_contains_media(root, self.active_param.extensions):
                     self.folderman.set_active(root)
 
             except AssetException, err:
                 self.folderman.folder = None
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
-                self.handle_asset_exception(err, root)
+                operations.handle_asset_exception(err, root)
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
@@ -120,7 +114,7 @@ class MediaFileManager(MediaLibraryWalker):
         print ': '.join([err.__class__.__name__, err.message])
 
     def process_file(self, filename):
-        for extension in self.active_criteria.extensions:
+        for extension in self.active_param.extensions:
             try:
                 if filename.lower().endswith(''.join(['.', extension])) \
                     and not filename.lower().startswith('incomplete~') \
@@ -185,142 +179,17 @@ class MediaFileManager(MediaLibraryWalker):
         if result is not None:
             return result['esid']
 
-    def all_matchers_have_run(self, media):
-        skip_entirely = True
-        paths = []
-        for matcher in self.matchers:
-            if not operations.operation_in_cache(self.redcon, media.absolute_path, 'match', matcher.name):
-                skip_entirely = False
-                break
+    def get_matchers(self):
+        matchers = []
+        rows = mySQLintf.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
+        for r in rows:
+            matcher = ElasticSearchMatcher(r[1], self)
+            matcher.query_type = r[2]
+            matcher.minimum_score = r[3]
+            print 'matcher %s configured' % (r[1])
+            matchers += [matcher]
 
-        return skip_entirely
-    
-    def path_exists_in_data(self, path):
-        path = path.replace('"', "'")
-        path = path.replace("'", "\'")
-        q = 'select * from es_document where index_name = "%s" and doc_type = "%s" and absolute_path like "%s%s" limit 1' % \
-            (config.es_index, config.MEDIA_FOLDER, path, '%')
-        rows = mySQLintf.run_query(q)
-        if len(rows) == 1:
-            return True
-
-    def run_match_ops(self, criteria):
-
-        opcount = 0
-        self.active_criteria = criteria
-        for location in criteria.locations:            
-            if self.path_exists_in_data(location):
-                try:
-                    location += '/'
-                    if config.CHECK_FOR_BUGS: raw_input('check for bugs')
-                    # match_ops = self.retrieve_completed_match_ops(location)
-
-                    self.cache_doc_info(config.MEDIA_FILE, location)
-                    
-                    print 'caching match ops for %s...' % (location)
-                    for matcher in self.matchers:
-                        operations.cache_operations_for_path(self.redcon, location, 'match', matcher.name)
-
-                    print 'caching matches for %s...' % (location)
-                    operations.cache_match_info(location)
-                    
-                    for key in self.redcon.lrange(operations.get_setname(config.MEDIA_FILE), 0, -1):
-                        if not location in key:
-                            continue
-                        values = self.redcon.hgetall(key)
-                        if not 'esid' in values:
-                            continue
-                            
-                        opcount += 1
-                        if opcount % config.CHECK_FREQUENCY == 0:
-                            self.check_for_stop_request()
-                            self.check_for_reconfig_request()
-
-                        media = MediaFile()
-                        media.absolute_path = key
-                        media.esid = values['esid']
-                        media.document_type = config.MEDIA_FILE
-
-                        try:
-                            if self.all_matchers_have_run(media):
-                                if self.debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
-                                continue
-
-                            if esutil.doc_exists(self.es, media, True):
-                                for matcher in self.matchers:
-                                    if not operations.operation_in_cache(self.redcon, media.absolute_path, 'match', matcher.name):
-                                        if self.debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
-
-                                        operations.record_op_begin(self.redcon, self.pid, media, matcher.name, 'match')
-                                        matcher.match(media)
-                                        operations.record_op_complete(self.redcon, self.pid, media, matcher.name, 'match')
-                                    elif self.debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
-                        
-                        except AssetException, err:
-                            self.folderman.record_error(self.folderman.folder, "AssetException=" + err.message)
-                            print ': '.join([err.__class__.__name__, err.message])
-                            # if self.debug: traceback.print_exc(file=sys.stdout)
-                            self.handle_asset_exception(err, media.absolute_path)
-                        
-                        except UnicodeDecodeError, u:
-                            self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
-                            print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
-
-                        except Exception, u:
-                            self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
-                            print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
-
-                        finally:
-                            for matcher in self.matchers:
-                                operations.clear_cached_matches_for_esid(matcher.name, media.esid)
-            
-                except Exception, err:
-                    print ': '.join([err.__class__.__name__, err.message, location])
-                    if self.debug: traceback.print_exc(file=sys.stdout)
-                finally:
-                    self.folderman.folder = None
-                    operations.write_ensured_paths(self.redcon)
-                    for matcher in self.matchers:
-                        operations.write_ops_for_path(self.redcon, self.pid, location, matcher.name, 'match')
-                    operations.clear_cache_operations_for_path(self.redcon, location, True)
-                    operations.clear_cached_doc_info(self.redcon, config.MEDIA_FILE, location) 
-               
-
-        print '\n-----match operations complete-----\n'
-    
-    def record_match_ops_complete(self, matcher, media, path):
-        try:
-            operations.record_op_complete(self.pid, media, matcher.name, 'match')
-            if operations.operation_completed(media, matcher.name, 'match', self.pid) == False:
-                raise AssetException('Unable to store/retrieve operation record', media)
-        except AssetException, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            # if self.debug: traceback.print_exc(file=sys.stdout)
-            self.handle_asset_exception(err, path)
-
-################################# MOM Helper Methods #################################
-
-    def get_location(self, path):
-        parent = os.path.abspath(os.path.join(path, os.pardir))
-        if parent in self.location_cache:
-            # if self.debug: print "location for path %s found." % (path)
-            return self.location_cache[parent]
-
-        self.location_cache = {}
-
-        if self.debug: print "determining location for %s." % (parent.split('/')[-1])
-    
-        for location in config.locations:
-            if location in path:
-                self.location_cache[parent] = os.path.join(config.START_FOLDER, folder)
-                return self.location_cache[parent]
-
-        for location in config.locations_ext:
-            if location in path:
-                self.location_cache[parent] = os.path.join(folder)
-                return self.location_cache[parent]
-
-        return None
+        return matchers
 
     def get_media_object(self, absolute_path):
 
@@ -349,20 +218,33 @@ class MediaFileManager(MediaLibraryWalker):
 
         return media
 
-    def handle_asset_exception(self, error, path):
-        if error.message.lower().startswith('multiple'):
-            for item in  error.data:
-                mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-        # elif error.message.lower().startswith('unable'):
-        # elif error.message.lower().startswith('NO DOCUMENT'):
-        else:
-            mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
+    def get_location(self, path):
+        parent = os.path.abspath(os.path.join(path, os.pardir))
+        if parent in self.location_cache:
+            # if self.debug: print "location for path %s found." % (path)
+            return self.location_cache[parent]
 
-    def run(self, criteria):
+        self.location_cache = {}
+
+        if self.debug: print "determining location for %s." % (parent.split('/')[-1])
+    
+        for location in config.locations:
+            if location in path:
+                self.location_cache[parent] = os.path.join(config.START_FOLDER, folder)
+                return self.location_cache[parent]
+
+        for location in config.locations_ext:
+            if location in path:
+                self.location_cache[parent] = os.path.join(folder)
+                return self.location_cache[parent]
+
+        return None
+
+    def run(self, param):
         self.start_time =  operations.record_exec_begin(self.redcon, self.pid)
-        self.active_criteria = criteria
+        self.active_param = param
         if config.scan:
-            for location in criteria.locations:
+            for location in param.locations:
                 if os.path.isdir(location) and os.access(location, os.R_OK):
                     self.cache_doc_info(location)
                     self.cache_ops(location, 'scan', 'mp3 scanner')
@@ -375,70 +257,47 @@ class MediaFileManager(MediaLibraryWalker):
             print '\n-----scan complete-----\n'
 
         if config.match:
-            self.run_match_ops(criteria)
+            match_calc.calculate_matches(self.es, self.redcon, self.get_matchers(), param, self.pid)
 
         # if config.DO_CLEAN:
-        #     self.run_cleanup(criteria)
-
-    def setup_matchers(self):
-        rows = mySQLintf.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
-        for r in rows:
-            matcher = ElasticSearchMatcher(r[1], self)
-            matcher.query_type = r[2]
-            matcher.minimum_score = r[3]
-            print 'matcher %s configured' % (r[1])
-            self.matchers += [matcher]
-
-    def record_matches_as_ops(self):
-        pid = os.getpid()
-        rows = mySQLintf.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
-        for r in rows:
-            media = MediaFile()
-            matcher_name = r[1]
-            media.esid = r[0]
-            media.absolute_path = r[2]
-
-            if operations.operation_completed(media, matcher_name, 'match') == False:
-                operations.record_op_begin(self.redcon, pid, media, matcher_name, 'match')
-                operations.record_op_complete(pid, media, matcher_name, 'match')
-                print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')
-
+        #     self.run_cleanup(param)
 
 ################################# Cleanup #################################
 
-def run_cleanup(self, criteria):
+def run_cleanup(self, param):
     pass
 
 ################################# Functions #################################
 
 def execute(path=None, flush=True, clear=True):
     
-    print 'Setting up scan criteria...'
-    s = ScanCriteria()
+    print 'Setting up scan param...'
+    param = Param()
 
-    s.extensions = ['mp3'] # util.get_active_media_formats()
+    param.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
             for genre in config.genre_folders:
-                s.locations.append(os.path.join(location, genre))
+                param.locations.append(os.path.join(location, genre))
 
         for location in config.locations_ext: 
-            s.locations.append(location)            
-        # for genre in config.genre_folders:
-        #     s.locations.append(os.path.join(location, genre))
+            param.locations.append(location)            
             
-        s.locations.append(config.NOSCAN)
+        param.locations.append(config.NOSCAN)
         # s.locations.append(config.EXPUNGED)
+        
+        for location in config.locations: 
+            param.locations.append(location)            
     else:
         for directory in path:
-            s.locations.append(directory)
+            param.locations.append(directory)
 
-    s.locations.sort()
+    param.locations.sort()
 
     print 'Configuring Media Object Manager...'
     mfm = MediaFileManager(flush, clear);
     print 'starting Media Object Manager...'
-    mfm.run(s)
+    mfm.run(param)
 
 def write_pid_file():
     pid = str(os.getpid())
