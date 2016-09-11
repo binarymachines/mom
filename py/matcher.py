@@ -122,6 +122,8 @@ class ElasticSearchMatcher(MediaMatcher):
 
 
     def match(self, media):
+        operations.record_op_begin(media, self.name, 'match')
+
         print '%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path) 
         previous_matches = cache.get_matches(self.name, media.esid)
         
@@ -155,6 +157,7 @@ class ElasticSearchMatcher(MediaMatcher):
             self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
+            operations.record_op_complete(media, self.name, 'match')
             if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
             try:

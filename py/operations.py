@@ -201,6 +201,9 @@ def record_op_begin(asset, operator, operation):
         'target_path': asset.absolute_path }
     config.redis.hmset(key, values)
 
+    key = '-'.join(['exec', 'record', str(config.pid)])
+    config.redis.hset(key, 'current_operation', operation, 'operation_status', 'begin')
+
 def record_op_complete(asset, operator, operation):
     # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
@@ -209,6 +212,9 @@ def record_op_complete(asset, operator, operation):
 
     key = '-'.join([asset.absolute_path, operation, operator])
     config.redis.hset(key, 'end_time', datetime.datetime.now().isoformat())
+
+    key = '-'.join(['exec', 'record', str(config.pid)])
+    config.redis.hset(key, 'current_operation', None, 'operation_status', None)
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
     
