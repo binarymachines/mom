@@ -12,7 +12,7 @@ import os, sys, traceback, pprint, json, subprocess
 from docopt import docopt
 
 import config, config_reader, mySQLintf, esutil
-from data import MediaFile, MediaFolder
+from asset import MediaFile, MediaFolder
 
 pp = pprint.PrettyPrinter(indent=4)
 

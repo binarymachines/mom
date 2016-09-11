@@ -3,7 +3,7 @@
 import os, sys, traceback, pprint
 from elasticsearch import Elasticsearch, NotFoundError
 import config, mySQLintf, operations
-from data import Asset, MediaFile, MediaFolder, AssetException
+from asset import Asset, MediaFile, MediaFolder, AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
 

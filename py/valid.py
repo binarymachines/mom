@@ -2,7 +2,7 @@
 import os, sys, pprint, json
 
 import config, config_reader, mySQLintf, operations
-from data import AssetException
+from asset import AssetException
 
 def main():
     config_reader.configure()

@@ -21,7 +21,7 @@ from matcher import ElasticSearchMatcher
 from scanner import Param, Scanner
 from walker import MediaLibraryWalker
 import config, config_reader, operations, match_calc
-from data import AssetException, Asset, MediaFile, MediaFile
+from asset import AssetException, Asset, MediaFile, MediaFile
 
 
 pp = pprint.PrettyPrinter(indent=4)
