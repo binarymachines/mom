@@ -13,7 +13,6 @@ def clean_str(string):
 
 class MediaMatcher(object):
     def __init__(self, name, doc_type):
-        self.debug = config.matcher_debug
         self.comparison_fields = []
         self.document_type = doc_type
         self.name = name
@@ -62,10 +61,10 @@ class MediaMatcher(object):
 
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
         if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
-            if self.debug == True: print 'recording match: %s ::: %s' % (media_id, match_id)
+            if config.matcher_debug == True: print 'recording match: %s ::: %s' % (media_id, match_id)
             mySQLintf.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
                 [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
-        elif self.debug == True: print 'match record for  %s ::: %s already exists.' % (media_id, match_id)
+        elif config.matcher_debug == True: print 'match record for  %s ::: %s already exists.' % (media_id, match_id)
 
 class ElasticSearchMatcher(MediaMatcher):
     def __init__(self, name, doc_type):
@@ -124,11 +123,11 @@ class ElasticSearchMatcher(MediaMatcher):
 
     def match(self, media):
         print '%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path) 
-        previous_matches = cache.get_matches_for_esid(self.name, media.esid)
+        previous_matches = cache.get_matches(self.name, media.esid)
         
         query = self.get_query(media)
         query_printed = False
-        if self.debug == True: 
+        if config.matcher_debug == True: 
             self.print_match_query_debug_header(media, query)
             query_printed = True
 
@@ -156,7 +155,7 @@ class ElasticSearchMatcher(MediaMatcher):
             self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
-            if self.debug: self.print_match_query_debug_footer(media, query, match)
+            if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
             try:
                 thread.start_new_thread( operations.ensure_exists, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )

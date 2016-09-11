@@ -25,37 +25,32 @@ def path_exists_in_data(path):
     if len(rows) == 1:
         return True
 
-def calculate_matches(matchers, param, pid):
+def calculate_matches(matchers, param):
 
     opcount = 0
-    # self.active_param = param
-    for location in param.locations:            
+    for location in param.locations:
+        operations.do_status_check()            
         if path_exists_in_data(location):
             try:
                 location += '/'
-                if config.CHECK_FOR_BUGS: raw_input('check for bugs')
-                # match_ops = self.retrieve_completed_match_ops(location)
-
-                cache.cache_doc_info(config.MEDIA_FILE, location)
+                cache.cache_docs(config.MEDIA_FILE, location)
                 
-                print 'caching match ops for %s...' % (location)
+                if config.matcher_debug: print 'caching match ops for %s...' % (location)
                 for matcher in matchers:
                     operations.cache_operations_for_path(location, 'match', matcher.name)
 
-                print 'caching matches for %s...' % (location)
-                cache.cache_match_info(location)
+                if config.matcher_debug: print 'caching matches for %s...' % (location)
+                cache.cache_matches(location)
                 
-                for key in cache.get_keys(config.MEDIA_FILE):
+                for key in cache.get_doc_keys(config.MEDIA_FILE):
                     if not location in key:
-                        print 'match calculator skipping %s' % (key)
+                        if config.matcher_debug: print 'match calculator skipping %s' % (key)
                     values = config.redis.hgetall(key)
                     if not 'esid' in values:
                         continue
                         
                     opcount += 1
-                    # if opcount % config.CHECK_FREQUENCY == 0:
-                    #     self.check_for_stop_request()
-                    #     self.check_for_reconfig_request()
+                    operations.do_status_check(opcount)
 
                     media = MediaFile()
                     media.absolute_path = key
@@ -64,26 +59,24 @@ def calculate_matches(matchers, param, pid):
 
                     try:
                         if all_matchers_have_run(matchers, media):
-                            # if self.debug: 
-                            print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
+                            if config.matcher_debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
                             continue
 
                         if esutil.doc_exists(media, True):
                             for matcher in matchers:
                                 if not operations.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                                    # if self.debug: 
-                                    print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
+                                    if config.matcher_debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
 
-                                    operations.record_op_begin(pid, media, matcher.name, 'match')
+                                    operations.record_op_begin(media, matcher.name, 'match')
                                     matcher.match(media)
-                                    operations.record_op_complete(pid, media, matcher.name, 'match')
-                                # elif self.debug: 
-                                else: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+                                    operations.record_op_complete(media, matcher.name, 'match')
+
+                                elif config.matcher_debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
                     
                     except AssetException, err:
-                        # self.folderman.record_error(self.folderman.folder, "AssetException=" + err.message)
                         print ': '.join([err.__class__.__name__, err.message])
-                        # if self.debug: traceback.print_exc(file=sys.stdout)
+                        # if config.matcher_debug: 
+                        traceback.print_exc(file=sys.stdout)
                         operations.handle_asset_exception(err, media.absolute_path)
                     
                     except UnicodeDecodeError, u:
@@ -96,35 +89,34 @@ def calculate_matches(matchers, param, pid):
 
                     finally:
                         for matcher in matchers:
-                           cache.clear_cached_matches_for_esid(matcher.name, media.esid)
+                           cache.clear_matches(matcher.name, media.esid)
         
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message, location])
-                # if self.debug: 
                 traceback.print_exc(file=sys.stdout)
             finally:
                 # self.folderman.folder = None
                 operations.write_ensured_paths()
                 for matcher in matchers:
-                    operations.write_ops_for_path(pid, location, matcher.name, 'match')
+                    operations.write_ops_for_path(location, matcher.name, 'match')
                 operations.clear_cache_operations_for_path(location, True)
-                cache.clear_cached_doc_info(config.MEDIA_FILE, location) 
+                cache.clear_docs(config.MEDIA_FILE, location) 
             
 
     print '\n-----match operations complete-----\n'
     
-def record_match_ops_complete(matcher, media, path, pid):
+def record_match_ops_complete(matcher, media, path, ):
     try:
-        operations.record_op_complete(self.pid, media, matcher.name, 'match')
-        if operations.operation_completed(media, matcher.name, 'match', pid) == False:
+        operations.record_op_complete(media, matcher.name, 'match')
+        if operations.operation_completed(media, matcher.name, 'match') == False:
             raise AssetException('Unable to store/retrieve operation record', media)
     except AssetException, err:
         print ': '.join([err.__class__.__name__, err.message])
-        # if self.debug: traceback.print_exc(file=sys.stdout)
+        traceback.print_exc(file=sys.stdout)
         operations.handle_asset_exception(err, path)
 
 
-def record_matches_as_ops(pid):
+def record_matches_as_ops():
 
     rows = mySQLintf.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
     for r in rows:
@@ -134,6 +126,6 @@ def record_matches_as_ops(pid):
         media.absolute_path = r[2]
 
         if operations.operation_completed(media, matcher_name, 'match') == False:
-            operations.record_op_begin(pid, media, matcher_name, 'match')
-            operations.record_op_complete(pid, media, matcher_name, 'match')
-            print 'recorded(%i, %s, %s, %s)' % (pid, r[1], r[2], 'match')
+            operations.record_op_begin(media, matcher_name, 'match')
+            operations.record_op_complete(media, matcher_name, 'match')
+            print 'recorded(%i, %s, %s, %s)' % (r[1], r[2], 'match')

@@ -3,13 +3,17 @@
 
 import sys, os, traceback, ConfigParser
 import redis
+
+pid = None
+start_time = None
+
 es = None
-redis = redis.Redis('config.redis_host')
 
 redis_host = None
+redis = redis.Redis('config.redis_host')
 
-CHECK_FREQUENCY = 10
-CHECK_FOR_BUGS = False
+check_freq = 10
+check_for_bugs = False
 
 MEDIA_FILE = 'media_file'
 MEDIA_FOLDER = 'media_folder'
