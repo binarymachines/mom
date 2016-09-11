@@ -38,10 +38,10 @@ def cache_match_info(path):
             SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
                 WHERE esd.id = m.match_doc_id AND esd.absolute_path like '%s%s'""" % (path, '%', path, '%')
 
-    rows = mySQLintf.run_query(q)
-    for row in rows:
-        key = '-'.join([row[2], row[0]]) 
-        config.redis.sadd(key, row[1])
+        rows = mySQLintf.run_query(q)
+        for row in rows:
+            key = '-'.join([row[2], row[0]]) 
+            config.redis.sadd(key, row[1])
 except Exception, err:
     print err.message
 
