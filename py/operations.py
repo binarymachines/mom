@@ -240,37 +240,39 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
 
 def write_ops_for_path(path, operator, operation):
     
-    print 'updating %s.%s operations for %s in MySQL' % (operator, operation, path)
+    try:
+        print 'updating %s.%s operations for %s in MySQL' % (operator, operation, path)
 
-    con = None
-    table_name = 'op_record'
-    field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
-    
-    keys = config.redis.keys(path + '*')
-    for key in keys:
-        if not operator in key:
-            continue
-        if not operation in key:
-            continue
-
-        values = config.redis.hgetall(key)
-        if values['persisted'] == 'True' or values['end_time'] == 'None':
-            continue
-
-        values['operator_name'] = operator
-        values['operation_name'] = operation
-        field_values = []
-        for field in field_names:
-            field_values.append(values[field])
+        table_name = 'op_record'
+        field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
         
-        try:
-            mySQLintf.insert_values('op_record', field_names, field_values)
+        keys = config.redis.keys(path + '*')
+        for key in keys:
+            if not operator in key:
+                continue
+            if not operation in key:
+                continue
 
-        except AssetException, error:
-            mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
-                [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
+            values = config.redis.hgetall(key)
+            if values['persisted'] == 'True' or values['end_time'] == 'None':
+                continue
 
-    print 'operations for %s have been updated in MySQL' % (path)
+            values['operator_name'] = operator
+            values['operation_name'] = operation
+            field_values = []
+            for field in field_names:
+                field_values.append(values[field])
+            
+            try:
+                mySQLintf.insert_values('op_record', field_names, field_values)
+
+            except AssetException, error:
+                mySQLintf.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
+                    [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
+
+        print 'operations for %s have been updated in MySQL' % (path)
+    except Exception, err:
+        print err.message
 
 def main():
     config_reader.configure()
