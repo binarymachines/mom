@@ -138,20 +138,16 @@ def clear_cache_operations_for_path(path, use_wildcard=False):
 def check_for_reconfig_request():
     key = '-'.join(['exec', 'record', str(config.pid)])
     values = config.redis.hgetall(key)
-    if 'start_time' in values and values['start_time'] == config.start_time and values['reconfig_requested'] == 'True':
-        return True
+    return 'start_time' in values and values['start_time'] == config.start_time and values['reconfig_requested'] == 'True'
 
 def check_for_stop_request():
     key = '-'.join(['exec', 'record', str(config.pid)])
     values = config.redis.hgetall(key)
-    if 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True':
-        return True
-
+    return 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True'
+        
 def do_status_check(opcount=None):
     
-    if opcount is not None:
-        if opcount % config.check_freq != 0:
-            return
+    if opcount is not None and opcount % config.check_freq != 0: return
 
     if check_for_reconfig_request():
         config_reader.configure()

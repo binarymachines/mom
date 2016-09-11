@@ -95,7 +95,7 @@ class MediaLibraryWalker(Walker):
         self.genre_checkers = []
         self.location_checkers = []
 
-        print 'loading metaasset...'
+        print 'MediaLibraryWalker initializing...'
         # self.location_names = util.get_location_names()
         # print 'retrieved location names'
         self.location_folders = util.get_location_folder_names()
