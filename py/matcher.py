@@ -156,6 +156,8 @@ class ElasticSearchMatcher(MediaMatcher):
 
             self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
+            
+            # cache_esid_for_path(match['_id'], match['_source']['absolute_path'])
 
             operations.record_op_complete(media, self.name, 'match')
             if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
