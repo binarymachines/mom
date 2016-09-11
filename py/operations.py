@@ -3,7 +3,7 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import config, config_reader, asset, mySQLintf 
+import cache, config, config_reader, asset, mySQLintf 
 import MySQLdb as mdb
 from asset import AssetException
         
@@ -41,7 +41,7 @@ from asset import AssetException
 
 def ensure_exists(esid, path, document_type):
 
-    esidforpath = get_cached_esid_for_path(document_type, path)
+    esidforpath = cache.get_cached_esid_for_path(document_type, path)
     
     if esidforpath == None:
         key = '-'.join(['ensure', esid])
@@ -94,13 +94,6 @@ def retrieve_esid(index, document_type, absolute_path):
 
     if len(rows) == 1:
         return rows[0][3]
-
-def retrieve_doc_entries(index, document_type, file_path):
-
-    query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
-        (mySQLintf.quote_if_string(config.es_index), mySQLintf.quote_if_string(document_type), mySQLintf.quote_if_string(''.join([file_path, '%'])))
-    
-    return mySQLintf.run_query(query)
 
 # Operations
 
@@ -210,14 +203,21 @@ def record_op_complete(pid, asset, operator, operation):
 def retrieve_complete_ops(parentpath, operation, operator=None):
     
     if operator is None:
-        query = "select distinct target_path from op_record where operation_name = '%s' and end_time is not null and target_path like '%s%s' ORDER BY target_path" \
-            % (operation, parentpath, '%')
+        query = """SELECT DISTINCT target_path 
+                    FROM op_record 
+                    WHERE operation_name = "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" 
+                    ORDER BY target_path""" % (operation, parentpath, '%')
     else:
-        query = "select distinct target_path from op_record where operator_name = '%s' and operation_name = '%s' and end_time is not null and target_path like '%s%s' ORDER BY target_path" \
-            % (operator, operation, parentpath, '%')
+        query = """SELECT DISTINCT target_path 
+                    FROM op_record 
+                    WHERE operator_name = "%s" 
+                    AND operation_name = "%s" 
+                    AND end_time IS NOT NULL 
+                    AND target_path LIKE "%s%s" 
+                    ORDER BY target_path""" % (operator, operation, parentpath, '%')
 
-    query.replace('"', "'")
-    query.replace("'", "\'")
+    query = query.replace('"', "'")
+    query = query.replace("'", "\'")
     
     result = mySQLintf.run_query(query) 
     return result
@@ -262,7 +262,7 @@ def main():
     red = redis.StrictRedis('localhost')
     config.redis.flushall()
 
-    rows = retrieve_doc_entries(config.es_index, config.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
+    rows = cache.retrieve_doc_entries(config.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
     counter = 1.1
     for row in rows:
         path, esid = row[0], row[1]

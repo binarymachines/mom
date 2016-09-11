@@ -2,16 +2,17 @@ import os, sys, traceback, datetime
 
 import redis
 
-import config, mySQLintf, operations
+import config, mySQLintf
 
 def get_setname(document_type):
     return '-'.join(['path', 'esid', document_type])
     
 # es documents
-def cache_doc_info(document_type, source_path):
-    clear_cached_doc_info(document_type, '/')
+def cache_doc_info(document_type, source_path, clear_existing=True):
+    if clear_existing:
+        clear_cached_doc_info(document_type, '/')
     # if self.debug: print 'caching %s doc info for %s...' % (document_type, source_path)
-    rows = operations.retrieve_doc_entries(config.es_index, document_type, source_path)
+    rows = retrieve_doc_entries(document_type, source_path)
     key = get_setname(document_type)
     for row in rows:
         path = row[0]
@@ -28,6 +29,13 @@ def clear_cached_doc_info(document_type, source_path):
 
 def get_keys(document_type):
     return config.redis.lrange(get_setname(document_type), 0, -1)
+
+def retrieve_doc_entries(document_type, file_path):
+
+    query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
+        (mySQLintf.quote_if_string(config.es_index), mySQLintf.quote_if_string(document_type), mySQLintf.quote_if_string(''.join([file_path, '%'])))
+    
+    return mySQLintf.run_query(query)
 
 # matched files
 def cache_match_info(path):

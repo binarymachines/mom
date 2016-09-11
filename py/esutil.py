@@ -7,13 +7,13 @@ from asset import Asset, MediaFile, MediaFolder, AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
 
-def clear_indexes(es, indexname):
+def clear_indexes(indexname):
 
     choice = raw_input("Delete '%s' index? " % (indexname))
     if choice.lower() == 'yes':
-        if es.indices.exists(indexname):
+        if config.es.indices.exists(indexname):
             print("deleting '%s' index..." % (indexname))
-            res = es.indices.delete(index = indexname)
+            res = config.es.indices.delete(index = indexname)
             print(" response: '%s'" % (res))
 
 
@@ -26,7 +26,7 @@ def clear_indexes(es, indexname):
         }
 
         print("creating '%s' index..." % (indexname))
-        res = es.indices.create(index = indexname, body = request_body)
+        res = config.es.indices.create(index = indexname, body = request_body)
         print(" response: '%s'" % (res))
 
 def connect(hostname, portnum):
@@ -38,18 +38,18 @@ def connect(hostname, portnum):
     print('Connected to %s on port %i.') % (hostname, portnum)
     return es
 
-def delete_docs_for_path(es, indexname, doctype, path):
+def delete_docs_for_path( indexname, doctype, path):
 
     rows = mySQLintf.retrieve_like_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, str(1)])
     for r in rows:
         esid = r[4]
-        res = es.delete(index=indexname,doc_type=doctype,id=esid)
+        res = config.es.delete(index=indexname,doc_type=doctype,id=esid)
         if res['_shards']['successful'] == 1:
             mySQLintf.update_values('es_document', 'active_flag', False, ['id'], [esid])
 
-def find_docs_missing_field(es, index_name, document_type, field):
+def find_docs_missing_field(index_name, document_type, field):
     query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : field }}}}}
-    res = es.search(index=index_name, doc_type=document_type, body=query,size=1000)
+    res = config.es.search(index=index_name, doc_type=document_type, body=query,size=1000)
     return res
 
 #TODO: config.es_debug config.es_debug config.es_debug
@@ -76,7 +76,6 @@ def doc_exists(asset, attach_if_found):
             raise AssetException('DOC NOT FOUND FOR ESID:' + asset.to_str(), asset)
             
     # not found, query elasticsearch
-    # es = connect(config.es_host, config.es_port)
     res = config.es.search(index=config.es_index, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
     for doc in res['hits']['hits']:
         # if self.doc_refers_to(doc, media):
@@ -109,14 +108,11 @@ def doc_exists(asset, attach_if_found):
   
     return False
         
-def get_doc(asset, es=None):
-
-    if es == None:
-        es = connect(config.es_host, config.es_port)
-
+def get_doc(asset):
+    
     if asset.absolute_path is not None:
         if config.es_debug: print 'searching for document for: %s' % (asset.absolute_path)
-        res = es.search(index=config.es_index, doc_type=asset.document_type, body=
+        res = config.es.search(index=config.es_index, doc_type=asset.document_type, body=
         {
             "query": { "match" : { "absolute_path": asset.absolute_path }}
         })
@@ -127,7 +123,7 @@ def get_doc(asset, es=None):
 
     if asset.esid is not None:
         if config.es_debug: print 'searching for document for: %s' % (asset.esid)
-        doc = es.get(index=config.es_index, doc_type=asset.document_type, id=asset.esid)
+        doc = config.es.get(index=config.es_index, doc_type=asset.document_type, id=asset.esid)
         if doc is not None:
             return doc
 
@@ -152,9 +148,9 @@ def get_doc_id(asset):
 def reset_all(es):
     double_check = raw_input("This will wipe all data! Type 'I really want to do this' to proceed'")
     if double_check == 'I really want to do this':
-        esutil.clear_indexes(es, 'media')
-        esutil.clear_indexes(es, 'media2')
-        esutil.clear_indexes(es, 'media3')
+        esutil.clear_indexes('media')
+        esutil.clear_indexes('media2')
+        esutil.clear_indexes('media3')
         mySQLintf.truncate('es_document')
         mySQLintf.truncate('matched')
         mySQLintf.truncate('op_record')
@@ -191,8 +187,7 @@ def purge_problem_esids():
                 mySQLintf.execute_query(query)
 
                 try:
-                    es = connect(config.es_host, config.es_port)
-                    es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
+                    config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
                 except Exception, err:
                     print ': '.join([err.__class__.__name__, err.message])
                     if config.mysql_debug: traceback.print_exc(file=sys.stdout)
@@ -223,11 +218,10 @@ def purge_problem_esids():
             # sys.exit(1)
 
 # def transform_docs():
-#     es = connect(config.es_host, config.es_port)
 #
 #     cycle = True
 #     while cycle == True:
-#         res = find_docs_missing_field(es, 'media2', config.MEDIA_FOLDER, 'absolute_path')
+#         res = find_docs_missing_field('media2', config.MEDIA_FOLDER, 'absolute_path')
 #         if res['hits']['total'] > 0:
 #             for doc in res['hits']['hits']:
 #
@@ -239,7 +233,7 @@ def purge_problem_esids():
 #                         data[field] = doc['_source'][field]
 #
 #                 print repr(data['absolute_path'])
-#                 es.index(index="media2", doc_type="media_folder", id=doc['_id'], body=data)
+#                 config.es.index(index="media2", doc_type="media_folder", id=doc['_id'], body=data)
 #
 #     sys.exit(1)
 #

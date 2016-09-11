@@ -35,7 +35,6 @@ class MediaFileManager(MediaLibraryWalker):
         self.start_time = None
 
         self.active_param = None
-        self.debug =config.mfm_debug
         self.document_type = config.MEDIA_FILE
         
         self.do_cache_locations = True
@@ -44,11 +43,10 @@ class MediaFileManager(MediaLibraryWalker):
         self.location_cache = {}
 
         self.foldermanager = MediaFolderManager()
-
         self.scanner = Scanner()
         
         if clear:        
-            if self.debug: print 'clearing data from previous run'
+            if config.mfm_debug: print 'clearing data from previous run'
             for matcher in self.get_matchers():
                 operations.write_ops_for_path(self.pid, '/', matcher.name, 'match')
             operations.write_ensured_paths()  
@@ -56,7 +54,7 @@ class MediaFileManager(MediaLibraryWalker):
             cache.clear_cached_doc_info(config.MEDIA_FILE, '/') 
 
         if flush:
-            if self.debug: print 'flushing reddis cache...'
+            if config.mfm_debug: print 'flushing reddis cache...'
             config.redis.flushall()
 
 ################################# MediaWalker Overrides #################################
@@ -72,14 +70,14 @@ class MediaFileManager(MediaLibraryWalker):
         if config.scan:
             self.check_for_stop_request()
             self.check_for_reconfig_request()
-            # if self.debug: print 'examining: %s' % (root)
+            # if config.mfm_debug: print 'examining: %s' % (root)
             
             self.foldermanager.folder = None
             traceback.print_exc(file=sys.stdout)
             
             if operations.operation_in_cache(root, 'scan', 'mp3 scanner'):
             # and not self.do_deep_scan: # and not root in config.locations_ext:
-                if self.debug: print 'scan operation record found for: %s' % (root)
+                if config.mfm_debug: print 'scan operation record found for: %s' % (root)
                 return
 
             try:
@@ -89,12 +87,12 @@ class MediaFileManager(MediaLibraryWalker):
             except AssetException, err:
                 self.foldermanager.folder = None
                 print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
+                if config.mfm_debug: traceback.print_exc(file=sys.stdout)
                 operations.handle_asset_exception(err, root)
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
+                if config.mfm_debug: traceback.print_exc(file=sys.stdout)
 
     def handle_root(self, root):
         if config.scan:
@@ -102,7 +100,7 @@ class MediaFileManager(MediaLibraryWalker):
             if folder is not None and operations.operation_completed(folder, 'mp3 scanner', 'scan'):
                 print '%s has been scanned.' % (root)
             elif folder is not None:
-                if self.debug: print 'scanning folder: %s' % (root)
+                if config.mfm_debug: print 'scanning folder: %s' % (root)
                 operations.record_op_begin(self.pid, folder, 'mp3 scanner', 'scan')
                 for filename in os.listdir(root):
                     self.process_file(os.path.join(root, filename), foldermanager, self.scanner)
@@ -120,9 +118,9 @@ class MediaFileManager(MediaLibraryWalker):
                         # scan tag info if this file hasn't been assigned an esid
                         if media.esid is None: 
                             scanner.scan_file(media, foldermanager)
-                        # elif self.debug: print 'skipping scan: %s' % (filename)
+                        # elif config.mfm_debug: print 'skipping scan: %s' % (filename)
                 # else:
-                #     if self.debug: print 'skipping file: %s' % (filename)
+                #     if config.mfm_debug: print 'skipping file: %s' % (filename)
 
 
 ################################# Operations Methods #################################
@@ -138,11 +136,11 @@ class MediaFileManager(MediaLibraryWalker):
             sys.exit(0)
 
     # def cache_doc_info(self, document_type, path):
-    #     if self.debug: print 'caching %s doc info for %s...' % (self.document_type, path)
+    #     if config.mfm_debug: print 'caching %s doc info for %s...' % (self.document_type, path)
     #     cache.cache_doc_info(document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
-        if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
+        if config.mfm_debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
         operations.retrieve_complete_ops(path, operation, operator)
 
     def get_cached_esid(self, path):
@@ -164,9 +162,9 @@ class MediaFileManager(MediaLibraryWalker):
 
     def get_media_object(self, absolute_path):
 
-        if self.debug: print "creating instance for %s." % (absolute_path)
+        if config.mfm_debug: print "creating instance for %s." % (absolute_path)
         if not os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK):
-            if self.debug: print "Either file is missing or is not readable"
+            if config.mfm_debug: print "Either file is missing or is not readable"
             return null
 
         media = MediaFile()
@@ -192,12 +190,12 @@ class MediaFileManager(MediaLibraryWalker):
     def get_location(self, path):
         parent = os.path.abspath(os.path.join(path, os.pardir))
         if parent in self.location_cache:
-            # if self.debug: print "location for path %s found." % (path)
+            # if config.mfm_debug: print "location for path %s found." % (path)
             return self.location_cache[parent]
 
         self.location_cache = {}
 
-        if self.debug: print "determining location for %s." % (parent.split('/')[-1])
+        if config.mfm_debug: print "determining location for %s." % (parent.split('/')[-1])
     
         for location in config.locations:
             if location in path:
@@ -223,7 +221,7 @@ class MediaFileManager(MediaLibraryWalker):
                     self.walk(location)
 
                     self.location_cache = {}
-                elif self.debug:  print "%s isn't currently available." % (location)
+                elif config.mfm_debug:  print "%s isn't currently available." % (location)
 
             print '\n-----scan complete-----\n'
 
@@ -248,8 +246,11 @@ def execute(path=None, flush=True, clear=True):
     param.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
-            for genre in config.genre_folders:
-                param.locations.append(os.path.join(location, genre))
+            if "albums/" in location or "compilations/" in location:
+                for genre in config.genre_folders:
+                    param.locations.append(os.path.join(location, genre))
+            else:
+                param.locations.append(location)            
 
         for location in config.locations_ext: 
             param.locations.append(location)            
@@ -257,8 +258,9 @@ def execute(path=None, flush=True, clear=True):
         param.locations.append(config.NOSCAN)
         # s.locations.append(config.EXPUNGED)
         
-        for location in config.locations: 
-            param.locations.append(location)            
+        # In mode 2, after running this mode to completion, query all locations that are not in op_records data
+        # for location in config.locations: 
+        #     param.locations.append(location)            
     else:
         for directory in path:
             param.locations.append(directory)
@@ -303,7 +305,9 @@ def main(args):
     if args['--pattern']:
         path = []
         for p in pattern:
-            q = "select absolute_path from es_document where absolute_path like '%s%s%s' and doc_type = '%s' order by absolute_path" % ('%', p, '%', config.MEDIA_FOLDER)
+            q = """SELECT absolute_path FROM es_document WHERE absolute_path LIKE "%s%s%s" AND doc_type = "%s" ORDER BY absolute_path""" % \
+                ('%', p, '%', config.MEDIA_FOLDER)
+            
             rows = mySQLintf.run_query(q)
             for row in rows: 
                 path.append(row[0])

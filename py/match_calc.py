@@ -52,7 +52,7 @@ def calculate_matches(matchers, param, pid):
                     if not 'esid' in values:
                         continue
                         
-                    # opcount += 1
+                    opcount += 1
                     # if opcount % config.CHECK_FREQUENCY == 0:
                     #     self.check_for_stop_request()
                     #     self.check_for_reconfig_request()
@@ -74,9 +74,9 @@ def calculate_matches(matchers, param, pid):
                                     # if self.debug: 
                                     print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
 
-                                    operations.record_op_begin(self.self.pid, media, matcher.name, 'match')
+                                    operations.record_op_begin(pid, media, matcher.name, 'match')
                                     matcher.match(media)
-                                    operations.record_op_complete(self.self.pid, media, matcher.name, 'match')
+                                    operations.record_op_complete(pid, media, matcher.name, 'match')
                                 # elif self.debug: 
                                 else: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
                     

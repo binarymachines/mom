@@ -153,14 +153,16 @@ def run_query(query):
         rows = cur.fetchall()
 
         if config.mysql_debug:
-            if len(rows) > 0: print('\nreturning rows:\n')
-            for row in rows:
-                print row
+            size = len(rows)
+            if size > 0: print('returning %i rows:\n') % size
+            # for row in rows:
+            #     print row
 
     except mdb.Error, e:
 
-        print "Error %d: %s" % (e.args[0], e.args[1])
-        raise Exception(e.message)
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        if config.mysql_debug: print query
+        raise Exception(message)
 
     finally:
         if con:
