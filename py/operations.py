@@ -202,7 +202,8 @@ def record_op_begin(asset, operator, operation):
     config.redis.hmset(key, values)
 
     key = '-'.join(['exec', 'record', str(config.pid)])
-    config.redis.hset(key, 'current_operation', operation, 'operation_status', 'begin')
+    config.redis.hset(key, 'current_operation', operation)
+    config.redis.hset(key, 'operation_status', 'begin')
 
 def record_op_complete(asset, operator, operation):
     # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
@@ -214,7 +215,8 @@ def record_op_complete(asset, operator, operation):
     config.redis.hset(key, 'end_time', datetime.datetime.now().isoformat())
 
     key = '-'.join(['exec', 'record', str(config.pid)])
-    config.redis.hset(key, 'current_operation', None, 'operation_status', None)
+    config.redis.hset(key, 'current_operation', None)
+    config.redis.hset(key, 'operation_status', None)
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
     
@@ -232,7 +234,7 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
                     AND target_path LIKE "%s%s" 
                     ORDER BY target_path""" % (operator, operation, parentpath, '%')
 
-    query = query.replace('"', "'")
+    # query = query.replace('"', "'")
     query = query.replace("'", "\'")
     
     result = mySQLintf.run_query(query) 
