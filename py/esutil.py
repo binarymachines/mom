@@ -53,23 +53,23 @@ def find_docs_missing_field(es, index_name, document_type, field):
     return res
 
 #TODO: config.es_debug config.es_debug config.es_debug
-def doc_exists(es, asset, attach_if_found):
+def doc_exists(asset, attach_if_found):
     # look in local MySQL
     esid_in_mysql = False
     esid = operations.retrieve_esid(config.es_index, asset.document_type, asset.absolute_path)
     if esid is not None:
         esid_in_mysql = True
-        if config. es_debug: print "found esid %s for '%s' in mySQL." % (esid, asset.short_name())
+        if config.es_debug: print "found esid %s for '%s' in mySQL." % (esid, asset.short_name())
 
         if attach_if_found and asset.esid is None:
-            if config. es_debug: print "attaching esid %s to ''%s'." % (esid, asset.short_name())
+            if config.es_debug: print "attaching esid %s to ''%s'." % (esid, asset.short_name())
             asset.esid = esid
 
         if attach_if_found == False: return True
 
     if esid_in_mysql:
         try:
-            doc = es.get(index=config.es_index, doc_type=asset.document_type, id=asset.esid)
+            doc = config.es.get(index=config.es_index, doc_type=asset.document_type, id=asset.esid)
             asset.doc = doc
             return True
         except Exception, err:
@@ -77,25 +77,25 @@ def doc_exists(es, asset, attach_if_found):
             
     # not found, query elasticsearch
     # es = connect(config.es_host, config.es_port)
-    res = es.search(index=config.es_index, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
+    res = config.es.search(index=config.es_index, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
     for doc in res['hits']['hits']:
         # if self.doc_refers_to(doc, media):
         if doc['_source']['absolute_path'] == asset.absolute_path:
             esid = doc['_id']
-            if config. es_debug: print "found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name())
+            if config.es_debug: print "found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name())
 
             if attach_if_found:
                 asset.doc = doc
                 if asset.esid is None:
-                    if config. es_debug: print "attaching esid %s to '%s'." % (esid, asset.short_name())
+                    if config.es_debug: print "attaching esid %s to '%s'." % (esid, asset.short_name())
                     asset.esid = esid
 
             if esid_in_mysql == False:
                 # found, update local MySQL
-                if config. es_debug: print 'inserting esid into MySQL'
+                if config.es_debug: print 'inserting esid into MySQL'
                 try:
                     operations.insert_esid(config.es_index, asset.document_type, esid, asset.absolute_path)
-                    if config. es_debug: print 'esid inserted'
+                    if config.es_debug: print 'esid inserted'
                 except Exception, err:
                     print ': '.join([err.__class__.__name__, err.message])
                     if config.mysql_debug: traceback.print_exc(file=sys.stdout)
@@ -115,7 +115,7 @@ def get_doc(asset, es=None):
         es = connect(config.es_host, config.es_port)
 
     if asset.absolute_path is not None:
-        if config. es_debug: print 'searching for document for: %s' % (asset.absolute_path)
+        if config.es_debug: print 'searching for document for: %s' % (asset.absolute_path)
         res = es.search(index=config.es_index, doc_type=asset.document_type, body=
         {
             "query": { "match" : { "absolute_path": asset.absolute_path }}
@@ -131,7 +131,7 @@ def get_doc(asset, es=None):
         if doc is not None:
             return doc
 
-def get_doc_id(es, asset):
+def get_doc_id(asset):
 
     # look for esid in local MySQL
     esid = operations.retrieve_esid(config.es_index, asset.document_type, asset.absolute_path)

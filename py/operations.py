@@ -7,13 +7,11 @@ import config, config_reader, data, mySQLintf
 import MySQLdb as mdb
 from data import AssetException
 
-redcon = redis.Redis('localhost')
-
 def get_setname(document_type):
     return '-'.join(['path', 'esid', document_type])
 
-def cache_doc_info(red, document_type, source_path):
-    clear_cached_doc_info(red, document_type, '/')
+def cache_doc_info(document_type, source_path):
+    clear_cached_doc_info(document_type, '/')
     # if self.debug: print 'caching %s doc info for %s...' % (document_type, source_path)
     rows = retrieve_doc_entries(config.es_index, document_type, source_path)
     key = get_setname(document_type)
@@ -21,17 +19,17 @@ def cache_doc_info(red, document_type, source_path):
         path = row[0]
         esid = row[1]
         # print 'caching %s for %s' % (esid, path)
-        red.rpush(key, path)
+        config.redis.rpush(key, path)
         
         values = { 'esid': esid }
-        red.hmset(path, values)
+        config.redis.hmset(path, values)
 
-def clear_cached_doc_info(red, document_type, source_path):
+def clear_cached_doc_info(document_type, source_path):
     setname = get_setname(document_type)
-    red.ltrim(setname, 0, -1)
+    config.redis.ltrim(setname, 0, -1)
         
-def get_cached_esid_for_path(red, document_type, path):
-    values = red.hgetall(path)
+def get_cached_esid_for_path(document_type, path):
+    values = config.redis.hgetall(path)
     if 'esid' in values:
         return values['esid']
 
@@ -46,72 +44,72 @@ def cache_match_info(path):
         rows = mySQLintf.run_query(q)
         for row in rows:
             key = '-'.join([row[2], row[0]]) 
-            redcon.sadd(key, row[1])
+            config.redis.sadd(key, row[1])
     except Exception, err:
         print err.message
 
 def clear_cached_matches_for_esid(matcher_name, esid):
     key = '-'.join([matcher_name, esid]) 
     
-    values = redcon.smembers(key)
-    redcon.srem(esid, values) 
+    values = config.redis.smembers(key)
+    config.redis.srem(esid, values) 
 
 def get_matches_for_esid(matcher_name, esid):
     key = '-'.join([matcher_name, esid]) 
         
-    values = redcon.smembers(key)
+    values = config.redis.smembers(key)
     return values
 
-def get_keys(redcon, document_type):
-    redcon.lrange(operations.get_setname(document_type), 0, -1)
+def get_keys(document_type):
+    return config.redis.lrange(get_setname(document_type), 0, -1)
 
 # def key_to_path(document_type, key):
 #     result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
 #     return result
 
-# def clear_cached_esids_for_path(red, document_type, path):
+# def clear_cached_esids_for_path(document_type, path):
 #     search = '-'.join(['path', 'esid', path]) + '*'
-#     for key in red.keys(search):
-#         red.delete(key)
+#     for key in config.redis.keys(search):
+#         config.redis.delete(key)
 
 # ESIDs
-# def cache_esids_for_path(red, document_type, path):
+# def cache_esids_for_path(document_type, path):
 #     rows = retrieve_esids(config.es_index, document_type, path)
 #     for row in rows:
 #         key = '-'.join(['esid', 'path', row[1]])
-#         red.set(key, row[0])
+#         config.redis.set(key, row[0])
 
 
-def get_all_cached_esids_for_path(red, path):
+def get_all_cached_esids_for_path(path):
     # key = '-'.join(['path', 'esid', path]) + '*'
     key = path + '*'
-    values = red.keys(key)
+    values = config.redis.keys(key)
     return values
     
 # MySQL
 
 #NOTE: The methods that follow are specific to this es application and should live elsewehere
 
-def ensure_exists(esid, path, index_name, document_type):
+def ensure_exists(esid, path, document_type):
 
-    esidforpath = get_cached_esid_for_path(redcon, document_type, path)
+    esidforpath = get_cached_esid_for_path(document_type, path)
     
     if esidforpath == None:
         key = '-'.join(['ensure', esid])
-        values = { 'index_name': index_name, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
+        values = { 'index_name': config.es_index, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
 
-        redcon.hmset(key, values)
+        config.redis.hmset(key, values)
 
-def write_ensured_paths(red):
+def write_ensured_paths():
 
     print 'ensuring match paths exist in MySQL...'
 
     search = 'ensure-*'
-    for key in red.scan_iter(search):
-        values = red.hgetall(key)
+    for key in config.redis.scan_iter(search):
+        values = config.redis.hgetall(key)
         # if config.mysql_debug: print("\nchecking for row for: "+ values['absolute_path'])
         path = values['absolute_path']
-        doc_info = red.hgetall(path)
+        doc_info = config.redis.hgetall(path)
         if not 'esid' in doc_info:
             try:
                 rows = mySQLintf.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
@@ -123,7 +121,7 @@ def write_ensured_paths(red):
             except Exception, e:
                 print e.message
             finally:
-                red.delete(key)
+                config.redis.delete(key)
 
     print 'ensured paths have been updated in MySQL'
 
@@ -132,7 +130,7 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
         [index, document_type, elasticsearch_id, absolute_path])
 
 def retrieve_esid(index, document_type, absolute_path):
-    values = redcon.hgetall(absolute_path)
+    values = config.redis.hgetall(absolute_path)
     if 'esid' in values:
         return values['esid']
     
@@ -173,7 +171,7 @@ def retrieve_doc_entries(index, document_type, file_path):
 
 # Operations
 
-def cache_operations_for_path(red, path, operation, operator=None):
+def cache_operations_for_path(path, operation, operator=None):
     if operator is not None:
         print 'caching %s.%s operations for %s' % (operator, operation, path) 
     else:
@@ -187,54 +185,54 @@ def cache_operations_for_path(red, path, operation, operator=None):
                 key = '-'.join([row[0], operation, operator])
 
             values = { 'persisted': True }
-            red.hmset(key, values)
+            config.redis.hmset(key, values)
         except Exception, err:
             print err.message
 
-def operation_in_cache(red, path, operation, operator=None):
+def operation_in_cache(path, operation, operator=None):
     if operator == None:
         key = '-'.join([path, operation])
     else:
         key = '-'.join([path, operation, operator])
     
-    values = red.hgetall(key)
+    values = config.redis.hgetall(key)
     if not values == None and 'persisted' in values:
         return values['persisted'] == 'True'
     
     return False
 
-def clear_cache_operations_for_path(red, path, use_wildcard=False):
+def clear_cache_operations_for_path(path, use_wildcard=False):
     if use_wildcard:
-        for key in red.keys(path + '*'):
-            red.delete(key)
+        for key in config.redis.keys(path + '*'):
+            config.redis.delete(key)
     else:
-        for key in red.keys(path):
-            red.delete(key)
+        for key in config.redis.keys(path):
+            config.redis.delete(key)
         
-def check_for_reconfig_request(red, pid, start_time):
+def check_for_reconfig_request(pid, start_time):
     key = '-'.join(['exec', 'record', str(pid)])
-    values = red.hgetall(key)
+    values = config.redis.hgetall(key)
     if values['start_time'] == start_time and values['reconfig_requested'] == 'True':
         return True
 
-def check_for_stop_request(red, pid, start_time):
+def check_for_stop_request(pid, start_time):
     key = '-'.join(['exec', 'record', str(pid)])
-    values = red.hgetall(key)
+    values = config.redis.hgetall(key)
     if values['start_time'] == start_time and values['stop_requested'] == 'True':
         return True
 
-def record_exec_begin(red, pid):
+def record_exec_begin(pid):
     key = '-'.join(['exec', 'record', str(pid)])    
     start_time = datetime.datetime.now().isoformat()
     values = { 'start_time': start_time, 'stop_requested':False, 'reconfig_requested': False }
-    red.hmset(key, values)
+    config.redis.hmset(key, values)
     return start_time
 
-def remove_reconfig_request(red, pid):
+def remove_reconfig_request(pid):
     key = '-'.join(['exec', 'record', str(pid)])
 
     values = { 'reconfig_requested': False }
-    red.hmset(key, values)
+    config.redis.hmset(key, values)
 
 def operation_completed(asset, operator, operation, pid=None):
     print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
@@ -256,7 +254,7 @@ def operation_completed(asset, operator, operation, pid=None):
 
     return False
 
-def record_op_begin(red, pid, asset, operator, operation):
+def record_op_begin(pid, asset, operator, operation):
     # print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     # mySQLintf.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
@@ -265,16 +263,16 @@ def record_op_begin(red, pid, asset, operator, operation):
     key = '-'.join([asset.absolute_path, operation, operator])
     values = { 'persisted': False, 'pid': pid, 'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid, 
         'target_path': asset.absolute_path }
-    red.hmset(key, values)
+    config.redis.hmset(key, values)
 
-def record_op_complete(red, pid, asset, operator, operation):
+def record_op_complete(pid, asset, operator, operation):
     # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     # mySQLintf.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
     #     [str(pid), operator, operation, asset.esid])
 
     key = '-'.join([asset.absolute_path, operation, operator])
-    red.hset(key, 'end_time', datetime.datetime.now().isoformat())
+    config.redis.hset(key, 'end_time', datetime.datetime.now().isoformat())
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
     
@@ -306,7 +304,7 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
 
     return result
 
-def write_ops_for_path(red, pid, path, operator, operation):
+def write_ops_for_path(pid, path, operator, operation):
     
     print 'updating %s.%s operations for %s in MySQL' % (operator, operation, path)
 
@@ -314,14 +312,14 @@ def write_ops_for_path(red, pid, path, operator, operation):
     table_name = 'op_record'
     field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
     
-    keys = red.keys(path + '*')
+    keys = config.redis.keys(path + '*')
     for key in keys:
         if not operator in key:
             continue
         if not operation in key:
             continue
 
-        values = red.hgetall(key)
+        values = config.redis.hgetall(key)
         if values['persisted'] == 'True' or values['end_time'] == 'None':
             continue
 
@@ -344,24 +342,24 @@ def main():
     config_reader.configure()
 
     red = redis.StrictRedis('localhost')
-    red.flushall()
+    config.redis.flushall()
 
     rows = retrieve_doc_entries(config.es_index, config.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
     counter = 1.1
     for row in rows:
         path, esid = row[0], row[1]
         print 'caching %s for %s' % (esid, path)
-        red.rpush(config.MEDIA_FILE, path)
+        config.redis.rpush(config.MEDIA_FILE, path)
         counter += 1
 
         values = { 'esid': esid }
-        red.hmset(path, values)
+        config.redis.hmset(path, values)
     
     print '\t\t\t'.join(['esid', 'path'])
     print '\t\t\t'.join(['-----', '----'])
 
-    for key in red.lrange(config.MEDIA_FILE, 0, -1):
-        esid = red.hgetall(key)['esid']
+    for key in config.redis.lrange(config.MEDIA_FILE, 0, -1):
+        esid = config.redis.hgetall(key)['esid']
         print '\t'.join([esid, key])
 
 def handle_asset_exception(error, path):

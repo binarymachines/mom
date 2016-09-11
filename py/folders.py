@@ -14,8 +14,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 class MediaFolderManager:
 
-    def __init__(self, es, indexname):
-        self.es = es
+    def __init__(self):
         self.folder = None
         self.document_type = config.MEDIA_FOLDER
         self.debug = config.folder_debug
@@ -40,7 +39,7 @@ class MediaFolderManager:
     def find_doc(self, folder):
         try:
             if self.debug == True: print("searching for " + folder.absolute_path + '...')
-            res = self.es.search(index=config.es_index, doc_type=self.document_type, body=
+            res = config.es.search(index=config.es_index, doc_type=self.document_type, body=
             {
                 "query": { "match" : { "absolute_path": folder.absolute_path }}
             })
@@ -70,12 +69,12 @@ class MediaFolderManager:
             # if self.debug:
             traceback.print_exc(file=sys.stdout)
 
-    def record_error(self, folder, error):
+    def record_error(self,folder, error):
         try:
             if folder is not None and error is not None:
                 self.folder.latest_error = error
                 if self.debug: print("recording error: " + error + ", " + folder.esid + ", " + folder.absolute_path)
-                res = self.es.update(index=config.es_index, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
+                res = config.es.update(index=config.es_index, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
         except ConnectionError, err:
             print ': '.join([err.__class__.__name__, err.message])
             # if self.debug:
@@ -85,7 +84,7 @@ class MediaFolderManager:
 
     def sync_folder_state(self, folder):
         if self.debug: print 'syncing metadata for %s' % folder.absolute_path
-        if esutil.doc_exists(self.es, folder, True):
+        if esutil.doc_exists(folder, True):
             doc = self.find_doc(folder)
             if doc is not None:
                 if self.debug: print 'data retrieved from Elasticsearch'
@@ -98,7 +97,7 @@ class MediaFolderManager:
             data = folder.get_dictionary()
             json_str = json.dumps(data)
 
-            res = self.es.index(index=config.es_index, doc_type=self.document_type, body=json_str)
+            res = config.es.index(index=config.es_index, doc_type=self.document_type, body=json_str)
             if res['_shards']['successful'] == 1:
                 # if self.debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
@@ -108,8 +107,7 @@ class MediaFolderManager:
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
 
-
-    def set_active(self, path):
+    def set_active(self,path):
 
         if path == None:
             self.folder = None

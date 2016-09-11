@@ -30,7 +30,6 @@ class MediaFileManager(MediaLibraryWalker):
     def __init__(self, flush=True, clear=True):
         super(MediaFileManager, self).__init__()
 
-        self.redcon = self.connect_to_redis()
         # TODO write pidfile_TIMESTAMP and pass filenames to command.py
         self.pid = os.getpid()
         self.start_time = None
@@ -44,28 +43,27 @@ class MediaFileManager(MediaLibraryWalker):
         
         self.location_cache = {}
 
-        self.es = esutil.connect(config.es_host, config.es_port)
-        self.folderman = MediaFolderManager(self.es, config.es_index)
+        self.foldermanager = MediaFolderManager()
 
-        self.scanner = Scanner(self.es, self.folderman)
+        self.scanner = Scanner()
         
         if clear:        
             if self.debug: print 'clearing data from previous run'
             for matcher in self.get_matchers():
-                operations.write_ops_for_path(self.redcon, self.pid, '/', matcher.name, 'match')
-            operations.write_ensured_paths(self.redcon)  
-            operations.clear_cache_operations_for_path(self.redcon, '/', True)
-            operations.clear_cached_doc_info(self.redcon, config.MEDIA_FILE, '/') 
+                operations.write_ops_for_path(self.pid, '/', matcher.name, 'match')
+            operations.write_ensured_paths()  
+            operations.clear_cache_operations_for_path('/', True)
+            operations.clear_cached_doc_info(config.MEDIA_FILE, '/') 
 
         if flush:
             if self.debug: print 'flushing reddis cache...'
-            self.redcon.flushall()
+            config.redis.flushall()
 
 ################################# MediaWalker Overrides #################################
 
     def after_handle_root(self, root):
         if config.scan:
-            folder = self.folderman.folder
+            folder = self.foldermanager.folder
             if folder is not None and folder.absolute_path == root:
                 if folder is not None and not operations.operation_completed(folder, 'mp3 scanner', 'scan'):
                     operations.record_op_complete(self.pid, folder, 'mp3 scanner', 'scan')
@@ -74,22 +72,22 @@ class MediaFileManager(MediaLibraryWalker):
         if config.scan:
             self.check_for_stop_request()
             self.check_for_reconfig_request()
-            if self.debug: print 'examining: %s' % (root)
-            # self.folderman.set_active(None)
-            self.folderman.folder = None
-            # NOTE: folders in config.locations_ext are ALWAYS scanned deeply
+            # if self.debug: print 'examining: %s' % (root)
+            
+            self.foldermanager.folder = None
             traceback.print_exc(file=sys.stdout)
-            sys.exit("OPS CACHE HAS BEEN REMOVED")
-            # if root in self.ops_cache and not self.do_deep_scan: # and not root in config.locations_ext:
-            #     if self.debug: print 'scan operation record found for: %s' % (root)
-            #     return
+            
+            if operations.operation_in_cache(root, 'scan', 'mp3 scanner'):
+            # and not self.do_deep_scan: # and not root in config.locations_ext:
+                if self.debug: print 'scan operation record found for: %s' % (root)
+                return
 
             try:
                 if util.path_contains_media(root, self.active_param.extensions):
-                    self.folderman.set_active(root)
+                    self.foldermanager.set_active( root)
 
             except AssetException, err:
-                self.folderman.folder = None
+                self.foldermanager.folder = None
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
                 operations.handle_asset_exception(err, root)
@@ -100,20 +98,20 @@ class MediaFileManager(MediaLibraryWalker):
 
     def handle_root(self, root):
         if config.scan:
-            folder = self.folderman.folder
+            folder = self.foldermanager.folder
             if folder is not None and operations.operation_completed(folder, 'mp3 scanner', 'scan'):
                 print '%s has been scanned.' % (root)
             elif folder is not None:
                 if self.debug: print 'scanning folder: %s' % (root)
-                operations.record_op_begin(self.redcon, self.pid, folder, 'mp3 scanner', 'scan')
+                operations.record_op_begin(self.pid, folder, 'mp3 scanner', 'scan')
                 for filename in os.listdir(root):
-                    self.process_file(os.path.join(root, filename))
-        # else: self.folderman.set_active(root)
+                    self.process_file(os.path.join(root, filename), foldermanager, self.scanner)
+        # else: self.foldermanager.set_active(root)
 
     def handle_root_error(self, err):
         print ': '.join([err.__class__.__name__, err.message])
 
-    def process_file(self, filename):
+    def process_file(self, filename, foldermanager, scanner):
         for extension in self.active_param.extensions:
             try:
                 if filename.lower().endswith(''.join(['.', extension])) \
@@ -123,7 +121,8 @@ class MediaFileManager(MediaLibraryWalker):
                         # TODO: remove es and MySQL records for nonexistent files
                         if media is None or media.ignore(): continue
                         # scan tag info if this file hasn't been assigned an esid
-                        if media.esid is None: self.scanner.scan_file(media)
+                        if media.esid is None: 
+                            scanner.scan_file(media, foldermanager)
                         # elif self.debug: print 'skipping scan: %s' % (filename)
                 # else:
                 #     if self.debug: print 'skipping file: %s' % (filename)
@@ -131,51 +130,48 @@ class MediaFileManager(MediaLibraryWalker):
             except IOError, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
-                self.folderman.record_error(self.folderman.folder, "IOError=" + err.message)
+                foldermanager.record_error(self. foldermanager.folder, "IOError=" + err.message)
                 return
 
             except UnicodeEncodeError, err:
                 print ': '.join([err.__class__.__name__, err.message, filename])
                 if self.debug: traceback.print_exc(file=sys.stdout)
-                self.folderman.record_error(self.folderman.folder, "UnicodeEncodeError=" + err.message)
+                foldermanager.record_error(self. foldermanager.folder, "UnicodeEncodeError=" + err.message)
                 return
 
             except UnicodeDecodeError, err:
                 print ': '.join([err.__class__.__name__, err.message, filename])
                 if self.debug: traceback.print_exc(file=sys.stdout)
-                self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + err.message)
+                foldermanager.record_error(self. foldermanager.folder, "UnicodeDecodeError=" + err.message)
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
-                self.folderman.record_error(self.folderman.folder, "Exception=" + err.message)
+                foldermanager.record_error(self. foldermanager.folder, "Exception=" + err.message)
                 return
 
 ################################# Operations Methods #################################
 
     def check_for_reconfig_request(self):
-        if operations.check_for_reconfig_request(self.redcon, self.pid, self.start_time):
+        if operations.check_for_reconfig_request(self.pid, self.start_time):
             config_reader.configure()
-            operations.remove_reconfig_request(self.redcon, self.pid)
+            operations.remove_reconfig_request(self.pid)
 
     def check_for_stop_request(self):
-        if operations.check_for_stop_request(self.redcon, self.pid, self.start_time):
+        if operations.check_for_stop_request(self.pid, self.start_time):
             print 'stop requested, terminating.'
             sys.exit(0)
 
-    def connect_to_redis(self):
-        return redis.Redis('localhost')
-
-    def cache_doc_info(self, document_type, path):
-        if self.debug: print 'caching %s doc info for %s...' % (self.document_type, path)
-        operations.cache_doc_info(self.redcon, document_type, path)
+    # def cache_doc_info(self, document_type, path):
+    #     if self.debug: print 'caching %s doc info for %s...' % (self.document_type, path)
+    #     operations.cache_doc_info(document_type, path)
 
     def cache_ops(self, path, operation, operator=None):
         if self.debug: print 'caching %s:::%s records for %s' % (operator, operation, path)
         operations.retrieve_complete_ops(path, operation, operator)
 
     def get_cached_esid(self, path):
-        result = self.redcon.hgetall(path)
+        result = config.redis.hgetall(path)
         if result is not None:
             return result['esid']
 
@@ -183,7 +179,7 @@ class MediaFileManager(MediaLibraryWalker):
         matchers = []
         rows = mySQLintf.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
         for r in rows:
-            matcher = ElasticSearchMatcher(r[1], self)
+            matcher = ElasticSearchMatcher(r[1], config.MEDIA_FILE)
             matcher.query_type = r[2]
             matcher.minimum_score = r[3]
             print 'matcher %s configured' % (r[1])
@@ -241,12 +237,12 @@ class MediaFileManager(MediaLibraryWalker):
         return None
 
     def run(self, param):
-        self.start_time =  operations.record_exec_begin(self.redcon, self.pid)
+        self.start_time =  operations.record_exec_begin(self.pid)
         self.active_param = param
         if config.scan:
             for location in param.locations:
                 if os.path.isdir(location) and os.access(location, os.R_OK):
-                    self.cache_doc_info(location)
+                    operations.cache_doc_info(config.MEDIA_FILE, path)
                     self.cache_ops(location, 'scan', 'mp3 scanner')
 
                     self.walk(location)
@@ -257,7 +253,7 @@ class MediaFileManager(MediaLibraryWalker):
             print '\n-----scan complete-----\n'
 
         if config.match:
-            match_calc.calculate_matches(self.es, self.redcon, self.get_matchers(), param, self.pid)
+            match_calc.calculate_matches(self.get_matchers(), param, self.pid)
 
         # if config.DO_CLEAN:
         #     self.run_cleanup(param)
@@ -312,7 +308,7 @@ def test_matchers():
 
     filename = '/media/removable/Audio/music [noscan]/albums/industrial/skinny puppy/the.b-sides.collect/11 - tin omen i.mp3'
     media = mfm.get_media_object(filename)
-    if esutil.doc_exists(mfm.es, media, True):
+    if esutil.doc_exists(mfm. media, True):
         media.doc = esutil.get_doc(media)
         matcher = ElasticSearchMatcher('tag_term_matcher_artist_album_song', mfm)
         # matcher = ElasticSearchMatcher('artist_matcher', mfm)
@@ -325,6 +321,7 @@ def main(args):
     clear = True
     flush = True
     config_reader.configure(config_reader.make_options(args))
+
     path = None if not args['--path'] else args['<path>']
     pattern = None if not args['--pattern'] else args['<pattern>']
    

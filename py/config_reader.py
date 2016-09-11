@@ -1,6 +1,6 @@
 import sys, os, traceback, ConfigParser
 
-import config, mySQLintf
+import config, mySQLintf, esutil, redis
 
 def configure(options=None):
     
@@ -16,6 +16,7 @@ def configure(options=None):
             # TODO: these constants should be assigned to parser and parser should be a constructor parameter for whatever needs parser
 
             config.redis_host = configure_section_map(parser, "Redis")['host']
+            config.redis = redis.Redis(config.redis_host)
 
             config.mfm_debug = configure_section_map(parser, "Debug")['objman'].lower() == 'true'
             config.scanner_debug = configure_section_map(parser, "Debug")['scanner'].lower() == 'true'
@@ -30,6 +31,7 @@ def configure(options=None):
             config.es_host = configure_section_map(parser, "Elasticsearch")['host']
             config.es_port = int(configure_section_map(parser, "Elasticsearch")['port'])
             config.es_index = configure_section_map(parser, "Elasticsearch")['index']
+            config.es = esutil.connect(config.es_host, config.es_port)
 
             config.mysql_host = configure_section_map(parser, "MySQL")['host']
             config.mysql_db = configure_section_map(parser, "MySQL")['schema']

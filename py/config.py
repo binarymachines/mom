@@ -3,6 +3,8 @@
 
 import sys, os, traceback, ConfigParser
 
+es = None
+redis = None
 
 redis_host = None
 
