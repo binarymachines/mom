@@ -7,10 +7,6 @@ import cache, config, config_reader, asset, mySQLintf
 import MySQLdb as mdb
 from asset import AssetException
         
-# def get_cached_esid_for_path(document_type, path):
-#     values = config.redis.hgetall(path)
-#     if 'esid' in values:
-#         return values['esid']
 
 # def key_to_path(document_type, key):
 #     result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
