@@ -62,7 +62,7 @@ def write_paths(flushkeys=True):
             if not 'esid' in doc:
                 esids.append(values)
             
-        print values['absolute_path']
+        # print values['absolute_path']
 
         if len(esids) == config.path_cache_size:
             
