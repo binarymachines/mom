@@ -86,7 +86,7 @@ def write_paths(flushkeys=True):
                             except Exception, e:
                                 print e.message
                         elif flushkeys:
-                                try:
+                            try:
                                 config.redis.delete(path['esid'])
                             except Exeption, err:
                                 print err.message
