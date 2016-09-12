@@ -90,7 +90,7 @@ def execute(options=None):
             config.locations_ext.sort()
 
             if config.logging:
-               util.e start_logging()
+               util.start_logging()
 
 
             if 'clearmem' in options:        
