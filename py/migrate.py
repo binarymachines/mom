@@ -1,5 +1,5 @@
 import os, sys, mySQLintf, redis
-import operations, config, config_reader
+import operations, config, startup
 
 TARGET_PATH = 0
 OPERATION = 1
@@ -17,7 +17,7 @@ def cache_operations(red, path, operation, operator=None):
         red.hmset(key, values)
     
 def main():
-    config_reader.configure()
+    startup.start()
     cache_operations()
 
     # main

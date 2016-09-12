@@ -4,6 +4,8 @@
 import sys, os, traceback, ConfigParser
 import redis
 
+path_cache_size = 25
+
 pid = None
 start_time = None
 

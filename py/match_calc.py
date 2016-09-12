@@ -97,9 +97,9 @@ def calculate_matches(param):
                 traceback.print_exc(file=sys.stdout)
             finally:
                 # self.folderman.folder = None
+                operations.write_ensured_paths()
                 for matcher in matchers:
                     operations.write_ops_for_path(location, matcher.name, 'match')
-                operations.write_ensured_paths()
                 operations.clear_cache_operations_for_path(location, True)
                 cache.clear_docs(config.MEDIA_FILE, location) 
             

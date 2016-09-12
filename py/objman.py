@@ -16,7 +16,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from mutagen.id3 import ID3, ID3NoHeaderError
 
-import cache, config, config_reader, operations, match_calc, mySQLintf, util, esutil
+import cache, config, startup, operations, match_calc, mySQLintf, util, esutil
 
 from asset import AssetException, Asset, MediaFile, MediaFile
 from folders import MediaFolderManager
@@ -205,7 +205,7 @@ def execute(path=None):
     param.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
-            if "albums/" in location or "compilations/" in location:
+            if location.endswith("albums") or location.endswith("compilations"):
                 for genre in config.genre_folders:
                     param.locations.append(os.path.join(location, genre))
             else:
@@ -246,7 +246,7 @@ def execute(path=None):
 #     else: print "%s has not been scanned into the library" % (filename)
 
 def main(args):
-    config_reader.configure(config_reader.make_options(args))
+    startup.start(startup.make_options(args))
 
     path = None if not args['--path'] else args['<path>']
     pattern = None if not args['--pattern'] else args['<pattern>']

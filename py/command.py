@@ -1,5 +1,5 @@
 '''
-   Usage: command.py [--stop ] [--reconfig]
+   Usage: command.py [--stop] [--reconfig] ([--inc_path_cache_size])
 
 
 
@@ -42,6 +42,7 @@ def main(args):
     if pid is not None:
         if args['--reconfig']: request_reconfig(pid)
         if args['--stop']: request_stop(pid)
+        if args['--inc_path_cache_size']: inc_cache_size(pid, 'path')
         
 # main
 if __name__ == '__main__':

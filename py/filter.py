@@ -11,7 +11,7 @@
 import os, sys, traceback, pprint, json, subprocess
 from docopt import docopt
 
-import config, config_reader, mySQLintf, esutil
+import config, startup, mySQLintf, esutil
 from asset import MediaFile, MediaFolder
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -413,7 +413,7 @@ def main(args):
     
     outputfile = '.'.join([pattern.split('/')[-1].replace(' ', '_'), 'json'])
 
-    config_reader.configure(config_reader.make_options(args))
+    startup.start(startup.make_options(args))
     generate_match_doc(exclude_ignore, show_in_subl, pattern, False, outputfile, False) 
 
 # main

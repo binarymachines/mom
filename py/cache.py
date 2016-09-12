@@ -51,7 +51,7 @@ def cache_matches(path):
                 WHERE esd.id = m.media_doc_id AND esd.absolute_path like "%s%s"
             UNION
             SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
-                WHERE esd.absolute_path like "%s%s" ANDesd.id = m.match_doc_id""" % (path, '%', path, '%')
+                WHERE esd.absolute_path like "%s%s" AND esd.id = m.match_doc_id""" % (path, '%', path, '%')
         q = q.replace("'", "\'")
         rows = mySQLintf.run_query(q)
         for row in rows:
