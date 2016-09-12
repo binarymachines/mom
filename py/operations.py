@@ -57,6 +57,9 @@ def write_ensured_paths(flushkeys=True):
         do_status_check(count)
         values = config.redis.hgetall(key)
         # if config.mysql_debug: print("\nchecking for row for: "+ values['absolute_path'])
+        if not 'values' in path:
+            continue
+            
         path = values['absolute_path']
         doc_info = config.redis.hgetall(path)
         if not 'esid' in doc_info:
