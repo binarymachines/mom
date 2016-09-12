@@ -82,19 +82,17 @@ def write_ensured_paths(flushkeys=True):
                                 raw_input('bug check')
                         except Exception, e:
                             print e.message
-            count = 0                                          
-            esids = []
-            paths = []
+                count = 0                                          
+                esids = []
+                paths = []
 
-            if flushkeys:
-                for key in cached_paths:
-                    try:
-                        config.redis.delete(key)
-                    except Exeption, err:
-                        print err.message
+                if flushkeys:
+                    for key in cached_paths:
+                        try:
+                            config.redis.delete(key)
+                        except Exeption, err:
+                            print err.message
             
-            cached_paths = []
-
     print 'ensured paths have been updated in MySQL'
 
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
