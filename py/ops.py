@@ -3,7 +3,7 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import cache, config, start, asset, mySQL 
+import cache, config, start, asset, sql 
 import MySQLdb as mdb
 from asset import AssetException
         
@@ -71,10 +71,10 @@ def write_ensured_paths(flushkeys=True):
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
                  
-            clause = ', '.join([mySQL.quote_if_string(value['esid']) for value in paths])
+            clause = ', '.join([sql.quote_if_string(value['esid']) for value in paths])
             if clause != '':
                 q = """SELECT id FROM es_document WHERE id in (%s)""" % (clause) 
-                rows = mySQL.run_query(q)
+                rows = sql.run_query(q)
                 if len(rows) != config.path_cache_size:
                     cached_paths = [row[0] for row in rows]
 
@@ -101,7 +101,7 @@ def write_ensured_paths(flushkeys=True):
     print 'ensured paths have been updated in MySQL'
 
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
-    mySQL.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
+    sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
         [index, document_type, elasticsearch_id, absolute_path])
 
 def retrieve_esid(index, document_type, absolute_path):
@@ -109,8 +109,8 @@ def retrieve_esid(index, document_type, absolute_path):
     if 'esid' in values:
         return values['esid']
     
-    rows = mySQL.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
-    # rows = mySQL.run_query("select index_name, doc_type, absolute_path")
+    rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
+    # rows = sql.run_query("select index_name, doc_type, absolute_path")
     if rows == None:
         return []
 
@@ -200,14 +200,14 @@ def operation_completed(asset, operator, operation):
     print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     # if config.pid is None:
-    #     rows = mySQL.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
+    #     rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
     #         [operator, operation, asset.esid])
 
     #     if len(rows) > 0 and rows[0][4] is not None:
     #         print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
     #         return True
     # else:
-    rows = mySQL.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
+    rows = sql.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [str(config.pid), operator, operation, asset.esid])
 
     if len(rows) > 0 and rows[0][5] is not None:
@@ -219,7 +219,7 @@ def operation_completed(asset, operator, operation):
 def record_op_begin(asset, operator, operation):
     # print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
-    # mySQL.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
+    # sql.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
     #     [str(pid), operator, operation, asset.esid, datetime.datetime.now().isoformat(), asset.absolute_path])
 
     key = '-'.join([asset.absolute_path, operation, operator])
@@ -234,7 +234,7 @@ def record_op_begin(asset, operator, operation):
 def record_op_complete(asset, operator, operation):
     # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
-    # mySQL.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
+    # sql.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
     #     [str(pid), operator, operation, asset.esid])
 
     key = '-'.join([asset.absolute_path, operation, operator])
@@ -263,7 +263,7 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
     # query = query.replace('"', "'")
     query = query.replace("'", "\'")
     
-    result = mySQL.run_query(query) 
+    result = sql.run_query(query) 
     return result
 
 def write_ops_for_path(path, operator, operation):
@@ -296,10 +296,10 @@ def write_ops_for_path(path, operator, operation):
                 field_values.append(values[field])
             
             try:
-                mySQL.insert_values('op_record', field_names, field_values)
+                sql.insert_values('op_record', field_names, field_values)
 
             except Exception, error:
-                mySQL.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
+                sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
                     [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
 
         print 'operations for %s have been updated in MySQL' % (path)
@@ -333,11 +333,11 @@ def main():
 def handle_asset_exception(error, path):
     if error.message.lower().startswith('multiple'):
         for item in  error.data:
-            mySQL.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
     # elif error.message.lower().startswith('unable'):
     # elif error.message.lower().startswith('NO DOCUMENT'):
     else:
-        mySQL.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
+        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
 
 # main
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 import os, sys, traceback
 
-import cache, config, ops, mySQL, esutil
+import cache, config, ops, sql, esutil
 from match import ElasticSearchMatcher
 from read import Param
 from asset import Asset, MediaFile, MediaFolder, AssetException
@@ -21,7 +21,7 @@ def path_exists_in_data(path):
     path = path.replace("'", "\'")
     q = 'select * from es_document where index_name = "%s" and doc_type = "%s" and absolute_path like "%s%s" limit 1' % \
         (config.es_index, config.MEDIA_FOLDER, path, '%')
-    rows = mySQL.run_query(q)
+    rows = sql.run_query(q)
     if len(rows) == 1:
         return True
 
@@ -81,11 +81,11 @@ def calculate_matches(param):
                         ops.handle_asset_exception(err, media.absolute_path)
                     
                     except UnicodeDecodeError, u:
-                        # self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
+                        # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
                         print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
 
                     except Exception, u:
-                        # self.folderman.record_error(self.folderman.folder, "UnicodeDecodeError=" + u.message)
+                        # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
                         print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
 
                     finally:
@@ -96,7 +96,7 @@ def calculate_matches(param):
                 print ': '.join([err.__class__.__name__, err.message, location])
                 traceback.print_exc(file=sys.stdout)
             finally:
-                # self.folderman.folder = None
+                # self.library.folder = None
                 ops.write_ensured_paths()
                 for matcher in matchers:
                     ops.write_ops_for_path(location, matcher.name, 'match')
@@ -108,7 +108,7 @@ def calculate_matches(param):
 
 def get_matchers():
     matchers = []
-    rows = mySQL.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
+    rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
     for r in rows:
         matcher = ElasticSearchMatcher(r[1], config.MEDIA_FILE)
         matcher.query_type = r[2]
@@ -131,7 +131,7 @@ def record_match_ops_complete(matcher, media, path, ):
 
 def record_matches_as_ops():
 
-    rows = mySQL.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
+    rows = sql.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
     for r in rows:
         media = MediaFile()
         matcher_name = r[1]

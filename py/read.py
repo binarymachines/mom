@@ -4,7 +4,7 @@ import os, json, pprint, sys, random, logging, traceback, thread
 from mutagen.id3 import ID3, ID3NoHeaderError
 from elasticsearch import Elasticsearch
 from asset import MediaFile
-import config, mySQL, esutil, ops
+import config, sql, esutil, ops
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -24,25 +24,25 @@ class Reader:
         if 'TPE1' in data and 'TALB' in data:
             try:
                 artist = data['TPE1'].lower()
-                rows = mySQL.retrieve_values('artist', ['name', 'id'], [artist])
+                rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
                 if len(rows) == 0:
                     try:
                         print 'adding %s to MySQL...' % (artist)
-                        thread.start_new_thread( mySQL.insert_values, ( 'artist', ['name'], [artist], ) )
+                        thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
                     except Exception, err:
                         print ': '.join([err.__class__.__name__, err.message])
                         if self.debug: traceback.print_exc(file=sys.stdout)
 
-                # mySQL.insert_values('artist', ['name'], [artist])
-                #     rows = mySQL.retrieve_values('artist', ['name', 'id'], [artist])
+                # sql.insert_values('artist', ['name'], [artist])
+                #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
                 #
                 # artistid = rows[0][1]
                 #
                 # if 'TALB' in data:
                 #     album = data['TALB'].lower()
-                #     rows2 = mySQL.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
+                #     rows2 = sql.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
                 #     if len(rows2) == 0:
-                #         mySQL.insert_values('album', ['name', 'artist_id'], [album, artistid])
+                #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
@@ -53,9 +53,9 @@ class Reader:
                     and not filename.lower().startswith('incomplete~') \
                     and not filename.lower().startswith('~incomplete')
     
-    def scan_file(self, media, foldermanager):
+    def scan_file(self, media, library):
 
-        folder =  foldermanager.folder
+        folder =  library.folder
         data = media.get_dictionary()
 
         try:
@@ -90,19 +90,19 @@ class Reader:
             data['scan_error'] = err.message
             data['has_error'] = True
             print ': '.join([err.__class__.__name__, err.message])
-            foldermanager.record_error(folder, "ID3NoHeaderError=" + err.message)
+            library.record_error(folder, "ID3NoHeaderError=" + err.message)
             if self.debug: traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
-            foldermanager.record_error(folder, "UnicodeEncodeError=" + err.message)
+            library.record_error(folder, "UnicodeEncodeError=" + err.message)
             return
 
         except UnicodeDecodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
-            foldermanager.record_error(folder, "UnicodeDecodeError=" + err.message)
+            library.record_error(folder, "UnicodeDecodeError=" + err.message)
             return
 
         if self.debug: "indexing file: %s" % (media.file_name)
