@@ -70,7 +70,9 @@ def write_ensured_paths(flushkeys=True):
         if count % config.path_cache_size == 0:
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
-
+            if len(paths) == 0:
+                continue
+                 
             clause = ', '.join([mySQLintf.quote_if_string(value['esid']) for value in paths])
             q = """SELECT id FROM es_document WHERE id in (%s)""" % (clause) 
             rows = mySQLintf.run_query(q)
