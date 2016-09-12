@@ -51,29 +51,26 @@ def write_paths(flushkeys=True):
 
     search = 'ensure-*'
     esids = paths = []
-    count = 0
     for key in config.redis.scan_iter(search):
-        do_status_check(count)
+        do_status_check()
         values = config.redis.hgetall(key)
         # if config.mysql_debug: print("\nchecking for row for: "+ values['absolute_path'])
-        if not 'absolute_path' in values:
-            print values
-            continue
-
-        doc_info = config.redis.hgetall(values['absolute_path'])
-        if not 'esid' in doc_info:
-            esids.append(values)
-            count += 1
-
-        if count == config.path_cache_size:
+        if 'absolute_path' in values:
+            doc = config.redis.hgetall(values['absolute_path'])
+            if not 'esid' in doc:
+                esids.append(values)
+            
+        if len(esids) == config.path_cache_size:
+            
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
-                 
+            esids = []
+
             clause = ', '.join([sql.quote_if_string(value['esid']) for value in paths])
             if clause != '':
                 q = """SELECT id FROM es_document WHERE id in (%s)""" % (clause) 
                 rows = sql.run_query(q)
-                if len(rows) != config.path_cache_size:
+                if len(rows) == config.path_cache_size:
                     cached_paths = [row[0] for row in rows]
 
                     for path in paths:
@@ -81,18 +78,15 @@ def write_paths(flushkeys=True):
                             if config.mysql_debug: print('Updating MySQL...')
                             try:
                                 insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
-                                if config.check_for_bugs:
-                                    raw_input('bug check')
                             except Exception, e:
                                 print e.message
                         elif flushkeys:
                             try:
                                 config.redis.delete(path['esid'])
                             except Exeption, err:
-                                print err.message
-            count = 0                                          
-            esids = []
-            paths = []
+                                print err.message                                        
+            
+        
 
             
     print 'ensured paths have been updated in MySQL'
