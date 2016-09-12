@@ -46,7 +46,7 @@ recent = []
 unsorted = []
 
 mfm_debug = False
-scanner_debug = False
+reader_debug = False
 matcher_debug = False
 folder_debug = False
 mysql_debug = False
