@@ -28,7 +28,7 @@ def execute(options=None):
             util.write_pid_file()
 
             # debug
-            config.mfm_debug = configure_section_map(parser, "Debug")['serve'].lower() == 'true'
+            config.mfm_debug = configure_section_map(parser, "Debug")['server'].lower() == 'true'
             config.reader_debug = configure_section_map(parser, "Debug")['reader'].lower() == 'true'
             config.matcher_debug = configure_section_map(parser, "Debug")['matcher'].lower() == 'true'
             config.library_debug = configure_section_map(parser, "Debug")['folder'].lower() == 'true'
