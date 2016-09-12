@@ -54,6 +54,7 @@ def write_ensured_paths(flushkeys=True):
     paths = []
     count = 0
     for key in config.redis.scan_iter(search):
+        do_status_check(count)
         values = config.redis.hgetall(key)
         # if config.mysql_debug: print("\nchecking for row for: "+ values['absolute_path'])
         path = values['absolute_path']
@@ -77,6 +78,8 @@ def write_ensured_paths(flushkeys=True):
                         if config.mysql_debug: print('Updating MySQL...')
                         try:
                             insert_esid(ensured['index_name'], ensured['document_type'], ensured['esid'], ensured['absolute_path'])
+                            if config.check_for_bugs:
+                                raw_input('bug check')
                         except Exception, e:
                             print e.message
             count = 0                                          
@@ -91,8 +94,6 @@ def write_ensured_paths(flushkeys=True):
                         print err.message
             
             cached_paths = []
-            if config.check_for_bugs:
-                raw_input('bug check')
 
     print 'ensured paths have been updated in MySQL'
 
