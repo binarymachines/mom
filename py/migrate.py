@@ -1,12 +1,12 @@
-import os, sys, mySQLintf, redis
-import operations, config, startup
+import os, sys, mySQL, redis
+import ops, config, start
 
 TARGET_PATH = 0
 OPERATION = 1
 OPERATOR = 2
 
-def cache_operations(red, path, operation, operator=None):
-    rows = operations.retrieve_complete_ops(path, operation, operator)
+def cache_ops(red, path, operation, operator=None):
+    rows = ops.retrieve_complete_ops(path, operation, operator)
     for row in rows:
         if operator == None:
             key = '-'.join([row[TARGET_PATH], row[OPERATION], row[OPERATOR]])
@@ -17,7 +17,7 @@ def cache_operations(red, path, operation, operator=None):
         red.hmset(key, values)
     
 def main():
-    startup.start()
+    start.execute()
     cache_operations()
 
     # main

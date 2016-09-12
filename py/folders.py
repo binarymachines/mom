@@ -4,8 +4,8 @@ import os, json, pprint, sys, traceback, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from asset import MediaFolder
-import mySQLintf, esutil
-import operations
+import mySQL, esutil
+import ops
 import config
 # import alchemy
 from asset import AssetException
@@ -101,7 +101,7 @@ class MediaFolderManager:
                 # if config.folder_debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
                 # update MySQL
-                operations.insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                ops.insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
                 # alchemy.insert_asset(folder.esid, config.es_index, folder.document_type, folder.absolute_path)
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))

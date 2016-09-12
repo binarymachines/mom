@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import mySQLintf
+import mySQL
 
 Base = declarative_base()
 
@@ -31,7 +31,7 @@ class AssetRecord(Base):
 #     absolute_path = Column(String(1024), nullable=False)
 #
 
-# URL = 'mysql://%s:%s@%s:%i/%s' % (mySQLintf.USER, mySQLintf.PASS, mySQLintf.HOST, mySQLintf.PORT, mySQLintf.SCHEMA)
+# URL = 'mysql://%s:%s@%s:%i/%s' % (mySQL.USER, mySQL.PASS, mySQL.HOST, mySQL.PORT, mySQL.SCHEMA)
 
 engine = create_engine('mysql://root:stainless@localhost:3306/media')
 # Bind the engine to the metadata of the Base class so that the
