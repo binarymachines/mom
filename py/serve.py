@@ -24,8 +24,6 @@ class ServerProcess():
                     scanner.scan(location)
                 elif config.mfm_debug:  print "%s isn't currently available." % (location)
 
-            print '\n-----scan complete-----\n'
-
         if config.match:
             calc.calculate_matches(param)
 
