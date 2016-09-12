@@ -15,7 +15,7 @@ import cache, calc, config, start, ops, sql
 
 from scan import Scanner, Param
 
-class ServerProcess():
+class ServerProcess(object):
     def run(self, param):
         if config.scan:
             scanner = Scanner()
@@ -27,8 +27,8 @@ class ServerProcess():
         if config.match:
             calc.calculate_matches(param)
 
-def execute(path=None):
-    
+# NOTE: this should be pluggable
+def create_param(path):
     print 'Setting up scan param...'
     param = Param()
 
@@ -56,7 +56,12 @@ def execute(path=None):
 
     param.locations.sort()
 
+    return param
+
+def execute(path=None):
+    
     print 'Configuring...'
+    param = create_param(path)
     server = ServerProcess()
     print 'starting...'
     server.run(param)
