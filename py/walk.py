@@ -4,7 +4,7 @@ import os
 import sys
 import thread
 
-import util
+import library
 
 class Walker(object):
 
@@ -98,11 +98,11 @@ class MediaLibraryWalker(Walker):
         print 'MediaLibraryWalker initializing...'
         # self.location_names = util.get_location_names()
         # print 'retrieved location names'
-        self.location_folders = util.util.get_locations()
+        self.location_folders = library.get_locations()
         print 'retrieved location folder names'
-        self.genre_names = util.get_genre_folder_names()
+        self.genre_names = library.get_genre_folder_names()
         print 'retrieved genre names'
-        self.media_formats = util.get_active_media_formats()
+        self.media_formats = library.get_active_media_formats()
         print 'retrieved media formats'
 
     def check_album_dir(self, path):

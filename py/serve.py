@@ -11,7 +11,7 @@ import os, sys,logging, traceback, thread
 
 from docopt import docopt
 
-import cache, calc, config, start, ops
+import cache, calc, config, start, ops, sql
 
 from scan import Scanner, Param
 
