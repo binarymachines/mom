@@ -63,7 +63,6 @@ def write_ensured_paths(flushkeys=True):
             count += 1
 
         if count % config.path_cache_size == 0:
-            count = 0                                          
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
 
@@ -82,16 +81,9 @@ def write_ensured_paths(flushkeys=True):
                                 config.redis.delete(ensured['absolute_path'])
                         except Exception, e:
                             print e.message
-            # try:
-            #     rows = mySQLintf.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
-            #     if len(rows) ==0:
-            #         if config.mysql_debug: print('Updating MySQL...')
-                    
-            #         insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
-
-            # except Exception, e:
-            #     print e.message
-            # finally:
+            count = 0                                          
+            esids = []
+            paths = []
 
     print 'ensured paths have been updated in MySQL'
 

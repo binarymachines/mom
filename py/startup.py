@@ -1,4 +1,4 @@
-import sys, os, datetime, traceback, ConfigParser
+import sys, os, datetime, traceback, ConfigParser, logging
 
 import redis
 
@@ -17,7 +17,7 @@ def start(options=None):
 
             # TODO: these constants should be assigned to parser and parser should be a constructor parameter for whatever needs parser
 
-            #Redis
+            # Redis
             config.redis_host = configure_section_map(parser, "Redis")['host']
             config.redis = redis.Redis(config.redis_host)
 
@@ -41,9 +41,13 @@ def start(options=None):
             
             # logging
             config.logging = configure_section_map(parser, "Log")['logging'].lower() == 'true'
+            config.es_log = configure_section_map(parser, "Log")['es_log']
+            config.log = configure_section_map(parser, "Log")['log']
             
+            if config.logging: 
+                start_logging()
+                
             # elasticsearch
-            config.es_log = configure_section_map(parser, "Log")['logname']
             config.es_host = configure_section_map(parser, "Elasticsearch")['host']
             config.es_port = int(configure_section_map(parser, "Elasticsearch")['port'])
             config.es_index = configure_section_map(parser, "Elasticsearch")['index']
@@ -64,6 +68,7 @@ def start(options=None):
             
             # cache
             config.path_cache_size = int(configure_section_map(parser, "Cache")['path_cache_size'])            
+            
             # folder constants
             config.compilation = get_folder_constants('compilation')
             config.extended = get_folder_constants('extended')
@@ -173,7 +178,7 @@ def get_locations_ext():
     return result
 
 def start_logging():
-    LOG = "logs/%s" % (es_log)
+    LOG = "logs/%s" % (config.log)
     logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
 
     # console handler
