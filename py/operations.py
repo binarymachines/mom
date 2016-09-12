@@ -70,34 +70,33 @@ def write_ensured_paths(flushkeys=True):
         if count % config.path_cache_size == 0:
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
-            if len(paths) == 0:
-                continue
                  
             clause = ', '.join([mySQLintf.quote_if_string(value['esid']) for value in paths])
-            q = """SELECT id FROM es_document WHERE id in (%s)""" % (clause) 
-            rows = mySQLintf.run_query(q)
-            if len(rows) != config.path_cache_size:
-                cached_paths = [row[0] for row in rows]
+            if clause != '':
+                q = """SELECT id FROM es_document WHERE id in (%s)""" % (clause) 
+                rows = mySQLintf.run_query(q)
+                if len(rows) != config.path_cache_size:
+                    cached_paths = [row[0] for row in rows]
 
-                for ensured in paths:
-                    if ensured['esid'] not in cached_paths:
-                        if config.mysql_debug: print('Updating MySQL...')
-                        try:
-                            insert_esid(ensured['index_name'], ensured['document_type'], ensured['esid'], ensured['absolute_path'])
-                            if config.check_for_bugs:
-                                raw_input('bug check')
-                        except Exception, e:
-                            print e.message
-                count = 0                                          
-                esids = []
-                paths = []
+                    for ensured in paths:
+                        if ensured['esid'] not in cached_paths:
+                            if config.mysql_debug: print('Updating MySQL...')
+                            try:
+                                insert_esid(ensured['index_name'], ensured['document_type'], ensured['esid'], ensured['absolute_path'])
+                                if config.check_for_bugs:
+                                    raw_input('bug check')
+                            except Exception, e:
+                                print e.message
+                    count = 0                                          
+                    esids = []
+                    paths = []
 
-                if flushkeys:
-                    for key in cached_paths:
-                        try:
-                            config.redis.delete(key)
-                        except Exeption, err:
-                            print err.message
+                    if flushkeys:
+                        for key in cached_paths:
+                            try:
+                                config.redis.delete(key)
+                            except Exeption, err:
+                                print err.message
             
     print 'ensured paths have been updated in MySQL'
 
