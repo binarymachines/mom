@@ -31,7 +31,7 @@ def execute(options=None):
             config.mfm_debug = configure_section_map(parser, "Debug")['serve'].lower() == 'true'
             config.reader_debug = configure_section_map(parser, "Debug")['reader'].lower() == 'true'
             config.matcher_debug = configure_section_map(parser, "Debug")['matcher'].lower() == 'true'
-            config.folder_debug = configure_section_map(parser, "Debug")['folder'].lower() == 'true'
+            config.library_debug = configure_section_map(parser, "Debug")['folder'].lower() == 'true'
             config.mysql_debug = configure_section_map(parser, "Debug")['mysql'].lower() == 'true' or 'debug_mysql' in options
             config.es_debug = configure_section_map(parser, "Debug")['esutil'].lower() == 'true'
             config.check_for_bugs = configure_section_map(parser, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options 
