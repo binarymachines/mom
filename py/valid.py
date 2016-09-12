@@ -1,11 +1,11 @@
 #! /usr/bin/python
 import os, sys, pprint, json
 
-import config, config_reader, mySQLintf, operations
+import config, startup, mySQLintf, operations
 from asset import AssetException
 
 def main():
-    config_reader.configure()
+    startup.start()
     folders = mySQLintf.retrieve_values('media_location_folder', ['name'], [])
     for folder in folders:
         asset = os.path.join(config.START_FOLDER, folder[0])

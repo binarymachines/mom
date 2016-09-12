@@ -3,7 +3,7 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import cache, config, config_reader, asset, mySQLintf 
+import cache, config, startup, asset, mySQLintf 
 import MySQLdb as mdb
 from asset import AssetException
         
@@ -45,28 +45,53 @@ def ensure_exists(esid, path, document_type):
 
         config.redis.hmset(key, values)
 
-def write_ensured_paths():
+def write_ensured_paths(flushkeys=True):
 
     print 'ensuring match paths exist in MySQL...'
 
     search = 'ensure-*'
+    esids = []
+    paths = []
+    count = 0
     for key in config.redis.scan_iter(search):
         values = config.redis.hgetall(key)
         # if config.mysql_debug: print("\nchecking for row for: "+ values['absolute_path'])
         path = values['absolute_path']
         doc_info = config.redis.hgetall(path)
         if not 'esid' in doc_info:
-            try:
-                rows = mySQLintf.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
-                if len(rows) ==0:
-                    if config.mysql_debug: print('Updating MySQL...')
-                    
-                    insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
+            esids.append(values)
+            count += 1
 
-            except Exception, e:
-                print e.message
-            finally:
-                config.redis.delete(key)
+        if count % config.path_cache_size == 0:
+            paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
+                'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
+
+            clause = ', '.join([mySQLintf.quote_if_string(value['esid']) for value in paths])
+            q = """SELECT id FROM es_document WHERE id in (%s)""" % (clause) 
+            rows = mySQLintf.run_query(q)
+            if len(rows) != config.path_cache_size:
+                cached_paths = [row[0] for row in rows]
+
+                for ensured in paths:
+                    if ensured['esid'] not in cached_paths:
+                        if config.mysql_debug: print('Updating MySQL...')
+                        try:
+                            insert_esid(ensured['index_name'], ensured['document_type'], ensured['esid'], ensured['absolute_path'])
+                            if flushkeys:
+                                config.redis.delete(ensured['absolute_path'])
+                        except Exception, e:
+                            print e.message
+                count = 0                                          
+            # try:
+            #     rows = mySQLintf.retrieve_values('es_document', ['absolute_path', 'index_name'], [values['absolute_path'], values['index_name']])
+            #     if len(rows) ==0:
+            #         if config.mysql_debug: print('Updating MySQL...')
+                    
+            #         insert_esid(values['index_name'], values['document_type'], values['esid'], values['absolute_path'])
+
+            # except Exception, e:
+            #     print e.message
+            # finally:
 
     print 'ensured paths have been updated in MySQL'
 
@@ -146,7 +171,7 @@ def do_status_check(opcount=None):
     if opcount is not None and opcount % config.check_freq != 0: return
 
     if check_for_reconfig_request():
-        config_reader.configure()
+        startup.start()
         remove_reconfig_request()
 
     if check_for_stop_request():
@@ -273,7 +298,7 @@ def write_ops_for_path(path, operator, operation):
         print err.message
 
 def main():
-    config_reader.configure()
+    startup.start()
 
     red = redis.StrictRedis('localhost')
     config.redis.flushall()
