@@ -31,7 +31,8 @@ def get_genre_folders():
 def get_locations():
     result  = []
     rows = sql.retrieve_values('media_location_folder', ['name'], [])
-    result.append([os.path.join(config.START_FOLDER, row[0]) for row in rows])
+    for row in rows:
+        result.append(os.path.join(config.START_FOLDER, row[0]))
 
     return result
 
