@@ -33,7 +33,7 @@ VARIOUS = ['VARIOUS', 'VVAA', 'VA ', 'VA-', 'VA -', 'V.A.', 'VARIOS', 'VARIOUS A
 
 genre_folders = locations = locations_ext = compilation = extended = ignore = incomplete = live = new = random = recent = unsorted = []
 
-mfm_debug = reader_debug = matcher_debug = folder_debug = mysql_debug = es_debug = logging = False
+mfm_debug = reader_debug = matcher_debug = library_debug = mysql_debug = es_debug = logging = False
 
 log = None
 
