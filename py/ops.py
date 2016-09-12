@@ -35,7 +35,7 @@ from asset import AssetException
 
 #NOTE: The methods that follow are specific to this es application and should live elsewehere
 
-def ensure_exists(esid, path, document_type):
+def ensure(esid, path, document_type):
 
     esidforpath = cache.get_cached_esid(document_type, path)
     
@@ -45,9 +45,11 @@ def ensure_exists(esid, path, document_type):
 
         config.redis.hmset(key, values)
 
+        write_paths()
+
 def write_paths(flushkeys=True):
 
-    print 'ensuring match paths exist in MySQL...'
+    print 'ensuring paths exist in MySQL...'
 
     search = 'ensure-*'
     esids = paths = []
@@ -60,6 +62,8 @@ def write_paths(flushkeys=True):
             if not 'esid' in doc:
                 esids.append(values)
             
+        print values['absolute_path']
+
         if len(esids) == config.path_cache_size:
             
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
@@ -70,7 +74,7 @@ def write_paths(flushkeys=True):
             if clause != '':
                 q = """SELECT id FROM es_document WHERE id in (%s)""" % (clause) 
                 rows = sql.run_query(q)
-                if len(rows) == config.path_cache_size:
+                if len(rows) != config.path_cache_size:
                     cached_paths = [row[0] for row in rows]
 
                     for path in paths:
@@ -86,11 +90,6 @@ def write_paths(flushkeys=True):
                             except Exeption, err:
                                 print err.message                                        
             
-        
-
-            
-    print 'ensured paths have been updated in MySQL'
-
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
     sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
         [index, document_type, elasticsearch_id, absolute_path])
@@ -236,20 +235,24 @@ def record_op_complete(asset, operator, operation):
     config.redis.hset(key, 'operation_status', None)
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
-    
+
+    days = -3
+    start = datetime.date.today() + datetime.timedelta(days)
+
     if operator is None:
         query = """SELECT DISTINCT target_path 
                     FROM op_record 
-                    WHERE operation_name = "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" 
-                    ORDER BY target_path""" % (operation, parentpath, '%')
+                    WHERE operation_name = "%s" AND start_time >= "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" 
+                    ORDER BY target_path""" % (operation, start, parentpath, '%')
     else:
         query = """SELECT DISTINCT target_path 
                     FROM op_record 
                     WHERE operator_name = "%s" 
                     AND operation_name = "%s" 
                     AND end_time IS NOT NULL 
+                    AND start_time >= "%s"
                     AND target_path LIKE "%s%s" 
-                    ORDER BY target_path""" % (operator, operation, parentpath, '%')
+                    ORDER BY target_path""" % (operator, operation, start, parentpath, '%')
 
     # query = query.replace('"', "'")
     query = query.replace("'", "\'")

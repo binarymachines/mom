@@ -145,8 +145,15 @@ class ElasticSearchMatcher(MediaMatcher):
             if match_parent == orig_parent: 
                 continue
 
+            try:
+                thread.start_new_thread( ops.ensure, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
+            except Exception, err:
+                print err.message
+                traceback.print_exc(file=sys.stdout)
+
             if self.minimum_score is not None:
                 if match['_score'] < self.minimum_score:
+                    print 'skipping matched file %s' % (match['_source']['absolute_path'])
                     continue
 
             matched_fields = []
@@ -162,11 +169,6 @@ class ElasticSearchMatcher(MediaMatcher):
             ops.record_op_complete(media, self.name, 'match')
             if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
-            try:
-                thread.start_new_thread( ops.ensure_exists, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
-            except Exception, err:
-                print err.message
-                traceback.print_exc(file=sys.stdout)
 
 class FolderNameMatcher(MediaMatcher):
     def match(self, media):

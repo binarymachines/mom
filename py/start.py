@@ -2,7 +2,7 @@ import sys, os, datetime, traceback, ConfigParser, logging
 
 import redis
 
-import cache, config, sql, esutil, calc, ops, util
+import cache, config, sql, esutil, calc, ops, util, library
 
 def execute(options=None):
     
@@ -70,23 +70,23 @@ def execute(options=None):
             config.path_cache_size = int(configure_section_map(parser, "Cache")['path_cache_size'])            
             
             # folder constants
-            config.compilation = util.get_folder_constants('compilation')
-            config.extended = util.get_folder_constants('extended')
-            config.ignore = util.get_folder_constants('ignore')
-            config.incomplete = util.get_folder_constants('incomplete')
-            config.live = util.get_folder_constants('live_recordings')
-            config.new = util.get_folder_constants('new')
-            config.random = util.get_folder_constants('random')
-            config.recent = util.get_folder_constants('recent')
-            config.unsorted = util.get_folder_constants('unsorted')
+            config.compilation = library.get_folder_constants('compilation')
+            config.extended = library.get_folder_constants('extended')
+            config.ignore = library.get_folder_constants('ignore')
+            config.incomplete = library.get_folder_constants('incomplete')
+            config.live = library.get_folder_constants('live_recordings')
+            config.new = library.get_folder_constants('new')
+            config.random = library.get_folder_constants('random')
+            config.recent = library.get_folder_constants('recent')
+            config.unsorted = library.get_folder_constants('unsorted')
 
-            config.genre_folders = util.get_genre_folders() 
+            config.genre_folders = library.get_genre_folders() 
             config.genre_folders.sort()
 
-            config.locations = util.get_locations() 
+            config.locations = library.get_locations() 
             config.locations.sort()
 
-            config.locations_ext =util.get_locations_ext()
+            config.locations_ext =library.get_locations_ext()
             config.locations_ext.sort()
 
             if config.logging:
