@@ -45,8 +45,8 @@ def calculate_matches(param):
                 cache.cache_matches(location)
                 
                 for key in cache.get_doc_keys(config.MEDIA_FILE):
-                    if not location in key:
-                        if config.matcher_debug: print 'match calculator skipping %s' % (key)
+                    if not location in key and config.matcher_debug: 
+                        print 'match calculator skipping %s' % (key)
                     values = config.redis.hgetall(key)
                     if not 'esid' in values:
                         continue
@@ -61,7 +61,7 @@ def calculate_matches(param):
 
                     try:
                         if all_matchers_have_run(matchers, media):
-                            if config.matcher_debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
+                            # if config.matcher_debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
                             continue
 
                         if esutil.doc_exists(media, True):
