@@ -61,13 +61,12 @@ def write_paths(flushkeys=True):
             print values
             continue
 
-        path = values['absolute_path']
-        doc_info = config.redis.hgetall(path)
+        doc_info = config.redis.hgetall(values['absolute_path'])
         if not 'esid' in doc_info:
             esids.append(values)
             count += 1
 
-        if count % config.path_cache_size == 0:
+        if count == config.path_cache_size:
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
                  
@@ -78,25 +77,25 @@ def write_paths(flushkeys=True):
                 if len(rows) != config.path_cache_size:
                     cached_paths = [row[0] for row in rows]
 
-                    for ensured in paths:
-                        if ensured['esid'] not in cached_paths:
+                    for path in paths:
+                        if path['esid'] not in cached_paths:
                             if config.mysql_debug: print('Updating MySQL...')
                             try:
-                                insert_esid(ensured['index_name'], ensured['document_type'], ensured['esid'], ensured['absolute_path'])
+                                insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
                                 if config.check_for_bugs:
                                     raw_input('bug check')
                             except Exception, e:
                                 print e.message
-                    count = 0                                          
-                    esids = []
-                    paths = []
+            count = 0                                          
+            esids = []
+            paths = []
 
-                    if flushkeys:
-                        for key in cached_paths:
-                            try:
-                                config.redis.delete(key)
-                            except Exeption, err:
-                                print err.message
+                    # if flushkeys:
+                    #     for key in cached_paths:
+                    #         try:
+                    #             config.redis.delete(key)
+                    #         except Exeption, err:
+                    #             print err.message
             
     print 'ensured paths have been updated in MySQL'
 
