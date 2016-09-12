@@ -37,7 +37,7 @@ from asset import AssetException
 
 def ensure_exists(esid, path, document_type):
 
-    esidforpath = cache.get_cached_esid_for_path(document_type, path)
+    esidforpath = cache.get_cached_esid(document_type, path)
     
     if esidforpath == None:
         key = '-'.join(['ensure', esid])
