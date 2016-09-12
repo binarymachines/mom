@@ -9,10 +9,10 @@
 
 import os, json, pprint, sys
 
-import cache, config, start, ops, calc, mySQL, util, esutil
+import cache, config, start, ops, calc, sql, util, esutil
 
 from asset import AssetException, Asset, MediaFile, MediaFile
-from folders import MediaFolderManager
+from folders import Library
 from read import Param, Reader
 from walk import MediaLibraryWalker
 
@@ -30,14 +30,14 @@ class Scanner(MediaLibraryWalker):
         
         self.location_cache = {}
 
-        self.foldermanager = MediaFolderManager()
+        self.library = Library()
         self.reader = Reader()
         
 ################################# MediaWalker Overrides #################################
 
     def after_handle_root(self, root):
         if config.scan:
-            folder = self.foldermanager.folder
+            folder = self.library.folder
             if folder is not None and folder.absolute_path == root:
                 if folder is not None and not ops.operation_completed(folder, 'mp3 reader', 'scan'):
                     ops.record_op_complete(folder, 'mp3 reader', 'scan')
@@ -48,7 +48,7 @@ class Scanner(MediaLibraryWalker):
 
             # if config.mfm_debug: print 'examining: %s' % (root)
             
-            self.foldermanager.folder = None
+            self.library.folder = None
             traceback.print_exc(file=sys.stdout)
             
             if ops.operation_in_cache(root, 'scan', 'mp3 reader'):
@@ -58,10 +58,10 @@ class Scanner(MediaLibraryWalker):
 
             try:
                 if util.path_contains_media(root, self.active_param.extensions):
-                    self.foldermanager.set_active( root)
+                    self.library.set_active( root)
 
             except AssetException, err:
-                self.foldermanager.folder = None
+                self.library.folder = None
                 print ': '.join([err.__class__.__name__, err.message])
                 if config.mfm_debug: traceback.print_exc(file=sys.stdout)
                 ops.handle_asset_exception(err, root)
@@ -72,20 +72,20 @@ class Scanner(MediaLibraryWalker):
 
     def handle_root(self, root):
         if config.scan:
-            folder = self.foldermanager.folder
+            folder = self.library.folder
             if folder is not None and ops.operation_completed(folder, 'mp3 reader', 'scan'):
                 print '%s has been scanned.' % (root)
             elif folder is not None:
                 if config.mfm_debug: print 'scanning folder: %s' % (root)
                 ops.record_op_begin(folder, 'mp3 reader', 'scan')
                 for filename in os.listdir(root):
-                    self.process_file(os.path.join(root, filename), foldermanager, self.reader)
-        # else: self.foldermanager.set_active(root)
+                    self.process_file(os.path.join(root, filename), library, self.reader)
+        # else: self.library.set_active(root)
 
     def handle_root_error(self, err):
         print ': '.join([err.__class__.__name__, err.message])
 
-    def process_file(self, filename, foldermanager, reader):
+    def process_file(self, filename, library, reader):
         for extension in self.active_param.extensions:
                 if reader.approves(filename):
                         media = self.get_media_object(filename)
@@ -93,7 +93,7 @@ class Scanner(MediaLibraryWalker):
                         if media is None or media.ignore(): continue
                         # scan tag info if this file hasn't been assigned an esid
                         if media.esid is None: 
-                            reader.scan_file(media, foldermanager)
+                            reader.scan_file(media, library)
 
     # TODO: move this to asset
     def get_media_object(self, absolute_path):

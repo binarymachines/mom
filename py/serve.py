@@ -11,15 +11,11 @@ import os, sys,logging, traceback, thread
 
 from docopt import docopt
 
-import cache, config, start, ops
+import cache, calc, config, start, ops
 
-from asset import AssetException, Asset, MediaFile, MediaFile
-from folders import MediaFolderManager
-from read import Param, Reader
-from walk import MediaLibraryWalker
-from scan import Scanner
+from scan import Scanner, Param
 
-def ServerProcess():
+class ServerProcess():
     def run(self, param):
         if config.scan:
             scanner = Scanner()
@@ -68,9 +64,9 @@ def execute(path=None):
     param.locations.sort()
 
     print 'Configuring...'
-    mfm = ServerProcess();
+    server = ServerProcess()
     print 'starting...'
-    mfm.run(param)
+    server.run(param)
 
 def main(args):
     start.execute(start.make_options(args))
@@ -84,7 +80,7 @@ def main(args):
             q = """SELECT absolute_path FROM es_document WHERE absolute_path LIKE "%s%s%s" AND doc_type = "%s" ORDER BY absolute_path""" % \
                 ('%', p, '%', config.MEDIA_FOLDER)
             
-            rows = mySQL.run_query(q)
+            rows = sql.run_query(q)
             for row in rows: 
                 path.append(row[0])
 

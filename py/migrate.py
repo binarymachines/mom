@@ -1,4 +1,4 @@
-import os, sys, mySQL, redis
+import os, sys, sql, redis
 import ops, config, start
 
 TARGET_PATH = 0

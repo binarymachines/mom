@@ -2,7 +2,7 @@ import os, sys, traceback, datetime
 
 import redis
 
-import config, mySQL
+import config, sql
 
 def get_setname(document_type):
     return '-'.join(['path', 'esid', document_type])
@@ -40,9 +40,9 @@ def get_doc_keys(document_type):
 def retrieve_docs(document_type, file_path):
 
     query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
-        (mySQL.quote_if_string(config.es_index), mySQL.quote_if_string(document_type), mySQL.quote_if_string(''.join([file_path, '%'])))
+        (sql.quote_if_string(config.es_index), sql.quote_if_string(document_type), sql.quote_if_string(''.join([file_path, '%'])))
     
-    return mySQL.run_query(query)
+    return sql.run_query(query)
 
 # matched files
 def cache_matches(path):
@@ -53,7 +53,7 @@ def cache_matches(path):
             SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
                 WHERE esd.absolute_path like "%s%s" AND esd.id = m.match_doc_id""" % (path, '%', path, '%')
         q = q.replace("'", "\'")
-        rows = mySQL.run_query(q)
+        rows = sql.run_query(q)
         for row in rows:
             key = '-'.join([row[2], row[0]]) 
             config.redis.sadd(key, row[1])
@@ -65,8 +65,6 @@ def get_matches(matcher_name, esid):
         
     values = config.redis.smembers(key)
     return values
-
-# esids
     
 def clear_matches(matcher_name, esid):
     key = '-'.join([matcher_name, esid]) 
