@@ -77,13 +77,20 @@ def write_ensured_paths(flushkeys=True):
                         if config.mysql_debug: print('Updating MySQL...')
                         try:
                             insert_esid(ensured['index_name'], ensured['document_type'], ensured['esid'], ensured['absolute_path'])
-                            if flushkeys:
-                                config.redis.delete(ensured['absolute_path'])
                         except Exception, e:
                             print e.message
-            count = 0                                          
-            esids = []
-            paths = []
+                count = 0                                          
+                esids = []
+                paths = []
+
+                if flushkeys:
+                    for key in cached_paths:
+                        try:
+                            config.redis.delete(key)
+                        except Exeption, err:
+                            print err.message
+            
+            cached_paths = []
 
     print 'ensured paths have been updated in MySQL'
 
