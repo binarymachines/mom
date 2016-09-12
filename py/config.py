@@ -53,6 +53,7 @@ mysql_debug = False
 es_debug = False
 
 logging = False
+log = None
 
 es_log = None
 es_host = None
