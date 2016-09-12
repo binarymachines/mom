@@ -19,7 +19,7 @@ from read import Param, Reader
 from walk import MediaLibraryWalker
 from scan import Scanner
 
-def ServerProcess:
+def ServerProcess():
     def run(self, param):
         if config.scan:
             scanner = Scanner()

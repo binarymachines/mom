@@ -31,43 +31,15 @@ SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']
 
 VARIOUS = ['VARIOUS', 'VVAA', 'VA ', 'VA-', 'VA -', 'V.A.', 'VARIOS', 'VARIOUS ARTISTS', '(VA)', '[VA]', 'V-A', 'V:A', 'VA.', 'VA_']
 
-genre_folders = [] 
-locations = [] 
-locations_ext = [] 
+genre_folders = locations = locations_ext = compilation = extended = ignore = incomplete = live = new = random = recent = unsorted = []
 
-compilation = []
-extended = []
-ignore = []
-incomplete = []
-live = []
-new = []
-random = []
-recent = []
-unsorted = []
+mfm_debug = reader_debug = matcher_debug = folder_debug = mysql_debug = es_debug = logging = False
 
-mfm_debug = False
-reader_debug = False
-matcher_debug = False
-folder_debug = False
-mysql_debug = False
-es_debug = False
-
-logging = False
 log = None
 
-es_log = None
-es_host = None
+es_log = es_host = None
 es_port = 9200
 es_index = None
 
-mysql_host = None
-mysql_db = None
-mysql_user = None
-mysql_pass = None
-
-scan = False
-match = False
-deep = False
-
-no_scan = False
-no_match = False
+mysql_host = mysql_db = mysql_user = mysql_pass = None
+scan = match = deep = no_scan = no_match = False

@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 '''
-   Usage: scan.py [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs]
+   Usage: scan.py [(--path <path>...) | (--pattern <pattern>...) ]
 
    --path, -p                   The path to scan
 
@@ -119,14 +119,11 @@ class Scanner(MediaLibraryWalker):
         media.folder_name = foldername
         media.file_size = os.path.getsize(absolute_path)
 
-        media.esid = self.get_cached_esid(absolute_path)
+        media.esid = cache.get_cached_esid(config.MEDIA_FILE, absolute_path)
 
         return media
 
-    def get_cached_esid(self, path):
-        result = config.redis.hgetall(path)
-        if result is not None:
-            return result['esid']
+
 
     def get_location(self, path):
         parent = os.path.abspath(os.path.join(path, os.pardir))
@@ -149,31 +146,3 @@ class Scanner(MediaLibraryWalker):
                 return self.location_cache[parent]
 
         return None
-
-    # run method in serve.py will call walk() on this class
-    # def run(self, param):
-    #     if config.scan:
-    #         for location in param.locations:
-    #             if os.path.isdir(location) and os.access(location, os.R_OK):
-    #                 cache.cache_docs(config.MEDIA_FILE, path)
-    #                 ops.c
-    #                 self.cache_ops(location, 'scan', 'mp3 reader')
-
-    #                 self.walk(location)
-
-    #                 self.location_cache = {}
-    #             elif config.mfm_debug:  print "%s isn't currently available." % (location)
-
-    #         print '\n-----scan complete-----\n'
-
-    #     if config.match:
-    #         calc.calculate_matches(param)
-
-
-def main(args):
-
-
-# main
-if __name__ == '__main__':
-    args = docopt(__doc__)
-    main(args)
