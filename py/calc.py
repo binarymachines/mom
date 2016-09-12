@@ -92,15 +92,13 @@ def calculate_matches(param):
                         for matcher in matchers:
                            cache.clear_matches(matcher.name, media.esid)
                 
-                ops.write_paths()
-        
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message, location])
                 traceback.print_exc(file=sys.stdout)
             finally:
-                # self.library.folder = None
                 for matcher in matchers:
                     ops.write_ops_for_path(location, matcher.name, 'match')
+                ops.write_paths()
                 ops.clear_cache(location, True)
                 cache.clear_docs(config.MEDIA_FILE, location) 
             

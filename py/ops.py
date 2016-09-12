@@ -173,7 +173,7 @@ def do_status_check(opcount=None):
         print 'stop requested, terminating...'
         sys.exit(0)
 
-    #  if config.check_for_bugs: raw_input('check for bugs')
+    if config.check_for_bugs: raw_input('check for bugs')
 
 def record_exec():
     key = '-'.join(['exec', 'record', str(config.pid)])   
@@ -188,15 +188,6 @@ def remove_reconfig_request():
 
 def operation_completed(asset, operator, operation):
     print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
-
-    # if config.pid is None:
-    #     rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
-    #         [operator, operation, asset.esid])
-
-    #     if len(rows) > 0 and rows[0][4] is not None:
-    #         print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
-    #         return True
-    # else:
     rows = sql.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [str(config.pid), operator, operation, asset.esid])
 
@@ -207,10 +198,7 @@ def operation_completed(asset, operator, operation):
     return False
 
 def record_op_begin(asset, operator, operation):
-    # print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
-
-    # sql.insert_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'target_path'],
-    #     [str(pid), operator, operation, asset.esid, datetime.datetime.now().isoformat(), asset.absolute_path])
+    print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     key = '-'.join([asset.absolute_path, operation, operator])
     values = { 'persisted': False, 'pid': config.pid, 'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid, 
@@ -222,10 +210,7 @@ def record_op_begin(asset, operator, operation):
     config.redis.hset(key, 'operation_status', 'begin')
 
 def record_op_complete(asset, operator, operation):
-    # print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
-
-    # sql.update_values('op_record', ['end_time'], [datetime.datetime.now().isoformat()], ['pid', 'operator_name', 'operation_name', 'target_esid'],
-    #     [str(pid), operator, operation, asset.esid])
+    print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     key = '-'.join([asset.absolute_path, operation, operator])
     config.redis.hset(key, 'end_time', datetime.datetime.now().isoformat())
@@ -236,7 +221,7 @@ def record_op_complete(asset, operator, operation):
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
 
-    days = -60
+    days = 0 - config.match_op_lifespan
     start = datetime.date.today() + datetime.timedelta(days)
 
     if operator is None:
@@ -254,12 +239,8 @@ def retrieve_complete_ops(parentpath, operation, operator=None):
                     AND target_path LIKE "%s%s" 
                     ORDER BY target_path""" % (operator, operation, start, parentpath, '%')
 
-    # query = query.replace('"', "'")
-    query = query.replace("'", "\'")
+    return sql.run_query(query.replace("'", "\'")) 
     
-    result = sql.run_query(query) 
-    return result
-
 def write_ops_for_path(path, operator, operation):
     
     try:
@@ -270,9 +251,7 @@ def write_ops_for_path(path, operator, operation):
         
         keys = config.redis.keys(path + '*')
         for key in keys:
-            if not operator in key:
-                continue
-            if not operation in key:
+            if not operator in key or not operation in key:
                 continue
 
             values = config.redis.hgetall(key)
@@ -296,7 +275,7 @@ def write_ops_for_path(path, operator, operation):
                 sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
                     [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
 
-        print 'operations for %s have been updated in MySQL' % (path)
+        print '%s.%s operations have been updated for %s in MySQL' % (operator, operation, path)
     except Exception, err:
         print err.message
 

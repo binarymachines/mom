@@ -68,6 +68,7 @@ def execute(options=None):
             
             # cache
             config.path_cache_size = int(configure_section_map(parser, "Cache")['path_cache_size'])            
+            config.match_op_lifespan = int(configure_section_map(parser, "Cache")['match_op_lifespan'])
             
             # folder constants
             config.compilation = library.get_folder_constants('compilation')
@@ -91,7 +92,6 @@ def execute(options=None):
 
             if config.logging:
                util.start_logging()
-
 
             if 'clearmem' in options:        
                 if config.mfm_debug: print 'clearing data from previous run'
