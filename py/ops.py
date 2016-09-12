@@ -50,8 +50,7 @@ def write_paths(flushkeys=True):
     print 'ensuring match paths exist in MySQL...'
 
     search = 'ensure-*'
-    esids = []
-    paths = []
+    esids = paths = []
     count = 0
     for key in config.redis.scan_iter(search):
         do_status_check(count)
@@ -86,16 +85,15 @@ def write_paths(flushkeys=True):
                                     raw_input('bug check')
                             except Exception, e:
                                 print e.message
+                        elif flushkeys:
+                                try:
+                                config.redis.delete(path['esid'])
+                            except Exeption, err:
+                                print err.message
             count = 0                                          
             esids = []
             paths = []
 
-                    # if flushkeys:
-                    #     for key in cached_paths:
-                    #         try:
-                    #             config.redis.delete(key)
-                    #         except Exeption, err:
-                    #             print err.message
             
     print 'ensured paths have been updated in MySQL'
 
