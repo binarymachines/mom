@@ -236,7 +236,7 @@ def record_op_complete(asset, operator, operation):
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
 
-    days = -14
+    days = -60
     start = datetime.date.today() + datetime.timedelta(days)
 
     if operator is None:
