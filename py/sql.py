@@ -252,21 +252,3 @@ def truncate(table_name):
     finally:
         if con:
             con.close()
-
-# def transfer_data(table, fields):
-#     con = mdb.connect('54.82.250.249', 'remote', 'remote', 'media')
-#     rows = retrieve_values(table, fields, [])
-#     for r in rows:
-#         print r
-#         aws_insert_values(con, table, fields, r)
-
-#     con.commit()
-#     con.close()
-#     pass
-
-# def main():
-#     pass
-
-# # main
-# if __name__ == '__main__':
-#     main()

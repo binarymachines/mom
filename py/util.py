@@ -44,21 +44,6 @@ def get_locations_ext():
 
     return result
 
-def start_logging():
-    LOG = "logs/%s" % (config.log)
-    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
-
-    # console handler
-    console = logging.StreamHandler()
-    console.setLevel(logging.ERROR)
-    logging.getLogger("").addHandler(console)
-
-def write_pid_file():
-    f = open('pid', 'wt')
-    f.write(str(config.pid))
-    f.flush()
-    f.close()
-
 def get_genre_folder_names():
     results = []
     rows = sql.retrieve_values('media_genre_folder', ['name'], [])
@@ -159,8 +144,23 @@ def path_is_location_folder(path):
 
 # def expunge(path):
 
-# string utilities
 
+def start_logging():
+    LOG = "logs/%s" % (config.log)
+    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
+
+    # console handler
+    console = logging.StreamHandler()
+    console.setLevel(logging.ERROR)
+    logging.getLogger("").addHandler(console)
+
+def write_pid_file():
+    f = open('pid', 'wt')
+    f.write(str(config.pid))
+    f.flush()
+    f.close()
+
+# string utilities
 def str_clean4comp(input):
     alphanum = "1234567890abcdefghijklmnopqrstuvwxyz"
     output = ''

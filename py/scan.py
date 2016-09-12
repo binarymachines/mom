@@ -87,17 +87,18 @@ class Scanner(MediaLibraryWalker):
 
     def process_file(self, filename, library, reader):
         for extension in self.active_param.extensions:
-                if reader.approves(filename):
-                        media = self.get_media_object(filename)
-                        # TODO: remove es and MySQL records for nonexistent files
-                        if media is None or media.ignore(): continue
-                        # scan tag info if this file hasn't been assigned an esid
-                        if media.esid is None: 
-                            reader.scan_file(media, library)
+            if reader.approves(filename):
+                media = self.get_media_object(filename)
+                # TODO: remove es and MySQL records for nonexistent files
+                if media is None or media.ignore(): continue
+                # scan tag info if this file hasn't been assigned an esid
+                if media.esid is None: 
+                    reader.scan_file(media, library)
 
     def scan(path):
         cache.cache_docs(config.MEDIA_FILE, path)
         walk(path)
+        cache.clear_docs(config.MEDIA_FILE, path)
         print '\n-----scan complete-----\n'
 
     # TODO: move this to asset
