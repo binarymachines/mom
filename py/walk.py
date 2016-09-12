@@ -98,7 +98,7 @@ class MediaLibraryWalker(Walker):
         print 'MediaLibraryWalker initializing...'
         # self.location_names = util.get_location_names()
         # print 'retrieved location names'
-        self.location_folders = util.get_location_folder_names()
+        self.location_folders = util.util.get_locations()
         print 'retrieved location folder names'
         self.genre_names = util.get_genre_folder_names()
         print 'retrieved genre names'

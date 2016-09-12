@@ -21,12 +21,7 @@ class ServerProcess():
             scanner = Scanner()
             for location in param.locations:
                 if os.path.isdir(location) and os.access(location, os.R_OK):
-                    cache.cache_docs(config.MEDIA_FILE, path)
-
-                    ops.cache_ops(path, 'scan', 'mp3 reader')
-                    scanner.walk(location)
-
-                    # self.location_cache = {}
+                    scanner.scan(location)
                 elif config.mfm_debug:  print "%s isn't currently available." % (location)
 
             print '\n-----scan complete-----\n'
