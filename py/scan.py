@@ -12,7 +12,7 @@ import os, json, pprint, sys
 import cache, config, start, ops, calc, sql, util, esutil
 
 from asset import AssetException, Asset, MediaFile, MediaFile
-from folders import Library
+from library import Library
 from read import Param, Reader
 from walk import MediaLibraryWalker
 
@@ -95,6 +95,11 @@ class Scanner(MediaLibraryWalker):
                         if media.esid is None: 
                             reader.scan_file(media, library)
 
+    def scan(path):
+        cache.cache_docs(config.MEDIA_FILE, path)
+        walk(path)
+        print '\n-----scan complete-----\n'
+
     # TODO: move this to asset
     def get_media_object(self, absolute_path):
 
@@ -122,8 +127,6 @@ class Scanner(MediaLibraryWalker):
         media.esid = cache.get_cached_esid(config.MEDIA_FILE, absolute_path)
 
         return media
-
-
 
     def get_location(self, path):
         parent = os.path.abspath(os.path.join(path, os.pardir))

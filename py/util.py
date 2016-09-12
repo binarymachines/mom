@@ -1,7 +1,6 @@
 #! /usr/bin/python
 
-import os
-import sys
+import os, sys, logging
 import pprint
 import random
 import sql
@@ -11,6 +10,54 @@ import MySQLdb as mdb
 from elasticsearch import Elasticsearch
 
 pp = pprint.PrettyPrinter(indent=2)
+
+def get_folder_constants(foldertype):
+    # if debug: 
+    print "retrieving constants for %s folders." % (foldertype)
+    result = []
+    rows = sql.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
+    for r in rows:
+        result.append(r[1])
+    return result
+
+def get_genre_folders():
+    result  = []
+    rows = sql.retrieve_values('media_genre_folder', ['name'], [])
+    for row in rows:
+        result.append(row[0])
+
+    return result
+
+def get_locations():
+    result  = []
+    rows = sql.retrieve_values('media_location_folder', ['name'], [])
+    result.append([os.path.join(config.START_FOLDER, row[0]) for row in rows])
+
+    return result
+
+
+def get_locations_ext():
+    result  = []
+    rows = sql.retrieve_values('media_location_extended_folder', ['path'], [])
+    for row in rows:
+        result.append(os.path.join(row[0]))
+
+    return result
+
+def start_logging():
+    LOG = "logs/%s" % (config.log)
+    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
+
+    # console handler
+    console = logging.StreamHandler()
+    console.setLevel(logging.ERROR)
+    logging.getLogger("").addHandler(console)
+
+def write_pid_file():
+    f = open('pid', 'wt')
+    f.write(str(config.pid))
+    f.flush()
+    f.close()
 
 def get_genre_folder_names():
     results = []
@@ -24,11 +71,6 @@ def get_active_media_formats():
     for r in rows: results.append(r[1])
     return results
 
-def get_location_folder_names():
-    results = []
-    rows = sql.retrieve_values('media_location_folder', ['name'], [])
-    for r in rows: results.append(r[0])
-    return results
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_contains_album_folders(path):
@@ -114,25 +156,6 @@ def path_is_genre_folder(path):
 def path_is_location_folder(path):
     raise Exception('not implemented!')
 
-# config for new setup
-
-def setup_genre_folders():
-
-    folders = get_genre_folder_names()
-    for f in folders:
-        # print f
-        rows = sql.retrieve_values('media_genre_folder', ['name'], [f.lower()])
-        if len(rows) == 0:
-            sql.insert_values('media_genre_folder', ['name'], [f.lower()])
-
-def setup_location_folder_names():
-
-    folders = get_location_names()
-    for f in folders:
-        print f
-        rows = sql.retrieve_values('media_location_folder', ['name'], [f.lower()])
-        if len(rows) == 0:
-            sql.insert_values('media_location_folder', ['name'], [f.lower()])
 
 # def expunge(path):
 
@@ -160,3 +183,24 @@ def clear_bad_entries():
                 es.delete(index=row[1],doc_type=row[2],id=row[0])
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
+
+# compare source and target folders, remove files from source that exist in target
+def enforce_delta(source, target, remove_source_files=False):
+
+    print source
+
+    for f in os.listdir(source):
+        source_path = os.path.join(source, f)
+        target_path = os.path.join(target, f)
+
+        if os.path.isfile(source_path):
+            if os.path.exists(target_path):
+                if remove_source_files:
+                    print 'deleting: %s' % (source_path)
+                    os.remove(source_path)
+                else: print 'file: %s also exists in %s' % (f, target)
+
+        elif os.path.isdir(source_path):
+            print 'folder: %s' % (source_path)
+            if os.path.exists(target_path):
+                enforce_delta(source_path, target_path, remove_source_files)

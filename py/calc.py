@@ -97,10 +97,10 @@ def calculate_matches(param):
                 traceback.print_exc(file=sys.stdout)
             finally:
                 # self.library.folder = None
-                ops.write_ensured_paths()
+                ops.write_paths()
                 for matcher in matchers:
                     ops.write_ops_for_path(location, matcher.name, 'match')
-                ops.clear_cache_ops(location, True)
+                ops.clear_cache(location, True)
                 cache.clear_docs(config.MEDIA_FILE, location) 
             
 

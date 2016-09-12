@@ -193,31 +193,6 @@ def purge_problem_esids():
                     print ': '.join([err.__class__.__name__, err.message])
                     if config.mysql_debug: traceback.print_exc(file=sys.stdout)
 
-            # parent = os.path.abspath(os.path.join(a.absolute_path, os.pardir))
-            # print parent
-            # try:
-            #     doc = get_doc(a)
-            #     if doc is not None:
-            #         pp.pprint(doc)
-
-            # print docs
-                # b = Asset()
-                # b.document_type = config.MEDIA_FOLDER
-                # b.absolute_path = parent
-                #
-                # doc = get_doc(b)
-                # if doc is not None:
-                #     pp.pprint(doc)
-            # except NotFoundError, err:
-            #     print 'Doc for %s not found.' % (parent)
-            # query = "id, absolute_path from es_document where absolute_path = '%s'" % (parent)
-            # parents = sql.run_query(query)
-            # for p_row in parents:
-            #     print p_row
-
-
-            # sys.exit(1)
-
 # def transform_docs():
 #
 #     cycle = True

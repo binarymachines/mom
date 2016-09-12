@@ -45,7 +45,7 @@ def ensure_exists(esid, path, document_type):
 
         config.redis.hmset(key, values)
 
-def write_ensured_paths(flushkeys=True):
+def write_paths(flushkeys=True):
 
     print 'ensuring match paths exist in MySQL...'
 
@@ -153,7 +153,7 @@ def operation_in_cache(path, operation, operator=None):
     
     return False
 
-def clear_cache_ops(path, use_wildcard=False):
+def clear_cache(path, use_wildcard=False):
     if use_wildcard:
         for key in config.redis.keys(path + '*'):
             config.redis.delete(key)
@@ -185,7 +185,7 @@ def do_status_check(opcount=None):
 
     #  if config.check_for_bugs: raw_input('check for bugs')
 
-def record_exec_begin():
+def record_exec():
     key = '-'.join(['exec', 'record', str(config.pid)])   
     values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
     config.redis.hmset(key, values)

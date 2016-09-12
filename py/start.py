@@ -2,7 +2,7 @@ import sys, os, datetime, traceback, ConfigParser, logging
 
 import redis
 
-import cache, config, sql, esutil, calc, ops
+import cache, config, sql, esutil, calc, ops, util
 
 def execute(options=None):
     
@@ -25,7 +25,7 @@ def execute(options=None):
             config.pid = os.getpid()
             config.start_time = datetime.datetime.now().isoformat()
             
-            write_pid_file()
+            util.write_pid_file()
 
             # debug
             config.mfm_debug = configure_section_map(parser, "Debug")['serve'].lower() == 'true'
@@ -45,7 +45,7 @@ def execute(options=None):
             config.log = configure_section_map(parser, "Log")['log']
             
             if config.logging: 
-                start_logging()
+                util.start_logging()
                 
             # elasticsearch
             config.es_host = configure_section_map(parser, "Elasticsearch")['host']
@@ -70,42 +70,42 @@ def execute(options=None):
             config.path_cache_size = int(configure_section_map(parser, "Cache")['path_cache_size'])            
             
             # folder constants
-            config.compilation = get_folder_constants('compilation')
-            config.extended = get_folder_constants('extended')
-            config.ignore = get_folder_constants('ignore')
-            config.incomplete = get_folder_constants('incomplete')
-            config.live = get_folder_constants('live_recordings')
-            config.new = get_folder_constants('new')
-            config.random = get_folder_constants('random')
-            config.recent = get_folder_constants('recent')
-            config.unsorted = get_folder_constants('unsorted')
+            config.compilation = util.get_folder_constants('compilation')
+            config.extended = util.get_folder_constants('extended')
+            config.ignore = util.get_folder_constants('ignore')
+            config.incomplete = util.get_folder_constants('incomplete')
+            config.live = util.get_folder_constants('live_recordings')
+            config.new = util.get_folder_constants('new')
+            config.random = util.get_folder_constants('random')
+            config.recent = util.get_folder_constants('recent')
+            config.unsorted = util.get_folder_constants('unsorted')
 
-            config.genre_folders = get_genre_folders() 
+            config.genre_folders = util.get_genre_folders() 
             config.genre_folders.sort()
 
-            config.locations = get_locations() 
+            config.locations = util.get_locations() 
             config.locations.sort()
 
-            config.locations_ext = get_locations_ext()
+            config.locations_ext =util.get_locations_ext()
             config.locations_ext.sort()
 
             if config.logging:
-                start_logging()
+               util.e start_logging()
 
 
             if 'clearmem' in options:        
                 if config.mfm_debug: print 'clearing data from previous run'
                 for matcher in calc.get_matchers():
                     ops.write_ops_for_path('/', matcher.name, 'match')
-                ops.write_ensured_paths()  
-                ops.clear_cache_ops('/', True)
+                ops.write_paths()  
+                ops.clear_cache('/', True)
                 cache.clear_docs(config.MEDIA_FILE, '/') 
 
             if not 'noflush' in options:        
                 if config.mfm_debug: print 'flushing reddis cache...'
                 config.redis.flushall()
 
-            ops.record_exec_begin()
+            ops.record_exec()
  
     except Exception, err:
         print err.message
@@ -144,50 +144,3 @@ def make_options(args):
 
 # TODO: move this stuff to someplace more appropriate
 
-def get_folder_constants(foldertype):
-    # if debug: 
-    print "retrieving constants for %s folders." % (foldertype)
-    result = []
-    rows = sql.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
-    for r in rows:
-        result.append(r[1])
-    return result
-
-def get_genre_folders():
-    result  = []
-    rows = sql.retrieve_values('media_genre_folder', ['name'], [])
-    for row in rows:
-        result.append(row[0])
-
-    return result
-
-def get_locations():
-    result  = []
-    rows = sql.retrieve_values('media_location_folder', ['name'], [])
-    for row in rows:
-        result.append(os.path.join(config.START_FOLDER, row[0]))
-
-    return result
-
-def get_locations_ext():
-    result  = []
-    rows = sql.retrieve_values('media_location_extended_folder', ['path'], [])
-    for row in rows:
-        result.append(os.path.join(row[0]))
-
-    return result
-
-def start_logging():
-    LOG = "logs/%s" % (config.log)
-    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
-
-    # console handler
-    console = logging.StreamHandler()
-    console.setLevel(logging.ERROR)
-    logging.getLogger("").addHandler(console)
-
-def write_pid_file():
-    f = open('pid', 'wt')
-    f.write(str(config.pid))
-    f.flush()
-    f.close()
