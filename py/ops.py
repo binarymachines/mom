@@ -49,7 +49,7 @@ def ensure(esid, path, document_type):
 
 def write_paths(flushkeys=True):
 
-    print 'ensuring paths exist in MySQL...'
+    # print 'ensuring paths exist in MySQL...'
 
     search = 'ensure-*'
     esids = paths = []
@@ -236,7 +236,7 @@ def record_op_complete(asset, operator, operation):
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
 
-    days = -3
+    days = -14
     start = datetime.date.today() + datetime.timedelta(days)
 
     if operator is None:
