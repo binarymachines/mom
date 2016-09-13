@@ -33,7 +33,7 @@ class Scanner(MediaLibraryWalker):
         self.library = Library()
         self.reader = Reader()
         
-################################# MediaWalker Overrides #################################
+    # MediaLibraryWalker methods begin
 
     def after_handle_root(self, root):
         if config.scan:
@@ -83,6 +83,8 @@ class Scanner(MediaLibraryWalker):
 
     def handle_root_error(self, err):
         print ': '.join([err.__class__.__name__, err.message])
+
+    # MediaLibraryWalker methods end
 
     def process_file(self, filename, library, reader):
         for extension in self.active_param.extensions:

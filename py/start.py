@@ -9,21 +9,39 @@ def execute(options=None):
     if options == None: options = {}
     
     try:
+        config.start_time = datetime.datetime.now().isoformat()
         if os.path.isfile(os.path.join(os.getcwd(),config.filename)):
             parser = ConfigParser.ConfigParser()
             parser.read(config.filename)
 
-            # TODO: these constants should be assigned to parser and parser should be a constructor parameter for whatever needs parser
-
-            # Redis
-            config.redis_host = configure_section_map(parser, "Redis")['host']
-            config.redis = redis.Redis(config.redis_host)
+            # logging
+            config.logging = configure_section_map(parser, "Log")['logging'].lower() == 'true'
+            config.es_log = configure_section_map(parser, "Log")['es']
+            config.log = configure_section_map(parser, "Log")['log']
+            config.error_log = configure_section_map(parser, "Log")['error']
+            config.sql_log = configure_section_map(parser, "Log")['sql']
+            
+            if config.logging: start_logging()
 
             # TODO write pidfile_TIMESTAMP and pass filenames to command.py
             config.pid = os.getpid()
-            config.start_time = datetime.datetime.now().isoformat()
-            
-            util.write_pid_file()
+            write_pid_file()
+
+            # redis
+            config.redis_host = configure_section_map(parser, "Redis")['host']
+            config.redis = redis.Redis(config.redis_host)
+
+            # elasticsearch
+            config.es_host = configure_section_map(parser, "Elasticsearch")['host']
+            config.es_port = int(configure_section_map(parser, "Elasticsearch")['port'])
+            config.es_index = configure_section_map(parser, "Elasticsearch")['index']
+            config.es = esutil.connect(config.es_host, config.es_port)
+
+            # mysql
+            config.mysql_host = configure_section_map(parser, "MySQL")['host']
+            config.mysql_db = configure_section_map(parser, "MySQL")['schema']
+            config.mysql_user = configure_section_map(parser, "MySQL")['user']
+            config.mysql_pass = configure_section_map(parser, "MySQL")['pass']
 
             # debug
             config.check_for_bugs = configure_section_map(parser, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options 
@@ -37,27 +55,7 @@ def execute(options=None):
             
             # status
             config.check_freq = int(configure_section_map(parser, "Status")['check_frequency'])
-            
-            # logging
-            config.logging = configure_section_map(parser, "Log")['logging'].lower() == 'true'
-            config.es_log = configure_section_map(parser, "Log")['es_log']
-            config.log = configure_section_map(parser, "Log")['log']
-            
-            if config.logging: 
-                util.start_logging()
-                
-            # elasticsearch
-            config.es_host = configure_section_map(parser, "Elasticsearch")['host']
-            config.es_port = int(configure_section_map(parser, "Elasticsearch")['port'])
-            config.es_index = configure_section_map(parser, "Elasticsearch")['index']
-            config.es = esutil.connect(config.es_host, config.es_port)
-
-            # mysql
-            config.mysql_host = configure_section_map(parser, "MySQL")['host']
-            config.mysql_db = configure_section_map(parser, "MySQL")['schema']
-            config.mysql_user = configure_section_map(parser, "MySQL")['user']
-            config.mysql_pass = configure_section_map(parser, "MySQL")['pass']
-
+                            
             # action
             config.deep = configure_section_map(parser, "Action")['deep_scan'].lower() == 'true'
             if 'no_scan' not in options:
@@ -88,9 +86,6 @@ def execute(options=None):
 
             config.locations_ext =library.get_locations_ext()
             config.locations_ext.sort()
-
-            if config.logging:
-               util.start_logging()
 
             if 'clearmem' in options:        
                 if config.mfm_debug: print 'clearing data from previous run'
@@ -144,5 +139,48 @@ def make_options(args):
         
     return options
 
-# TODO: move this stuff to someplace more appropriate
+def start_logging():
+    LOG = "logs/%s" % (config.log)
+    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    # console handler
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    config.log = logging.getLogger(config.log).addHandler(console)
+
+    ES_LOG = "logs/%s" % (config.es_log)    
+    tracer = logging.getLogger('elasticsearch.trace')
+    tracer.setLevel(logging.INFO)
+    tracer.addHandler(logging.FileHandler(ES_LOG))
+    config.es_log = tracer
+
+    ERR_LOG = "logs/%s" % (config.error_log)    
+    errors = logging.getLogger(config.error_log)
+    errors.setLevel(logging.ERROR)
+    errors.addHandler(logging.FileHandler(ERR_LOG))
+    config.error_log = errors
+
+    SQL_LOG = "logs/%s" % (config.sql_log)    
+    sql_log = logging.getLogger(config.sql_log)
+    sql_log.setLevel(logging.INFO)
+    sql_log.addHandler(logging.FileHandler(SQL_LOG))
+    config.sql_log = sql_log
+
+    OPS_LOG = "logs/%s" % (config.ops_log)    
+    ops_log = logging.getLogger(config.ops_log)
+    ops_log.setLevel(logging.INFO)
+    ops_log.addHandler(logging.FileHandler(OPS_LOG))
+    config.ops_log = ops_log
+
+    CACHE_LOG = "logs/%s" % (config.cache_log)    
+    cache_log = logging.getLogger(config.cache_log)
+    cache_log.setLevel(logging.INFO)
+    cache_log.addHandler(logging.FileHandler(CACHE_LOG))
+    config.cache_log = cache_log
+
+def write_pid_file():
+    f = open('pid', 'wt')
+    f.write(str(config.pid))
+    f.flush()
+    f.close()
+
 

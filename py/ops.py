@@ -223,33 +223,14 @@ def retrieve_complete_ops(apply_lifespan, parentpath, operation, operator=None):
         start = datetime.date.today() + datetime.timedelta(days)
 
         if operator is None:
-            query = """SELECT DISTINCT target_path 
-                        FROM op_record 
-                        WHERE operation_name = "%s" AND start_time >= "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" 
-                        ORDER BY target_path""" % (operation, start, parentpath, '%')
+            query = """SELECT DISTINCT target_path FROM op_record WHERE operation_name = "%s" AND start_time >= "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" ORDER BY target_path""" % (operation, start, parentpath, '%')
         else:
-            query = """SELECT DISTINCT target_path 
-                        FROM op_record 
-                        WHERE operator_name = "%s" 
-                        AND operation_name = "%s" 
-                        AND end_time IS NOT NULL 
-                        AND start_time >= "%s"
-                        AND target_path LIKE "%s%s" 
-                        ORDER BY target_path""" % (operator, operation, start, parentpath, '%')
+            query = """SELECT DISTINCT target_path FROM op_record WHERE operator_name = "%s" AND operation_name = "%s" AND end_time IS NOT NULL AND start_time >= "%s" AND target_path LIKE "%s%s" ORDER BY target_path""" % (operator, operation, start, parentpath, '%')
     else:
         if operator is None:
-            query = """SELECT DISTINCT target_path 
-                        FROM op_record 
-                        WHERE operation_name = "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" 
-                        ORDER BY target_path""" % (operation, parentpath, '%')
+            query = """SELECT DISTINCT target_path FROM op_record WHERE operation_name = "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" ORDER BY target_path""" % (operation, parentpath, '%')
         else:
-            query = """SELECT DISTINCT target_path 
-                        FROM op_record 
-                        WHERE operator_name = "%s" 
-                        AND operation_name = "%s" 
-                        AND end_time IS NOT NULL 
-                        AND target_path LIKE "%s%s" 
-                        ORDER BY target_path""" % (operator, operation, parentpath, '%')
+            query = """SELECT DISTINCT target_path FROM op_record WHERE operator_name = "%s" AND operation_name = "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" ORDER BY target_path""" % (operator, operation, parentpath, '%')
         
     return sql.run_query(query.replace("'", "\'")) 
     

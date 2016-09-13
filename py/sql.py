@@ -21,8 +21,7 @@ def insert_values(table_name, field_names, field_values):
 
         query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
 
-        if config.mysql_debug:
-            print '\n\t' + query.replace(',', ',\n\t\t').replace(' values ', '\n\t   values\n\t\t').replace('(', ' (\n\t\t').replace(')', '\n\t\t)') + '\n'
+        config.sql_log.info(query)
 
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
@@ -31,10 +30,9 @@ def insert_values(table_name, field_names, field_values):
 
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        errors = logging.getLogger('errors.log')
-        # errors.
+        config.error_log.warning(message)
         print message
-        # traceback.print_exc(file=sys.stdout)
+        traceback.print_exc(file=sys.stdout)
         raise Exception(e.message)
 
     finally:
@@ -73,19 +71,14 @@ def retrieve_values(table_name, field_names, field_values, order_by=[]):
         # if order_by is not []:
         #     query += " ORDER BY " + str(order_by).replace('[', '').replace(']', '')
 
-        if config.mysql_debug:
-            print '\n\t' + query.replace('WHERE', '\n\t      WHERE').replace('AND', '\n\t\tAND').replace('FROM', '\n\t       FROM')
-
+        config.sql_log.info(query)
+        
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.mysql_debug:
-            if len(rows) > 0: print('\nreturning rows:\n')
-            for row in rows:
-                print row
-
+        if config.mysql_debug: print('returning %i rows.\n') % len(rows)
         return rows
     except mdb.Error, e:
 
@@ -119,18 +112,14 @@ def retrieve_like_values(table_name, field_names, field_values):
                 query += ' AND '
             else: break
 
-        if config.mysql_debug:
-            print '\n\t' + query.replace('WHERE', '\n\t      WHERE').replace('AND', '\n\t\tAND').replace('FROM', '\n\t       FROM')
-
+        config.sql_log.info(query)
+        
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.mysql_debug:
-            if len(rows) > 0: print('\nreturning rows:\n')
-            for row in rows:
-                print row
+        if config.mysql_debug: print('returning %i rows.\n') % len(rows)
 
         return rows
     except mdb.Error, e:
@@ -144,26 +133,23 @@ def retrieve_like_values(table_name, field_names, field_values):
 
 def run_query(query):
 
-    if config.mysql_debug: print query
     con = None
     rows = []
 
     try:
-
+        config.sql_log.info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.mysql_debug:
-            size = len(rows)
-            if size > 0: print('returning %i rows:\n') % size
-            # for row in rows:
-            #     print row
+        if config.mysql_debug: print('returning %i rows.\n') % len(rows)
 
     except mdb.Error, e:
 
         message = "Error %d: %s" % (e.args[0], e.args[1])
+        config.error_log.warn(message)
+        config.error_log.warn(query)
         if config.mysql_debug: print query
         raise Exception(message)
 
@@ -175,12 +161,12 @@ def run_query(query):
 
 def execute_query(query):
 
-    print query
+    config.sql_log.info(query)
+
     con = None
     rows = []
 
     try:
-
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
@@ -188,6 +174,8 @@ def execute_query(query):
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
+        config.error_log.warn(e.message)
+        config.error_log.warn(query)
         raise Exception(e.message)
 
     finally:
@@ -220,10 +208,8 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
             query += ' AND '
         else: break
 
-    if config.mysql_debug:
-        print '\n\t' + query.replace('WHERE', '\n\t WHERE').replace(', ', ',\n\t       ').replace('SET', '\n\t   SET').replace('AND', '\n\t   AND')
-
     try:
+        sql.info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
