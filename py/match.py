@@ -86,7 +86,7 @@ class ElasticSearchMatcher(MediaMatcher):
             self.match_fields = sql.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(self.comparison_fields) > 0 and self.query_type != None:
-            print '%s %s matcher configured.' % (self.name, self.query_type)
+            config.log.info('%s %s matcher configured.' % (self.name, self.query_type))
 
     def get_query(self, media):
 

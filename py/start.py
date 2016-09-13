@@ -11,6 +11,9 @@ def execute(options=None):
     try:
         config.start_time = datetime.datetime.now().isoformat()
         if os.path.isfile(os.path.join(os.getcwd(),config.filename)):
+        
+            print "\n\nloading configuration from %s...." % (config.filename)
+
             parser = ConfigParser.ConfigParser()
             parser.read(config.filename)
 
@@ -21,35 +24,48 @@ def execute(options=None):
             config.error_log = configure_section_map(parser, "Log")['error']
             config.sql_log = configure_section_map(parser, "Log")['sql']
             
-            if config.logging: start_logging()
+            if config.logging: 
+                start_logging()
+                print"""Logging started."""
+
 
             # TODO write pidfile_TIMESTAMP and pass filenames to command.py
             config.pid = os.getpid()
             write_pid_file()
+            print """Process ID: %i""" % config.pid
 
             # redis
             config.redis_host = configure_section_map(parser, "Redis")['host']
+            print"""Redis Host: %s""" % config.redis_host
             config.redis = redis.Redis(config.redis_host)
+            # print""""Redis Port: %s.""" % config.redis_host
 
             # elasticsearch
             config.es_host = configure_section_map(parser, "Elasticsearch")['host']
+            print"""Elasticsearch Host: %s""" % config.es_host
             config.es_port = int(configure_section_map(parser, "Elasticsearch")['port'])
+            print"""Elasticsearch Port: %i""" % config.es_port
             config.es_index = configure_section_map(parser, "Elasticsearch")['index']
+            print"""Elasticsearch Index: %s""" % config.es_index
             config.es = esutil.connect(config.es_host, config.es_port)
-
+        
             # mysql
             config.mysql_host = configure_section_map(parser, "MySQL")['host']
+            print"""MySQL Host: %s""" % config.mysql_host
             config.mysql_db = configure_section_map(parser, "MySQL")['schema']
+            print"""MySQL db: %s""" % config.mysql_db
             config.mysql_user = configure_section_map(parser, "MySQL")['user']
+            # print"""MySQL Host: %s.""" % config.mysql_host
             config.mysql_pass = configure_section_map(parser, "MySQL")['pass']
+            # print"""MySQL Host: %s.""" % config.mysql_host
 
             # debug
             config.check_for_bugs = configure_section_map(parser, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options 
-            config.mfm_debug = configure_section_map(parser, "Debug")['server'].lower() == 'true'
+            config.server_debug = configure_section_map(parser, "Debug")['server'].lower() == 'true'
             config.reader_debug = configure_section_map(parser, "Debug")['reader'].lower() == 'true'
             config.matcher_debug = configure_section_map(parser, "Debug")['matcher'].lower() == 'true'
             config.library_debug = configure_section_map(parser, "Debug")['folder'].lower() == 'true'
-            config.mysql_debug = configure_section_map(parser, "Debug")['mysql'].lower() == 'true' or 'debug_mysql' in options
+            config.sql_debug = configure_section_map(parser, "Debug")['mysql'].lower() == 'true' or 'debug_mysql' in options
             config.es_debug = configure_section_map(parser, "Debug")['esutil'].lower() == 'true'
             config.ops_debug = configure_section_map(parser, "Debug")['operations'].lower() == 'true'
             
@@ -88,7 +104,7 @@ def execute(options=None):
             config.locations_ext.sort()
 
             if 'clearmem' in options:        
-                if config.mfm_debug: print 'clearing data from previous run'
+                if config.server_debug: print 'clearing data from previous run'
                 for matcher in calc.get_matchers():
                     ops.write_ops_for_path('/', matcher.name, 'match')
                 ops.write_paths()  
@@ -96,14 +112,15 @@ def execute(options=None):
                 cache.clear_docs(config.MEDIA_FILE, '/') 
 
             if not 'noflush' in options:        
-                if config.mfm_debug: print 'flushing reddis cache...'
+                if config.server_debug: print 'flushing reddis cache...'
                 try:
                     config.redis.flushall()
                 except Exception, err:
                     print err.message
 
             ops.record_exec()
- 
+            config.launched = True
+
     except Exception, err:
         print err.message
         traceback.print_exc(file=sys.stdout)
@@ -145,7 +162,8 @@ def start_logging():
     # console handler
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
-    config.log = logging.getLogger(config.log).addHandler(console)
+    config.log = logging.getLogger(config.log)
+    config.log.addHandler(console)
 
     ES_LOG = "logs/%s" % (config.es_log)    
     tracer = logging.getLogger('elasticsearch.trace')

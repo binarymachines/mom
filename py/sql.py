@@ -78,7 +78,7 @@ def retrieve_values(table_name, field_names, field_values, order_by=[]):
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.mysql_debug: print('returning %i rows.\n') % len(rows)
+        if config.sql_debug: print('returning %i rows.\n') % len(rows)
         return rows
     except mdb.Error, e:
 
@@ -119,7 +119,7 @@ def retrieve_like_values(table_name, field_names, field_values):
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.mysql_debug: print('returning %i rows.\n') % len(rows)
+        if config.sql_debug: print('returning %i rows.\n') % len(rows)
 
         return rows
     except mdb.Error, e:
@@ -143,14 +143,14 @@ def run_query(query):
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.mysql_debug: print('returning %i rows.\n') % len(rows)
+        if config.sql_debug: print('returning %i rows.\n') % len(rows)
 
     except mdb.Error, e:
 
         message = "Error %d: %s" % (e.args[0], e.args[1])
         config.error_log.warn(message)
         config.error_log.warn(query)
-        if config.mysql_debug: print query
+        if config.sql_debug: print query
         raise Exception(message)
 
     finally:

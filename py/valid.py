@@ -15,8 +15,8 @@ def main():
             doc_type = f[1]
     
             try:
-                esid = ops.retrieve_esid(config.es_index, doc_type, filename)
-                config.mysql_debug = True
+                esid = cache.retrieve_esid(config.es_index, doc_type, filename)
+                config.sql_debug = True
                 if esid is not None:
                     print ','.join([esid, filename]) 
                 else:
@@ -30,7 +30,7 @@ def main():
             except Exception, error:
                 print error.message
             finally:
-                config.mysql_debug = False
+                config.sql_debug = False
 
 
 # main

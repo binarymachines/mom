@@ -5,6 +5,7 @@ import sys, os, traceback, ConfigParser, logging
 import redis
 
 filename = "config.ini"
+launched = False
 
 pid = None
 start_time = None
@@ -18,7 +19,7 @@ check_freq = None
 check_for_bugs = False
 
 genre_folders = locations = locations_ext = compilation = extended = ignore = incomplete = live = new = random = recent = unsorted = []
-mfm_debug = reader_debug = matcher_debug = library_debug = mysql_debug = es_debug = ops_debug = False
+server_debug = reader_debug = matcher_debug = library_debug = sql_debug = es_debug = ops_debug = False
 
 logging = True
 log =sql_log = error_log = es_log = ops_log = cache_log = None
