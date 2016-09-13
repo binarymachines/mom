@@ -108,7 +108,7 @@ def execute(options=None):
     except Exception, err:
         print err.message
         traceback.print_exc(file=sys.stdout)
-        print 'Invalid or missing configuration file, exiting...'
+        print 'Initialization failure'
         sys.exit(1)
 
 def configure_section_map(parser, section):
