@@ -141,7 +141,7 @@ def make_options(args):
 
 def start_logging():
     LOG = "logs/%s" % (config.log)
-    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG) #, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
     # console handler
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
