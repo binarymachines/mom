@@ -23,17 +23,18 @@ def start_logging():
 
     # console handler
     console = logging.StreamHandler()
-    console.setLevel(logging.ERROR)
+    console.setLevel(logging.INFO)
     logging.getLogger(config.log).addHandler(console)
 
+    ES_LOG = "logs/%s" % (config.es_log)    
     tracer = logging.getLogger('elasticsearch.trace')
     tracer.setLevel(logging.INFO)
-    tracer.addHandler(logging.FileHandler(config.es_log))
+    tracer.addHandler(logging.FileHandler(ES_LOG))
 
+    ERR_LOG = "logs/%s" % ('errors')    
     errors = logging.getLogger('errors.log')
-    errors.setLevel(logging.INFO)
-    errors.addHandler(logging.FileHandler('errors.log'))
-
+    errors.setLevel(logging.ERROR)
+    errors.addHandler(logging.FileHandler(ERR_LOG))
 
 def write_pid_file():
     f = open('pid', 'wt')
