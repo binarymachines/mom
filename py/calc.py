@@ -31,6 +31,7 @@ def calculate_matches(param):
 
     opcount = 0
     for location in param.locations:
+        print 'matching files in %s' % (location)
         ops.do_status_check()            
         if path_exists_in_data(location):
             try:
