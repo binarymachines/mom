@@ -39,8 +39,8 @@ class Scanner(MediaLibraryWalker):
         if config.scan:
             folder = self.library.folder
             if folder is not None and folder.absolute_path == root:
-                if folder is not None and not ops.operation_completed(folder, 'mp3 scanner', 'scan'):
-                    ops.record_op_complete(folder, 'mp3 scanner', 'scan')
+                if folder is not None and not ops.operation_completed(folder, 'ID3v2', 'scan'):
+                    ops.record_op_complete(folder, 'ID3v2', 'scan')
 
     def before_handle_root(self, root):
         if config.scan:
@@ -72,11 +72,11 @@ class Scanner(MediaLibraryWalker):
     def handle_root(self, root):
         if config.scan:
             folder = self.library.folder
-            if folder is not None and ops.operation_completed(folder, 'mp3 scanner', 'scan'):
+            if folder is not None and ops.operation_completed(folder, 'ID3v2', 'scan'):
                 print '%s has been scanned.' % (root)
             elif folder is not None:
                 if config.mfm_debug: print 'scanning folder: %s' % (root)
-                ops.record_op_begin(folder, 'mp3 scanner', 'scan')
+                ops.record_op_begin(folder, 'ID3v2', 'scan')
                 for filename in os.listdir(root):
                     self.process_file(os.path.join(root, filename), library, self.reader)
         # else: self.library.set_active(root)
@@ -99,7 +99,7 @@ class Scanner(MediaLibraryWalker):
         for location in param.locations:
             if os.path.isdir(location) and os.access(location, os.R_OK):
                 cache.cache_docs(config.MEDIA_FILE, location)
-                ops.cache_ops(location, 'scan', 'mp3 scanner')
+                ops.cache_ops(false, location, 'scan', 'ID3v2')
                 self.walk(location)
             elif config.mfm_debug:  print "%s isn't currently available." % (location)
 

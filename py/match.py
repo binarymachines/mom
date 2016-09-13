@@ -153,7 +153,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             if self.minimum_score is not None:
                 if match['_score'] < self.minimum_score:
-                    print 'skipping matched file %s' % (match['_source']['absolute_path'])
+                    if config.matcher_debug: print 'eliminating: \t%s' % (match['_source']['absolute_path'])
                     continue
 
             matched_fields = []
