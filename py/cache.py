@@ -27,8 +27,11 @@ def cache_esid_for_path(esid, path):
      
 def clear_docs(document_type, source_path):
     setname = get_setname(document_type)
-    config.redis.delete(setname)
-
+    try:
+        config.redis.delete(setname)
+    except Exception, err:
+        print err.message
+        
 def get_cached_esid(document_type, path):
     values = config.redis.hgetall(path)
     if 'esid' in values:
