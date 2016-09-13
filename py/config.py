@@ -4,10 +4,12 @@
 import sys, os, traceback, ConfigParser
 import redis
 
+filename = "config.ini"
+
 pid = None
 start_time = None
 path_cache_size = None
-match_op_lifespan = None
+op_lifespan = None
 es = None
 redis_host = None
 redis = redis.Redis('config.redis_host')

@@ -3,7 +3,7 @@
 import os, sys, traceback, time, datetime
 from elasticsearch import Elasticsearch
 import redis
-import cache, config, start, asset, sql 
+import cache, config, start, asset, sql, util 
 import MySQLdb as mdb
 from asset import AssetException
         
@@ -47,7 +47,6 @@ def ensure(esid, path, document_type):
 def write_paths(flushkeys=True):
 
     # print 'ensuring paths exist in MySQL...'
-
     search = 'ensure-*'
     esids = paths = []
     for key in config.redis.scan_iter(search):
@@ -61,7 +60,7 @@ def write_paths(flushkeys=True):
             
         # print values['absolute_path']
 
-        if len(esids) == config.path_cache_size:
+        if len(esids) >= config.path_cache_size:
             
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
@@ -69,27 +68,25 @@ def write_paths(flushkeys=True):
 
             clause = ', '.join([sql.quote_if_string(value['esid']) for value in paths])
             if clause != '':
-                q = """SELECT id FROM es_document WHERE id in (%s)""" % (clause) 
+                q = """SELECT id FROM es_document WHERE index_name ="%s" AND id in (%s)""" % (config.es_index, clause) 
                 rows = sql.run_query(q)
-                if len(rows) != config.path_cache_size:
+                if len(rows) != len(paths):
                     cached_paths = [row[0] for row in rows]
 
                     for path in paths:
                         if path['esid'] not in cached_paths:
                             if config.mysql_debug: print('Updating MySQL...')
                             try:
-                                insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
+                                util.insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
                             except Exception, e:
                                 print e.message
-                        elif flushkeys:
-                            try:
-                                config.redis.delete(path['esid'])
-                            except Exeption, err:
-                                print err.message                                        
-            
-def insert_esid(index, document_type, elasticsearch_id, absolute_path):
-    sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
-        [index, document_type, elasticsearch_id, absolute_path])
+        if flushkeys:
+            try:
+                config.redis.delete(key)
+            except Exeption, err:
+                print err.message                                        
+
+        print 'cache db size: %i' % (config.redis.dbsize())
 
 def retrieve_esid(index, document_type, absolute_path):
     values = config.redis.hgetall(absolute_path)
@@ -218,7 +215,7 @@ def record_op_complete(asset, operator, operation):
 
 def retrieve_complete_ops(parentpath, operation, operator=None):
 
-    days = 0 - config.match_op_lifespan
+    days = 0 - config.op_lifespan
     start = datetime.date.today() + datetime.timedelta(days)
 
     if operator is None:
@@ -276,6 +273,15 @@ def write_ops_for_path(path, operator, operation):
     except Exception, err:
         print err.message
 
+def handle_asset_exception(error, path):
+    if error.message.lower().startswith('multiple'):
+        for item in  error.data:
+            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+    # elif error.message.lower().startswith('unable'):
+    # elif error.message.lower().startswith('NO DOCUMENT'):
+    else:
+        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
+
 def main():
     start.execute()
 
@@ -299,15 +305,6 @@ def main():
     for key in config.redis.lrange(config.MEDIA_FILE, 0, -1):
         esid = config.redis.hgetall(key)['esid']
         print '\t'.join([esid, key])
-
-def handle_asset_exception(error, path):
-    if error.message.lower().startswith('multiple'):
-        for item in  error.data:
-            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-    # elif error.message.lower().startswith('unable'):
-    # elif error.message.lower().startswith('NO DOCUMENT'):
-    else:
-        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
 
 # main
 if __name__ == '__main__':

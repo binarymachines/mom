@@ -101,7 +101,7 @@ class Library:
                 # if config.library_debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
                 # update MySQL
-                ops.insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                util.insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
                 # alchemy.insert_asset(folder.esid, config.es_index, folder.document_type, folder.absolute_path)
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))

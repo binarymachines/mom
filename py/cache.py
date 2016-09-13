@@ -71,5 +71,3 @@ def clear_matches(matcher_name, esid):
     
     values = config.redis.smembers(key)
     config.redis.srem(esid, values) 
-
-# ops

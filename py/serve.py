@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 '''
-   Usage: serve.py [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs]
+   Usage: serve.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] 
 
    --path, -p                   The path to scan
 
@@ -19,10 +19,7 @@ class ServerProcess(object):
     def run(self, param):
         if config.scan:
             scanner = Scanner()
-            for location in param.locations:
-                if os.path.isdir(location) and os.access(location, os.R_OK):
-                    scanner.scan(location)
-                elif config.mfm_debug:  print "%s isn't currently available." % (location)
+            scanner.scan(param)
 
         if config.match:
             calc.calculate_matches(param)
@@ -67,6 +64,9 @@ def execute(path=None):
     server.run(param)
 
 def main(args):
+    
+    configfile = None if not args['--config'] else args['<filename>'] 
+    if configfile: config.filename = configfile
     start.execute(start.make_options(args))
 
     path = None if not args['--path'] else args['<path>']
