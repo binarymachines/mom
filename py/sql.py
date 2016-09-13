@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, datetime, traceback, config
+import os, sys, datetime, traceback, config, logging
 import MySQLdb as mdb
 
 def quote_if_string(value):
@@ -31,7 +31,10 @@ def insert_values(table_name, field_names, field_values):
 
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
+        errors = logging.getLogger('errors.log')
+        # errors.
         print message
+        # traceback.print_exc(file=sys.stdout)
         raise Exception(e.message)
 
     finally:
