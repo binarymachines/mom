@@ -166,6 +166,8 @@ def do_status_check(opcount=None):
 
     if check_for_stop_request():
         print 'stop requested, terminating...'
+        write_paths()
+        
         sys.exit(0)
 
     if config.check_for_bugs: raw_input('check for bugs')
