@@ -45,24 +45,21 @@ def ensure(esid, path, document_type):
         config.redis.hmset(key, values)
 
 def write_paths(flushkeys=True):
-
-    print 'ensuring paths exist in MySQL...'
-
+    
     search = 'ensure-*'
     esids = paths = []
     for key in config.redis.scan_iter(search):
         do_status_check()
         values = config.redis.hgetall(key)
-        # if config.mysql_debug: print("\nchecking for row for: "+ values['absolute_path'])
+        
         if 'absolute_path' in values:
             doc = config.redis.hgetall(values['absolute_path'])
             if not 'esid' in doc:
                 esids.append(values)
-            
-        # print values['absolute_path']
 
         if len(esids) >= config.path_cache_size:
             
+            print 'ensuring paths exist in MySQL...'
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
             esids = []
@@ -81,13 +78,13 @@ def write_paths(flushkeys=True):
                                 util.insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
                             except Exception, e:
                                 print e.message
-        if flushkeys:
-            try:
+        try:
+            if flushkeys:
                 config.redis.delete(key)
-            except Exception, err:
-                print err.message                                        
+        except Exception, err:
+            print err.message                                        
 
-    print 'cache db size: %i' % (config.redis.dbsize())
+        cache.display_status()
 
 def retrieve_esid(index, document_type, absolute_path):
     values = config.redis.hgetall(absolute_path)
@@ -139,12 +136,15 @@ def operation_in_cache(path, operation, operator=None):
     return False
 
 def clear_cache(path, use_wildcard=False):
-    if use_wildcard:
-        for key in config.redis.keys(path + '*'):
-            config.redis.delete(key)
-    else:
-        for key in config.redis.keys(path):
-            config.redis.delete(key)
+    try:
+        if use_wildcard:
+            for key in config.redis.keys(path + '*'):
+                    config.redis.delete(key)
+        else:
+            for key in config.redis.keys(path):
+                config.redis.delete(key)
+    except Exception, err:
+        print err.message
         
 def check_for_reconfig_request():
     key = '-'.join(['exec', 'record', str(config.pid)])
