@@ -84,7 +84,7 @@ def write_paths(flushkeys=True):
         except Exception, err:
             print err.message                                        
 
-        cache.display_status()
+    cache.display_status()
 
 def retrieve_esid(index, document_type, absolute_path):
     values = config.redis.hgetall(absolute_path)
