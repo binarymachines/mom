@@ -101,8 +101,11 @@ def execute(options=None):
 
             if not 'noflush' in options:        
                 if config.mfm_debug: print 'flushing reddis cache...'
-                config.redis.flushall()
-
+                try:
+                    config.redis.flushall()
+                except Exception, err:
+                    print err.message
+                    
             ops.record_exec()
  
     except Exception, err:
