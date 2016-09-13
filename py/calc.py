@@ -39,7 +39,7 @@ def calculate_matches(param):
                 
                 if config.matcher_debug: print 'caching match ops for %s...' % (location)
                 for matcher in matchers:
-                    ops.cache_ops(true, location, 'match', matcher.name)
+                    ops.cache_ops(True, location, 'match', matcher.name)
 
                 if config.matcher_debug: print 'caching matches for %s...' % (location)
                 cache.cache_matches(location)
