@@ -84,7 +84,7 @@ def write_paths(flushkeys=True):
         if flushkeys:
             try:
                 config.redis.delete(key)
-            except Exeption, err:
+            except Exception, err:
                 print err.message                                        
 
     print 'cache db size: %i' % (config.redis.dbsize())
