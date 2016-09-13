@@ -24,13 +24,15 @@ class Selector:
         self.modes = []
         self.rules = []
         self.complete = False
+        # self.switch_funcs = [for in
 
-    @property
     def active_mode(self):
         if self.active_mode == None:
             self.active_mode = self.start_mode
 
         return self.active_mode
+    
+    # def add_mode_switch_function(f):
 
     def get_rules(self, Mode):
         # print("get rules")

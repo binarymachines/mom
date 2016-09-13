@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, sys, traceback, time, datetime
+import os, sys, traceback, time, datetime, logging
 from elasticsearch import Elasticsearch
 import redis
 import cache, config, start, asset, sql, util 
@@ -19,7 +19,7 @@ from asset import AssetException
 
 # ESIDs
 # def cache_esids_for_path(document_type, path):
-#     rows = retrieve_esids(config.es_index, document_type, path)
+#     rows = retrieve_esids(document_type, path)
 #     for row in rows:
 #         key = '-'.join(['esid', 'path', row[1]])
 #         config.redis.set(key, row[0])
@@ -46,13 +46,13 @@ def ensure(esid, path, document_type):
 
 def write_paths(flushkeys=True):
     
-    print 'clearing cached paths...'
+    config.ops_log.info('clearing cached paths...')
     search = 'ensure-*'
-    esids = paths = []
+    keys = esids = paths = []
     for key in config.redis.scan_iter(search):
         do_status_check()
         values = config.redis.hgetall(key)
-        
+        keys.appen(key)
         if 'absolute_path' in values:
             doc = config.redis.hgetall(values['absolute_path'])
             if not 'esid' in doc:
@@ -73,43 +73,30 @@ def write_paths(flushkeys=True):
 
                     for path in paths:
                         if path['esid'] not in cached_paths:
-                            if config.mysql_debug: print('Updating MySQL...')
+                            # if config.sql_debug: print('Updating MySQL...')
                             try:
                                 util.insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
                             except Exception, e:
                                 print e.message
-        try:
-            if flushkeys:
+    
+    if flushkeys:
+        for key in keys:
+            try:
+                values = config.redis.hgetall(key)
                 config.redis.delete(key)
-        except Exception, err:
-            print err.message                                        
+                # config.redis.hdel(key, 'esid', 'absolute_value', '')
+            except Exception, err:
+                print err.message                                        
 
     cache.display_status()
-
-def retrieve_esid(index, document_type, absolute_path):
-    values = config.redis.hgetall(absolute_path)
-    if 'esid' in values:
-        return values['esid']
-    
-    rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [index, document_type, absolute_path])
-    # rows = sql.run_query("select index_name, doc_type, absolute_path")
-    if rows == None:
-        return []
-
-    if len(rows) > 1:
-        text = "Multiple Ids for '" + absolute_path + "' returned"
-        raise AssetException(text, rows)
-
-    if len(rows) == 1:
-        return rows[0][3]
 
 # Operations
 
 def cache_ops(apply_lifespan, path, operation, operator=None):
     if operator is not None:
-        print 'caching %s.%s operations for %s' % (operator, operation, path) 
+        config.ops_log.info('caching %s.%s operations for %s' % (operator, operation, path)) 
     else:
-        print 'caching %s operations for %s' % (operations, path)
+        config.ops_log.info('caching %s operations for %s' % (operations, path))
     rows = retrieve_complete_ops(apply_lifespan, path, operation, operator)
     for row in rows:
         try:
@@ -130,7 +117,7 @@ def operation_in_cache(path, operation, operator=None):
         key = '-'.join([path, operation, operator])
     
     values = config.redis.hgetall(key)
-    if not values == None and 'persisted' in values:
+    if not values != None and 'persisted' in values:
         return values['persisted'] == 'True'
     
     return False

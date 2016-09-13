@@ -46,13 +46,13 @@ class Scanner(MediaLibraryWalker):
         if config.scan:
             ops.do_status_check()
 
-            # if config.mfm_debug: print 'examining: %s' % (root)
+            # if config.server_debug: print 'examining: %s' % (root)
             
             self.library.folder = None
             
             if ops.operation_in_cache(root, 'scan'):
             # and not self.do_deep_scan: # and not root in config.locations_ext:
-                if config.mfm_debug: print 'scan operation record found for: %s' % (root)
+                if config.server_debug: print 'scan operation record found for: %s' % (root)
                 return
 
             try:
@@ -62,12 +62,12 @@ class Scanner(MediaLibraryWalker):
             except AssetException, err:
                 self.library.folder = None
                 print ': '.join([err.__class__.__name__, err.message])
-                if config.mfm_debug: traceback.print_exc(file=sys.stdout)
+                if config.server_debug: traceback.print_exc(file=sys.stdout)
                 ops.handle_asset_exception(err, root)
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
-                if config.mfm_debug: traceback.print_exc(file=sys.stdout)
+                if config.server_debug: traceback.print_exc(file=sys.stdout)
 
     def handle_root(self, root):
         if config.scan:
@@ -75,7 +75,7 @@ class Scanner(MediaLibraryWalker):
             if folder is not None and ops.operation_completed(folder, 'ID3v2', 'scan'):
                 print '%s has been scanned.' % (root)
             elif folder is not None:
-                if config.mfm_debug: print 'scanning folder: %s' % (root)
+                if config.server_debug: print 'scanning folder: %s' % (root)
                 ops.record_op_begin(folder, 'ID3v2', 'scan')
                 for filename in os.listdir(root):
                     self.process_file(os.path.join(root, filename), library, self.reader)
@@ -103,7 +103,7 @@ class Scanner(MediaLibraryWalker):
                 cache.cache_docs(config.MEDIA_FILE, location)
                 ops.cache_ops(False, location, 'scan', 'ID3v2')
                 self.walk(location)
-            elif config.mfm_debug:  print "%s isn't currently available." % (location)
+            elif config.server_debug:  print "%s isn't currently available." % (location)
 
         # cache.cache_docs(config.MEDIA_FILE, path)
         # cache.clear_docs(config.MEDIA_FILE, path)
@@ -112,9 +112,9 @@ class Scanner(MediaLibraryWalker):
     # TODO: move this to asset
     def get_media_object(self, absolute_path):
 
-        if config.mfm_debug: print "creating instance for %s." % (absolute_path)
+        if config.server_debug: print "creating instance for %s." % (absolute_path)
         if not os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK):
-            if config.mfm_debug: print "Either file is missing or is not readable"
+            if config.server_debug: print "Either file is missing or is not readable"
             return null
 
         media = MediaFile()
@@ -140,12 +140,12 @@ class Scanner(MediaLibraryWalker):
     def get_location(self, path):
         parent = os.path.abspath(os.path.join(path, os.pardir))
         if parent in self.location_cache:
-            # if config.mfm_debug: print "location for path %s found." % (path)
+            # if config.server_debug: print "location for path %s found." % (path)
             return self.location_cache[parent]
 
         self.location_cache = {}
 
-        if config.mfm_debug: print "determining location for %s." % (parent.split('/')[-1])
+        if config.server_debug: print "determining location for %s." % (parent.split('/')[-1])
     
         for location in config.locations:
             if location in path:

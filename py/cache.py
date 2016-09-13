@@ -37,6 +37,18 @@ def get_cached_esid(document_type, path):
     if 'esid' in values:
         return values['esid']
 
+
+def retrieve_esid(document_type, absolute_path):
+    values = config.redis.hgetall(absolute_path)
+    if 'esid' in values:
+        return values['esid']
+    
+    rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
+    # rows = sql.run_query("select index_name, doc_type, absolute_path")
+    if rows == None: return [] 
+    elif len(rows) == 1: return rows[0][3] 
+    else: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
+    
 def get_doc_keys(document_type):
     return config.redis.lrange(get_setname(document_type), 0, -1)
 

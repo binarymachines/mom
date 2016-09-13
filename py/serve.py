@@ -26,32 +26,30 @@ class ServerProcess(object):
 
 # NOTE: this should be pluggable
 def create_param(path):
-    print 'Setting up scan param...'
+    print 'Setting up param...'
     param = Param()
 
     param.extensions = ['mp3'] # util.get_active_media_formats()
     if path == None:
         for location in config.locations: 
             if location.endswith("albums") or location.endswith("compilations"):
-                for genre in config.genre_folders:
-                    param.locations.append(os.path.join(location, genre))
+                param.locations.append(os.path.join(location, genre) for genre in config.genre_folders)
             else:
                 param.locations.append(location)            
 
-        for location in config.locations_ext: 
+        for location in config.locations_ext:
             param.locations.append(location)            
-            
-        param.locations.append(config.NOSCAN)
-        # s.locations.append(config.EXPUNGED)
+        # param.locations.append(config.NOSCAN)
+        # param.locations.append(config.EXPUNGED)
         
-        # In mode 2, after running this mode to completion, query all locations that are not in op_records data
-        # for location in config.locations: 
-        #     param.locations.append(location)            
-    else:
+    else: 
         for directory in path:
             param.locations.append(directory)
-
+    
     param.locations.sort()
+
+    # In mode 2, after running this mode to completion, query all locations that are not in op_records data
+    # param.locations.append(location for location in config.locations)            
 
     return param
 
@@ -64,26 +62,29 @@ def execute(path=None):
     server.run(param)
 
 def main(args):
+    try:
+        configfile = None if not args['--config'] else args['<filename>'] 
+        if configfile: config.filename = configfile
+        start.execute(start.make_options(args))
+
+        path = [] if not args['--path'] else args['<path>']
+        pattern = None if not args['--pattern'] else args['<pattern>']
     
-    configfile = None if not args['--config'] else args['<filename>'] 
-    if configfile: config.filename = configfile
-    start.execute(start.make_options(args))
-
-    path = None if not args['--path'] else args['<path>']
-    pattern = None if not args['--pattern'] else args['<pattern>']
-   
-    if args['--pattern']:
-        path = []
-        for p in pattern:
-            q = """SELECT absolute_path FROM es_document WHERE absolute_path LIKE "%s%s%s" AND doc_type = "%s" ORDER BY absolute_path""" % \
-                ('%', p, '%', config.MEDIA_FOLDER)
-            
-            rows = sql.run_query(q)
-            for row in rows: 
-                path.append(row[0])
-
-    execute(path)
-
+        if args['--pattern']:
+            for p in pattern:
+                q = """SELECT absolute_path FROM es_document WHERE absolute_path LIKE "%s%s%s" AND doc_type = "%s" ORDER BY absolute_path""" % \
+                    ('%', p, '%', config.MEDIA_FOLDER)
+                for row in sql.run_query(q):
+                    path.append(row[0])
+        
+        if config.launched:
+            execute(path)
+        else: 
+            message = 'unable to initialize with current configuration in %s.' % config.filename
+            sys.exit(message)
+    except Exception, err:
+        sys.exit(err.message)
+        
 # main
 if __name__ == '__main__':
     args = docopt(__doc__)

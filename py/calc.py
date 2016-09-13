@@ -113,7 +113,7 @@ def get_matchers():
         matcher = ElasticSearchMatcher(r[1], config.MEDIA_FILE)
         matcher.query_type = r[2]
         matcher.minimum_score = r[3]
-        print 'matcher %s configured' % (r[1])
+        config.log.info('matcher %s configured' % (r[1]))
         matchers += [matcher]
 
     return matchers

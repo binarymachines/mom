@@ -37,7 +37,7 @@ class Library:
 
     def find_doc(self, folder):
         try:
-            if config.library_debug == True: print("searching for " + folder.absolute_path + '...')
+            if config.library_debug == True: config.log.info("searching for " + folder.absolute_path + '...')
             res = config.es.search(index=config.es_index, doc_type=self.document_type, body=
             {
                 "query": { "match" : { "absolute_path": folder.absolute_path }}
@@ -82,17 +82,17 @@ class Library:
             sys.exit(1)
 
     def sync_folder_state(self, folder):
-        if config.library_debug: print 'syncing metadata for %s' % folder.absolute_path
+        config.log.info('syncing metadata for %s' % folder.absolute_path)
         if esutil.doc_exists(folder, True):
             doc = self.find_doc(folder)
             if doc is not None:
-                if config.library_debug: print 'data retrieved from Elasticsearch'
+                config.log.info('data retrieved from Elasticsearch')
                 # folder.esid = doc['_id']
                 folder.latest_error = doc['_source']['latest_error']
                 folder.has_errors = doc['_source']['has_errors']
                 folder.latest_operation = doc['_source']['latest_operation']
         else:
-            if config.library_debug: print 'indexing %s' % folder.absolute_path
+            config.log.info('indexing %s' % folder.absolute_path)
             data = folder.get_dictionary()
             json_str = json.dumps(data)
 
@@ -115,7 +115,7 @@ class Library:
         if self.folder != None and self.folder.absolute_path == path: return False
 
         try:
-            if config.library_debug: print 'setting folder active: %s' % (path)
+            config.log.info('setting folder active: %s' % (path))
             self.folder = MediaFolder()
             self.folder.absolute_path = path
             self.sync_folder_state(self.folder)
@@ -131,7 +131,7 @@ class Library:
 
 def get_folder_constants(foldertype):
     # if debug: 
-    print "retrieving constants for %s folders." % (foldertype)
+    config.log.info("retrieving constants for %s folders." % (foldertype))
     result = []
     rows = sql.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
     for r in rows:

@@ -57,7 +57,7 @@ def find_docs_missing_field(index_name, document_type, field):
 def doc_exists(asset, attach_if_found):
     # look in local MySQL
     esid_in_mysql = False
-    esid = ops.retrieve_esid(config.es_index, asset.document_type, asset.absolute_path)
+    esid = cache.retrieve_esid(asset.document_type, asset.absolute_path)
     if esid is not None:
         esid_in_mysql = True
         if config.es_debug: print "found esid %s for '%s' in sql." % (esid, asset.short_name())
@@ -98,7 +98,7 @@ def doc_exists(asset, attach_if_found):
                     if config.es_debug: print 'esid inserted'
                 except Exception, err:
                     print ': '.join([err.__class__.__name__, err.message])
-                    if config.mysql_debug: traceback.print_exc(file=sys.stdout)
+                    if config.sql_debug: traceback.print_exc(file=sys.stdout)
 
             return True
 
@@ -131,7 +131,7 @@ def get_doc(asset):
 def get_doc_id(asset):
 
     # look for esid in local MySQL
-    esid = ops.retrieve_esid(config.es_index, asset.document_type, asset.absolute_path)
+    esid = cache.retrieve_esid(asset.document_type, asset.absolute_path)
     if esid is not None:
         if config.es_debug:
             print "esid found in MySQL"
@@ -158,7 +158,7 @@ def reset_all(es):
 
 def purge_problem_esids():
 
-    config.mysql_debug = False
+    config.sql_debug = False
     problems = sql.run_query(
         """select distinct pe.esid, pe.document_type, esd.absolute_path, pe.problem_description
              from problem_esid pe, es_document esd
@@ -191,7 +191,7 @@ def purge_problem_esids():
                     config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
                 except Exception, err:
                     print ': '.join([err.__class__.__name__, err.message])
-                    if config.mysql_debug: traceback.print_exc(file=sys.stdout)
+                    if config.sql_debug: traceback.print_exc(file=sys.stdout)
 
 # def transform_docs():
 #
