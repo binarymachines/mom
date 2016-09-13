@@ -105,7 +105,7 @@ def execute(options=None):
                     config.redis.flushall()
                 except Exception, err:
                     print err.message
-                    
+
             ops.record_exec()
  
     except Exception, err:

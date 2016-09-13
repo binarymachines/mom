@@ -5,8 +5,8 @@ TARGET_PATH = 0
 OPERATION = 1
 OPERATOR = 2
 
-def cache_ops(red, path, operation, operator=None):
-    rows = ops.retrieve_complete_ops(path, operation, operator)
+def cache_operations(red, path, operation, operator=None):
+    rows = ops.retrieve_complete_ops(false, path, operation, operator)
     for row in rows:
         if operator == None:
             key = '-'.join([row[TARGET_PATH], row[OPERATION], row[OPERATOR]])

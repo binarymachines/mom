@@ -105,12 +105,12 @@ def retrieve_esid(index, document_type, absolute_path):
 
 # Operations
 
-def cache_ops(path, operation, operator=None):
+def cache_ops(apply_lifespan, path, operation, operator=None):
     if operator is not None:
         print 'caching %s.%s operations for %s' % (operator, operation, path) 
     else:
         print 'caching %s operations for %s' % (operations, path)
-    rows = retrieve_complete_ops(path, operation, operator)
+    rows = retrieve_complete_ops(true, path, operation, operator)
     for row in rows:
         try:
             if operator == None:
@@ -214,26 +214,41 @@ def record_op_complete(asset, operator, operation):
     config.redis.hset(key, 'current_operation', None)
     config.redis.hset(key, 'operation_status', None)
 
-def retrieve_complete_ops(parentpath, operation, operator=None):
+def retrieve_complete_ops(apply_lifespan, parentpath, operation, operator=None):
 
-    days = 0 - config.op_lifespan
-    start = datetime.date.today() + datetime.timedelta(days)
+    if apply_lifespan:
+        days = 0 - config.op_lifespan
+        start = datetime.date.today() + datetime.timedelta(days)
 
-    if operator is None:
-        query = """SELECT DISTINCT target_path 
-                    FROM op_record 
-                    WHERE operation_name = "%s" AND start_time >= "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" 
-                    ORDER BY target_path""" % (operation, start, parentpath, '%')
+        if operator is None:
+            query = """SELECT DISTINCT target_path 
+                        FROM op_record 
+                        WHERE operation_name = "%s" AND start_time >= "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" 
+                        ORDER BY target_path""" % (operation, start, parentpath, '%')
+        else:
+            query = """SELECT DISTINCT target_path 
+                        FROM op_record 
+                        WHERE operator_name = "%s" 
+                        AND operation_name = "%s" 
+                        AND end_time IS NOT NULL 
+                        AND start_time >= "%s"
+                        AND target_path LIKE "%s%s" 
+                        ORDER BY target_path""" % (operator, operation, start, parentpath, '%')
     else:
-        query = """SELECT DISTINCT target_path 
-                    FROM op_record 
-                    WHERE operator_name = "%s" 
-                    AND operation_name = "%s" 
-                    AND end_time IS NOT NULL 
-                    AND start_time >= "%s"
-                    AND target_path LIKE "%s%s" 
-                    ORDER BY target_path""" % (operator, operation, start, parentpath, '%')
-
+        if operator is None:
+            query = """SELECT DISTINCT target_path 
+                        FROM op_record 
+                        WHERE operation_name = "%s" AND end_time IS NOT NULL AND target_path LIKE "%s%s" 
+                        ORDER BY target_path""" % (operation, parentpath, '%')
+        else:
+            query = """SELECT DISTINCT target_path 
+                        FROM op_record 
+                        WHERE operator_name = "%s" 
+                        AND operation_name = "%s" 
+                        AND end_time IS NOT NULL 
+                        AND target_path LIKE "%s%s" 
+                        ORDER BY target_path""" % (operator, operation, parentpath, '%')
+        
     return sql.run_query(query.replace("'", "\'")) 
     
 def write_ops_for_path(path, operator, operation):
