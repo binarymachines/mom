@@ -18,8 +18,9 @@ check_freq = None
 check_for_bugs = False
 
 genre_folders = locations = locations_ext = compilation = extended = ignore = incomplete = live = new = random = recent = unsorted = []
-mfm_debug = reader_debug = matcher_debug = library_debug = mysql_debug = es_debug = logging = False
+mfm_debug = reader_debug = matcher_debug = library_debug = mysql_debug = es_debug = ops_debug = False
 
+logging = False
 log = None
 
 es_log = es_host = None
