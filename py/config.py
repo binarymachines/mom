@@ -1,7 +1,7 @@
 
 #! /usr/bin/python
 
-import sys, os, traceback, ConfigParser
+import sys, os, traceback, ConfigParser, logging
 import redis
 
 filename = "config.ini"
@@ -20,8 +20,8 @@ check_for_bugs = False
 genre_folders = locations = locations_ext = compilation = extended = ignore = incomplete = live = new = random = recent = unsorted = []
 mfm_debug = reader_debug = matcher_debug = library_debug = mysql_debug = es_debug = ops_debug = False
 
-logging = False
-log = None
+logging = True
+log =sql_log = error_log = es_log = ops_log = cache_log = None
 
 es_log = es_host = None
 es_port = 9200
