@@ -94,7 +94,7 @@ def doc_exists(asset, attach_if_found):
                 # found, update local MySQL
                 if config.es_debug: print 'inserting esid into MySQL'
                 try:
-                    ops.insert_esid(config.es_index, asset.document_type, esid, asset.absolute_path)
+                    util.insert_esid(config.es_index, asset.document_type, esid, asset.absolute_path)
                     if config.es_debug: print 'esid inserted'
                 except Exception, err:
                     print ': '.join([err.__class__.__name__, err.message])
@@ -133,17 +133,17 @@ def get_doc_id(asset):
     # look for esid in local MySQL
     esid = ops.retrieve_esid(config.es_index, asset.document_type, asset.absolute_path)
     if esid is not None:
-        # if config.es_debug:
-        print "esid found in MySQL"
+        if config.es_debug:
+            print "esid found in MySQL"
         return esid
     # else
     doc = get_doc(asset)
     if doc is not None:
         esid = doc['_id']
         # found, update local MySQL
-        # if config.es_debug:
-        print "inserting esid into MySQL"
-        ops.insert_esid(config.es_index, asset.document_type, esid, asset.absolute_path)
+        if config.es_debug:
+            print "inserting esid into MySQL"
+        util.insert_esid(config.es_index, asset.document_type, esid, asset.absolute_path)
         return doc['_id']
 
 def reset_all(es):

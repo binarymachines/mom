@@ -1,9 +1,8 @@
 #! /usr/bin/python
 
-import os, sys, time, json, pprint
+import os, sys, time, json
 import config
 
-pp = pprint.PrettyPrinter(indent=4)
 
 # doc = "The doc_name property."
 # def fget(self):

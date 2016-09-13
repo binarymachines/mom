@@ -7,9 +7,9 @@
 
 '''
 
-import os, json, pprint, sys
+import os, json, pprint, sys, traceback
 
-import cache, config, start, ops, calc, sql, util, esutil
+import cache, config, start, ops, calc, sql, util, esutil, library
 
 from asset import AssetException, Asset, MediaFile, MediaFile
 from library import Library
@@ -39,8 +39,8 @@ class Scanner(MediaLibraryWalker):
         if config.scan:
             folder = self.library.folder
             if folder is not None and folder.absolute_path == root:
-                if folder is not None and not ops.operation_completed(folder, 'mp3 reader', 'scan'):
-                    ops.record_op_complete(folder, 'mp3 reader', 'scan')
+                if folder is not None and not ops.operation_completed(folder, 'mp3 scanner', 'scan'):
+                    ops.record_op_complete(folder, 'mp3 scanner', 'scan')
 
     def before_handle_root(self, root):
         if config.scan:
@@ -49,15 +49,14 @@ class Scanner(MediaLibraryWalker):
             # if config.mfm_debug: print 'examining: %s' % (root)
             
             self.library.folder = None
-            traceback.print_exc(file=sys.stdout)
             
-            if ops.operation_in_cache(root, 'scan', 'mp3 reader'):
+            if ops.operation_in_cache(root, 'scan'):
             # and not self.do_deep_scan: # and not root in config.locations_ext:
                 if config.mfm_debug: print 'scan operation record found for: %s' % (root)
                 return
 
             try:
-                if util.path_contains_media(root, self.active_param.extensions):
+                if library.path_contains_media(root, self.active_param.extensions):
                     self.library.set_active( root)
 
             except AssetException, err:
@@ -73,11 +72,11 @@ class Scanner(MediaLibraryWalker):
     def handle_root(self, root):
         if config.scan:
             folder = self.library.folder
-            if folder is not None and ops.operation_completed(folder, 'mp3 reader', 'scan'):
+            if folder is not None and ops.operation_completed(folder, 'mp3 scanner', 'scan'):
                 print '%s has been scanned.' % (root)
             elif folder is not None:
                 if config.mfm_debug: print 'scanning folder: %s' % (root)
-                ops.record_op_begin(folder, 'mp3 reader', 'scan')
+                ops.record_op_begin(folder, 'mp3 scanner', 'scan')
                 for filename in os.listdir(root):
                     self.process_file(os.path.join(root, filename), library, self.reader)
         # else: self.library.set_active(root)
@@ -93,12 +92,19 @@ class Scanner(MediaLibraryWalker):
                 if media is None or media.ignore(): continue
                 # scan tag info if this file hasn't been assigned an esid
                 if media.esid is None: 
-                    reader.scan_file(media, library)
+                    reader.read(media, library)
 
-    def scan(path):
-        cache.cache_docs(config.MEDIA_FILE, path)
-        walk(path)
-        cache.clear_docs(config.MEDIA_FILE, path)
+    def scan(self, param):
+        self.active_param = param
+        for location in param.locations:
+            if os.path.isdir(location) and os.access(location, os.R_OK):
+                cache.cache_docs(config.MEDIA_FILE, location)
+                ops.cache_ops(location, 'scan', 'mp3 scanner')
+                self.walk(location)
+            elif config.mfm_debug:  print "%s isn't currently available." % (location)
+
+        # cache.cache_docs(config.MEDIA_FILE, path)
+        # cache.clear_docs(config.MEDIA_FILE, path)
         print '\n-----scan complete-----\n'
 
     # TODO: move this to asset

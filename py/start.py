@@ -9,11 +9,9 @@ def execute(options=None):
     if options == None: options = {}
     
     try:
-        INI = 'config.ini'
-        
-        if os.path.isfile(os.path.join(os.getcwd(),INI)):
+        if os.path.isfile(os.path.join(os.getcwd(),config.filename)):
             parser = ConfigParser.ConfigParser()
-            parser.read(INI)
+            parser.read(config.filename)
 
             # TODO: these constants should be assigned to parser and parser should be a constructor parameter for whatever needs parser
 
@@ -68,7 +66,7 @@ def execute(options=None):
             
             # cache
             config.path_cache_size = int(configure_section_map(parser, "Cache")['path_cache_size'])            
-            config.match_op_lifespan = int(configure_section_map(parser, "Cache")['match_op_lifespan'])
+            config.op_lifespan = int(configure_section_map(parser, "Cache")['op_lifespan'])
             
             # folder constants
             config.compilation = library.get_folder_constants('compilation')

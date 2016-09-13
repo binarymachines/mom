@@ -4,7 +4,7 @@ import os, json, pprint, sys, random, logging, traceback, thread
 from mutagen.id3 import ID3, ID3NoHeaderError
 from elasticsearch import Elasticsearch
 from asset import MediaFile
-import config, sql, esutil, ops
+import cache, config, sql, esutil, ops
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -48,21 +48,30 @@ class Reader:
                 print ': '.join([err.__class__.__name__, err.message])
                 if self.debug: traceback.print_exc(file=sys.stdout)
 
-    def approves(filename):
-        return filename.lower().endswith(''.join(['.', extension])) \
+    def approves(self, filename):
+        return filename.lower().endswith(''.join(['.', 'mp3'])) \
                     and not filename.lower().startswith('incomplete~') \
                     and not filename.lower().startswith('~incomplete')
-    
-    def scan_file(self, media, library):
+        
+    def read(self, media, library):
 
-        folder =  library.folder
+        # folder =  library.folder
         data = media.get_dictionary()
 
         try:
             if media.esid is not None:
                 if self.debug: print "esid exists, skipping file: %s" % (media.short_name())
                 return media
+            
+            esid = config.redis.hgetall(media.absolute_path)
+            key = cache.get_setname(config.MEDIA_FILE)
+            esid = cache.get_cached_esid(config.MEDIA_FILE, media.absolute_path)
 
+            if esid is not None:
+                if self.debug: print "esid exists, skipping file: %s" % (media.short_name())
+                media.esid = esid
+                return media
+            
             if  media.esid == None and esutil.doc_exists(media, True):
                 if self.debug: print "document exists, skipping file: %s" % (media.short_name())
                 return media
@@ -71,7 +80,7 @@ class Reader:
 
             mutagen_mediafile = ID3(media.absolute_path)
             metadata = mutagen_mediafile.pprint() # gets all metadata
-            tags = [x.split('=',1) for x in metaasset.split('\n')] # substring[0:] is redundant
+            tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
             for tag in tags:
                 if tag[0] in config.FIELDS:
@@ -90,19 +99,19 @@ class Reader:
             data['scan_error'] = err.message
             data['has_error'] = True
             print ': '.join([err.__class__.__name__, err.message])
-            library.record_error(folder, "ID3NoHeaderError=" + err.message)
+            # library.record_error(folder, "ID3NoHeaderError=" + err.message)
             if self.debug: traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
-            library.record_error(folder, "UnicodeEncodeError=" + err.message)
+            # library.record_error(folder, "UnicodeEncodeError=" + err.message)
             return
 
         except UnicodeDecodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             if self.debug: traceback.print_exc(file=sys.stdout)
-            library.record_error(folder, "UnicodeDecodeError=" + err.message)
+            # library.record_error(folder, "UnicodeDecodeError=" + err.message)
             return
 
         if self.debug: "indexing file: %s" % (media.file_name)
@@ -113,6 +122,6 @@ class Reader:
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
             if self.debug: print "inserting NEW esid into MySQL"
-            ops.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
+            util.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))

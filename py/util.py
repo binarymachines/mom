@@ -11,7 +11,10 @@ from elasticsearch import Elasticsearch
 
 pp = pprint.PrettyPrinter(indent=2)
 
-# def expunge(path):
+           
+def insert_esid(index, document_type, elasticsearch_id, absolute_path):
+    sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
+        [index, document_type, elasticsearch_id, absolute_path])
 
 
 def start_logging():
@@ -21,7 +24,16 @@ def start_logging():
     # console handler
     console = logging.StreamHandler()
     console.setLevel(logging.ERROR)
-    logging.getLogger("").addHandler(console)
+    logging.getLogger(config.log).addHandler(console)
+
+    tracer = logging.getLogger('elasticsearch.trace')
+    tracer.setLevel(logging.INFO)
+    tracer.addHandler(logging.FileHandler(config.es_log))
+
+    errors = logging.getLogger('errors.log')
+    errors.setLevel(logging.INFO)
+    errors.addHandler(logging.FileHandler('errors.log'))
+
 
 def write_pid_file():
     f = open('pid', 'wt')
