@@ -46,7 +46,8 @@ def ensure(esid, path, document_type):
 
 def write_paths(flushkeys=True):
 
-    # print 'ensuring paths exist in MySQL...'
+    print 'ensuring paths exist in MySQL...'
+
     search = 'ensure-*'
     esids = paths = []
     for key in config.redis.scan_iter(search):
@@ -86,7 +87,7 @@ def write_paths(flushkeys=True):
             except Exeption, err:
                 print err.message                                        
 
-        print 'cache db size: %i' % (config.redis.dbsize())
+    print 'cache db size: %i' % (config.redis.dbsize())
 
 def retrieve_esid(index, document_type, absolute_path):
     values = config.redis.hgetall(absolute_path)
