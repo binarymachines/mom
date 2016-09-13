@@ -110,7 +110,7 @@ def cache_ops(apply_lifespan, path, operation, operator=None):
         print 'caching %s.%s operations for %s' % (operator, operation, path) 
     else:
         print 'caching %s operations for %s' % (operations, path)
-    rows = retrieve_complete_ops(true, path, operation, operator)
+    rows = retrieve_complete_ops(apply_lifespan, path, operation, operator)
     for row in rows:
         try:
             if operator == None:
