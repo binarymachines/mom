@@ -14,6 +14,7 @@ def quote_if_string(value):
 
 def insert_values(table_name, field_names, field_values):
 
+    query = ''
     con = None
     try:
 
@@ -30,8 +31,8 @@ def insert_values(table_name, field_names, field_values):
 
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        config.error_log.warning(message)
-        print message
+        config.error_log.warn(message)
+        config.error_log.warn(query)
         traceback.print_exc(file=sys.stdout)
         raise Exception(e.message)
 
@@ -43,6 +44,7 @@ def insert_values(table_name, field_names, field_values):
 def retrieve_values(table_name, field_names, field_values, order_by=[]):
 
     con = None
+    query = ''
 
     try:
 
@@ -78,11 +80,15 @@ def retrieve_values(table_name, field_names, field_values, order_by=[]):
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.sql_debug: print('returning %i rows.\n') % len(rows)
+        if rows is not None: 
+            config.sql_log.info('returning %i rows.' % len(rows))
+        
         return rows
     except mdb.Error, e:
 
         print "Error %d: %s" % (e.args[0], e.args[1])
+        config.error_log.warn(message)
+        config.error_log.warn(query)
         raise Exception(e.message)
 
     finally:
@@ -91,6 +97,7 @@ def retrieve_values(table_name, field_names, field_values, order_by=[]):
 
 def retrieve_like_values(table_name, field_names, field_values):
     con = None
+    query = ''
     try:
 
         query = 'SELECT '
@@ -119,12 +126,15 @@ def retrieve_like_values(table_name, field_names, field_values):
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.sql_debug: print('returning %i rows.\n') % len(rows)
+        if rows is not None: 
+            config.sql_log.info('returning %i rows.' % len(rows))
 
         return rows
     except mdb.Error, e:
 
-        print "Error %d: %s" % (e.args[0], e.args[1])
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        config.error_log.warn(message)
+        config.error_log.warn(query)
         raise Exception(e.message)
 
     finally:
@@ -143,14 +153,15 @@ def run_query(query):
         cur.execute(query)
         rows = cur.fetchall()
 
-        if config.sql_debug: print('returning %i rows.\n') % len(rows)
+        if rows is not None: 
+            config.sql_log.info('returning %i rows.' % len(rows))
 
     except mdb.Error, e:
 
         message = "Error %d: %s" % (e.args[0], e.args[1])
         config.error_log.warn(message)
         config.error_log.warn(query)
-        if config.sql_debug: print query
+
         raise Exception(message)
 
     finally:
@@ -173,8 +184,8 @@ def execute_query(query):
         con.commit()
     except mdb.Error, e:
 
-        print "Error %d: %s" % (e.args[0], e.args[1])
-        config.error_log.warn(e.message)
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        config.error_log.warn(message)
         config.error_log.warn(query)
         raise Exception(e.message)
 
@@ -217,7 +228,9 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
 
     except mdb.Error, e:
 
-        print "Error %d: %s" % (e.args[0], e.args[1])
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        config.error_log.warn(message)
+        config.error_log.warn(query)
         raise Exception(e.message)
 
     finally:

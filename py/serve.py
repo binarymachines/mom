@@ -29,7 +29,7 @@ def create_param(path):
     print 'Setting up param...'
     param = Param()
 
-    param.extensions = ['mp3'] # util.get_active_media_formats()
+    param.extensions = ['mp3'] # util.get_active_media_formats() - should be in config
     if path == None:
         for location in config.locations: 
             if location.endswith("albums") or location.endswith("compilations"):
@@ -79,6 +79,7 @@ def main(args):
                     path.append(row[0])
         
         if config.launched:
+            ops.record_exec()
             execute(path)
         else: 
             message = 'unable to initialize with current configuration in %s.' % config.filename

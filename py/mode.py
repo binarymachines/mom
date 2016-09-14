@@ -12,7 +12,7 @@ class Rule:
         self.start_mode = start_mode
         self.end_mode = end_mode
         self.condition = condition
-        # self.effect = effect
+        self.effect = effect
 
     def applies(self):
         return self.condition()
@@ -48,6 +48,9 @@ class Selector:
         for rule in rules:
             if rule.applies():
                 Mode = rule.end_mode
+                if rule.effect is not None:
+                    rule.effect()
+
                 if not Mode in results:
                     results.append(Mode)
 
