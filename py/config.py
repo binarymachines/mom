@@ -23,6 +23,7 @@ server_debug = reader_debug = matcher_debug = library_debug = sql_debug = es_deb
 
 logging = True
 log =sql_log = error_log = es_log = ops_log = cache_log = None
+logging_started = False
 
 es_host = es_index = None
 es_port = 9200
@@ -36,6 +37,7 @@ MEDIA_FOLDER = 'media_folder'
 EXPUNGED = "/media/removable/Audio/music [expunged]"
 NOSCAN = "/media/removable/Audio/music [noscan]"
 START_FOLDER = "/media/removable/Audio/music"
+
 CURATED = ['/albums', '/compilations', '/random', '/recently', '/live']
 FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON', 'TPUB', 'TRCK', 'MCID', 'TSSE', 'TLAN', 'TSO2', 'TSOP', 'TMED', 'UFID']
 SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']

@@ -4,6 +4,19 @@ import redis
 
 import cache, config, sql, esutil, calc, ops, util, library
 
+def configure_section_map(parser, section):
+    dict1 = {}
+    options = parser.options(section)
+    for option in options:
+        try:
+            dict1[option] = parser.get(section, option)
+            if dict1[option] == -1:
+                DebugPrint("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            dict1[option] = None
+    return dict1
+
 def execute(options=None):
     
     if options == None: options = {}
@@ -24,10 +37,7 @@ def execute(options=None):
             config.error_log = configure_section_map(parser, "Log")['error']
             config.sql_log = configure_section_map(parser, "Log")['sql']
             
-            if config.logging: 
-                start_logging()
-                print"""Logging started."""
-
+            if config.logging: start_logging()
 
             # TODO write pidfile_TIMESTAMP and pass filenames to command.py
             config.pid = os.getpid()
@@ -108,27 +118,13 @@ def execute(options=None):
                 except Exception, err:
                     print err.message
 
-            ops.record_exec()
             config.launched = True
             config.display_status()
     except Exception, err:
-        print err.message
+        config.error_log.warn(err.message)
         traceback.print_exc(file=sys.stdout)
         print 'Initialization failure'
         sys.exit(1)
-
-def configure_section_map(parser, section):
-    dict1 = {}
-    options = parser.options(section)
-    for option in options:
-        try:
-            dict1[option] = parser.get(section, option)
-            if dict1[option] == -1:
-                DebugPrint("skip: %s" % option)
-        except:
-            print("exception on %s!" % option)
-            dict1[option] = None
-    return dict1
 
 def make_options(args):
 
@@ -147,6 +143,8 @@ def make_options(args):
     return options
 
 def start_logging():
+    if config.logging_started == True: return
+
     LOG = "logs/%s" % (config.log)
     logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG) #, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
     # console handler
@@ -184,6 +182,10 @@ def start_logging():
     cache_log.setLevel(logging.INFO)
     cache_log.addHandler(logging.FileHandler(CACHE_LOG))
     config.cache_log = cache_log
+
+    config.logging_started = True
+    print"""Logging started."""
+
 
 def write_pid_file():
     f = open('pid', 'wt')

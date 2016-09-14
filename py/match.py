@@ -124,7 +124,7 @@ class ElasticSearchMatcher(MediaMatcher):
     def match(self, media):
         ops.record_op_begin(media, self.name, 'match')
 
-        print '%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path) 
+        config.log.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path)) 
         previous_matches = cache.get_matches(self.name, media.esid)
         
         query = self.get_query(media)
@@ -148,15 +148,8 @@ class ElasticSearchMatcher(MediaMatcher):
 
             if self.minimum_score is not None:
                 if match['_score'] < self.minimum_score:
-                    if config.matcher_debug: print 'eliminating: \t%s' % (match['_source']['absolute_path'])
+                    config.log.info('eliminating: \t%s' % (match['_source']['absolute_path']))
                     continue
-
-            calc.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
-            # try:
-            #     thread.start_new_thread( cache.ensure, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
-            # except Exception, err:
-            #     print err.message
-            #     traceback.print_exc(file=sys.stdout)
 
             matched_fields = []
             for field in self.comparison_fields:
@@ -165,11 +158,17 @@ class ElasticSearchMatcher(MediaMatcher):
 
             self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
-            
-            # cache_esid_for_path(match['_id'], match['_source']['absolute_path'])
 
-            ops.record_op_complete(media, self.name, 'match')
+            calc.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
+            # try:
+            #     thread.start_new_thread( cache.ensure, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
+            # except Exception, err:
+            #     print err.message
+            #     traceback.print_exc(file=sys.stdout)
+            
             if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
+
+        ops.record_op_complete(media, self.name, 'match')
 
 
 class FolderNameMatcher(MediaMatcher):
