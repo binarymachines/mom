@@ -64,7 +64,7 @@ class Reader:
                 return media
             
             esid = config.redis.hgetall(media.absolute_path)
-            key = cache.get_setname(config.MEDIA_FILE)
+            key = cache.get_doc_set_name(config.MEDIA_FILE)
             esid = cache.get_cached_esid(config.MEDIA_FILE, media.absolute_path)
 
             if esid is not None:
