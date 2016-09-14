@@ -5,8 +5,8 @@ import redis
 import config, sql
 from asset import AssetException
 
-def get_setname(document_type):
-    return '-'.join(['path', 'esid', document_type])
+def get_doc_set_name(document_type):
+    return '-'.join([document_type, 'index'])
     
 # es documents
 def cache_docs(document_type, source_path, clear_existing=True):
@@ -14,7 +14,7 @@ def cache_docs(document_type, source_path, clear_existing=True):
         clear_docs(document_type, '/')
     # if self.debug: print 'caching %s doc info for %s...' % (document_type, source_path)
     rows = retrieve_docs(document_type, source_path)
-    key = get_setname(document_type)
+    key = get_doc_set_name(document_type)
     for row in rows:
         path = row[0]
         esid = row[1]
@@ -26,10 +26,12 @@ def cache_esid_for_path(esid, path):
     values = { 'esid': esid }
     config.redis.hmset(path, values)
      
-def clear_docs(document_type, source_path):
-    setname = get_setname(document_type)
+def clear_docs(document_type, path):
+    setname = get_doc_set_name(document_type)
     try:
-        config.redis.delete(setname)
+        search = '-'.join([setname, path])
+        for key in config.redis.keys(search + '*'):
+            config.redis.delete(key)
     except Exception, err:
         print err.message
         
@@ -37,7 +39,6 @@ def get_cached_esid(document_type, path):
     values = config.redis.hgetall(path)
     if 'esid' in values:
         return values['esid']
-
 
 def retrieve_esid(document_type, absolute_path):
     values = config.redis.hgetall(absolute_path)
@@ -51,7 +52,7 @@ def retrieve_esid(document_type, absolute_path):
     else: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
     
 def get_doc_keys(document_type):
-    return config.redis.lrange(get_setname(document_type), 0, -1)
+    return config.redis.lrange(get_doc_set_name(document_type), 0, -1)
 
 def retrieve_docs(document_type, file_path):
 
@@ -87,12 +88,13 @@ def clear_matches(matcher_name, esid):
     
     values = config.redis.smembers(key)
     config.redis.srem(esid, values) 
+    config.redis.delete(key)
 
 # ensured paths
 
 def ensure(esid, path, document_type):
     
-    esidforpath = cache.get_cached_esid(document_type, path)
+    esidforpath = get_cached_esid(document_type, path)
     
     if esidforpath == None:
         key = '-'.join(['ensure', esid])

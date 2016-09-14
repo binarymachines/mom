@@ -33,7 +33,8 @@ def create_param(path):
     if path == None:
         for location in config.locations: 
             if location.endswith("albums") or location.endswith("compilations"):
-                param.locations.append(os.path.join(location, genre) for genre in config.genre_folders)
+                for genre in config.genre_folders:
+                    param.locations.append(os.path.join(location, genre))
             else:
                 param.locations.append(location)            
 
@@ -67,7 +68,7 @@ def main(args):
         if configfile: config.filename = configfile
         start.execute(start.make_options(args))
 
-        path = [] if not args['--path'] else args['<path>']
+        path = None if not args['--path'] else args['<path>']
         pattern = None if not args['--pattern'] else args['<pattern>']
     
         if args['--pattern']:

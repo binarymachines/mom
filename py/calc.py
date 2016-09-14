@@ -99,9 +99,8 @@ def calculate_matches(param):
             finally:
                 for matcher in matchers:
                     ops.write_ops_for_path(location, matcher.name, 'match')
-                cache.write_paths()
-                ops.clear_cache(location, True)
                 cache.clear_docs(config.MEDIA_FILE, location) 
+                cache.write_paths()
             
 
     print '\n-----match operations complete-----\n'
