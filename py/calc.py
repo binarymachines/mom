@@ -38,16 +38,16 @@ def calculate_matches(param):
                 location += '/'
                 cache.cache_docs(config.MEDIA_FILE, location)
                 
-                if config.matcher_debug: print 'caching match ops for %s...' % (location)
+                config.log.info('caching match ops for %s...' % (location))
                 for matcher in matchers:
                     ops.cache_ops(True, location, 'match', matcher.name)
 
-                if config.matcher_debug: print 'caching matches for %s...' % (location)
+                config.log.info('caching matches for %s...' % (location))
                 cache.cache_matches(location)
                 
                 for key in cache.get_doc_keys(config.MEDIA_FILE):
                     if not location in key and config.matcher_debug: 
-                        print 'match calculator skipping %s' % (key)
+                        config.log.info('match calculator skipping %s' % (key))
                     values = config.redis.hgetall(key)
                     if not 'esid' in values:
                         continue
@@ -62,18 +62,17 @@ def calculate_matches(param):
 
                     try:
                         if all_matchers_have_run(matchers, media):
-                            # if config.matcher_debug: print 'skipping all match operations on %s, %s' % (media.esid, media.absolute_path)
+                            config.log.info('skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
                             continue
 
                         if esutil.doc_exists(media, True):
                             for matcher in matchers:
                                 if not ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                                    if config.matcher_debug: print '\n%s seeking matches for %s' % (matcher.name, media.absolute_path)
+                                    config.log.info('\n%s seeking matches for %s' % (matcher.name, media.absolute_path))
                                     matcher.match(media)
-                                    # ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
+                                    ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
        
-                            
-                                elif config.matcher_debug: print 'skipping %s operation on %s' % (matcher.name, media.absolute_path)
+                                else: config.log.info('skipping %s operation on %s' % (matcher.name, media.absolute_path))
                     
                     except AssetException, err:
                         print ': '.join([err.__class__.__name__, err.message])

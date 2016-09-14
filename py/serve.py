@@ -11,26 +11,25 @@ import os, sys,logging, traceback, thread
 
 from docopt import docopt
 
-import cache, calc, config, start, ops, sql
+import cache, calc, config, start, ops, sql, scan
 
-from scan import Scanner, Param
+from scan import Param
 
 class ServerProcess(object):
     def run(self, param):
         if config.scan:
-            scanner = Scanner()
-            scanner.scan(param)
+            scan.scan(param)
 
         if config.match:
             calc.calculate_matches(param)
 
 # NOTE: this should be pluggable
-def create_param(path):
+def create_param(paths):
     print 'Setting up param...'
     param = Param()
 
     param.extensions = ['mp3'] # util.get_active_media_formats() - should be in config
-    if path == None:
+    if paths == None:
         for location in config.locations: 
             if location.endswith("albums") or location.endswith("compilations"):
                 for genre in config.genre_folders:
@@ -41,10 +40,9 @@ def create_param(path):
         for location in config.locations_ext:
             param.locations.append(location)            
         # param.locations.append(config.NOSCAN)
-        # param.locations.append(config.EXPUNGED)
-        
+        # param.locations.append(config.EXPUNGED)     
     else: 
-        for directory in path:
+        for directory in paths:
             param.locations.append(directory)
     
     param.locations.sort()
