@@ -175,7 +175,6 @@ def path_contains_media(path, extensions):
         raise Exception('Path does not exist: "' + path + '"')
 
     for f in os.listdir(path):
-        print f
         if os.path.isfile(os.path.join(path, f)):
             for ext in extensions:
                 if f.lower().endswith('.' + ext.lower()):
