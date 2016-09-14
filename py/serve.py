@@ -83,7 +83,8 @@ def main(args):
             message = 'unable to initialize with current configuration in %s.' % config.filename
             sys.exit(message)
     except Exception, err:
-        sys.exit(err.message)
+        print err.message
+        sys.exit()
         
 # main
 if __name__ == '__main__':

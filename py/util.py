@@ -8,15 +8,11 @@ import config
 import MySQLdb as mdb
 
 from elasticsearch import Elasticsearch
+from asset import AssetException
 
 pp = pprint.PrettyPrinter(indent=2)
 
-           
-def insert_esid(index, document_type, elasticsearch_id, absolute_path):
-    sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
-        [index, document_type, elasticsearch_id, absolute_path])
 
-# string utilities
 def str_clean4comp(input):
     alphanum = "1234567890abcdefghijklmnopqrstuvwxyz"
     output = ''

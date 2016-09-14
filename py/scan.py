@@ -50,7 +50,7 @@ class Scanner(MediaLibraryWalker):
             
             self.library.folder = None
             
-            if ops.operation_in_cache(root, 'scan'):
+            if ops.operation_in_cache(root, 'scan', 'ID3v2'):
             # and not self.do_deep_scan: # and not root in config.locations_ext:
                 if config.server_debug: print 'scan operation record found for: %s' % (root)
                 return
@@ -63,7 +63,7 @@ class Scanner(MediaLibraryWalker):
                 self.library.folder = None
                 print ': '.join([err.__class__.__name__, err.message])
                 if config.server_debug: traceback.print_exc(file=sys.stdout)
-                ops.handle_asset_exception(err, root)
+                library.handle_asset_exception(err, root)
 
             except Exception, err:
                 print ': '.join([err.__class__.__name__, err.message])
@@ -100,13 +100,13 @@ class Scanner(MediaLibraryWalker):
         self.active_param = param
         for location in param.locations:
             if os.path.isdir(location) and os.access(location, os.R_OK):
-                cache.cache_docs(config.MEDIA_FILE, location)
+                cache.cache_docs(config.MEDIA_FOLDER, location)
                 ops.cache_ops(False, location, 'scan', 'ID3v2')
                 self.walk(location)
+                cache.clear_docs(config.MEDIA_FOLDER, location)
             elif config.server_debug:  print "%s isn't currently available." % (location)
 
         # cache.cache_docs(config.MEDIA_FILE, path)
-        # cache.clear_docs(config.MEDIA_FILE, path)
         print '\n-----scan complete-----\n'
 
     # TODO: move this to asset

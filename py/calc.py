@@ -1,6 +1,6 @@
 import os, sys, traceback
 
-import cache, config, ops, sql, esutil
+import cache, config, ops, sql, esutil, library
 from match import ElasticSearchMatcher
 from read import Param
 from asset import Asset, MediaFile, MediaFolder, AssetException
@@ -79,7 +79,7 @@ def calculate_matches(param):
                         print ': '.join([err.__class__.__name__, err.message])
                         # if config.matcher_debug: 
                         traceback.print_exc(file=sys.stdout)
-                        ops.handle_asset_exception(err, media.absolute_path)
+                        library.handle_asset_exception(err, media.absolute_path)
                     
                     except UnicodeDecodeError, u:
                         # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
@@ -99,7 +99,7 @@ def calculate_matches(param):
             finally:
                 for matcher in matchers:
                     ops.write_ops_for_path(location, matcher.name, 'match')
-                ops.write_paths()
+                cache.write_paths()
                 ops.clear_cache(location, True)
                 cache.clear_docs(config.MEDIA_FILE, location) 
             
@@ -126,7 +126,7 @@ def record_match_ops_complete(matcher, media, path, ):
     except AssetException, err:
         print ': '.join([err.__class__.__name__, err.message])
         traceback.print_exc(file=sys.stdout)
-        ops.handle_asset_exception(err, path)
+        library.handle_asset_exception(err, path)
 
 
 def record_matches_as_ops():

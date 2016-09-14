@@ -3,12 +3,8 @@
 import os, json, pprint, sys, traceback, datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
-from asset import MediaFolder
-import sql, esutil
-import ops
-import config
-# import alchemy
-from asset import AssetException
+from asset import AssetException, Asset, MediaFile, MediaFolder
+import config, sql, esutil, ops
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -30,43 +26,10 @@ class Library:
         folder = MediaFolder()
         folder.absolute_path = path
 
-        doc = self.find_doc(folder)
+        doc = esutil.get_doc(folder)
         if doc is not None:
             latest_operation = doc['_source']['latest_operation']
             return latest_operation
-
-    def find_doc(self, folder):
-        try:
-            if config.library_debug == True: config.log.info("searching for " + folder.absolute_path + '...')
-            res = config.es.search(index=config.es_index, doc_type=self.document_type, body=
-            {
-                "query": { "match" : { "absolute_path": folder.absolute_path }}
-            })
-
-            # if res['_shards']['successful'] == 1:
-            # print("%d documents found" % res['hits']['total'])
-            for doc in res['hits']['hits']:
-                # print(doc)
-                if self.doc_refers_to(doc, folder):
-                    return doc
-
-            return None
-        except ConnectionError, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            # if config.library_debug:
-            traceback.print_exc(file=sys.stdout)
-            print '\nConnection lost, please verify network connectivity and restart.'
-            sys.exit(1)
-
-    def doc_refers_to(self, doc, folder):
-        # if config.library_debug == True: print("verifying doc for " + folder.absolute_path + '...')
-        try:
-            if repr(doc['_source']['absolute_path']) == repr(folder.absolute_path):
-                return True
-        except UnicodeDecodeError, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            # if config.library_debug:
-            traceback.print_exc(file=sys.stdout)
 
     def record_error(self, folder, error):
         try:
@@ -84,13 +47,17 @@ class Library:
     def sync_folder_state(self, folder):
         config.log.info('syncing metadata for %s' % folder.absolute_path)
         if esutil.doc_exists(folder, True):
-            doc = self.find_doc(folder)
-            if doc is not None:
-                config.log.info('data retrieved from Elasticsearch')
-                # folder.esid = doc['_id']
-                folder.latest_error = doc['_source']['latest_error']
-                folder.has_errors = doc['_source']['has_errors']
-                folder.latest_operation = doc['_source']['latest_operation']
+            try:
+                doc = esutil.get_doc(folder)
+                if doc is not None:
+                    config.log.info('data retrieved from Elasticsearch')
+                    # folder.esid = doc['_id']
+                    folder.latest_error = doc['_source']['latest_error']
+                    folder.has_errors = doc['_source']['has_errors']
+                    folder.latest_operation = doc['_source']['latest_operation']
+            except Exception, err:
+                print err.message
+                
         else:
             config.log.info('indexing %s' % folder.absolute_path)
             data = folder.get_dictionary()
@@ -128,6 +95,21 @@ class Library:
             sys.exit(1)
 
         return True
+
+def handle_asset_exception(error, path):
+    if error.message.lower().startswith('multiple'):
+        for item in  error.data:
+            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+    # elif error.message.lower().startswith('unable'):
+    # elif error.message.lower().startswith('NO DOCUMENT'):
+    else:
+        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
+        
+def insert_esid(index, document_type, elasticsearch_id, absolute_path):
+    sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
+        [index, document_type, elasticsearch_id, absolute_path])
+
+    # string utilities
 
 def get_folder_constants(foldertype):
     # if debug: 
@@ -193,6 +175,7 @@ def path_contains_media(path, extensions):
         raise Exception('Path does not exist: "' + path + '"')
 
     for f in os.listdir(path):
+        print f
         if os.path.isfile(os.path.join(path, f)):
             for ext in extensions:
                 if f.lower().endswith('.' + ext.lower()):

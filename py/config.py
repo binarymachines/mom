@@ -24,9 +24,8 @@ server_debug = reader_debug = matcher_debug = library_debug = sql_debug = es_deb
 logging = True
 log =sql_log = error_log = es_log = ops_log = cache_log = None
 
-es_log = es_host = None
+es_host = es_index = None
 es_port = 9200
-es_index = None
 
 mysql_host = mysql_db = mysql_user = mysql_pass = None
 scan = match = deep = no_scan = no_match = False
@@ -42,3 +41,15 @@ FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON'
 SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']
 VARIOUS = ['VARIOUS', 'VVAA', 'VA ', 'VA-', 'VA -', 'V.A.', 'VARIOS', 'VARIOUS ARTISTS', '(VA)', '[VA]', 'V-A', 'V:A', 'VA.', 'VA_']
 
+def display_status():
+    print """Process ID: %i""" % pid
+    print"""Redis Host: %s""" % redis_host
+    # print""""Redis Port: %s.""" % config.redis_host
+    print 'cache db size: %i' % (redis.dbsize())
+    print"""Elasticsearch Host: %s""" % es_host
+    print"""Elasticsearch Port: %i""" % es_port
+    print"""Elasticsearch Index: %s""" % es_index
+    print"""MySQL Host: %s""" % mysql_host
+    print"""MySQL db: %s""" % mysql_db
+    # print"""MySQL Host: %s.""" % mysql_host
+    # print"""MySQL Host: %s.""" % mysql_host

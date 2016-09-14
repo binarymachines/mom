@@ -32,32 +32,22 @@ def execute(options=None):
             # TODO write pidfile_TIMESTAMP and pass filenames to command.py
             config.pid = os.getpid()
             write_pid_file()
-            print """Process ID: %i""" % config.pid
 
             # redis
             config.redis_host = configure_section_map(parser, "Redis")['host']
-            print"""Redis Host: %s""" % config.redis_host
             config.redis = redis.Redis(config.redis_host)
-            # print""""Redis Port: %s.""" % config.redis_host
 
             # elasticsearch
             config.es_host = configure_section_map(parser, "Elasticsearch")['host']
-            print"""Elasticsearch Host: %s""" % config.es_host
             config.es_port = int(configure_section_map(parser, "Elasticsearch")['port'])
-            print"""Elasticsearch Port: %i""" % config.es_port
             config.es_index = configure_section_map(parser, "Elasticsearch")['index']
-            print"""Elasticsearch Index: %s""" % config.es_index
             config.es = esutil.connect(config.es_host, config.es_port)
         
             # mysql
             config.mysql_host = configure_section_map(parser, "MySQL")['host']
-            print"""MySQL Host: %s""" % config.mysql_host
             config.mysql_db = configure_section_map(parser, "MySQL")['schema']
-            print"""MySQL db: %s""" % config.mysql_db
             config.mysql_user = configure_section_map(parser, "MySQL")['user']
-            # print"""MySQL Host: %s.""" % config.mysql_host
             config.mysql_pass = configure_section_map(parser, "MySQL")['pass']
-            # print"""MySQL Host: %s.""" % config.mysql_host
 
             # debug
             config.check_for_bugs = configure_section_map(parser, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options 
@@ -107,8 +97,8 @@ def execute(options=None):
                 if config.server_debug: print 'clearing data from previous run'
                 for matcher in calc.get_matchers():
                     ops.write_ops_for_path('/', matcher.name, 'match')
-                ops.write_paths()  
-                ops.clear_cache('/', True)
+                cache.write_paths()  
+                # ops.clear_cache('/', True)
                 cache.clear_docs(config.MEDIA_FILE, '/') 
 
             if not 'noflush' in options:        
@@ -120,7 +110,7 @@ def execute(options=None):
 
             ops.record_exec()
             config.launched = True
-
+            config.display_status()
     except Exception, err:
         print err.message
         traceback.print_exc(file=sys.stdout)
