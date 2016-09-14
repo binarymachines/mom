@@ -103,6 +103,7 @@ class Scanner(MediaLibraryWalker):
                 cache.cache_docs(config.MEDIA_FOLDER, location)
                 ops.cache_ops(False, location, 'scan', 'ID3v2')
                 self.walk(location)
+                ops.write_ops_for_path(location, 'ID3v2', 'scan')
                 cache.clear_docs(config.MEDIA_FOLDER, location)
             elif config.server_debug:  print "%s isn't currently available." % (location)
 
@@ -158,3 +159,7 @@ class Scanner(MediaLibraryWalker):
                 return self.location_cache[parent]
 
         return None
+
+def scan(param):
+    scanner = Scanner()
+    scanner.scan(param)

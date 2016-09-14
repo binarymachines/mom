@@ -31,17 +31,20 @@ def execute(options=None):
             parser.read(config.filename)
 
             # logging
-            config.logging = configure_section_map(parser, "Log")['logging'].lower() == 'true'
-            config.es_log = configure_section_map(parser, "Log")['es']
-            config.log = configure_section_map(parser, "Log")['log']
-            config.error_log = configure_section_map(parser, "Log")['error']
-            config.sql_log = configure_section_map(parser, "Log")['sql']
+            if config.logging_started == False:
+    
+                config.logging = configure_section_map(parser, "Log")['logging'].lower() == 'true'
+                config.es_log = configure_section_map(parser, "Log")['es']
+                config.log = configure_section_map(parser, "Log")['log']
+                config.error_log = configure_section_map(parser, "Log")['error']
+                config.sql_log = configure_section_map(parser, "Log")['sql']
             
             if config.logging: start_logging()
 
             # TODO write pidfile_TIMESTAMP and pass filenames to command.py
-            config.pid = os.getpid()
-            write_pid_file()
+            if config.pid == None:
+                config.pid = os.getpid()
+                write_pid_file()
 
             # redis
             config.redis_host = configure_section_map(parser, "Redis")['host']
