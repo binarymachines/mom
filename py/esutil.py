@@ -2,7 +2,7 @@
 
 import os, sys, traceback, pprint
 from elasticsearch import Elasticsearch, NotFoundError
-import config, sql, ops
+import cache, config, sql, ops
 from asset import Asset, MediaFile, MediaFolder, AssetException
 
 pp = pprint.PrettyPrinter(indent=4)

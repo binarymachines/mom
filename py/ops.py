@@ -30,113 +30,17 @@ from asset import AssetException
 #     key = path + '*'
 #     values = config.redis.keys(key)
 #     return values
-    
-# MySQL
 
-#NOTE: The methods that follow are specific to this es application and should live elsewehere
-
-def ensure(esid, path, document_type):
-
-    esidforpath = cache.get_cached_esid(document_type, path)
-    
-    if esidforpath == None:
-        key = '-'.join(['ensure', esid])
-        values = { 'index_name': config.es_index, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
-        config.redis.hmset(key, values)
-
-def write_paths(flushkeys=True):
-    
-    config.ops_log.info('clearing cached paths...')
-    search = 'ensure-*'
-    keys = esids = paths = []
-    for key in config.redis.scan_iter(search):
-        do_status_check()
-        values = config.redis.hgetall(key)
-        keys.appen(key)
-        if 'absolute_path' in values:
-            doc = config.redis.hgetall(values['absolute_path'])
-            if not 'esid' in doc:
-                esids.append(values)
-
-        if len(esids) >= config.path_cache_size:
-            
-            paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
-                'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
-            esids = []
-
-            clause = ', '.join([sql.quote_if_string(value['esid']) for value in paths])
-            if clause != '':
-                q = """SELECT id FROM es_document WHERE index_name ="%s" AND id in (%s)""" % (config.es_index, clause) 
-                rows = sql.run_query(q)
-                if len(rows) != len(paths):
-                    cached_paths = [row[0] for row in rows]
-
-                    for path in paths:
-                        if path['esid'] not in cached_paths:
-                            # if config.sql_debug: print('Updating MySQL...')
-                            try:
-                                util.insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
-                            except Exception, e:
-                                print e.message
-    
-    if flushkeys:
-        for key in keys:
-            try:
-                values = config.redis.hgetall(key)
-                config.redis.delete(key)
-                # config.redis.hdel(key, 'esid', 'absolute_value', '')
-            except Exception, err:
-                print err.message                                        
-
-    cache.display_status()
-
-# Operations
-
-def cache_ops(apply_lifespan, path, operation, operator=None):
-    if operator is not None:
-        config.ops_log.info('caching %s.%s operations for %s' % (operator, operation, path)) 
-    else:
-        config.ops_log.info('caching %s operations for %s' % (operations, path))
-    rows = retrieve_complete_ops(apply_lifespan, path, operation, operator)
-    for row in rows:
-        try:
-            if operator == None:
-                key = '-'.join([row[0], operation])
-            else:
-                key = '-'.join([row[0], operation, operator])
-
-            values = { 'persisted': True }
-            config.redis.hmset(key, values)
-        except Exception, err:
-            print err.message
-
-def operation_in_cache(path, operation, operator=None):
-    if operator == None:
-        key = '-'.join([path, operation])
-    else:
-        key = '-'.join([path, operation, operator])
-    
-    values = config.redis.hgetall(key)
-    if not values != None and 'persisted' in values:
-        return values['persisted'] == 'True'
-    
-    return False
-
-def clear_cache(path, use_wildcard=False):
-    try:
-        if use_wildcard:
-            for key in config.redis.keys(path + '*'):
-                    config.redis.delete(key)
-        else:
-            for key in config.redis.keys(path):
-                config.redis.delete(key)
-    except Exception, err:
-        print err.message
-        
 def check_for_reconfig_request():
     key = '-'.join(['exec', 'record', str(config.pid)])
     values = config.redis.hgetall(key)
     return 'start_time' in values and values['start_time'] == config.start_time and values['reconfig_requested'] == 'True'
+
+def remove_reconfig_request():
+    key = '-'.join(['exec', 'record', str(config.pid)])
+
+    values = { 'reconfig_requested': False }
+    config.redis.hmset(key, values)
 
 def check_for_stop_request():
     key = '-'.join(['exec', 'record', str(config.pid)])
@@ -153,29 +57,64 @@ def do_status_check(opcount=None):
 
     if check_for_stop_request():
         print 'stop requested, terminating...'
-        write_paths()
-        
+        cache.write_paths()
         sys.exit(0)
 
     if config.check_for_bugs: raw_input('check for bugs')
+
+    config.display_status()
 
 def record_exec():
     key = '-'.join(['exec', 'record', str(config.pid)])   
     values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
     config.redis.hmset(key, values)
     
-def remove_reconfig_request():
-    key = '-'.join(['exec', 'record', str(config.pid)])
+# cache and database
 
-    values = { 'reconfig_requested': False }
-    config.redis.hmset(key, values)
+def cache_ops(apply_lifespan, path, operation, operator=None):
+    if operator is not None:
+        config.ops_log.info('caching %s.%s operations for %s' % (operator, operation, path)) 
+    else:
+        config.ops_log.info('caching %s operations for %s' % (operations, path))
+    rows = retrieve_complete_ops(apply_lifespan, path, operation, operator)
+    for row in rows:
+        try:
+            key = '-'.join([operation, row[0]]) if operator == None  else '-'.join([operator, operation, row[0]])
+            
+            # config.ops_log.info(key)                
+            values = { 'persisted': True }
+            config.redis.hmset(key, values)
+        except Exception, err:
+            print err.message
 
+def operation_in_cache(path, operation, operator=None):
+    key = '-'.join([operation, path]) if operator == None  else '-'.join([operator, operation, path])
+    
+    # config.ops_log.info('seeking key %s...' % key)                
+    values = config.redis.hgetall(key)
+    if 'persisted' in values:
+        return values['persisted'] == 'True'
+    
+    return False
+
+def clear_cache(path, use_wildcard=False):
+    try:
+        search = '-'.join([operation, path]) if operator == None  else '-'.join([operator, operation, path])
+        if use_wildcard:
+            for key in config.redis.keys(search + '*'):
+                    config.redis.delete(key)
+        else:
+            for key in config.redis.keys(search):
+                config.redis.delete(search)
+    except Exception, err:
+        print err.message
+        
 def operation_completed(asset, operator, operation):
     if config.ops_debug: print "checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
-    rows = sql.retrieve_values('op_record', ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
-        [str(config.pid), operator, operation, asset.esid])
+    rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
+        [operator, operation, asset.esid])
 
-    if len(rows) > 0 and rows[0][5] is not None:
+    if len(rows) > 0: # and rows[0][5] is not None:
         print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
         return True
 
@@ -184,7 +123,8 @@ def operation_completed(asset, operator, operation):
 def record_op_begin(asset, operator, operation):
     if config.ops_debug: print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
-    key = '-'.join([asset.absolute_path, operation, operator])
+    # key = '-'.join([asset.absolute_path, operation, operator])
+    key = '-'.join([operation, asset.absolute_path]) if operator == None  else '-'.join([operator, operation, asset.absolute_path])
     values = { 'persisted': False, 'pid': config.pid, 'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid, 
         'target_path': asset.absolute_path }
     config.redis.hmset(key, values)
@@ -196,7 +136,8 @@ def record_op_begin(asset, operator, operation):
 def record_op_complete(asset, operator, operation):
     if config.ops_debug: print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
-    key = '-'.join([asset.absolute_path, operation, operator])
+    # key = '-'.join([asset.absolute_path, operation, operator])
+    key = '-'.join([operation, asset.absolute_path]) if operator == None  else '-'.join([operator, operation, asset.absolute_path])
     config.redis.hset(key, 'end_time', datetime.datetime.now().isoformat())
 
     key = '-'.join(['exec', 'record', str(config.pid)])
@@ -229,17 +170,13 @@ def write_ops_for_path(path, operator, operation):
         table_name = 'op_record'
         field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
         
-        keys = config.redis.keys(path + '*')
+        search = '-'.join([operation, path]) if operator == None  else '-'.join([operator, operation, path])
+        keys = config.redis.keys(search + '*')
         for key in keys:
-            if not operator in key or not operation in key:
-                continue
-
             values = config.redis.hgetall(key)
-            if values == {}:
-                if config.ops_debug: print 'key %s has no values attached, deleting...' % (key)
-                continue
-                
-            if 'persisted' in values and values['persisted'] == 'True' or 'end_time' in values and values['end_time'] == 'None':
+            config.redis.delete(key)
+
+            if values == {} or 'persisted' in values and values['persisted'] == 'True' or 'end_time' in values and values['end_time'] == 'None':
                 continue
 
             values['operator_name'] = operator
@@ -250,7 +187,6 @@ def write_ops_for_path(path, operator, operation):
             
             try:
                 sql.insert_values('op_record', field_names, field_values)
-
             except Exception, error:
                 sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
                     [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
@@ -258,15 +194,6 @@ def write_ops_for_path(path, operator, operation):
         if config.ops_debug: print '%s.%s operations have been updated for %s in MySQL' % (operator, operation, path)
     except Exception, err:
         print err.message
-
-def handle_asset_exception(error, path):
-    if error.message.lower().startswith('multiple'):
-        for item in  error.data:
-            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-    # elif error.message.lower().startswith('unable'):
-    # elif error.message.lower().startswith('NO DOCUMENT'):
-    else:
-        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
 
 def main():
     start.execute()
