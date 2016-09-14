@@ -62,7 +62,7 @@ def do_status_check(opcount=None):
 
     if config.check_for_bugs: raw_input('check for bugs')
 
-    config.display_status()
+    # config.display_status()
 
 def record_exec():
     key = '-'.join(['exec', 'record', str(config.pid)])   
