@@ -144,17 +144,19 @@ class ElasticSearchMatcher(MediaMatcher):
 
             if match_parent == orig_parent: 
                 continue
-
-            try:
-                thread.start_new_thread( ops.ensure, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
-            except Exception, err:
-                print err.message
-                traceback.print_exc(file=sys.stdout)
+            
 
             if self.minimum_score is not None:
                 if match['_score'] < self.minimum_score:
                     if config.matcher_debug: print 'eliminating: \t%s' % (match['_source']['absolute_path'])
                     continue
+
+            calc.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
+            # try:
+            #     thread.start_new_thread( cache.ensure, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
+            # except Exception, err:
+            #     print err.message
+            #     traceback.print_exc(file=sys.stdout)
 
             matched_fields = []
             for field in self.comparison_fields:

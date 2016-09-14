@@ -8,23 +8,21 @@ class Mode:
 
 class Rule:
 
-    def __init__(self, start_mode, end_mode, method):
+    def __init__(self, start_mode, end_mode, condition, effect=None):
         self.start_mode = start_mode
         self.end_mode = end_mode
-        self.conditional_method = method
+        self.condition = condition
+        # self.effect = effect
 
     def applies(self):
-        return self.conditional_method()
+        return self.condition()
 
 class Selector:
     def __init__(self, name):
         self.name = name
-        self._active_mode = None
-        self.start_mode, self.end_mode = None, None
-        self.modes = []
-        self.rules = []
+        self._active_mode = self.start_mode = self.end_mode = None
+        self.modes = self.rules = []
         self.complete = False
-        # self.switch_funcs = [for in
 
     def active_mode(self):
         if self.active_mode == None:
@@ -32,8 +30,6 @@ class Selector:
 
         return self.active_mode
     
-    # def add_mode_switch_function(f):
-
     def get_rules(self, Mode):
         # print("get rules")
         results = []
