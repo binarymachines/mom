@@ -13,7 +13,8 @@ import cache, config, start, ops, calc, sql, util, esutil, library
 
 from asset import AssetException, Asset, MediaFile, MediaFile
 from library import Library
-from read import Param, Reader
+from direct import Directive
+from read import Reader
 from walk import MediaLibraryWalker
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -22,7 +23,7 @@ class Scanner(MediaLibraryWalker):
     def __init__(self):
         super(Scanner, self).__init__()
 
-        self.active_param = None
+        self.directive = None
         self.document_type = config.MEDIA_FILE
         
         self.do_cache_locations = True
@@ -56,7 +57,7 @@ class Scanner(MediaLibraryWalker):
                 return
 
             try:
-                if library.path_contains_media(root, self.active_param.extensions):
+                if library.path_contains_media(root, self.directive.extensions):
                     self.library.set_active( root)
 
             except AssetException, err:
@@ -87,7 +88,7 @@ class Scanner(MediaLibraryWalker):
     # MediaLibraryWalker methods end
 
     def process_file(self, filename, library, reader):
-        for extension in self.active_param.extensions:
+        for extension in self.directive.extensions:
             if reader.approves(filename):
                 media = self.get_media_object(filename)
                 # TODO: remove es and MySQL records for nonexistent files
@@ -96,9 +97,9 @@ class Scanner(MediaLibraryWalker):
                 if media.esid is None: 
                     reader.read(media, library)
 
-    def scan(self, param):
-        self.active_param = param
-        for location in param.locations:
+    def scan(self, directive):
+        self.directive = directive
+        for location in directive.locations:
             if os.path.isdir(location) and os.access(location, os.R_OK):
                 cache.cache_docs(config.MEDIA_FOLDER, location)
                 ops.cache_ops(False, location, 'scan', 'ID3v2')
@@ -160,6 +161,6 @@ class Scanner(MediaLibraryWalker):
 
         return None
 
-def scan(param):
+def scan(directive):
     scanner = Scanner()
-    scanner.scan(param)
+    scanner.scan(directive)

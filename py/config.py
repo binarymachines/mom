@@ -10,7 +10,7 @@ launched = False
 pid = None
 start_time = None
 path_cache_size = None
-op_lifespan = None
+op_life = None
 es = None
 redis_host = None
 redis = redis.Redis('config.redis_host')
@@ -22,7 +22,7 @@ genre_folders = locations = locations_ext = compilation = extended = ignore = in
 server_debug = reader_debug = matcher_debug = library_debug = sql_debug = es_debug = ops_debug = False
 
 logging = True
-log =sql_log = error_log = es_log = ops_log = cache_log = None
+log = sql_log = error_log = es_log = ops_log = cache_log = console_log = None
 logging_started = False
 
 es_host = es_index = None

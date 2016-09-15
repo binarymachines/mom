@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, json, pprint, sys, traceback, datetime
+import os, json, pprint, sys, traceback, datetime, logging
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
 from asset import AssetException, Asset, MediaFile, MediaFolder
@@ -8,18 +8,12 @@ import config, sql, esutil, ops
 
 pp = pprint.PrettyPrinter(indent=4)
 
+# this class can be collapsed away by storing the transients in redis
 class Library:
 
     def __init__(self):
         self.folder = None
         self.document_type = config.MEDIA_FOLDER
-
-
-    def folder_scanned(self, path):
-        pass
-
-    def has_errors(self, path):
-        return False
 
     def get_latest_operation(self, path):
 
@@ -45,12 +39,12 @@ class Library:
             sys.exit(1)
 
     def sync_folder_state(self, folder):
-        config.log.info('syncing metadata for %s' % folder.absolute_path)
+        logging.getLogger(config.log).info('syncing metadata for %s' % folder.absolute_path)
         if esutil.doc_exists(folder, True):
             try:
                 doc = esutil.get_doc(folder)
                 if doc is not None:
-                    config.log.info('data retrieved from Elasticsearch')
+                    logging.getLogger(config.log).info('data retrieved from Elasticsearch')
                     # folder.esid = doc['_id']
                     folder.latest_error = doc['_source']['latest_error']
                     folder.has_errors = doc['_source']['has_errors']
@@ -59,7 +53,7 @@ class Library:
                 print err.message
                 
         else:
-            config.log.info('indexing %s' % folder.absolute_path)
+            logging.getLogger(config.log).info('indexing %s' % folder.absolute_path)
             data = folder.get_dictionary()
             json_str = json.dumps(data)
 
@@ -82,7 +76,7 @@ class Library:
         if self.folder != None and self.folder.absolute_path == path: return False
 
         try:
-            config.log.info('setting folder active: %s' % (path))
+            logging.getLogger(config.log).info('setting folder active: %s' % (path))
             self.folder = MediaFolder()
             self.folder.absolute_path = path
             self.sync_folder_state(self.folder)
@@ -113,7 +107,7 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
 
 def get_folder_constants(foldertype):
     # if debug: 
-    config.log.info("retrieving constants for %s folders." % (foldertype))
+    logging.getLogger(config.log).info("retrieving constants for %s folders." % (foldertype))
     result = []
     rows = sql.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
     for r in rows:
@@ -136,7 +130,6 @@ def get_locations():
 
     return result
 
-
 def get_locations_ext():
     result  = []
     rows = sql.retrieve_values('media_location_extended_folder', ['path'], [])
@@ -156,7 +149,6 @@ def get_active_media_formats():
     rows = sql.retrieve_values('media_format', ['active_flag', 'ext'], ['1'])
     for r in rows: results.append(r[1])
     return results
-
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_contains_album_folders(path):
@@ -216,7 +208,6 @@ def path_in_album_folder(path):
         raise Exception('Path does not exist: "' + path + '"')
 
     raise Exception('not implemented!')
-
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_in_genre_folder(path):

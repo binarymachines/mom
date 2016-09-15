@@ -86,7 +86,7 @@ class ElasticSearchMatcher(MediaMatcher):
             self.match_fields = sql.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(self.comparison_fields) > 0 and self.query_type != None:
-            config.log.info('%s %s matcher configured.' % (self.name, self.query_type))
+            logging.getLogger(config.log).info('%s %s matcher configured.' % (self.name, self.query_type))
 
     def get_query(self, media):
 
@@ -124,7 +124,7 @@ class ElasticSearchMatcher(MediaMatcher):
     def match(self, media):
         ops.record_op_begin(media, self.name, 'match')
 
-        config.log.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path)) 
+        logging.getLogger(config.log).info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path)) 
         previous_matches = cache.get_matches(self.name, media.esid)
         
         query = self.get_query(media)
@@ -148,7 +148,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             if self.minimum_score is not None:
                 if match['_score'] < self.minimum_score:
-                    config.log.info('eliminating: \t%s' % (match['_source']['absolute_path']))
+                    logging.getLogger(config.log).info('eliminating: \t%s' % (match['_source']['absolute_path']))
                     continue
 
             matched_fields = []

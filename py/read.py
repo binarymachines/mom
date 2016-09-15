@@ -8,11 +8,6 @@ import cache, config, sql, esutil, ops
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class Param:
-    def __init__(self):
-        self.locations = []
-        self.extensions = []
-
 class Reader:
     def __init__(self):
         self.debug = config.reader_debug

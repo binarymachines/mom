@@ -2,7 +2,7 @@ import os, sys, traceback
 
 import cache, config, ops, sql, esutil, library
 from match import ElasticSearchMatcher
-from read import Param
+from direct import Directive
 from asset import Asset, MediaFile, MediaFolder, AssetException
 import redis
 
@@ -25,12 +25,12 @@ def path_exists_in_data(path):
     if len(rows) == 1:
         return True
 
-def calculate_matches(param):
+def calculate_matches(directive):
 
     matchers = get_matchers()
 
     opcount = 0
-    for location in param.locations:
+    for location in directive.locations:
         print 'matching files in %s' % (location)
         ops.do_status_check()            
         if path_exists_in_data(location):
@@ -38,16 +38,16 @@ def calculate_matches(param):
                 location += '/'
                 cache.cache_docs(config.MEDIA_FILE, location)
                 
-                config.log.info('caching match ops for %s...' % (location))
+                logging.getLogger(config.log).info('caching match ops for %s...' % (location))
                 for matcher in matchers:
                     ops.cache_ops(True, location, 'match', matcher.name)
 
-                config.log.info('caching matches for %s...' % (location))
+                logging.getLogger(config.log).info('caching matches for %s...' % (location))
                 cache.cache_matches(location)
                 
                 for key in cache.get_doc_keys(config.MEDIA_FILE):
                     if not location in key and config.matcher_debug: 
-                        config.log.info('match calculator skipping %s' % (key))
+                        logging.getLogger(config.log).info('match calculator skipping %s' % (key))
                     values = config.redis.hgetall(key)
                     if not 'esid' in values:
                         continue
@@ -62,17 +62,17 @@ def calculate_matches(param):
 
                     try:
                         if all_matchers_have_run(matchers, media):
-                            config.log.info('skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
+                            logging.getLogger(config.log).info('skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
                             continue
 
                         if esutil.doc_exists(media, True):
                             for matcher in matchers:
                                 if not ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                                    config.log.info('\n%s seeking matches for %s' % (matcher.name, media.absolute_path))
+                                    logging.getLogger(config.log).info('\n%s seeking matches for %s' % (matcher.name, media.absolute_path))
                                     matcher.match(media)
                                     ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
        
-                                else: config.log.info('skipping %s operation on %s' % (matcher.name, media.absolute_path))
+                                else: logging.getLogger(config.log).info('skipping %s operation on %s' % (matcher.name, media.absolute_path))
                     
                     except AssetException, err:
                         print ': '.join([err.__class__.__name__, err.message])
@@ -111,7 +111,7 @@ def get_matchers():
         matcher = ElasticSearchMatcher(r[1], config.MEDIA_FILE)
         matcher.query_type = r[2]
         matcher.minimum_score = r[3]
-        config.log.info('matcher %s configured' % (r[1]))
+        logging.getLogger(config.log).info('matcher %s configured' % (r[1]))
         matchers += [matcher]
 
     return matchers
