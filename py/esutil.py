@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, sys, traceback, pprint
+import os, sys, traceback, pprint, logging
 from elasticsearch import Elasticsearch, NotFoundError
 import cache, config, sql, ops
 from asset import Asset, MediaFile, MediaFolder, AssetException
@@ -36,7 +36,7 @@ def connect(hostname, portnum):
     es = Elasticsearch([{'host': hostname, 'port': portnum}])
 
     if es == None: raise Exception("Unable to establish connnection to Elasticsearch")
-    print('Connected to %s on port %i.') % (hostname, portnum)
+    print('Connecting to Elasticsearch at %s on port %i...') % (hostname, portnum)
     return es
 
 def delete_docs_for_path( indexname, doctype, path):

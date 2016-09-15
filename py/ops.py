@@ -4,7 +4,7 @@ import os, sys, traceback, time, datetime, logging
 from elasticsearch import Elasticsearch
 import redis
 import cache, config, start, asset, sql, util 
-import MySQLdb as mdb
+
 from asset import AssetException
         
 
@@ -46,7 +46,28 @@ def check_for_stop_request():
     key = '-'.join(['exec', 'record', str(config.pid)])
     values = config.redis.hgetall(key)
     return 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True'
-        
+
+def flush_all(flushcache=True):
+    if flushcache: flush_cache()
+    try:
+        logging.getLogger(config.ops_log).info('flushing redis database')
+        config.redis.flushall()
+    except Exception, err:
+        logging.getLogger(config.ops_log).warn(err.message)            
+
+def flush_cache():
+    logging.getLogger(config.ops_log).info('flushing cache')
+    try:
+        write_ops_for_path('/', 'ID3v2', 'scan')
+        write_ops_for_path('/', None, 'match')
+        # for matcher in calc.get_matchers():
+        #     ops.write_ops_for_path('/', matcher.name, 'match')
+        cache.write_paths()  
+        # ops.clear_cache('/', True)
+        cache.clear_docs(config.MEDIA_FILE, '/') 
+    except Exception, err:
+        logging.getLogger(config.ops_log).warn(err.message)            
+
 def do_status_check(opcount=None):
     
     if opcount is not None and opcount % config.check_freq != 0: return
@@ -73,15 +94,15 @@ def record_exec():
 
 def cache_ops(apply_lifespan, path, operation, operator=None):
     if operator is not None:
-        config.ops_log.info('caching %s.%s operations for %s' % (operator, operation, path)) 
+        logging.getLogger(config.ops_log).info('caching %s.%s operations for %s' % (operator, operation, path)) 
     else:
-        config.ops_log.info('caching %s operations for %s' % (operations, path))
+        logging.getLogger(config.ops_log).info('caching %s operations for %s' % (operations, path))
     rows = retrieve_complete_ops(apply_lifespan, path, operation, operator)
     for row in rows:
         try:
             key = '-'.join([operation, row[0]]) if operator == None  else '-'.join([operator, operation, row[0]])
             
-            # config.ops_log.info(key)                
+            # logging.getLogger(config.ops_log).info(key)                
             values = { 'persisted': True }
             config.redis.hmset(key, values)
         except Exception, err:
@@ -90,7 +111,7 @@ def cache_ops(apply_lifespan, path, operation, operator=None):
 def operation_in_cache(path, operation, operator=None):
     key = '-'.join([operation, path]) if operator == None  else '-'.join([operator, operation, path])
     
-    # config.ops_log.info('seeking key %s...' % key)                
+    # logging.getLogger(config.ops_log).info('seeking key %s...' % key)                
     values = config.redis.hgetall(key)
     if 'persisted' in values:
         return values['persisted'] == 'True'
@@ -147,7 +168,7 @@ def record_op_complete(asset, operator, operation):
 def retrieve_complete_ops(apply_lifespan, parentpath, operation, operator=None):
 
     if apply_lifespan:
-        days = 0 - config.op_lifespan
+        days = 0 - config.op_life
         start = datetime.date.today() + datetime.timedelta(days)
 
         if operator is None:
@@ -191,9 +212,9 @@ def write_ops_for_path(path, operator, operation):
                 sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], 
                     [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
 
-        if config.ops_debug: print '%s.%s operations have been updated for %s in MySQL' % (operator, operation, path)
+        logging.getLogger(config.ops_log).info('%s.%s operations have been updated for %s in MySQL' % (operator, operation, path))
     except Exception, err:
-        print err.message
+        logging.getLogger(config.error_log).warn(err.message)
 
 def main():
     start.execute()

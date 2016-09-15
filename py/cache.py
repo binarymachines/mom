@@ -1,4 +1,4 @@
-import os, sys, traceback, datetime
+import os, sys, traceback, datetime, logging
 
 import redis
 
@@ -103,7 +103,7 @@ def ensure(esid, path, document_type):
 
 def write_paths(flushkeys=True):
     
-    config.ops_log.info('clearing cached paths...')
+    logging.getLogger(config.ops_log).info('clearing cached paths...')
     search = 'ensure-*'
     keys = esids = paths = []
     for key in config.redis.scan_iter(search):
@@ -143,8 +143,6 @@ def write_paths(flushkeys=True):
                 config.redis.delete(key)
                 # config.redis.hdel(key, 'esid', 'absolute_value', '')
             except Exception, err:
-                print err.message                                        
-
-    config.display_status()
+                print err.message
 
 
