@@ -1,7 +1,7 @@
 #! /usr/bin/python
 
 '''
-   Usage: filter.py (--path <pattern>) [--exclude-ignore] [--subl] [--debug] [--debug-mysql]
+   Usage: report.py (--path <pattern>) [--exclude-ignore] [--subl] [--debug] [--debug-mysql]
 
    --path, -p               The source path for match results
    --subl, -sublime         Show results in Sublime

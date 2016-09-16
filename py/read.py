@@ -1,10 +1,10 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, random, logging, traceback, thread
+import os, json, pprint, sys, logging, traceback, thread
 from mutagen.id3 import ID3, ID3NoHeaderError
 from elasticsearch import Elasticsearch
-from asset import MediaFile
-import cache, config, sql, esutil, ops
+from assets import MediaFile
+import cache, config, sql, esutil, ops, alchemy
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -13,35 +13,6 @@ class Reader:
         self.debug = config.reader_debug
         self.document_type = config.MEDIA_FILE
 
-    # TODO: figure out why this fails
-    def add_artist_and_album_to_db(self, data):
-
-        if 'TPE1' in data and 'TALB' in data:
-            try:
-                artist = data['TPE1'].lower()
-                rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
-                if len(rows) == 0:
-                    try:
-                        print 'adding %s to MySQL...' % (artist)
-                        thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
-                    except Exception, err:
-                        print ': '.join([err.__class__.__name__, err.message])
-                        if self.debug: traceback.print_exc(file=sys.stdout)
-
-                # sql.insert_values('artist', ['name'], [artist])
-                #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
-                #
-                # artistid = rows[0][1]
-                #
-                # if 'TALB' in data:
-                #     album = data['TALB'].lower()
-                #     rows2 = sql.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
-                #     if len(rows2) == 0:
-                #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
-
-            except Exception, err:
-                print ': '.join([err.__class__.__name__, err.message])
-                if self.debug: traceback.print_exc(file=sys.stdout)
 
     def approves(self, filename):
         return filename.lower().endswith(''.join(['.', 'mp3'])) \
@@ -88,7 +59,7 @@ class Reader:
                             data[key] = subtags[1]
 
             # NOTE: do this somewhere else
-            # self.add_artist_and_album_to_db(data)
+            # library.add_artist_and_album_to_db(data, cached=True)
 
         except ID3NoHeaderError, err:
             data['scan_error'] = err.message
@@ -117,6 +88,6 @@ class Reader:
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
             if self.debug: print "inserting NEW esid into MySQL"
-            util.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
+            alchemy.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
 
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))

@@ -2,8 +2,8 @@
 
 import os, json, pprint, sys, random, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import asset, cache, config, ops
-from query import QueryBuilder
+import cache, config, ops
+from query import Builder
 import sql
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -33,38 +33,25 @@ class MediaMatcher(object):
             return True
 
     def match_comparison_result(self, orig, match):
-        if orig['_source']['file_size'] > match['_source']['file_size']:
-            return '>'
-        if orig['_source']['file_size'] == match['_source']['file_size']:
-            return '='
-        if orig['_source']['file_size'] < match['_source']['file_size']:
-            return '<'
+        if orig['_source']['file_size'] > match['_source']['file_size']: return '>'
+        if orig['_source']['file_size'] == match['_source']['file_size']: return '='
+        if orig['_source']['file_size'] < match['_source']['file_size']: return '<'
 
     def match_extensions_match(self, orig, match):
-        if orig['_source']['file_ext'] == match['_source']['file_ext']:
-            return 1
-        return 0
+        return 1 if orig['_source']['file_ext'] == match['_source']['file_ext'] else 0
 
     def print_match_details(self, orig, match):
 
-        if orig['_source']['file_size'] >  match['_source']['file_size']:
-            # print(orig['_id'] + ': ' + orig['_source']['file_name'] +' >>> ' + match['_id'] + ': ' + match['_source']['absolute_path'])
-            print(orig['_source']['file_name'] +' >>> ' + match['_source']['absolute_path'])
-
-        elif orig['_source']['file_size'] ==  match['_source']['file_size']:
-            # print(orig['_id'] + orig['_source']['file_name'] + ' === ' + match['_id'] + ': ' + match['_source']['absolute_path'])
-            print(orig['_source']['file_name'] + ' === ' + match['_source']['absolute_path'])
-
-        elif orig['_source']['file_size'] <  match['_source']['file_size']:
-            # print(orig['_id'] + orig['_source']['file_name'] + ' <<< ' + match['_id'] + ': ' + match['_source']['absolute_path'])
-            print(orig['_source']['file_name'] + ' <<< ' + match['_source']['absolute_path'])
+        if orig['_source']['file_size'] >  match['_source']['file_size']: print(orig['_source']['file_name'] +' >>> ' + match['_source']['absolute_path'])
+        elif orig['_source']['file_size'] ==  match['_source']['file_size']: print(orig['_source']['file_name'] + ' === ' + match['_source']['absolute_path'])
+        elif orig['_source']['file_size'] <  match['_source']['file_size']: print(orig['_source']['file_name'] + ' <<< ' + match['_source']['absolute_path'])
 
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
         if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
-            if config.matcher_debug == True: print 'recording match: %s ::: %s' % (media_id, match_id)
+            logging.getLogger(config.log).info('recording match: %s ::: %s' % (media_id, match_id))
             sql.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
                 [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
-        elif config.matcher_debug == True: print 'match record for  %s ::: %s already exists.' % (media_id, match_id)
+        else: logging.getLogger(config.log).info('match record for  %s ::: %s already exists.' % (media_id, match_id))
 
 class ElasticSearchMatcher(MediaMatcher):
     def __init__(self, name, doc_type):
@@ -82,7 +69,7 @@ class ElasticSearchMatcher(MediaMatcher):
                 self.comparison_fields.append(r[1])
 
             # TODO: this is a kludge. This module uses self.comparison_fields, which is a single-dimensional array
-            # 'QueryBuilder' in query.py uses 'match_fields', which is a tuple. This module should be updated to use the tuple
+            # 'Builder' in query.py uses 'match_fields', which is a tuple. This module should be updated to use the tuple
             self.match_fields = sql.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(self.comparison_fields) > 0 and self.query_type != None:
@@ -95,7 +82,7 @@ class ElasticSearchMatcher(MediaMatcher):
             if field in media.doc['_source']:
                 values[field] = media.doc['_source'][field]
 
-        qb = QueryBuilder(config.es_host, config.es_port)
+        qb = Builder(config.es_host, config.es_port)
         return qb.get_query(self.query_type, self.match_fields, values)
 
     def print_match_query_debug_header(self, media, query):
@@ -159,12 +146,12 @@ class ElasticSearchMatcher(MediaMatcher):
             self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
-            calc.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
-            # try:
-            #     thread.start_new_thread( cache.ensure, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
-            # except Exception, err:
-            #     print err.message
-            #     traceback.print_exc(file=sys.stdout)
+            # calc.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
+            try:
+                thread.start_new_thread( cache.ensure, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
+            except Exception, err:
+                print err.message
+                traceback.print_exc(file=sys.stdout)
             
             if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 

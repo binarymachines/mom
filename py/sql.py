@@ -67,6 +67,30 @@ def retrieve_like_values(table_name, field_names, field_values):
         else: break
 
     return run_query(query)
+
+def update_values(table_name, update_field_names, update_field_values, where_field_names, where_field_values):
+    
+    query = ' '.join(['UPDATE', table_name, 'SET '])
+
+    pos = 0
+    for name in update_field_names:
+        query += name + ' = ' + '"' + update_field_values[pos] + '"'
+        pos += 1
+        if pos < len(update_field_values):
+            query += ', '
+        else: break
+
+    query += ' WHERE '
+
+    pos = 0
+    for name in where_field_names:
+        query += name + ' = ' + '"' + where_field_values[pos] + '"'
+        pos += 1
+        if pos < len(where_field_values):
+            query += ' AND '
+        else: break
+
+    execute_query(query)
     
 def run_query(query):
 
@@ -117,26 +141,4 @@ def execute_query(query):
 
     return rows
 
-def update_values(table_name, update_field_names, update_field_values, where_field_names, where_field_values):
 
-    query = ' '.join(['UPDATE', table_name, 'SET '])
-
-    pos = 0
-    for name in update_field_names:
-        query += name + ' = ' + '"' + update_field_values[pos] + '"'
-        pos += 1
-        if pos < len(update_field_values):
-            query += ', '
-        else: break
-
-    query += ' WHERE '
-
-    pos = 0
-    for name in where_field_names:
-        query += name + ' = ' + '"' + where_field_values[pos] + '"'
-        pos += 1
-        if pos < len(where_field_values):
-            query += ' AND '
-        else: break
-
-    execute_query(query)

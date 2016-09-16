@@ -7,19 +7,19 @@
 
 '''
 
-import os, json, pprint, sys, traceback
+import os, json, pprint, sys, traceback, logging
 
 import cache, config, start, ops, calc, sql, util, esutil, library
 
-from asset import AssetException, Asset, MediaFile, MediaFile
+from assets import AssetException, Asset, MediaFile, MediaFile
 from library import Library
-from direct import Directive
+
 from read import Reader
-from walk import MediaLibraryWalker
+from mediawalk import LibraryWalker
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class Scanner(MediaLibraryWalker):
+class Scanner(LibraryWalker):
     def __init__(self):
         super(Scanner, self).__init__()
 
@@ -34,7 +34,7 @@ class Scanner(MediaLibraryWalker):
         self.library = Library()
         self.reader = Reader()
         
-    # MediaLibraryWalker methods begin
+    # LibraryWalker methods begin
 
     def after_handle_root(self, root):
         if config.scan:
@@ -85,7 +85,7 @@ class Scanner(MediaLibraryWalker):
     def handle_root_error(self, err):
         print ': '.join([err.__class__.__name__, err.message])
 
-    # MediaLibraryWalker methods end
+    # LibraryWalker methods end
 
     def process_file(self, filename, library, reader):
         for extension in self.directive.extensions:

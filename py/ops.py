@@ -3,34 +3,10 @@
 import os, sys, traceback, time, datetime, logging
 from elasticsearch import Elasticsearch
 import redis
-import cache, config, start, asset, sql, util 
+import cache, config, start, assets, sql, util, ops 
 
-from asset import AssetException
+from assets import AssetException
         
-
-# def key_to_path(document_type, key):
-#     result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
-#     return result
-
-# def clear_cached_esids_for_path(document_type, path):
-#     search = '-'.join(['path', 'esid', path]) + '*'
-#     for key in config.redis.keys(search):
-#         config.redis.delete(key)
-
-# ESIDs
-# def cache_esids_for_path(document_type, path):
-#     rows = retrieve_esids(document_type, path)
-#     for row in rows:
-#         key = '-'.join(['esid', 'path', row[1]])
-#         config.redis.set(key, row[0])
-
-
-# def get_all_cached_esids_for_path(path):
-#     # key = '-'.join(['path', 'esid', path]) + '*'
-#     key = path + '*'
-#     values = config.redis.keys(key)
-#     return values
-
 def check_for_reconfig_request():
     key = '-'.join(['exec', 'record', str(config.pid)])
     values = config.redis.hgetall(key)
@@ -81,9 +57,8 @@ def do_status_check(opcount=None):
         cache.write_paths()
         sys.exit(0)
 
+def check_for_bugs():
     if config.check_for_bugs: raw_input('check for bugs')
-
-    # config.display_status()
 
 def record_exec():
     key = '-'.join(['exec', 'record', str(config.pid)])   
@@ -100,7 +75,7 @@ def cache_ops(apply_lifespan, path, operation, operator=None):
     rows = retrieve_complete_ops(apply_lifespan, path, operation, operator)
     for row in rows:
         try:
-            key = '-'.join([operation, row[0]]) if operator == None  else '-'.join([operator, operation, row[0]])
+            key = '-'.join([operation, row[0]]) if operator == None  else '-'.join([operation, operator, row[0]])
             
             # logging.getLogger(config.ops_log).info(key)                
             values = { 'persisted': True }
@@ -109,7 +84,7 @@ def cache_ops(apply_lifespan, path, operation, operator=None):
             print err.message
 
 def operation_in_cache(path, operation, operator=None):
-    key = '-'.join([operation, path]) if operator == None  else '-'.join([operator, operation, path])
+    key = '-'.join([operation, path]) if operator == None  else '-'.join([operation, operator, path])
     
     # logging.getLogger(config.ops_log).info('seeking key %s...' % key)                
     values = config.redis.hgetall(key)
@@ -120,7 +95,7 @@ def operation_in_cache(path, operation, operator=None):
 
 def clear_cache(path, use_wildcard=False):
     try:
-        search = '-'.join([operation, path]) if operator == None  else '-'.join([operator, operation, path])
+        search = '-'.join([operation, path]) if operator == None  else '-'.join([operation, operator, path])
         if use_wildcard:
             for key in config.redis.keys(search + '*'):
                     config.redis.delete(key)
@@ -145,7 +120,7 @@ def record_op_begin(asset, operator, operation):
     if config.ops_debug: print "recording operation beginning: %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     # key = '-'.join([asset.absolute_path, operation, operator])
-    key = '-'.join([operation, asset.absolute_path]) if operator == None  else '-'.join([operator, operation, asset.absolute_path])
+    key = '-'.join([operation, asset.absolute_path]) if operator == None  else '-'.join([operation, operator, asset.absolute_path])
     values = { 'persisted': False, 'pid': config.pid, 'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid, 
         'target_path': asset.absolute_path }
     config.redis.hmset(key, values)
@@ -158,7 +133,7 @@ def record_op_complete(asset, operator, operation):
     if config.ops_debug: print "recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path)
 
     # key = '-'.join([asset.absolute_path, operation, operator])
-    key = '-'.join([operation, asset.absolute_path]) if operator == None  else '-'.join([operator, operation, asset.absolute_path])
+    key = '-'.join([operation, asset.absolute_path]) if operator == None  else '-'.join([operation, operator, asset.absolute_path])
     config.redis.hset(key, 'end_time', datetime.datetime.now().isoformat())
 
     key = '-'.join(['exec', 'record', str(config.pid)])
@@ -191,7 +166,7 @@ def write_ops_for_path(path, operator, operation):
         table_name = 'op_record'
         field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
         
-        search = '-'.join([operation, path]) if operator == None  else '-'.join([operator, operation, path])
+        search = '-'.join([operation, path]) if operator == None  else '-'.join([operation, operator, path])
         keys = config.redis.keys(search + '*')
         for key in keys:
             values = config.redis.hgetall(key)
