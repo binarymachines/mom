@@ -8,7 +8,9 @@ class Mode:
         self.effect = effect
         self.after = None
         self.rule_applied = None
-
+        self.times_active = 0
+        self.last_active = None
+        
 class Rule:
     def __init__(self, desc, start, end, condition, effect=None, before=None, after=None):
         self.desc = desc
@@ -39,7 +41,7 @@ class Selector:
 
         return results
 
-    def get_destinations(self):
+    def peep(self):
         
         results = []
         rules = self.get_rules(self.active)
@@ -47,7 +49,7 @@ class Selector:
             self.possible = rule.end
             if rule.applies():
                 
-                # NOTE: This is a really sketchy block of code
+                # NOTE: This is a really sketchy block of code, and there's a big bug in it
                 # TODO: convert this to a matrix contained by the selector
                 mode = rule.end
                 mode.rule_applied = rule
@@ -58,7 +60,7 @@ class Selector:
                 if not mode in results:
                     results.append(mode)
 
-                # more sketchiness
+                # more sketchiness. this seems arbitrary
                 if mode == self.end:
                     results = [mode]    
                     break                
@@ -67,26 +69,31 @@ class Selector:
 
     def select(self):
         if self.complete == False:
-            destinations = self.get_destinations()
-            if len(destinations) == 1:
-                self.switch(destinations[0])
+            possible = self.peep()
+            if len(possible) == 1:
+                self.switch(possible[0])
      
-            elif len(destinations) > 1:
-                available = destinations[0]
-                for mode in destinations:
-                    if mode != available and mode.priority < available.priority: print "'%s' has a lower priority (%i) than '%s' (%i)" % (mode.desc, mode.priority, available.desc, available.priority)
+            elif len(possible) > 1:
+                available = possible[0]
+                for mode in possible:
+                
+                    if mode != available and mode.priority < available.priority: print "[%s]: '%s' has a lower priority (%i) than '%s' (%i)" \
+                        % (self.name, mode.desc, mode.priority, available.desc, available.priority)
+                
                     if mode != available and mode.priority > available.priority:
-                        print "'%s' has a higher priority (%i) than '%s' (%i)" % (mode.desc, mode.priority, available.desc, available.priority)
+                        print "[%s]: '%s' has a higher priority (%i) than '%s' (%i)" \
+                            % (self.name, mode.desc, mode.priority, available.desc, available.priority)
                         available = mode
+                
                 self.switch(available)
 
-            elif len(destinations) == 0:
+            elif len(possible) == 0:
                 raise Exception("No valid destination from '%s'" % self.active.desc)
 
     def switch(self, mode):
-        if mode == self.start: print(self.name + " starting in %s mode \n" % mode.desc)
-        elif mode == self.end: print(self.name + " ending in %s mode \n" % mode.desc)
-        else: print(self.name + " switching to %s mode \n" % mode.desc)
+        if mode == self.start: print("[%s]: starting in %s mode \n" % (self.name, mode.desc))
+        elif mode == self.end: print("[%s]: ending in %s mode \n" % (self.name, mode.desc))
+        else: print("[%s]: switching to %s mode \n" % (self.name, mode.desc))
 
         # NOTE: this code has ordering dependencies
 
@@ -102,6 +109,7 @@ class Selector:
             mode.before = None
 
         self.active = mode
+        mode.times_active += 1
         if self.active == self.end: self.complete = True
 
         if mode.effect is not None:
@@ -123,25 +131,21 @@ class Machine:
         if self.running:
             selector.run()
 
+    def sub_execute(self):
+        for selector in self.active:
+            if not selector.complete: selector.select()
+            elif selector.complete: self.inactive.append(selector)
+
+        for selector in self.inactive:
+            if selector in self.active: self.active.remove(selector)
+        
     def execute(self, cycle=True):
 
         self.running = True
-
         for selector in self.active:
-            if not selector.complete:
-                selector.run()
-
+            if not selector.complete: selector.run()
         while len(self.active) > 0 and cycle:
-            for selector in self.active:
-                if not selector.complete:
-                    selector.select()
-                elif selector.complete:
-                    self.inactive.append(selector)
-
-            for selector in self.inactive:
-                if selector in self.active:
-                    self.active.remove(selector)
-
+            self.sub_execute()
         self.update()
 
     def start(self):
@@ -149,20 +153,10 @@ class Machine:
 
     def step(self):
         if self.running == False:
-            self.run(False)
+            self.execute(False)
             return
 
-        if len(self.active) > 0:
-            for selector in self.active:
-                if not selector.complete:
-                    selector.select()
-                elif selector.complete:
-                    self.inactive.append(selector)
-
-        for selector in self.inactive:
-            if selector in self.active:
-                self.active.remove(selector)
-
+        self.sub_execute()
         self.update()
 
     def update(self):

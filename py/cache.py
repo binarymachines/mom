@@ -2,12 +2,35 @@ import os, sys, traceback, datetime, logging
 
 import redis
 
-import config, sql
-from asset import AssetException
+import config, sql, alchemy, ops
+from assets import AssetException
 
 def get_doc_set_name(document_type):
     return '-'.join([document_type, 'index'])
     
+#  def key_to_path(document_type, key):
+#     result = key.replace('-'.join(['path', 'esid', document_type]) + '-', '')
+#     return result
+
+# def clear_cached_esids_for_path(document_type, path):
+#     search = '-'.join(['path', 'esid', path]) + '*'
+#     for key in config.redis.keys(search):
+#         config.redis.delete(key)
+
+# ESIDs
+# def cache_esids_for_path(document_type, path):
+#     rows = retrieve_esids(document_type, path)
+#     for row in rows:
+#         key = '-'.join(['esid', 'path', row[1]])
+#         config.redis.set(key, row[0])
+
+
+# def get_all_cached_esids_for_path(path):
+#     # key = '-'.join(['path', 'esid', path]) + '*'
+#     key = path + '*'
+#     values = config.redis.keys(key)
+#     return values
+
 # es documents
 def cache_docs(document_type, source_path, clear_existing=True):
     if clear_existing:
@@ -79,7 +102,6 @@ def cache_matches(path):
 
 def get_matches(matcher_name, esid):
     key = '-'.join([matcher_name, esid]) 
-        
     values = config.redis.smembers(key)
     return values
     
@@ -107,9 +129,9 @@ def write_paths(flushkeys=True):
     search = 'ensure-*'
     keys = esids = paths = []
     for key in config.redis.scan_iter(search):
-        do_status_check()
+        ops.do_status_check()
         values = config.redis.hgetall(key)
-        keys.appen(key)
+        keys.append(key)
         if 'absolute_path' in values:
             doc = config.redis.hgetall(values['absolute_path'])
             if not 'esid' in doc:
@@ -117,9 +139,9 @@ def write_paths(flushkeys=True):
 
         if len(esids) >= config.path_cache_size:
             
+            esids = []
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                 'index_name': value['index_name'], 'document_type': value['document_type'] } for value in esids]
-            esids = []
 
             clause = ', '.join([sql.quote_if_string(value['esid']) for value in paths])
             if clause != '':
@@ -132,7 +154,7 @@ def write_paths(flushkeys=True):
                         if path['esid'] not in cached_paths:
                             # if config.sql_debug: print('Updating MySQL...')
                             try:
-                                util.insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
+                                alchemy.insert_asset(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
                             except Exception, e:
                                 print e.message
     

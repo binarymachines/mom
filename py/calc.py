@@ -1,9 +1,9 @@
-import os, sys, traceback
+import os, sys, traceback, logging
 
 import cache, config, ops, sql, esutil, library
 from match import ElasticSearchMatcher
-from direct import Directive
-from asset import Asset, MediaFile, MediaFolder, AssetException
+
+from assets import Asset, MediaFile, MediaFolder, AssetException
 import redis
 
 def all_matchers_have_run(matchers, media):
@@ -100,8 +100,7 @@ def calculate_matches(directive):
                     ops.write_ops_for_path(location, matcher.name, 'match')
                 cache.clear_docs(config.MEDIA_FILE, location) 
                 cache.write_paths()
-            
-
+                
     print '\n-----match operations complete-----\n'
 
 def get_matchers():
@@ -126,17 +125,3 @@ def record_match_ops_complete(matcher, media, path, ):
         traceback.print_exc(file=sys.stdout)
         library.handle_asset_exception(err, path)
 
-
-def record_matches_as_ops():
-
-    rows = sql.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
-    for r in rows:
-        media = MediaFile()
-        matcher_name = r[1]
-        media.esid = r[0]
-        media.absolute_path = r[2]
-
-        if ops.operation_completed(media, matcher_name, 'match') == False:
-            ops.record_op_begin(media, matcher_name, 'match')
-            ops.record_op_complete(media, matcher_name, 'match')
-            print 'recorded(%i, %s, %s, %s)' % (r[1], r[2], 'match')

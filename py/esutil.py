@@ -2,8 +2,8 @@
 
 import os, sys, traceback, pprint, logging
 from elasticsearch import Elasticsearch, NotFoundError
-import cache, config, sql, ops
-from asset import Asset, MediaFile, MediaFolder, AssetException
+import cache, config, sql, ops, alchemy
+from assets import Asset, MediaFile, MediaFolder, AssetException
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -94,7 +94,7 @@ def doc_exists(asset, attach_if_found):
                 # found, update local MySQL
                 if config.es_debug: print 'inserting esid into MySQL'
                 try:
-                    util.insert_esid(config.es_index, asset.document_type, esid, asset.absolute_path)
+                    alchemy.insert_asset(config.es_index, asset.document_type, esid, asset.absolute_path)
                     if config.es_debug: print 'esid inserted'
                 except Exception, err:
                     print ': '.join([err.__class__.__name__, err.message])
@@ -143,73 +143,5 @@ def get_doc_id(asset):
         # found, update local MySQL
         if config.es_debug:
             print "inserting esid into MySQL"
-        util.insert_esid(config.es_index, asset.document_type, esid, asset.absolute_path)
+        alchemy.insert_asset(config.es_index, asset.document_type, esid, asset.absolute_path)
         return doc['_id']
-
-def reset_all(es):
-    double_check = raw_input("This will wipe all data! Type 'I really want to do this' to proceed'")
-    if double_check == 'I really want to do this':
-        esutil.clear_indexes('media')
-        esutil.clear_indexes('media2')
-        esutil.clear_indexes('media3')
-        sql.truncate('es_document')
-        sql.truncate('matched')
-        sql.truncate('op_record')
-
-def purge_problem_esids():
-
-    config.sql_debug = False
-    problems = sql.run_query(
-        """select distinct pe.esid, pe.document_type, esd.absolute_path, pe.problem_description
-             from problem_esid pe, es_document esd
-            where pe.esid = esd.id""")
-
-    # if len(problems) > 0:
-    for row in problems:
-        # row = problems[0]
-
-        a = Asset()
-        a.esid = row[0]
-        a.document_type = row[1]
-        a.absolute_path = row[2]
-        problem = row[3]
-
-        if a.document_type == config.MEDIA_FOLDER and problem.lower().startswith('mult'):
-            print '%s, %s' % (a.esid, a.absolute_path)
-            docs = sql.retrieve_values('es_document', ['absolute_path', 'id'], [a.absolute_path])
-            for doc in docs:
-                esid = doc[1]
-
-                query = "delete from es_document where id = %s" % (sql.quote_if_string(esid))
-                sql.execute_query(query)
-                query = "delete from op_record where target_esid = %s" % (sql.quote_if_string(esid))
-                sql.execute_query(query)
-                query = "delete from problem_esid where esid = %s" % (sql.quote_if_string(esid))
-                sql.execute_query(query)
-
-                try:
-                    config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
-                except Exception, err:
-                    print ': '.join([err.__class__.__name__, err.message])
-                    if config.sql_debug: traceback.print_exc(file=sys.stdout)
-
-# def transform_docs():
-#
-#     cycle = True
-#     while cycle == True:
-#         res = find_docs_missing_field('media2', config.MEDIA_FOLDER, 'absolute_path')
-#         if res['hits']['total'] > 0:
-#             for doc in res['hits']['hits']:
-#
-#                 data = {}
-#                 for field in doc['_source']:
-#                     if field == 'absolute_path':
-#                         data['absolute_path'] = doc['_source'][field]
-#                     else:
-#                         data[field] = doc['_source'][field]
-#
-#                 print repr(data['absolute_path'])
-#                 config.es.index(index="media2", doc_type="media_folder", id=doc['_id'], body=data)
-#
-#     sys.exit(1)
-#

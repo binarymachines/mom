@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-   Usage: querybuilder.py <elasticsearch_host>
+   Usage: query.py <elasticsearch_host>
 
 
 
@@ -15,7 +15,7 @@ from docopt import docopt
 
 pp = pprint.PrettyPrinter(indent=2)
 
-class QueryBuilder:
+class Builder:
     def __init__(self, es_host, es_port=9200):
         self.es_host = es_host
         self.es_port = es_port
@@ -166,7 +166,7 @@ def main(args):
     # elastic_port = 9200
     # print 'Will connect to ES host %s:%s' % (elastic_host, elastic_port)
 
-    # q = QueryBuilder(elastic_host, elastic_port)
+    # q = Builder(elastic_host, elastic_port)
     # q.test_multi_match()
     # q.test_simple_term()
     # q.test_multi_term()

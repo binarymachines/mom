@@ -2,7 +2,7 @@
 import os, sys, pprint, json
 
 import config, start, sql, ops
-from asset import AssetException
+from assets import AssetException
 
 def main():
     start.execute()

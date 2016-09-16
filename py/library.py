@@ -3,8 +3,8 @@
 import os, json, pprint, sys, traceback, datetime, logging
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
-from asset import AssetException, Asset, MediaFile, MediaFolder
-import config, sql, esutil, ops
+from assets import AssetException, Asset, MediaFile, MediaFolder
+import config, sql, esutil, ops, alchemy
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -62,7 +62,7 @@ class Library:
                 # if config.library_debug: print 'data indexed, updating MySQL'
                 folder.esid = res['_id']
                 # update MySQL
-                util.insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                alchemy.insert_asset(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
                 # alchemy.insert_asset(folder.esid, config.es_index, folder.document_type, folder.absolute_path)
 
             else: raise Exception('Failed to write folder %s to Elasticsearch.' % (path))
@@ -233,3 +233,32 @@ def path_is_genre_folder(path):
 def path_is_location_folder(path):
     raise Exception('not implemented!')
 
+# TODO: figure out why this fails
+def add_artist_and_album_to_db(self, data):
+
+    if 'TPE1' in data and 'TALB' in data:
+        try:
+            artist = data['TPE1'].lower()
+            rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
+            if len(rows) == 0:
+                try:
+                    print 'adding %s to MySQL...' % (artist)
+                    thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
+                except Exception, err:
+                    print ': '.join([err.__class__.__name__, err.message])
+                    if self.debug: traceback.print_exc(file=sys.stdout)
+
+            # sql.insert_values('artist', ['name'], [artist])
+            #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
+            #
+            # artistid = rows[0][1]
+            #
+            # if 'TALB' in data:
+            #     album = data['TALB'].lower()
+            #     rows2 = sql.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
+            #     if len(rows2) == 0:
+            #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
+
+        except Exception, err:
+            print ': '.join([err.__class__.__name__, err.message])
+            if self.debug: traceback.print_exc(file=sys.stdout)
