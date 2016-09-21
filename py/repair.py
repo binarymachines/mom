@@ -5,7 +5,7 @@ import config, start, sql, ops, alchemy
 from assets import AssetException
 
 def clear_bad_entries():
-    
+
     data = []
     rows  = sql.retrieve_values('problem_esid', ['distinct esid', 'index_name', 'document_type'], [])
     print "%i rows retrieved" % (len(rows))
@@ -32,7 +32,6 @@ def record_matches_as_ops():
             ops.record_op_begin(media, matcher_name, 'match')
             ops.record_op_complete(media, matcher_name, 'match')
             print 'recorded(%i, %s, %s, %s)' % (r[1], r[2], 'match')
-
 
 def reset_all(es):
     double_check = raw_input("This will wipe all data! Type 'I really want to do this' to proceed'")
@@ -111,12 +110,12 @@ def main():
         for f in files:
             filename = f[0]
             doc_type = f[1]
-    
+
             try:
                 esid = cache.retrieve_esid(config.es_index, doc_type, filename)
                 config.sql_debug = True
                 if esid is not None:
-                    print ','.join([esid, filename]) 
+                    print ','.join([esid, filename])
                 else:
                     sql.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [config.es_index, doc_type, filename, "NO ESID"])
 
@@ -129,5 +128,3 @@ def main():
                 print error.message
             finally:
                 config.sql_debug = False
-
-

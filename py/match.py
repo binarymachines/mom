@@ -47,11 +47,13 @@ class MediaMatcher(object):
         elif orig['_source']['file_size'] <  match['_source']['file_size']: print(orig['_source']['file_name'] + ' <<< ' + match['_source']['absolute_path'])
 
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
-        if not self.match_recorded(media_id, match_id) and not self.match_recorded(match_id, media_id):
+        if self.match_recorded(media_id, match_id) == False and self.match_recorded(match_id, media_id):
+            logging.getLogger(config.log).info('match record for  %s ::: %s already exists.' % (media_id, match_id))
+        else: 
             logging.getLogger(config.log).info('recording match: %s ::: %s' % (media_id, match_id))
             sql.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
                 [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
-        else: logging.getLogger(config.log).info('match record for  %s ::: %s already exists.' % (media_id, match_id))
+            
 
 class ElasticSearchMatcher(MediaMatcher):
     def __init__(self, name, doc_type):
@@ -72,7 +74,7 @@ class ElasticSearchMatcher(MediaMatcher):
             # 'Builder' in query.py uses 'match_fields', which is a tuple. This module should be updated to use the tuple
             self.match_fields = sql.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
-        if len(self.comparison_fields) > 0 and self.query_type != None:
+        if len(self.comparison_fields) > 0 and self.query_type is not None:
             logging.getLogger(config.log).info('%s %s matcher configured.' % (self.name, self.query_type))
 
     def get_query(self, media):

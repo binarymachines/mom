@@ -29,8 +29,6 @@ session = DBSession()
 
 class AssetRec(Base):
     __tablename__ = 'es_document'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
     id = Column(String(256), primary_key=True)
     index_name = Column(String(256), nullable=False)
     doc_type = Column(String(256), nullable=False)
@@ -41,7 +39,16 @@ def insert_asset(index_name, doc_type, id, absolute_path):
     session.add(asset)
     session.commit()
 
-# class OperationRec(base):
+# class ExecRec(Base):
+#     __tablename__ = 'exec_record'
+#     id = Column(String(256), primary_key=True)
+#     pid = Column(String(256), nullable=False)
+#     start_time
+
+# class OpRec(base):
 #     __tablename__ = 'op_record'
+
+# class OpReq(base):
+#     __tablename__ = 'op_request'
 
 # ProblemDocRec, ProblemPathRec

@@ -13,15 +13,12 @@ class Reader:
         self.debug = config.reader_debug
         self.document_type = config.MEDIA_FILE
 
-
     def approves(self, filename):
         return filename.lower().endswith(''.join(['.', 'mp3'])) \
                     and not filename.lower().startswith('incomplete~') \
                     and not filename.lower().startswith('~incomplete')
         
     def read(self, media, library):
-
-        # folder =  library.folder
         data = media.get_dictionary()
 
         try:
@@ -38,7 +35,7 @@ class Reader:
                 media.esid = esid
                 return media
             
-            if  media.esid == None and esutil.doc_exists(media, True):
+            if  media.esid is None and esutil.doc_exists(media, True):
                 if self.debug: print "document exists, skipping file: %s" % (media.short_name())
                 return media
 
@@ -58,7 +55,7 @@ class Reader:
                             key=subtags[0].replace(' ', '_').upper()
                             data[key] = subtags[1]
 
-            # NOTE: do this somewhere else
+            # NOTE: do this somewhere else:
             # library.add_artist_and_album_to_db(data, cached=True)
 
         except ID3NoHeaderError, err:
