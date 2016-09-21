@@ -17,52 +17,33 @@ def quote_if_string(value):
     return value
 
 # compose queries from parameters
+# TODO: add handling for boolean values
 
 def insert_values(table_name, field_names, field_values):
+    formatted_values = [quote_if_string(value) for value in field_values]
+    query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
+    execute_query(query)
 
-        formatted_values = [quote_if_string(value) for value in field_values]
-        query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
-        execute_query(query)
-
-# TODO: add handling for boolean values
-def retrieve_values(table_name, field_names, field_values, order_by=[]):
-
-    query = 'SELECT '
-    pos = 0
-    for name in field_names:
-        query += name
-        pos += 1
-        if pos < len(field_names):
-            query += ', '
-
-    query += ' FROM ' + table_name
+def retrieve_values(table_name, field_names, field_values, order_by=None):
+    formatted_values = [quote_if_string(value) for value in field_values]
+    query = ' '.join(['SELECT', ', '.join(field_names), 'FROM', table_name])
 
     if len(field_values) > 0:
         query += ' WHERE '
-
+        #TODO: use range(len(field_names) instead of pos
         pos = 0
         for name in field_names:
-            query += name + ' = ' + '"' + field_values[pos] + '"'
+            query += ' '.join([name, '=', formatted_values[pos]])
             pos += 1
             if pos < len(field_values):
                 query += ' AND '
             else: break
-
-    # if order_by is not []: query += " ORDER BY " + str(order_by).replace('[', '').replace(']', '')
+    # if order_by is not None: query += " ORDER BY " + str(order_by).replace('[', '').replace(']', '')
     return run_query(query)
 
-
 def retrieve_like_values(table_name, field_names, field_values):
-
-    query = 'SELECT '
-    pos = 0
-    for name in field_names:
-        query += name
-        pos += 1
-        if pos < len(field_names):
-            query += ', '
-
-    query += ' FROM ' + table_name + ' WHERE '
+    formatted_values = [quote_if_string(value) for value in field_values]
+    query = ' '.join(['SELECT', ', '.join(field_names), 'FROM', table_name,'WHERE '])
 
     pos = 0
     for name in field_names:
@@ -75,7 +56,7 @@ def retrieve_like_values(table_name, field_names, field_values):
     return run_query(query)
 
 def update_values(table_name, update_field_names, update_field_values, where_field_names, where_field_values):
-    
+    # formatted_update_values = [quote_if_string(value) for value in update_field_values]
     query = ' '.join(['UPDATE', table_name, 'SET '])
 
     pos = 0
@@ -100,10 +81,8 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
     
 # execute queries
 
-
 def execute_query(query):
     con = None
-    rows = []
     try:
         logging.getLogger(config.error_log).info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
@@ -112,12 +91,19 @@ def execute_query(query):
         con.commit()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        config.error_log.error(message)
-        config.error_log.warn(query)
+        logging.getLogger(config.error_log).error(message)
+        # logging.getLogger(config.error_log).warn(query)
+        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
+    except TypeError, e:
+        logging.getLogger(config.error_log).error(e.message)
+        # logging.getLogger(config.error_log).warn(query)
+        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
+    except Exception, e:
+        logging.getLogger(config.error_log).error(e.message)
+        logging.getLogger(config.error_log).warn(e.query)
         raise Exception(message)
     finally:
         if con: con.close()
-    return rows
 
 def run_query(query):
     con = None

@@ -9,9 +9,9 @@ class Mode(object):
     # TODO: these callbacks get overwritten in select(), call mode.rule_applied.method() in switch() instead 
     def __init__(self, name, priority=0, effect=None, before=None, after=None):
         self.name = name
-        self.before = None
+        # self.before = None
         self.effect = effect
-        self.after = None
+        # self.after = None
 
         self.active_rule = None
         self.times_activated = 0

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, json, pprint, sys, traceback, datetime, logging
+import os, json,sys, traceback, datetime, logging
 
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
@@ -10,7 +10,6 @@ from assets import Asset, MediaFile, MediaFolder
 
 import config, sql, esutil, ops, alchemy
 
-pp = pprint.PrettyPrinter(indent=4)
 
 # this class can be collapsed away by storing the transients in redis
 class Library:

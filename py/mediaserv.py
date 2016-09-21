@@ -46,6 +46,8 @@ class MediaServiceProcess(ServiceProcess):
         self.handler = MediaServiceProcessHandler(self, '_process_handler_', self.selector, self.context)     
 
         # modes for this process
+        # startmode handlers don't get called because switch is called with no set_mode_func setting it up
+        # also, the callbacks set up here get overwritten later by set_mode_func and should be eliminated
         self.startmode = Mode("STARTUP", 0, self.handler.start, self.handler.starting, self.handler.started)
         self.evalmode = Mode("EVAL")
         self.scanmode = Mode("SCAN")

@@ -5,10 +5,12 @@ class Context(object):
     
     def __init__(self, name):
         self.name = name
-        self.values = {}
         self.fifos = {}
         self.stacks = {}
 
+        # this is just a data bucket intended for runtime statuses
+        self.data = {}
+        
     def clear(self):
         for consumer in self.fifos.keys:
             clear_fifo(consumer)
@@ -53,6 +55,14 @@ class Context(object):
         if consumer not in self.stacks:
             self.stacks[consumer] = []
         self.stacks[consumer].append(value)
+
+    # context should be able to save and restore whatever portion of its data is not contained in object instances
+    def restore_from_cach(self):
+        pass
+
+    def save_to_cache(self):
+        pass
+
 
 class PathContext(Context):
     

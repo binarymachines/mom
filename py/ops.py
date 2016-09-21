@@ -4,8 +4,6 @@ import os, sys, traceback, time, datetime, logging
 from elasticsearch import Elasticsearch
 import redis
 import cache, config, start, assets, sql, util, ops 
-
-from errors import AssetException
         
 def check_for_reconfig_request():
     key = '-'.join(['exec', 'record', str(config.pid)])
@@ -23,8 +21,8 @@ def check_for_stop_request():
     values = config.redis.hgetall(key)
     return 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True'
 
-def flush_all(flushcache=True):
-    if flushcache: flush_cache()
+def flush_all():
+    flush_cache()
     try:
         logging.getLogger(config.ops_log).info('flushing redis database')
         config.redis.flushall()
