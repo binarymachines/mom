@@ -5,7 +5,7 @@ from elasticsearch import Elasticsearch
 import redis
 import cache, config, start, assets, sql, util, ops 
 
-from assets import AssetException
+from errors import AssetException
         
 def check_for_reconfig_request():
     key = '-'.join(['exec', 'record', str(config.pid)])

@@ -3,7 +3,10 @@ import os, sys, traceback, datetime, logging
 import redis
 
 import config, sql, alchemy, ops
-from assets import AssetException
+from errors import AssetException
+
+CACHE_MATCHES = 'cache_cache_matches'
+RETRIEVE_DOCS = 'cache_retrieve_docs'
 
 def get_doc_set_name(document_type):
     return '-'.join([document_type, 'index'])
@@ -79,20 +82,22 @@ def get_doc_keys(document_type):
 
 def retrieve_docs(document_type, file_path):
 
-    query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
-        (sql.quote_if_string(config.es_index), sql.quote_if_string(document_type), sql.quote_if_string(''.join([file_path, '%'])))
-    
+    # query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
+    #     (sql.quote_if_string(config.es_index), sql.quote_if_string(document_type), sql.quote_if_string(''.join([file_path, '%'])))
+    query = sql.get_query(RETRIEVE_DOCS, config.es_index, document_type, file_path)
     return sql.run_query(query)
 
 # matched files
 def cache_matches(path):
     try:
-        q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
-                WHERE esd.id = m.media_doc_id AND esd.absolute_path like "%s%s"
-            UNION
-            SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
-                WHERE esd.absolute_path like "%s%s" AND esd.id = m.match_doc_id""" % (path, '%', path, '%')
-        q = q.replace("'", "\'")
+        # q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd 
+        #         WHERE esd.id = m.media_doc_id AND esd.absolute_path like "%s%s"
+        #     UNION
+        #     SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd 
+        #         WHERE esd.absolute_path like "%s%s" AND esd.id = m.match_doc_id""" % (path, '%', path, '%')
+        # q = q.replace("'", "\'")
+
+        q = sql.get_query(CACHE_MATCHES, path, path)
         rows = sql.run_query(q)
         for row in rows:
             key = '-'.join([row[2], row[0]]) 

@@ -1,9 +1,6 @@
 '''
    Usage: command.py [--stop] [--reconfig] ([--inc_path_cache_size])
 
-
-
-
 '''
 
 import os, sys, docopt

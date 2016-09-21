@@ -2,7 +2,7 @@ import os, sys, pprint, json
 
 import config, start, sql, ops, alchemy
 
-from assets import AssetException
+from errors import AssetException
 
 def clear_bad_entries():
 

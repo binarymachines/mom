@@ -1,9 +1,13 @@
 #!/usr/bin/python
 
 import os, json, pprint, sys, traceback, datetime, logging
+
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import ConnectionError
-from assets import AssetException, Asset, MediaFile, MediaFolder
+
+from errors import AssetException
+from assets import Asset, MediaFile, MediaFolder
+
 import config, sql, esutil, ops, alchemy
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -89,15 +93,6 @@ class Library:
             sys.exit(1)
 
         return True
-
-def handle_asset_exception(error, path):
-    if error.message.lower().startswith('multiple'):
-        for item in  error.data:
-            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-    # elif error.message.lower().startswith('unable'):
-    # elif error.message.lower().startswith('NO DOCUMENT'):
-    else:
-        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [config.es_index, error.data.document_type, error.data.esid, error.message])
         
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
     sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
@@ -131,107 +126,27 @@ def get_locations():
     return result
 
 def get_locations_ext():
-    result  = []
-    rows = sql.retrieve_values('media_location_extended_folder', ['path'], [])
-    for row in rows:
-        result.append(os.path.join(row[0]))
+    # result  = []
+    # rows = sql.retrieve_values('media_location_extended_folder', ['path'], [])
+    # for row in rows:
+    #     result.append(os.path.join(row[0]))
 
-    return result
+    # return result
+    return sql.get_all_rows('media_location_extended_folder', 'path')
 
 def get_genre_folder_names():
-    results = []
-    rows = sql.retrieve_values('media_genre_folder', ['name'], [])
-    for r in rows: results.append(r[0])
-    return results
+    # results = []
+    # rows = sql.retrieve_values('media_genre_folder', ['name'], [])
+    # for r in rows: results.append(r[0])
+
+    # return results
+    return sql.get_all_rows('media_genre_folder', 'name')
 
 def get_active_media_formats():
     results = []
     rows = sql.retrieve_values('media_format', ['active_flag', 'ext'], ['1'])
     for r in rows: results.append(r[1])
     return results
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_contains_album_folders(path):
-    raise Exception('not implemented!')
-
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_contains_genre_folders(path):
-    raise Exception('not implemented!')
-
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_contains_media(path, extensions):
-    # if self.debug: print path
-    if os.path.isdir(path):
-        for f in os.listdir(path):
-            if os.path.isfile(os.path.join(path, f)):
-                for ext in extensions:
-                    if f.lower().endswith('.' + ext.lower()):
-                        return True
-    
-    else: raise Exception('Path does not exist: "' + path + '"')
-
-    return False
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_contains_multiple_media_types(path, extensions):
-    # if self.debug: print path
-    if os.path.isdir(path):
-        
-        found = []
-        for f in os.listdir(path):
-            if os.path.isfile(os.path.join(path, f)):
-                for ext in extensions:
-                    if f.lower().endswith('.' + ext):
-                        if ext not in found:
-                            found.append(ext)
-
-        return len(found) > 1
-
-    else: raise Exception('Path does not exist: "' + path + '"')
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_has_location_name(path, names):
-    # if path.endswith('/'):
-    for name in names():
-        if path.endswith(name):
-            print path
-
-    # sys.exit(1)
-    # raise Exception('not implemented!')
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_in_album_folder(path):
-    # if self.debug: print path
-    if os.path.isdir(path) == False:
-        raise Exception('Path does not exist: "' + path + '"')
-
-    raise Exception('not implemented!')
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_in_genre_folder(path):
-    raise Exception('not implemented!')
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_in_location_folder(path):
-    raise Exception('not implemented!')
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_is_album_folder(path):
-    # if self.debug: print path
-    if os.path.isdir(path) == False:
-        raise Exception('Path does not exist: "' + path + '"')
-
-    raise Exception('not implemented!')
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_is_genre_folder(path):
-    raise Exception('not implemented!')
-
-#TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_is_location_folder(path):
-    raise Exception('not implemented!')
 
 # TODO: figure out why this fails
 def add_artist_and_album_to_db(self, data):

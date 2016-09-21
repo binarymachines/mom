@@ -1,22 +1,8 @@
 #! /usr/bin/python
 
 import os, sys, time, json
-import config
 
-# doc = "The doc_name property."
-# def fget(self):
-#     return self._doc_name
-# def fset(self, value):
-#     self._doc_name = value
-# def fdel(self):
-#     del self._doc_name
-# return locals()
-# doc_name = property(**doc_name()))
-
-class AssetException(Exception):
-    def __init__(self, message, data):
-        super(AssetException, self).__init__(message)
-        self.data = data
+import config, pathutil
 
 class Asset(object):
     def __init__(self):
@@ -40,37 +26,37 @@ class Asset(object):
         return self.absolute_path.split('/')[-1]
 
     def ignore(self):
-        return ignore(self.absolute_path)
+        return pathutil.ignore(self.absolute_path)
 
     def is_expunged(self):
-        return is_expunged(self.absolute_path)
+        return pathutil.is_expunged(self.absolute_path)
 
     def is_filed(self):
-        return is_filed(self.absolute_path)
+        return pathutil.is_filed(self.absolute_path)
 
     def is_filed_as_compilation(self):
-        return is_filed_as_compilation(self.absolute_path)
+        return pathutil.is_filed_as_compilation(self.absolute_path)
 
     def is_filed_as_live(self):
-        return is_filed_as_live(self.absolute_path)
+        return pathutil.is_filed_as_live(self.absolute_path)
 
     def is_new(self):
-        return is_new(self.absolute_path)
+        return pathutil.is_new(self.absolute_path)
 
     def is_noscan(self):
-        return is_noscan(self.absolute_path)
+        return pathutil.is_noscan(self.absolute_path)
 
     def is_random(self):
-        return is_random(self.absolute_path)
+        return pathutil.is_random(self.absolute_path)
 
     def is_recent(self):
-        return is_recent(self.absolute_path)
+        return pathutil.is_recent(self.absolute_path)
 
     def is_unsorted(self):
-        return is_unsorted(self.absolute_path)
+        return pathutil.is_unsorted(self.absolute_path)
 
     def is_webcast(self):
-        return is_webcast(self.absolute_path)
+        return pathutil.is_webcast(self.absolute_path)
 
     def to_str(self):
         return json.dumps(self.get_dictionary())
@@ -101,34 +87,30 @@ class MediaFile(Asset):
 
     # TODO: call Asset.get_dictionary and append values
     def get_dictionary(self):
-        try:
-            data = {
-                    'absolute_path': self.absolute_path,
-                    'file_ext': self.ext,
-                    'file_name': self.file_name,
-                    'folder_name': self.folder_name,
-                    'file_size': self.file_size
-                    }
+        data = {
+                'absolute_path': self.absolute_path,
+                'file_ext': self.ext,
+                'file_name': self.file_name,
+                'folder_name': self.folder_name,
+                'file_size': self.file_size
+                }
 
-            if self.location is not None: data['folder_location'] = self.location
+        if self.location is not None: data['folder_location'] = self.location
 
-            data['ctime'] = time.ctime(os.path.getctime(self.absolute_path))
-            data['mtime'] = time.ctime(os.path.getmtime(self.absolute_path))
-            data['filed'] = self.is_filed()
-            data['compilation'] = self.is_filed_as_compilation()
-            data['webcast']= self.is_webcast()
-            data['unsorted'] = self.is_unsorted()
-            data['random'] = self.is_random()
-            data['new'] = self.is_new()
-            data['recent'] = self.is_recent()
-            data['active'] = self.active
-            data['deleted'] = self.deleted
-            data['live_recording'] = self.is_filed_as_live()
+        data['ctime'] = time.ctime(os.path.getctime(self.absolute_path))
+        data['mtime'] = time.ctime(os.path.getmtime(self.absolute_path))
+        data['filed'] = self.is_filed()
+        data['compilation'] = self.is_filed_as_compilation()
+        data['webcast']= self.is_webcast()
+        data['unsorted'] = self.is_unsorted()
+        data['random'] = self.is_random()
+        data['new'] = self.is_new()
+        data['recent'] = self.is_recent()
+        data['active'] = self.active
+        data['deleted'] = self.deleted
+        data['live_recording'] = self.is_filed_as_live()
 
-            return data
-        except Exception, err:
-            print err.message
-            # if self.debug: traceback.print_exc(file=sys.stdout)
+        return data
 
 
 class MediaFolder(Asset):
@@ -143,7 +125,6 @@ class MediaFolder(Asset):
                     'has_errors': self.has_errors,
                     'latest_error': self.latest_error,
                     'latest_operation': self.latest_operation }
-
         return data
 
     def all_files_have_matches():
@@ -160,75 +141,3 @@ class MediaFolder(Asset):
 
     def has_multiple_artists():
         return False
-
-# path functions for media files and folders
-
-def ignore(path):
-    for f in library.get_folder_constants('ignore'):
-        if f in path:
-            return True
-    return False
-
-def is_expunged(path):
-    folders = ['[expunged]']
-    for f in folders:
-        if f in path:
-            return True
-    return False
-
-def is_filed(path):
-    folders = ['/albums', '/compilations']
-    for f in folders:
-        if f in path:
-            return True
-    return False
-
-def is_filed_as_compilation(path):
-    for f in library.get_folder_constants('compilation'):
-        if f in path:
-            return True
-    return False
-
-def is_filed_as_live(path):
-    for f in library.get_folder_constants('live_recordings'):
-        if f in path:
-            return True
-    return False
-
-def is_new(path):
-    for f in library.get_folder_constants('new'):
-        if f in path:
-            return True
-    return False
-
-def is_noscan(path):
-    folders = ['[noscan]']
-    for f in folders:
-        if f in path:
-            return True
-    return False
-
-def is_random(path):
-    for f in library.get_folder_constants('random'):
-        if f in path:
-            return True
-    return False
-
-def is_recent(path):
-    for f in library.get_folder_constants('recent'):
-        if f in path:
-            return True
-    return False
-
-def is_unsorted(path):
-    for f in library.get_folder_constants('unsorted'):
-        if f in path:
-            return True
-    return False
-
-def is_webcast(path):
-    folders = ['/webcasts']
-    for f in folders:
-        if f in path:
-            return True
-    return False

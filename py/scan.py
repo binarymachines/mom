@@ -7,11 +7,13 @@
 
 '''
 
-import os, json, pprint, sys, traceback, logging
+import os, json, pprint, sys, traceback, logging, errors
 
 import cache, config, start, ops, calc, sql, util, esutil, library
 
-from assets import AssetException, Asset, MediaFile, MediaFile
+from errors import AssetException
+from assets import Asset, MediaFile, MediaFolder
+
 from library import Library
 
 from read import Reader
@@ -66,7 +68,7 @@ class Scanner(LibraryWalker):
                 self.library.folder = None
                 LOG.warning(': '.join([err.__class__.__name__, err.message]))
                 traceback.print_exc(file=sys.stdout)
-                library.handle_asset_exception(err, root)
+                errors.handle_asset_exception(err, root)
 
             except Exception, err:
                 LOG.error(': '.join([err.__class__.__name__, err.message]))

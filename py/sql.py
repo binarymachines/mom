@@ -5,6 +5,8 @@ import MySQLdb as mdb
 
 from errors import SQLConnectError 
 
+WILD = '%'
+
 def quote_if_string(value):
     if isinstance(value, basestring):
         return '"%s"' % value
@@ -98,85 +100,74 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
     
 # execute queries
 
-def run_query(query):
-
-    con = None
-    rows = []
-
-    try:
-        logging.getLogger(config.sql_log).info(query)
-        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
-        cur = con.cursor()
-        cur.execute(query)
-        rows = cur.fetchall()
-
-        # if rows is not None: logging.getLogger(config.error_log).info('returning %i rows.' % len(rows))
-
-    except mdb.Error, e:
-
-        message = "Error %d: %s" % (e.args[0], e.args[1])
-        logging.getLogger(config.error_log).error(message)
-        # logging.getLogger(config.error_log).warn(query)
-        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
-
-    except TypeError, e:
-
-        logging.getLogger(config.error_log).error(e.message)
-        # logging.getLogger(config.error_log).warn(query)
-        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
-
-    except Exception, e:
-
-        logging.getLogger(config.error_log).error(e.message)
-        logging.getLogger(config.error_log).warn(e.query)
-        raise Exception(message)
-
-        # raise SQLConnectError(e)
-    finally:
-        if con: con.close()
-
-    return rows
 
 def execute_query(query):
-
     con = None
     rows = []
-
     try:
         logging.getLogger(config.error_log).info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
-
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
         config.error_log.error(message)
         config.error_log.warn(query)
         raise Exception(message)
+    finally:
+        if con: con.close()
+    return rows
 
+def run_query(query):
+    con = None
+    rows = []
+    try:
+        logging.getLogger(config.sql_log).info(query)
+        con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
+        cur = con.cursor()
+        cur.execute(query)
+        rows = cur.fetchall()
+    except mdb.Error, e:
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        logging.getLogger(config.error_log).error(message)
+        # logging.getLogger(config.error_log).warn(query)
+        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
+    except TypeError, e:
+        logging.getLogger(config.error_log).error(e.message)
+        # logging.getLogger(config.error_log).warn(query)
+        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
+    except Exception, e:
+        logging.getLogger(config.error_log).error(e.message)
+        logging.getLogger(config.error_log).warn(e.query)
+        raise Exception(message)
     finally:
         if con: con.close()
 
     return rows
 
+def run_query_template(filename, args):
+    return run_query(get_query(filename, args))
+
 # load and fill query templates
 
-WILD = '%'
+def get_all_rows(table, *columns):
+    result  = []
+    rows = retrieve_values(table, columns, [])
+    return rows
 
-def load_query(filename, *args):
-
-    # divorce double quotes
+def get_query(filename, *args):
     newargs = ()
     for arg in args:
+        # divorce double quotes
         newargs += (arg.replace('"', "'"),)
 
     try:
-        f = open('py/sql/%s.sql' % filename, 'r')
-        # substitute wildcard and escape single quotes
-        query = str(f.read() % newargs).replace('*', WILD).replace("'", "\'") 
-        f.close()
-        return query
+        with open('py/sql/%s.sql' % filename, 'r') as f:
+            # substitute wildcard and escape single quotes
+            query = str(f.read() % newargs).replace('*', WILD).replace("'", "\'") 
+            f.close()
+            return query
     except TypeError, e:
         raise Exception(e)
     except IOError, e:
