@@ -1,9 +1,19 @@
-import os, sys, traceback, logging
+#! /usr/bin/python
+
+'''
+   Usage: scan.py [(--path <path>...)]
+
+   --path, -p       The path to match on
+
+'''
+
+import os, sys, traceback, logging, docopt
 
 import redis
 
 import cache, config, ops, sql, esutil, library, errors
 
+from context import PathContext
 from errors import AssetException
 from assets import Asset, MediaFile, MediaFolder
 from match import ElasticSearchMatcher
@@ -133,3 +143,13 @@ def record_match_ops_complete(matcher, media, path, ):
         LOG.warning(': '.join([err.__class__.__name__, err.message]))
         traceback.print_exc(file=sys.stdout)
         library.handle_asset_exception(err, path)
+
+def main(args):
+    config.start_console_logging()
+    paths = None if not args['--path'] else args['<path>']
+    context = PathContext('_path_context_', paths, ['mp3'])
+    calculate_matches(context)
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)
