@@ -12,9 +12,13 @@ import sql
 # return locals()
 # doc_name = property(**doc_name()))
 
-def main():
-    print sql.get_query('cache_cache_matches', 'Bobby "Blue" Bland', "Morton's Treehouse")
+def query(field_names, field_values):
+    
+    formatted_values = [sql.quote_if_string(value) for value in field_values]
 
+
+def main():
+    query(['id', 'first_name', 'last_name'], ['5', 'Mark', 'Pippins'])
 
 if __name__ == '__main__':
     main()

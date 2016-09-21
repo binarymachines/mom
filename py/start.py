@@ -138,17 +138,17 @@ def make_options(args):
     return options
 
 def read(parser, section):
-    dict1 = {}
+    result = {}
     options = parser.options(section)
     for option in options:
         try:
-            dict1[option] = parser.get(section, option)
-            if dict1[option] == -1:
+            result[option] = parser.get(section, option)
+            if result[option] == -1:
                 DebugPrint("skip: %s" % option)
         except:
             print("exception on %s!" % option)
-            dict1[option] = None
-    return dict1
+[option] = None
+    return result
 
 def setup_log(file_name, log_name, logging_level):
     log = "logs/%s" % (file_name)    
@@ -172,7 +172,6 @@ def start_logging():
     setup_log(config.ops_log, config.ops_log, logging.DEBUG)
     setup_log(config.cache_log, config.cache_log, logging.DEBUG)
 
-            
 def write_pid_file():
     f = open('pid', 'wt')
     f.write(str(config.pid))

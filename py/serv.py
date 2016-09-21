@@ -2,7 +2,7 @@ import sys, os, logging, traceback, thread
 
 from modes import Mode, Rule, Selector, Engine
 
-DEFAULT_SERVER_NAME = '\n:\`]'
+SERVICE_NAME = '::\`]'
 
 class ServiceProcess(object):
     def __init__(self, name, context, owner, stop_on_errors=True):
@@ -52,8 +52,7 @@ class ServiceProcess(object):
                 self.error_count += 1
                 self.initialize()
                 self.run(before, after)
-            
-            raise err
+            else: raise err
 
     def halt(self):
         self.halted = true
@@ -107,7 +106,7 @@ class ServiceProcess(object):
 
 class Service(object):
     def __init__(self, name=None):
-        self.name = DEFAULT_SERVER_NAME if name is None else name
+        self.name = SERVICE_NAME if name is None else name
         print '%s starting...' % self.name
         self.active = []
         self.inactive = []
