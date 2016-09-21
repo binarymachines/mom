@@ -1,15 +1,16 @@
 #! /usr/bin/python
 
 '''
-   Usage: scan.py [(--path <path>...) | (--pattern <pattern>...) ]
+   Usage: scan.py [(--path <path>...)]
 
-   --path, -p                   The path to scan
+   --path, -p       The path to scan
 
 '''
 
-import os, json, pprint, sys, traceback, logging, errors
+import os, json, pprint, sys, traceback, logging, errors, docopt
 
 import cache, config, start, ops, calc, sql, util, esutil, library
+from context import PathContext
 
 from errors import AssetException
 from assets import Asset, MediaFile, MediaFolder
@@ -173,3 +174,13 @@ def scan(context):
     if 'scanner' not in context.data:
         context.data['scanner'] = Scanner()
     context.data['scanner'].scan(context)
+
+def main(args):
+    config.start_console_logging()
+    paths = None if not args['--path'] else args['<path>']
+    context = PathContext('_path_context_', paths, ['mp3'])
+    scan(context)
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)
