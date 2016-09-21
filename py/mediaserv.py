@@ -12,48 +12,29 @@ LOG = logging.getLogger('console.log')
 
 class MediaServiceProcess(ServiceProcess):
     def __init__(self, name, context, stop_on_errors=True):
+        # super must be called before accessing selector instance
         super(MediaServiceProcess, self).__init__(name, context, stop_on_errors)
-
-    # def apply_directives(self, selector, mode, is_before):
-    #     if is_before and mode == self.fixmode:
-    #         pass
 
     # selector callbacks
     def after_switch(self, selector, mode):
-        # self.apply_directives(selector, mode, False)
         self.handler.after_switch(selector, mode)
 
     def before_switch(self, selector, mode):
-        # self.apply_directives(selector, mode, True)
         self.handler.before_switch(selector, mode)
-
-    # process shutdown routines
-    def after_shutdown(self):
-        self.handler.after()
-        LOG.info('%s service process complete' % self.name)
-
-    def before_shutdown(self):
-        self.handler.before()
-        LOG.info('%s handling shutdown request, clearing caches, writing data' % self.name)
-
-    def do_shutdown(self):
-        if self.selector.complete:
-            LOG.info('%s end process..' % self.name)
 
     # process logic
     def setup(self):
 
         self.handler = MediaServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
-        # startmode is a special case with no rule to crib its before() and after() callbacks from
-        self.startmode = Mode("STARTUP", self.handler.starting, 0)
+        self.startmode = Mode("STARTUP", self.handler.start, 0)
         self.evalmode = Mode("EVAL", self.handler.do_eval, 10)
         self.scanmode = Mode("SCAN", self.handler.do_scan, 25)
         self.matchmode = Mode("MATCH", self.handler.do_match, 25)
         self.fixmode = Mode("FIX", self.handler.do_fix, 5)
         self.reportmode = Mode("REPORT", self.handler.do_report, 3)
         self.reqmode = Mode("REQUESTS", self.handler.do_reqs, 5)
-        self.endmode = Mode("SHUTDOWN", self.do_shutdown, 0)
+        self.endmode = Mode("SHUTDOWN", self.handler.end, 0)
 
         self.selector.remove_at_error_tolerance = True
         self.matchmode.error_tolerance = 5
@@ -65,7 +46,8 @@ class MediaServiceProcess(ServiceProcess):
 
         for mode in self.selector.modes: mode.dec_priority = True
 
-        self.selector.add_rule('start', None, self.startmode, self.handler.definitely, self.handler.start, self.handler.started)
+        # startmode rule must have None as its origin
+        self.selector.add_rule('start', None, self.startmode, self.handler.definitely, self.handler.starting, self.handler.started)
 
         # paths to fixmode
         self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
@@ -92,7 +74,7 @@ class MediaServiceProcess(ServiceProcess):
             self.startmode, self.fixmode, self.reportmode, self.reqmode, self.scanmode, self.matchmode)
 
         # paths to endmode
-        self.selector.add_rules(self.endmode, self.handler.maybe, self.before_shutdown, self.after_shutdown, \
+        self.selector.add_rules(self.endmode, self.handler.maybe, self.handler.ending, self.handler.ended, \
             self.reportmode)
 
 def create_service_process(identifier, context, alternative=None):
@@ -101,7 +83,9 @@ def create_service_process(identifier, context, alternative=None):
         return MediaServiceProcess(identifier, context)
     return alternative(identifier, context)
 
-def after (process):
+# process callbacks
+
+def after(process):
     LOG.info('process %s has completed.' % process.name)
 
 def before(process):
