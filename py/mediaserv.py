@@ -59,6 +59,7 @@ class MediaServiceProcess(ServiceProcess):
         self.matchmode.error_tolerance = 5
 
         # startmode must appear first in this list and endmode most appear last
+        # selector should figure which modes are start and end and validate rules before executing
         self.selector.modes = [self.startmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
             self.reportmode, self.reqmode, self.endmode]
 

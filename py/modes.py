@@ -331,10 +331,11 @@ class Engine:
                     if self.stop_on_errors:
                         raise error
                 finally:
-                    for selector in self.inactive:
-                        if selector in self.active:
-                            self.active.remove(selector)
                     self._update_()
+
+        for selector in self.inactive:
+            if selector in self.active:
+                self.active.remove(selector)
 
     def execute(self, cycle=True):
 
