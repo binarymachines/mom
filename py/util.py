@@ -1,26 +1,10 @@
 #! /usr/bin/python
 
-import os, sys, logging
-import pprint
-import random
-import sql
-import config
-import MySQLdb as mdb
-
-from elasticsearch import Elasticsearch
-from errors import AssetException
-
-pp = pprint.PrettyPrinter(indent=2)
-
+import os, sys
 
 def str_clean4comp(input):
-    alphanum = "1234567890abcdefghijklmnopqrstuvwxyz"
-    output = ''
-    for letter in input:
-        if letter.lower()  in alphanum:
-            output += letter.lower()
-
-    return output
+    alphanum = "0123456789abcdefghijklmnopqrstuvwxyz"
+    return ''.join([letter.lower() for letter in input if letter in alphanum])
 
 # compare source and target folders, remove files from source that exist in target
 def delta(source, target, remove_source_files=False):
