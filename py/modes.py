@@ -6,12 +6,10 @@ LOG = logging.getLogger('console.log')
 class Mode(object):
     HIGHEST = 100;
     LOWEST = 0
-    # TODO: these callbacks get overwritten in select(), call mode.rule_applied.method() in switch() instead 
-    def __init__(self, name, priority=0, effect=None, before=None, after=None):
+
+    def __init__(self, name, effect=None, priority=0):
         self.name = name
-        # self.before = None
         self.effect = effect
-        # self.after = None
 
         self.active_rule = None
         self.times_activated = 0
@@ -24,7 +22,7 @@ class Mode(object):
         self.dec_priority_amount = 1
         self.inc_priority = False
         self.inc_priority_amount = 0
-        
+
         #error management
         self.error_state = False
         self.error_count = 0
@@ -52,13 +50,15 @@ class ModeDestinationException(Exception):
 
 
 class Rule:
-    def __init__(self, name, start, end, condition, effect=None, before=None, after=None):
+    def __init__(self, name, start, end, condition, before=None, after=None):
         self.name = name
+
+        # mode path
         self.start = start
         self.end = end
-        self.condition = condition
 
-        self.effect = effect
+        # callbacks
+        self.condition = condition
         self.before = before
         self.after = after
 
@@ -77,12 +77,12 @@ class Selector:
         self.previous = None
         self.next = None
         self.possible = None
-        self.start = None 
+        self.start = None
         self.end = None
         self.modes = []
         self.rules = []
         self.complete = False
-        
+
         self.before_switch = before_switch
         self.after_switch = after_switch
 
@@ -93,7 +93,7 @@ class Selector:
 
         # use with directives for process mode switch
         self.selection_mode = None
-    
+
         # internal stats
         self.step_count = 0;
 
@@ -106,7 +106,7 @@ class Selector:
         for mode in self.modes:
             if mode.name.lower() == name.lower():
                 return mode
-        
+
         return None
 
     def get_rules(self, mode):
@@ -116,7 +116,7 @@ class Selector:
                 results.append(rule)
 
         return results
-    
+
     def handle_error(self, error):
         LOG.error("%s Handling %s in mode %s" % (self.name, error.message, self.active.name))
 
@@ -136,14 +136,14 @@ class Selector:
     def has_path(self, mode, destination):
         result = False
         for rule in self.get_rules(mode):
-            if result == False and rule.end == destination: 
+            if result == False and rule.end == destination:
                 result =  True
                 break
-            elif result == False: 
+            elif result == False:
                 result = has_path(rule.end, destination)
         return result
-        
-    def has_priority(self, mode, level):        
+
+    def has_priority(self, mode, level):
         compval = mode.priority
         higher = true
         lower = true
@@ -154,7 +154,7 @@ class Selector:
             if level == Mode.LOWEST and other.priority < mode.priority: return False
 
     def _peep_(self):
-        
+
         results = []
         for rule in self.get_rules(self.active):
             if self.remove_at_error_tolerance and rule.end.error_count > rule.end.error_tolerance \
@@ -163,14 +163,14 @@ class Selector:
             try:
                 self.possible = rule.end
                 if rule.applies(self, self.active, self.possible):
-                    if rule not in results: results.append(rule)           
-                    # if rule.end not in results: results.append(rule.end)           
+                    if rule not in results: results.append(rule)
+                    # if rule.end not in results: results.append(rule.end)
             except Exception, err:
                 LOG.error('%s while trying to apply rule %s' % (err.message, rule.name))
                 raise err
 
         return results
-    
+
     def select(self):
 
         applicable = rules = self._peep_()
@@ -185,28 +185,21 @@ class Selector:
                 if rule.end != available and rule.end.priority > available.priority:
                     available = rule.end
                     available.active_rule = rule
-            
+
             self.switch(available)
 
         elif len(possible) == 0:
             raise ModeDestinationException("%s: No valid destination from %s" % (self.name, self.active.name))
-    
+
     def _set_mode_funcs_(self, mode):
         if mode.active_rule == None:
             rules = self.get_rules(self.start if self.active is None else self.active)
             for rule in rules:
                 if rule.start == self.active and rule.end == mode:
-                    mode.before = rule.before
                     mode.effect = rule.effect
-                    mode.after = rule.after
                     mode.active_rule = rule
                     break
-        else:
-            mode.before = mode.active_rule.before
-            mode.effect = mode.active_rule.effect
-            mode.after = mode.active_rule.after
-            # mode.active_rule = None
-            
+
     def _call_switch_bracket_func_(self, mode, func):
         try:
             if func is not None: func(self, mode)
@@ -219,7 +212,7 @@ class Selector:
             except Exception, logging_error:
                 LOG.warning(logging_error.message)
                 LOG.error(err.message)
-            raise err        
+            raise err
 
     def _call_mode_func_(self, mode, func):
         try:
@@ -232,31 +225,33 @@ class Selector:
             except Exception, logging_error:
                 LOG.warning(logging_error.message)
                 LOG.error(err.message)
-            raise err      
-
+            raise err
 
     # NOTE: this function has ordering dependencies
     def switch(self, mode, rewind=False):
-        self.next = mode        
-        self._set_mode_funcs_(mode)           
-        self._call_switch_bracket_func_(mode, self.before_switch) 
+        self.next = mode
+        self._set_mode_funcs_(mode)
+        self._call_switch_bracket_func_(mode, self.before_switch)
 
         self.previous = self.active
-        
-        if self.previous is not None: 
-            self._call_mode_func_(self.previous, self.previous.after)
+
+        # can't this happen in the bottom of this method?
+        if self.previous is not None:
+            if self.previous.active_rule is not None:
+                self._call_mode_func_(self.previous, self.previous.active_rule.after)
             self.previous.times_completed += 1
-            if self.previous.dec_priority: 
+            if self.previous.dec_priority:
                 self.previous.priority -= self.previous.dec_priority_amount
 
         # call before() for what will be the current mode
-        self._call_mode_func_(mode, mode.before)
+        if mode.active_rule is not None:
+            self._call_mode_func_(mode, mode.active_rule.before)
 
         self.active = mode
         mode.times_activated += 1
         self.complete = True if self.active == self.end else False
 
-        self._call_mode_func_(mode, mode.effect)        
+        self._call_mode_func_(mode, mode.effect)
         self._call_switch_bracket_func_(mode, self.after_switch)
 
 
@@ -273,7 +268,7 @@ class SuspensionHandler:
         self.success = False
         self.attempts = 0
         self.interval = interval
-        self.created = datetime.datetime.now() 
+        self.created = datetime.datetime.now()
         self.times_to_fail = -1
 
     def recover(self):
@@ -305,11 +300,11 @@ class Engine:
 
     def _sub_execute_(self):
         for selector in self.active:
-            if selector.complete: 
+            if selector.complete:
                 self.inactive.append(selector)
                 # self.report(selector)
             else:
-                try: 
+                try:
                     selector.select()
                     selector.step_count += 1
                 except ModeDestinationException, error:
@@ -320,22 +315,22 @@ class Engine:
                 except Exception, error:
                     LOG.error("%s Handling error '%s' in selector %s" % (self.name, error.message, selector.name))
                     traceback.print_exc(file=sys.stdout)
-       
+
                     selector.error_state = True
                     self.inactive.append(selector)
-                    if self.stop_on_errors: 
+                    if self.stop_on_errors:
                         raise error
                 finally:
                     for selector in self.inactive:
-                        if selector in self.active: 
+                        if selector in self.active:
                             self.active.remove(selector)
                     self._update_()
-        
+
     def execute(self, cycle=True):
 
         self.running = True
         for selector in self.active:
-            if selector.complete == False: 
+            if selector.complete == False:
                 selector.run()
 
         while len(self.active) > 0 and cycle:
@@ -345,10 +340,10 @@ class Engine:
         LOG.info('%s reporting activity for: %s' % (self.name, selector.name))
 
         LOG.info('%s took %i steps.' % (selector.name, selector.step_count))
-        if selector.error_state: 
+        if selector.error_state:
             LOG.info('%s has errors.' % selector.name)
         elif selector.complete: LOG.info('%s executed to completion.' % selector.name)
-        for mode in selector.modes: 
+        for mode in selector.modes:
             LOG.info('%s: times activated = %i, times completed = %i, priority = %i, error count = %i, error state = %s ' % \
                 (mode.name, mode.times_activated, mode.times_completed, mode.priority, mode.error_count, str(mode.error_state)))
 
@@ -378,7 +373,7 @@ def _parse_func_info_(func):
     try:
         func_strings = str(func).split('.')
         func_desc = func_strings[0].split('<')[-1].replace('bound method ', '')
-        func_name = '.'.join([func_desc, func_strings[1].split('<')[1], func_strings[1].split('<')[0].replace(' of ', '()')])   
+        func_name = '.'.join([func_desc, func_strings[1].split('<')[1], func_strings[1].split('<')[0].replace(' of ', '()')])
         return func_name
     except Exception, err:
         return str(func)

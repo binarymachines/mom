@@ -21,9 +21,9 @@ class ServiceProcess(object):
         rule = Rule(name, origin, endpoint, condition, effect, before, after)
         self.selector.rules.append(rule)
 
-    def add_rules(self, endpoint, condition, effect, before, after, *origins):
+    def add_rules(self, endpoint, condition, before, after, *origins):
         for mode in origins:
-            rule = Rule("%s ::: %s" % (mode.name, endpoint.name), mode, endpoint, condition, effect, before, after)
+            rule = Rule("%s ::: %s" % (mode.name, endpoint.name), mode, endpoint, condition, before, after)
             self.selector.rules.append(rule)
 
     # def apply_directives(self, selector, mode, is_before):
