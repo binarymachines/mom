@@ -8,7 +8,7 @@ import config
 import MySQLdb as mdb
 
 from elasticsearch import Elasticsearch
-from assets import AssetException
+from errors import AssetException
 
 pp = pprint.PrettyPrinter(indent=2)
 

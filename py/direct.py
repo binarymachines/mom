@@ -21,12 +21,8 @@ class Directive:
             #TODO: else compare now to self_applied and respond false if time too short
 
         for requirement in self.requirements:
-            if requirement['condition'] is target:
+            if requirement['condition'] is not None and requirement['condition'](target):
                 return True
-
-        # for requirement in self.requirements:
-        #     if requirement['condition'] is not None and requirement['condition'](target):
-        #         return True
 
         return True
         
@@ -40,5 +36,6 @@ class Directive:
 
 # a nature is a configured list of directives, a service-level mode
 class Nature:
-    pass
+    def __init__(self):
+        directives = []
 

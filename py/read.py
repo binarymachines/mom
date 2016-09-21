@@ -85,6 +85,8 @@ class Reader:
             if self.debug: print "attaching NEW esid: %s to %s." % (esid, media.file_name)
             media.esid = esid
             if self.debug: print "inserting NEW esid into MySQL"
-            alchemy.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
-
+            # alchemy.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
+            library.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
+            raw_input('verify that the record was written before contining')
+            
         else: raise Exception('Failed to write media file %s to Elasticsearch.' % (media.file_name))

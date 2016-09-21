@@ -22,7 +22,7 @@ def get_path_config():
 
 def launch(args, run=True):
     try:
-        # NOTE: final changes to config
+        # NOTE: final changes to config happen here
         config.filename = config.filename if not args['--config'] else args['<filename>'] 
         config.start_time = datetime.datetime.now().isoformat() 
         start.execute(args) 

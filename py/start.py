@@ -6,6 +6,8 @@ import cache, config, sql, esutil, calc, ops, util, library
 
 EXECUTE_DISCONNECTED = True
 
+GET_PATHS = 'start_get_paths'
+
 LOG = logging.getLogger('console.log')
 
 def execute(args):
@@ -89,9 +91,9 @@ def execute(args):
                     LOG.info('flushing reddis cache...')
                     ops.flush_all()
 
-                log.info('connecting to Elasticsearch...')
-                # config.es = esutil.connect(config.es_host, config.es_port)
-                log.info('connecting to MySQL...')
+                LOG.info('connecting to Elasticsearch...')
+                config.es = esutil.connect(config.es_host, config.es_port)
+                LOG.info('connecting to MySQL...')
 
             config.launched = True
             config.display_status()
@@ -110,9 +112,10 @@ def get_paths(args):
     if args['--pattern']:
         for p in pattern:
             try:
-                q = """SELECT absolute_path FROM es_document WHERE absolute_path LIKE "%s%s%s" AND doc_type = "%s" ORDER BY absolute_path""" % \
-                    ('%', p, '%', config.MEDIA_FOLDER)
-                for row in sql.run_query(q):
+                # q = """SELECT absolute_path FROM es_document WHERE absolute_path LIKE "%s%s%s" AND doc_type = "%s" ORDER BY absolute_path""" % \
+                #     ('%', p, '%', config.MEDIA_FOLDER)                
+                # for row in sql.run_query(q):
+                for row in sql.run_query_template(GET_PATHS, p, config.MEDIA_FOLDER):
                     paths.append(row[0])
             except Exception, err:
                 raise err
@@ -152,17 +155,15 @@ def setup_log(file_name, log_name, logging_level):
     tracer = logging.getLogger(log_name)
     tracer.setLevel(logging_level)
     tracer.addHandler(logging.FileHandler(log))
-    
     return tracer
     
 def start_logging():
     if config.logging_started: return
     config.logging_started = True
     config.start_console_logging()
-    log = LOG
     
     for logname in (config.log, config.error_log, config.sql_log, config.cache_log):  
-        log.info("logging to: %s" % logname)
+        LOG.info("logging to: %s" % logname)
 
     setup_log('elasticsearch.log', 'elasticsearch.trace', logging.INFO)
     setup_log(config.log, config.log, logging.INFO)

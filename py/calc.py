@@ -1,10 +1,12 @@
 import os, sys, traceback, logging
 
-import cache, config, ops, sql, esutil, library
-from match import ElasticSearchMatcher
-
-from assets import Asset, MediaFile, MediaFolder, AssetException
 import redis
+
+import cache, config, ops, sql, esutil, library, errors
+
+from errors import AssetException
+from assets import Asset, MediaFile, MediaFolder
+from match import ElasticSearchMatcher
 
 LOG = logging.getLogger('console.log')
 
@@ -17,9 +19,10 @@ def all_matchers_have_run(matchers, media):
             break
     return skip_entirely
     
-def path_exists_in_data(path):
+def path_in_db(path):
     path = path.replace('"', "'")
     path = path.replace("'", "\'")
+    # TODO: use template
     q = 'select * from es_document where index_name = "%s" and doc_type = "%s" and absolute_path like "%s%s" limit 1' % \
         (config.es_index, config.MEDIA_FOLDER, path, '%')
     rows = sql.run_query(q)
@@ -37,7 +40,7 @@ def calculate_matches(context, cycle_context=False):
     for location in context.paths:
         LOG.info('calc: matching files in %s' % (location))
         ops.do_status_check()            
-        if path_exists_in_data(location):
+        if path_in_db(location):
             try:
                 # this should never be true, but a test
                 if location[-1] != '/': location += '/'
@@ -68,15 +71,15 @@ def calculate_matches(context, cycle_context=False):
 
                     try:
                         if all_matchers_have_run(matchers, media):
-                            LOG.info('skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
+                            LOG.info('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
                             continue
 
                         if esutil.doc_exists(media, True):
                             for matcher in matchers:
                                 if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                                    LOG.info('skipping %s operation on %s' % (matcher.name, media.absolute_path))       
+                                    LOG.info('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))       
                                 else: 
-                                    LOG.info('\n%s seeking matches for %s' % (matcher.name, media.absolute_path))
+                                    LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
                                     matcher.match(media)
                                     ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
 
@@ -84,7 +87,7 @@ def calculate_matches(context, cycle_context=False):
                         LOG.warning(': '.join([err.__class__.__name__, err.message]))
                         # if config.matcher_debug: 
                         traceback.print_exc(file=sys.stdout)
-                        library.handle_asset_exception(err, media.absolute_path)
+                        errors.handle_asset_exception(err, media.absolute_path)
                     
                     except UnicodeDecodeError, u:
                         # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
@@ -129,4 +132,4 @@ def record_match_ops_complete(matcher, media, path, ):
     except AssetException, err:
         LOG.warning(': '.join([err.__class__.__name__, err.message]))
         traceback.print_exc(file=sys.stdout)
-        library.handle_asset_exception(err, path)
+        errors.handle_asset_exception(err, path)
