@@ -1,20 +1,50 @@
 {
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "objman",
+          {
+            "name": "scratch",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/objman.py",
+            "program": "${workspaceRoot}/py/scratch.py",
+          
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "media hound",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/py/launch.py",
             "args": [ 
-                "--pattern", 
-                "music/compilations"
-                // "--path",
-                // "/media/removable/Audio/music/compilations" 
+                // "--config", "cloud.ini", 
+                // "--pattern", "m u s l i m g a u z e",
+                "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete",
+                "--scan", "--match", 
+                "--clearmem"
             ],
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "modes",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/py/mediaserv.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
