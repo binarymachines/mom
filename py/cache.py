@@ -70,7 +70,7 @@ def retrieve_esid(document_type, absolute_path):
     
     rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
     # rows = sql.run_query("select index_name, doc_type, absolute_path")
-    if rows == None: return [] 
+    if rows is None: return [] 
     elif len(rows) == 1: return rows[0][3] 
     else: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
     
@@ -118,7 +118,7 @@ def ensure(esid, path, document_type):
     
     esidforpath = get_cached_esid(document_type, path)
     
-    if esidforpath == None:
+    if esidforpath is None:
         key = '-'.join(['ensure', esid])
         values = { 'index_name': config.es_index, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
         config.redis.hmset(key, values)
@@ -134,7 +134,7 @@ def write_paths(flushkeys=True):
         keys.append(key)
         if 'absolute_path' in values:
             doc = config.redis.hgetall(values['absolute_path'])
-            if not 'esid' in doc:
+            if 'esid' not in doc:
                 esids.append(values)
 
         if len(esids) >= config.path_cache_size:

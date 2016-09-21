@@ -19,7 +19,7 @@ check_freq = None
 check_for_bugs = False
 
 genre_folders = locations = locations_ext = compilation = extended = ignore = incomplete = live = new = random = recent = unsorted = []
-server_debug = reader_debug = matcher_debug = library_debug = sql_debug = es_debug = ops_debug = False
+service_debug = reader_debug = matcher_debug = library_debug = sql_debug = es_debug = ops_debug = False
 
 log = sql_log = error_log = es_log = ops_log = cache_log = console_log = None
 logging_started = False
@@ -54,3 +54,17 @@ def display_status():
     print"""MySQL db: %s""" % mysql_db
     # print"""MySQL Host: %s.""" % mysql_host
     # print"""MySQL Host: %s.""" % mysql_host
+
+def start_console_logging():
+    # console handler
+    console_log = 'console.log'
+    CONSOLE = "logs/%s" % (console_log)
+    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.DEBUG) #, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.DEBUG)
+    
+    log = logging.getLogger(console_log)
+    log.addHandler(console)
+    log.info("console logging started.")
+    

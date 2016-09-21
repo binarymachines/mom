@@ -6,14 +6,15 @@ from match import ElasticSearchMatcher
 from assets import Asset, MediaFile, MediaFolder, AssetException
 import redis
 
+LOG = logging.getLogger('console.log')
+
 def all_matchers_have_run(matchers, media):
     skip_entirely = True
     paths = []
     for matcher in matchers:
-        if not ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
+        if ops.operation_in_cache(media.absolute_path, 'match', matcher.name) == False:
             skip_entirely = False
             break
-
     return skip_entirely
     
 def path_exists_in_data(path):
@@ -25,31 +26,36 @@ def path_exists_in_data(path):
     if len(rows) == 1:
         return True
 
-def calculate_matches(directive):
+# def split_location(into sets of media folders)
 
+def calculate_matches(context, cycle_context=False):
+    # MAX_RECORDS = ...
     matchers = get_matchers()
 
     opcount = 0
-    for location in directive.locations:
-        print 'matching files in %s' % (location)
+    # if context.has_next('match')...pop locations and split folders here if needed ; call recursively when cycle_context equals true
+    for location in context.paths:
+        LOG.info('calc: matching files in %s' % (location))
         ops.do_status_check()            
         if path_exists_in_data(location):
             try:
-                location += '/'
+                # this should never be true, but a test
+                if location[-1] != '/': location += '/'
+                
                 cache.cache_docs(config.MEDIA_FILE, location)
                 
-                logging.getLogger(config.log).info('caching match ops for %s...' % (location))
+                LOG.info('caching match ops for %s...' % (location))
                 for matcher in matchers:
                     ops.cache_ops(True, location, 'match', matcher.name)
 
-                logging.getLogger(config.log).info('caching matches for %s...' % (location))
+                LOG.info('caching matches for %s...' % (location))
                 cache.cache_matches(location)
                 
                 for key in cache.get_doc_keys(config.MEDIA_FILE):
-                    if not location in key and config.matcher_debug: 
-                        logging.getLogger(config.log).info('match calculator skipping %s' % (key))
+                    if location not in key and config.matcher_debug: 
+                        LOG.info('match calculator skipping %s' % (key))
                     values = config.redis.hgetall(key)
-                    if not 'esid' in values:
+                    if 'esid' not in values:
                         continue
                         
                     opcount += 1
@@ -62,38 +68,38 @@ def calculate_matches(directive):
 
                     try:
                         if all_matchers_have_run(matchers, media):
-                            logging.getLogger(config.log).info('skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
+                            LOG.info('skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
                             continue
 
                         if esutil.doc_exists(media, True):
                             for matcher in matchers:
-                                if not ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                                    logging.getLogger(config.log).info('\n%s seeking matches for %s' % (matcher.name, media.absolute_path))
+                                if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
+                                    LOG.info('skipping %s operation on %s' % (matcher.name, media.absolute_path))       
+                                else: 
+                                    LOG.info('\n%s seeking matches for %s' % (matcher.name, media.absolute_path))
                                     matcher.match(media)
                                     ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
-       
-                                else: logging.getLogger(config.log).info('skipping %s operation on %s' % (matcher.name, media.absolute_path))
-                    
+
                     except AssetException, err:
-                        print ': '.join([err.__class__.__name__, err.message])
+                        LOG.warning(': '.join([err.__class__.__name__, err.message]))
                         # if config.matcher_debug: 
                         traceback.print_exc(file=sys.stdout)
                         library.handle_asset_exception(err, media.absolute_path)
                     
                     except UnicodeDecodeError, u:
                         # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
-                        print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
+                        LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
 
                     except Exception, u:
                         # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
-                        print ': '.join([u.__class__.__name__, u.message, media.absolute_path])
+                        LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
 
                     finally:
                         for matcher in matchers:
                            cache.clear_matches(matcher.name, media.esid)
                 
             except Exception, err:
-                print ': '.join([err.__class__.__name__, err.message, location])
+                LOG.error(': '.join([err.__class__.__name__, err.message, location]))
                 traceback.print_exc(file=sys.stdout)
             finally:
                 for matcher in matchers:
@@ -101,7 +107,7 @@ def calculate_matches(directive):
                 cache.clear_docs(config.MEDIA_FILE, location) 
                 cache.write_paths()
                 
-    print '\n-----match operations complete-----\n'
+    # print '\n-----match operations complete-----\n'
 
 def get_matchers():
     matchers = []
@@ -110,7 +116,7 @@ def get_matchers():
         matcher = ElasticSearchMatcher(r[1], config.MEDIA_FILE)
         matcher.query_type = r[2]
         matcher.minimum_score = r[3]
-        logging.getLogger(config.log).info('matcher %s configured' % (r[1]))
+        LOG.info('matcher %s configured' % (r[1]))
         matchers += [matcher]
 
     return matchers
@@ -121,7 +127,6 @@ def record_match_ops_complete(matcher, media, path, ):
         if ops.operation_completed(media, matcher.name, 'match') == False:
             raise AssetException('Unable to store/retrieve operation record', media)
     except AssetException, err:
-        print ': '.join([err.__class__.__name__, err.message])
+        LOG.warning(': '.join([err.__class__.__name__, err.message]))
         traceback.print_exc(file=sys.stdout)
         library.handle_asset_exception(err, path)
-

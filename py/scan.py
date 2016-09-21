@@ -19,11 +19,13 @@ from mediawalk import LibraryWalker
 
 pp = pprint.PrettyPrinter(indent=4)
 
+LOG = logging.getLogger('console.log')
+
 class Scanner(LibraryWalker):
     def __init__(self):
         super(Scanner, self).__init__()
 
-        self.directive = None
+        self.context = None
         self.document_type = config.MEDIA_FILE
         
         self.do_cache_locations = True
@@ -47,76 +49,75 @@ class Scanner(LibraryWalker):
         if config.scan:
             ops.do_status_check()
 
-            # if config.server_debug: print 'examining: %s' % (root)
+            # LOG.debug('examining: %s' % (root))
             
             self.library.folder = None
             
             if ops.operation_in_cache(root, 'scan', 'ID3v2'):
-            # and not self.do_deep_scan: # and not root in config.locations_ext:
-                if config.server_debug: print 'scan operation record found for: %s' % (root)
+            # and not self.do_deep_scan: # and not root in library.get_locations_ext():
+                LOG.debug('scan operation record found for: %s' % (root))
                 return
 
             try:
-                if library.path_contains_media(root, self.directive.extensions):
+                if library.path_contains_media(root, self.context.extensions):
                     self.library.set_active( root)
 
             except AssetException, err:
                 self.library.folder = None
-                print ': '.join([err.__class__.__name__, err.message])
-                if config.server_debug: traceback.print_exc(file=sys.stdout)
+                LOG.warning(': '.join([err.__class__.__name__, err.message]))
+                traceback.print_exc(file=sys.stdout)
                 library.handle_asset_exception(err, root)
 
             except Exception, err:
-                print ': '.join([err.__class__.__name__, err.message])
-                if config.server_debug: traceback.print_exc(file=sys.stdout)
+                LOG.error(': '.join([err.__class__.__name__, err.message]))
+                traceback.print_exc(file=sys.stdout)
 
     def handle_root(self, root):
         if config.scan:
             folder = self.library.folder
             if folder is not None and ops.operation_completed(folder, 'ID3v2', 'scan'):
-                print '%s has been scanned.' % (root)
+                LOG.info('%s has been scanned.' % (root))
             elif folder is not None:
-                if config.server_debug: print 'scanning folder: %s' % (root)
+                LOG.debug('scanning folder: %s' % (root))
                 ops.record_op_begin(folder, 'ID3v2', 'scan')
                 for filename in os.listdir(root):
                     self.process_file(os.path.join(root, filename), library, self.reader)
         # else: self.library.set_active(root)
 
     def handle_root_error(self, err):
-        print ': '.join([err.__class__.__name__, err.message])
+        LOG.warning(': '.join([err.__class__.__name__, err.message]))
 
     # LibraryWalker methods end
 
     def process_file(self, filename, library, reader):
-        for extension in self.directive.extensions:
+        for extension in self.context.extensions:
             if reader.approves(filename):
                 media = self.get_media_object(filename)
-                # TODO: remove es and MySQL records for nonexistent files
-                if media is None or media.ignore(): continue
+                if media is None or media.ignore() or media.available == False: continue
                 # scan tag info if this file hasn't been assigned an esid
                 if media.esid is None: 
                     reader.read(media, library)
 
-    def scan(self, directive):
-        self.directive = directive
-        for location in directive.locations:
-            if os.path.isdir(location) and os.access(location, os.R_OK):
-                cache.cache_docs(config.MEDIA_FOLDER, location)
-                ops.cache_ops(False, location, 'scan', 'ID3v2')
-                self.walk(location)
-                ops.write_ops_for_path(location, 'ID3v2', 'scan')
-                cache.clear_docs(config.MEDIA_FOLDER, location)
-            elif config.server_debug:  print "%s isn't currently available." % (location)
+    def scan(self, context):
+        self.context = context
+        for path in context.paths:
+            if os.path.isdir(path) and os.access(path, os.R_OK):
+                cache.cache_docs(config.MEDIA_FOLDER, path)
+                ops.cache_ops(False, path, 'scan', 'ID3v2')
+                self.walk(path)
+                ops.write_ops_for_path(path, 'ID3v2', 'scan')
+                cache.clear_docs(config.MEDIA_FOLDER, path)
+            else: LOG.warning("%s isn't currently available." % (path))
 
         # cache.cache_docs(config.MEDIA_FILE, path)
-        print '\n-----scan complete-----\n'
+        # print '\n-----scan complete-----\n'
 
     # TODO: move this to asset
     def get_media_object(self, absolute_path):
 
-        if config.server_debug: print "creating instance for %s." % (absolute_path)
-        if not os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK):
-            if config.server_debug: print "Either file is missing or is not readable"
+        LOG.debug("creating instance for %s." % (absolute_path))
+        if os.path.isfile(absolute_path) == False and os.access(absolute_path, os.R_OK):
+            LOG.warning("Either file is missing or is not readable")
             return null
 
         media = MediaFile()
@@ -124,6 +125,11 @@ class Scanner(LibraryWalker):
         extension = os.path.splitext(absolute_path)[1]
         filename = filename.replace(extension, '')
         extension = extension.replace('.', '')
+
+        if os.path.isfile(absolute_path) == False and os.access(absolute_path, os.R_OK):
+            LOG.warning("Either file is missing or is not readable")
+            media.available = False
+
         location = self.get_location(absolute_path)
 
         foldername = parent = os.path.abspath(os.path.join(absolute_path, os.pardir))
@@ -142,25 +148,28 @@ class Scanner(LibraryWalker):
     def get_location(self, path):
         parent = os.path.abspath(os.path.join(path, os.pardir))
         if parent in self.location_cache:
-            # if config.server_debug: print "location for path %s found." % (path)
+            # LOG.debug("location for path %s found." % (path)
             return self.location_cache[parent]
 
         self.location_cache = {}
 
-        if config.server_debug: print "determining location for %s." % (parent.split('/')[-1])
+        LOG.debug("determining location for %s." % (parent.split('/')[-1]))
     
-        for location in config.locations:
+        for location in library.get_locations():
             if location in path:
                 self.location_cache[parent] = os.path.join(config.START_FOLDER, folder)
                 return self.location_cache[parent]
 
-        for location in config.locations_ext:
+        for location in library.get_locations_ext():
             if location in path:
                 self.location_cache[parent] = os.path.join(folder)
                 return self.location_cache[parent]
 
         return None
 
-def scan(directive):
-    scanner = Scanner()
-    scanner.scan(directive)
+def scan(context):
+    if 'scanner' not in context.values:
+        context.values['scanner'] = Scanner()
+    
+    context.values['scanner'].scan(context)
+    

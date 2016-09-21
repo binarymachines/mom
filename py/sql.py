@@ -3,6 +3,8 @@
 import os, sys, datetime, traceback, config, logging
 import MySQLdb as mdb
 
+from errors import SQLConnectError 
+
 def quote_if_string(value):
     if isinstance(value, basestring):
         return '"%s"' % value
@@ -11,6 +13,8 @@ def quote_if_string(value):
 
     value = value.replace("'", "\'")
     return value
+
+# compose queries from parameters
 
 def insert_values(table_name, field_names, field_values):
 
@@ -92,6 +96,8 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
 
     execute_query(query)
     
+# execute queries
+
 def run_query(query):
 
     con = None
@@ -104,15 +110,28 @@ def run_query(query):
         cur.execute(query)
         rows = cur.fetchall()
 
-        if rows is not None: logging.getLogger(config.error_log).info('returning %i rows.' % len(rows))
+        # if rows is not None: logging.getLogger(config.error_log).info('returning %i rows.' % len(rows))
 
     except mdb.Error, e:
 
         message = "Error %d: %s" % (e.args[0], e.args[1])
         logging.getLogger(config.error_log).error(message)
-        logging.getLogger(config.error_log).warn(query)
+        # logging.getLogger(config.error_log).warn(query)
+        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
+
+    except TypeError, e:
+
+        logging.getLogger(config.error_log).error(e.message)
+        # logging.getLogger(config.error_log).warn(query)
+        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
+
+    except Exception, e:
+
+        logging.getLogger(config.error_log).error(e.message)
+        logging.getLogger(config.error_log).warn(e.query)
         raise Exception(message)
 
+        # raise SQLConnectError(e)
     finally:
         if con: con.close()
 
@@ -141,4 +160,27 @@ def execute_query(query):
 
     return rows
 
+# load and fill query templates
+
+WILD = '%'
+
+def load_query(filename, *args):
+
+    # divorce double quotes
+    newargs = ()
+    for arg in args:
+        newargs += (arg.replace('"', "'"),)
+
+    try:
+        f = open('py/sql/%s.sql' % filename, 'r')
+        # substitute wildcard and escape single quotes
+        query = str(f.read() % newargs).replace('*', WILD).replace("'", "\'") 
+        f.close()
+        return query
+    except TypeError, e:
+        raise Exception(e)
+    except IOError, e:
+        raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename))
+    except Exception, e:
+        raise Exception(e)
 

@@ -8,37 +8,42 @@
 import datetime
 from docopt import docopt
 
-import config, direct, serv, start, ops
-from serv import Server, ServerProcess
-from mediaserv import MediaServerProcess
-from direct import Directive
+import config, direct, serv, mediaserv, start, ops, library
+from serv import Service, ServiceProcess
+from mediaserv import MediaServiceProcess
+from context import PathContext
 
-def create_server_process(identifier, directive, alternative_creator=None):
-    if alternative_creator == None: 
-        return MediaServerProcess(identifier, directive)
-    else: return alternative_creator(identifier)
+def get_path_config():
+    result = [] 
+    result.append([location for location in library.get_locations()])            
+    result.append([location for location in library.get_locations_ext()])            
+    result.sort()
+    return result
 
 def launch(args, run=True):
     try:
         # NOTE: final changes to config
         config.filename = config.filename if not args['--config'] else args['<filename>'] 
         config.start_time = datetime.datetime.now().isoformat() 
-        start.execute(args)   
-        if not config.launched: raise Exception('unable to initialize with current configuration in %s.' % config.filename)
+        start.execute(args) 
+          
+        if config.launched: 
         
-        server =  Server()
-        ops.record_exec()
-        
-        if run:
-            paths = start.get_paths(args)
-            directive = direct.create(paths)
-            process_name = None if not args['--process'] else args['<process_name>'] 
-            process = create_server_process(process_name, directive)
+            service =  Service()
+            ops.record_exec()
+            
+            if run:
+                paths = start.get_paths(args)
+                context = Pathcontext('_path_context_', paths, ['mp3'])
+                # directive = direct.create(paths)
+                process_name = None if not args['--process'] else args['<process_name>'] 
+                process = create_service_process(process_name, context)
 
-            server.run(process, directive)
-                        
-        return server
+                service.run(process, directive)
+                            
+            return service
 
+        else: raise Exception('unable to initialize with current configuration in %s.' % config.filename)
     except Exception, err:
         print err.message
 
@@ -49,18 +54,23 @@ def before(process):
     print '%s before launch' % process.name
 
 def main(args):
-    server = launch(args, False)
-    if server is not None:
-        directive = direct.create(start.get_paths(args))
-        server.run(create_server_process('Default', directive), True, before, after)
-        server.run(create_server_process('Sleeper', directive), True)
-        a = create_server_process('Cleaning the system', directive)
-        # a.after = after
-        b = create_server_process('Scanning new install', directive)
-        c = create_server_process('Matching and Reporting', directive)
-        server.queue([a, b, c])
-        server.handle_processes()
-
+    service = launch(args, False)
+    if service is not None:
+        try:
+            create_proc = mediaserv.create_service_process
+            path_args = start.get_paths(args)
+            context = PathContext('_path_context_', get_path_config() if path_args is None else path_args, ['mp3'])
+        
+            # service.run(create_proc('Threaded worker', context), True, before, after)
+            # service.run(create_proc('Threaded sleeper', context), True)
+            a = create_proc('Scanner', context)
+            # a.after = after
+            b = create_proc('Matcher', context)
+            c = create_proc('Cleaner', context)
+            service.queue(a)
+            service.handle_processes()
+        except Exception, err:
+            print 'Unable to create process due to %s' % err.message
 
 if __name__ == '__main__':
     args = docopt(__doc__)

@@ -130,7 +130,7 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
                     match_scores.append(match_data[MATCH_SCORE])
                     
                     get_media_meta_data(es, match_data[MATCH_ESID], match_data)
-                    if not match_parent in parent_data:
+                    if match_parent not in parent_data:
                         parent_data[match_parent] = {MATCH_FOLDER: match_parent }
                         parent_data[match_parent][FILES_MATCHED] = []
 
@@ -167,13 +167,13 @@ def new_record(path):
 
 def post_process_record(source_file, matched_file, records):
 
-    if not source_file[FOLDER] in records:
+    if source_file[FOLDER] not in records:
         records[source_file[FOLDER]] = new_record(source_file[FOLDER])
         print 'adding %s to records' % (source_file[FOLDER]) 
 
     source = records[source_file[FOLDER]]
 
-    if not source_file[FILE] in source['files']: 
+    if source_file[FILE] not in source['files']: 
         source['files'].append(source_file[FILE])
     
         if source_file[SUGGEST] == 'PROMOTE': source['promote'] += 1
@@ -184,13 +184,13 @@ def post_process_record(source_file, matched_file, records):
         source['weight'] += source_file[WEIGHT]
         source['discount'] += source_file[DISCOUNT]
 
-    if not matched_file[MATCH_FOLDER] in records:
+    if matched_file[MATCH_FOLDER] not in records:
         records[matched_file[MATCH_FOLDER]] = new_record(matched_file[MATCH_FOLDER])
         print 'adding %s to records' % (matched_file[MATCH_FOLDER]) 
 
     match = records[matched_file[MATCH_FOLDER]]
     
-    if not matched_file[MATCH_FILENAME] in match['files']: 
+    if matched_file[MATCH_FILENAME] not in match['files']: 
         match['files'].append(matched_file[MATCH_FILENAME])
 
     if matched_file[SUGGEST] == 'IGNORE': match['ignore'] += 1
@@ -233,7 +233,7 @@ def post_process_folder_data(data, exclude_ignore, records):
                         matched_file[SUGGEST] = 'IGNORE'
                         folder[FILES_MATCHED].remove(matched_file)
                         if exclude_ignore == False:
-                            if not FILES_IGNORED in folder:
+                            if  FILES_IGNORED not in folder:
                                 folder[FILES_IGNORED] = []
                             folder[FILES_IGNORED].append(matched_file)
                     else:

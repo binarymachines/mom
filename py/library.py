@@ -69,11 +69,11 @@ class Library:
 
     def set_active(self,path):
 
-        if path == None:
+        if path is None:
             self.folder = None
             return False
 
-        if self.folder != None and self.folder.absolute_path == path: return False
+        if self.folder is not None and self.folder.absolute_path == path: return False
 
         try:
             logging.getLogger(config.log).info('setting folder active: %s' % (path))
@@ -163,33 +163,33 @@ def path_contains_genre_folders(path):
 #TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_contains_media(path, extensions):
     # if self.debug: print path
-    if not os.path.isdir(path):
-        raise Exception('Path does not exist: "' + path + '"')
-
-    for f in os.listdir(path):
-        if os.path.isfile(os.path.join(path, f)):
-            for ext in extensions:
-                if f.lower().endswith('.' + ext.lower()):
-                    return True
+    if os.path.isdir(path):
+        for f in os.listdir(path):
+            if os.path.isfile(os.path.join(path, f)):
+                for ext in extensions:
+                    if f.lower().endswith('.' + ext.lower()):
+                        return True
+    
+    else: raise Exception('Path does not exist: "' + path + '"')
 
     return False
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_contains_multiple_media_types(path, extensions):
     # if self.debug: print path
-    if not os.path.isdir(path):
-        raise Exception('Path does not exist: "' + path + '"')
+    if os.path.isdir(path):
+        
+        found = []
+        for f in os.listdir(path):
+            if os.path.isfile(os.path.join(path, f)):
+                for ext in extensions:
+                    if f.lower().endswith('.' + ext):
+                        if ext not in found:
+                            found.append(ext)
 
-    found = []
+        return len(found) > 1
 
-    for f in os.listdir(path):
-        if os.path.isfile(os.path.join(path, f)):
-            for ext in extensions:
-                if f.lower().endswith('.' + ext):
-                    if ext not in found:
-                        found.append(ext)
-
-    return len(found) > 1
+    else: raise Exception('Path does not exist: "' + path + '"')
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_has_location_name(path, names):
@@ -204,7 +204,7 @@ def path_has_location_name(path, names):
 #TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_in_album_folder(path):
     # if self.debug: print path
-    if not os.path.isdir(path):
+    if os.path.isdir(path) == False:
         raise Exception('Path does not exist: "' + path + '"')
 
     raise Exception('not implemented!')
@@ -220,7 +220,7 @@ def path_in_location_folder(path):
 #TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_is_album_folder(path):
     # if self.debug: print path
-    if not os.path.isdir(path):
+    if os.path.isdir(path) == False:
         raise Exception('Path does not exist: "' + path + '"')
 
     raise Exception('not implemented!')

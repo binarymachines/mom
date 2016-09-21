@@ -22,6 +22,7 @@ class Asset(object):
     def __init__(self):
         self.absolute_path = None
         self.active = True
+        self.available = True
         self.esid = None
         self.data = None
         self.deleted = False
@@ -34,7 +35,7 @@ class Asset(object):
         self.latest_operation_start_time = None
 
     def short_name(self):
-        if self.absolute_path == None:
+        if self.absolute_path is None:
             return None
         return self.absolute_path.split('/')[-1]
 
@@ -163,7 +164,7 @@ class MediaFolder(Asset):
 # path functions for media files and folders
 
 def ignore(path):
-    for f in config.ignore:
+    for f in library.get_folder_constants('ignore'):
         if f in path:
             return True
     return False
@@ -183,19 +184,19 @@ def is_filed(path):
     return False
 
 def is_filed_as_compilation(path):
-    for f in config.compilation:
+    for f in library.get_folder_constants('compilation'):
         if f in path:
             return True
     return False
 
 def is_filed_as_live(path):
-    for f in config.live:
+    for f in library.get_folder_constants('live_recordings'):
         if f in path:
             return True
     return False
 
 def is_new(path):
-    for f in config.new:
+    for f in library.get_folder_constants('new'):
         if f in path:
             return True
     return False
@@ -208,19 +209,19 @@ def is_noscan(path):
     return False
 
 def is_random(path):
-    for f in config.random:
+    for f in library.get_folder_constants('random'):
         if f in path:
             return True
     return False
 
 def is_recent(path):
-    for f in config.recent:
+    for f in library.get_folder_constants('recent'):
         if f in path:
             return True
     return False
 
 def is_unsorted(path):
-    for f in config.unsorted:
+    for f in library.get_folder_constants('unsorted'):
         if f in path:
             return True
     return False

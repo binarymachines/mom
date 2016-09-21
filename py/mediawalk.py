@@ -82,7 +82,7 @@ class IsInGenrePath(AbstractDirectoryChecker):
             filed = False
             for name in library.get_genre_folder_names():
                 if name in path: filed = True
-            if not filed:
+            if filed == False:
                 #TODO: add this folder to work queue
                 print "%s contains music but hasn't been filed." % (path)
 

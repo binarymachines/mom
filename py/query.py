@@ -1,17 +1,8 @@
 #!/usr/bin/env python
 
-'''
-   Usage: query.py <elasticsearch_host>
-
-
-
-'''
-
-
 import os, sys, json, pprint
 from elasticsearch import Elasticsearch
 import config, sql
-from docopt import docopt
 
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -92,7 +83,7 @@ class Builder:
         for fname in fieldnames:
             if fname in values:
                 param = values[fname]
-                # if not fname in options['boost']:
+                # if fname not in options['boost']:
                 term = { "match" : { fname  : param }}
                 # else:
                 #     term = { "match" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
@@ -107,7 +98,7 @@ class Builder:
         for fname in fieldnames:
             if fname in values:
                 param = values[fname]
-                if not fname in options['boost']:
+                if fname not in options['boost']:
                     term = { "term" : { fname : { "value" : param }}}
                     # builder = [{ "value" : param }]
                 else:
@@ -158,21 +149,3 @@ class Builder:
         values['TALB'] = 'Vivisect VI'
 
         self.execute_query('match_artist_album_song', values)
-
-# main
-def main(args):
-    # config.es_index = 'media'
-    # elastic_host = args['<elasticsearch_host>']
-    # elastic_port = 9200
-    # print 'Will connect to ES host %s:%s' % (elastic_host, elastic_port)
-
-    # q = Builder(elastic_host, elastic_port)
-    # q.test_multi_match()
-    # q.test_simple_term()
-    # q.test_multi_term()
-    pass
-
-if __name__ == '__main__':
-    # args = docopt(__doc__)
-    # main(args)
-    main()
