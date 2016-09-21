@@ -29,15 +29,15 @@ class Scanner(LibraryWalker):
 
         self.context = None
         self.document_type = config.MEDIA_FILE
-        
+
         self.do_cache_locations = True
         self.do_deep_scan = config.deep
-        
+
         self.location_cache = {}
 
         self.library = Library()
         self.reader = Reader()
-        
+
     # LibraryWalker methods begin
 
     def after_handle_root(self, root):
@@ -52,9 +52,9 @@ class Scanner(LibraryWalker):
             ops.do_status_check()
 
             # LOG.debug('examining: %s' % (root))
-            
+
             self.library.folder = None
-            
+
             if ops.operation_in_cache(root, 'scan', 'ID3v2'):
             # and not self.do_deep_scan: # and not root in library.get_locations_ext():
                 LOG.debug('scan operation record found for: %s' % (root))
@@ -97,7 +97,7 @@ class Scanner(LibraryWalker):
                 media = self.get_media_object(filename)
                 if media is None or media.ignore() or media.available == False: continue
                 # scan tag info if this file hasn't been assigned an esid
-                if media.esid is None: 
+                if media.esid is None:
                     reader.read(media, library)
 
     def scan(self, context):
@@ -156,7 +156,7 @@ class Scanner(LibraryWalker):
         self.location_cache = {}
 
         LOG.debug("determining location for %s." % (parent.split('/')[-1]))
-    
+
         for location in library.get_locations():
             if location in path:
                 self.location_cache[parent] = os.path.join(config.START_FOLDER, folder)
@@ -170,8 +170,6 @@ class Scanner(LibraryWalker):
         return None
 
 def scan(context):
-    if 'scanner' not in context.values:
-        context.values['scanner'] = Scanner()
-    
-    context.values['scanner'].scan(context)
-    
+    if 'scanner' not in context.data:
+        context.data['scanner'] = Scanner()
+    context.data['scanner'].scan(context)

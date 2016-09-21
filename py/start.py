@@ -122,7 +122,6 @@ def get_paths(args):
     return paths
 
 def make_options(args):
-
     options = []
 
     if '--clearmem' in args and args['--clearmem']: options.append('clearmem')
@@ -147,7 +146,7 @@ def read(parser, section):
                 DebugPrint("skip: %s" % option)
         except:
             print("exception on %s!" % option)
-[option] = None
+            result[option] = None
     return result
 
 def setup_log(file_name, log_name, logging_level):

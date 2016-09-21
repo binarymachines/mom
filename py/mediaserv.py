@@ -14,24 +14,24 @@ class MediaServiceProcess(ServiceProcess):
     def __init__(self, name, context, stop_on_errors=True):
         super(MediaServiceProcess, self).__init__(name, context, stop_on_errors)
 
-    # def apply_directives(self, selector, mode, is_before):       
+    # def apply_directives(self, selector, mode, is_before):
     #     if is_before and mode == self.fixmode:
     #         pass
-    
+
     # selector callbacks
     def after_switch(self, selector, mode):
         # self.apply_directives(selector, mode, False)
-        self.handler.after_switch(selector, mode)        
+        self.handler.after_switch(selector, mode)
 
     def before_switch(self, selector, mode):
         # self.apply_directives(selector, mode, True)
-        self.handler.before_switch(selector, mode)        
+        self.handler.before_switch(selector, mode)
 
     # process shutdown routines
     def after_shutdown(self):
         self.handler.after()
         LOG.info('%s service process complete' % self.name)
-        
+
     def before_shutdown(self):
         self.handler.before()
         LOG.info('%s handling shutdown request, clearing caches, writing data' % self.name)
@@ -42,68 +42,58 @@ class MediaServiceProcess(ServiceProcess):
 
     # process logic
     def setup(self):
-        
-        self.handler = MediaServiceProcessHandler(self, '_process_handler_', self.selector, self.context)     
 
-        # modes for this process
-        # startmode handlers don't get called because switch is called with no set_mode_func setting it up
-        # also, the callbacks set up here get overwritten later by set_mode_func and should be eliminated
-        self.startmode = Mode("STARTUP", 0, self.handler.start, self.handler.starting, self.handler.started)
-        self.evalmode = Mode("EVAL")
-        self.scanmode = Mode("SCAN")
-        self.matchmode = Mode("MATCH")
-        self.fixmode = Mode("FIX")
-        self.reportmode = Mode("REPORT")
-        self.reqmode = Mode("REQUESTS")
-        self.endmode = Mode("SHUTDOWN", 0, self.handler.end, self.handler.ending, self.handler.ended)
+        self.handler = MediaServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
-        self.scanmode.priority = 25
-        self.matchmode.priority = 25
-        self.evalmode.priority  = 10
-        self.fixmode.priority  = 5
-        self.reportmode.priority  = 3
-        self.reqmode.priority  = 5
-        self.endmode.priority  = 0
+        # startmode is a special case with no rule to crib its before() and after() callbacks from
+        self.startmode = Mode("STARTUP", self.handler.starting, 0)
+        self.evalmode = Mode("EVAL", self.handler.do_eval, 10)
+        self.scanmode = Mode("SCAN", self.handler.do_scan, 25)
+        self.matchmode = Mode("MATCH", self.handler.do_match, 25)
+        self.fixmode = Mode("FIX", self.handler.do_fix, 5)
+        self.reportmode = Mode("REPORT", self.handler.do_report, 3)
+        self.reqmode = Mode("REQUESTS", self.handler.do_reqs, 5)
+        self.endmode = Mode("SHUTDOWN", self.do_shutdown, 0)
 
         self.selector.remove_at_error_tolerance = True
         self.matchmode.error_tolerance = 5
-        
+
         self.selector.modes = [self.startmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
             self.reportmode, self.reqmode, self.endmode]
-        
+
         for mode in self.selector.modes: mode.dec_priority = True
 
         # # paths to fixmode
-        self.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.do_fix, self.handler.before_fix, self.handler.after_fix, \
+        self.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
             self.reportmode, self.reqmode)
-        
+
         # # paths to matchmode
-        self.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.do_match, self.handler.before_match, self.handler.after_match, \
+        self.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
             self.startmode, self.reportmode, self.startmode, self.evalmode, self.scanmode, self.evalmode, self.reqmode)
 
         # # paths to reqmode
-        self.add_rules(self.reqmode, self.handler.mode_is_available, self.handler.do_reqs, self.handler.before, self.handler.after, \
+        self.add_rules(self.reqmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
             self.startmode, self, self.fixmode, self.evalmode, self.matchmode, self.scanmode)
 
         # # paths to reportmode
-        self.add_rules(self.reportmode, self.handler.maybe, self.handler.do_report, self.handler.before, self.handler.after, \
+        self.add_rules(self.reportmode, self.handler.maybe, self.handler.before, self.handler.after, \
             self.startmode, self.reqmode, self.fixmode, self.startmode, self.evalmode, self.matchmode, self.scanmode)
 
         # paths to scanmode
-        self.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.do_scan, self.handler.before_scan, self.handler.after_scan, \
+        self.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
             self.startmode, self.reportmode, self.startmode, self.evalmode, self.fixmode, self.matchmode, self.reqmode)
 
         # paths to evalmode
-        self.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.do_eval, self.handler.before, self.handler.after, \
-            self.startmode, self.fixmode, self.reportmode, self.reqmode, self.startmode, self.scanmode, self.matchmode)
+        self.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
+            self.startmode, self.fixmode, self.reportmode, self.reqmode, self.scanmode, self.matchmode)
 
         # paths to endmode
-        self.add_rules(self.endmode, self.handler.maybe, self.do_shutdown, self.before_shutdown, self.after_shutdown, \
+        self.add_rules(self.endmode, self.handler.maybe, self.before_shutdown, self.after_shutdown, \
             self.reportmode)
 
 def create_service_process(identifier, context, alternative=None):
-    
-    if alternative is None: 
+
+    if alternative is None:
         return MediaServiceProcess(identifier, context)
     return alternative(identifier, context)
 
@@ -114,7 +104,7 @@ def before(process):
     LOG.info('launching process: %s.' % process.name)
 
 def main():
-        
+
     context = PathContext('[industrial music]', ['/media/removable/Audio/music/albums/industrial'], ['mp3'])
     process = MediaServiceProcess('_Media Hound_', context, True)
     process.restart_on_fail = False
