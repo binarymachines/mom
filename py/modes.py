@@ -1,6 +1,8 @@
 #! /usr/bin/python
 import sys, os, logging, traceback, datetime
 
+from errors import ModeDestinationException
+
 LOG = logging.getLogger('console.log')
 
 class Mode(object):
@@ -42,11 +44,6 @@ class Mode(object):
 #     def __init__(self, test_func, *recovery_funcs):
 #         self.recovery_funcs = recovery_funcs
 #         self.test_func = test_func
-
-
-class ModeDestinationException(Exception):
-    def __init__(self, message):
-        super(ModeDestinationException, self).__init__(message)
 
 
 class Rule:
@@ -96,6 +93,13 @@ class Selector:
 
         # internal stats
         self.step_count = 0;
+
+        # in support of rewind()
+        self.rule_chain = []
+
+        # changes need to be made in switch() before this can be used safely
+        self.rewind_on_no_destination = True
+        # self.suspend_mode_on_no_destination = True
 
     # def add_suspension_handler(handler):
     #     self.suspension_handlers.append(handler)
@@ -200,13 +204,18 @@ class Selector:
         elif len(possible) == 0:
             raise ModeDestinationException("%s: No valid destination from %s" % (self.name, self.active.name))
 
-    def _set_mode_funcs_(self, mode):
-        if mode.active_rule == None:
-            rules = self.get_rules(self.active)
-            for rule in rules:
-                if rule.start == self.active and rule.end == mode:
-                    mode.active_rule = rule
-                    break
+    def _call_mode_func_(self, mode, func):
+        try:
+            if func is not None: func()
+        except Exception, err:
+            try:
+                func_name = self._parse_func_info_(func)
+                activemode = self.active.name  if self.active is not None else 'NO ACTIVE MODE'
+                LOG.error('%s while applying %s -> %s from %s' % (err.message, mode.name, func_name, activemode))
+            except Exception, logging_error:
+                LOG.warning(logging_error.message)
+                LOG.error(err.message)
+            raise err
 
     def _call_switch_bracket_func_(self, mode, func):
         try:
@@ -222,24 +231,19 @@ class Selector:
                 LOG.error(err.message)
             raise err
 
-    def _call_mode_func_(self, mode, func):
-        try:
-            if func is not None: func()
-        except Exception, err:
-            try:
-                func_name = self._parse_func_info_(func)
-                activemode = self.active.name  if self.active is not None else 'NO ACTIVE MODE'
-                LOG.error('%s while applying %s -> %s from %s' % (err.message, mode.name, func_name, activemode))
-            except Exception, logging_error:
-                LOG.warning(logging_error.message)
-                LOG.error(err.message)
-            raise err
+    def _set_mode_funcs_(self, mode):
+        if mode.active_rule == None:
+            rules = self.get_rules(self.active)
+            for rule in rules:
+                if rule.start == self.active and rule.end == mode:
+                    mode.active_rule = rule
+                    break
 
     # NOTE: this function has ordering dependencies
     def switch(self, mode, rewind=False):
         self.next = mode
-        self._set_mode_funcs_(mode)
 
+        self._set_mode_funcs_(mode)
         self._call_switch_bracket_func_(mode, self.before_switch)
 
         # call before() for what will be the current mode
@@ -260,19 +264,19 @@ class Selector:
         if mode.dec_priority:
             mode.priority -= mode.dec_priority_amount
 
-        self.previous = mode
-
         self._call_switch_bracket_func_(mode, self.after_switch)
 
+        self.previous = mode
+        self.rule_chain.append(mode.active_rule)
 
     def run(self):
         self.complete = False
         self.switch(self.start)
 
 
-# versus RecoveryMode
+# versus RecoveryMode, unused at present
 class SuspensionHandler:
-    def __init__(self, mode, recover, interval=100, times_to_fail=5):
+    def __init__(self, mode, recover, interval=1000, times_to_fail=5):
         self.mode = mode
         self.recover = recover
         self.success = False
@@ -300,9 +304,6 @@ class Engine:
         self.running = False
         self.stop_on_errors = stop_on_errors
 
-        # changes need to be made in switch() before this can be used safely
-        self.rewind_on_no_destination = True
-
     def add_selector(self, selector):
         self.active.append(selector)
         if self.running:
@@ -318,7 +319,9 @@ class Engine:
                     selector.select()
                     selector.step_count += 1
                 except ModeDestinationException, error:
-                    if self.rewind_on_no_destination and selector.previous is not None:
+                    # TODO: selector should retain a queue of modes to support a full-fledged rewind() method wherein it verifies viable
+                    # alternative paths instead of just going to the previous mode, which might result in mode oscillation
+                    if selector.rewind_on_no_destination and selector.previous is not None:
                         LOG.error("%s Handling error '%s' in selector %s, rewinding to %s" % (self.name, error.message, selector.name, selector.previous.name))
                         selector.switch(selector.previous, True)
                     else: raise error

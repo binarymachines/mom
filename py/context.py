@@ -5,18 +5,22 @@ class Context(object):
 
     def __init__(self, name):
         self.name = name
+        # one per consumer
         self.fifos = {}
         self.stacks = {}
 
-        # this is just a data bucket intended for runtime statuses
+        # shared across all consumers
         self.data = {}
 
     def clear(self):
+        self.data.clear()
+
         for consumer in self.fifos.keys:
             clear_fifo(consumer)
 
         for consumer in self.stacks.keys:
             clear_stack(consumer)
+
 
     def clear_fifo(self, consumer):
         if consumer in self.fifos:
@@ -29,22 +33,18 @@ class Context(object):
     def peek_fifo(self, consumer):
         if consumer in self.fifos and len(self.fifos[consumer]) > 0:
             return self.fifos[consumer][0]
-        return None
 
     def peek_stack(self, consumer):
         if consumer in self.stacks and len(self.stacks[consumer]) > 0:
             return self.stacks[consumer][-1]
-        return None
 
     def pop_fifo(self, consumer):
         if consumer in self.fifos and len(self.fifos[consumer]) > 0:
             return self.fifos[consumer].pop(0)
-        return None
 
     def pop_stack(self, consumer):
         if consumer in self.stacks and len(self.stacks[consumer]) > 0:
             return self.stacks[consumer].pop(0)
-        return None
 
     def push_fifo(self, consumer, value):
         if consumer not in self.fifos:

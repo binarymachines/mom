@@ -68,7 +68,7 @@ class Scanner(LibraryWalker):
                 self.library.folder = None
                 LOG.warning(': '.join([err.__class__.__name__, err.message]))
                 traceback.print_exc(file=sys.stdout)
-                errors.handle_asset_exception(err, root)
+                library.handle_asset_exception(err, root)
 
             except Exception, err:
                 LOG.error(': '.join([err.__class__.__name__, err.message]))
