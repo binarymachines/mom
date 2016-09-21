@@ -102,6 +102,15 @@ class Selector:
 
     # def handle_suspension
 
+    def add_rule(self, name, origin, endpoint, condition, before=None, after=None):
+        rule = Rule(name, origin, endpoint, condition, before, after)
+        self.rules.append(rule)
+
+    def add_rules(self, endpoint, condition, before, after, *origins):
+        for mode in origins:
+            rule = Rule("%s ::: %s" % (mode.name, endpoint.name), mode, endpoint, condition, before, after)
+            self.rules.append(rule)
+
     def get_mode(self, name):
         for mode in self.modes:
             if mode.name.lower() == name.lower():
@@ -173,7 +182,7 @@ class Selector:
 
     def select(self):
 
-        applicable = rules = self._peep_()
+        applicable = self._peep_()
         if len(applicable) == 1:
             applicable[0].end.active_rule = applicable[0]
             self.switch(applicable[0].end)
@@ -193,10 +202,9 @@ class Selector:
 
     def _set_mode_funcs_(self, mode):
         if mode.active_rule == None:
-            rules = self.get_rules(self.start if self.active is None else self.active)
+            rules = self.get_rules(self.active)
             for rule in rules:
                 if rule.start == self.active and rule.end == mode:
-                    mode.effect = rule.effect
                     mode.active_rule = rule
                     break
 
@@ -231,17 +239,8 @@ class Selector:
     def switch(self, mode, rewind=False):
         self.next = mode
         self._set_mode_funcs_(mode)
+
         self._call_switch_bracket_func_(mode, self.before_switch)
-
-        self.previous = self.active
-
-        # can't this happen in the bottom of this method?
-        if self.previous is not None:
-            if self.previous.active_rule is not None:
-                self._call_mode_func_(self.previous, self.previous.active_rule.after)
-            self.previous.times_completed += 1
-            if self.previous.dec_priority:
-                self.previous.priority -= self.previous.dec_priority_amount
 
         # call before() for what will be the current mode
         if mode.active_rule is not None:
@@ -249,9 +248,20 @@ class Selector:
 
         self.active = mode
         mode.times_activated += 1
-        self.complete = True if self.active == self.end else False
+        self.complete = True if mode == self.end else False
 
         self._call_mode_func_(mode, mode.effect)
+
+        # call after() for what was be the current mode
+        if mode.active_rule is not None:
+            self._call_mode_func_(mode, mode.active_rule.after)
+
+        mode.times_completed += 1
+        if mode.dec_priority:
+            mode.priority -= mode.dec_priority_amount
+
+        self.previous = mode
+
         self._call_switch_bracket_func_(mode, self.after_switch)
 
 

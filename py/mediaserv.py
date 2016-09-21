@@ -58,37 +58,40 @@ class MediaServiceProcess(ServiceProcess):
         self.selector.remove_at_error_tolerance = True
         self.matchmode.error_tolerance = 5
 
+        # startmode must appear first in this list and endmode most appear last
         self.selector.modes = [self.startmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
             self.reportmode, self.reqmode, self.endmode]
 
         for mode in self.selector.modes: mode.dec_priority = True
 
-        # # paths to fixmode
-        self.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
+        self.selector.add_rule('start', None, self.startmode, self.handler.definitely, self.handler.start, self.handler.started)
+
+        # paths to fixmode
+        self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
             self.reportmode, self.reqmode)
 
-        # # paths to matchmode
-        self.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
+        # paths to matchmode
+        self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
             self.startmode, self.reportmode, self.startmode, self.evalmode, self.scanmode, self.evalmode, self.reqmode)
 
-        # # paths to reqmode
-        self.add_rules(self.reqmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
+        # paths to reqmode
+        self.selector.add_rules(self.reqmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
             self.startmode, self, self.fixmode, self.evalmode, self.matchmode, self.scanmode)
 
-        # # paths to reportmode
-        self.add_rules(self.reportmode, self.handler.maybe, self.handler.before, self.handler.after, \
+        # paths to reportmode
+        self.selector.add_rules(self.reportmode, self.handler.maybe, self.handler.before, self.handler.after, \
             self.startmode, self.reqmode, self.fixmode, self.startmode, self.evalmode, self.matchmode, self.scanmode)
 
         # paths to scanmode
-        self.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
+        self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
             self.startmode, self.reportmode, self.startmode, self.evalmode, self.fixmode, self.matchmode, self.reqmode)
 
         # paths to evalmode
-        self.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
+        self.selector.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
             self.startmode, self.fixmode, self.reportmode, self.reqmode, self.scanmode, self.matchmode)
 
         # paths to endmode
-        self.add_rules(self.endmode, self.handler.maybe, self.before_shutdown, self.after_shutdown, \
+        self.selector.add_rules(self.endmode, self.handler.maybe, self.before_shutdown, self.after_shutdown, \
             self.reportmode)
 
 def create_service_process(identifier, context, alternative=None):
@@ -104,7 +107,7 @@ def before(process):
     LOG.info('launching process: %s.' % process.name)
 
 def main():
-
+    config.start_console_logging()
     context = PathContext('[industrial music]', ['/media/removable/Audio/music/albums/industrial'], ['mp3'])
     process = MediaServiceProcess('_Media Hound_', context, True)
     process.restart_on_fail = False

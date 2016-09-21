@@ -1,5 +1,5 @@
 '''
-   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] 
+   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...) ] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs]
 
    --path, -p                   The path to scan
 
@@ -14,33 +14,34 @@ from mediaserv import MediaServiceProcess
 from context import PathContext
 
 def get_path_config():
-    result = [] 
-    result.append([location for location in library.get_locations()])            
-    result.append([location for location in library.get_locations_ext()])            
+    result = []
+    result.append([location for location in library.get_locations()])
+    result.append([location for location in library.get_locations_ext()])
     result.sort()
     return result
 
 def launch(args, run=True):
     try:
         # NOTE: final changes to config happen here
-        config.filename = config.filename if not args['--config'] else args['<filename>'] 
-        config.start_time = datetime.datetime.now().isoformat() 
-        start.execute(args) 
-          
-        if config.launched: 
-        
+        config.filename = config.filename if not args['--config'] else args['<filename>']
+        config.start_time = datetime.datetime.now().isoformat()
+        start.execute(args)
+
+        if config.launched:
+
             service =  Service()
             ops.record_exec()
-            
+
             if run:
                 paths = start.get_paths(args)
                 context = Pathcontext('_path_context_', paths, ['mp3'])
+                context.peep_fifo = True
                 # directive = direct.create(paths)
-                process_name = None if not args['--process'] else args['<process_name>'] 
+                process_name = None if not args['--process'] else args['<process_name>']
                 process = create_service_process(process_name, context)
 
                 service.run(process, directive)
-                            
+
             return service
 
         else: raise Exception('unable to initialize with current configuration in %s.' % config.filename)
@@ -60,7 +61,7 @@ def main(args):
             create_proc = mediaserv.create_service_process
             path_args = start.get_paths(args)
             context = PathContext('_path_context_', get_path_config() if path_args is None else path_args, ['mp3'])
-        
+            context.peep_fifo = True
             # service.run(create_proc('Threaded worker', context), True, before, after)
             # service.run(create_proc('Threaded sleeper', context), True)
             a = create_proc('Scanner', context)
