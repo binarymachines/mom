@@ -4,7 +4,7 @@ from walk import Walker
 
 import library
 
-LOG = logging.getLogger('console.log') 
+LOG = logging.getLogger('console.log')
 
 class LibraryWalker(Walker):
 
@@ -39,44 +39,44 @@ class LibraryWalker(Walker):
 # NOTE: album_checkers apply at whatever level of granularity (location, genre, album, artist)
 # NOTE: A multithreaded implementation should work out to lining these up and setting them off
 
-class AbstractDirectoryChecker(object):
-    def __init__(self, directory_problem_finder):
-        self.finder = directory_problem_finder
+class DirectoryHandler(object):
+    def __init__(self):
+      pass
 
     def check_dir(self, path):
         raise Exception("Not implemented!")
 
-class AlbumInWrongArtistPath(AbstractDirectoryChecker):
+class AlbumInWrongArtistPath(DirectoryHandler):
     # NOTE: this checker applies at the location, genre, artist and side_project levels
     pass
 
-class DirectoriesDeleted(AbstractDirectoryChecker):
+class DirectoriesDeleted(DirectoryHandler):
     # NOTE: this checker applies at the location, genre, artist and side_project levels
     pass
 
-class FileNamesContainFolderName(AbstractDirectoryChecker):
+class FileNamesContainFolderName(DirectoryHandler):
     # NOTE: this checker applies at the location, genre, artist and side_project levels
     pass
 
-class HasDuplicates(AbstractDirectoryChecker):
+class HasDuplicates(DirectoryHandler):
     # TODO: set up query-based matchers
-    def __init__(self, directory_problem_finder):
-        super(HasDuplicates, self).__init__(directory_problem_finder)
+    def __init__(self):
+        super(HasDuplicates, self).__init__()
 
     # TODO: run matchers
     def check_dir(self, path):
         pass
 
-class HasMisnamedFiles(AbstractDirectoryChecker):
+class HasMisnamedFiles(DirectoryHandler):
     pass
 
-class IsInArtistAlbum(AbstractDirectoryChecker):
+class IsInArtistAlbum(DirectoryHandler):
     pass
 
-class IsInMediaTypePath(AbstractDirectoryChecker):
+class IsInMediaTypePath(DirectoryHandler):
     pass
 
-class IsInGenrePath(AbstractDirectoryChecker):
+class IsInGenrePath(DirectoryHandler):
     def check_dir(self, path):
         if util.path_contains_media(path, library.get_active_media_formats()):
             filed = False
@@ -89,8 +89,8 @@ class IsInGenrePath(AbstractDirectoryChecker):
 def main():
     walker = LibraryWalker()
     walker.debug = False
-    walker.album_checkers.append(IsInGenrePath(walker))
-    walker.album_checkers.append(HasDuplicates(walker))
+    walker.album_checkers.append(IsInGenrePath())
+    walker.album_checkers.append(HasDuplicates())
     walker.walk('/media/removable/Audio/music/incoming/slsk/complete')
 
 if __name__ == '__main__':
