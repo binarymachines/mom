@@ -84,7 +84,7 @@ class Scanner(LibraryWalker):
                 LOG.debug('scanning folder: %s' % (root))
                 ops.record_op_begin(folder, 'ID3v2', 'scan')
                 for filename in os.listdir(root):
-                    self.process_file(os.path.join(root, filename), library, self.reader)
+                    self.process_file(os.path.join(root, filename), self.reader)
         # else: self.library.set_active(root)
 
     def handle_root_error(self, err):
@@ -92,14 +92,15 @@ class Scanner(LibraryWalker):
 
     # LibraryWalker methods end
 
-    def process_file(self, filename, library, reader):
+    # why is this not handle_file() ???
+    def process_file(self, filename, reader):
         for extension in self.context.extensions:
             if reader.approves(filename):
                 media = self.get_media_object(filename)
                 if media is None or media.ignore() or media.available == False: continue
                 # scan tag info if this file hasn't been assigned an esid
                 if media.esid is None:
-                    reader.read(media, library)
+                    reader.read(media)
 
     def scan(self, context):
         self.context = context
@@ -115,7 +116,7 @@ class Scanner(LibraryWalker):
         # cache.cache_docs(config.MEDIA_FILE, path)
         # print '\n-----scan complete-----\n'
 
-    # TODO: move this to asset
+    # TODO: move this to library
     def get_media_object(self, absolute_path):
 
         LOG.debug("creating instance for %s." % (absolute_path))

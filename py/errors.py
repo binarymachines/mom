@@ -1,5 +1,12 @@
 import sys, os
 
+# api
+
+class BaseClassException(Exception):
+    def __init__(self, source):
+        super(BaseClassExeception, self).__init__("Abstract Class Instantiated")
+
+
 #assets and library
 
 class AssetException(Exception):

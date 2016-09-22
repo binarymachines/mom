@@ -9,7 +9,7 @@
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/py/scratch.py",
-          
+
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
@@ -24,12 +24,46 @@
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/py/launch.py",
-            "args": [ 
-                // "--config", "cloud.ini", 
+            "args": [
+                // "--config", "cloud.ini",
                 // "--pattern", "m u s l i m g a u z e",
                 "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete",
-                "--scan", "--match", 
+                "--scan", "--match",
                 "--clearmem"
+            ],
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "scan",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/py/scan.py",
+            "args": [
+                "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
+            ],
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+          {
+            "name": "calc",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/py/calc.py",
+            "args": [
+                "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
@@ -80,7 +114,7 @@
             ]
         },
         {
-            "name": "matches",
+            "name": "resolve",
             "type": "node",
             "program": "${workspaceRoot}/js/electron/index.js",
             "stopOnEntry": false,
