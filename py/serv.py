@@ -1,6 +1,7 @@
 import sys, os, logging, traceback, thread
 
 from modes import Mode, Rule, Selector, Engine
+from errors import BaseClassException
 
 SERVICE_NAME = '::\`]'
 
@@ -18,7 +19,7 @@ class ServiceProcess(object):
         self.initialize()
 
     # def apply_directives(self, selector, mode, is_before):
-    #     raise Exception("Not implemented!")
+    #     raise BaseClassException(ServiceProcess)s
 
     # def after_switch(self, selector, mode):
     #     self.apply_directives(selector, mode, False)
@@ -46,11 +47,11 @@ class ServiceProcess(object):
             else: raise err
 
     def halt(self):
-        self.halted = true
-        handle_halt_process()
+        self.halted = True
+        self.handle_halt_process()
 
     def handle_halt_process(self):
-        raise Exception("Not Implemented.")
+        raise BaseClassException(ServiceProcess)
 
     def initialize(self):
         self.halted = False
@@ -67,7 +68,7 @@ class ServiceProcess(object):
         self.engine.add_selector(self.selector)
 
     def setup(self):
-        raise Exception("Not Implemented.")
+        raise BaseClassException(ServiceProcess)
 
     # selector management
     def step(self, before=None, after=None):
@@ -105,7 +106,7 @@ class Service(object):
     def create_record(self, process, before=None, after=None):
         return { 'process': process, 'before': before, 'after': after }
 
-    def get_record(process):
+    def get_record(self, process):
         for rec in self.active:
             if rec['process'] == process: return rec
         for rec in self.inactive:

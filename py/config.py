@@ -1,4 +1,3 @@
-
 #! /usr/bin/python
 
 import sys, os, logging, datetime
@@ -6,29 +5,55 @@ import redis
 
 filename = "config.ini"
 launched = False
-start_time = None
+start_time = datetime.datetime.now()
 
-pid = None
+pid = os.getpid()
 path_cache_size = None
 op_life = None
-es = None
-redis_host = None
+
+redis_host = 'localhost'
 redis = redis.Redis('localhost')
 
 check_freq = None
 check_for_bugs = False
 
-genre_folders = locations = locations_ext = compilation = extended = ignore = incomplete = live = new = random = recent = unsorted = []
-service_debug = reader_debug = matcher_debug = library_debug = sql_debug = es_debug = ops_debug = False
+genre_folders = None
+locations = None
+locations_ext = None
+compilation = None
+extended = None
+ignore = None
+incomplete = None
+live = None
+new = None
+random = None
+recent = None
+unsorted = None
 
-log = sql_log = error_log = es_log = ops_log = cache_log = console_log = None
+log = None
+sql_log = None
+error_log = None
+es_log = None
+ops_log = None
+cache_log = None
+console_log = None
 logging_started = False
 
-es_host = es_index = None
+es = None
+es_host = 'localhost'
 es_port = 9200
+es_index = 'media'
 
-mysql_host = mysql_db = mysql_user = mysql_pass = None
-scan = match = deep = no_scan = no_match = False
+mysql_host = 'localhost'
+mysql_db = 'media'
+mysql_user = 'root'
+mysql_pass = 'steel'
+
+scan = True
+match = True
+deep = False
+no_scan = False
+no_match = False
 
 MEDIA_FILE = 'media_file'
 MEDIA_FOLDER = 'media_folder'
@@ -42,16 +67,17 @@ FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON'
 SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']
 VARIOUS = ['VARIOUS', 'VVAA', 'VA ', 'VA-', 'VA -', 'V.A.', 'VARIOS', 'VARIOUS ARTISTS', '(VA)', '[VA]', 'V-A', 'V:A', 'VA.', 'VA_']
 
+
 def display_status():
     print """Process ID: %i""" % pid
-    print"""Redis Host: %s""" % redis_host
+    print """Redis Host: %s""" % redis_host
     # print""""Redis Port: %s.""" % config.redis_host
     print 'cache db size: %i' % (redis.dbsize())
-    print"""Elasticsearch Host: %s""" % es_host
-    print"""Elasticsearch Port: %i""" % es_port
-    print"""Elasticsearch Index: %s""" % es_index
-    print"""MySQL Host: %s""" % mysql_host
-    print"""MySQL db: %s""" % mysql_db
+    print """Elasticsearch Host: %s""" % es_host
+    print """Elasticsearch Port: %i""" % es_port
+    print """Elasticsearch Index: %s""" % es_index
+    print """MySQL Host: %s""" % mysql_host
+    print """MySQL db: %s""" % mysql_db
     # print"""MySQL Host: %s.""" % mysql_host
     # print"""MySQL Host: %s.""" % mysql_host
 
@@ -63,8 +89,7 @@ def start_console_logging():
 
     console = logging.StreamHandler()
     console.setLevel(logging.DEBUG)
-    
+
     log = logging.getLogger(console_log)
     log.addHandler(console)
     log.info("console logging started.")
-    

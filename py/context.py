@@ -16,11 +16,10 @@ class Context(object):
         self.data.clear()
 
         for consumer in self.fifos.keys:
-            clear_fifo(consumer)
+            self.clear_fifo(consumer)
 
         for consumer in self.stacks.keys:
-            clear_stack(consumer)
-
+            self.clear_stack(consumer)
 
     def clear_fifo(self, consumer):
         if consumer in self.fifos:
@@ -128,7 +127,7 @@ class PathContext(Context):
         if consumer in self.fake_path_queue:
             index = self.paths.index(self.fake_path_queue[consumer]) + 1
             if len(self.paths) > index:
-                return paths[index]
+                return self.paths[index]
         # elif cycle:
-        else: return paths[0]
+        else: return self.paths[0]
 

@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#! /usr/bin/python
 
 import os, sys, datetime, traceback, config, logging
 import MySQLdb as mdb
 
-from errors import SQLConnectError 
+from errors import SQLConnectError
 
 WILD = '%'
 
@@ -78,7 +78,7 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
         else: break
 
     execute_query(query)
-    
+
 # execute queries
 
 def execute_query(query):
@@ -100,8 +100,8 @@ def execute_query(query):
         raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
     except Exception, e:
         logging.getLogger(config.error_log).error(e.message)
-        logging.getLogger(config.error_log).warn(e.query)
-        raise Exception(message)
+        # logging.getLogger(config.error_log).warn(e.query)
+        raise Exception(e.message)
     finally:
         if con: con.close()
 
@@ -125,14 +125,14 @@ def run_query(query):
         raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
     except Exception, e:
         logging.getLogger(config.error_log).error(e.message)
-        logging.getLogger(config.error_log).warn(e.query)
-        raise Exception(message)
+        # logging.getLogger(config.error_log).warn(query)
+        raise Exception(e.message)
     finally:
         if con: con.close()
 
     return rows
 
-def run_query_template(filename, args):
+def run_query_template(filename, *args):
     return run_query(get_query(filename, args))
 
 # load and fill query templates
@@ -151,7 +151,7 @@ def get_query(filename, *args):
     try:
         with open('py/sql/%s.sql' % filename, 'r') as f:
             # substitute wildcard and escape single quotes
-            query = str(f.read() % newargs).replace('*', WILD).replace("'", "\'") 
+            query = str(f.read() % newargs).replace('*', WILD).replace("'", "\'")
             f.close()
             return query
     except TypeError, e:

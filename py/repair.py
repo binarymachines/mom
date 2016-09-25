@@ -1,8 +1,13 @@
-import os, sys, pprint, json
+import os, sys, traceback, logging
 
-import config, start, sql, ops, alchemy
+import config, cache, start, sql, ops, search
+
+from assets import Asset, MediaFile
 
 from errors import AssetException
+
+LOG = logging.getLogger('console.log')
+
 
 def clear_bad_entries():
 
@@ -19,33 +24,17 @@ def clear_bad_entries():
             print ': '.join([err.__class__.__name__, err.message])
 
 
-def record_matches_as_ops():
-
-    rows = sql.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
+def delete_docs_for_path( indexname, doctype, path):
+    rows = sql.retrieve_like_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, str(1)])
     for r in rows:
-        media = MediaFile()
-        matcher_name = r[1]
-        media.esid = r[0]
-        media.absolute_path = r[2]
+        esid = r[4]
+        res = config.es.delete(index=indexname,doc_type=doctype,id=esid)
+        if res['_shards']['successful'] == 1:
+            sql.update_values('es_document', 'active_flag', False, ['id'], [esid])
 
-        if ops.operation_completed(media, matcher_name, 'match') == False:
-            ops.record_op_begin(media, matcher_name, 'match')
-            ops.record_op_complete(media, matcher_name, 'match')
-            print 'recorded(%i, %s, %s, %s)' % (r[1], r[2], 'match')
-
-def reset_all(es):
-    double_check = raw_input("This will wipe all data! Type 'I really want to do this' to proceed'")
-    if double_check == 'I really want to do this':
-        esutil.clear_indexes('media')
-        esutil.clear_indexes('media2')
-        esutil.clear_indexes('media3')
-        sql.truncate('es_document')
-        sql.truncate('matched')
-        sql.truncate('op_record')
 
 def purge_problem_esids():
 
-    config.sql_debug = False
     problems = sql.run_query(
         """select distinct pe.esid, pe.document_type, esd.absolute_path, pe.problem_description
              from problem_esid pe, es_document esd
@@ -77,8 +66,33 @@ def purge_problem_esids():
                 try:
                     config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
                 except Exception, err:
-                    print ': '.join([err.__class__.__name__, err.message])
-                    if config.sql_debug: traceback.print_exc(file=sys.stdout)
+                    LOG.error(': '.join([err.__class__.__name__, err.message]))
+                    traceback.print_exc(file=sys.stdout)
+
+
+def record_matches_as_ops():
+
+    rows = sql.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
+    for r in rows:
+        media = MediaFile()
+        matcher_name = r[1]
+        media.esid = r[0]
+        media.absolute_path = r[2]
+
+        if ops.operation_completed(media, matcher_name, 'match') == False:
+            ops.record_op_begin(media, matcher_name, 'match')
+            ops.record_op_complete(media, matcher_name, 'match')
+
+
+def reset_all(es):
+    double_check = raw_input("This will wipe all data! Type 'I really want to do this' to proceed'")
+    if double_check == 'I really want to do this':
+        search.clear_index('media')
+        search.clear_index('media2')
+        search.clear_index('media3')
+        # sql.truncate('es_document')
+        # sql.truncate('matched')
+        # sql.truncate('op_record')
 
 # def transform_docs():
 #
@@ -112,8 +126,7 @@ def main():
             doc_type = f[1]
 
             try:
-                esid = cache.retrieve_esid(config.es_index, doc_type, filename)
-                config.sql_debug = True
+                esid = cache.retrieve_esid(doc_type, filename)
                 if esid is not None:
                     print ','.join([esid, filename])
                 else:
@@ -126,5 +139,3 @@ def main():
                         sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
             except Exception, error:
                 print error.message
-            finally:
-                config.sql_debug = False

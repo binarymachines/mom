@@ -1,8 +1,12 @@
 #! /usr/bin/python
 
-import os, sys, time, json
+import os
+import time
+import json
 
-import config, pathutil
+import config
+import pathutil
+
 
 class Asset(object):
     def __init__(self):
@@ -61,6 +65,7 @@ class Asset(object):
     def to_str(self):
         return json.dumps(self.get_dictionary())
 
+
 class MediaFile(Asset):
     def __init__(self):
         super(MediaFile, self).__init__()
@@ -79,7 +84,6 @@ class MediaFile(Asset):
         return False
 
     def is_duplicate(self):
-                # return True
         return False
 
     def originals(self):
@@ -127,17 +131,17 @@ class MediaFolder(Asset):
                     'latest_operation': self.latest_operation }
         return data
 
-    def all_files_have_matches():
+    def all_files_have_matches(self):
         return False
 
-    def has_matches():
+    def has_matches(self):
         return False
 
-    def is_proper_compilation():
+    def is_proper_compilation(self):
         return False
 
-    def match_count():
+    def match_count(self):
         return 0
 
-    def has_multiple_artists():
+    def has_multiple_artists(self):
         return False

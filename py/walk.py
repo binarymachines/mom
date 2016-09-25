@@ -1,5 +1,7 @@
 #! /usr/bin/python
 
+import os
+
 class Walker(object):
 
     def __init__(self):

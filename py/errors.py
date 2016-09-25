@@ -4,7 +4,7 @@ import sys, os
 
 class BaseClassException(Exception):
     def __init__(self, source):
-        super(BaseClassExeception, self).__init__("Abstract Class Instantiated")
+        super(BaseClassException, self).__init__("Abstract Class Instantiated")
 
 
 #assets and library
@@ -16,10 +16,16 @@ class AssetException(Exception):
 
 # network and local resources
 
+
 class ElasticSearchError(Exception):
     def __init__(self, cause, message=None):
         self.cause = cause
         self.message = message
+
+
+class IndexNotFoundException(ElasticSearchError):
+    def __init__(self, cause=None):
+        super(IndexNotFoundException, self).__init__(cause)
 
 
 class SQLError(Exception):
@@ -33,6 +39,7 @@ class SQLConnectError(SQLError):
         super(SQLError, self).__init__(cause, message)
 
 # modes, rules, selectors and engines
+
 
 class ModeDestinationException(Exception):
     def __init__(self, message):

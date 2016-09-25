@@ -1,20 +1,22 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, logging, traceback, thread
+import json, pprint, sys, logging, traceback
 from mutagen.id3 import ID3, ID3NoHeaderError
-from elasticsearch import Elasticsearch
 
-from assets import MediaFile
-import cache, config, sql, esutil, ops, alchemy
+import cache
+import config
+import library
+import ops
+
 from errors import ElasticSearchError, BaseClassException
 
 pp = pprint.PrettyPrinter(indent=4)
 
 LOG = logging.getLogger('console.log')
 
+
 class Reader:
     def __init__(self):
-        self.debug = config.reader_debug
         self.document_type = config.MEDIA_FILE
         # self.read_funcs = [] - iterate through methods of this class and add methods that start with 'read_'
 
@@ -25,22 +27,22 @@ class Reader:
             and not filename.lower().startswith('~incomplete')
 
     def read(self, media):
-        if media.esid is not None:
-            LOG.info("esid exists, skipping file: %s" % (media.short_name()))
-            return media
+        # if media.esid is not None:
+        #     LOG.info("esid exists, skipping file: %s" % (media.short_name()))
+        #     return media
 
-        esid = config.redis.hgetall(media.absolute_path)
-        key = cache.get_doc_set_name(config.MEDIA_FILE)
-        esid = cache.get_cached_esid(config.MEDIA_FILE, media.absolute_path)
+        # esid = config.redis.hgetall(media.absolute_path)
+        # key = cache.get_doc_set_name(config.MEDIA_FILE)
+        # esid = cache.get_cached_esid(config.MEDIA_FILE, media.absolute_path)
 
-        if esid is not None:
-            LOG.info("esid exists, skipping file: %s" % (media.short_name()))
-            media.esid = esid
-            return media
+        # if esid is not None:
+        #     LOG.info("esid exists, skipping file: %s" % (media.short_name()))
+        #     media.esid = esid
+        #     return media
 
-        if  media.esid is None and esutil.doc_exists(media, True):
-            LOG.info("document exists, skipping file: %s" % (media.short_name()))
-            return media
+        # if media.esid is None and library.doc_exists_for_path(config.MEDIA_FILE, media.absolute_path):
+        #     LOG.info("document exists, skipping file: %s" % (media.short_name()))
+        #     return media
 
         LOG.info("scanning file: %s" % (media.short_name()))
 
@@ -51,7 +53,7 @@ class Reader:
 
         # genericize this to use the applicable tag reader or cycle through all available tag readers
         # if read_id3v2(media, data):
-        if self.debug: "indexing file: %s" % (media.file_name)
+        LOG.debug("indexing file: %s" % (media.file_name))
         res = config.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
 
         if res['_shards']['successful'] == 1:
@@ -64,7 +66,7 @@ class Reader:
 
         else: raise ElasticSearchError(None, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
 
-    def get_tag_readers(self):
+    def get_tag_readers(self, *extensions):
         return (ID3V2Reader(),)
 
 
@@ -102,19 +104,19 @@ class ID3V2Reader(TagReader):
             data['has_error'] = True
             print ': '.join([err.__class__.__name__, err.message])
             # library.record_error(folder, "ID3NoHeaderError=" + err.message)
-            if self.debug: traceback.print_exc(file=sys.stdout)
+            traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             # library.record_error(folder, "UnicodeEncodeError=" + err.message)
-            if self.debug: traceback.print_exc(file=sys.stdout)
+            traceback.print_exc(file=sys.stdout)
 
         except UnicodeDecodeError, err:
             print ': '.join([err.__class__.__name__, err.message])
             # library.record_error(folder, "UnicodeDecodeError=" + err.message
-            if self.debug: traceback.print_exc(file=sys.stdout)
+            traceback.print_exc(file=sys.stdout)
         except Exception, err:
             print ': '.join([err.__class__.__name__, err.message])
             # library.record_error(folder, "UnicodeDecodeError=" + err.message
-            if self.debug: traceback.print_exc(file=sys.stdout)
+            traceback.print_exc(file=sys.stdout)
 
