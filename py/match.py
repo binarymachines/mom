@@ -1,10 +1,13 @@
 #! /usr/bin/python
 
-import os, json, pprint, sys, random, logging, traceback, thread
+import os, pprint, sys, logging, traceback, thread
 from elasticsearch import Elasticsearch
 import cache, config, ops
 from query import Builder
 import sql
+from errors import BaseClassException
+
+LOG = logging.getLogger('console.log')
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -16,9 +19,10 @@ class MediaMatcher(object):
         self.comparison_fields = []
         self.document_type = doc_type
         self.name = name
+        self.minimum_score = 0
 
     def match(self, media):
-        raise Exception('Not Implemented!')
+        raise BaseClassException(MediaMatcher)
 
     # TODO: assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
@@ -37,23 +41,18 @@ class MediaMatcher(object):
         if orig['_source']['file_size'] == match['_source']['file_size']: return '='
         if orig['_source']['file_size'] < match['_source']['file_size']: return '<'
 
+    # TODO: Oh, come on, you wrote this?
     def match_extensions_match(self, orig, match):
         return 1 if orig['_source']['file_ext'] == match['_source']['file_ext'] else 0
 
-    def print_match_details(self, orig, match):
-
-        if orig['_source']['file_size'] >  match['_source']['file_size']: print(orig['_source']['file_name'] +' >>> ' + match['_source']['absolute_path'])
-        elif orig['_source']['file_size'] ==  match['_source']['file_size']: print(orig['_source']['file_name'] + ' === ' + match['_source']['absolute_path'])
-        elif orig['_source']['file_size'] <  match['_source']['file_size']: print(orig['_source']['file_name'] + ' <<< ' + match['_source']['absolute_path'])
-
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
         if self.match_recorded(media_id, match_id) == False and self.match_recorded(match_id, media_id):
-            logging.getLogger(config.log).info('match record for  %s ::: %s already exists.' % (media_id, match_id))
-        else: 
-            logging.getLogger(config.log).info('recording match: %s ::: %s' % (media_id, match_id))
+            LOG.info('match record for  %s ::: %s already exists.' % (media_id, match_id))
+        else:
+            LOG.info('recording match: %s ::: %s' % (media_id, match_id))
             sql.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
                 [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
-            
+
 
 class ElasticSearchMatcher(MediaMatcher):
     def __init__(self, name, doc_type):
@@ -75,7 +74,7 @@ class ElasticSearchMatcher(MediaMatcher):
             self.match_fields = sql.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(self.comparison_fields) > 0 and self.query_type is not None:
-            logging.getLogger(config.log).info('%s %s matcher configured.' % (self.name, self.query_type))
+            LOG.info('%s %s matcher configured.' % (self.name, self.query_type))
 
     def get_query(self, media):
 
@@ -93,7 +92,7 @@ class ElasticSearchMatcher(MediaMatcher):
         pp.pprint(query)
         print '\n'
         query_printed = True
-        
+
     def print_match_query_debug_footer(self, media, query, match):
 
         matchrecord = {}
@@ -105,7 +104,7 @@ class ElasticSearchMatcher(MediaMatcher):
                 if field in match['_source']:
                     matchrecord[field] = match['_source'][field]
 
-    
+
         pp.pprint(matchrecord)
         print '\n'
 
@@ -113,31 +112,30 @@ class ElasticSearchMatcher(MediaMatcher):
     def match(self, media):
         ops.record_op_begin(media, self.name, 'match')
 
-        logging.getLogger(config.log).info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path)) 
+        LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
         previous_matches = cache.get_matches(self.name, media.esid)
-        
+
         query = self.get_query(media)
-        query_printed = False
-        if config.matcher_debug == True: 
-            self.print_match_query_debug_header(media, query)
-            query_printed = True
+        # query_printed = False
+        # if config.matcher_debug == True:
+        #     self.print_match_query_debug_header(media, query)
+        #     query_printed = True
 
         matches = False
         res = config.es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
         for match in res['hits']['hits']:
-            if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches: 
+            if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches:
                 continue
-                
+
             orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
             match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
 
-            if match_parent == orig_parent: 
+            if match_parent == orig_parent:
                 continue
-            
 
-            if self.minimum_score is not None:
+            if self.minimum_score > 0:
                 if match['_score'] < self.minimum_score:
-                    logging.getLogger(config.log).info('eliminating: \t%s' % (match['_source']['absolute_path']))
+                    LOG.info('eliminating: \t%s' % (match['_source']['absolute_path']))
                     continue
 
             matched_fields = []
@@ -154,8 +152,8 @@ class ElasticSearchMatcher(MediaMatcher):
             except Exception, err:
                 print err.message
                 traceback.print_exc(file=sys.stdout)
-            
-            if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
+
+            # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
         ops.record_op_complete(media, self.name, 'match')
 

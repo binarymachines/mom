@@ -32,7 +32,7 @@ class Mode(object):
         # self.error_handler = None
         self.suspended = False
 
-    def on_first_activation(sef):
+    def on_first_activation(self):
         return self.times_activated == 0
 
     def reset(self, reset_error_count=False):
@@ -153,13 +153,13 @@ class Selector:
                 result =  True
                 break
             elif result == False:
-                result = has_path(rule.end, destination)
+                result = self.has_path(rule.end, destination)
         return result
 
     def has_priority(self, mode, level):
         compval = mode.priority
-        higher = true
-        lower = true
+        higher = True
+        lower = True
 
         # TODO: selector should filter comparisons by checking for paths to active modes
         for other in self.active:
@@ -201,7 +201,7 @@ class Selector:
 
             self.switch(available)
 
-        elif len(possible) == 0:
+        elif len(applicable) == 0:
             raise ModeDestinationException("%s: No valid destination from %s" % (self.name, self.active.name))
 
     def _call_mode_func_(self, mode, func):

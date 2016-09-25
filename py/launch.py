@@ -6,19 +6,23 @@
 '''
 
 import datetime
+
 from docopt import docopt
 
-import config, direct, serv, mediaserv, start, ops, library
-from serv import Service, ServiceProcess
-from mediaserv import MediaServiceProcess
+import config, mediaserv, start, ops, library
+import pathutil
+from serv import Service
+
 from context import PathContext
+
 
 def get_path_config():
     result = []
-    result.append([location for location in library.get_locations()])
-    result.append([location for location in library.get_locations_ext()])
+    result.append([location for location in pathutil.get_locations()])
+    result.append([location for location in pathutil.get_locations_ext()])
     result.sort()
     return result
+
 
 def launch(args, run=True):
     try:
@@ -34,13 +38,13 @@ def launch(args, run=True):
 
             if run:
                 paths = start.get_paths(args)
-                context = Pathcontext('_path_context_', paths, ['mp3'])
+                context = PathContext('_path_context_', paths, ['mp3'])
                 context.peep_fifo = True
                 # directive = direct.create(paths)
                 process_name = None if not args['--process'] else args['<process_name>']
-                process = create_service_process(process_name, context)
+                process = mediaserv.create_service_process(process_name, context)
 
-                service.run(process, directive)
+                service.run(process, context)
 
             return service
 
@@ -48,11 +52,14 @@ def launch(args, run=True):
     except Exception, err:
         print err.message
 
+
 def after (process):
     print '%s after launch' % process.name
 
+
 def before(process):
     print '%s before launch' % process.name
+
 
 def main(args):
     service = launch(args, False)

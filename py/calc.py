@@ -11,7 +11,7 @@ import os, sys, traceback, logging, docopt
 
 import redis
 
-import cache, config, ops, sql, esutil, library, errors
+import cache, config, ops, sql, search, library, errors
 
 from context import PathContext
 from errors import AssetException
@@ -65,10 +65,9 @@ def calculate_matches(context, cycle_context=False):
                 cache.cache_matches(location)
 
                 for key in cache.get_doc_keys(config.MEDIA_FILE):
-                    if location not in key and config.matcher_debug:
-                        LOG.info('match calculator skipping %s' % (key))
                     values = config.redis.hgetall(key)
                     if 'esid' not in values:
+                        LOG.info('match calculator skipping %s' % (key))
                         continue
 
                     opcount += 1
@@ -84,7 +83,7 @@ def calculate_matches(context, cycle_context=False):
                             LOG.info('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
                             continue
 
-                        if esutil.doc_exists(media, True):
+                        if library.doc_exists(media, True):
                             for matcher in matchers:
                                 if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
                                     LOG.info('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))

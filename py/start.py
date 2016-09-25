@@ -2,7 +2,7 @@ import sys, os, datetime, traceback, ConfigParser, logging
 
 import redis
 
-import cache, config, sql, esutil, ops, util, library
+import config, sql, search, ops
 
 EXECUTE_DISCONNECTED = True
 
@@ -10,11 +10,12 @@ GET_PATHS = 'start_get_paths'
 
 LOG = logging.getLogger('console.log')
 
+
 def execute(args):
 
     if os.path.isfile(os.path.join(os.getcwd(), config.filename)):
 
-        print "\nloading configuration from %s....\n" % (config.filename)
+        print "\nloading configuration from %s....\n" % config.filename
 
         parser = ConfigParser.ConfigParser()
         parser.read(config.filename)
@@ -22,7 +23,7 @@ def execute(args):
         options = make_options(args)
 
         # logging
-        if config.logging_started == False:
+        if not console.logging_started:
 
             config.log = read(parser, "Log")['log']
             config.error_log = read(parser, "Log")['error']
@@ -32,7 +33,7 @@ def execute(args):
             start_logging()
 
         # TODO write pidfile_TIMESTAMP and pass filenames to command.py
-        if  config.launched == False:
+        if not config.launched:
             config.pid = os.getpid()
             write_pid_file()
 
@@ -49,13 +50,6 @@ def execute(args):
 
         # debug
         config.check_for_bugs = read(parser, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options
-        config.service_debug = read(parser, "Debug")['service'].lower() == 'true'
-        config.reader_debug = read(parser, "Debug")['reader'].lower() == 'true'
-        config.matcher_debug = read(parser, "Debug")['matcher'].lower() == 'true'
-        config.library_debug = read(parser, "Debug")['folder'].lower() == 'true'
-        config.sql_debug = read(parser, "Debug")['mysql'].lower() == 'true' or 'debug_mysql' in options
-        config.es_debug = read(parser, "Debug")['esutil'].lower() == 'true'
-        config.ops_debug = read(parser, "Debug")['operations'].lower() == 'true'
 
         # status
         config.check_freq = int(read(parser, "Status")['check_frequency'])
@@ -78,7 +72,7 @@ def execute(args):
         try:
             LOG.info('connecting to Redis...')
 
-            if EXECUTE_DISCONNECTED == False:
+            if not EXECUTE_DISCONNECTED:
 
                 print 'Redis host: %s' % config.redis_host
                 print 'Redis dbsize: %i' % config.redis.dbsize()
@@ -92,7 +86,7 @@ def execute(args):
                     ops.flush_all()
 
                 LOG.info('connecting to Elasticsearch...')
-                config.es = esutil.connect(config.es_host, config.es_port)
+                config.es = search.connect()
                 LOG.info('connecting to MySQL...')
 
             config.launched = True
@@ -121,6 +115,7 @@ def get_paths(args):
                 raise err
     return paths
 
+
 def make_options(args):
     options = []
 
@@ -136,6 +131,7 @@ def make_options(args):
 
     return options
 
+
 def read(parser, section):
     result = {}
     options = parser.options(section)
@@ -143,11 +139,12 @@ def read(parser, section):
         try:
             result[option] = parser.get(section, option)
             if result[option] == -1:
-                DebugPrint("skip: %s" % option)
+                LOG.info("skip: %s" % option)
         except:
             print("exception on %s!" % option)
             result[option] = None
     return result
+
 
 def setup_log(file_name, log_name, logging_level):
     log = "logs/%s" % (file_name)
@@ -156,20 +153,22 @@ def setup_log(file_name, log_name, logging_level):
     tracer.addHandler(logging.FileHandler(log))
     return tracer
 
+
 def start_logging():
     if config.logging_started: return
     config.logging_started = True
     config.start_console_logging()
 
-    for logname in (config.log, config.error_log, config.sql_log, config.cache_log):
+    for logname in ('console.log', config.error_log, config.sql_log, config.cache_log):
         LOG.info("logging to: %s" % logname)
 
     setup_log('elasticsearch.log', 'elasticsearch.trace', logging.INFO)
-    setup_log(config.log, config.log, logging.INFO)
+    setup_log('console.log', 'console.log', logging.INFO)
     setup_log(config.error_log, config.error_log, logging.WARN)
     setup_log(config.sql_log, config.sql_log, logging.DEBUG)
     setup_log(config.ops_log, config.ops_log, logging.DEBUG)
     setup_log(config.cache_log, config.cache_log, logging.DEBUG)
+
 
 def write_pid_file():
     f = open('pid', 'wt')

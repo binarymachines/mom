@@ -1,4 +1,4 @@
-import os, sys, random, logging
+import logging
 
 from serv import ServiceProcess
 
@@ -6,9 +6,10 @@ from context import PathContext
 from handle import MediaServiceProcessHandler
 from modes import Mode, Selector
 
-import config, direct, library, calc, scan, report
+import config
 
 LOG = logging.getLogger('console.log')
+
 
 class MediaServiceProcess(ServiceProcess):
     def __init__(self, name, context, stop_on_errors=True):
@@ -77,19 +78,23 @@ class MediaServiceProcess(ServiceProcess):
         self.selector.add_rules(self.endmode, self.handler.maybe, self.handler.ending, self.handler.ended, \
             self.reportmode)
 
-def create_service_process(identifier, context, alternative=None):
 
+def create_service_process(identifier, context, alternative=None):
     if alternative is None:
         return MediaServiceProcess(identifier, context)
     return alternative(identifier, context)
 
+
 # process callbacks
+
 
 def after(process):
     LOG.info('process %s has completed.' % process.name)
 
+
 def before(process):
     LOG.info('launching process: %s.' % process.name)
+
 
 def main():
     config.start_console_logging()

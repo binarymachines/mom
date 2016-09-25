@@ -54,9 +54,9 @@ class Builder:
             # TODO: add options to simple query
 
             if query_type == 'term':
-                return self.get_simple_term(match_fields[0][1], values, []);
+                return self.get_simple_term(match_fields[0][1], values, [])
             elif query_type == 'match':
-                return self.get_simple_match(match_fields[0][1], values, []);
+                return self.get_simple_match(match_fields[0][1], values, [])
 
         elif len(match_fields) > 1:
 

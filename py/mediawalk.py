@@ -1,10 +1,11 @@
-import os, sys, logging
+import os, logging
 
+import pathutil
 from walk import Walker
-
-import library
+from errors import BaseClassException
 
 LOG = logging.getLogger('console.log')
+
 
 class LibraryWalker(Walker):
 
@@ -31,7 +32,7 @@ class LibraryWalker(Walker):
     def handle_dir(self, directory):
         super(LibraryWalker, self).handle_dir(directory)
         path = os.path.join(self.current_root, directory)
-        if directory in library.get_genre_folder_names():
+        if directory in pathutil.get_genre_folder_names():
             self.check_genre_dir(path)
         else: self.check_album_dir(path)
 
@@ -44,7 +45,7 @@ class DirectoryHandler(object):
       pass
 
     def check_dir(self, path):
-        raise Exception("Not implemented!")
+        raise BaseClassException(DirectoryHandler)
 
 class AlbumInWrongArtistPath(DirectoryHandler):
     # NOTE: this checker applies at the location, genre, artist and side_project levels
@@ -78,9 +79,9 @@ class IsInMediaTypePath(DirectoryHandler):
 
 class IsInGenrePath(DirectoryHandler):
     def check_dir(self, path):
-        if util.path_contains_media(path, library.get_active_media_formats()):
+        if pathutil.path_contains_media(path, pathutil.get_active_media_formats()):
             filed = False
-            for name in library.get_genre_folder_names():
+            for name in pathutil.get_genre_folder_names():
                 if name in path: filed = True
             if filed == False:
                 #TODO: add this folder to work queue

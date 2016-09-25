@@ -8,11 +8,11 @@
    
 '''
 
-import os, sys, traceback, pprint, json, subprocess
+import os, sys, traceback, pprint, subprocess
 from docopt import docopt
 
-import config, start, sql, esutil
-from assets import MediaFile, MediaFolder
+import config, start, sql, search
+from assets import MediaFile
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -38,14 +38,6 @@ MATCH_FOLDER = '_match_folder'
 TAGS = 'tags'
 WEIGHT = '_weight'
 DISCOUNT = '_discount'
-
-def calculate_discount(path):
-    result = 0
-    for value in weights:
-        if value.lower() in path.lower():
-            result += weights[value]
-
-    return result 
 
 def calculate_suggestion(media_data, match_data, comparison_result):
     media_data[SUGGEST] = 'DELETE' if comparison_result in ['<'] else 'KEEP'
@@ -90,9 +82,10 @@ def get_weights():
 
     return weights
 
+
 def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generate= False, outputfile=None, append_existing=False):
     try: 
-        es = esutil.connect(config.es_host, config.es_port)
+        es = search.connect()
 
         weights = get_weights();
         discounts = get_discounts();
@@ -303,15 +296,16 @@ def get_media_files(path, reverse=False, union=False):
     elif union: return sql.run_query(query['union'])
     else: return sql.run_query(query['match'])
 
-def get_media_meta_data(es, esid, media_data):
+
+def get_media_meta_data(es, es_id, media_data):
     if META not in media_data:
         media_data[META] = [] 
 
-    mediaFile = MediaFile()
-    mediaFile.esid = esid
-    mediaFile.document_type = config.MEDIA_FILE
+    # mediaFile = MediaFile()
+    # mediaFile.esid = esid
+    # mediaFile.document_type = config.MEDIA_FILE
     try:
-        doc = esutil.get_doc(mediaFile, es)
+        doc = search.get_doc(config.MEDIA_FILE, es_id)
 
         media_data['file_size'] = doc['_source']['file_size']
 
@@ -370,9 +364,7 @@ def get_matches_for(pattern):
 
 
 def handle_results(results, outputfile, append_existing, show_in_subl):
-    if outputfile is None: 
-        pp.pprint(folder_data)
-    else:
+    if outputfile is not None:
         print 'writing output...'
         write_method = 'at' if append_existing else 'wt'
         with open(outputfile, write_method) as out:

@@ -7,6 +7,7 @@ import config, calc, match, scan, report
 
 LOG = logging.getLogger('console.log')
 
+
 class MediaServiceProcessHandler():
     def __init__(self, owner, name, selector, context):
         self.context = context
@@ -54,10 +55,15 @@ class MediaServiceProcessHandler():
     # callbacks for rule paths to specified modes
 
     def started(self): LOG.info("%s process has started" % self.name)
+
     def starting(self): LOG.info("%s process will start" % self.name)
+
     def start(self): LOG.info("%s process is starting" % self.name)
+
     def ended(self): LOG.info("%s process has ended" % self.name)
+
     def ending(self): LOG.info("%s process will end" % self.name)
+
     def end(self): LOG.info('%s handling shutdown request, clearing caches, writing data' % self.name)
 
     # eval
