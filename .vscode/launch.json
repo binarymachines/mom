@@ -46,7 +46,8 @@
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/py/scan.py",
             "args": [
-                "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
+                // "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
+                "--path", "/media/removable/PNY16/media/music/"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
@@ -63,7 +64,7 @@
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/py/calc.py",
             "args": [
-                "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
+               "--path", "/media/removable/PNY16/media/music/"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",

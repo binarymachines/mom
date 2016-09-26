@@ -13,28 +13,35 @@ import config
 import pathutil
 import search
 import sql
-from errors import AssetException
 from assets import MediaFolder, MediaFile
 
 LOG = logging.getLogger('console.log')
+
+KEY_PREFIX = 'library'
 
 
 # cache functions
 
 def get_cache_key():
-    key = cache2.get_key('library', str(config.pid))
+    key = cache2.get_key(KEY_PREFIX, str(config.pid))
     if key is None:
-        key = cache2.create_key('library', str(config.pid))
+        key = cache2.create_key(KEY_PREFIX, str(config.pid))
 
     return key
 
 
+# directory cache
+
 def cache_folder(folder):
-    cache2.set_hash('library', get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.MEDIA_FOLDER })
+    cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.MEDIA_FOLDER })
+
+
+def clear_folder_cache():
+    cache2.delete_hash(KEY_PREFIX, get_cache_key())
 
 
 def get_cached_folder():
-    values = cache2.get_hash('library', get_cache_key())
+    values = cache2.get_hash(KEY_PREFIX, get_cache_key())
     if len(values) is 0: return None
 
     result = MediaFolder()
@@ -43,9 +50,6 @@ def get_cached_folder():
     result.document_type = values['doc_type']
 
     return result
-
-def clear_cache():
-    cache2.delete_hash('library', get_cache_key())
 
 
 # def get_latest_operation(self, path):
@@ -271,3 +275,16 @@ def handle_asset_exception(error, path):
 def insert_esid(index, document_type, elasticsearch_id, absolute_path):
     sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
         [index, document_type, elasticsearch_id, absolute_path])
+
+
+def path_in_db(path):
+    path = path.replace('"', "'")
+    path = path.replace("'", "\'")
+    # TODO: use template
+    q = 'select * from es_document where index_name = "%s" and doc_type = "%s" and absolute_path like "%s%s" limit 1' % \
+        (config.es_index, config.MEDIA_FOLDER, path, '%')
+    rows = sql.run_query(q)
+    if len(rows) == 1:
+        return True
+
+

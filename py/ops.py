@@ -44,7 +44,7 @@ def flush_cache():
         # for matcher in calc.get_matchers():
         #     ops.write_ops_for_path('/', matcher.name, 'match')
         cache.write_paths()
-        # ops.clear_cache('/', True)
+        # ops.clear_folder_cache('/', True)
         cache.clear_docs(config.MEDIA_FILE, '/')
     except Exception, err:
         LOG.warn(err.message)
@@ -104,7 +104,7 @@ def operation_in_cache(path, operation, operator=None):
 
     return False
 
-# def clear_cache(path, use_wildcard=False):
+# def clear_folder_cache(path, use_wildcard=False):
 #     try:
 #         search = '-'.join([operation, path]) if operator is None  else '-'.join([operation, operator, path])
 #         if use_wildcard:

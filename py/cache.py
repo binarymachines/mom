@@ -49,9 +49,11 @@ def cache_docs(document_type, source_path, clear_existing=True):
         config.redis.rpush(key, path)
         cache_esid_for_path(esid, path)
 
+
 def cache_esid_for_path(esid, path):
     values = { 'esid': esid }
     config.redis.hmset(path, values)
+
 
 def clear_docs(document_type, path):
     setname = get_doc_set_name(document_type)
@@ -62,10 +64,12 @@ def clear_docs(document_type, path):
     except Exception, err:
         print err.message
 
+
 def get_cached_esid(document_type, path):
     values = config.redis.hgetall(path)
     if 'esid' in values:
         return values['esid']
+
 
 def retrieve_esid(document_type, absolute_path):
     values = config.redis.hgetall(absolute_path)
@@ -78,8 +82,10 @@ def retrieve_esid(document_type, absolute_path):
     if len(rows) == 1: return rows[0][3]
     elif len(rows) >1: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
+
 def get_doc_keys(document_type):
     return config.redis.lrange(get_doc_set_name(document_type), 0, -1)
+
 
 def retrieve_docs(document_type, file_path):
 
@@ -87,6 +93,7 @@ def retrieve_docs(document_type, file_path):
     #     (sql.quote_if_string(config.es_index), sql.quote_if_string(document_type), sql.quote_if_string(''.join([file_path, '%'])))
     query = sql.get_query(RETRIEVE_DOCS, config.es_index, document_type, file_path)
     return sql.run_query(query)
+
 
 # matched files
 def cache_matches(path):
@@ -106,10 +113,12 @@ def cache_matches(path):
     except Exception, err:
         print err.message
 
+
 def get_matches(matcher_name, esid):
     key = '-'.join([matcher_name, esid])
     values = config.redis.smembers(key)
     return values
+
 
 def clear_matches(matcher_name, esid):
     key = '-'.join([matcher_name, esid])
@@ -117,6 +126,7 @@ def clear_matches(matcher_name, esid):
     values = config.redis.smembers(key)
     config.redis.srem(esid, values)
     config.redis.delete(key)
+
 
 # ensured paths
 
@@ -128,6 +138,7 @@ def ensure(esid, path, document_type):
         key = '-'.join(['ensure', esid])
         values = { 'index_name': config.es_index, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
         config.redis.hmset(key, values)
+
 
 def write_paths(flushkeys=True):
 
