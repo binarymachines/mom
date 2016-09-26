@@ -50,7 +50,7 @@ class Scanner(LibraryWalker):
 
     def before_handle_root(self, root):
         ops.do_status_check()
-        library.clear_cache()
+        library.clear_folder_cache()
         if ops.operation_in_cache(root, 'scan', 'ID3v2'): # and not self.do_deep_scan: # and not root in library.get_locations_ext():
             LOG.debug('scan operation record found for: %s' % (root))
             return
@@ -60,7 +60,7 @@ class Scanner(LibraryWalker):
                 library.set_active(root)
 
         except AssetException, err:
-            library.clear_cache()
+            library.clear_folder_cache()
             LOG.warning(': '.join([err.__class__.__name__, err.message]))
             traceback.print_exc(file=sys.stdout)
             library.handle_asset_exception(err, root)

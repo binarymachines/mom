@@ -7,15 +7,21 @@
 
 '''
 
-import os, sys, traceback, logging, docopt
+import docopt
+import logging
+import sys
+import traceback
 
-import redis
-
-import cache, config, ops, sql, search, library, errors
-
+import cache
+import config
+import library
+import ops
+import search
+import sql
+from assets import MediaFile
 from context import PathContext
 from errors import AssetException
-from assets import Asset, MediaFile, MediaFolder
+from library import path_in_db
 from match import ElasticSearchMatcher
 
 LOG = logging.getLogger('console.log')
@@ -32,17 +38,6 @@ def all_matchers_have_run(matchers, media):
     return skip_entirely
 
 
-def path_in_db(path):
-    path = path.replace('"', "'")
-    path = path.replace("'", "\'")
-    # TODO: use template
-    q = 'select * from es_document where index_name = "%s" and doc_type = "%s" and absolute_path like "%s%s" limit 1' % \
-        (config.es_index, config.MEDIA_FOLDER, path, '%')
-    rows = sql.run_query(q)
-    if len(rows) == 1:
-        return True
-
-
 # def split_location(into sets of media folders)
 
 def calculate_matches(context, cycle_context=False):
@@ -54,7 +49,7 @@ def calculate_matches(context, cycle_context=False):
     for location in context.paths:
         LOG.info('calc: matching files in %s' % (location))
         ops.do_status_check()
-        if path_in_db(location):
+        if library.path_in_db(location):
             try:
                 # this should never be true, but a test
                 if location[-1] != '/': location += '/'
