@@ -21,7 +21,6 @@ import sql
 from assets import MediaFile
 from context import PathContext
 from errors import AssetException
-from library import path_in_db
 from match import ElasticSearchMatcher
 
 LOG = logging.getLogger('console.log')
@@ -37,6 +36,12 @@ def all_matchers_have_run(matchers, media):
 
     return skip_entirely
 
+def cache_match_ops(self, matchers, path):
+    LOG.info('caching match ops for %s...' % (location))
+    for matcher in matchers:
+        ops.cache_ops(True, location, 'match', matcher.name)
+
+# def clear cached_match_ops(self, matchers):
 
 # def split_location(into sets of media folders)
 
@@ -49,18 +54,13 @@ def calculate_matches(context, cycle_context=False):
     for location in context.paths:
         LOG.info('calc: matching files in %s' % (location))
         ops.do_status_check()
-        if library.path_in_db(location):
+        if library.path_in_db(config.MEDIA_FILE, location):
             try:
                 # this should never be true, but a test
                 if location[-1] != '/': location += '/'
 
                 cache.cache_docs(config.MEDIA_FILE, location)
-
-                LOG.info('caching match ops for %s...' % (location))
-                for matcher in matchers:
-                    ops.cache_ops(True, location, 'match', matcher.name)
-
-                LOG.info('caching matches for %s...' % (location))
+                cache_match_ops(matchers, location)
                 cache.cache_matches(location)
 
                 for key in cache.get_doc_keys(config.MEDIA_FILE):
@@ -72,13 +72,11 @@ def calculate_matches(context, cycle_context=False):
                     opcount += 1
                     ops.do_status_check(opcount)
 
-                    media = MediaFile()
-                    media.absolute_path = key
+                    media = library.get_media_object(key, check_cache=True)
                     media.esid = values['esid']
-                    media.document_type = config.MEDIA_FILE
                     media.doc = search.get_doc(media.document_type, media.esid)
 
-                    if media.doc is not None:
+                    if media.doc:
                         try:
                             if all_matchers_have_run(matchers, media):
                                 LOG.info('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
@@ -120,8 +118,6 @@ def calculate_matches(context, cycle_context=False):
                 cache.clear_docs(config.MEDIA_FILE, location)
                 cache.write_paths()
 
-    # print '\n-----match operations complete-----\n'
-
 def get_matchers():
     matchers = []
     rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
@@ -146,7 +142,7 @@ def record_match_ops_complete(matcher, media, path, ):
 
 def main(args):
     config.es = search.connect()
-    config.start_console_logging()
+    # config.start_console_logging()
     paths = None if not args['--path'] else args['<path>']
     context = PathContext('_path_context_', paths, ['mp3'])
     calculate_matches(context)

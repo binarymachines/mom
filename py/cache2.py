@@ -13,10 +13,10 @@ LOG = logging.getLogger('cache.log')
 
 def key_name(rec_type, identifier=None):
     """get a key name for a given identifier and a specified record type"""
-    result = '-'.join([rec_type, identifier]) if identifier is not None else rec_type + '-' 
+    result = '-'.join([rec_type, identifier]) if identifier is not None else rec_type + '-'
     #LOG.debug('key_name(rec_type=%s, identifier=%s) returns %s', rec_type, identifier, result)
     return result
-    
+
 
 def create_key(rec_type, identifier, delete_children=True):
     """create a new key"""
@@ -26,7 +26,7 @@ def create_key(rec_type, identifier, delete_children=True):
     return key
 
 
-def delete_key(rec_type, identifier, delete_children=True):
+def delete_key(rec_type, identifier, delete_children=False):
     # result = config.redis.delete(key_name(rec_type, identifier))
     result = config.redis.delete(identifier)
     #LOG.debug('redis.delete(key_name=%s, identifier=%s) returns: %s' % (rec_type, identifier, str(result)))
@@ -48,6 +48,10 @@ def get_keys(rec_type, identifier=None):
     result = config.redis.keys(search)
     #LOG.debug('get_keys(rec_type=%s, identifier=%s) returns %s' % (rec_type, identifier, result))
     return result
+
+def key_exists(rec_type, identifier):
+     key = key_name(rec_type, identifier)
+     return config.redis.exists(key)
 
 
 # hashsets
@@ -87,7 +91,7 @@ def add_item(rec_type, identifier, item):
     key = '-'.join([rec_type, 'list', identifier])
     result = config.redis.sadd(key, item)
     #LOG.debug('add_item(rec_type=%s, identifier=%s, item=%s) returns: %s' % (rec_type, identifier, item, str(result)))
-    
+
 
 def get_items(rec_type, identifier):
     key = '-'.join([rec_type, 'list', identifier])
@@ -168,9 +172,10 @@ def library_demo():
     values = get_hash(lib, hkey)
     print values
 
+
 def main():
-    config.start_console_logging()
-    library_demo()
+    # config.start_console_logging()
+    pass
 
 if __name__ == '__main__':
     main()

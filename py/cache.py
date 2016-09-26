@@ -97,6 +97,7 @@ def retrieve_docs(document_type, file_path):
 
 # matched files
 def cache_matches(path):
+    LOG.info('caching matches for %s...' % (location))
     try:
         # q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd
         #         WHERE esd.id = m.media_doc_id AND esd.absolute_path like "%s%s"

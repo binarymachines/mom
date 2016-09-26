@@ -44,7 +44,7 @@ class Reader:
         #     LOG.info("document exists, skipping file: %s" % (media.short_name()))
         #     return media
 
-        LOG.info("scanning file: %s" % (media.short_name()))
+        LOG.debug("scanning file: %s" % (media.short_name()))
 
         data = media.get_dictionary()
 
@@ -58,9 +58,9 @@ class Reader:
 
         if res['_shards']['successful'] == 1:
             esid = res['_id']
-            LOG.info("attaching NEW esid: %s to %s." % (esid, media.file_name))
+            LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
             media.esid = esid
-            LOG.info("inserting NEW esid into MySQL")
+            LOG.debug("inserting NEW esid into MySQL")
             # alchemy.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
             library.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
 

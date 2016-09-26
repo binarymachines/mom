@@ -20,15 +20,6 @@ check_for_bugs = False
 genre_folders = None
 locations = None
 locations_ext = None
-compilation = None
-extended = None
-ignore = None
-incomplete = None
-live = None
-new = None
-random = None
-recent = None
-unsorted = None
 
 log = None
 sql_log = None
