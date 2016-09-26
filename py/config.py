@@ -9,12 +9,12 @@ start_time = datetime.datetime.now()
 
 pid = os.getpid()
 path_cache_size = None
-op_life = None
+op_life = 90
 
 redis_host = 'localhost'
 redis = redis.Redis('localhost')
 
-check_freq = None
+check_freq = 1
 check_for_bugs = False
 
 genre_folders = None

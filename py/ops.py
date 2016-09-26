@@ -30,14 +30,14 @@ def check_for_stop_request():
 def flush_all():
     flush_cache()
     try:
-        logging.getLogger(config.ops_log).info('flushing redis database')
+        LOG.info('flushing redis database')
         config.redis.flushall()
     except Exception, err:
-        logging.getLogger(config.ops_log).warn(err.message)
+        LOG.warn(err.message)
 
 
 def flush_cache():
-    logging.getLogger(config.ops_log).info('flushing cache')
+    LOG.info('flushing cache')
     try:
         write_ops_for_path('/', 'ID3v2', 'scan')
         write_ops_for_path('/', None, 'match')
@@ -47,7 +47,7 @@ def flush_cache():
         # ops.clear_cache('/', True)
         cache.clear_docs(config.MEDIA_FILE, '/')
     except Exception, err:
-        logging.getLogger(config.ops_log).warn(err.message)
+        LOG.warn(err.message)
 
 
 def do_status_check(opcount=None):
@@ -79,15 +79,15 @@ def record_exec():
 
 def cache_ops(apply_lifespan, path, operation, operator=None):
     if operator is not None:
-        logging.getLogger(config.ops_log).info('caching %s.%s operations for %s' % (operator, operation, path))
+        LOG.info('caching %s.%s operations for %s' % (operator, operation, path))
     else:
-        logging.getLogger(config.ops_log).info('caching %s operations for %s' % (operation, path))
+        LOG.info('caching %s operations for %s' % (operation, path))
     rows = retrieve_complete_ops(apply_lifespan, path, operation, operator)
     for row in rows:
         try:
             key = '-'.join([operation, row[0]]) if operator is None  else '-'.join([operation, operator, row[0]])
 
-            # logging.getLogger(config.ops_log).info(key)
+            # LOG.info(key)
             values = { 'persisted': True }
             config.redis.hmset(key, values)
         except Exception, err:
@@ -97,7 +97,7 @@ def cache_ops(apply_lifespan, path, operation, operator=None):
 def operation_in_cache(path, operation, operator=None):
     key = '-'.join([operation, path]) if operator is None  else '-'.join([operation, operator, path])
 
-    # logging.getLogger(config.ops_log).info('seeking key %s...' % key)
+    # LOG.info('seeking key %s...' % key)
     values = config.redis.hgetall(key)
     if 'persisted' in values:
         return values['persisted'] == 'True'
@@ -201,7 +201,7 @@ def write_ops_for_path(path, operator, operation):
                 sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
                     [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
 
-        logging.getLogger(config.ops_log).info('%s.%s operations have been updated for %s in MySQL' % (operator, operation, path))
+        LOG.info('%s.%s operations have been updated for %s in MySQL' % (operator, operation, path))
     except Exception, err:
         logging.getLogger(config.error_log).warn(err.message)
 

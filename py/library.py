@@ -162,62 +162,62 @@ def doc_exists_for_path(doc_type, path):
 
 
 # this will be eliminated soon
-def doc_exists(asset, attach_if_found):
-    # look in local MySQL
-    esid_in_mysql = False
-    esid = cache.retrieve_esid(asset.document_type, asset.absolute_path)
-    if esid is not None:
-        esid_in_mysql = True
-        LOG.info("found esid %s for '%s' in sql." % (esid, asset.short_name()))
-
-        if attach_if_found and asset.esid is None:
-            LOG.info("attaching esid %s to ''%s'." % (esid, asset.short_name()))
-            asset.esid = esid
-
-        if attach_if_found == False: return True
-
-    if esid_in_mysql:
-        try:
-            doc = config.es.get(index=config.es_index, doc_type=asset.document_type, id=asset.esid)
-            asset.doc = doc
-            return True
-        except Exception, err:
-            LOG.error(err.message)
-            raise AssetException('DOC NOT FOUND FOR ESID:' + asset.to_str(), asset)
-
-    # not found, query elasticsearch
-    res = config.es.search(index=config.es_index, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
-    for doc in res['hits']['hits']:
-        # if self.doc_refers_to(doc, media):
-        if doc['_source']['absolute_path'] == asset.absolute_path:
-            esid = doc['_id']
-            LOG.INFO("found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name()))
-
-            if attach_if_found:
-                asset.doc = doc
-                if asset.esid is None:
-                    LOG.info("attaching esid %s to '%s'." % (esid, asset.short_name()))
-                    asset.esid = esid
-
-            if esid_in_mysql == False:
-                # found, update local MySQL
-                LOG.info('inserting esid into MySQL')
-                try:
-                    # alchemy.insert_asset(config.es_index, asset.document_type, esid, asset.absolute_path)
-                    insert_esid(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
-                    LOG.debug('esid inserted')
-                except Exception, err:
-                    LOG.error(': '.join([err.__class__.__name__, err.message]))
-                    traceback.print_exc(file=sys.stdout)
-
-            return True
-
-    LOG.info('No document found for %s, %s, adding scan request to queue' % (asset.esid, asset.absolute_path))
-    rows = sql.retrieve_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
-    if rows == ():
-        sql.insert_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
-
-    return False
+# def doc_exists(asset, attach_if_found):
+#     # look in local MySQL
+#     esid_in_mysql = False
+#     esid = cache.retrieve_esid(asset.document_type, asset.absolute_path)
+#     if esid is not None:
+#         esid_in_mysql = True
+#         LOG.info("found esid %s for '%s' in sql." % (esid, asset.short_name()))
+#
+#         if attach_if_found and asset.esid is None:
+#             LOG.info("attaching esid %s to ''%s'." % (esid, asset.short_name()))
+#             asset.esid = esid
+#
+#         if attach_if_found == False: return True
+#
+#     if esid_in_mysql:
+#         try:
+#             doc = config.es.get(index=config.es_index, doc_type=asset.document_type, id=asset.esid)
+#             asset.doc = doc
+#             return True
+#         except Exception, err:
+#             LOG.error(err.message)
+#             raise AssetException('DOC NOT FOUND FOR ESID:' + asset.to_str(), asset)
+#
+#     # not found, query elasticsearch
+#     res = config.es.search(index=config.es_index, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
+#     for doc in res['hits']['hits']:
+#         # if self.doc_refers_to(doc, media):
+#         if doc['_source']['absolute_path'] == asset.absolute_path:
+#             esid = doc['_id']
+#             LOG.INFO("found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name()))
+#
+#             if attach_if_found:
+#                 asset.doc = doc
+#                 if asset.esid is None:
+#                     LOG.info("attaching esid %s to '%s'." % (esid, asset.short_name()))
+#                     asset.esid = esid
+#
+#             if esid_in_mysql == False:
+#                 # found, update local MySQL
+#                 LOG.info('inserting esid into MySQL')
+#                 try:
+#                     # alchemy.insert_asset(config.es_index, asset.document_type, esid, asset.absolute_path)
+#                     insert_esid(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
+#                     LOG.debug('esid inserted')
+#                 except Exception, err:
+#                     LOG.error(': '.join([err.__class__.__name__, err.message]))
+#                     traceback.print_exc(file=sys.stdout)
+#
+#             return True
+#
+#     LOG.info('No document found for %s, %s, adding scan request to queue' % (asset.esid, asset.absolute_path))
+#     rows = sql.retrieve_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
+#     if rows == ():
+#         sql.insert_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
+#
+#     return False
 
 
 def get_location(path):
