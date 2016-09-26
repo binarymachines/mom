@@ -35,16 +35,16 @@ def connect(hostname=config.es_host, port_num=config.es_port):
     LOG.info('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
     es = Elasticsearch([{'host': hostname, 'port': port_num}])
 
-    try:
-        index_exists = es.indices.exists(config.es_index)
-        if index_exists is False:
-            raise Exception("Index %s does not exist." % config.es_index)
-    except ConnectionError, err:
-        LOG.error("Elasticsearch: %s" % err[2][1])
-        raise err
-    except Exception, err:
-        LOG.error(err.message)
-        raise err
+    # try:
+    #     index_exists = es.indices.exists(config.es_index)
+    #     if index_exists is False:
+    #         raise Exception("Index %s does not exist." % config.es_index)
+    # except ConnectionError, err:
+    #     LOG.error("Elasticsearch: %s" % err[2][1])
+    #     raise err
+    # except Exception, err:
+    #     LOG.error(err.message)
+    #     raise err
 
     return es
 
@@ -72,12 +72,12 @@ def find_docs_missing_attribute(doc_type, attribute, max_results=1000):
     return config.es.search(config.es_index, doc_type, query, size=max_results)
 
 
-def get_doc(doc_type, es_id):
+def get_doc(document_type, esid):
     try:
-        return config.es.get(config.es_index, doc_type, es_id)
+        return config.es.get(index=config.es_index, doc_type=document_type, id=esid)
     except Exception, err:
         LOG.error(err.message)
-        raise Exception('DOC NOT FOUND FOR ID: %s' % es_id)
+        raise Exception('DOC NOT FOUND FOR ID: %s' % esid)
 
 
 def get_doc_id(doc_type, attribute, value):

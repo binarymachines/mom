@@ -5,7 +5,10 @@ import MySQLdb as mdb
 
 from errors import SQLConnectError
 
+LOG = logging.getLogger('console.log')
+
 WILD = '%'
+
 
 def quote_if_string(value):
     if isinstance(value, basestring):
@@ -16,13 +19,14 @@ def quote_if_string(value):
     value = value.replace("'", "\'")
     return value
 
+
 # compose queries from parameters
 # TODO: add handling for boolean values
-
 def insert_values(table_name, field_names, field_values):
     formatted_values = [quote_if_string(value) for value in field_values]
     query = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(field_names), ','.join(formatted_values))
     execute_query(query)
+
 
 def retrieve_values(table_name, field_names, field_values, order_by=None):
     formatted_values = [quote_if_string(value) for value in field_values]
@@ -41,6 +45,7 @@ def retrieve_values(table_name, field_names, field_values, order_by=None):
     # if order_by is not None: query += " ORDER BY " + str(order_by).replace('[', '').replace(']', '')
     return run_query(query)
 
+
 def retrieve_like_values(table_name, field_names, field_values):
     formatted_values = [quote_if_string(value) for value in field_values]
     query = ' '.join(['SELECT', ', '.join(field_names), 'FROM', table_name,'WHERE '])
@@ -54,6 +59,7 @@ def retrieve_like_values(table_name, field_names, field_values):
         else: break
 
     return run_query(query)
+
 
 def update_values(table_name, update_field_names, update_field_values, where_field_names, where_field_values):
     # formatted_update_values = [quote_if_string(value) for value in update_field_values]
@@ -79,31 +85,33 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
 
     execute_query(query)
 
+
 # execute queries
 
 def execute_query(query):
     con = None
     try:
-        logging.getLogger(config.error_log).info(query)
+        LOG.info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         cur.execute(query)
         con.commit()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        logging.getLogger(config.error_log).error(message)
-        # logging.getLogger(config.error_log).warn(query)
+        LOG.error(message)
+        # LOG.warn(query)
         raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
     except TypeError, e:
-        logging.getLogger(config.error_log).error(e.message)
-        # logging.getLogger(config.error_log).warn(query)
+        LOG.error(e.message)
+        # LOG.warn(query)
         raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
     except Exception, e:
-        logging.getLogger(config.error_log).error(e.message)
-        # logging.getLogger(config.error_log).warn(e.query)
+        LOG.error(e.message)
+        # LOG.warn(e.query)
         raise Exception(e.message)
     finally:
         if con: con.close()
+
 
 def run_query(query):
     con = None
@@ -116,24 +124,26 @@ def run_query(query):
         rows = cur.fetchall()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        logging.getLogger(config.error_log).error(message)
-        # logging.getLogger(config.error_log).warn(query)
+        LOG.error(message)
+        # LOG.warn(query)
         raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
     except TypeError, e:
-        logging.getLogger(config.error_log).error(e.message)
-        # logging.getLogger(config.error_log).warn(query)
+        LOG.error(e.message)
+        # LOG.warn(query)
         raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
     except Exception, e:
-        logging.getLogger(config.error_log).error(e.message)
-        # logging.getLogger(config.error_log).warn(query)
+        LOG.error(e.message)
+        # LOG.warn(query)
         raise Exception(e.message)
     finally:
         if con: con.close()
 
     return rows
 
+
 def run_query_template(filename, *args):
     return run_query(get_query(filename, args))
+
 
 # load and fill query templates
 
@@ -142,6 +152,7 @@ def get_all_rows(table, *columns):
     rows = retrieve_values(table, columns, [])
     return rows
 
+
 def get_query(filename, *args):
     newargs = ()
     for arg in args:
@@ -149,11 +160,15 @@ def get_query(filename, *args):
         newargs += (arg.replace('"', "'"),)
 
     try:
+        query = ''
         with open('py/sql/%s.sql' % filename, 'r') as f:
-            # substitute wildcard and escape single quotes
-            query = str(f.read() % newargs).replace('*', WILD).replace("'", "\'")
+            for line in f:
+                if line.startswith('--'):
+                    continue
+                query += line
             f.close()
-            return query
+        # substitute wildcard and escape single quotes
+        return str(query % newargs).replace('*', WILD).replace("'", "\'").replace('\n', ' ')
     except TypeError, e:
         raise Exception(e)
     except IOError, e:

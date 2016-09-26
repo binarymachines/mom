@@ -20,14 +20,17 @@ from match import ElasticSearchMatcher
 
 LOG = logging.getLogger('console.log')
 
+
 def all_matchers_have_run(matchers, media):
     skip_entirely = True
-    paths = []
+    # paths = []
     for matcher in matchers:
-        if ops.operation_in_cache(media.absolute_path, 'match', matcher.name) == False:
+        if not ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
             skip_entirely = False
             break
+
     return skip_entirely
+
 
 def path_in_db(path):
     path = path.replace('"', "'")
@@ -38,6 +41,7 @@ def path_in_db(path):
     rows = sql.run_query(q)
     if len(rows) == 1:
         return True
+
 
 # def split_location(into sets of media folders)
 
@@ -77,38 +81,40 @@ def calculate_matches(context, cycle_context=False):
                     media.absolute_path = key
                     media.esid = values['esid']
                     media.document_type = config.MEDIA_FILE
+                    media.doc = search.get_doc(media.document_type, media.esid)
 
-                    try:
-                        if all_matchers_have_run(matchers, media):
-                            LOG.info('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
-                            continue
+                    if media.doc is not None:
+                        try:
+                            if all_matchers_have_run(matchers, media):
+                                LOG.info('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
+                                continue
 
-                        if library.doc_exists(media, True):
+                            if library.doc_exists_for_path(media.document_type, media.absolute_path):
+                                for matcher in matchers:
+                                    if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
+                                        LOG.info('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))
+                                    else:
+                                        LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
+                                        matcher.match(media)
+                                        ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
+
+                        except AssetException, err:
+                            LOG.warning(': '.join([err.__class__.__name__, err.message]))
+                            # if config.matcher_debug:
+                            traceback.print_exc(file=sys.stdout)
+                            library.handle_asset_exception(err, media.absolute_path)
+
+                        except UnicodeDecodeError, u:
+                            # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
+                            LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
+
+                        except Exception, u:
+                            # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
+                            LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
+
+                        finally:
                             for matcher in matchers:
-                                if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                                    LOG.info('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))
-                                else:
-                                    LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
-                                    matcher.match(media)
-                                    ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
-
-                    except AssetException, err:
-                        LOG.warning(': '.join([err.__class__.__name__, err.message]))
-                        # if config.matcher_debug:
-                        traceback.print_exc(file=sys.stdout)
-                        library.handle_asset_exception(err, media.absolute_path)
-
-                    except UnicodeDecodeError, u:
-                        # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
-                        LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
-
-                    except Exception, u:
-                        # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
-                        LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
-
-                    finally:
-                        for matcher in matchers:
-                           cache.clear_matches(matcher.name, media.esid)
+                                cache.clear_matches(matcher.name, media.esid)
 
             except Exception, err:
                 LOG.error(': '.join([err.__class__.__name__, err.message, location]))
@@ -144,10 +150,12 @@ def record_match_ops_complete(matcher, media, path, ):
         library.handle_asset_exception(err, path)
 
 def main(args):
+    config.es = search.connect()
     config.start_console_logging()
     paths = None if not args['--path'] else args['<path>']
     context = PathContext('_path_context_', paths, ['mp3'])
     calculate_matches(context)
+
 
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)
