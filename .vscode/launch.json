@@ -1,15 +1,14 @@
 {
     "version": "0.2.0",
     "configurations": [
-          {
-            "name": "scratch",
+        {
+            "name": "pathutil",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/scratch.py",
-
+            "program": "${workspaceRoot}/py/pathutil.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
@@ -27,9 +26,29 @@
             "args": [
                 // "--config", "cloud.ini",
                 // "--pattern", "m u s l i m g a u z e",
-                "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete",
-                "--scan", "--match",
+                // "--path",
+                // "/media/removable/SEAGATE 932/Media/music/incoming/complete",
+                "--scan",
+                // "--match",
                 "--clearmem"
+            ],
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "calc",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/py/calc.py",
+            "args": [
+                "--path",
+                "/media/removable/PNY16/media/music/"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
@@ -47,24 +66,9 @@
             "program": "${workspaceRoot}/py/scan.py",
             "args": [
                 // "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
-                "--path", "/media/removable/PNY16/media/music/"
-            ],
-            "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
-                "RedirectOutput"
-            ]
-        },
-          {
-            "name": "calc",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "pythonPath": "${config.python.pythonPath}",
-            "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/calc.py",
-            "args": [
-               "--path", "/media/removable/PNY16/media/music/"
+                // "--path", "/media/removable/PNY16/media/music/"
+                "--path",
+                "/media/removable/Audio/music/"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
@@ -124,7 +128,7 @@
             "runtimeExecutable": "${workspaceRoot}/js/electron/node_modules/.bin/electron",
             // "runtimeExecutable": "${workspaceRoot}/js/electron/node_modules/.bin/electron",
             "runtimeArgs": [],
-            "env": { },
+            "env": {},
             "sourceMaps": false,
             "outDir": null
         },
