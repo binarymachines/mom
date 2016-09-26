@@ -49,7 +49,6 @@ class Scanner(LibraryWalker):
                 ops.record_op_complete(folder, 'ID3v2', 'scan')
 
     def before_handle_root(self, root):
-        ops.do_status_check()
         library.clear_folder_cache()
         if ops.operation_in_cache(root, 'scan', 'ID3v2'): # and not self.do_deep_scan: # and not root in library.get_locations_ext():
             LOG.debug('scan operation record found for: %s' % (root))
@@ -90,6 +89,7 @@ class Scanner(LibraryWalker):
 
     # why is this not handle_file() ???
     def process_file(self, filename, reader):
+        ops.do_status_check()
         # for extension in self.context.extensions:
         if reader.approves(filename):
             media = library.get_media_object(filename)
@@ -118,7 +118,7 @@ class Scanner(LibraryWalker):
 
 def scan(context):
     config.es = search.connect()
-    search.clear_index(config.es_index)
+    # search.clear_index(config.es_index)
     if not config.es.indices.exists(config.es_index):
         search.create_index(config.es_index)
 
@@ -128,8 +128,8 @@ def scan(context):
 
 
 def main(args):
-    config.redis.flushdb()
     config.start_console_logging()
+    config.redis.flushdb()
     paths = None if not args['--path'] else args['<path>']
     context = PathContext('_path_context_', paths, ['mp3'])
     scan(context)

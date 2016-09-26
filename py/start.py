@@ -23,7 +23,7 @@ def execute(args):
         options = make_options(args)
 
         # logging
-        if not console.logging_started:
+        if not config.logging_started:
 
             config.log = read(parser, "Log")['log']
             config.error_log = read(parser, "Log")['error']

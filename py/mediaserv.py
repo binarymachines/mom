@@ -97,7 +97,7 @@ def before(process):
 
 
 def main():
-    config.start_console_logging()
+    # config.start_console_logging()
     context = PathContext('[industrial music]', ['/media/removable/Audio/music/albums/industrial'], ['mp3'])
     process = MediaServiceProcess('_Media Hound_', context, True)
     process.restart_on_fail = False

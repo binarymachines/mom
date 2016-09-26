@@ -18,8 +18,8 @@ from context import PathContext
 
 def get_path_config():
     result = []
-    result.append([location for location in pathutil.get_locations()])
-    result.append([location for location in pathutil.get_locations_ext()])
+    result.extend([location for location in pathutil.get_locations()])
+    result.extend([location for location in pathutil.get_locations_ext()])
     result.sort()
     return result
 

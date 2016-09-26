@@ -52,7 +52,7 @@ def flush_cache():
 
 def do_status_check(opcount=None):
 
-    if opcount is not None and opcount % config.check_freq != 0: return
+    # if opcount is not None and opcount % config.check_freq != 0: return
 
     if check_for_reconfig_request():
         start.execute()

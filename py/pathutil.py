@@ -1,5 +1,6 @@
 import logging
 import os
+import redis
 
 import sql
 import cache2
@@ -10,14 +11,19 @@ import cache2
 import config
 import sql
 
-def get_folder_constants(foldertype):
-    # if debug:
-    logging.getLogger('console.log').info("retrieving constants for %s folders." % (foldertype))
-    result = []
-    rows = sql.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [foldertype.lower()])
-    for r in rows:
-        result.append(r[1])
-    return result
+LOG = logging.getLogger('console.log')
+
+def get_folder_constants(folder_type):
+    # LOG.debug("retrieving constants for %s folders." % folder_type)
+    seed = 'folder_constants'
+
+    if not cache2.key_exists(seed, folder_type):
+        key = cache2.create_key(seed, folder_type)
+        rows = sql.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [folder_type.lower()])
+        for row in rows:
+            cache2.add_item(seed, folder_type, row[1])
+
+    return cache2.get_items(seed, folder_type)
 
 def get_locations():
     if config.locations is None:
@@ -73,20 +79,14 @@ def is_filed(path):
 
 
 def is_filed_as_compilation(path):
-    for f in get_folder_constants('compilation'):
-        if f in path:
-            return True
+    return path in get_folder_constants('compilation')
 
 
 def is_filed_as_live(path):
-    for f in get_folder_constants('live_recordings'):
-        if f in path:
-            return True
+    return path in get_folder_constants('live_recordings')
 
 def is_new(path):
-    for f in get_folder_constants('new'):
-        if f in path:
-            return True
+    return path in get_folder_constants('new')
 
 
 def is_noscan(path):
@@ -97,21 +97,15 @@ def is_noscan(path):
 
 
 def is_random(path):
-    for f in get_folder_constants('random'):
-        if f in path:
-            return True
+    return path in get_folder_constants('random')
 
 
 def is_recent(path):
-    for f in get_folder_constants('recent'):
-        if f in path:
-            return True
+    return path in get_folder_constants('recent')
 
 
 def is_unsorted(path):
-    for f in get_folder_constants('unsorted'):
-        if f in path:
-            return True
+    return path in get_folder_constants('unsorted')
 
 
 def is_webcast(path):
@@ -122,9 +116,7 @@ def is_webcast(path):
 
 
 def ignore(path):
-    for f in get_folder_constants('ignore'):
-        if f in path:
-            return True
+    return path in get_folder_constants('ignore')
 
 
 def path_contains_album_folders(path):
@@ -215,3 +207,23 @@ def path_is_genre_folder(path):
 def path_is_location_folder(path):
     raise Exception('not implemented!')
 
+def pathutils_demo():
+    seed = 'pathutils'
+
+    if not cache2.key_exists(seed, 'unsorted'):
+        lkey = cache2.create_key(seed, 'unsorted')
+        data = get_folder_constants('unsorted')
+        for path in data:
+            cache2.add_item(seed, 'unsorted', path)
+
+    list = cache2.get_items(seed, 'unsorted')
+    print '/unsorted' in list
+
+def main():
+    # config.start_console_logging()
+    config.redis = redis.Redis('localhost')
+    config.redis.flushdb()
+    pathutils_demo()
+
+if __name__ == '__main__':
+    main()
