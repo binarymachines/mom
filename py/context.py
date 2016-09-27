@@ -49,6 +49,7 @@ class Context(object):
         if consumer not in self.fifos:
             self.fifos[consumer] = []
         self.fifos[consumer].insert(0, value)
+        self.fifos[consumer].sort()
 
     def push_stack(self, consumer, value):
         if consumer not in self.stacks:
@@ -81,9 +82,9 @@ class PathContext(Context):
 
     def get_next(self, consumer, peek_fifo=False):
 
-        if (self.always_peek_fifo or peek_fifo) and super.peek_fifo(consumer) is not None:
-            result = super.pop_fifo(consumer)
-            self.fake_path_queue[consumer] = result
+        if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None:
+            result = self.pop_fifo(consumer)
+            # self.fake_path_queue[consumer] = result
             return result
 
         if len(self.paths) == 0: return None
@@ -106,7 +107,7 @@ class PathContext(Context):
 
     def has_next(self, consumer, peek_fifo=False):
 
-        if (self.always_peek_fifo or peek_fifo) and super.peek_fifo(consumer) is not None: return True
+        if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None: return True
 
         if len(self.paths) == 0: return False
         result = False
@@ -119,7 +120,7 @@ class PathContext(Context):
 
     def peek_next(self, consumer, peek_fifo=False):
 
-        if (self.always_peek_fifo or peek_fifo) and super.peek_fifo(consumer) is not None:
+        if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None:
             return super.peek_fifo(consumer)
 
         if len(self.paths) == 0: return None
