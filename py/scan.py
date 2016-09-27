@@ -103,15 +103,35 @@ class Scanner(LibraryWalker):
 
             reader.read(media)
 
+    def minimize(self, path):
+        path_minimized = False
+        if path.endswith('music/') or path in pathutil.get_locations() or path in pathutil.get_locations_ext():
+            dirs = os.listdir(path)
+            for dir in dirs:
+                sub_path = os.path.join(path, dir)
+                if os.path.isdir(path) and os.access(path, os.R_OK):
+                    self.context.push_fifo('scan', sub_path)
+                    path_minimized = True
+
+        return path_minimized
+
     def scan(self):
-        for path in self.context.paths:
+        # for path in self.context.paths:
+        while self.context.has_next('scan', True):
+            path = self.context.get_next('scan', True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
+                if self.minimize(path):
+                    continue
+
+                LOG.info('scanning path %s' % path)
+
                 cache.cache_docs(config.MEDIA_FOLDER, path)
                 ops.cache_ops(False, path, 'scan', 'ID3v2')
                 self.walk(path)
                 ops.write_ops_for_path(path, 'ID3v2', 'scan')
                 cache.clear_docs(config.MEDIA_FOLDER, path)
-            else: LOG.warning("%s isn't currently available." % (path))
+            elif not os.access(path, os.R_OK):
+                LOG.warning("%s isn't currently available." % (path))
 
         # cache.cache_docs(config.MEDIA_FILE, path)
         # print '\n-----scan complete-----\n'
