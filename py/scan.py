@@ -20,6 +20,7 @@ import library
 import ops
 import pathutil
 import search
+import sql
 from context import PathContext
 from errors import AssetException
 from mediawalk import LibraryWalker
@@ -115,13 +116,17 @@ class Scanner(LibraryWalker):
         # cache.cache_docs(config.MEDIA_FILE, path)
         # print '\n-----scan complete-----\n'
 
+def reset():
+    query = 'truncate es_document; truncate op_record ; truncate problem_esid ; truncate problem_path ; truncate matched ;'
+    sql.execute_query(query)
+    search.clear_index(config.es_index)
+    # if not config.es.indices.exists(config.es_index):
+    search.create_index(config.es_index)
+
 
 def scan(context):
     config.es = search.connect()
-    # search.clear_index(config.es_index)
-    if not config.es.indices.exists(config.es_index):
-        search.create_index(config.es_index)
-
+    # reset()
     if 'scanner' not in context.data:
         context.data['scanner'] = Scanner(context)
     context.data['scanner'].scan()

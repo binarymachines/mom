@@ -9,103 +9,105 @@ import config
 LOG = logging.getLogger('cache.log')
 
 
-# sorted lists, used as an index for redis sets
+# these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
 
-def key_name(rec_type, identifier=None):
-    """get a key name for a given identifier and a specified record type"""
-    result = '-'.join([rec_type, identifier]) if identifier is not None else rec_type + '-'
-    #LOG.debug('key_name(rec_type=%s, identifier=%s) returns %s', rec_type, identifier, result)
+def key_name(key_group, identifier=None):
+    """get a compound key name for a given identifier and a specified record type"""
+    result = '-'.join([key_group, identifier]) if identifier is not None else key_group + '-'
+    #LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
     return result
 
 
-def create_key(rec_type, identifier, delete_children=True):
-    """create a new key"""
-    key = key_name(rec_type, identifier)
+def create_key(key_group, identifier):
+    """create a new compound key"""
+    key = key_name(key_group, identifier)
     result = config.redis.rpush(key, identifier)
-    #LOG.debug('create_key(rec_type=%s, identifier=%s) returns %s' % (key, identifier, result))
+    #LOG.debug('create_key(key_group=%s, identifier=%s) returns %s' % (key, identifier, result))
     return key
 
 
-def delete_key(rec_type, identifier, delete_children=False):
-    # result = config.redis.delete(key_name(rec_type, identifier))
+# def delete_key(key_group, identifier, delete_children=True):
+#TODO: determine why orwhether key_group is needed or not here.
+def delete_key(key_group, identifier):
+    LOG.debug('delete_key(key_group=%s, identifier=%s)' % (key_group, identifier))
     result = config.redis.delete(identifier)
-    #LOG.debug('redis.delete(key_name=%s, identifier=%s) returns: %s' % (rec_type, identifier, str(result)))
+    LOG.debug('redis.delete(identifier=%s) returns: %s' % (identifier, str(result)))
 
 
-def delete_keys(rec_type, identifier):
+def delete_keys(key_group, identifier):
     pass
 
 
-def get_key(rec_type, identifier):
-    result = get_keys(rec_type, identifier)
-    #LOG.debug('get_key(rec_type=%s, identifier=%s) returns %s' % (rec_type, identifier, result))
+def get_key(key_group, identifier):
+    result = get_keys(key_group, identifier)
+    #LOG.debug('get_key(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     if len(result) is 1:
         return result[0]
 
 
-def get_keys(rec_type, identifier=None):
-    search = key_name(rec_type, identifier) + '*'
+def get_keys(key_group, identifier=None):
+    search = key_name(key_group, identifier) + '*'
     result = config.redis.keys(search)
-    #LOG.debug('get_keys(rec_type=%s, identifier=%s) returns %s' % (rec_type, identifier, result))
+    #LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
-def key_exists(rec_type, identifier):
-     key = key_name(rec_type, identifier)
+def key_exists(key_group, identifier):
+     key = key_name(key_group, identifier)
      return config.redis.exists(key)
 
 
 # hashsets
 
-def delete_hash(rec_type, identifier):
-    key = '-'.join([rec_type, 'hash', identifier])
+def delete_hash(key_group, identifier):
+    key = '-'.join([key_group, 'hash', identifier])
     hkeys = config.redis.hkeys(key)
     for hkey in hkeys:
         config.redis.hdel(key, hkey)
     # result = config.redis.hgetall(key)
-    # #LOG.debug('delete_hash(rec_type=%s, identifier=%s) returns %s' % (rec_type, identifier, result))
+    # #LOG.debug('delete_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
 
 
-def get_hash(rec_type, identifier):
-    key = '-'.join([rec_type, 'hash', identifier])
+def get_hash(key_group, identifier):
+    key = '-'.join([key_group, 'hash', identifier])
     result = config.redis.hgetall(key)
-    #LOG.debug('get_hash(rec_type=%s, identifier=%s) returns %s' % (rec_type, identifier, result))
+    #LOG.debug('get_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
-def get_hashes(rec_type, identifier):
-    key = '-'.join([rec_type, 'hash', identifier])
+def get_hashes(key_group, identifier):
+    key = '-'.join([key_group, 'hash', identifier])
     result = config.redis.hgetall(key)
-    #LOG.debug('get_hashes(rec_type=%s, identifier=%s) returns %s' % (rec_type, identifier, result))
+    #LOG.debug('get_hashes(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
-def set_hash(rec_type, identifier, values):
-    key = '-'.join([rec_type, 'hash', identifier])
+def set_hash(key_group, identifier, values):
+    key = '-'.join([key_group, 'hash', identifier])
     result = config.redis.hmset(key, values)
-    #LOG.debug('set_hash(rec_type=%s, identifier=%s, values=%s) returns: %s' % (rec_type, identifier, values, str(result)))
+    #LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
 
 
 # lists
 
-def add_item(rec_type, identifier, item):
-    key = '-'.join([rec_type, 'list', identifier])
+def add_item(key_group, identifier, item):
+    key = '-'.join([key_group, 'list', identifier])
     result = config.redis.sadd(key, item)
-    #LOG.debug('add_item(rec_type=%s, identifier=%s, item=%s) returns: %s' % (rec_type, identifier, item, str(result)))
+    #LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
-def get_items(rec_type, identifier):
-    key = '-'.join([rec_type, 'list', identifier])
+def get_items(key_group, identifier):
+    key = '-'.join([key_group, 'list', identifier])
     result = config.redis.smembers(key)
-    #LOG.debug('get_items(rec_type=%s, identifier=%s) returns: %s' % (rec_type, identifier, str(result)))
+    #LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
     return result
 
 
-def clear_items(rec_type, identifier):
-    key = '-'.join([rec_type, 'list', identifier])
+def clear_items(key_group, identifier):
+    key = '-'.join([key_group, 'list', identifier])
     values = config.redis.smembers(key)
     for value in values:
         result = config.redis.srem(key, value)
-        #LOG.debug('redis.srem(rec_type=%s, identifier=%s) returns: %s' % (key, value, str(result)))
+        #LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def test():
