@@ -89,11 +89,10 @@ def do_match_op(esid, absolute_path):
 
     media = library.get_media_object(key, esid=esid, attach_doc=True)
 
-    if media.doc:
-        if all_matchers_have_run(matchers, media):
-            LOG.debug('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
-            continue
-        # (else)
+    if media.doc and all_matchers_have_run(matchers, media):
+        LOG.debug('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
+        return
+    elif media.doc:
         try:
             # if library.doc_exists_for_path(media.document_type, media.absolute_path):
             for matcher in matchers:
