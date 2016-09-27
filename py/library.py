@@ -147,8 +147,7 @@ def get_library_location(path):
 def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, check_fs=False):
     """return a media file instance"""
 
-    # fs_avail = True
-    # if check_fs and os.path.isfile(absolute_path) is False and os.access(absolute_path, os.R_OK):
+    fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
     #     LOG.warning("Either file is missing or is not readable")
     #     return None
 
@@ -158,13 +157,15 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
     filename = filename.replace(extension, '')
     extension = extension.replace('.', '')
 
+    media.esid = esid
     media.absolute_path = absolute_path
     media.file_name = filename
     media.location = get_library_location(absolute_path)
     media.ext = extension
     media.folder_name = os.path.abspath(os.path.join(absolute_path, os.pardir))
-    media.file_size = os.path.getsize(absolute_path)
-    media.esid = esid
+
+    if fs_avail:
+        media.file_size = os.path.getsize(absolute_path)
 
     if media.esid is None and check_cache:
         # check cache for esid
@@ -176,7 +177,10 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
             media.esid = retrieve_esid(media.document_type, absolute_path)
 
     if media.esid and attach_doc:
-        media.doc = search.get_doc(media.document_type, media.esid)
+        try:
+            media.doc = search.get_doc(media.document_type, media.esid)
+        except Exception, err:
+            LOG.warning(err.message)
 
     return media
 
@@ -202,15 +206,7 @@ def path_in_cache(document_type, path):
 
 
 def path_in_db(document_type, path):
-    # path = path.replace('"', "'")
-    # path = path.replace("'", "\'")
-    # # TODO: use template
-    # q = 'select * from es_document where index_name = "%s" and doc_type = "%s" and absolute_path like "%s%s" limit 1' % \
-    #     (config.es_index, document_type, path, '%')
-    # rows = sql.run_query(q)
-    rows = sql.run_query_template(PATH_IN_DB, config.es_index, document_type, path)
-    if len(rows) == 1:
-        return True
+    return len(sql.run_query_template(PATH_IN_DB, config.es_index, document_type, path)) is 1
 
 
 def retrieve_esid(document_type, absolute_path):

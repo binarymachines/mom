@@ -5,6 +5,8 @@ import redis
 import config, sql, alchemy, ops
 from errors import AssetException
 
+LOG = logging.getLogger('console.log')
+
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'
 
@@ -88,37 +90,21 @@ def get_doc_keys(document_type):
 
 
 def retrieve_docs(document_type, file_path):
-
-    # query = 'SELECT distinct absolute_path, id FROM es_document WHERE index_name = %s and doc_type = %s and absolute_path LIKE %s ORDER BY absolute_path' % \
-    #     (sql.quote_if_string(config.es_index), sql.quote_if_string(document_type), sql.quote_if_string(''.join([file_path, '%'])))
-    query = sql.get_query(RETRIEVE_DOCS, config.es_index, document_type, file_path)
-    return sql.run_query(query)
+    return sql.run_query_template(RETRIEVE_DOCS, config.es_index, document_type, file_path)
 
 
 # matched files
 def cache_matches(path):
-    LOG.info('caching matches for %s...' % (location))
-    try:
-        # q = """SELECT m.media_doc_id id, m.match_doc_id match_id, matcher_name FROM matched m, es_document esd
-        #         WHERE esd.id = m.media_doc_id AND esd.absolute_path like "%s%s"
-        #     UNION
-        #     SELECT m.match_doc_id id, m.media_doc_id match_id, matcher_name FROM matched m, es_document esd
-        #         WHERE esd.absolute_path like "%s%s" AND esd.id = m.match_doc_id""" % (path, '%', path, '%')
-        # q = q.replace("'", "\'")
-
-        q = sql.get_query(CACHE_MATCHES, path, path)
-        rows = sql.run_query(q)
-        for row in rows:
-            key = '-'.join([row[2], row[0]])
-            config.redis.sadd(key, row[1])
-    except Exception, err:
-        print err.message
+    LOG.info('caching matches for %s...' % path)
+    rows = sql.run_query_template(CACHE_MATCHES, path, path)
+    for row in rows:
+        key = '-'.join([row[2], row[0]])
+        config.redis.sadd(key, row[1])
 
 
 def get_matches(matcher_name, esid):
     key = '-'.join([matcher_name, esid])
-    values = config.redis.smembers(key)
-    return values
+    return config.redis.smembers(key)
 
 
 def clear_matches(matcher_name, esid):
@@ -143,9 +129,11 @@ def ensure(esid, path, document_type):
 
 def write_paths(flushkeys=True):
 
-    logging.getLogger(config.ops_log).info('clearing cached paths...')
+    LOG.info('clearing cached paths...')
     search = 'ensure-*'
-    keys = esids = paths = []
+    keys = []
+    esids = []
+    paths = []
     for key in config.redis.scan_iter(search):
         ops.do_status_check()
         values = config.redis.hgetall(key)

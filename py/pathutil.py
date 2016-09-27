@@ -14,7 +14,6 @@ import sql
 LOG = logging.getLogger('console.log')
 
 def get_folder_constants(folder_type):
-    # LOG.debug("retrieving constants for %s folders." % folder_type)
     seed = 'folder_constants'
 
     if not cache2.key_exists(seed, folder_type):
@@ -26,41 +25,54 @@ def get_folder_constants(folder_type):
     return cache2.get_items(seed, folder_type)
 
 def get_locations():
-    if config.locations is None:
-        config.locations = []
+    seed = 'folder'
+    folder_type = 'media_locations'
+    if not cache2.key_exists(seed, folder_type):
+        key = cache2.create_key(seed, folder_type)
         rows = sql.retrieve_values('media_location_folder', ['name'], [])
         for row in rows:
-            config.locations.append(os.path.join(config.START_FOLDER, row[0]))
-            config.locations.sort()
+            cache2.add_item(seed, folder_type, os.path.join(config.START_FOLDER, row[0]))
 
-    return config.locations
+    result = []
+    result.extend(cache2.get_items(seed, folder_type))
+    result.sort()
+    return result
 
 
 def get_locations_ext():
-    if config.locations_ext is None:
-        config.locations_ext = []
+    seed = 'folder'
+    folder_type = 'media_locations_ext'
+    if not cache2.key_exists(seed, folder_type):
+        key = cache2.create_key(seed, folder_type)
         rows = sql.retrieve_values('media_location_extended_folder', ['path'], [])
         for row in rows:
-            config.locations_ext.append(row[0])
-            config.locations_ext.sort()
+            cache2.add_item(seed, folder_type, row[0])
 
-    return config.locations_ext
-    # return sql.get_all_rows('media_location_extended_folder', 'path')
+    result = []
+    result.extend(cache2.get_items(seed, folder_type))
+    result.sort()
+    return result
 
 
 def get_genre_folder_names():
-    if config.genre_folders is None:
-        config.genre_folders = []
+    seed = 'folders'
+    folder_type = 'genre_names'
+    if not cache2.key_exists(seed, folder_type):
+        key = cache2.create_key(seed, folder_type)
         rows = sql.retrieve_values('media_genre_folder', ['name'], [])
-        for r in rows: config.genre_folders.append(r[0])
+        for row in rows:
+            cache2.add_item(seed, folder_type, row[0])
 
-    return config.genre_folders
+    result = []
+    result.extend(cache2.get_items(seed, folder_type))
+    result.sort()
+    return result
 
 
 def get_active_media_formats():
     results = []
     rows = sql.retrieve_values('media_format', ['active_flag', 'ext'], ['1'])
-    for r in rows: results.append(r[1])
+    results.extend([r[1] for r in rows])
     return results
 
 
@@ -84,6 +96,7 @@ def is_filed_as_compilation(path):
 
 def is_filed_as_live(path):
     return path in get_folder_constants('live_recordings')
+
 
 def is_new(path):
     return path in get_folder_constants('new')
