@@ -142,7 +142,9 @@ def run_query(query):
 
 
 def run_query_template(filename, *args):
-    return run_query(get_query(filename, args))
+    query = _get_query(filename, args)
+    # you could do some kind of validation here
+    return run_query(query)
 
 
 # load and fill query templates
@@ -153,7 +155,7 @@ def get_all_rows(table, *columns):
     return rows
 
 
-def get_query(filename, *args):
+def _get_query(filename, args):
     newargs = ()
     for arg in args:
         # divorce double quotes

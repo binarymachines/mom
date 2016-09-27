@@ -36,10 +36,10 @@ def all_matchers_have_run(matchers, media):
 
     return skip_entirely
 
-def cache_match_ops(self, matchers, path):
-    LOG.info('caching match ops for %s...' % (location))
+def cache_match_ops(matchers, path):
+    LOG.info('caching match ops for %s...' % path)
     for matcher in matchers:
-        ops.cache_ops(True, location, 'match', matcher.name)
+        ops.cache_ops(True, path, 'match', matcher.name)
 
 # def clear cached_match_ops(self, matchers):
 
@@ -64,32 +64,31 @@ def calculate_matches(context, cycle_context=False):
                 cache.cache_matches(location)
 
                 for key in cache.get_doc_keys(config.MEDIA_FILE):
-                    values = config.redis.hgetall(key)
-                    if 'esid' not in values:
-                        LOG.info('match calculator skipping %s' % (key))
-                        continue
-
                     opcount += 1
                     ops.do_status_check(opcount)
 
-                    media = library.get_media_object(key, check_cache=True)
-                    media.esid = values['esid']
-                    media.doc = search.get_doc(media.document_type, media.esid)
+                    values = config.redis.hgetall(key)
+                    if 'esid' not in values:
+                        LOG.debug('match calculator skipping %s' % (key))
+                        continue
+
+                    media = library.get_media_object(key, esid=values['esid'], attach_doc=True)
+
 
                     if media.doc:
+                        if all_matchers_have_run(matchers, media):
+                            LOG.debug('calc: skipping all match operations on %s, %s' % (values['esid'], values['absolute_path']))
+                            continue
+                        # (else)
                         try:
-                            if all_matchers_have_run(matchers, media):
-                                LOG.info('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
-                                continue
-
-                            if library.doc_exists_for_path(media.document_type, media.absolute_path):
-                                for matcher in matchers:
-                                    if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                                        LOG.info('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))
-                                    else:
-                                        LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
-                                        matcher.match(media)
-                                        ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
+                            # if library.doc_exists_for_path(media.document_type, media.absolute_path):
+                            for matcher in matchers:
+                                if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
+                                    LOG.debug('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))
+                                else:
+                                    LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
+                                    matcher.match(media)
+                                    ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
 
                         except AssetException, err:
                             LOG.warning(': '.join([err.__class__.__name__, err.message]))
@@ -105,16 +104,14 @@ def calculate_matches(context, cycle_context=False):
                             # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
                             LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
 
-                        finally:
-                            for matcher in matchers:
-                                cache.clear_matches(matcher.name, media.esid)
+                for matcher in matchers:
+                    ops.write_ops_for_path(location, matcher.name, 'match')
+                    cache.clear_matches(matcher.name, location)
 
             except Exception, err:
                 LOG.error(': '.join([err.__class__.__name__, err.message, location]))
                 traceback.print_exc(file=sys.stdout)
             finally:
-                for matcher in matchers:
-                    ops.write_ops_for_path(location, matcher.name, 'match')
                 cache.clear_docs(config.MEDIA_FILE, location)
                 cache.write_paths()
 
@@ -142,7 +139,7 @@ def record_match_ops_complete(matcher, media, path, ):
 
 def main(args):
     config.es = search.connect()
-    # config.start_console_logging()
+    config.start_console_logging()
     paths = None if not args['--path'] else args['<path>']
     context = PathContext('_path_context_', paths, ['mp3'])
     calculate_matches(context)
