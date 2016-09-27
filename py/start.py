@@ -159,11 +159,11 @@ def start_logging():
     config.logging_started = True
     config.start_console_logging()
 
-    for logname in ('console.log', config.error_log, config.sql_log, config.cache_log):
+    for logname in (config.log, config.error_log, config.sql_log, config.cache_log):
         LOG.info("logging to: %s" % logname)
 
     setup_log('elasticsearch.log', 'elasticsearch.trace', logging.INFO)
-    setup_log('console.log', 'console.log', logging.INFO)
+    setup_log(config.log, 'console.log', logging.INFO)
     setup_log(config.error_log, config.error_log, logging.WARN)
     setup_log(config.sql_log, config.sql_log, logging.DEBUG)
     setup_log(config.ops_log, config.ops_log, logging.DEBUG)
