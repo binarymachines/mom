@@ -33,7 +33,7 @@ class MediaServiceProcessHandler():
         mode = self.selector.active
 
     def before(self):
-        LOG.debug("%s before '%s'" % (self.name, mode.name))
+        LOG.debug("%s before '%s'" % (self.name, self.selector.next.name))
         mode = self.selector.next
         if mode.active_rule is not None:
             LOG.info("%s: %s follows '%s', because of '%s'" % \
