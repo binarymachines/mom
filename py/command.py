@@ -11,7 +11,7 @@ import config
 
 def connect_to_redis():
     return redis.Redis('localhost')
-                
+
 def request_stop(pid):
     print 'submitting stop request for %s...' % (str(pid))
     key = '-'.join(['exec', 'record', str(pid)])
@@ -40,9 +40,8 @@ def main(args):
         if args['--reconfig']: request_reconfig(pid)
         if args['--stop']: request_stop(pid)
         if args['--inc_path_cache_size']: inc_cache_size(pid, 'path')
-        
+
 # main
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)
     main(args)
-    

@@ -20,6 +20,12 @@ def quote_if_string(value):
     return value
 
 
+def get_all_rows(table, *columns):
+    result  = []
+    rows = retrieve_values(table, columns, [])
+    return rows
+
+
 # compose queries from parameters
 # TODO: add handling for boolean values
 def insert_values(table_name, field_names, field_values):
@@ -141,24 +147,17 @@ def run_query(query):
     return rows
 
 
+# load and run query templates
+
 def run_query_template(filename, *args):
-    query = _get_query(filename, args)
+    query = _load_query(filename, args)
     # you could do some kind of validation here
     return run_query(query)
 
 
-# load and fill query templates
-
-def get_all_rows(table, *columns):
-    result  = []
-    rows = retrieve_values(table, columns, [])
-    return rows
-
-
-def _get_query(filename, args):
+def _load_query(filename, args):
     newargs = ()
     for arg in args:
-        # divorce double quotes
         newargs += (arg.replace('"', "'"),)
 
     try:
@@ -171,10 +170,5 @@ def _get_query(filename, args):
             f.close()
         # substitute wildcard and escape single quotes
         return str(query % newargs).replace('*', WILD).replace("'", "\'").replace('\n', ' ')
-    except TypeError, e:
-        raise Exception(e)
     except IOError, e:
         raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename))
-    except Exception, e:
-        raise Exception(e)
-

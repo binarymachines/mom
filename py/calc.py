@@ -72,37 +72,7 @@ def calculate_matches(context, cycle_context=False):
                         LOG.debug('match calculator skipping %s' % (key))
                         continue
 
-                    media = library.get_media_object(key, esid=values['esid'], attach_doc=True)
-
-
-                    if media.doc:
-                        if all_matchers_have_run(matchers, media):
-                            LOG.debug('calc: skipping all match operations on %s, %s' % (values['esid'], values['absolute_path']))
-                            continue
-                        # (else)
-                        try:
-                            # if library.doc_exists_for_path(media.document_type, media.absolute_path):
-                            for matcher in matchers:
-                                if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                                    LOG.debug('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))
-                                else:
-                                    LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
-                                    matcher.match(media)
-                                    ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
-
-                        except AssetException, err:
-                            LOG.warning(': '.join([err.__class__.__name__, err.message]))
-                            # if config.matcher_debug:
-                            traceback.print_exc(file=sys.stdout)
-                            library.handle_asset_exception(err, media.absolute_path)
-
-                        except UnicodeDecodeError, u:
-                            # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
-                            LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
-
-                        except Exception, u:
-                            # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
-                            LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
+                do_match_op(values['esid'], values['absolute_path'])
 
                 for matcher in matchers:
                     ops.write_ops_for_path(location, matcher.name, 'match')
@@ -114,6 +84,40 @@ def calculate_matches(context, cycle_context=False):
             finally:
                 cache.clear_docs(config.MEDIA_FILE, location)
                 cache.write_paths()
+
+def do_match_op(esid, absolute_path):
+
+    media = library.get_media_object(key, esid=esid, attach_doc=True)
+
+    if media.doc:
+        if all_matchers_have_run(matchers, media):
+            LOG.debug('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
+            continue
+        # (else)
+        try:
+            # if library.doc_exists_for_path(media.document_type, media.absolute_path):
+            for matcher in matchers:
+                if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
+                    LOG.debug('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))
+                else:
+                    LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
+                    matcher.match(media)
+                    ops.write_ops_for_path(media.absolute_path, matcher.name, 'match')
+
+        except AssetException, err:
+            LOG.warning(': '.join([err.__class__.__name__, err.message]))
+            # if config.matcher_debug:
+            traceback.print_exc(file=sys.stdout)
+            library.handle_asset_exception(err, media.absolute_path)
+
+        except UnicodeDecodeError, u:
+            # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
+            LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
+
+        except Exception, u:
+            # self.library.record_error(self.library.folder, "UnicodeDecodeError=" + u.message)
+            LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
+
 
 def get_matchers():
     matchers = []
