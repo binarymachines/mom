@@ -12,12 +12,10 @@ WILD = '%'
 
 def quote_if_string(value):
     if isinstance(value, basestring):
-        return '"%s"' % value
+        return '"%s"' % value.replace("'", "\'")
     if isinstance(value, unicode):
-        return u'"' + value + u'"'
-
-    value = value.replace("'", "\'")
-    return value
+        return u'"' + value.replace("'", "\'") + u'"'
+    return value.replace("'", "\'")
 
 
 def get_all_rows(table, *columns):
@@ -126,12 +124,12 @@ def run_query(query):
         logging.getLogger(config.sql_log).info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
+        LOG.debug(query)
         cur.execute(query)
         rows = cur.fetchall()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
         LOG.error(message)
-        # LOG.warn(query)
         raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
     except TypeError, e:
         LOG.error(e.message)
@@ -165,6 +163,7 @@ def _load_query(filename, args):
         with open('py/sql/%s.sql' % filename, 'r') as f:
             for line in f:
                 if line.startswith('--'):
+                    LOG.debug(line)
                     continue
                 query += line
             f.close()

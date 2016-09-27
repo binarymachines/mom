@@ -17,7 +17,9 @@ class MediaServiceProcessHandler():
 
         random.seed()
 
+
     # selector callbacks
+
     def after_switch(self, selector, mode):
         pass
 
@@ -25,15 +27,14 @@ class MediaServiceProcessHandler():
         pass
 
     # generic rule callbacks
+
     def after(self):
+        LOG.debug("%s after '%s'" % (self.name, mode.name))
         mode = self.selector.active
-        LOG.info("%s after '%s'" % (self.name, mode.name))
-        # LOG.info("%s: %s follows '%s', because of '%s'" % \
-        #     (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '..'))
 
     def before(self):
+        LOG.debug("%s before '%s'" % (self.name, mode.name))
         mode = self.selector.next
-        LOG.info("%s before '%s'" % (self.name, mode.name))
         if mode.active_rule is not None:
             LOG.info("%s: %s follows '%s', because of '%s'" % \
                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '..'))
@@ -117,8 +118,8 @@ class MediaServiceProcessHandler():
 
     # scan
     def before_scan(self):
-        self.before()
         LOG.info('%s preparing to scan, caching data' % self.name)
+        self.before()
 
     def after_scan(self):
         self.after()

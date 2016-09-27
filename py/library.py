@@ -144,12 +144,13 @@ def get_library_location(path):
             return location
 
 
-def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, check_fs=False):
+def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
     """return a media file instance"""
 
     fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
-    #     LOG.warning("Either file is missing or is not readable")
-    #     return None
+    if fail_on_fs_missing and not fs_avail:
+        LOG.warning("Either file is missing or is not readable")
+        return None
 
     media = MediaFile()
     filename = os.path.split(absolute_path)[1]
@@ -163,9 +164,7 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
     media.location = get_library_location(absolute_path)
     media.ext = extension
     media.folder_name = os.path.abspath(os.path.join(absolute_path, os.pardir))
-
-    if fs_avail:
-        media.file_size = os.path.getsize(absolute_path)
+    media.file_size = os.path.getsize(absolute_path) if fs_avail else None
 
     if media.esid is None and check_cache:
         # check cache for esid

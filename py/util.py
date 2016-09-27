@@ -23,3 +23,11 @@ def delta(source, target, remove_source_files=False):
             print 'folder: %s' % (source_path)
             if os.path.exists(target_path):
                delta(source_path, target_path, remove_source_files)
+
+def main():
+    source = '/media/removable/Audio/music [bak]/slsk-complete'
+    target = '/media/removable/SEAGATE 932/media/music/incoming/complete'
+    delta(source, target, True)
+
+if __name__ == '__main__':
+    main()
