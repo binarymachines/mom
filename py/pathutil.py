@@ -140,7 +140,7 @@ def path_contains_document_categories(path):
 
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
-def file_type_recognized(path, extensions):
+def file_type_recognized(path, extensions, recursive=False):
     # if self.debug: print path
     if os.path.isdir(path):
         for f in os.listdir(path):

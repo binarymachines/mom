@@ -83,7 +83,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/mediaserv.py",
+            "program": "${workspaceRoot}/py/docserv.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",

@@ -44,7 +44,7 @@ class Scanner(DirectoryWalker):
         # super(Scanner, self).handle_dir(directory)
 
     def after_handle_root(self, root):
-        if not pathutil.file_type_recognized(root, self.context.extensions):
+        if pathutil.file_type_recognized(root, self.context.extensions):
             folder = library.get_cached_directory()
             if folder is not None and folder.absolute_path == root:
                 for file_reader in self.reader.get_file_readers():
@@ -157,16 +157,18 @@ class Scanner(DirectoryWalker):
         # print '\n-----scan complete-----\n'
 
 def reset():
-    query = 'truncate es_document; truncate op_record ; truncate problem_esid ; truncate problem_path ; truncate matched ;'
-    sql.execute_query(query)
-    search.clear_index(config.es_index)
-    # if not config.es.indices.exists(config.es_index):
-    search.create_index(config.es_index)
+    if config.es.indices.exists(config.es_index):
+        search.clear_index(config.es_index)
+        # if not config.es.indices.exists(config.es_index):
+        search.create_index(config.es_index)
+
+    config.redis.flushdb()
+    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
+        query = 'delete from %s where 1 = 1' % (table)
+        sql.execute_query(query)
 
 
 def scan(context):
-    config.es = search.connect()
-    reset()
     if 'scanner' not in context.data:
         context.data['scanner'] = Scanner(context)
     context.data['scanner'].scan()
@@ -174,10 +176,11 @@ def scan(context):
 
 def main(args):
     config.start_console_logging()
-    # config.redis.flushdb()
-    paths = None if not args['--path'] else args['<path>']
-    context = DirectoryContext('_path_context_', paths, ['mp3'])
-    scan(context)
+    config.es = search.connect()
+    reset()
+    # paths = None if not args['--path'] else args['<path>']
+    # context = DirectoryContext('_path_context_', paths, ['mp3'])
+    # scan(context)
 
 if __name__ == '__main__':
     args = docopt(__doc__)
