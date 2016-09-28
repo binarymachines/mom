@@ -18,13 +18,13 @@ USE `media`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `media_folder_constant`
+-- Table structure for table `directory_constant`
 --
 
-DROP TABLE IF EXISTS `media_folder_constant`;
+DROP TABLE IF EXISTS `directory_constant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `media_folder_constant` (
+CREATE TABLE `directory_constant` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `pattern` varchar(256) NOT NULL,
   `location_type` varchar(64) NOT NULL,
@@ -33,13 +33,13 @@ CREATE TABLE `media_folder_constant` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `media_folder_constant`
+-- Dumping data for table `directory_constant`
 --
 
-LOCK TABLES `media_folder_constant` WRITE;
-/*!40000 ALTER TABLE `media_folder_constant` DISABLE KEYS */;
-INSERT INTO `media_folder_constant` VALUES (1,'/compilations','compilation'),(2,'compilations/','compilation'),(3,'/various/','compilation'),(4,'/bak/','ignore'),(5,'/webcasts and custom mixes','extended'),(6,'/downloading','incomplete'),(7,'/live','live_recording'),(8,'/slsk/','new'),(9,'/incoming/','new'),(10,'/random','random'),(11,'/recently','recent'),(12,'/unsorted','unsorted'),(13,'[...]','side_projects');
-/*!40000 ALTER TABLE `media_folder_constant` ENABLE KEYS */;
+LOCK TABLES `directory_constant` WRITE;
+/*!40000 ALTER TABLE `directory_constant` DISABLE KEYS */;
+INSERT INTO `directory_constant` VALUES (1,'/compilations','compilation'),(2,'compilations/','compilation'),(3,'/various/','compilation'),(4,'/bak/','ignore'),(5,'/webcasts and custom mixes','extended'),(6,'/downloading','incomplete'),(7,'/live','live_recording'),(8,'/slsk/','new'),(9,'/incoming/','new'),(10,'/random','random'),(11,'/recently','recent'),(12,'/unsorted','unsorted'),(13,'[...]','side_projects');
+/*!40000 ALTER TABLE `directory_constant` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

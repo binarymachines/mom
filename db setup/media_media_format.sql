@@ -18,13 +18,13 @@ USE `media`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `media_format`
+-- Table structure for table `document_format`
 --
 
-DROP TABLE IF EXISTS `media_format`;
+DROP TABLE IF EXISTS `document_format`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `media_format` (
+CREATE TABLE `document_format` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `media_type_id` int(11) unsigned NOT NULL,
   `ext` varchar(5) NOT NULL,
@@ -32,18 +32,18 @@ CREATE TABLE `media_format` (
   `active_flag` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `fk_media_type_id` (`media_type_id`),
-  CONSTRAINT `fk_media_format_media_type` FOREIGN KEY (`media_type_id`) REFERENCES `media_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_document_format_media_type` FOREIGN KEY (`media_type_id`) REFERENCES `media_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `media_format`
+-- Dumping data for table `document_format`
 --
 
-LOCK TABLES `media_format` WRITE;
-/*!40000 ALTER TABLE `media_format` DISABLE KEYS */;
-INSERT INTO `media_format` VALUES (1,1,'ape','ape',1),(2,1,'mp3','mp3',1),(3,1,'flac','FLAC',1),(4,1,'ogg','Ogg-Vorbis',1),(5,1,'wave','Wave',1),(6,1,'mpc','mpc',1),(7,2,'jpg','jpeg',0),(8,2,'jpeg','jpeg',0),(9,2,'png','png',0),(10,3,'mp4','mp4',0),(11,3,'flv','flv',0);
-/*!40000 ALTER TABLE `media_format` ENABLE KEYS */;
+LOCK TABLES `document_format` WRITE;
+/*!40000 ALTER TABLE `document_format` DISABLE KEYS */;
+INSERT INTO `document_format` VALUES (1,1,'ape','ape',1),(2,1,'mp3','mp3',1),(3,1,'flac','FLAC',1),(4,1,'ogg','Ogg-Vorbis',1),(5,1,'wave','Wave',1),(6,1,'mpc','mpc',1),(7,2,'jpg','jpeg',0),(8,2,'jpeg','jpeg',0),(9,2,'png','png',0),(10,3,'mp4','mp4',0),(11,3,'flv','flv',0);
+/*!40000 ALTER TABLE `document_format` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
