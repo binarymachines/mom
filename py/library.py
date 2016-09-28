@@ -34,7 +34,10 @@ def get_cache_key():
 # directory cache
 
 def cache_directory(folder):
-    cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.MEDIA_FOLDER })
+    if colder is None:
+        cache2.set_hash(KEY_PREFIX, get_cache_key(), {})
+    else:
+        cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.MEDIA_FOLDER })
 
 
 def clear_directory_cache():
@@ -79,21 +82,22 @@ def get_cached_directory():
 
 def sync_active_directory_state(folder):
     LOG.info('syncing metadata for %s' % folder.absolute_path)
-    if search.unique_doc_exists(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path):
-        folder.esid = search.unique_doc_id(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path)
-    else:
-        LOG.info('indexing %s' % folder.absolute_path)
-        json_str = json.dumps(folder.get_dictionary())
-
-        res = config.es.index(index=config.es_index, doc_type=folder.document_type, body=json_str)
-        if res['_shards']['successful'] == 1:
-            # if config.library_debug: print 'data indexed, updating MySQL'
-            folder.esid = res['_id']
-            # update MySQL
-            # alchemy.insert_asset(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
-            insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+    if folder is not None:
+        if search.unique_doc_exists(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path):
+            folder.esid = search.unique_doc_id(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path)
         else:
-            raise Exception('Failed to write folder %s to Elasticsearch.' % folder.absolute_path)
+            LOG.info('indexing %s' % folder.absolute_path)
+            json_str = json.dumps(folder.get_dictionary())
+
+            res = config.es.index(index=config.es_index, doc_type=folder.document_type, body=json_str)
+            if res['_shards']['successful'] == 1:
+                # if config.library_debug: print 'data indexed, updating MySQL'
+                folder.esid = res['_id']
+                # update MySQL
+                # alchemy.insert_asset(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+            else:
+                raise Exception('Failed to write folder %s to Elasticsearch.' % folder.absolute_path)
 
     cache_directory(folder)
 
