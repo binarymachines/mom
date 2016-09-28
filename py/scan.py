@@ -29,9 +29,10 @@ from read import Reader
 
 LOG = logging.getLogger('console.log')
 
+SCAN = 'scan'
 
 class Scanner(DirectoryWalker):
-    def __init__(self, context, *file_reader_names):
+    def __init__(self, context):
         super(Scanner, self).__init__()
         self.context = context
         self.document_type = config.MEDIA_FILE
@@ -43,20 +44,35 @@ class Scanner(DirectoryWalker):
         # super(Scanner, self).handle_dir(directory)
 
     def after_handle_root(self, root):
-        folder = library.get_cached_directory()
-        if folder is not None and folder.absolute_path == root:
-            if folder is not None and not ops.operation_completed(folder, 'ID3v2', 'scan'):
-                ops.record_op_complete(folder, 'ID3v2', 'scan')
+        if not pathutil.file_type_recognized(root, self.context.extensions):
+            folder = library.get_cached_directory()
+            if folder is not None and folder.absolute_path == root:
+                for file_reader in self.reader.get_file_readers():
+                    if not ops.operation_completed(folder, file_reader.name, SCAN):
+                        ops.record_op_complete(folder, file_reader.name, SCAN)
+
+        library.set_active(None)
 
     def before_handle_root(self, root):
-        library.clear_directory_cache()
-        if ops.operation_in_cache(root, 'scan', 'ID3v2'): # and not self.do_deep_scan:
-            LOG.debug('scan operation record found for: %s' % (root))
+        if not pathutil.file_type_recognized(root, self.context.extensions):
             return
 
+        library.clear_directory_cache()
+        scan_ops_complete = True
+        for file_reader in self.reader.get_file_readers():
+            if not ops.operation_in_cache(root, SCAN, file_reader.name): # and not self.do_deep_scan:
+                LOG.debug('no scan operation record found for %s in %s' % (file_reader.name, root))
+                scan_ops_complete = False
+
+        if scan_ops_complete: return
+
+        # if ops.operation_in_cache(root, SCAN, 'ID3v2'): # and not self.do_deep_scan:
+        #     LOG.debug('scan operation record found for: %s' % (root))
+        #     return
+
         try:
-            if pathutil.file_type_recognized(root, self.context.extensions):
-                library.set_active(root)
+            # if pathutil.file_type_recognized(root, self.context.extensions):
+            library.set_active(root)
 
         except AssetException, err:
             library.clear_directory_cache()
@@ -71,15 +87,18 @@ class Scanner(DirectoryWalker):
 
     def handle_root(self, root):
         folder = library.get_cached_directory()
-        if folder is not None and folder.esid is not None:
-            if ops.operation_completed(folder, 'ID3v2', 'scan'):
-                LOG.info('%s has been scanned.' % (root))
-                return
+        if folder is None or folder.esid is None:
+            return
+
+        for file_reader in self.reader.get_file_readers():
+            if ops.operation_completed(folder, file_reader.name, SCAN):
+                # LOG.info('%s has been scanned.' % (root))
+                continue
             #else
-            LOG.debug('scanning folder: %s' % (root))
-            ops.record_op_begin(folder, 'ID3v2', 'scan')
+            # LOG.debug('scanning folder: %s' % (root))
+            ops.record_op_begin(folder, file_reader.name, SCAN)
             for filename in os.listdir(root):
-                self.process_file(os.path.join(root, filename), self.reader)
+                self.process_file(os.path.join(root, filename), self.reader, file_reader.name)
         # else: self.library.set_active(root)
 
     def handle_root_error(self, err):
@@ -88,7 +107,7 @@ class Scanner(DirectoryWalker):
     # DirectoryWalker methods end
 
     # why is this not handle_file() ???
-    def process_file(self, filename, reader):
+    def process_file(self, filename, reader, file_reader_name):
         ops.do_status_check()
         # for extension in self.context.extensions:
         if reader.approves(filename):
@@ -97,11 +116,11 @@ class Scanner(DirectoryWalker):
 
             # scan tag info if this file hasn't been assigned an esid
             # TODO: test for scanning by individual readers
-            if media.esid is not None or library.doc_exists_for_path(config.MEDIA_FILE, media.absolute_path):
+            # if media.esid is not None or library.doc_exists_for_path(config.MEDIA_FILE, media.absolute_path):
                 # LOG.info("document exists, skipping file: %s" % (media.short_name()))
-                return
+                # return
 
-            reader.read(media)
+            reader.read(media, file_reader_name)
 
     def path_expanded(self, path):
         expanded = False
@@ -110,14 +129,15 @@ class Scanner(DirectoryWalker):
             for dir in dirs:
                 sub_path = os.path.join(path, dir)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
-                    self.context.push_fifo('scan', sub_path)
+                    self.context.push_fifo(SCAN, sub_path)
                     expanded = True
+
         return expanded
 
     def scan(self):
         # for path in self.context.paths:
-        while self.context.has_next('scan', True):
-            path = self.context.get_next('scan', True)
+        while self.context.has_next(SCAN, True):
+            path = self.context.get_next(SCAN, True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 if self.path_expanded(path):
                     continue
@@ -125,9 +145,10 @@ class Scanner(DirectoryWalker):
                 LOG.info('scanning path %s' % path)
 
                 cache.cache_docs(config.MEDIA_FOLDER, path)
-                ops.cache_ops(False, path, 'scan', 'ID3v2')
+                # move this to reader
+                ops.cache_ops(False, path, SCAN)
                 self.walk(path)
-                ops.write_ops_for_path(path, 'ID3v2', 'scan')
+                ops.write_ops_for_path(path, SCAN)
                 cache.clear_docs(config.MEDIA_FOLDER, path)
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))
@@ -145,7 +166,7 @@ def reset():
 
 def scan(context):
     config.es = search.connect()
-    # reset()
+    reset()
     if 'scanner' not in context.data:
         context.data['scanner'] = Scanner(context)
     context.data['scanner'].scan()

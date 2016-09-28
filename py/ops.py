@@ -39,10 +39,10 @@ def flush_all():
 def flush_cache():
     LOG.info('flushing cache')
     try:
-        write_ops_for_path('/', 'ID3v2', 'scan')
-        write_ops_for_path('/', None, 'match')
+        write_ops_for_path('/', 'scan', 'ID3v2')
+        write_ops_for_path('/''match', None, )
         # for matcher in calc.get_matchers():
-        #     ops.write_ops_for_path('/', matcher.name, 'match')
+        #     ops.write_ops_for_path('/', 'match', matcher.name)
         cache.write_paths()
         # ops.clear_directory_cache('/', True)
         cache.clear_docs(config.MEDIA_FILE, '/')
@@ -99,10 +99,7 @@ def operation_in_cache(path, operation, operator=None):
 
     # LOG.info('seeking key %s...' % key)
     values = config.redis.hgetall(key)
-    if 'persisted' in values:
-        return values['persisted'] == 'True'
-
-    return False
+    return 'persisted' in values and values['persisted'] == 'True'
 
 # def clear_directory_cache(path, use_wildcard=False):
 #     try:
@@ -172,7 +169,7 @@ def retrieve_complete_ops(apply_lifespan, parentpath, operation, operator=None):
     return sql.run_query(query.replace("'", "\'"))
 
 
-def write_ops_for_path(path, operator, operation):
+def write_ops_for_path(path, operation, operator=None):
 
     try:
         LOG.debug('updating %s.%s operations for %s in MySQL' % (operator, operation, path))

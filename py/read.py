@@ -18,13 +18,15 @@ LOG = logging.getLogger('console.log')
 class Reader:
     def __init__(self):
         self.document_type = config.MEDIA_FILE
-        # self.read_funcs = [] - iterate through methods of this class and add methods that start with 'read_'
 
     def approves(self, filename):
-        # check against lookup table to make sure that filename is correct for given tag reader
-        return filename.lower().endswith(''.join(['.', 'mp3'])) \
-            and not filename.lower().startswith('incomplete~') \
-            and not filename.lower().startswith('~incomplete')
+        if filename.lower().startswith('incomplete~') or filename.lower().startswith('~incomplete'):
+            return False
+
+        for file_reader in self.get_file_readers():
+            for extension in file_reader.extensions:
+                if filename.endswith(extension):
+                    return True
 
     def read(self, media, file_reader_name=None):
         # if media.esid is not None:
@@ -47,9 +49,12 @@ class Reader:
 
         data = media.get_dictionary()
 
-        for file_reader in self.get_file_readers(media.ext):
-            LOG.debug("%s scanning file: %s" % (file_reader.format, media.short_name()))
-            file_reader.read(media, data)
+        for file_reader in self.get_file_readers():
+            for extension in file_reader.extensions:
+                if media.ext == extension:
+                    if file_reader_name is None or file_reader.name == file_reader_name:
+                        LOG.debug("%s scanning file: %s" % (file_reader.name, media.short_name()))
+                        file_reader.read(media, data)
 
         # genericize this to use the applicable tag reader or cycle through all available tag readers
         # if read_id3v2(media, data):
@@ -66,13 +71,14 @@ class Reader:
 
         else: raise ElasticSearchError(None, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
 
-    def get_file_readers(self, *extensions):
+    def get_file_readers(self):
         return (ID3V2Reader(),)
 
 
 class FileReader(object):
-    def __init__(self, format):
-        self.format = format
+    def __init__(self, name, *extensions):
+        self.name = name
+        self.extensions = extensions
 
     def read(self, media, data):
         raise BaseClassException(FileReader)
@@ -80,7 +86,7 @@ class FileReader(object):
 
 class ID3V2Reader(FileReader):
     def __init__(self):
-        super(ID3V2Reader, self).__init__('ID3V2')
+        super(ID3V2Reader, self).__init__('Mutagen_ID3', 'mp3', 'flac')
 
     def read(self, media, data):
         try:
