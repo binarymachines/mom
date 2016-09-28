@@ -1,7 +1,7 @@
 import sys, os, traceback, logging, random
 
 from modes import Selector, Mode
-from context import PathContext
+from context import DirectoryContext
 
 import config, calc, match, scan, report
 
@@ -29,12 +29,12 @@ class MediaServiceProcessHandler():
     # generic rule callbacks
 
     def after(self):
-        LOG.debug("%s after '%s'" % (self.name, mode.name))
         mode = self.selector.active
+        LOG.debug("%s after '%s'" % (self.name, mode.name))
 
     def before(self):
-        LOG.debug("%s before '%s'" % (self.name, self.selector.next.name))
         mode = self.selector.next
+        LOG.debug("%s before '%s'" % (self.name, mode.name))
         if mode.active_rule is not None:
             LOG.info("%s: %s follows '%s', because of '%s'" % \
                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '..'))

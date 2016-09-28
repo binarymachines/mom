@@ -21,46 +21,45 @@ import ops
 import pathutil
 import search
 import sql
-from context import PathContext
+from context import DirectoryContext
 from errors import AssetException
-from mediawalk import LibraryWalker
+from docwalk import DirectoryWalker
 from read import Reader
 
 
 LOG = logging.getLogger('console.log')
 
 
-class Scanner(LibraryWalker):
-    def __init__(self, context):
+class Scanner(DirectoryWalker):
+    def __init__(self, context, *file_reader_names):
         super(Scanner, self).__init__()
         self.context = context
         self.document_type = config.MEDIA_FILE
         self.do_deep_scan = config.deep
         self.reader = Reader()
-
-    # LibraryWalker methods begin
+    # DirectoryWalker methods begin
     def handle_dir(self, directory):
         pass
         # super(Scanner, self).handle_dir(directory)
 
     def after_handle_root(self, root):
-        folder = library.get_cached_folder()
+        folder = library.get_cached_directory()
         if folder is not None and folder.absolute_path == root:
             if folder is not None and not ops.operation_completed(folder, 'ID3v2', 'scan'):
                 ops.record_op_complete(folder, 'ID3v2', 'scan')
 
     def before_handle_root(self, root):
-        library.clear_folder_cache()
-        if ops.operation_in_cache(root, 'scan', 'ID3v2'): # and not self.do_deep_scan: # and not root in library.get_locations_ext():
+        library.clear_directory_cache()
+        if ops.operation_in_cache(root, 'scan', 'ID3v2'): # and not self.do_deep_scan:
             LOG.debug('scan operation record found for: %s' % (root))
             return
 
         try:
-            if pathutil.path_contains_media(root, self.context.extensions):
+            if pathutil.file_type_recognized(root, self.context.extensions):
                 library.set_active(root)
 
         except AssetException, err:
-            library.clear_folder_cache()
+            library.clear_directory_cache()
             LOG.warning(': '.join([err.__class__.__name__, err.message]))
             traceback.print_exc(file=sys.stdout)
             library.handle_asset_exception(err, root)
@@ -71,7 +70,7 @@ class Scanner(LibraryWalker):
             raise err
 
     def handle_root(self, root):
-        folder = library.get_cached_folder()
+        folder = library.get_cached_directory()
         if folder is not None and folder.esid is not None:
             if ops.operation_completed(folder, 'ID3v2', 'scan'):
                 LOG.info('%s has been scanned.' % (root))
@@ -86,7 +85,7 @@ class Scanner(LibraryWalker):
     def handle_root_error(self, err):
         LOG.error(': '.join([err.__class__.__name__, err.message]))
 
-    # LibraryWalker methods end
+    # DirectoryWalker methods end
 
     # why is this not handle_file() ???
     def process_file(self, filename, reader):
@@ -97,15 +96,16 @@ class Scanner(LibraryWalker):
             if media is None or media.ignore() or media.available == False: return
 
             # scan tag info if this file hasn't been assigned an esid
+            # TODO: test for scanning by individual readers
             if media.esid is not None or library.doc_exists_for_path(config.MEDIA_FILE, media.absolute_path):
-                LOG.info("document exists, skipping file: %s" % (media.short_name()))
+                # LOG.info("document exists, skipping file: %s" % (media.short_name()))
                 return
 
             reader.read(media)
 
     def path_expanded(self, path):
         expanded = False
-        if path.endswith('music/') or path in pathutil.get_locations() or path in pathutil.get_locations_ext():
+        if path in pathutil.get_locations():
             dirs = os.listdir(path)
             for dir in dirs:
                 sub_path = os.path.join(path, dir)
@@ -153,9 +153,9 @@ def scan(context):
 
 def main(args):
     config.start_console_logging()
-    config.redis.flushdb()
+    # config.redis.flushdb()
     paths = None if not args['--path'] else args['<path>']
-    context = PathContext('_path_context_', paths, ['mp3'])
+    context = DirectoryContext('_path_context_', paths, ['mp3'])
     scan(context)
 
 if __name__ == '__main__':

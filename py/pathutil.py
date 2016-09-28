@@ -18,7 +18,7 @@ def get_folder_constants(folder_type):
 
     if not cache2.key_exists(seed, folder_type):
         key = cache2.create_key(seed, folder_type)
-        rows = sql.retrieve_values('media_folder_constant', ['location_type', 'pattern'], [folder_type.lower()])
+        rows = sql.retrieve_values('directory_constant', ['location_type', 'pattern'], [folder_type.lower()])
         for row in rows:
             cache2.add_item(seed, folder_type, row[1])
 
@@ -26,25 +26,10 @@ def get_folder_constants(folder_type):
 
 def get_locations():
     seed = 'folder'
-    folder_type = 'media_locations'
+    folder_type = 'directory'
     if not cache2.key_exists(seed, folder_type):
         key = cache2.create_key(seed, folder_type)
-        rows = sql.retrieve_values('media_location_folder', ['name'], [])
-        for row in rows:
-            cache2.add_item(seed, folder_type, os.path.join(config.START_FOLDER, row[0]))
-
-    result = []
-    result.extend(cache2.get_items(seed, folder_type))
-    result.sort()
-    return result
-
-
-def get_locations_ext():
-    seed = 'folder'
-    folder_type = 'media_locations_ext'
-    if not cache2.key_exists(seed, folder_type):
-        key = cache2.create_key(seed, folder_type)
-        rows = sql.retrieve_values('media_location_extended_folder', ['path'], [])
+        rows = sql.retrieve_values('directory', ['name'], [])
         for row in rows:
             cache2.add_item(seed, folder_type, row[0])
 
@@ -53,13 +38,26 @@ def get_locations_ext():
     result.sort()
     return result
 
+def get_excluded_locations():
+    seed = 'folder'
+    folder_type = 'exclude_directory'
+    if not cache2.key_exists(seed, folder_type):
+        key = cache2.create_key(seed, folder_type)
+        rows = sql.retrieve_values('exclude_directory', ['name'], [])
+        for row in rows:
+            cache2.add_item(seed, folder_type, row[0])
 
-def get_genre_folder_names():
+    result = []
+    result.extend(cache2.get_items(seed, folder_type))
+    result.sort()
+    return result
+
+def get_document_category_names():
     seed = 'folders'
     folder_type = 'genre_names'
     if not cache2.key_exists(seed, folder_type):
         key = cache2.create_key(seed, folder_type)
-        rows = sql.retrieve_values('media_genre_folder', ['name'], [])
+        rows = sql.retrieve_values('document_category', ['name'], [])
         for row in rows:
             cache2.add_item(seed, folder_type, row[0])
 
@@ -69,9 +67,9 @@ def get_genre_folder_names():
     return result
 
 
-def get_active_media_formats():
+def get_active_document_formats():
     results = []
-    rows = sql.retrieve_values('media_format', ['active_flag', 'ext'], ['1'])
+    rows = sql.retrieve_values('document_format', ['active_flag', 'ext'], ['1'])
     results.extend([r[1] for r in rows])
     return results
 
@@ -137,12 +135,12 @@ def path_contains_album_folders(path):
 
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_contains_genre_folders(path):
+def path_contains_document_categories(path):
     raise Exception('not implemented!')
 
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_contains_media(path, extensions):
+def file_type_recognized(path, extensions):
     # if self.debug: print path
     if os.path.isdir(path):
         for f in os.listdir(path):
@@ -155,7 +153,7 @@ def path_contains_media(path, extensions):
 
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_contains_multiple_media_types(path, extensions):
+def multiple_file_types_recognized(path, extensions):
     # if self.debug: print path
     if os.path.isdir(path):
 
@@ -193,7 +191,7 @@ def path_in_album_folder(path):
 
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_in_genre_folder(path):
+def path_in_document_category(path):
     raise Exception('not implemented!')
 
 
@@ -212,7 +210,7 @@ def path_is_album_folder(path):
 
 
 #TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_is_genre_folder(path):
+def path_is_document_category(path):
     raise Exception('not implemented!')
 
 
@@ -235,7 +233,7 @@ def pathutils_demo():
 def main():
     # config.start_console_logging()
     config.redis = redis.Redis('localhost')
-    config.redis.flushdb()
+    # config.redis.flushdb()
     pathutils_demo()
 
 if __name__ == '__main__':

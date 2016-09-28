@@ -50,8 +50,6 @@ MEDIA_FILE = 'media_file'
 MEDIA_FOLDER = 'media_folder'
 
 EXPUNGED = "/media/removable/Audio/music [expunged]"
-NOSCAN = "/media/removable/Audio/music [noscan]"
-START_FOLDER = "/media/removable/Audio/music"
 
 CURATED = ['/albums', '/compilations', '/random', '/recently', '/live']
 FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON', 'TPUB', 'TRCK', 'MCID', 'TSSE', 'TLAN', 'TSO2', 'TSOP', 'TMED', 'UFID']

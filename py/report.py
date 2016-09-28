@@ -12,7 +12,7 @@ import os, sys, traceback, pprint, subprocess
 from docopt import docopt
 
 import config, start, sql, search
-from assets import MediaFile
+from assets import Document
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -45,7 +45,7 @@ def calculate_suggestion(media_data, match_data, comparison_result):
 
 def calculate_discount(path, discounts):
     result = 0
-    media = MediaFile()
+    media = Document()
     media.absolute_path = path
 
     for value in discounts:
@@ -301,7 +301,7 @@ def get_media_meta_data(es, esid, media_data):
     if META not in media_data:
         media_data[META] = []
 
-    # mediaFile = MediaFile()
+    # mediaFile = Document()
     # mediaFile.esid = esid
     # mediaFile.document_type = config.MEDIA_FILE
     try:

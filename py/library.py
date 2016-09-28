@@ -13,7 +13,7 @@ import config
 import pathutil
 import search
 import sql
-from assets import MediaFolder, MediaFile
+from assets import Directory, Document
 import search
 
 LOG = logging.getLogger('console.log')
@@ -33,19 +33,19 @@ def get_cache_key():
 
 # directory cache
 
-def cache_folder(folder):
+def cache_directory(folder):
     cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.MEDIA_FOLDER })
 
 
-def clear_folder_cache():
+def clear_directory_cache():
     cache2.delete_hash(KEY_PREFIX, get_cache_key())
 
 
-def get_cached_folder():
+def get_cached_directory():
     values = cache2.get_hash(KEY_PREFIX, get_cache_key())
     if len(values) is 0: return None
 
-    result = MediaFolder()
+    result = Directory()
     result.esid = values['esid']
     result.absolute_path = values['absolute_path']
     result.document_type = values['doc_type']
@@ -55,7 +55,7 @@ def get_cached_folder():
 
 # def get_latest_operation(self, path):
 #
-#     folder = MediaFolder()
+#     folder = Directory()
 #     folder.absolute_path = path
 #
 #     doc = search.get_doc(folder)
@@ -77,7 +77,7 @@ def get_cached_folder():
 #         sys.exit(1)
 
 
-def sync_active_folder_state(folder):
+def sync_active_directory_state(folder):
     LOG.info('syncing metadata for %s' % folder.absolute_path)
     if search.unique_doc_exists(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path):
         folder.esid = search.unique_doc_id(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path)
@@ -95,7 +95,7 @@ def sync_active_folder_state(folder):
         else:
             raise Exception('Failed to write folder %s to Elasticsearch.' % folder.absolute_path)
 
-    cache_folder(folder)
+    cache_directory(folder)
 
 def set_active(path):
 
@@ -106,11 +106,11 @@ def set_active(path):
     # if self.folder is not None and self.folder.absolute_path == path: return False
 
     try:
-        LOG.info('setting folder active: %s' % (path))
-        folder = MediaFolder()
+        # LOG.info('setting folder active: %s' % (path))
+        folder = Directory()
         folder.absolute_path = path
         folder.document_type = config.MEDIA_FOLDER
-        sync_active_folder_state(folder)
+        sync_active_directory_state(folder)
 
     except ConnectionError, err:
         print ': '.join([err.__class__.__name__, err.message])
@@ -132,27 +132,20 @@ def doc_exists_for_path(doc_type, path):
 
 
 def get_library_location(path):
-
-    LOG.debug("determining location for %s." % (path.split('/')[-1]))
-
+    # LOG.debug("determining location for %s." % (path.split('/')[-1]))
     for location in pathutil.get_locations():
-        if location in path:
-            return location
-
-    for location in pathutil.get_locations_ext():
         if location in path:
             return location
 
 
 def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
     """return a media file instance"""
-
     fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
     if fail_on_fs_missing and not fs_avail:
         LOG.warning("Either file is missing or is not readable")
         return None
 
-    media = MediaFile()
+    media = Document()
     filename = os.path.split(absolute_path)[1]
     extension = os.path.splitext(absolute_path)[1]
     filename = filename.replace(extension, '')

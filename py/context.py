@@ -64,10 +64,10 @@ class Context(object):
         pass
 
 
-class PathContext(Context):
+class DirectoryContext(Context):
 
     def __init__(self, name, paths, extensions=None, cycle=False):
-        super(PathContext, self).__init__(name)
+        super(DirectoryContext, self).__init__(name)
         self.paths = paths
         self.extensions = ['*'] if extensions is None else extensions
         self.fake_path_queue = {}

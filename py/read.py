@@ -26,7 +26,7 @@ class Reader:
             and not filename.lower().startswith('incomplete~') \
             and not filename.lower().startswith('~incomplete')
 
-    def read(self, media):
+    def read(self, media, file_reader_name=None):
         # if media.esid is not None:
         #     LOG.info("esid exists, skipping file: %s" % (media.short_name()))
         #     return media
@@ -44,12 +44,12 @@ class Reader:
         #     LOG.info("document exists, skipping file: %s" % (media.short_name()))
         #     return media
 
-        LOG.debug("scanning file: %s" % (media.short_name()))
 
         data = media.get_dictionary()
 
-        for tag_reader in self.get_tag_readers(media.ext):
-            tag_reader.read(media, data)
+        for file_reader in self.get_file_readers(media.ext):
+            LOG.debug("%s scanning file: %s" % (file_reader.format, media.short_name()))
+            file_reader.read(media, data)
 
         # genericize this to use the applicable tag reader or cycle through all available tag readers
         # if read_id3v2(media, data):
@@ -58,27 +58,27 @@ class Reader:
 
         if res['_shards']['successful'] == 1:
             esid = res['_id']
-            LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
+            # LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
             media.esid = esid
-            LOG.debug("inserting NEW esid into MySQL")
+            # LOG.debug("inserting NEW esid into MySQL")
             # alchemy.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
             library.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
 
         else: raise ElasticSearchError(None, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
 
-    def get_tag_readers(self, *extensions):
+    def get_file_readers(self, *extensions):
         return (ID3V2Reader(),)
 
 
-class TagReader(object):
+class FileReader(object):
     def __init__(self, format):
         self.format = format
 
     def read(self, media, data):
-        raise BaseClassException(TagReader)
+        raise BaseClassException(FileReader)
 
 
-class ID3V2Reader(TagReader):
+class ID3V2Reader(FileReader):
     def __init__(self):
         super(ID3V2Reader, self).__init__('ID3V2')
 

@@ -44,7 +44,7 @@ def flush_cache():
         # for matcher in calc.get_matchers():
         #     ops.write_ops_for_path('/', matcher.name, 'match')
         cache.write_paths()
-        # ops.clear_folder_cache('/', True)
+        # ops.clear_directory_cache('/', True)
         cache.clear_docs(config.MEDIA_FILE, '/')
     except Exception, err:
         LOG.warn(err.message)
@@ -78,10 +78,10 @@ def record_exec():
 
 
 def cache_ops(apply_lifespan, path, operation, operator=None):
-    if operator is not None:
-        LOG.info('caching %s.%s operations for %s' % (operator, operation, path))
-    else:
-        LOG.info('caching %s operations for %s' % (operation, path))
+    # if operator is not None:
+    #     LOG.info('caching %s.%s operations for %s' % (operator, operation, path))
+    # else:
+    #     LOG.info('caching %s operations for %s' % (operation, path))
     rows = retrieve_complete_ops(apply_lifespan, path, operation, operator)
     for row in rows:
         try:
@@ -104,7 +104,7 @@ def operation_in_cache(path, operation, operator=None):
 
     return False
 
-# def clear_folder_cache(path, use_wildcard=False):
+# def clear_directory_cache(path, use_wildcard=False):
 #     try:
 #         search = '-'.join([operation, path]) if operator is None  else '-'.join([operation, operator, path])
 #         if use_wildcard:
@@ -216,7 +216,7 @@ def main():
     counter = 1.1
     for row in rows:
         path, esid = row[0], row[1]
-        print 'caching %s for %s' % (esid, path)
+        # print 'caching %s for %s' % (esid, path)
         config.redis.rpush(config.MEDIA_FILE, path)
         counter += 1
 

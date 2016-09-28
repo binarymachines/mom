@@ -9,20 +9,11 @@ import datetime
 
 from docopt import docopt
 
-import config, mediaserv, start, ops, library
+import config, docserv, start, ops, library
 import pathutil
 from serv import Service
 
-from context import PathContext
-
-
-def get_path_config():
-    result = []
-    result.extend([location for location in pathutil.get_locations()])
-    result.extend([location for location in pathutil.get_locations_ext()])
-    result.sort()
-    return result
-
+from context import DirectoryContext
 
 def launch(args, run=True):
     try:
@@ -38,11 +29,11 @@ def launch(args, run=True):
 
             if run:
                 paths = start.get_paths(args)
-                context = PathContext('_path_context_', paths, ['mp3'])
+                context = DirectoryContext('_path_context_', paths, ['mp3'])
                 context.peep_fifo = True
                 # directive = direct.create(paths)
                 process_name = None if not args['--process'] else args['<process_name>']
-                process = mediaserv.create_service_process(process_name, context)
+                process = docserv.create_service_process(process_name, context)
 
                 service.run(process, context)
 
@@ -65,9 +56,9 @@ def main(args):
     service = launch(args, False)
     if service is not None:
         try:
-            create_proc = mediaserv.create_service_process
+            create_proc = docserv.create_service_process
             path_args = start.get_paths(args)
-            context = PathContext('_path_context_', get_path_config() if path_args is None else path_args, ['mp3'])
+            context = DirectoryContext('_path_context_', pathutil.get_locations() if path_args is None else path_args, ['mp3'])
             context.peep_fifo = True
             # service.run(create_proc('Threaded worker', context), True, before, after)
             # service.run(create_proc('Threaded sleeper', context), True)

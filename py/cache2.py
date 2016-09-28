@@ -17,6 +17,12 @@ def key_name(key_group, identifier=None):
     #LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
     return result
 
+# Support sets of identifier
+# def key_name(key_group, *identifier):
+#     """get a compound key name for a given identifier and a specified record type"""
+#     result = '-'.join([key_group, identifier]) if identifier is not None else key_group + '-'
+#     #LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
+#     return result
 
 def create_key(key_group, identifier):
     """create a new compound key"""
