@@ -66,9 +66,9 @@ class Asset(object):
         return json.dumps(self.get_dictionary())
 
 
-class MediaFile(Asset):
+class Document(Asset):
     def __init__(self):
-        super(MediaFile, self).__init__()
+        super(Document, self).__init__()
         self.document_type = config.MEDIA_FILE
         self.ext = None
         self.file_name = None
@@ -117,9 +117,9 @@ class MediaFile(Asset):
         return data
 
 
-class MediaFolder(Asset):
+class Directory(Asset):
     def __init__(self):
-        super(MediaFolder, self).__init__()
+        super(Directory, self).__init__()
         self.document_type = config.MEDIA_FOLDER
 
     # TODO: call Asset.get_dictionary and append values

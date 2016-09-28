@@ -41,7 +41,7 @@ def get_doc_set_name(document_type):
 def cache_docs(document_type, source_path, clear_existing=True):
     if clear_existing:
         clear_docs(document_type, '/')
-    # if self.debug: print 'caching %s doc info for %s...' % (document_type, source_path)
+    LOG.info('caching %s doc info for %s...' % (document_type, source_path))
     rows = retrieve_docs(document_type, source_path)
     key = get_doc_set_name(document_type)
     for row in rows:

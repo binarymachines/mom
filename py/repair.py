@@ -2,7 +2,7 @@ import os, sys, traceback, logging
 
 import config, cache, start, sql, ops, search
 
-from assets import Asset, MediaFile
+from assets import Asset, Document
 
 from errors import AssetException
 
@@ -74,7 +74,7 @@ def record_matches_as_ops():
 
     rows = sql.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
     for r in rows:
-        media = MediaFile()
+        media = Document()
         matcher_name = r[1]
         media.esid = r[0]
         media.absolute_path = r[2]
@@ -115,27 +115,27 @@ def reset_all(es):
 #     sys.exit(1)
 #
 
-def main():
-    start.execute()
-    folders = sql.retrieve_values('media_location_folder', ['name'], [])
-    for folder in folders:
-        asset = os.path.join(config.START_FOLDER, folder[0])
-        files = sql.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.MEDIA_FOLDER])
-        for f in files:
-            filename = f[0]
-            doc_type = f[1]
+# def main():
+#     start.execute()
+#     folders = sql.retrieve_values('media_location_folder', ['name'], [])
+#     for folder in folders:
+#         asset = os.path.join(config.START_FOLDER, folder[0])
+#         files = sql.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.MEDIA_FOLDER])
+#         for f in files:
+#             filename = f[0]
+#             doc_type = f[1]
 
-            try:
-                esid = cache.retrieve_esid(doc_type, filename)
-                if esid is not None:
-                    print ','.join([esid, filename])
-                else:
-                    sql.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [config.es_index, doc_type, filename, "NO ESID"])
+#             try:
+#                 esid = cache.retrieve_esid(doc_type, filename)
+#                 if esid is not None:
+#                     print ','.join([esid, filename])
+#                 else:
+#                     sql.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [config.es_index, doc_type, filename, "NO ESID"])
 
-            except AssetException, error:
-                print error.message
-                if error.message.lower().startswith('multiple'):
-                    for item in  error.data:
-                        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-            except Exception, error:
-                print error.message
+#             except AssetException, error:
+#                 print error.message
+#                 if error.message.lower().startswith('multiple'):
+#                     for item in  error.data:
+#                         sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+#             except Exception, error:
+#                 print error.message

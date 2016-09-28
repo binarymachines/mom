@@ -65,7 +65,7 @@ class Rule:
             return self.condition(selector, active, possible)
         except Exception, err:
             LOG.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name))
-
+            traceback.print_exc(file=stdout)
 
 class Selector:
     def __init__(self, name, before_switch=None, after_switch=None):
@@ -229,6 +229,7 @@ class Selector:
             except Exception, logging_error:
                 LOG.warning(logging_error.message)
                 LOG.error(err.message)
+                traceback.print_exc(file=stdout)
             raise err
 
     def _set_mode_funcs_(self, mode):
@@ -241,33 +242,37 @@ class Selector:
 
     # NOTE: this function has ordering dependencies
     def switch(self, mode, rewind=False):
-        self.next = mode
+        try:
+            self.next = mode
 
-        self._set_mode_funcs_(mode)
-        self._call_switch_bracket_func_(mode, self.before_switch)
+            self._set_mode_funcs_(mode)
+            self._call_switch_bracket_func_(mode, self.before_switch)
 
-        # call before() for what will be the current mode
-        if mode.active_rule is not None:
-            self._call_mode_func_(mode, mode.active_rule.before)
+            # call before() for what will be the current mode
+            if mode.active_rule is not None:
+                self._call_mode_func_(mode, mode.active_rule.before)
 
-        self.active = mode
-        mode.times_activated += 1
-        self.complete = True if mode == self.end else False
+            self.active = mode
+            mode.times_activated += 1
+            self.complete = True if mode == self.end else False
 
-        self._call_mode_func_(mode, mode.effect)
+            self._call_mode_func_(mode, mode.effect)
 
-        # call after() for what was be the current mode
-        if mode.active_rule is not None:
-            self._call_mode_func_(mode, mode.active_rule.after)
+            # call after() for what was be the current mode
+            if mode.active_rule is not None:
+                self._call_mode_func_(mode, mode.active_rule.after)
 
-        mode.times_completed += 1
-        if mode.dec_priority:
-            mode.priority -= mode.dec_priority_amount
+            mode.times_completed += 1
+            if mode.dec_priority:
+                mode.priority -= mode.dec_priority_amount
 
-        self._call_switch_bracket_func_(mode, self.after_switch)
+            self._call_switch_bracket_func_(mode, self.after_switch)
 
-        self.previous = mode
-        self.rule_chain.append(mode.active_rule)
+            self.previous = mode
+            self.rule_chain.append(mode.active_rule)
+        except Exception, err:
+            traceback.print_exc(file=stdout)
+            raise err
 
     def run(self):
         self.complete = False
@@ -390,4 +395,5 @@ def _parse_func_info_(func):
         func_name = '.'.join([func_desc, func_strings[1].split('<')[1], func_strings[1].split('<')[0].replace(' of ', '()')])
         return func_name
     except Exception, err:
+        traceback.print_exc(file=stdout)
         return str(func)

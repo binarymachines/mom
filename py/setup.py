@@ -2,12 +2,12 @@
 
 def setup_genre_folders():
 
-    folders = get_genre_folder_names()
+    folders = get_document_category_names()
     for f in folders:
         # print f
-        rows = sql.retrieve_values('media_genre_folder', ['name'], [f.lower()])
+        rows = sql.retrieve_values('document_category', ['name'], [f.lower()])
         if len(rows) == 0:
-            sql.insert_values('media_genre_folder', ['name'], [f.lower()])
+            sql.insert_values('document_category', ['name'], [f.lower()])
 
 def setup_location_folder_names():
 

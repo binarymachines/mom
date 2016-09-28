@@ -18,8 +18,8 @@ import library
 import ops
 import search
 import sql
-from assets import MediaFile
-from context import PathContext
+from assets import Document
+from context import DirectoryContext
 from errors import AssetException
 from match import ElasticSearchMatcher
 
@@ -144,7 +144,7 @@ def main(args):
     config.es = search.connect()
     config.start_console_logging()
     paths = None if not args['--path'] else args['<path>']
-    context = PathContext('_path_context_', paths, ['mp3'])
+    context = DirectoryContext('_path_context_', paths, ['mp3'])
     calculate_matches(context)
 
 
