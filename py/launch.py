@@ -63,9 +63,9 @@ def main(args):
             # service.run(create_proc('Threaded worker', context), True, before, after)
             # service.run(create_proc('Threaded sleeper', context), True)
             a = create_proc('Scanner', context)
-            # a.after = after
-            b = create_proc('Matcher', context)
-            c = create_proc('Cleaner', context)
+            # # a.after = after
+            # b = create_proc('Matcher', context)
+            # c = create_proc('Cleaner', context)
             service.queue(a)
             service.handle_processes()
         except Exception, err:
