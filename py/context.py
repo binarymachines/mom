@@ -66,10 +66,9 @@ class Context(object):
 
 class DirectoryContext(Context):
 
-    def __init__(self, name, paths, extensions=None, cycle=False):
+    def __init__(self, name, paths, cycle=False):
         super(DirectoryContext, self).__init__(name)
         self.paths = paths
-        self.extensions = ['*'] if extensions is None else extensions
         self.fake_path_queue = {}
         self.cycle = cycle
         self.always_peek_fifo = False

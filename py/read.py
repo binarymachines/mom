@@ -19,16 +19,25 @@ class Reader:
     def __init__(self):
         self.document_type = config.MEDIA_FILE
 
-    def approves(self, filename):
+    def get_supported_extensions(self):
+        result = ()
+        for file_handler in self.get_file_handlers():
+            for extension in file_handler.extensions:
+                if extension not in result:
+                    result += (extension,)
+
+        return result
+
+    def has_handler_for(self, filename):
         if filename.lower().startswith('incomplete~') or filename.lower().startswith('~incomplete'):
             return False
 
-        for file_reader in self.get_file_readers():
-            for extension in file_reader.extensions:
+        for file_handler in self.get_file_handlers():
+            for extension in file_handler.extensions:
                 if filename.endswith(extension):
                     return True
 
-    def read(self, media, file_reader_name=None):
+    def read(self, media, file_handler_name=None):
         # if media.esid is not None:
         #     LOG.info("esid exists, skipping file: %s" % (media.short_name()))
         #     return media
@@ -49,15 +58,13 @@ class Reader:
 
         data = media.get_dictionary()
 
-        for file_reader in self.get_file_readers():
-            for extension in file_reader.extensions:
-                if media.ext == extension:
-                    if file_reader_name is None or file_reader.name == file_reader_name:
-                        LOG.debug("%s scanning file: %s" % (file_reader.name, media.short_name()))
-                        file_reader.read(media, data)
+        for file_handler in self.get_file_handlers():
+            for extension in file_handler.extensions:
+                if media.ext == extension or extension == '*':
+                    if file_handler_name is None or file_handler.name == file_handler_name:
+                        LOG.debug("%s scanning file: %s" % (file_handler.name, media.short_name()))
+                        file_handler.read(media, data)
 
-        # genericize this to use the applicable tag reader or cycle through all available tag readers
-        # if read_id3v2(media, data):
         LOG.debug("indexing file: %s" % (media.file_name))
         res = config.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
 
@@ -71,20 +78,20 @@ class Reader:
 
         else: raise ElasticSearchError(None, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
 
-    def get_file_readers(self):
+    def get_file_handlers(self):
         return (ID3V2Reader(),)
 
 
-class FileReader(object):
+class FileHandler(object):
     def __init__(self, name, *extensions):
         self.name = name
         self.extensions = extensions
 
     def read(self, media, data):
-        raise BaseClassException(FileReader)
+        raise BaseClassException(FileHandler)
 
 
-class ID3V2Reader(FileReader):
+class ID3V2Reader(FileHandler):
     def __init__(self):
         super(ID3V2Reader, self).__init__('Mutagen_ID3', 'mp3', 'flac')
 

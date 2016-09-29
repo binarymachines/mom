@@ -34,8 +34,8 @@ def get_cache_key():
 # directory cache
 
 def cache_directory(folder):
-    if colder is None:
-        cache2.set_hash(KEY_PREFIX, get_cache_key(), {})
+    if folder is None:
+        cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'active:': None })
     else:
         cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.MEDIA_FOLDER })
 
@@ -47,6 +47,8 @@ def clear_directory_cache():
 def get_cached_directory():
     values = cache2.get_hash(KEY_PREFIX, get_cache_key())
     if len(values) is 0: return None
+    if not 'esid' in values and not 'absolute_path' in values:
+        return None
 
     result = Directory()
     result.esid = values['esid']
@@ -81,8 +83,8 @@ def get_cached_directory():
 
 
 def sync_active_directory_state(folder):
-    LOG.info('syncing metadata for %s' % folder.absolute_path)
     if folder is not None:
+        LOG.info('syncing metadata for %s' % folder.absolute_path)
         if search.unique_doc_exists(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path):
             folder.esid = search.unique_doc_id(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path)
         else:
@@ -103,14 +105,11 @@ def sync_active_directory_state(folder):
 
 def set_active(path):
 
-    # if path is None:
-    #     self.folder = None
-    #     return False
-
-    # if self.folder is not None and self.folder.absolute_path == path: return False
+    if path is None:
+        sync_active_directory_state(None)
+        return
 
     try:
-        # LOG.info('setting folder active: %s' % (path))
         folder = Directory()
         folder.absolute_path = path
         folder.document_type = config.MEDIA_FOLDER

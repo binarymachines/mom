@@ -7,6 +7,7 @@ from handle import MediaServiceProcessHandler
 from modes import Mode, Selector
 
 import config
+import search
 
 LOG = logging.getLogger('console.log')
 
@@ -25,6 +26,7 @@ class MediaServiceProcess(ServiceProcess):
 
     # process logic
     def setup(self):
+        config.es = search.connect()
 
         self.handler = MediaServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
