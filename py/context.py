@@ -2,7 +2,7 @@
 import sys, os
 
 class Context(object):
-
+    """context is a container for state that is accessible to different parts of a process or application"""
     def __init__(self, name):
         self.name = name
         # one per consumer
@@ -82,9 +82,7 @@ class DirectoryContext(Context):
     def get_next(self, consumer, peek_fifo=False):
 
         if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None:
-            result = self.pop_fifo(consumer)
-            # self.fake_path_queue[consumer] = result
-            return result
+            return self.pop_fifo(consumer)
 
         if len(self.paths) == 0: return None
 
@@ -106,9 +104,11 @@ class DirectoryContext(Context):
 
     def has_next(self, consumer, peek_fifo=False):
 
-        if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None: return True
+        if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None:
+            return True
 
         if len(self.paths) == 0: return False
+
         result = False
         if consumer in self.fake_path_queue:
             index = self.paths.index(self.fake_path_queue[consumer]) + 1
@@ -120,7 +120,7 @@ class DirectoryContext(Context):
     def peek_next(self, consumer, peek_fifo=False):
 
         if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None:
-            return super.peek_fifo(consumer)
+            return self.peek_fifo(consumer)
 
         if len(self.paths) == 0: return None
 
