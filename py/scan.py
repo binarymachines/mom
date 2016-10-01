@@ -38,18 +38,20 @@ class Scanner(Walker):
         self.document_type = config.MEDIA_FILE
         self.do_deep_scan = config.deep
         self.reader = Reader()
-    # Walkerr methods begin
+
+    # Walker methods begin
     def handle_dir(self, directory):
-        pass
         # super(Scanner, self).handle_dir(directory)
+        pass
 
     def after_handle_root(self, root):
-        if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
-            folder = library.get_cached_directory()
-            if folder is not None and folder.absolute_path == root:
-                for file_handler in self.reader.get_file_handlers():
-                    if not ops.operation_completed(folder, file_handler.name, SCAN):
-                        ops.record_op_complete(folder, file_handler.name, SCAN)
+        # if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
+        folder = library.get_cached_directory()
+        if folder is not None and folder.absolute_path == root:
+
+            # for file_handler in self.reader.get_file_handlers():
+                if not ops.operation_completed(folder, 'scanner', SCAN):
+                    ops.record_op_complete(folder, 'scanner', SCAN)
 
         library.set_active(None)
 
@@ -59,13 +61,14 @@ class Scanner(Walker):
 
         library.clear_directory_cache()
         scan_ops_complete = True
-        for file_handler in self.reader.get_file_handlers():
-            if not ops.operation_in_cache(root, SCAN, file_handler.name): # and not self.do_deep_scan:
-                LOG.debug('no scan operation record found for %s in %s' % (file_handler.name, root))
-                scan_ops_complete = False
+        # for file_handler in self.reader.get_file_handlers():
+        if not ops.operation_in_cache(root, SCAN, 'scanner'): # and not self.do_deep_scan:
+            LOG.debug('no scan operation record found for %s in %s' % ('scanner', root))
+            scan_ops_complete = False
 
         if scan_ops_complete: return
 
+        # unfixed
         # if ops.operation_in_cache(root, SCAN, 'ID3v2'): # and not self.do_deep_scan:
         #     LOG.debug('scan operation record found for: %s' % (root))
         #     return
@@ -91,14 +94,18 @@ class Scanner(Walker):
             return
 
         for file_handler in self.reader.get_file_handlers():
-            if ops.operation_completed(folder, file_handler.name, SCAN):
-                # LOG.info('%s has been scanned.' % (root))
-                continue
+            # if ops.operation_completed(folder, file_handler.name, SCAN):
+            #     LOG.info('%s has been scanned.' % (root))
+            #     continue
+
             #else
             # LOG.debug('scanning folder: %s' % (root))
-            ops.record_op_begin(folder, file_handler.name, SCAN)
+            ops.record_op_begin(folder, 'scanner', SCAN)
+
             for filename in os.listdir(root):
-                self.process_file(os.path.join(root, filename), self.reader, file_handler.name)
+                if not ops.operation_in_cache(filename, SCAN, file_handler.name):
+                    self.process_file(os.path.join(root, filename), self.reader, file_handler.name)
+
         # else: self.library.set_active(root)
 
     def handle_root_error(self, err):
