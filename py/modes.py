@@ -61,7 +61,7 @@ class Rule:
 
     def applies(self, selector, active, possible):
         try:
-            func = _parse_func_info_(self.condition)
+            func = _parse_func_info(self.condition)
             return self.condition(selector, active, possible)
         except Exception, err:
             LOG.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name))
@@ -209,7 +209,7 @@ class Selector:
             if func is not None: func()
         except Exception, err:
             try:
-                func_name = self._parse_func_info_(func)
+                func_name = self._parse_func_info(func)
                 activemode = self.active.name  if self.active is not None else 'NO ACTIVE MODE'
                 LOG.error('%s while applying %s -> %s from %s' % (err.message, mode.name, func_name, activemode))
             except Exception, logging_error:
@@ -224,7 +224,7 @@ class Selector:
             try:
                 activemode = self.active.name  if self.active is not None else 'NO ACTIVE MODE'
                 previousmode = self.previous.name  if self.previous is not None else 'NO PREVIOUS MODE'
-                func_name = self._parse_func_info_(func)
+                func_name = self._parse_func_info(func)
                 LOG.error('%s while applying %s -> %s from %s in %s.switch()' %  (err.message, previousmode, func_name, activemode, self.name))
             except Exception, logging_error:
                 LOG.warning(logging_error.message)
@@ -339,7 +339,7 @@ class Engine:
                     if self.stop_on_errors:
                         raise error
                 finally:
-                    self._update_()
+                    self._update()
 
         for selector in self.inactive:
             if selector in self.active:
@@ -376,9 +376,9 @@ class Engine:
             return
 
         self._sub_execute_()
-        self._update_()
+        self._update()
 
-    def _update_(self):
+    def _update(self):
         running = False
         for selector in self.active:
             if selector.complete == False:
@@ -387,7 +387,7 @@ class Engine:
         self.running = running
 
 
-def _parse_func_info_(func):
+def _parse_func_info(func):
     if func is None: return "NONE"
     try:
         func_strings = str(func).split('.')
@@ -395,5 +395,5 @@ def _parse_func_info_(func):
         func_name = '.'.join([func_desc, func_strings[1].split('<')[1], func_strings[1].split('<')[0].replace(' of ', '()')])
         return func_name
     except Exception, err:
-        traceback.print_exc(file=stdout)
+        traceback.print_exc(file=sys.stdout)
         return str(func)

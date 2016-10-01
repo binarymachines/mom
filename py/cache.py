@@ -1,8 +1,8 @@
-import os, sys, traceback, datetime, logging
+import logging
 
 import redis
 
-import config, sql, alchemy, ops
+import config, sql, library, ops
 from errors import AssetException
 
 LOG = logging.getLogger('console.log')
@@ -38,6 +38,7 @@ def get_doc_set_name(document_type):
 #     return values
 
 # es documents
+
 def cache_docs(document_type, source_path, clear_existing=True):
     if clear_existing:
         clear_docs(document_type, '/')

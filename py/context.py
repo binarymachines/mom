@@ -5,6 +5,7 @@ class Context(object):
     """context is a container for state that is accessible to different parts of a process or application"""
     def __init__(self, name):
         self.name = name
+
         # one per consumer
         self.fifos = {}
         self.stacks = {}
@@ -79,9 +80,9 @@ class DirectoryContext(Context):
         else:
             return self.get_next(consumer)
 
-    def get_next(self, consumer, peek_fifo=False):
+    def get_next(self, consumer, use_fifo=False):
 
-        if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None:
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:
             return self.pop_fifo(consumer)
 
         if len(self.paths) == 0: return None
@@ -102,9 +103,9 @@ class DirectoryContext(Context):
 
         return result
 
-    def has_next(self, consumer, peek_fifo=False):
+    def has_next(self, consumer, use_fifo=False):
 
-        if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None:
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:
             return True
 
         if len(self.paths) == 0: return False
@@ -117,9 +118,9 @@ class DirectoryContext(Context):
 
         return result
 
-    def peek_next(self, consumer, peek_fifo=False):
+    def peek_next(self, consumer, use_fifo=False):
 
-        if (self.always_peek_fifo or peek_fifo) and self.peek_fifo(consumer) is not None:
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:
             return self.peek_fifo(consumer)
 
         if len(self.paths) == 0: return None

@@ -2,7 +2,8 @@ import os, sys, traceback, logging
 
 import sql
 
-def class Record(object):
+
+class Record(object):
     def __init__(self, type, table, fields):
         self.table = table
         self.fields = fields
@@ -23,10 +24,11 @@ def class Record(object):
             sql.update_values(self.table_name, self.fields, values)
         else:
             for field in updated_fields:
-                    values.append(values[field])
-                sql.update_values(self.table_name, updated_fields, values)
+                values.append(values[field])
+        sql.update_values(self.table_name, updated_fields, values)
 
-def class OperationRecord(Record):
+
+class OperationRecord(Record):
     def __init__(self, table, fields):
         fields = ['pid', 'start_time', 'end_time', 'target_esid', 'target_path']
         super(OperationRecord, self).__init__(table, table.upper(), fields)

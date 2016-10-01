@@ -2,6 +2,7 @@
 
 import json, pprint, sys, logging, traceback
 from mutagen.id3 import ID3, ID3NoHeaderError
+from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
 
 import cache
 import config
@@ -27,6 +28,7 @@ class Reader:
                     result += (extension,)
 
         return result
+
 
     def has_handler_for(self, filename):
         if filename.lower().startswith('incomplete~') or filename.lower().startswith('~incomplete'):
@@ -79,7 +81,7 @@ class Reader:
         else: raise ElasticSearchError(None, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
 
     def get_file_handlers(self):
-        return (ID3V2Reader(),)
+        return (MutagenID3(), MutagenFLAC(), )
 
 
 class FileHandler(object):
@@ -90,13 +92,55 @@ class FileHandler(object):
     def read(self, media, data):
         raise BaseClassException(FileHandler)
 
-
-class ID3V2Reader(FileHandler):
+class MutagenFLAC(FileHandler):
     def __init__(self):
-        super(ID3V2Reader, self).__init__('Mutagen_ID3', 'mp3', 'flac')
+        super(MutagenFLAC, self).__init__('mutagen-FLAC', 'flac')
 
     def read(self, media, data):
         try:
+            ops.record_op_begin(media, self.name, 'scan')
+
+            mutagen_mediafile = FLAC(media.absolute_path)
+            # metadata = mutagen_mediafile.pprint()  # gets all metadata
+            # tags = [x.split('=', 1) for x in metadata.split('\n')]  # substring[0:] is redundant
+            #
+            # for tag in tags:
+            #     if tag[0] in config.FIELDS:
+            #         data[tag[0]] = tag[1]
+            #     if tag[0] == "TXXX":
+            #         for sub_field in config.SUB_FIELDS:
+            #             if sub_field in tag[1]:
+            #                 subtags = tag[1].split('=')
+            #                 key = subtags[0].replace(' ', '_').upper()
+            #                 data[key] = subtags[1]
+            #
+            # data['version'] = mutagen_mediafile.version
+
+            return True
+
+        except FLACNoHeaderError, err:
+            data['scan_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "FLACNoHeaderError=" + err.message)
+
+        except FLACVorbisError, err:
+            data['scan_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "FLACVorbisError=" + err.message)
+            # traceback.print_exc(file=sys.stdout)
+
+# class Archive(FileHandler)
+#     decompress files into temp folder and push content into path context. Deference records and substitute archive path/name for temp location
+
+class MutagenID3(FileHandler):
+    def __init__(self):
+        super(MutagenID3, self).__init__('mutagen-ID3', 'mp3', 'flac')
+
+    def read(self, media, data):
+        try:
+            ops.record_op_begin(media, self.name, 'scan')
             mutagen_mediafile = ID3(media.absolute_path)
             metadata = mutagen_mediafile.pprint() # gets all metadata
             tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
@@ -110,26 +154,61 @@ class ID3V2Reader(FileHandler):
                             subtags = tag[1].split('=')
                             key=subtags[0].replace(' ', '_').upper()
                             data[key] = subtags[1]
+
+            data['version'] = mutagen_mediafile.version
+
             return True
 
         except ID3NoHeaderError, err:
             data['scan_error'] = err.message
             data['has_error'] = True
-            print ': '.join([err.__class__.__name__, err.message])
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "ID3NoHeaderError=" + err.message)
-            traceback.print_exc(file=sys.stdout)
+            # traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
-            print ': '.join([err.__class__.__name__, err.message])
+            data['scan_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "UnicodeEncodeError=" + err.message)
-            traceback.print_exc(file=sys.stdout)
+            # traceback.print_exc(file=sys.stdout)
 
         except UnicodeDecodeError, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            # library.record_error(folder, "UnicodeDecodeError=" + err.message
-            traceback.print_exc(file=sys.stdout)
-        except Exception, err:
-            print ': '.join([err.__class__.__name__, err.message])
-            # library.record_error(folder, "UnicodeDecodeError=" + err.message
-            traceback.print_exc(file=sys.stdout)
+            data['scan_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "UnicodeDecodeError=" + err.message)
+            # traceback.print_exc(file=sys.stdout)
+        # except Exception, err:
+        #     print ': '.join([err.__class__.__name__, err.message])
+        #     library.record_error(folder, "UnicodeDecodeError=" + err.message)
+        #     # traceback.print_exc(file=sys.stdout)
+        finally:
+            ops.record_op_complete(media, self.name, 'scan')
 
+
+# class ImageHandler(FileHandler):
+#     def __init__(self):
+#         super(ImageHandler, self).__init__('mildred-img', get_supported_image_types())
+#
+#     def read(self, media, data):
+#         pass
+
+
+class GenericText(FileHandler):
+    def __init__(self):
+        super(GenericText, self).__init__('mildred-txt', 'txt')
+
+    def read(self, media, data):
+        pass
+
+
+DELIMITER = ','
+
+class DelimitedText(GenericText):
+    def __init__(self, delimiter_char=DELIMITER):
+        super(GenericText, self).__init__('mildred-delimited', 'csv')
+        self.delimiter = delimiter_char
+
+    def read(self, media, data):
+        pass
