@@ -37,7 +37,7 @@ def cache_directory(folder):
     if folder is None:
         cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'active:': None })
     else:
-        cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.MEDIA_FOLDER })
+        cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.DIRECTORY })
 
 
 def clear_directory_cache():
@@ -85,11 +85,11 @@ def get_cached_directory():
 def sync_active_directory_state(folder):
     if folder is not None:
         LOG.info('syncing metadata for %s' % folder.absolute_path)
-        if search.unique_doc_exists(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path):
-            folder.esid = search.unique_doc_id(config.MEDIA_FOLDER, 'absolute_path', folder.absolute_path)
+        if search.unique_doc_exists(config.DIRECTORY, 'absolute_path', folder.absolute_path):
+            folder.esid = search.unique_doc_id(config.DIRECTORY, 'absolute_path', folder.absolute_path)
         else:
             LOG.info('indexing %s' % folder.absolute_path)
-            json_str = json.dumps(folder.get_dictionary())
+            json_str = json.dumps(folder.to_dictionary())
 
             res = config.es.index(index=config.es_index, doc_type=folder.document_type, body=json_str)
             if res['_shards']['successful'] == 1:
@@ -112,7 +112,7 @@ def set_active(path):
     try:
         folder = Directory()
         folder.absolute_path = path
-        folder.document_type = config.MEDIA_FOLDER
+        folder.document_type = config.DIRECTORY
         sync_active_directory_state(folder)
 
     except ConnectionError, err:

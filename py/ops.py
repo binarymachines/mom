@@ -45,7 +45,7 @@ def flush_cache():
         #     ops.write_ops_for_path('/', 'match', matcher.name)
         cache.write_paths()
         # ops.clear_directory_cache('/', True)
-        cache.clear_docs(config.MEDIA_FILE, '/')
+        cache.clear_docs(config.DOCUMENT, '/')
     except Exception, err:
         LOG.warn(err.message)
 
@@ -209,12 +209,12 @@ def main():
     red = redis.StrictRedis('localhost')
     config.redis.flushall()
 
-    rows = cache.retrieve_docs(config.MEDIA_FILE, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
+    rows = cache.retrieve_docs(config.DOCUMENT, "/media/removable/Audio/music/albums/industrial/nitzer ebb/remixebb")
     counter = 1.1
     for row in rows:
         path, esid = row[0], row[1]
         # print 'caching %s for %s' % (esid, path)
-        config.redis.rpush(config.MEDIA_FILE, path)
+        config.redis.rpush(config.DOCUMENT, path)
         counter += 1
 
         values = { 'esid': esid }
@@ -223,7 +223,7 @@ def main():
     print '\t\t\t'.join(['esid', 'path'])
     print '\t\t\t'.join(['-----', '----'])
 
-    for key in config.redis.lrange(config.MEDIA_FILE, 0, -1):
+    for key in config.redis.lrange(config.DOCUMENT, 0, -1):
         esid = config.redis.hgetall(key)['esid']
         print '\t'.join([esid, key])
 

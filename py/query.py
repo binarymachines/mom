@@ -18,7 +18,7 @@ class Builder:
         pp.pprint(query)
 
         es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
-        res = es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
+        res = es.search(index=config.es_index, doc_type=config.DOCUMENT, body=query)
 
         print 'results\n----------------------\n'
         for doc in res['hits']['hits']:
@@ -33,7 +33,7 @@ class Builder:
     #     pp.pprint(query)
     #
     #     es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
-    #     res = es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
+    #     res = es.search(index=config.es_index, doc_type=config.DOCUMENT, body=query)
     #
     #     print 'results\n----------------------\n'
     #     for doc in res['hits']['hits']:
