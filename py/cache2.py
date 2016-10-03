@@ -61,7 +61,7 @@ def get_key(key_group, identifier):
 
 def get_keys(key_group, *identifier):
 
-    if identifier is None:
+    if identifier is ():
         search = key_group + WILDCARD
 
     elif isinstance(identifier, basestring) or isinstance(identifier, basestring):
@@ -96,10 +96,26 @@ def get_hash(key_group, identifier):
     return result
 
 
-def get_hashes(key_group, identifier):
-    key = DELIM.join([key_group, HASH, identifier])
-    result = config.redis.hgetall(key)
-    LOG.debug('get_hashes(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+def get_hashes(key_group, *identifiers):
+    # key = DELIM.join([key_group, HASH, identifier])
+
+    result = ()
+    if identifiers is ():
+        for key in get_keys(key_group):
+            hash = config.redis.hgetall(key)
+            if hash is not None:
+                result += (hash,)
+
+    else:
+        for keyname in identifiers:
+            key = DELIM.join([key_group, HASH, keyname])
+            # key = get_key(key_group, keyname)
+            hash = config.redis.hgetall(key)
+            if hash is not None:
+                result += (hash,)
+
+    # result = config.redis.hgetall(search)
+    LOG.debug('get_hashes(key_group=%s, identifier=%s) returns %s' % (key_group, identifiers, result))
     return result
 
 
@@ -117,6 +133,14 @@ def add_item(key_group, identifier, item):
     LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
+def clear_items(key_group, identifier):
+    key = DELIM.join([key_group, LIST, identifier])
+    values = config.redis.smembers(key)
+    for value in values:
+        result = config.redis.srem(key, value)
+        LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
+
+
 def get_items(key_group, identifier):
     key = DELIM.join([key_group, LIST, identifier])
     result = config.redis.smembers(key)
@@ -124,12 +148,7 @@ def get_items(key_group, identifier):
     return result
 
 
-def clear_items(key_group, identifier):
-    key = DELIM.join([key_group, LIST, identifier])
-    values = config.redis.smembers(key)
-    for value in values:
-        result = config.redis.srem(key, value)
-        LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
+# demo
 
 def library_demo():
     lib = 'library'
@@ -146,8 +165,7 @@ def library_demo():
 
 def main():
     config.start_console_logging()
-    test()
-
+    library_demo()
     # print key_name('operations', 'scan')
     # print complex_key_name('operations', 'scan', 'mutagen', 'ID3')
 
