@@ -2,13 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "pathutil",
+            "name": "cache2",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/pathutil.py",
+            "program": "${workspaceRoot}/py/cache2.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",

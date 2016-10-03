@@ -54,16 +54,16 @@ def calculate_matches(context, cycle_context=False):
     for location in context.paths:
         LOG.info('calc: matching files in %s' % (location))
         ops.do_status_check()
-        if library.path_in_db(config.MEDIA_FILE, location):
+        if library.path_in_db(config.DOCUMENT, location):
             try:
                 # this should never be true, but a test
                 if location[-1] != '/': location += '/'
 
-                cache.cache_docs(config.MEDIA_FILE, location)
+                cache.cache_docs(config.DOCUMENT, location)
                 cache_match_ops(matchers, location)
                 cache.cache_matches(location)
 
-                for key in cache.get_doc_keys(config.MEDIA_FILE):
+                for key in cache.get_doc_keys(config.DOCUMENT):
                     opcount += 1
                     ops.do_status_check(opcount)
 
@@ -82,7 +82,7 @@ def calculate_matches(context, cycle_context=False):
                 LOG.error(': '.join([err.__class__.__name__, err.message, location]))
                 traceback.print_exc(file=sys.stdout)
             finally:
-                cache.clear_docs(config.MEDIA_FILE, location)
+                cache.clear_docs(config.DOCUMENT, location)
                 cache.write_paths()
 
 def do_match_op(esid, absolute_path):
@@ -122,7 +122,7 @@ def get_matchers():
     matchers = []
     rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
     for r in rows:
-        matcher = ElasticSearchMatcher(r[1], config.MEDIA_FILE)
+        matcher = ElasticSearchMatcher(r[1], config.DOCUMENT)
         matcher.query_type = r[2]
         matcher.minimum_score = r[3]
         LOG.info('matcher %s configured' % (r[1]))

@@ -50,7 +50,7 @@ def purge_problem_esids():
         a.absolute_path = row[2]
         problem = row[3]
 
-        if a.document_type == config.MEDIA_FOLDER and problem.lower().startswith('mult'):
+        if a.document_type == config.DIRECTORY and problem.lower().startswith('mult'):
             print '%s, %s' % (a.esid, a.absolute_path)
             docs = sql.retrieve_values('es_document', ['absolute_path', 'id'], [a.absolute_path])
             for doc in docs:
@@ -98,7 +98,7 @@ def reset_all(es):
 #
 #     cycle = True
 #     while cycle == True:
-#         res = find_docs_missing_field('media2', config.MEDIA_FOLDER, 'absolute_path')
+#         res = find_docs_missing_field('media2', config.DIRECTORY, 'absolute_path')
 #         if res['hits']['total'] > 0:
 #             for doc in res['hits']['hits']:
 #
@@ -120,7 +120,7 @@ def reset_all(es):
 #     folders = sql.retrieve_values('media_location_folder', ['name'], [])
 #     for folder in folders:
 #         asset = os.path.join(config.START_FOLDER, folder[0])
-#         files = sql.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.MEDIA_FOLDER])
+#         files = sql.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.DIRECTORY])
 #         for f in files:
 #             filename = f[0]
 #             doc_type = f[1]

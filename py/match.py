@@ -122,7 +122,7 @@ class ElasticSearchMatcher(MediaMatcher):
         #     query_printed = True
 
         matches = False
-        res = config.es.search(index=config.es_index, doc_type=config.MEDIA_FILE, body=query)
+        res = config.es.search(index=config.es_index, doc_type=config.DOCUMENT, body=query)
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches:
                 continue

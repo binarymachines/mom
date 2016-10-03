@@ -107,9 +107,9 @@ def get_paths(args):
         for p in pattern:
             try:
                 # q = """SELECT absolute_path FROM es_document WHERE absolute_path LIKE "%s%s%s" AND doc_type = "%s" ORDER BY absolute_path""" % \
-                #     ('%', p, '%', config.MEDIA_FOLDER)
+                #     ('%', p, '%', config.DIRECTORY)
                 # for row in sql.run_query(q):
-                for row in sql.run_query_template(GET_PATHS, p, config.MEDIA_FOLDER):
+                for row in sql.run_query_template(GET_PATHS, p, config.DIRECTORY):
                     paths.append(row[0])
             except Exception, err:
                 raise err

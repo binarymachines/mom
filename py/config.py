@@ -46,8 +46,8 @@ deep = False
 no_scan = False
 no_match = False
 
-MEDIA_FILE = 'media_file'
-MEDIA_FOLDER = 'media_folder'
+DOCUMENT = 'document'
+DIRECTORY = 'directory'
 
 EXPUNGED = "/media/removable/Audio/music [expunged]"
 

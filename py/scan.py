@@ -35,7 +35,7 @@ class Scanner(Walker):
     def __init__(self, context):
         super(Scanner, self).__init__()
         self.context = context
-        self.document_type = config.MEDIA_FILE
+        self.document_type = config.DOCUMENT
         self.do_deep_scan = config.deep
         self.reader = Reader()
 
@@ -122,7 +122,7 @@ class Scanner(Walker):
 
             # scan tag info if this file hasn't been assigned an esid
             # TODO: test for scanning by individual readers
-            # if media.esid is not None or library.doc_exists_for_path(config.MEDIA_FILE, media.absolute_path):
+            # if media.esid is not None or library.doc_exists_for_path(config.DOCUMENT, media.absolute_path):
                 # LOG.info("document exists, skipping file: %s" % (media.short_name()))
                 # return
 
@@ -150,16 +150,16 @@ class Scanner(Walker):
 
                 LOG.info('scanning path %s' % path)
 
-                cache.cache_docs(config.MEDIA_FOLDER, path)
+                cache.cache_docs(config.DIRECTORY, path)
                 # move this to reader
                 ops.cache_ops(False, path, SCAN)
                 self.walk(path)
                 ops.write_ops_for_path(path, SCAN)
-                cache.clear_docs(config.MEDIA_FOLDER, path)
+                cache.clear_docs(config.DIRECTORY, path)
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))
 
-        # cache.cache_docs(config.MEDIA_FILE, path)
+        # cache.cache_docs(config.DOCUMENT, path)
         # print '\n-----scan complete-----\n'
 
 def reset():

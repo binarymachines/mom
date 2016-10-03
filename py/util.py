@@ -1,6 +1,11 @@
-#! /usr/bin/python
+'''
+   Usage: util.py [(--delta <source> <target> (--remove-source | --dry-run))]
+
+'''
 
 import os, sys
+
+from docopt import docopt
 
 def str_clean4comp(input):
     alphanum = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -24,10 +29,15 @@ def delta(source, target, remove_source_files=False):
             if os.path.exists(target_path):
                delta(source_path, target_path, remove_source_files)
 
-def main():
-    source = '/media/removable/Audio/music [bak]/slsk-complete'
-    target = '/media/removable/SEAGATE 932/media/music/incoming/complete'
-    delta(source, target, True)
+def main(args):
+    if args['--delta']:
+        source = args['<source>']
+        target = args['<target>']
+        if args['--remove-source']:
+            delta(source, target, True)
+        elif args['--dry-run']:
+            delta(source, target, False)
 
 if __name__ == '__main__':
-    main()
+    args = docopt(__doc__)
+    main(args)

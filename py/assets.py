@@ -63,13 +63,13 @@ class Asset(object):
         return pathutil.is_webcast(self.absolute_path)
 
     def to_str(self):
-        return json.dumps(self.get_dictionary())
+        return json.dumps(self.to_dictionary())
 
 
 class Document(Asset):
     def __init__(self):
         super(Document, self).__init__()
-        self.document_type = config.MEDIA_FILE
+        self.document_type = config.DOCUMENT
         self.ext = None
         self.file_name = None
         self.file_size = 0
@@ -89,8 +89,8 @@ class Document(Asset):
     def originals(self):
         return []
 
-    # TODO: call Asset.get_dictionary and append values
-    def get_dictionary(self):
+    # TODO: call Asset.to_dictionary() and append values
+    def to_dictionary(self):
         data = {
                 'absolute_path': self.absolute_path,
                 'file_ext': self.ext,
@@ -120,10 +120,10 @@ class Document(Asset):
 class Directory(Asset):
     def __init__(self):
         super(Directory, self).__init__()
-        self.document_type = config.MEDIA_FOLDER
+        self.document_type = config.DIRECTORY
 
-    # TODO: call Asset.get_dictionary and append values
-    def get_dictionary(self):
+    # TODO: call Asset.to_dictionary and append values
+    def to_dictionary(self):
 
         data = {    'absolute_path': self.absolute_path,
                     'has_errors': self.has_errors,

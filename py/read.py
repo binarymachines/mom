@@ -18,7 +18,7 @@ LOG = logging.getLogger('console.log')
 
 class Reader:
     def __init__(self):
-        self.document_type = config.MEDIA_FILE
+        self.document_type = config.DOCUMENT
 
     def get_supported_extensions(self):
         result = ()
@@ -45,20 +45,20 @@ class Reader:
         #     return media
 
         # esid = config.redis.hgetall(media.absolute_path)
-        # key = cache.get_doc_set_name(config.MEDIA_FILE)
-        # esid = cache.get_cached_esid(config.MEDIA_FILE, media.absolute_path)
+        # key = cache.get_doc_set_name(config.DOCUMENT)
+        # esid = cache.get_cached_esid(config.DOCUMENT, media.absolute_path)
 
         # if esid is not None:
         #     LOG.info("esid exists, skipping file: %s" % (media.short_name()))
         #     media.esid = esid
         #     return media
 
-        # if media.esid is None and library.doc_exists_for_path(config.MEDIA_FILE, media.absolute_path):
+        # if media.esid is None and library.doc_exists_for_path(config.DOCUMENT, media.absolute_path):
         #     LOG.info("document exists, skipping file: %s" % (media.short_name()))
         #     return media
 
 
-        data = media.get_dictionary()
+        data = media.to_dictionary()
 
         for file_handler in self.get_file_handlers():
             for extension in file_handler.extensions:
@@ -212,3 +212,4 @@ class DelimitedText(GenericText):
 
     def read(self, media, data):
         pass
+
