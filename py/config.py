@@ -17,17 +17,6 @@ redis = redis.Redis('localhost')
 check_freq = 1
 check_for_bugs = False
 
-genre_folders = None
-locations = None
-locations_ext = None
-
-log = None
-sql_log = None
-error_log = None
-es_log = None
-ops_log = None
-cache_log = None
-console_log = None
 logging_started = False
 
 es = None
@@ -49,13 +38,8 @@ no_match = False
 DOCUMENT = 'document'
 DIRECTORY = 'directory'
 
-EXPUNGED = "/media/removable/Audio/music [expunged]"
-
-CURATED = ['/albums', '/compilations', '/random', '/recently', '/live']
 FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON', 'TPUB', 'TRCK', 'MCID', 'TSSE', 'TLAN', 'TSO2', 'TSOP', 'TMED', 'UFID']
 SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']
-VARIOUS = ['VARIOUS', 'VVAA', 'VA ', 'VA-', 'VA -', 'V.A.', 'VARIOS', 'VARIOUS ARTISTS', '(VA)', '[VA]', 'V-A', 'V:A', 'VA.', 'VA_']
-
 
 def display_status():
     print """Process ID: %i""" % pid

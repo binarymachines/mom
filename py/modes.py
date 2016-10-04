@@ -65,7 +65,7 @@ class Rule:
             return self.condition(selector, active, possible)
         except Exception, err:
             LOG.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name))
-            traceback.print_exc(file=stdout)
+            traceback.print_exc(file=sys.stdout)
 
 class Selector:
     def __init__(self, name, before_switch=None, after_switch=None):
@@ -229,7 +229,7 @@ class Selector:
             except Exception, logging_error:
                 LOG.warning(logging_error.message)
                 LOG.error(err.message)
-                traceback.print_exc(file=stdout)
+                traceback.print_exc(file=sys.stdout)
             raise err
 
     def _set_mode_funcs_(self, mode):
@@ -271,7 +271,7 @@ class Selector:
             self.previous = mode
             self.rule_chain.append(mode.active_rule)
         except Exception, err:
-            traceback.print_exc(file=stdout)
+            traceback.print_exc(file=sys.stdout)
             raise err
 
     def run(self):

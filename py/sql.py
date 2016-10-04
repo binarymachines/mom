@@ -121,7 +121,7 @@ def run_query(query):
     con = None
     rows = []
     try:
-        logging.getLogger(config.sql_log).info(query)
+        LOG.info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         LOG.debug(query)
