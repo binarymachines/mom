@@ -23,14 +23,7 @@ def execute(args):
         options = make_options(args)
 
         # logging
-        if not config.logging_started:
-
-            config.log = read(parser, "Log")['log']
-            config.error_log = read(parser, "Log")['error']
-            config.sql_log = read(parser, "Log")['sql']
-            config.cache_log = read(parser, "Log")['cache']
-
-            start_logging()
+        start_logging()
 
         # TODO write pidfile_TIMESTAMP and pass filenames to command.py
         if not config.launched:
@@ -93,8 +86,7 @@ def execute(args):
             config.display_status()
         except Exception, err:
             config.launched = False
-            logging.getLogger(config.error_log).error(err.message)
-            LOG.error(err.message)
+            sLOG.error(err.message)
             traceback.print_exc(file=sys.stdout)
             print 'Initialization failure'
             raise err
@@ -157,18 +149,11 @@ def setup_log(file_name, log_name, logging_level):
 def start_logging():
     if config.logging_started: return
     config.logging_started = True
+
     config.start_console_logging()
 
-    for logname in (config.log, config.error_log, config.sql_log, config.cache_log):
-        LOG.info("logging to: %s" % logname)
-
     setup_log('elasticsearch.log', 'elasticsearch.trace', logging.INFO)
-    setup_log(config.log, 'console.log', logging.DEBUG)
-    setup_log(config.error_log, config.error_log, logging.WARN)
-    setup_log(config.sql_log, config.sql_log, logging.DEBUG)
-    setup_log(config.ops_log, config.ops_log, logging.DEBUG)
-    setup_log(config.cache_log, config.cache_log, logging.DEBUG)
-
+    setup_log('console.log', 'console.log', logging.DEBUG)
 
 def write_pid_file():
     f = open('pid', 'wt')

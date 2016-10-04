@@ -25,11 +25,18 @@ def key_name(key_group, identifiers):
     return result
 
 
-def create_key(key_group, *identifiers, **value):
+def create_key(key_group, *identifiers, **values):
     """create a new compound key"""
+
     key = key_name(key_group, identifiers)
-    val = None if len(value) == 0 else value['value']
-    result = config.redis.rpush(key, val)
+    if len(values) == 0:
+        val = None
+        result = config.redis.rpush(key, val)
+    # (else)
+    for name in values:
+        val = values[name]
+        result = config.redis.rpush(key, val)
+
     LOG.debug('create_key(key_group=%s, identifiers=%s) returns %s' % (key, identifiers, result))
     return key
 

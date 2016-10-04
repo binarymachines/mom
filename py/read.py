@@ -197,7 +197,7 @@ class MutagenID3(FileHandler):
 
 class GenericText(FileHandler):
     def __init__(self):
-        super(GenericText, self).__init__('mildred-txt', 'txt')
+        super(GenericText, self).__init__('mildred-txt', 'txt', 'java', 'c', 'cpp', 'xml', 'html')
 
     def read(self, media, data):
         pass

@@ -200,7 +200,7 @@ def write_ops_for_path(path, operation, operator=None):
 
         LOG.info('%s.%s operations have been updated for %s in MySQL' % (operator, operation, path))
     except Exception, err:
-        logging.getLogger(config.error_log).warn(err.message)
+        LOG.warn(err.message)
 
 
 def main():
