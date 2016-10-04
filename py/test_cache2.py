@@ -20,7 +20,7 @@ class TestCache2(unittest.TestCase):
     # Keys and Key Groups
 
     def test_create_key(self):
-        key = cache2.create_key(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i')
+        key = cache2.create_key(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', value='test')
         self.assertEquals(key, self.identifier, 'error in key name')
 
         testkey = self.redis.keys(self.identifier)
@@ -39,6 +39,10 @@ class TestCache2(unittest.TestCase):
         pass
 
     def test_key_exists(self):
+        pass
+
+    def test_get_key(self):
+        # get_key() calls get_keys, unit test is redundant
         pass
 
     def test_get_keys(self):
@@ -64,6 +68,17 @@ class TestCache2(unittest.TestCase):
             self.redis.rpush(key, val)
             testkeys = cache2.get_keys(KEYGROUP, 'multi-args', val)
             self.assertEquals(testkeys, [key], 'get_keys: keygroup + *identifier retrieval fails')
+
+    def test_get_key_value(self):
+        keyname = 'get_key_value'
+        keyvalue = 'test'
+
+        # test using API method
+        key = cache2.create_key(KEYGROUP, keyname, value=keyvalue)
+        testvalue = cache2.get_key_value(KEYGROUP, keyname)
+
+        self.assertEquals(keyvalue, testvalue, 'get_get_value fails')
+
 
     # Lists
 
