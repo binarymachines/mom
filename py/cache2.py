@@ -25,10 +25,11 @@ def key_name(key_group, identifiers):
     return result
 
 
-def create_key(key_group, *identifiers):
+def create_key(key_group, *identifiers, **value):
     """create a new compound key"""
     key = key_name(key_group, identifiers)
-    result = config.redis.rpush(key, identifiers)
+    val = None if len(value) == 0 else value['value']
+    result = config.redis.rpush(key, val)
     LOG.debug('create_key(key_group=%s, identifiers=%s) returns %s' % (key, identifiers, result))
     return key
 
@@ -59,17 +60,16 @@ def get_key(key_group, identifier):
         return result[0]
 
 
+def get_key_value(key_group, identifier):
+    key = get_key(key_group, identifier)
+    value = config.redis.lrange(key, 0, 1)
+    if len(value) == 1:
+        return value[0]
+    return None
+
+
 def get_keys(key_group, *identifier):
-
-    if identifier is ():
-        search = key_group + WILDCARD
-
-    elif isinstance(identifier, basestring) or isinstance(identifier, basestring):
-        search = DELIM.join([key_group, identifier])
-
-    else:
-        search = key_name(key_group, identifier) + WILDCARD
-
+    search = key_group + WILDCARD if identifier is () else key_name(key_group, identifier) + WILDCARD
     result = config.redis.keys(search)
     LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
@@ -78,6 +78,20 @@ def get_keys(key_group, *identifier):
 def key_exists(key_group, identifier):
      key = key_name(key_group, identifier)
      return config.redis.exists(key)
+
+
+# Ordered List functions
+
+def rpush(key_group, *identifiers, **value):
+    key = key_name(key_group, identifiers)
+    for val in value:
+        config.redis.rpush(key, value[val])
+
+
+def lpush(key_group, *identifiers, **value):
+    key = key_name(key_group, identifiers)
+    for val in value:
+        config.redis.lpush(key, value[val])
 
 
 # hashsets
