@@ -6,6 +6,7 @@ import es_doc_cache
 import cache2
 import config
 import sql
+from sql import Record
 import start
 
 LOG = logging.getLogger('console.log')
@@ -14,11 +15,18 @@ OPS = 'operations'
 EXEC = 'platform execution'
 
 
+class OperationRecord(Record):
+    def __init__(self, table, fields):
+        fields = ['pid', 'start_time', 'end_time', 'target_esid', 'target_path']
+        super(OperationRecord, self).__init__(table, table.upper(), fields)
+
+
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
     rows = retrieve_ops__data(apply_lifespan, path, operation, operator)
     for row in rows:
         key = cache2.create_key(OPS, operation, operator, path, value=path)
         cache2.set_hash2(key, {'persisted': row[0]})
+
 
 def flush_cache():
     LOG.info('flushing cache')
@@ -30,14 +38,13 @@ def flush_cache():
     except Exception, err:
         LOG.warn(err.message)
 
+
 def operation_completed(asset, operation, operator=None):
     LOG.debug("checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
     rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [operator, operation, asset.esid])
+    return len(rows) > 0
 
-    if len(rows) > 0: # and rows[0][5] is not None:
-        # print '...found record %s:::%s on %s' % (operator, operation, asset.short_name())
-        return True
 
 def operation_in_cache(path, operation, operator=None):
     key = cache2.get_key(OPS, operation, operator, path)
@@ -54,70 +61,62 @@ def record_op_begin(asset, operation, operator):
 
     cache2.set_hash2(key, values)
 
+
 def record_op_complete(asset, operation, operator):
     LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
+
     key = cache2.get_key(OPS, operation, operator, asset.absolute_path)
     values = cache2.get_hash2(key)
     values['end_time'] = datetime.datetime.now().isoformat()
     cache2.set_hash2(key, values)
 
-    # key = '-'.join(['exec', 'record', str(config.pid)])
-    # config.redis.hset(key, 'current_operation', None)
-    # config.redis.hset(key, 'operation_status', None)
+    key = cache2.get_key(OPS, EXEC)
+    values = cache2.get_hash2(key)
+    values['current_operation'] = None
+    values['operation_status'] = None
 
+    cache2.set_hash2(key, values)
 
 
 def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
     if apply_lifespan:
-        days = 0 - config.op_life
-        start = datetime.date.today() + datetime.timedelta(days)
+        start = datetime.date.today() + datetime.timedelta(0 - config.op_life)
         if operator is None:
-            rows = sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start, path)
+            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start, path)
         else:
-            rows = sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start, path)
+            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start, path)
     else:
         if operator is None:
-            rows = sql.run_query_template('ops_retrieve_complete_ops', operation, path)
+            return sql.run_query_template('ops_retrieve_complete_ops', operation, path)
         else:
-            rows = sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
-
-    return rows
+            return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
 
 
 def write_ops_for_path(path, operation=None, operator=None):
+    table_name = 'op_record'
+    field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
 
-    try:
-        if operator is None:
-            LOG.debug('updating %s operations for %s in MySQL' % (operation, path))
-        else: LOG.debug('updating %s.%s operations for %s in MySQL' % (operator, operation, path))
+    operator = '*' if operator is None else operator
+    operation = '*' if operation is None else operation
+    keys = cache2.get_keys(OPS, operation, operator, path)
+    for key in keys:
+        values = cache2.get_hash2(key)
+        if values == {} or ('persisted' in values and values['persisted'] == 'True') or \
+            ('end_time' in values and values['end_time'] == 'None'): continue
 
-        table_name = 'op_record'
-        field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
+        field_values = []
+        for field in field_names:
+            field_values.append(values[field])
 
-        operator = '*' if operator is None else operator
-        operation = '*' if operation is None else operation
-        keys = cache2.get_keys(OPS, operation, operator, path)
-        for key in keys:
-            values = cache2.get_hash2(key)
+        try:
+            sql.insert_values('op_record', field_names, field_values)
+        except Exception, error:
+            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
+                [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
+        finally:
             cache2.delete_key(key)
-            if values == {} or 'persisted' in values and values['persisted'] == 'True' or 'end_time' in values and values['end_time'] == 'None':
-                continue
 
-            # values['operator_name'] = operator
-            # values['operation_name'] = operation
-            field_values = []
-            for field in field_names:
-                field_values.append(values[field])
-
-            try:
-                sql.insert_values('op_record', field_names, field_values)
-            except Exception, error:
-                sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
-                    [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
-
-        LOG.info('%s.%s operations have been updated for %s in MySQL' % (operator, operation, path))
-    except Exception, err:
-        LOG.warn(err.message)
+    LOG.info('%s operations have been updated for %s in MySQL' % (operation, path))
 
 def check_for_bugs():
     if config.check_for_bugs: raw_input('check for bugs')
