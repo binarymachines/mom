@@ -14,68 +14,66 @@ import sql
 LOG = logging.getLogger('console.log')
 
 
-def get_folder_constants(folder_type):
-    seed = 'folder_constants'
+def get_folder_constants(identifier):
+    keygroup = 'directory_constant'
+    if not cache2.key_exists(keygroup, identifier):
+        key = cache2.create_key(keygroup, identifier)
+        rows = sql.retrieve_values('directory_constant', ['location_type', 'pattern'], [identifier.lower()])
+        cache2.add_items(keygroup, identifier, [row[1] for row in rows])
 
-    if not cache2.key_exists(seed, folder_type):
-        key = cache2.create_key(seed, folder_type)
-        rows = sql.retrieve_values('directory_constant', ['location_type', 'pattern'], [folder_type.lower()])
-        for row in rows:
-            cache2.add_item(seed, folder_type, row[1])
+    return cache2.get_items(keygroup, identifier)
 
-    return cache2.get_items(seed, folder_type)
+
+def get_items(keygroup, identifier):
+    result = []
+    result.extend(cache2.get_items(keygroup, identifier))
+    result.sort()
+    return result
 
 
 def get_locations():
-    seed = 'folder'
-    folder_type = 'directory'
-    if not cache2.key_exists(seed, folder_type):
-        key = cache2.create_key(seed, folder_type)
+    keygroup = 'directory'
+    identifier = 'location'
+    if not cache2.key_exists(keygroup, identifier):
+        key = cache2.create_key(keygroup, identifier)
         rows = sql.retrieve_values('directory', ['name'], [])
-        for row in rows:
-            cache2.add_item(seed, folder_type, row[0])
+        cache2.add_items(keygroup, identifier, [row[0] for row in rows])
 
-    result = []
-    result.extend(cache2.get_items(seed, folder_type))
-    result.sort()
-    return result
+    return get_items(keygroup, identifier)
 
 
 def get_excluded_locations():
-    seed = 'folder'
-    folder_type = 'exclude_directory'
-    if not cache2.key_exists(seed, folder_type):
-        key = cache2.create_key(seed, folder_type)
+    keygroup = 'directory'
+    identifier = 'exclude'
+    if not cache2.key_exists(keygroup, identifier):
+        key = cache2.create_key(keygroup, identifier)
         rows = sql.retrieve_values('exclude_directory', ['name'], [])
-        for row in rows:
-            cache2.add_item(seed, folder_type, row[0])
+        cache2.add_items(keygroup, identifier, [row[0] for row in rows])
 
-    result = []
-    result.extend(cache2.get_items(seed, folder_type))
-    result.sort()
-    return result
+    return get_items(keygroup, identifier)
 
 
 def get_document_category_names():
-    seed = 'folders'
-    folder_type = 'genre_names'
-    if not cache2.key_exists(seed, folder_type):
-        key = cache2.create_key(seed, folder_type)
+    keygroup = 'document'
+    identifier = 'category_names'
+    if not cache2.key_exists(keygroup, identifier):
+        key = cache2.create_key(keygroup, identifier)
         rows = sql.retrieve_values('document_category', ['name'], [])
-        for row in rows:
-            cache2.add_item(seed, folder_type, row[0])
+        cache2.add_items(keygroup, identifier, [row[0] for row in rows])
 
-    result = []
-    result.extend(cache2.get_items(seed, folder_type))
-    result.sort()
-    return result
+    return get_items(keygroup, identifier)
 
 
 def get_active_document_formats():
-    results = []
-    rows = sql.retrieve_values('document_format', ['active_flag', 'ext'], ['1'])
-    results.extend([r[1] for r in rows])
-    return results
+    keygroup = 'document'
+    identifier = 'formats'
+    if not cache2.key_exists(keygroup, identifier):
+        key = cache2.create_key(keygroup, identifier)
+        rows = sql.retrieve_values('document_format', ['active_flag', 'ext'], ['1'])
+        cache2.add_items(keygroup, identifier, [row[1] for row in rows])
+
+    return get_items(keygroup, identifier)
+
 
 
 def is_expunged(path):
@@ -124,10 +122,7 @@ def is_unsorted(path):
 
 
 def is_webcast(path):
-    folders = ['/webcasts']
-    for f in folders:
-        if f in path:
-            return True
+    return False
 
 
 def ignore(path):
@@ -223,15 +218,15 @@ def path_is_location_folder(path):
     raise Exception('not implemented!')
 
 def pathutils_demo():
-    seed = 'pathutils'
+    keygroup = 'pathutils'
 
-    if not cache2.key_exists(seed, 'unsorted'):
-        lkey = cache2.create_key(seed, 'unsorted')
+    if not cache2.key_exists(keygroup, 'unsorted'):
+        lkey = cache2.create_key(keygroup, 'unsorted')
         data = get_folder_constants('unsorted')
         for path in data:
-            cache2.add_item(seed, 'unsorted', path)
+            cache2.add_item(keygroup, 'unsorted', path)
 
-    list = cache2.get_items(seed, 'unsorted')
+    list = cache2.get_items(keygroup, 'unsorted')
     print '/unsorted' in list
 
 def main():

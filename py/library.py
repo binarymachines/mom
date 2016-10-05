@@ -8,25 +8,26 @@ import traceback
 
 from elasticsearch.exceptions import ConnectionError
 
-import cache, cache2
+import es_doc_cache, cache2
 import config
 import pathutil
 import search
 import sql
 from assets import Directory, Document
+from errors import AssetException
 import search
 
 LOG = logging.getLogger('console.log')
 
-KEY_PREFIX = 'library'
+KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'
 
 # cache functions
 
 def get_cache_key():
-    key = cache2.get_key(KEY_PREFIX, str(config.pid))
+    key = cache2.get_key(KEY_GROUP, str(config.pid))
     if key is None:
-        key = cache2.create_key(KEY_PREFIX, str(config.pid))
+        key = cache2.create_key(KEY_GROUP, str(config.pid))
 
     return key
 
@@ -35,17 +36,17 @@ def get_cache_key():
 
 def cache_directory(folder):
     if folder is None:
-        cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'active:': None })
+        cache2.set_hash(KEY_GROUP, get_cache_key(), { 'active:': None })
     else:
-        cache2.set_hash(KEY_PREFIX, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.DIRECTORY })
+        cache2.set_hash(KEY_GROUP, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.DIRECTORY })
 
 
 def clear_directory_cache():
-    cache2.delete_hash(KEY_PREFIX, get_cache_key())
+    cache2.delete_hash(KEY_GROUP, get_cache_key())
 
 
 def get_cached_directory():
-    values = cache2.get_hash(KEY_PREFIX, get_cache_key())
+    values = cache2.get_hash(KEY_GROUP, get_cache_key())
     if len(values) is 0: return None
     if not 'esid' in values and not 'absolute_path' in values:
         return None
@@ -104,6 +105,7 @@ def sync_active_directory_state(folder):
 
     cache_directory(folder)
 
+
 def set_active(path):
 
     if path is None:
@@ -128,7 +130,7 @@ def set_active(path):
 
 def doc_exists_for_path(doc_type, path):
     # check cache, cache will query db if esid not found in cache
-    esid = cache.retrieve_esid(doc_type, path)
+    esid = es_doc_cache.retrieve_esid(doc_type, path)
     if esid is not None: return True
 
     # esid not found in cache or db, search es
@@ -160,23 +162,18 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
     media.file_name = filename
     media.location = get_library_location(absolute_path)
     media.ext = extension
-    media.folder_name = os.path.abspath(os.path.join(absolute_path, os.pardir))
+    media.folder_name = os.path.abspath(os.path.join(absolute_path, os.pardir)) if fs_avail else None
     media.file_size = os.path.getsize(absolute_path) if fs_avail else None
 
-    if media.esid is None and check_cache:
-        # check cache for esid
-        if path_in_cache(media.document_type, absolute_path):
-            media.esid = cache.get_cached_esid(media.document_type, absolute_path)
+    # check cache for esid
+    if media.esid is None and check_cache and path_in_cache(media.document_type, absolute_path):
+        media.esid = es_doc_cache.get_cached_esid(media.document_type, absolute_path)
 
-    if media.esid is None and check_db:
-        if path_in_db(media.document_type, absolute_path):
-            media.esid = retrieve_esid(media.document_type, absolute_path)
+    if media.esid is None and check_db and path_in_db(media.document_type, absolute_path):
+        media.esid = retrieve_esid(media.document_type, absolute_path)
 
     if media.esid and attach_doc:
-        try:
-            media.doc = search.get_doc(media.document_type, media.esid)
-        except Exception, err:
-            LOG.warning(err.message)
+        media.doc = search.get_doc(media.document_type, media.esid)
 
     return media
 
@@ -198,7 +195,7 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
 
 
 def path_in_cache(document_type, path):
-    return cache.get_cached_esid(document_type, path)
+    return es_doc_cache.get_cached_esid(document_type, path)
 
 
 def path_in_db(document_type, path):
@@ -247,61 +244,3 @@ def retrieve_esid(document_type, absolute_path):
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later
 
 
-
-# this will be eliminated soon
-# def doc_exists(asset, attach_if_found):
-#     # look in local MySQL
-#     esid_in_mysql = False
-#     esid = cache.retrieve_esid(asset.document_type, asset.absolute_path)
-#     if esid is not None:
-#         esid_in_mysql = True
-#         LOG.info("found esid %s for '%s' in sql." % (esid, asset.short_name()))
-#
-#         if attach_if_found and asset.esid is None:
-#             LOG.info("attaching esid %s to ''%s'." % (esid, asset.short_name()))
-#             asset.esid = esid
-#
-#         if attach_if_found == False: return True
-#
-#     if esid_in_mysql:
-#         try:
-#             doc = config.es.get(index=config.es_index, doc_type=asset.document_type, id=asset.esid)
-#             asset.doc = doc
-#             return True
-#         except Exception, err:
-#             LOG.error(err.message)
-#             raise AssetException('DOC NOT FOUND FOR ESID:' + asset.to_str(), asset)
-#
-#     # not found, query elasticsearch
-#     res = config.es.search(index=config.es_index, doc_type=asset.document_type, body={ "query": { "match" : { "absolute_path": asset.absolute_path }}})
-#     for doc in res['hits']['hits']:
-#         # if self.doc_refers_to(doc, media):
-#         if doc['_source']['absolute_path'] == asset.absolute_path:
-#             esid = doc['_id']
-#             LOG.INFO("found esid %s for '%s' in Elasticsearch." % (esid, asset.short_name()))
-#
-#             if attach_if_found:
-#                 asset.doc = doc
-#                 if asset.esid is None:
-#                     LOG.info("attaching esid %s to '%s'." % (esid, asset.short_name()))
-#                     asset.esid = esid
-#
-#             if esid_in_mysql == False:
-#                 # found, update local MySQL
-#                 LOG.info('inserting esid into MySQL')
-#                 try:
-#                     # alchemy.insert_asset(config.es_index, asset.document_type, esid, asset.absolute_path)
-#                     insert_esid(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
-#                     LOG.debug('esid inserted')
-#                 except Exception, err:
-#                     LOG.error(': '.join([err.__class__.__name__, err.message]))
-#                     traceback.print_exc(file=sys.stdout)
-#
-#             return True
-#
-#     LOG.info('No document found for %s, %s, adding scan request to queue' % (asset.esid, asset.absolute_path))
-#     rows = sql.retrieve_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
-#     if rows == ():
-#         sql.insert_values('op_request', ['index_name', 'operation_name', 'target_path'], [config.es_index, 'scan', asset.absolute_path])
-#
-#     return False

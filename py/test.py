@@ -80,7 +80,7 @@ class TestCache2(unittest.TestCase):
         key = cache2.create_key(KEYGROUP, keyname, value=keyvalue)
         testvalue = cache2.get_key_value(KEYGROUP, keyname)
 
-        self.assertEquals(keyvalue, testvalue, 'get_get_value fails')
+        self.assertEquals(keyvalue, testvalue, 'get_key_value fails')
 
 
     # Lists

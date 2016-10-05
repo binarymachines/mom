@@ -12,7 +12,7 @@ import logging
 import sys
 import traceback
 
-import cache
+import es_doc_cache
 import config
 import library
 import ops2
@@ -39,7 +39,7 @@ def all_matchers_have_run(matchers, media):
 def cache_match_ops(matchers, path):
     LOG.info('caching match ops for %s...' % path)
     for matcher in matchers:
-        ops2.cache_ops(True, path, 'match', matcher.name)
+        ops2.cache_ops(path, 'match', apply_lifespan=True)
 
 # def clear cached_match_ops(self, matchers):
 
@@ -59,11 +59,11 @@ def calculate_matches(context, cycle_context=False):
                 # this should never be true, but a test
                 if location[-1] != '/': location += '/'
 
-                cache.cache_docs(config.DOCUMENT, location)
-                cache_match_ops(matchers, location)
-                cache.cache_matches(location)
+                es_doc_cache.cache_docs(config.DOCUMENT, location)
+                ops2.cache_ops(location, 'match', apply_lifespan=True)
+                es_doc_cache.cache_matches(location)
 
-                for key in cache.get_doc_keys(config.DOCUMENT):
+                for key in es_doc_cache.get_doc_keys(config.DOCUMENT):
                     opcount += 1
                     ops2.do_status_check(opcount)
 
@@ -76,18 +76,20 @@ def calculate_matches(context, cycle_context=False):
 
                 for matcher in matchers:
                     ops2.write_ops_for_path(location, 'match', matcher.name)
-                    cache.clear_matches(matcher.name, location)
+                    es_doc_cache.clear_matches(matcher.name, location)
 
             except Exception, err:
                 LOG.error(': '.join([err.__class__.__name__, err.message, location]))
                 traceback.print_exc(file=sys.stdout)
             finally:
-                cache.clear_docs(config.DOCUMENT, location)
-                cache.write_paths()
+                es_doc_cache.clear_docs(config.DOCUMENT, location)
+                es_doc_cache.write_paths()
+
 
 def do_match_op(esid, absolute_path):
 
-    media = library.get_media_object(key, esid=esid, attach_doc=True)
+    media = library.get_media_object(esid=esid, attach_doc=True)
+    matchers = get_matchers()
 
     if media.doc and all_matchers_have_run(matchers, media):
         LOG.debug('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))

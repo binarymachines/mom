@@ -4,7 +4,7 @@ import json, pprint, sys, logging, traceback
 from mutagen.id3 import ID3, ID3NoHeaderError
 from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
 
-import cache
+import es_doc_cache
 import config
 import library
 import ops2
@@ -92,44 +92,35 @@ class FileHandler(object):
     def read(self, media, data):
         raise BaseClassException(FileHandler)
 
+
 class MutagenFLAC(FileHandler):
     def __init__(self):
         super(MutagenFLAC, self).__init__('mutagen-FLAC', 'flac')
 
     def read(self, media, data):
         try:
-            # ops2.record_op_begin(media, self.name, 'scan')
+            ops2.record_op_begin(media, self.name, 'read')
 
             mutagen_mediafile = FLAC(media.absolute_path)
-            # metadata = mutagen_mediafile.pprint()  # gets all metadata
-            # tags = [x.split('=', 1) for x in metadata.split('\n')]  # substring[0:] is redundant
-            #
-            # for tag in tags:
-            #     if tag[0] in config.FIELDS:
-            #         data[tag[0]] = tag[1]
-            #     if tag[0] == "TXXX":
-            #         for sub_field in config.SUB_FIELDS:
-            #             if sub_field in tag[1]:
-            #                 subtags = tag[1].split('=')
-            #                 key = subtags[0].replace(' ', '_').upper()
-            #                 data[key] = subtags[1]
-            #
+
             # data['version'] = mutagen_mediafile.version
 
             return True
 
         except FLACNoHeaderError, err:
-            data['scan_error'] = err.message
+            data['read_error'] = err.message
             data['has_error'] = True
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "FLACNoHeaderError=" + err.message)
-
         except FLACVorbisError, err:
-            data['scan_error'] = err.message
+            data['read_error'] = err.message
             data['has_error'] = True
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "FLACVorbisError=" + err.message)
             # traceback.print_exc(file=sys.stdout)
+        finally:
+            ops2.record_op_complete(media, 'read', self.name)
+
 
 # class Archive(FileHandler)
 #     decompress files into temp folder and push content into path context. Deference records and substitute archive path/name for temp location
@@ -140,7 +131,7 @@ class MutagenID3(FileHandler):
 
     def read(self, media, data):
         try:
-            ops2.record_op_begin(media, 'scan', self.name)
+            ops2.record_op_begin(media, 'read', self.name)
             mutagen_mediafile = ID3(media.absolute_path)
             metadata = mutagen_mediafile.pprint() # gets all metadata
             tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
@@ -160,21 +151,21 @@ class MutagenID3(FileHandler):
             return True
 
         except ID3NoHeaderError, err:
-            data['scan_error'] = err.message
+            data['read_error'] = err.message
             data['has_error'] = True
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "ID3NoHeaderError=" + err.message)
             # traceback.print_exc(file=sys.stdout)
 
         except UnicodeEncodeError, err:
-            data['scan_error'] = err.message
+            data['read_error'] = err.message
             data['has_error'] = True
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "UnicodeEncodeError=" + err.message)
             # traceback.print_exc(file=sys.stdout)
 
         except UnicodeDecodeError, err:
-            data['scan_error'] = err.message
+            data['read_error'] = err.message
             data['has_error'] = True
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "UnicodeDecodeError=" + err.message)
@@ -184,7 +175,7 @@ class MutagenID3(FileHandler):
         #     library.record_error(folder, "UnicodeDecodeError=" + err.message)
         #     # traceback.print_exc(file=sys.stdout)
         finally:
-            ops2.record_op_complete(media, 'scan', self.name)
+            ops2.record_op_complete(media, 'read', self.name)
 
 
 # class ImageHandler(FileHandler):

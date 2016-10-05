@@ -2,7 +2,7 @@ import datetime
 import logging
 import sys
 
-import cache
+import es_doc_cache
 import cache2
 import config
 import sql
@@ -14,11 +14,21 @@ OPS = 'operations'
 EXEC = 'platform execution'
 
 
-def cache_ops(apply_lifespan, path, operation, operator=None):
+def cache_ops(path, operation, operator=None, apply_lifespan=False):
     rows = retrieve_ops__data(apply_lifespan, path, operation, operator)
     for row in rows:
         key = cache2.create_key(OPS, operation, operator, path, value=path)
         cache2.set_hash2(key, {'persisted': row[0]})
+
+def flush_cache():
+    LOG.info('flushing cache')
+    try:
+        write_ops_for_path('/')
+        es_doc_cache.write_paths()
+        # clear_directory_cache('/', True)
+        es_doc_cache.clear_docs(config.DOCUMENT, '/')
+    except Exception, err:
+        LOG.warn(err.message)
 
 def operation_completed(asset, operation, operator=None):
     LOG.debug("checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
@@ -74,7 +84,7 @@ def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
     return rows
 
 
-def write_ops_for_path(path, operation, operator=None):
+def write_ops_for_path(path, operation=None, operator=None):
 
     try:
         if operator is None:
@@ -85,6 +95,7 @@ def write_ops_for_path(path, operation, operator=None):
         field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
 
         operator = '*' if operator is None else operator
+        operation = '*' if operation is None else operation
         keys = cache2.get_keys(OPS, operation, operator, path)
         for key in keys:
             values = cache2.get_hash2(key)
@@ -136,7 +147,7 @@ def do_status_check(opcount=None):
 
     if check_for_stop_request():
         print 'stop requested, terminating...'
-        cache.write_paths()
+        es_doc_cache.write_paths()
         sys.exit(0)
 
 

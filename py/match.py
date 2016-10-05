@@ -2,7 +2,7 @@
 
 import os, pprint, sys, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import cache, config, ops2
+import es_doc_cache, config, ops2
 from query import Builder
 import sql
 from errors import BaseClassException
@@ -113,7 +113,7 @@ class ElasticSearchMatcher(MediaMatcher):
         ops2.record_op_begin(media, self.name, 'match')
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
-        previous_matches = cache.get_matches(self.name, media.esid)
+        previous_matches = es_doc_cache.get_matches(self.name, media.esid)
 
         query = self.get_query(media)
         # query_printed = False
@@ -148,7 +148,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             # calc.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
             try:
-                thread.start_new_thread( cache.ensure, ( match['_id'], match['_source']['absolute_path'], self.document_type, ) )
+                thread.start_new_thread(es_doc_cache.ensure, (self.document_type, match['_id'], match['_source']['absolute_path'],))
             except Exception, err:
                 print err.message
                 traceback.print_exc(file=sys.stdout)

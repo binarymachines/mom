@@ -27,7 +27,7 @@
                 // "--config", "cloud.ini",
                 // "--pattern", "m u s l i m g a u z e",
                 // "--path",
-                // "/media/removable/SEAGATE 932/Media/music/incoming/complete",
+                // "/media/removable/Audio/albums/industrial",
                 "--scan",
                 // "--match",
                 "--clearmem"

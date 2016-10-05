@@ -7,8 +7,10 @@ import os, sys
 
 from docopt import docopt
 
-def str_clean4comp(input):
+def str_clean4comp(input, *exception):
     alphanum = "0123456789abcdefghijklmnopqrstuvwxyz"
+    for item in exception:
+        alphanum += item
     return ''.join([letter.lower() for letter in input if letter in alphanum])
 
 # compare source and target folders, remove files from source that exist in target
