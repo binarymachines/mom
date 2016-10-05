@@ -7,7 +7,7 @@ from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
 import cache
 import config
 import library
-import ops
+import ops2
 
 from errors import ElasticSearchError, BaseClassException
 
@@ -81,7 +81,7 @@ class Reader:
         else: raise ElasticSearchError(None, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
 
     def get_file_handlers(self):
-        return (MutagenID3(), MutagenFLAC(), )
+        return (MutagenID3(), )
 
 
 class FileHandler(object):
@@ -98,7 +98,7 @@ class MutagenFLAC(FileHandler):
 
     def read(self, media, data):
         try:
-            ops.record_op_begin(media, self.name, 'scan')
+            # ops2.record_op_begin(media, self.name, 'scan')
 
             mutagen_mediafile = FLAC(media.absolute_path)
             # metadata = mutagen_mediafile.pprint()  # gets all metadata
@@ -136,11 +136,11 @@ class MutagenFLAC(FileHandler):
 
 class MutagenID3(FileHandler):
     def __init__(self):
-        super(MutagenID3, self).__init__('mutagen-ID3', 'mp3', 'flac')
+        super(MutagenID3, self).__init__('mutagen-ID3', 'mp3') # 'flac')
 
     def read(self, media, data):
         try:
-            ops.record_op_begin(media, self.name, 'scan')
+            ops2.record_op_begin(media, 'scan', self.name)
             mutagen_mediafile = ID3(media.absolute_path)
             metadata = mutagen_mediafile.pprint() # gets all metadata
             tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
@@ -184,7 +184,7 @@ class MutagenID3(FileHandler):
         #     library.record_error(folder, "UnicodeDecodeError=" + err.message)
         #     # traceback.print_exc(file=sys.stdout)
         finally:
-            ops.record_op_complete(media, self.name, 'scan')
+            ops2.record_op_complete(media, 'scan', self.name)
 
 
 # class ImageHandler(FileHandler):

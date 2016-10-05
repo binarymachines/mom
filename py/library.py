@@ -90,6 +90,7 @@ def sync_active_directory_state(folder):
         else:
             LOG.info('indexing %s' % folder.absolute_path)
             json_str = json.dumps(folder.to_dictionary())
+            # TODO:elasticsearch.exceptions.ConnectionTimeout, ConnectionTimeout caused by - ReadTimeoutError(HTTPConnectionPool(host='localhost', port=9200): Read timed out. (read timeout=10))
 
             res = config.es.index(index=config.es_index, doc_type=folder.document_type, body=json_str)
             if res['_shards']['successful'] == 1:

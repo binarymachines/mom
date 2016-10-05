@@ -3,6 +3,7 @@ import logging
 import redis
 
 import config, sql, library, ops
+import ops2
 from errors import AssetException
 
 LOG = logging.getLogger('console.log')
@@ -136,7 +137,7 @@ def write_paths(flushkeys=True):
     esids = []
     paths = []
     for key in config.redis.scan_iter(search):
-        ops.do_status_check()
+        ops2.do_status_check()
         values = config.redis.hgetall(key)
         keys.append(key)
         if 'absolute_path' in values:

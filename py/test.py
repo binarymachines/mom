@@ -1,8 +1,11 @@
 import unittest, redis
 
 import cache2
+import sql
 
 KEYGROUP = 'test-suite'
+
+#TODO: This unit test does not account for Redis' dislike of key names containing spaces
 
 class TestCache2(unittest.TestCase):
     """Redis must be running for these tests to run"""
@@ -14,7 +17,7 @@ class TestCache2(unittest.TestCase):
         self.test_vals = ['a', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dogs']
 
     def test_key_name(self):
-        keyname = cache2.key_name(KEYGROUP, self.identifiers)
+        keyname = cache2.key_name(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i')
         self.assertEquals(keyname, self.identifier)
 
     # Keys and Key Groups
@@ -171,6 +174,26 @@ class TestCache2(unittest.TestCase):
         testhash = self.redis.hgetall(hashkey)
         self.assertDictEqual(hash, testhash)
 
+    # def test_set_hash2(self):
+    #     keyname = cache2.key_name(KEYGROUP, 'hash2', 'test')
+    #     hash = { 'operation': 'scan', 'operator': 'id3v2' }
+
+    #     cache2.set_hash2(keyname, hash)
+
+    #     hashkey = cache2.DELIM.join([KEYGROUP, cache2.HASH, keyname])
+    #     testhash = self.redis.hgetall(hashkey)
+    #     self.assertDictEqual(hash, testhash)
+
+
+
+class TestOps2(unittest.TestCase):
+    """Redis must be running for these tests to run"""
+
+    def setUp(self):
+        self.redis = redis.Redis('localhost')
+
+    def test_cache_ops(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()

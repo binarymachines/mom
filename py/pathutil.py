@@ -13,6 +13,7 @@ import sql
 
 LOG = logging.getLogger('console.log')
 
+
 def get_folder_constants(folder_type):
     seed = 'folder_constants'
 
@@ -23,6 +24,7 @@ def get_folder_constants(folder_type):
             cache2.add_item(seed, folder_type, row[1])
 
     return cache2.get_items(seed, folder_type)
+
 
 def get_locations():
     seed = 'folder'
@@ -38,6 +40,7 @@ def get_locations():
     result.sort()
     return result
 
+
 def get_excluded_locations():
     seed = 'folder'
     folder_type = 'exclude_directory'
@@ -51,6 +54,7 @@ def get_excluded_locations():
     result.extend(cache2.get_items(seed, folder_type))
     result.sort()
     return result
+
 
 def get_document_category_names():
     seed = 'folders'

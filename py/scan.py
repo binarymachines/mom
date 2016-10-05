@@ -17,7 +17,7 @@ from docopt import docopt
 import cache
 import config
 import library
-import ops
+import ops2
 import pathutil
 import search
 import sql
@@ -50,28 +50,16 @@ class Scanner(Walker):
         if folder is not None and folder.absolute_path == root:
 
             # for file_handler in self.reader.get_file_handlers():
-                if not ops.operation_completed(folder, 'scanner', SCAN):
-                    ops.record_op_complete(folder, 'scanner', SCAN)
+                if not ops2.operation_completed(folder, SCAN, 'scanner'):
+                    ops2.record_op_complete(folder, SCAN, 'scanner')
 
         library.set_active(None)
 
     def before_handle_root(self, root):
-        if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
-            return
-
         library.clear_directory_cache()
-        scan_ops_complete = True
-        # for file_handler in self.reader.get_file_handlers():
-        if not ops.operation_in_cache(root, SCAN, 'scanner'): # and not self.do_deep_scan:
-            LOG.debug('no scan operation record found for %s in %s' % ('scanner', root))
-            scan_ops_complete = False
-
-        if scan_ops_complete: return
-
-        # unfixed
-        # if ops.operation_in_cache(root, SCAN, 'ID3v2'): # and not self.do_deep_scan:
-        #     LOG.debug('scan operation record found for: %s' % (root))
-        #     return
+        if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()) or \
+            ops2.operation_in_cache(root, SCAN, 'scanner'): # and not self.do_deep_scan:
+                return
 
         try:
             if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
@@ -83,30 +71,19 @@ class Scanner(Walker):
             traceback.print_exc(file=sys.stdout)
             library.handle_asset_exception(err, root)
 
-        except Exception, err:
-            LOG.error(': '.join([err.__class__.__name__, err.message]))
-            traceback.print_exc(file=sys.stdout)
-            raise err
-
     def handle_root(self, root):
         folder = library.get_cached_directory()
-        if folder is None or folder.esid is None:
-            return
+        if folder is None or folder.esid is None: return
 
+        LOG.debug('scanning folder: %s' % (root))
+        ops2.record_op_begin(folder, SCAN, 'scanner')
         for file_handler in self.reader.get_file_handlers():
-            # if ops.operation_completed(folder, file_handler.name, SCAN):
-            #     LOG.info('%s has been scanned.' % (root))
-            #     continue
+            if not ops2.operation_completed(folder, SCAN, file_handler.name):
+                for filename in os.listdir(root):
+                    if not ops2.operation_in_cache(filename, SCAN, file_handler.name):
+                        self.process_file(os.path.join(root, filename), self.reader, file_handler.name)
 
-            #else
-            # LOG.debug('scanning folder: %s' % (root))
-            ops.record_op_begin(folder, 'scanner', SCAN)
-
-            for filename in os.listdir(root):
-                if not ops.operation_in_cache(filename, SCAN, file_handler.name):
-                    self.process_file(os.path.join(root, filename), self.reader, file_handler.name)
-
-        # else: self.library.set_active(root)
+        LOG.debug('done scanning folder: %s' % (root))
 
     def handle_root_error(self, err):
         LOG.error(': '.join([err.__class__.__name__, err.message]))
@@ -115,7 +92,7 @@ class Scanner(Walker):
 
     # why is this not handle_file() ???
     def process_file(self, filename, reader, file_handler_name):
-        ops.do_status_check()
+        ops2.do_status_check()
         if reader.has_handler_for(filename):
             media = library.get_media_object(filename)
             if media is None or media.ignore() or media.available == False: return
@@ -152,27 +129,15 @@ class Scanner(Walker):
 
                 cache.cache_docs(config.DIRECTORY, path)
                 # move this to reader
-                ops.cache_ops(False, path, SCAN)
+                ops2.cache_ops(False, path, SCAN)
                 self.walk(path)
-                ops.write_ops_for_path(path, SCAN)
+                ops2.write_ops_for_path(path, SCAN)
                 cache.clear_docs(config.DIRECTORY, path)
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))
 
         # cache.cache_docs(config.DOCUMENT, path)
-        # print '\n-----scan complete-----\n'
-
-def reset():
-    if config.es.indices.exists(config.es_index):
-        search.clear_index(config.es_index)
-
-    if not config.es.indices.exists(config.es_index):
-        search.create_index(config.es_index)
-
-    config.redis.flushdb()
-    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
-        query = 'delete from %s where 1 = 1' % (table)
-        sql.execute_query(query)
+        LOG.info('-----scan complete-----')
 
 
 def scan(context):

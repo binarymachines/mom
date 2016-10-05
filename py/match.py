@@ -2,7 +2,7 @@
 
 import os, pprint, sys, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import cache, config, ops
+import cache, config, ops2
 from query import Builder
 import sql
 from errors import BaseClassException
@@ -110,7 +110,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
 
     def match(self, media):
-        ops.record_op_begin(media, self.name, 'match')
+        ops2.record_op_begin(media, self.name, 'match')
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
         previous_matches = cache.get_matches(self.name, media.esid)
@@ -155,7 +155,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
-        ops.record_op_complete(media, self.name, 'match')
+        ops2.record_op_complete(media, self.name, 'match')
 
 
 class FolderNameMatcher(MediaMatcher):
