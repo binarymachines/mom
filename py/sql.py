@@ -5,7 +5,7 @@ import MySQLdb as mdb
 
 from errors import SQLConnectError
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger('sql.log')
 
 WILD = '%'
 
@@ -15,7 +15,7 @@ def quote_if_string(value):
         return '"%s"' % value.replace("'", "\'")
     if isinstance(value, unicode):
         return u'"' + value.replace("'", "\'") + u'"'
-    return value.replace("'", "\'")
+    return value
 
 
 def get_all_rows(table, *columns):
@@ -168,6 +168,6 @@ def _load_query(filename, args):
                 query += line
             f.close()
         # substitute wildcard and escape single quotes
-        return str(query % newargs).replace('*', WILD).replace("'", "\'").replace('\n', ' ')
+        return str(query % newargs).replace('*', WILD).replace("'", "\'")#.replace('\n', ' ')
     except IOError, e:
         raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename))

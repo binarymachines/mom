@@ -2,7 +2,11 @@ import sys, os, datetime, traceback, ConfigParser, logging
 
 import redis
 
-import config, sql, search, ops
+import cache2
+import config
+import sql
+import search
+import ops2
 
 EXECUTE_DISCONNECTED = True
 
@@ -72,11 +76,11 @@ def execute(args):
 
                 if 'clearmem' in options:
                     LOG.info('clearing data from previous run...')
-                    ops.flush_cache()
+                    ops2.flush_cache()
 
                 if 'noflush' not in options:
                     LOG.info('flushing reddis cache...')
-                    ops.flush_all()
+                    cache2.flush_all()
 
                 LOG.info('connecting to Elasticsearch...')
                 config.es = search.connect()
@@ -97,14 +101,8 @@ def get_paths(args):
     pattern = None if not args['--pattern'] else args['<pattern>']
     if args['--pattern']:
         for p in pattern:
-            try:
-                # q = """SELECT absolute_path FROM es_document WHERE absolute_path LIKE "%s%s%s" AND doc_type = "%s" ORDER BY absolute_path""" % \
-                #     ('%', p, '%', config.DIRECTORY)
-                # for row in sql.run_query(q):
-                for row in sql.run_query_template(GET_PATHS, p, config.DIRECTORY):
-                    paths.append(row[0])
-            except Exception, err:
-                raise err
+            for row in sql.run_query_template(GET_PATHS, p, config.DIRECTORY):
+                paths.append(row[0])
     return paths
 
 

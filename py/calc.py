@@ -15,7 +15,7 @@ import traceback
 import cache
 import config
 import library
-import ops
+import ops2
 import search
 import sql
 from assets import Document
@@ -30,7 +30,7 @@ def all_matchers_have_run(matchers, media):
     skip_entirely = True
     # paths = []
     for matcher in matchers:
-        if not ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
+        if not ops2.operation_in_cache(media.absolute_path, 'match', matcher.name):
             skip_entirely = False
             break
 
@@ -39,7 +39,7 @@ def all_matchers_have_run(matchers, media):
 def cache_match_ops(matchers, path):
     LOG.info('caching match ops for %s...' % path)
     for matcher in matchers:
-        ops.cache_ops(True, path, 'match', matcher.name)
+        ops2.cache_ops(True, path, 'match', matcher.name)
 
 # def clear cached_match_ops(self, matchers):
 
@@ -53,7 +53,7 @@ def calculate_matches(context, cycle_context=False):
     # if context.has_next('match')...pop locations and split folders here if needed ; call recursively when cycle_context equals true
     for location in context.paths:
         LOG.info('calc: matching files in %s' % (location))
-        ops.do_status_check()
+        ops2.do_status_check()
         if library.path_in_db(config.DOCUMENT, location):
             try:
                 # this should never be true, but a test
@@ -65,7 +65,7 @@ def calculate_matches(context, cycle_context=False):
 
                 for key in cache.get_doc_keys(config.DOCUMENT):
                     opcount += 1
-                    ops.do_status_check(opcount)
+                    ops2.do_status_check(opcount)
 
                     values = config.redis.hgetall(key)
                     if 'esid' not in values:
@@ -75,7 +75,7 @@ def calculate_matches(context, cycle_context=False):
                 do_match_op(values['esid'], values['absolute_path'])
 
                 for matcher in matchers:
-                    ops.write_ops_for_path(location, 'match', matcher.name)
+                    ops2.write_ops_for_path(location, 'match', matcher.name)
                     cache.clear_matches(matcher.name, location)
 
             except Exception, err:
@@ -96,12 +96,12 @@ def do_match_op(esid, absolute_path):
         try:
             # if library.doc_exists_for_path(media.document_type, media.absolute_path):
             for matcher in matchers:
-                if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
+                if ops2.operation_in_cache(media.absolute_path, 'match', matcher.name):
                     LOG.debug('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))
                 else:
                     LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
                     matcher.match(media)
-                    ops.write_ops_for_path(media.absolute_path, 'match', matcher.name)
+                    ops2.write_ops_for_path(media.absolute_path, 'match', matcher.name)
 
         except AssetException, err:
             LOG.warning(': '.join([err.__class__.__name__, err.message]))
@@ -132,8 +132,8 @@ def get_matchers():
 
 def record_match_ops_complete(matcher, media, path, ):
     try:
-        ops.record_op_complete(media, matcher.name, 'match')
-        if ops.operation_completed(media, matcher.name, 'match') == False:
+        ops2.record_op_complete(media, matcher.name, 'match')
+        if ops2.operation_completed(media, matcher.name, 'match') == False:
             raise AssetException('Unable to store/retrieve operation record', media)
     except AssetException, err:
         LOG.warning(': '.join([err.__class__.__name__, err.message]))

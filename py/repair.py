@@ -1,6 +1,6 @@
 import os, sys, traceback, logging
 
-import config, cache, start, sql, ops, search
+import config, cache, start, sql, ops2, search
 
 from assets import Asset, Document
 
@@ -79,9 +79,9 @@ def record_matches_as_ops():
         media.esid = r[0]
         media.absolute_path = r[2]
 
-        if ops.operation_completed(media, matcher_name, 'match') == False:
-            ops.record_op_begin(media, matcher_name, 'match')
-            ops.record_op_complete(media, matcher_name, 'match')
+        if ops2.operation_completed(media, matcher_name, 'match') == False:
+            ops2.record_op_begin(media, matcher_name, 'match')
+            ops2.record_op_complete(media, matcher_name, 'match')
 
 
 def reset_all(es):

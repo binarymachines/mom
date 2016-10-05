@@ -1,39 +1,16 @@
 #! /usr/bin/python
 
-import os, sys, traceback, time, datetime, logging
-from elasticsearch import Elasticsearch
+import datetime
+import logging
+
 import redis
 
-import cache, config, start, assets, sql, util, ops
+import cache
+import config
+import sql
+import start
 
 LOG = logging.getLogger('console.log')
-
-def check_for_reconfig_request():
-    key = '-'.join(['exec', 'record', str(config.pid)])
-    values = config.redis.hgetall(key)
-    return 'start_time' in values and values['start_time'] == config.start_time and values['reconfig_requested'] == 'True'
-
-
-def remove_reconfig_request():
-    key = '-'.join(['exec', 'record', str(config.pid)])
-
-    values = { 'reconfig_requested': False }
-    config.redis.hmset(key, values)
-
-
-def check_for_stop_request():
-    key = '-'.join(['exec', 'record', str(config.pid)])
-    values = config.redis.hgetall(key)
-    return 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True'
-
-
-def flush_all():
-    flush_cache()
-    try:
-        LOG.info('flushing redis database')
-        config.redis.flushall()
-    except Exception, err:
-        LOG.warn(err.message)
 
 
 def flush_cache():
@@ -48,30 +25,6 @@ def flush_cache():
         cache.clear_docs(config.DOCUMENT, '/')
     except Exception, err:
         LOG.warn(err.message)
-
-
-def do_status_check(opcount=None):
-
-    # if opcount is not None and opcount % config.check_freq != 0: return
-
-    if check_for_reconfig_request():
-        start.execute()
-        remove_reconfig_request()
-
-    if check_for_stop_request():
-        print 'stop requested, terminating...'
-        cache.write_paths()
-        sys.exit(0)
-
-
-def check_for_bugs():
-    if config.check_for_bugs: raw_input('check for bugs')
-
-
-def record_exec():
-    key = '-'.join(['exec', 'record', str(config.pid)])
-    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
-    config.redis.hmset(key, values)
 
 
 # cache and database

@@ -7,8 +7,10 @@ import logging
 import redis
 
 import config
+from ops import flush_cache
+from ops2 import LOG
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger('cache2.log')
 
 
 LIST = 'list'
@@ -16,19 +18,22 @@ HASH = 'hashset'
 DELIM = ':'
 WILDCARD = '*'
 
+#TODO: In order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
 #  these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
 # identifiers is an arbitrary list which will be separated by DELIM
-def key_name(key_group, identifiers):
+def key_name(key_group, *identifiers):
     """get a compound key name for a given identifier and a specified record type"""
-    result = DELIM.join([key_group, DELIM.join(identifiers)])
+    result = DELIM.join([key_group, identifiers]) if isinstance(identifiers, basestring) or isinstance(identifiers, unicode) \
+        else DELIM.join([key_group, DELIM.join(identifiers)])
+
     LOG.debug('complex_key_name(key_group=%s, identifier=%s) returns %s', key_group, identifiers, result)
-    return result
+    return rectify_key(result)
 
 
 def create_key(key_group, *identifiers, **values):
     """create a new compound key"""
 
-    key = key_name(key_group, identifiers)
+    key = key_name(key_group, *identifiers)
     if len(values) == 0:
         val = None
         result = config.redis.rpush(key, val)
@@ -55,20 +60,22 @@ def delete_key_group(key_group):
         delete_key(key)
 
 
-def delete_keys(key_group, identifier):
-    for key in get_keys(key_group, identifier):
+def delete_keys(key_group, *identifier):
+    for key in get_keys(key_group, *identifier):
         delete_key(key)
 
 
-def get_key(key_group, identifier):
-    result = get_keys(key_group, identifier)
+def get_key(key_group, *identifier):
+    result = get_keys(key_group, *identifier)
     LOG.debug('get_key(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     if len(result) is 1:
         return result[0]
+    # (else)
+    return create_key(key_group, *identifier)
 
 
-def get_key_value(key_group, identifier):
-    key = get_key(key_group, identifier)
+def get_key_value(key_group, *identifier):
+    key = get_key(key_group, *identifier)
     value = config.redis.lrange(key, 0, 1)
     if len(value) == 1:
         return value[0]
@@ -76,16 +83,18 @@ def get_key_value(key_group, identifier):
 
 
 def get_keys(key_group, *identifier):
-    search = key_group + WILDCARD if identifier is () else key_name(key_group, identifier) + WILDCARD
+    search = key_group + WILDCARD if identifier is () else key_name(key_group, *identifier) + WILDCARD
     result = config.redis.keys(search)
     LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
-def key_exists(key_group, identifier):
-     key = key_name(key_group, identifier)
+def key_exists(key_group, *identifier):
+     key = key_name(key_group, *identifier)
      return config.redis.exists(key)
 
+def rectify_key(key):
+    return key.replace(" ", "").replace('[', '').replace(']', '')
 
 # Ordered List functions
 
@@ -117,6 +126,13 @@ def get_hash(key_group, identifier):
     return result
 
 
+def get_hash2(key):
+    identifier = DELIM.join([HASH, key])
+    result = config.redis.hgetall(identifier)
+    LOG.debug('get_hash2ss(key=%s) returns %s' % (key, result))
+    return result
+
+
 def get_hashes(key_group, *identifiers):
     # key = DELIM.join([key_group, HASH, identifier])
 
@@ -144,6 +160,11 @@ def set_hash(key_group, identifier, values):
     key = DELIM.join([key_group, HASH, identifier])
     result = config.redis.hmset(key, values)
     LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
+
+def set_hash2(key, values):
+    identifier = DELIM.join([HASH, key])
+    result = config.redis.hmset(identifier, values)
+    LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
 
 
 # lists
@@ -192,3 +213,12 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+def flush_all():
+    flush_cache()
+    try:
+        LOG.info('flushing redis database')
+        config.redis.flushall()
+    except Exception, err:
+        LOG.warn(err.message)
