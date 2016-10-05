@@ -1,6 +1,6 @@
 import os, sys, traceback, logging
 
-import config, cache, start, sql, ops2, search
+import config, es_doc_cache, start, sql, ops2, search
 
 from assets import Asset, Document
 
@@ -83,16 +83,6 @@ def record_matches_as_ops():
             ops2.record_op_begin(media, matcher_name, 'match')
             ops2.record_op_complete(media, matcher_name, 'match')
 
-
-def reset_all(es):
-    double_check = raw_input("This will wipe all data! Type 'I really want to do this' to proceed'")
-    if double_check == 'I really want to do this':
-        search.clear_index('media')
-        search.clear_index('media2')
-        search.clear_index('media3')
-        # sql.truncate('es_document')
-        # sql.truncate('matched')
-        # sql.truncate('op_record')
 
 # def transform_docs():
 #

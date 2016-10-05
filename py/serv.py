@@ -96,6 +96,7 @@ class ServiceProcess(object):
     def dec_mode_priority(self, mode, dec_amount=None):
         mode.priority -= mode.dec_priority_amount if dec_amount is None else dec_amount
 
+
 class Service(object):
     def __init__(self, name=None):
         self.name = SERVICE_NAME if name is None else name

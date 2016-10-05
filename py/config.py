@@ -7,6 +7,7 @@ filename = "config.ini"
 launched = False
 start_time = datetime.datetime.now()
 
+old_pid = None
 pid = os.getpid()
 path_cache_size = None
 op_life = 90

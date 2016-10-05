@@ -9,7 +9,9 @@ import datetime
 
 from docopt import docopt
 
-import config, docserv, start, ops, library
+import config
+import docserv
+import start
 import ops2
 import pathutil
 import search
@@ -83,7 +85,7 @@ def main(args):
             # b = create_proc('b service', context)
             # c = create_proc('c service', context)
 
-            reset()
+            # reset()
             service.queue(a)
 
             # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process

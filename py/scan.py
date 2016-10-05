@@ -14,13 +14,13 @@ import traceback
 
 from docopt import docopt
 
-import cache
+import es_doc_cache
 import config
 import library
 import ops2
 import pathutil
 import search
-import sql
+
 from context import DirectoryContext
 from errors import AssetException
 from walk import Walker
@@ -45,31 +45,27 @@ class Scanner(Walker):
         pass
 
     def after_handle_root(self, root):
-        # if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
         folder = library.get_cached_directory()
         if folder is not None and folder.absolute_path == root:
-
-            # for file_handler in self.reader.get_file_handlers():
-                if not ops2.operation_completed(folder, SCAN, 'scanner'):
-                    ops2.record_op_complete(folder, SCAN, 'scanner')
-
+            if not ops2.operation_completed(folder, SCAN, 'scanner'):
+                ops2.record_op_complete(folder, SCAN, 'scanner')
         library.set_active(None)
 
     def before_handle_root(self, root):
         library.clear_directory_cache()
-        if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()) or \
-            ops2.operation_in_cache(root, SCAN, 'scanner'): # and not self.do_deep_scan:
-                return
+        if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
+        if ops2.operation_in_cache(root, SCAN, 'scanner') and not self.do_deep_scan: return
+        ops2.do_status_check()
 
         try:
-            if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
-                library.set_active(root)
+            library.set_active(root)
 
         except AssetException, err:
-            library.clear_directory_cache()
             LOG.warning(': '.join([err.__class__.__name__, err.message]))
             traceback.print_exc(file=sys.stdout)
             library.handle_asset_exception(err, root)
+            library.clear_directory_cache()
+
 
     def handle_root(self, root):
         folder = library.get_cached_directory()
@@ -93,17 +89,9 @@ class Scanner(Walker):
     # why is this not handle_file() ???
     def process_file(self, filename, reader, file_handler_name):
         ops2.do_status_check()
-        if reader.has_handler_for(filename):
-            media = library.get_media_object(filename)
-            if media is None or media.ignore() or media.available == False: return
-
-            # scan tag info if this file hasn't been assigned an esid
-            # TODO: test for scanning by individual readers
-            # if media.esid is not None or library.doc_exists_for_path(config.DOCUMENT, media.absolute_path):
-                # LOG.info("document exists, skipping file: %s" % (media.short_name()))
-                # return
-
-            reader.read(media, file_handler_name)
+        media = library.get_media_object(filename, fail_on_fs_missing=True)
+        if media is None or media.ignore() or media.available == False: return
+        reader.read(media, file_handler_name)
 
     def path_expanded(self, path):
         expanded = False
@@ -127,12 +115,12 @@ class Scanner(Walker):
 
                 LOG.info('scanning path %s' % path)
 
-                cache.cache_docs(config.DIRECTORY, path)
+                es_doc_cache.cache_docs(config.DIRECTORY, path)
                 # move this to reader
-                ops2.cache_ops(False, path, SCAN)
+                ops2.cache_ops(path, SCAN)
                 self.walk(path)
                 ops2.write_ops_for_path(path, SCAN)
-                cache.clear_docs(config.DIRECTORY, path)
+                es_doc_cache.clear_docs(config.DIRECTORY, path)
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))
 

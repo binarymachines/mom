@@ -34,18 +34,6 @@ def create_index(index):
 def connect(hostname=config.es_host, port_num=config.es_port):
     LOG.info('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
     es = Elasticsearch([{'host': hostname, 'port': port_num}])
-
-    # try:
-    #     index_exists = es.indices.exists(config.es_index)
-    #     if index_exists is False:
-    #         raise Exception("Index %s does not exist." % config.es_index)
-    # except ConnectionError, err:
-    #     LOG.error("Elasticsearch: %s" % err[2][1])
-    #     raise err
-    # except Exception, err:
-    #     LOG.error(err.message)
-    #     raise err
-
     return es
 
 
@@ -99,11 +87,3 @@ def unique_doc_id(doc_type, attribute, value):
         return docs[0]['_id']
     # else
     raise Exception("Attribute %s does not identify a unique document" % attribute)
-
-
-def main():
-    pass
-
-
-if '__name__' is '__main__':
-    main()

@@ -50,7 +50,6 @@ class Context(object):
         if consumer not in self.fifos:
             self.fifos[consumer] = []
         self.fifos[consumer].insert(0, value)
-        self.fifos[consumer].sort()
 
     def push_stack(self, consumer, value):
         if consumer not in self.stacks:
@@ -72,7 +71,7 @@ class DirectoryContext(Context):
         self.paths = paths
         self.fake_path_queue = {}
         self.cycle = cycle
-        self.always_peek_fifo = False
+        self.always_peek_fifo = True
 
     def get_active(self, consumer):
         if consumer in self.fake_path_queue:
