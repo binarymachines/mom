@@ -31,7 +31,7 @@ def execute(args):
 
         # TODO write pidfile_TIMESTAMP and pass filenames to command.py
         if not config.launched:
-            config.pid = os.getpid()
+            # config.pid = os.getpid()
             write_pid_file()
 
         # elasticsearch
@@ -90,7 +90,7 @@ def execute(args):
             config.display_status()
         except Exception, err:
             config.launched = False
-            sLOG.error(err.message)
+            LOG.error(err.message)
             traceback.print_exc(file=sys.stdout)
             print 'Initialization failure'
             raise err
@@ -152,6 +152,16 @@ def start_logging():
 
     setup_log('elasticsearch.log', 'elasticsearch.trace', logging.INFO)
     setup_log('console.log', 'console.log', logging.DEBUG)
+
+
+# pids
+
+def read_pid():
+    f = open('pid', 'rt')
+    pid = f.readline()
+    f.close()
+    return pid
+
 
 def write_pid_file():
     f = open('pid', 'wt')

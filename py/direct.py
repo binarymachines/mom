@@ -22,6 +22,8 @@ class Directive:
             if self.last_applied is None:
                 self.applied = datetime.datetime.now()
             #TODO: else compare now to self_applied and respond false if time too short
+            # days = 0 - config.op_life
+            # start = datetime.date.today() + datetime.timedelta(days)
 
         for requirement in self.requirements:
             if requirement['condition'] and requirement['condition'](target):
