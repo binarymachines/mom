@@ -24,8 +24,8 @@ class OperationRecord(Record):
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
     rows = retrieve_ops__data(apply_lifespan, path, operation, operator)
     for row in rows:
-        key = cache2.create_key(OPS, operation, operator, path, value=path)
-        cache2.set_hash2(key, {'persisted': row[0]})
+        key = cache2.create_key(OPS, row[0], row[1], row[2], value=path)
+        cache2.set_hash2(key, {'persisted': True, 'operation_name': row[0], 'operator_name':  row[1], 'target_path': row[2] })
 
 
 def flush_cache():
@@ -123,15 +123,11 @@ def check_for_bugs():
 
 
 def check_for_reconfig_request():
-    # key = '-'.join(['exec', 'record', str(config.pid)])
-    # values = config.redis.hgetall(key)
     values = cache2.get_hash(OPS, EXEC)
     return 'start_time' in values and values['start_time'] == config.start_time and values['reconfig_requested'] == 'True'
 
 
 def check_for_stop_request():
-    # key = '-'.join(['exec', 'record', str(config.pid)])
-    # values = config.redis.hgetall(key)
     values = cache2.get_hash(OPS, EXEC)
     return 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True'
 
@@ -153,13 +149,10 @@ def do_status_check(opcount=None):
 def record_exec():
     values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
     cache2.create_key(OPS, EXEC)
-    cache2.set_hash('ops', 'platform execution', values)
-    # key = '-'.join(['exec', 'record', str(config.pid)])
-    # config.redis.hmset(key, values)
+    cache2.set_hash(OPS, EXEC, values)
 
 
 def remove_reconfig_request():
-    # key = '-'.join(['exec', 'record', str(config.pid)])
-    # config.redis.hmset(key, values)
-    values = { 'reconfig_requested': False }
-    cache2.set_hash('ops', 'platform execution', values)
+    values = cache2.get_hash(OPS, EXEC)
+    values['reconfig_requested'] = False
+    cache2.set_hash(OPS, EXEC, values)

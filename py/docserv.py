@@ -3,7 +3,7 @@ import logging
 from serv import ServiceProcess
 
 from context import DirectoryContext
-from handle import MediaServiceProcessHandler
+from docservhandle import DocumentServiceProcessHandler
 from modes import Mode, Selector
 
 import config
@@ -12,10 +12,10 @@ import search
 LOG = logging.getLogger('console.log')
 
 
-class MediaServiceProcess(ServiceProcess):
+class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, stop_on_errors=True):
         # super must be called before accessing selector instance
-        super(MediaServiceProcess, self).__init__(name, context, stop_on_errors)
+        super(DocumentServiceProcess, self).__init__(name, context, stop_on_errors)
 
     # selector callbacks
     def after_switch(self, selector, mode):
@@ -28,7 +28,7 @@ class MediaServiceProcess(ServiceProcess):
     def setup(self):
         config.es = search.connect()
 
-        self.handler = MediaServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
+        self.handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
         self.startmode = Mode("STARTUP", self.handler.start, 0)
         self.evalmode = Mode("EVAL", self.handler.do_eval, 10)
@@ -85,7 +85,7 @@ class MediaServiceProcess(ServiceProcess):
 
 def create_service_process(identifier, context, alternative=None):
     if alternative is None:
-        return MediaServiceProcess(identifier, context)
+        return DocumentServiceProcess(identifier, context)
     return alternative(identifier, context)
 
 
@@ -103,7 +103,7 @@ def before(process):
 def main():
     config.start_console_logging()
     context = DirectoryContext('music', ['/media/removable/Audio/music/albums/industrial'], ['mp3'])
-    process = MediaServiceProcess('_Media Hound_', context, True)
+    process = DocumentServiceProcess('_Media Hound_', context, True)
     process.restart_on_fail = False
     process.run(before, after)
 

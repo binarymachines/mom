@@ -27,9 +27,9 @@ def key_name(key_group, *identifier):
     result = DELIM.join([key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
         else DELIM.join([key_group, DELIM.join(identifier)])
 
+    result = util.str_clean4comp(result, ':', '*')
     # LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
-    return util.str_clean4comp(result, ':')
-
+    return result
 
 def create_key(key_group, *identifier, **values):
     """create a new compound key"""
@@ -128,6 +128,13 @@ def delete_hash(key_group, identifier):
     hkeys = config.redis.hkeys(key)
     for hkey in hkeys:
         config.redis.hdel(key, hkey)
+
+
+def delete_hash2(key):
+    identifier = DELIM.join([HASH, key])
+    hkeys = config.redis.hkeys(identifier)
+    for hkey in hkeys:
+        config.redis.hdel(identifier, hkey)
 
 
 def get_hash(key_group, identifier):

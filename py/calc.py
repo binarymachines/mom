@@ -12,12 +12,14 @@ import logging
 import sys
 import traceback
 
+import cache2
 import es_doc_cache
 import config
 import library
 import ops2
 import search
 import sql
+
 from assets import Document
 from context import DirectoryContext
 from errors import AssetException
@@ -28,7 +30,6 @@ LOG = logging.getLogger('console.log')
 
 def all_matchers_have_run(matchers, media):
     skip_entirely = True
-    # paths = []
     for matcher in matchers:
         if not ops2.operation_in_cache(media.absolute_path, 'match', matcher.name):
             skip_entirely = False
@@ -88,7 +89,7 @@ def calculate_matches(context, cycle_context=False):
 
 def do_match_op(esid, absolute_path):
 
-    media = library.get_media_object(esid=esid, attach_doc=True)
+    media = library.get_media_object(esid, attach_doc=True)
     matchers = get_matchers()
 
     if media.doc and all_matchers_have_run(matchers, media):
@@ -121,26 +122,26 @@ def do_match_op(esid, absolute_path):
 
 
 def get_matchers():
+    keygroup = 'calc'
+    identifier = 'matchers'
+    if not cache2.key_exists(keygroup, identifier):
+        rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
+        for row in rows:
+            key = cache2.create_key(keygroup, identifier, row[1], row[2])
+            cache2.set_hash(key, { 'name': row[1], 'query_type': row[2], 'minimum_score': row[3] })
+
+    matcherdata = cache2.get_hashes(keygroup, identifier)
+
     matchers = []
-    rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
-    for r in rows:
-        matcher = ElasticSearchMatcher(r[1], config.DOCUMENT)
-        matcher.query_type = r[2]
-        matcher.minimum_score = r[3]
-        LOG.info('matcher %s configured' % (r[1]))
+    for item in matcherdata:
+        matcher = ElasticSearchMatcher(item['name'], config.DOCUMENT)
+        matcher.query_type = item['query_type']
+        matcher.minimum_score = item['minimum_score']
+        LOG.info('matcher %s configured' % (item['name']))
         matchers += [matcher]
 
     return matchers
 
-def record_match_ops_complete(matcher, media, path, ):
-    try:
-        ops2.record_op_complete(media, matcher.name, 'match')
-        if ops2.operation_completed(media, matcher.name, 'match') == False:
-            raise AssetException('Unable to store/retrieve operation record', media)
-    except AssetException, err:
-        LOG.warning(': '.join([err.__class__.__name__, err.message]))
-        traceback.print_exc(file=sys.stdout)
-        library.handle_asset_exception(err, path)
 
 def main(args):
     config.es = search.connect()

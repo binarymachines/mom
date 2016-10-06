@@ -1,7 +1,7 @@
 -- retrieve_complete_ops_operator: get all matching operations for the specified operator
 -- params: operator_name, operation_name, target_path
 --
-SELECT DISTINCT target_path
+SELECT DISTINCT operation_name, operator_name, target_path, target_esid, start_time, end_time
   FROM op_record
  WHERE operator_name = '%s'
    AND operation_name = '%s'

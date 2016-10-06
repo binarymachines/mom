@@ -12,13 +12,10 @@ import sql
 # return locals()
 # doc_name = property(**doc_name()))
 
-def query(field_names, field_values):
-    
-    formatted_values = [sql.quote_if_string(value) for value in field_values]
 
 
 def main():
-    query(['id', 'first_name', 'last_name'], ['5', 'Mark', 'Pippins'])
+    pass
 
 if __name__ == '__main__':
     main()
