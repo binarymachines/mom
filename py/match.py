@@ -21,8 +21,10 @@ class MediaMatcher(object):
         self.name = name
         self.minimum_score = 0
 
+
     def match(self, media):
         raise BaseClassException(MediaMatcher)
+
 
     # TODO: assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
@@ -36,14 +38,17 @@ class MediaMatcher(object):
         if len(rows) == 1:
             return True
 
+
     def match_comparison_result(self, orig, match):
         if orig['_source']['file_size'] > match['_source']['file_size']: return '>'
         if orig['_source']['file_size'] == match['_source']['file_size']: return '='
         if orig['_source']['file_size'] < match['_source']['file_size']: return '<'
 
+
     # TODO: Oh, come on, you wrote this?
     def match_extensions_match(self, orig, match):
         return 1 if orig['_source']['file_ext'] == match['_source']['file_ext'] else 0
+
 
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
         if self.match_recorded(media_id, match_id) == False and self.match_recorded(match_id, media_id):
@@ -76,6 +81,7 @@ class ElasticSearchMatcher(MediaMatcher):
         if len(self.comparison_fields) > 0 and self.query_type is not None:
             LOG.info('%s %s matcher configured.' % (self.name, self.query_type))
 
+
     def get_query(self, media):
 
         values = {}
@@ -86,12 +92,14 @@ class ElasticSearchMatcher(MediaMatcher):
         qb = Builder(config.es_host, config.es_port)
         return qb.get_query(self.query_type, self.match_fields, values)
 
+
     def print_match_query_debug_header(self, media, query):
         print 'matching: %s' % (media.absolute_path)
         print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
         pp.pprint(query)
         print '\n'
         query_printed = True
+
 
     def print_match_query_debug_footer(self, media, query, match):
 
@@ -104,13 +112,12 @@ class ElasticSearchMatcher(MediaMatcher):
                 if field in match['_source']:
                     matchrecord[field] = match['_source'][field]
 
-
         pp.pprint(matchrecord)
         print '\n'
 
 
     def match(self, media):
-        ops2.record_op_begin(media, self.name, 'match')
+        ops2.record_op_begin(media, 'match', self.name)
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
         previous_matches = es_doc_cache.get_matches(self.name, media.esid)
@@ -155,7 +162,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
-        ops2.record_op_complete(media, self.name, 'match')
+        ops2.record_op_complete(media, 'match', self.name)
 
 
 class FolderNameMatcher(MediaMatcher):

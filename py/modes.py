@@ -185,7 +185,6 @@ class Selector:
         return results
 
     def select(self):
-
         applicable = self._peep_()
         if len(applicable) == 1:
             applicable[0].end.active_rule = applicable[0]
@@ -328,6 +327,7 @@ class Engine:
                     # alternative paths instead of just going to the previous mode, which might result in mode oscillation
                     if selector.rewind_on_no_destination and selector.previous is not None:
                         LOG.error("%s Handling error '%s' in selector %s, rewinding to %s" % (self.name, error.message, selector.name, selector.previous.name))
+                        # suspend this mode.
                         selector.switch(selector.previous, True)
                     else: raise error
                 except Exception, error:

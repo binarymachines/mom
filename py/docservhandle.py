@@ -3,12 +3,12 @@ import sys, os, traceback, logging, random
 from modes import Selector, Mode
 from context import DirectoryContext
 
-import config, calc, match, scan, report
+import config, calc, scan, report
 
 LOG = logging.getLogger('console.log')
 
 
-class MediaServiceProcessHandler():
+class DocumentServiceProcessHandler():
     def __init__(self, owner, name, selector, context):
         self.context = context
         self.owner = owner
@@ -17,11 +17,11 @@ class MediaServiceProcessHandler():
 
         random.seed()
 
-
     # selector callbacks
 
     def after_switch(self, selector, mode):
         pass
+
 
     def before_switch(self, selector, mode):
         pass
@@ -44,22 +44,21 @@ class MediaServiceProcessHandler():
         if possible in [self.owner.fixmode, self.owner.reportmode, self.owner.evalmode, self.owner.reqmode, self.owner.endmode]:
              return True
 
-        if possible == self.owner.matchmode:
-            if self.context.has_next('match'):
-                return config.match
+        if possible is self.owner.scanmode and self.context.has_next('scan'):
+            return config.scan
 
-        if possible == self.owner.scanmode:
-            # if self.context.has_next('scan'):
-                # return config.scan
-            return True
+        if possible is self.owner.matchmode and self.context.has_next('match'):
+            return config.match
 
-    # callbacks for rule paths to specified modes
+    # start
 
     def started(self): LOG.info("%s process has started" % self.name)
 
     def starting(self): LOG.info("%s process will start" % self.name)
 
     def start(self): LOG.info("%s process is starting" % self.name)
+
+    # end
 
     def ended(self): LOG.info("%s process has ended" % self.name)
 
@@ -68,22 +67,22 @@ class MediaServiceProcessHandler():
     def end(self): LOG.info('%s handling shutdown request, clearing caches, writing data' % self.name)
 
     # eval
-    def do_eval(self):
-        LOG.info('%s evaluating' % self.name)
+
+    def do_eval(self): LOG.info('%s evaluating' % self.name)
         # self.owner.fixmode.priority += 1
 
     # fix
+
     def after_fix(self):
         self.after()
         LOG.info('%s clearing caches' % self.name)
 
-    def before_fix(self):
-        LOG.info('%s checking cache size'  % self.name)
+    def before_fix(self): LOG.info('%s checking cache size'  % self.name)
 
-    def do_fix(self):
-        LOG.info('%s writing data, generating work queue' % self.name)
+    def do_fix(self): LOG.info('%s writing data, generating work queue' % self.name)
 
     # report
+
     def do_report(self):
         LOG.info('%s generating report' % self.name)
         LOG.info('%s took %i steps.' % (self.selector.name, self.selector.step_count))
@@ -92,16 +91,19 @@ class MediaServiceProcessHandler():
                 LOG.info('%s: times activated = %i, priority = %i, error count = %i' % (mode.name, mode.times_activated, mode.priority, mode.error_count))
 
     # match
+
     def before_match(self):
         self.before()
         dir = self.context.get_next('match')
         LOG.info('%s preparing for matching, caching data for %s' % (self.name, dir))
+
 
     def after_match(self):
         self.after()
         dir = self.context.get_active ('match')
         LOG.info('%s done matching in %s, clearing cache..' % (self.name, dir))
         # self.reportmode.priority += 1
+
 
     def do_match(self):
         dir = self.context.get_active ('match')
@@ -113,17 +115,20 @@ class MediaServiceProcessHandler():
             LOG.info(err.message)
 
     # requests
-    def do_reqs(self):
-        LOG.info('%s handling requests..' % self.name)
+
+    def do_reqs(self): LOG.info('%s handling requests..' % self.name)
 
     # scan
+
     def before_scan(self):
         LOG.info('%s preparing to scan, caching data' % self.name)
         self.before()
 
+
     def after_scan(self):
         self.after()
         LOG.info('%s done scanning, clearing cache..' % self.name)
+
 
     def do_scan(self):
         dir = self.context.get_next('scan')
@@ -133,13 +138,14 @@ class MediaServiceProcessHandler():
         except Exception, err:
             LOG.info(err.message)
 
-    # decisions and randomness
-    def definitely(self, selector, active, possible):
-        return True
+    # decisions and guesses
+
+    def definitely(self, selector, active, possible): return True
 
     def maybe(self, selector, active, possible):
         result = bool(random.getrandbits(1))
         return result
+
 
     def possibly(self, selector, active, possible):
         count = 0

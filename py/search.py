@@ -28,7 +28,7 @@ def create_index(index):
         }
     }
     res = config.es.indices.create(index, request_body)
-    LOG.info(" response: '%s'" % res)
+    LOG.info("response: '%s'" % res)
 
 
 def connect(hostname=config.es_host, port_num=config.es_port):

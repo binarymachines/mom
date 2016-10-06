@@ -12,6 +12,7 @@ import os, sys, traceback, pprint, subprocess
 from docopt import docopt
 
 import config, start, sql, search
+import read
 from assets import Document
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -310,11 +311,11 @@ def get_media_meta_data(es, esid, media_data):
         media_data['file_size'] = doc['_source']['file_size']
 
         tag_data = {}
-        for field in config.FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in read.FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
 
-        for field in config.SUB_FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in read.SUB_FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
 

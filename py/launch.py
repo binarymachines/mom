@@ -65,7 +65,8 @@ def reset():
         search.create_index(config.es_index)
 
     config.redis.flushdb()
-    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
+
+    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched', 'op_request']:
         query = 'delete from %s where 1 = 1' % (table)
         sql.execute_query(query)
 
@@ -75,9 +76,11 @@ def main(args):
     if service is not None:
         try:
             create_proc = docserv.create_service_process
+
             path_args = start.get_paths(args)
-            context = DirectoryContext('path context', pathutil.get_locations() if path_args is None else path_args)
-            context.peep_fifo = True
+            paths = pathutil.get_locations() if path_args is None else path_args
+
+            context = DirectoryContext('path context', paths)
 
             a = create_proc('a service', context)
             a.after = after

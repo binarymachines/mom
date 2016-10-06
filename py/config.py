@@ -1,7 +1,13 @@
 #! /usr/bin/python
 
-import sys, os, logging, datetime
+import datetime
+import logging
+import os
+
 import redis
+
+DOCUMENT = 'document'
+DIRECTORY = 'directory'
 
 filename = "config.ini"
 launched = False
@@ -36,30 +42,14 @@ deep = False
 no_scan = False
 no_match = False
 
-DOCUMENT = 'document'
-DIRECTORY = 'directory'
-
-FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON', 'TPUB', 'TRCK', 'MCID', 'TSSE', 'TLAN', 'TSO2', 'TSOP', 'TMED', 'UFID']
-SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']
-
-def display_status():
-    print """Process ID: %i""" % pid
-    print """Redis Host: %s""" % redis_host
-    # print""""Redis Port: %s.""" % config.redis_host
-    print 'cache db size: %i' % (redis.dbsize())
-    print """Elasticsearch Host: %s""" % es_host
-    print """Elasticsearch Port: %i""" % es_port
-    print """Elasticsearch Index: %s""" % es_index
-    print """MySQL Host: %s""" % mysql_host
-    print """MySQL db: %s""" % mysql_db
-    # print"""MySQL Host: %s.""" % mysql_host
-    # print"""MySQL Host: %s.""" % mysql_host
 
 def start_console_logging():
-    # console handler
+    logging_started = True
+
+    s# console handler
     console_log = 'console.log'
     CONSOLE = "logs/%s" % (console_log)
-    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.DEBUG) #, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
     console = logging.StreamHandler()
     console.setLevel(logging.DEBUG)

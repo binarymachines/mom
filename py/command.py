@@ -7,26 +7,32 @@ import os, sys, docopt
 
 import redis
 
-import config
+import cache2, config, ops2
 
-def connect_to_redis():
+def _connect_to_redis():
     return redis.Redis('localhost')
+
+def _set_field_value(field, value):
+    config.redis = _connect_to_redis()
+    values = cache2.get_hash(ops2.OPS, ops2.EXEC)
+    values[field] = value
+    cache2.set_hash(ops2.OPS, ops2.EXEC, values)
 
 def request_stop(pid):
     print 'submitting stop request for %s...' % (str(pid))
-    key = '-'.join(['exec', 'record', str(pid)])
-    red = connect_to_redis()
-
-    values = { 'stop_requested':True }
-    red.hmset(key, values)
+    _set_field_value('stop_requested', True)
+    # config.redis = connect_to_redis()
+    # values =cache2.get_hash(ops2.OPS, ops2.EXEC)
+    # values['stop_requested'] = True
+    # cache2.set_hash(ops2.OPS, ops2.EXEC, values)
 
 def request_reconfig(pid):
     print 'submitting reconfig request for %s...' % (str(pid))
-    key = '-'.join(['exec', 'record', str(pid)])
-    red = connect_to_redis()
-
-    values = { 'reconfig_requested':True }
-    red.hmset(key, values)
+    _set_field_value('reconfig_requested', True)
+    # config.redis = connect_to_redis()
+    # values =cache2.get_hash(ops2.OPS, ops2.EXEC)
+    # values['reconfig_requested'] = True
+    # cache2.set_hash(ops2.OPS, ops2.EXEC, values)
 
 def get_pid():
     f = open('pid', 'rt')

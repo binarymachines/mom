@@ -30,6 +30,7 @@ from read import Reader
 LOG = logging.getLogger('console.log')
 
 SCAN = 'scan'
+READ = 'read'
 
 class Scanner(Walker):
     def __init__(self, context):
@@ -74,9 +75,10 @@ class Scanner(Walker):
         LOG.debug('scanning folder: %s' % (root))
         ops2.record_op_begin(folder, SCAN, 'scanner')
         for file_handler in self.reader.get_file_handlers():
-            if not ops2.operation_completed(folder, SCAN, file_handler.name):
-                for filename in os.listdir(root):
-                    if not ops2.operation_in_cache(filename, SCAN, file_handler.name):
+            # if not ops2.operation_completed(folder, SCAN, file_handler.name):
+            for filename in os.listdir(root):
+                if not ops2.operation_in_cache(filename, READ, file_handler.name):
+                    if not ops2.operation_in_cache(filename, READ, file_handler.name):
                         self.process_file(os.path.join(root, filename), self.reader, file_handler.name)
 
         LOG.debug('done scanning folder: %s' % (root))
@@ -112,15 +114,16 @@ class Scanner(Walker):
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 if self.path_expanded(path):
                     continue
-
-                LOG.info('scanning path %s' % path)
-
-                es_doc_cache.cache_docs(config.DIRECTORY, path)
-                # move this to reader
+                LOG.debug('caching data..')
+                # es_doc_cache.cache_docs(config.DIRECTORY, path)
                 ops2.cache_ops(path, SCAN)
+                ops2.cache_ops(path, READ)
+                LOG.debug('walking path %s..' % path)
                 self.walk(path)
+                LOG.debug('clearing cache..')
                 ops2.write_ops_for_path(path, SCAN)
-                es_doc_cache.clear_docs(config.DIRECTORY, path)
+                ops2.write_ops_for_path(path, READ)
+                # es_doc_cache.clear_docs(config.DIRECTORY, path)
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))
 

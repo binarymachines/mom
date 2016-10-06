@@ -15,6 +15,9 @@ pp = pprint.PrettyPrinter(indent=4)
 
 LOG = logging.getLogger('console.log')
 
+DELIMITER = ','
+FIELDS = ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TDRC', 'TCON', 'TPUB', 'TRCK', 'MCID', 'TSSE', 'TLAN', 'TSO2', 'TSOP', 'TMED', 'UFID']
+SUB_FIELDS = [ 'CATALOGNUMBER', 'ASIN', 'MusicBrainz', 'BARCODE']
 
 class Reader:
     def __init__(self):
@@ -40,23 +43,6 @@ class Reader:
                     return True
 
     def read(self, media, file_handler_name=None):
-        # if media.esid is not None:
-        #     LOG.info("esid exists, skipping file: %s" % (media.short_name()))
-        #     return media
-
-        # esid = config.redis.hgetall(media.absolute_path)
-        # key = cache.get_doc_set_name(config.DOCUMENT)
-        # esid = cache.get_cached_esid(config.DOCUMENT, media.absolute_path)
-
-        # if esid is not None:
-        #     LOG.info("esid exists, skipping file: %s" % (media.short_name()))
-        #     media.esid = esid
-        #     return media
-
-        # if media.esid is None and library.doc_exists_for_path(config.DOCUMENT, media.absolute_path):
-        #     LOG.info("document exists, skipping file: %s" % (media.short_name()))
-        #     return media
-
 
         data = media.to_dictionary()
 
@@ -81,7 +67,7 @@ class Reader:
         else: raise ElasticSearchError(None, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
 
     def get_file_handlers(self):
-        return (MutagenID3(), )
+        return (MutagenID3(), MutagenFLAC(), )
 
 
 class FileHandler(object):
@@ -101,9 +87,18 @@ class MutagenFLAC(FileHandler):
         try:
             ops2.record_op_begin(media, self.name, 'read')
 
-            mutagen_mediafile = FLAC(media.absolute_path)
+            document = FLAC(media.absolute_path)
+            for tag in document.tags:
+                key = tag[0]
+                value = tag[1]
+                data[key] = value
 
-            # data['version'] = mutagen_mediafile.version
+            for tag in document.vc:
+                key = tag[0]
+                value = tag[1]
+                data[key] = value
+
+            # data['version'] = document.version
 
             return True
 
@@ -132,22 +127,21 @@ class MutagenID3(FileHandler):
     def read(self, media, data):
         try:
             ops2.record_op_begin(media, 'read', self.name)
-            mutagen_mediafile = ID3(media.absolute_path)
-            metadata = mutagen_mediafile.pprint() # gets all metadata
+            document = ID3(media.absolute_path)
+            metadata = document.pprint() # gets all metadata
             tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
             for tag in tags:
-                if tag[0] in config.FIELDS:
+                if tag[0] in FIELDS:
                     data[tag[0]] = tag[1]
                 if tag[0] == "TXXX":
-                    for sub_field in config.SUB_FIELDS:
+                    for sub_field in SUB_FIELDS:
                         if sub_field in tag[1]:
                             subtags = tag[1].split('=')
                             key=subtags[0].replace(' ', '_').upper()
                             data[key] = subtags[1]
 
-            data['version'] = mutagen_mediafile.version
-
+            data['version'] = document.version
             return True
 
         except ID3NoHeaderError, err:
@@ -194,7 +188,6 @@ class GenericText(FileHandler):
         pass
 
 
-DELIMITER = ','
 
 class DelimitedText(GenericText):
     def __init__(self, delimiter_char=DELIMITER):
@@ -203,4 +196,3 @@ class DelimitedText(GenericText):
 
     def read(self, media, data):
         pass
-

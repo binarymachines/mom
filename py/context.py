@@ -51,6 +51,11 @@ class Context(object):
             self.fifos[consumer] = []
         self.fifos[consumer].insert(0, value)
 
+    def rpush_fifo(self, consumer, value):
+        if consumer not in self.fifos:
+            self.fifos[consumer] = []
+        self.fifos[consumer].append(value)
+
     def push_stack(self, consumer, value):
         if consumer not in self.stacks:
             self.stacks[consumer] = []

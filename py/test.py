@@ -216,7 +216,6 @@ class TestOps2(unittest.TestCase):
     def test_write_ops_for_path(self):
         pass
 
-    s
 
 if __name__ == '__main__':
     unittest.main()

@@ -28,7 +28,6 @@ def get_cache_key():
     key = cache2.get_key(KEY_GROUP, str(config.pid))
     if key is None:
         key = cache2.create_key(KEY_GROUP, str(config.pid))
-
     return key
 
 
@@ -36,17 +35,17 @@ def get_cache_key():
 
 def cache_directory(folder):
     if folder is None:
-        cache2.set_hash(KEY_GROUP, get_cache_key(), { 'active:': None })
+        cache2.set_hash2(get_cache_key(), { 'active:': None })
     else:
-        cache2.set_hash(KEY_GROUP, get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.DIRECTORY })
+        cache2.set_hash2(get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.DIRECTORY })
 
 
 def clear_directory_cache():
-    cache2.delete_hash(KEY_GROUP, get_cache_key())
+    cache2.delete_hash2(get_cache_key())
 
 
 def get_cached_directory():
-    values = cache2.get_hash(KEY_GROUP, get_cache_key())
+    values = cache2.get_hash2(get_cache_key())
     if len(values) is 0: return None
     if not 'esid' in values and not 'absolute_path' in values:
         return None
