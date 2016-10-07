@@ -37,7 +37,7 @@ def connect(hostname=config.es_host, port_num=config.es_port):
     return es
 
 
-def delete_docs_(doc_type, attribute, value):
+def delete_docs(doc_type, attribute, value):
     docs = find_docs(doc_type, attribute, value)
     for doc in docs:
         # res =

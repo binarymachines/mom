@@ -46,7 +46,7 @@ no_match = False
 def start_console_logging():
     logging_started = True
 
-    s# console handler
+    # console handler
     console_log = 'console.log'
     CONSOLE = "logs/%s" % (console_log)
     logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')

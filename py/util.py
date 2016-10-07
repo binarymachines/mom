@@ -43,3 +43,7 @@ def main(args):
 if __name__ == '__main__':
     args = docopt(__doc__)
     main(args)
+
+
+def smash(str):
+    return str.lower().replace(' ', '').replace('_', '').replace(',', '').replace('.', '').replace(':', '')

@@ -28,9 +28,8 @@ def launch(args, run=True):
         start.execute(args)
 
         if config.launched:
-
-            service =  Service()
             ops2.record_exec()
+            service =  Service()
 
             if run:
                 paths = start.get_paths(args)
@@ -73,6 +72,7 @@ def reset():
 
 def main(args):
     service = launch(args, run=False)
+    # reset()
     if service is not None:
         try:
             create_proc = docserv.create_service_process
@@ -88,7 +88,6 @@ def main(args):
             # b = create_proc('b service', context)
             # c = create_proc('c service', context)
 
-            # reset()
             service.queue(a)
 
             # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process

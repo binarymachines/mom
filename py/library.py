@@ -84,11 +84,11 @@ def get_cached_directory():
 
 def sync_active_directory_state(folder):
     if folder is not None:
-        LOG.info('syncing metadata for %s' % folder.absolute_path)
+        # LOG.debug('syncing metadata for %s' % folder.absolute_path)
         if search.unique_doc_exists(config.DIRECTORY, 'absolute_path', folder.absolute_path):
             folder.esid = search.unique_doc_id(config.DIRECTORY, 'absolute_path', folder.absolute_path)
         else:
-            LOG.info('indexing %s' % folder.absolute_path)
+            # LOG.debug('indexing %s' % folder.absolute_path)
             json_str = json.dumps(folder.to_dictionary())
             # TODO:elasticsearch.exceptions.ConnectionTimeout, ConnectionTimeout caused by - ReadTimeoutError(HTTPConnectionPool(host='localhost', port=9200): Read timed out. (read timeout=10))
 
@@ -98,7 +98,12 @@ def sync_active_directory_state(folder):
                 folder.esid = res['_id']
                 # update MySQL
                 # alchemy.insert_asset(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
-                insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                try:
+                    insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                except Exception, err:
+                    if folder.esid is not None:
+                        config.es.delete(config.es_index, folder.document_type, folder.esid)
+                    raise err
             else:
                 raise Exception('Failed to write folder %s to Elasticsearch.' % folder.absolute_path)
 

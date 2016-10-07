@@ -22,12 +22,16 @@ WILDCARD = '*'
 #TODO: In order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
 #  these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
 # identifier is an arbitrary list which will be separated by DELIM
+
+def str_clean4key(input):
+    return util.str_clean4comp(input, DELIM, WILDCARD, '-', '_')
+
 def key_name(key_group, *identifier):
     """get a compound key name for a given identifier and a specified record type"""
-    result = DELIM.join([key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
+    keyname = DELIM.join([key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
         else DELIM.join([key_group, DELIM.join(identifier)])
 
-    result = util.str_clean4comp(result, ':', '*')
+    result = str_clean4key(keyname)
     # LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
     return result
 
@@ -82,7 +86,7 @@ def get_key_value(key_group, *identifier):
 
 def get_keys(key_group, *identifier):
     search = key_group + WILDCARD if identifier is () else key_name(key_group, *identifier) + WILDCARD
-    result = config.redis.keys(search)
+    result = config.redis.keys(str_clean4key(search))
     # result = config.redis.lrange(search, 0, -1)
     # LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result

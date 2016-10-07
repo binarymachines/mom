@@ -75,12 +75,17 @@ def get_active_document_formats():
     return get_items(keygroup, identifier)
 
 
+def is_curated(self, path):
+    curated = get_folder_constants('curated')
+    for pattern in curated:
+        if path.endswith(pattern):
+            return True
+
 def is_expunged(path):
     folders = ['[expunged]']
     for f in folders:
         if f in path:
             return True
-
 
 def is_filed(path):
     folders = ['/albums', '/compilations']
@@ -126,6 +131,8 @@ def is_webcast(path):
 
 def ignore(path):
     return path in get_folder_constants('ignore')
+
+
 
 
 def path_contains_album_folders(path):
