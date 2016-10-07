@@ -132,7 +132,6 @@ class Service(object):
         while len(self.active) > 0:
             for rec in self.active:
                 if rec['process'].selector.complete or rec['process'].selector.error_state:
-                    print '%s process %s has completed.' % (self.name, rec['process'].name)
                     self.inactive.append(rec)
 
                 elif not rec['process'].selector.complete and not rec['process'].threaded:
@@ -144,6 +143,3 @@ class Service(object):
     def queue(self, *process):
         for process in process:
             self.active.append(self.create_record(process))
-
-    # def queue_complex(self, process, before, after):
-    #     self.active.append(self.create_record(process))

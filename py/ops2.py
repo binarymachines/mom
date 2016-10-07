@@ -29,14 +29,8 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False):
 
 
 def flush_cache():
-    LOG.info('flushing cache')
-    try:
-        write_ops_for_path('/')
-        es_doc_cache.write_paths()
-        # clear_directory_cache('/', True)
-        es_doc_cache.clear_docs(config.DOCUMENT, '/')
-    except Exception, err:
-        LOG.warn(err.message)
+    LOG.info('updating op records..')
+    write_ops_for_path('/')
 
 
 def operation_completed(asset, operation, operator=None):
@@ -49,24 +43,26 @@ def operation_completed(asset, operation, operator=None):
 def operation_in_cache(path, operation, operator=None):
     key = cache2.get_key(OPS, operation, operator, path)
     values = cache2.get_hash2(key)
-    return 'persisted' in values and values['persisted'] == 'True'
+    result = 'persisted' in values and values['persisted'] == 'True'
+    #LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    return result
 
 
 def record_op_begin(asset, operation, operator):
-    LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, asset.absolute_path))
+    # LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, asset.absolute_path))
     key = cache2.create_key(OPS, operation, operator, asset.absolute_path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid,
         'target_path': asset.absolute_path }
-
     cache2.set_hash2(key, values)
 
 
-def record_op_complete(asset, operation, operator):
-    LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
+def record_op_complete(asset, operation, operator, op_failed=False):
+    # LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
 
     key = cache2.get_key(OPS, operation, operator, asset.absolute_path)
     values = cache2.get_hash2(key)
+    values['status'] = "FAIL" if op_failed else 'SUCCESS'
     values['end_time'] = datetime.datetime.now().isoformat()
     cache2.set_hash2(key, values)
 
@@ -74,7 +70,6 @@ def record_op_complete(asset, operation, operator):
     values = cache2.get_hash2(key)
     values['current_operation'] = None
     values['operation_status'] = None
-
     cache2.set_hash2(key, values)
 
 
@@ -142,7 +137,8 @@ def do_status_check(opcount=None):
 
     if check_for_stop_request():
         print 'stop requested, terminating...'
-        es_doc_cache.write_paths()
+        flush_cache()
+        es_doc_cache.flush_cache()
         sys.exit(0)
 
 

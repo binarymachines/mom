@@ -19,6 +19,9 @@ def get_doc_group(document_type):
     # TODO: smash these keys after this module passes unit testing
     return DELIM.join([document_type, 'index'])
 
+def flush_cache():
+    write_paths()
+    clear_docs(config.DOCUMENT, '/')
 
 # es documents
 

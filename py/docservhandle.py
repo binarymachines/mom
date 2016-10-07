@@ -146,7 +146,6 @@ class DocumentServiceProcessHandler():
         result = bool(random.getrandbits(1))
         return result
 
-
     def possibly(self, selector, active, possible):
         count = 0
         for mode in self.selector.modes:

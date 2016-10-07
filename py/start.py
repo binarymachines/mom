@@ -15,15 +15,15 @@ LOG = logging.getLogger('console.log')
 
 
 def display_status():
-    print """Process ID: %i""" % pid
-    print """Redis Host: %s""" % redis_host
+    print """Process ID: %i""" % config.pid
+    print """Redis Host: %s""" % config.redis_host
     # print""""Redis Port: %s.""" % config.redis_host
-    print 'cache db size: %i' % (redis.dbsize())
+    print 'cache db size: %i' % (config.redis.dbsize())
     print """Elasticsearch Host: %s""" % es_host
     print """Elasticsearch Port: %i""" % es_port
     print """Elasticsearch Index: %s""" % es_index
-    print """MySQL Host: %s""" % mysql_host
-    print """MySQL db: %s""" % mysql_db
+    print """MySQL Host: %s""" % config.mysql_host
+    print """MySQL db: %s""" % config.mysql_db
     # print"""MySQL Host: %s.""" % mysql_host
     # print"""MySQL Host: %s.""" % mysql_host
 

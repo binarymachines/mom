@@ -32,6 +32,7 @@ LOG = logging.getLogger('console.log')
 SCAN = 'scan'
 READ = 'read'
 
+
 class Scanner(Walker):
     def __init__(self, context):
         super(Scanner, self).__init__()
@@ -40,7 +41,8 @@ class Scanner(Walker):
         self.do_deep_scan = config.deep
         self.reader = Reader()
 
-    # Walker methods begin
+    # Walker methods
+
     def handle_dir(self, directory):
         # super(Scanner, self).handle_dir(directory)
         pass
@@ -48,25 +50,22 @@ class Scanner(Walker):
     def after_handle_root(self, root):
         folder = library.get_cached_directory()
         if folder is not None and folder.absolute_path == root:
-            if not ops2.operation_completed(folder, SCAN, 'scanner'):
-                ops2.record_op_complete(folder, SCAN, 'scanner')
+            ops2.record_op_complete(folder, SCAN, 'scanner')
         library.set_active(None)
 
     def before_handle_root(self, root):
         library.clear_directory_cache()
-        if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
         if ops2.operation_in_cache(root, SCAN, 'scanner') and not self.do_deep_scan: return
+        if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
         ops2.do_status_check()
 
         try:
             library.set_active(root)
-
         except AssetException, err:
             LOG.warning(': '.join([err.__class__.__name__, err.message]))
             traceback.print_exc(file=sys.stdout)
             library.handle_asset_exception(err, root)
             library.clear_directory_cache()
-
 
     def handle_root(self, root):
         folder = library.get_cached_directory()
@@ -75,29 +74,22 @@ class Scanner(Walker):
         LOG.debug('scanning folder: %s' % (root))
         ops2.record_op_begin(folder, SCAN, 'scanner')
         for file_handler in self.reader.get_file_handlers():
-            # if not ops2.operation_completed(folder, SCAN, file_handler.name):
             for filename in os.listdir(root):
-                if not ops2.operation_in_cache(filename, READ, file_handler.name):
-                    if not ops2.operation_in_cache(filename, READ, file_handler.name):
+                if not ops2.operation_in_cache(os.path.join(root, filename), READ, file_handler.name):
+                    if self.reader.has_handler_for(filename):
                         self.process_file(os.path.join(root, filename), self.reader, file_handler.name)
+        # LOG.debug('done scanning folder: %s' % (root))
 
-        LOG.debug('done scanning folder: %s' % (root))
 
     def handle_root_error(self, err):
         LOG.error(': '.join([err.__class__.__name__, err.message]))
+        traceback.print_exc(file=sys.stdout)
 
-    # DirectoryWalker methods end
+    # utility
 
-    # why is this not handle_file() ???
-    def process_file(self, filename, reader, file_handler_name):
-        ops2.do_status_check()
-        media = library.get_media_object(filename, fail_on_fs_missing=True)
-        if media is None or media.ignore() or media.available == False: return
-        reader.read(media, file_handler_name)
-
-    def path_expanded(self, path):
+    def path_expands(self, path):
         expanded = False
-        if path in pathutil.get_locations():
+        if path in pathutil.get_locations():# or pathutil.is_curated(path):
             dirs = os.listdir(path)
             for dir in dirs:
                 sub_path = os.path.join(path, dir)
@@ -107,12 +99,19 @@ class Scanner(Walker):
 
         return expanded
 
+    # why is this not handle_file() ???
+    def process_file(self, filename, reader, file_handler_name):
+        ops2.do_status_check()
+        media = library.get_media_object(filename, fail_on_fs_missing=True)
+        if media is None or media.ignore() or media.available == False: return
+        reader.read(media, file_handler_name)
+
     def scan(self):
         # for path in self.context.paths:
         while self.context.has_next(SCAN, True):
             path = self.context.get_next(SCAN, True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                if self.path_expanded(path):
+                if self.path_expands(path):
                     continue
                 LOG.debug('caching data..')
                 # es_doc_cache.cache_docs(config.DIRECTORY, path)
@@ -142,7 +141,7 @@ def main(args):
     config.es = search.connect()
     # reset()
     paths = None if not args['--path'] else args['<path>']
-    context = DirectoryContext('_path_context_', paths, ['mp3'])
+    context = DirectoryContext('_path_context_', paths)
     scan(context)
 
 if __name__ == '__main__':

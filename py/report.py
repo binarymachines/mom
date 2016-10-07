@@ -8,12 +8,21 @@
 
 '''
 
-import os, sys, traceback, pprint, subprocess
+import os
+import pprint
+import subprocess
+import sys
+import traceback
+
 from docopt import docopt
 
-import config, start, sql, search
+import config
 import read
+import search
+import sql
+import start
 from assets import Document
+import util
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -152,8 +161,6 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
         print err.message
         traceback.print_exc(file=sys.stdout)
 
-def smash(str):
-    return str.lower().replace(' ', '').replace('_', '').replace(',', '').replace('.', '').replace(':', '')
 
 def new_record(path):
     return { '_path': path, 'files': [], 'matches': [], 'discount': 0, 'weight': 0, 'delete': 0, 'keep': 0, 'promote': 0,
@@ -217,7 +224,7 @@ def post_process_folder_data(data, exclude_ignore, records):
                         for tag in item[TAGS]:
                             for comp_item in comp_meta:
                                 if tag in comp_item[TAGS]:
-                                    if smash(item[TAGS][tag]) == smash(comp_item[TAGS][tag]):
+                                    if util.smash(item[TAGS][tag]) == util.smash(comp_item[TAGS][tag]):
                                         matched_file[WEIGHT] += 1
                                     else:
                                         matched_file['_notes'] += "\n %s doesn't match source file" % (tag)
@@ -311,11 +318,11 @@ def get_media_meta_data(es, esid, media_data):
         media_data['file_size'] = doc['_source']['file_size']
 
         tag_data = {}
-        for field in read.FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in read.get_fields('id3v2'): # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
 
-        for field in read.SUB_FIELDS: # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in read.get_fields('id3v2.txxx'): # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
 
