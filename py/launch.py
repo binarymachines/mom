@@ -12,7 +12,7 @@ from docopt import docopt
 import config
 import docserv
 import start
-import ops2
+import ops
 import pathutil
 import search
 import sql
@@ -28,7 +28,7 @@ def launch(args, run=True):
         start.execute(args)
 
         if config.launched:
-            ops2.record_exec()
+            ops.record_exec()
             service =  Service()
 
             if run:
@@ -65,14 +65,14 @@ def reset():
 
     config.redis.flushdb()
 
-    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched', 'op_request']:
+    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
         query = 'delete from %s where 1 = 1' % (table)
         sql.execute_query(query)
 
 
 def main(args):
     service = launch(args, run=False)
-    # reset()
+    reset()
     if service is not None:
         try:
             create_proc = docserv.create_service_process

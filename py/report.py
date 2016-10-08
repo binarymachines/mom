@@ -267,13 +267,13 @@ def get_matches(esid, reverse=False, union=False):
 
     query = {'match': """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result
                            FROM matched m, es_document es
-                         WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.media_doc_id = '%s'
+                         WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.doc_id = '%s'
                          """ % (config.es_index, esid) }
 
 
     query['reverse'] = """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result
                                   FROM matched m, es_document es
-                                WHERE es.index_name = '%s' and es.id = m.media_doc_id and m.match_doc_id = '%s'
+                                WHERE es.index_name = '%s' and es.id = m.doc_id and m.match_doc_id = '%s'
                                 """ % (config.es_index, esid)
 
     query['union'] = query['match'] + ' union ' + query['reverse']
@@ -291,7 +291,7 @@ def get_media_files(path, reverse=False, union=False):
     query = {'match':  """SELECT es.id, es.absolute_path FROM es_document es
                         WHERE index_name = '%s'
                             and es.absolute_path LIKE "%s%s"
-                            and es.id IN (SELECT media_doc_id FROM matched) ORDER BY es.absolute_path""" % (config.es_index, path, '%') }
+                            and es.id IN (SELECT doc_id FROM matched) ORDER BY es.absolute_path""" % (config.es_index, path, '%') }
 
     query['reverse'] = """SELECT es.id, es.absolute_path FROM es_document es
                 WHERE index_name = '%s'
@@ -342,7 +342,7 @@ def get_matches_for(pattern):
              from matched m, es_document es1, es_document es2
             where m.same_ext_flag = 1
               and m.matcher_name = 'match_artist_album_song'
-              and es1.id = m.media_doc_id
+              and es1.id = m.doc_id
               and es2.id = m.match_doc_id
               and es1.absolute_path like '%s%s%s'
            UNION
@@ -350,7 +350,7 @@ def get_matches_for(pattern):
              from matched m, es_document es1, es_document es2
             where m.same_ext_flag = 1
               and m.matcher_name = 'match_artist_album_song'
-              and es2.id = m.media_doc_id
+              and es2.id = m.doc_id
               and es1.id = m.match_doc_id
               and es2.absolute_path like '%s%s%s'
             order by original""" % ('%', pattern, '%', '%', pattern, '%')

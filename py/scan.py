@@ -11,13 +11,14 @@ import logging
 import os
 import sys
 import traceback
+import json
 
 from docopt import docopt
 
 import es_doc_cache
 import config
 import library
-import ops2
+import ops
 import pathutil
 import search
 
@@ -48,16 +49,16 @@ class Scanner(Walker):
         pass
 
     def after_handle_root(self, root):
-        folder = library.get_cached_directory()
-        if folder is not None and folder.absolute_path == root:
-            ops2.record_op_complete(folder, SCAN, 'scanner')
+        # folder = library.get_cached_directory()
+        # if folder is not None and folder.absolute_path == root:
+        #     ops.record_op_complete(folder, SCAN, 'scanner')
         library.set_active(None)
 
     def before_handle_root(self, root):
+        ops.do_status_check()
         library.clear_directory_cache()
-        if ops2.operation_in_cache(root, SCAN, 'scanner') and not self.do_deep_scan: return
+        if ops.operation_in_cache(root, SCAN, 'scanner') and not self.do_deep_scan: return
         if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
-        ops2.do_status_check()
 
         try:
             library.set_active(root)
@@ -72,20 +73,47 @@ class Scanner(Walker):
         if folder is None or folder.esid is None: return
 
         LOG.debug('scanning folder: %s' % (root))
-        ops2.record_op_begin(folder, SCAN, 'scanner')
-        for file_handler in self.reader.get_file_handlers():
-            for filename in os.listdir(root):
-                if not ops2.operation_in_cache(os.path.join(root, filename), READ, file_handler.name):
-                    if self.reader.has_handler_for(filename):
-                        self.process_file(os.path.join(root, filename), self.reader, file_handler.name)
-        # LOG.debug('done scanning folder: %s' % (root))
+        ops.record_op_begin(folder, SCAN, 'scanner')
+        
+        for filename in os.listdir(root):
+            if self.reader.has_handler_for(filename):
 
+                media = library.get_media_object(os.path.join(root, filename), fail_on_fs_missing=True)
+                if media is None or media.ignore() or not media.available: continue
+                data = media.to_dictionary()
+                for file_handler in self.reader.get_file_handlers():
+                    if not ops.operation_in_cache(os.path.join(root, filename), READ, file_handler.name):
+                        self.reader.read(media, data, file_handler.name)
+
+                self.index_file(media, data)
+        
+        ops.record_op_complete(folder, SCAN, 'scanner')
+        LOG.debug('done scanning folder: %s' % (root))
 
     def handle_root_error(self, err):
         LOG.error(': '.join([err.__class__.__name__, err.message]))
         traceback.print_exc(file=sys.stdout)
 
     # utility
+
+    def index_file(self, media, data):
+        LOG.debug("indexing file: %s" % (media.file_name))
+        try:
+            res = config.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
+
+            if res['_shards']['successful'] == 1:
+                esid = res['_id']
+                # LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
+                media.esid = esid
+                # LOG.debug("inserting NEW esid into MySQL")
+                # alchemy.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
+                try:
+                    library.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
+                except Exception, err:
+                    config.es.delete(config.es_index, self.document_type, media.esid)
+                    raise err
+        except Exception, err:
+            raise ElasticSearchError(err, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
 
     def path_expands(self, path):
         expanded = False
@@ -99,30 +127,25 @@ class Scanner(Walker):
 
         return expanded
 
-    # why is this not handle_file() ???
-    def process_file(self, filename, reader, file_handler_name):
-        ops2.do_status_check()
-        media = library.get_media_object(filename, fail_on_fs_missing=True)
-        if media is None or media.ignore() or media.available == False: return
-        reader.read(media, file_handler_name)
-
     def scan(self):
-        # for path in self.context.paths:
         while self.context.has_next(SCAN, True):
             path = self.context.get_next(SCAN, True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                if self.path_expands(path):
-                    continue
+                if self.path_expands(path): continue
+
                 LOG.debug('caching data..')
+                ops.cache_ops(path, SCAN)
+                ops.cache_ops(path, READ)
                 # es_doc_cache.cache_docs(config.DIRECTORY, path)
-                ops2.cache_ops(path, SCAN)
-                ops2.cache_ops(path, READ)
                 LOG.debug('walking path %s..' % path)
+
                 self.walk(path)
+
                 LOG.debug('clearing cache..')
-                ops2.write_ops_for_path(path, SCAN)
-                ops2.write_ops_for_path(path, READ)
+                ops.write_ops_for_path(path, SCAN)
+                ops.write_ops_for_path(path, READ)
                 # es_doc_cache.clear_docs(config.DIRECTORY, path)
+
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))
 
