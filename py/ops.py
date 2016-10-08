@@ -2,7 +2,7 @@ import datetime
 import logging
 import sys
 
-import es_doc_cache
+import cache
 import cache2
 import config
 import sql
@@ -138,7 +138,7 @@ def do_status_check(opcount=None):
     if check_for_stop_request():
         print 'stop requested, terminating...'
         flush_cache()
-        es_doc_cache.flush_cache()
+        cache.flush_cache()
         sys.exit(0)
 
 

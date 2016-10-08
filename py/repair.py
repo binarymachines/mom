@@ -1,6 +1,6 @@
 import os, sys, traceback, logging
 
-import config, es_doc_cache, start, sql, ops, search
+import config, cache, start, sql, ops, search
 
 from assets import Asset, Document
 
