@@ -18,13 +18,13 @@ USE `media`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `media_location_folder`
+-- Table structure for table `directory`
 --
 
-DROP TABLE IF EXISTS `media_location_folder`;
+DROP TABLE IF EXISTS `directory`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `media_location_folder` (
+CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(256) NOT NULL,
   `file_type` varchar(8) DEFAULT NULL,
@@ -33,13 +33,13 @@ CREATE TABLE `media_location_folder` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `media_location_folder`
+-- Dumping data for table `directory`
 --
 
-LOCK TABLES `media_location_folder` WRITE;
-/*!40000 ALTER TABLE `media_location_folder` DISABLE KEYS */;
-INSERT INTO `media_location_folder` VALUES (118,'live recordings [wav]','wav'),(119,'albums','mp3'),(120,'albums [ape]','ape'),(121,'albums [flac]','flac'),(122,'albums [iso]','iso'),(123,'albums [mpc]','mpc'),(124,'albums [ogg]','ogg'),(125,'albums [wav]','wav'),(127,'compilations','mp3'),(128,'compilations [aac]','aac'),(129,'compilations [flac]','flac'),(130,'compilations [iso]','iso'),(131,'compilations [ogg]','ogg'),(132,'compilations [wav]','wav'),(134,'random compilations','mp3'),(135,'random tracks','mp3'),(136,'recently downloaded albums','mp3'),(137,'recently downloaded albums [flac]','flac'),(138,'recently downloaded albums [wav]','wav'),(139,'recently downloaded compilations','mp3'),(140,'recently downloaded compilations [flac]','flac'),(141,'recently downloaded discographies','mp3'),(142,'recently downloaded discographies [flac]','flac'),(144,'webcasts and custom mixes','mp3'),(145,'live recordings','mp3'),(146,'live recordings [flac]','flac'),(147,'temp','*');
-/*!40000 ALTER TABLE `media_location_folder` ENABLE KEYS */;
+LOCK TABLES `directory` WRITE;
+/*!40000 ALTER TABLE `directory` DISABLE KEYS */;
+INSERT INTO `directory` VALUES (118,'live recordings [wav]','wav'),(119,'albums','mp3'),(120,'albums [ape]','ape'),(121,'albums [flac]','flac'),(122,'albums [iso]','iso'),(123,'albums [mpc]','mpc'),(124,'albums [ogg]','ogg'),(125,'albums [wav]','wav'),(127,'compilations','mp3'),(128,'compilations [aac]','aac'),(129,'compilations [flac]','flac'),(130,'compilations [iso]','iso'),(131,'compilations [ogg]','ogg'),(132,'compilations [wav]','wav'),(134,'random compilations','mp3'),(135,'random tracks','mp3'),(136,'recently downloaded albums','mp3'),(137,'recently downloaded albums [flac]','flac'),(138,'recently downloaded albums [wav]','wav'),(139,'recently downloaded compilations','mp3'),(140,'recently downloaded compilations [flac]','flac'),(141,'recently downloaded discographies','mp3'),(142,'recently downloaded discographies [flac]','flac'),(144,'webcasts and custom mixes','mp3'),(145,'live recordings','mp3'),(146,'live recordings [flac]','flac'),(147,'temp','*');
+/*!40000 ALTER TABLE `directory` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

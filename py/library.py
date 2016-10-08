@@ -8,7 +8,7 @@ import traceback
 
 from elasticsearch.exceptions import ConnectionError
 
-import es_doc_cache, cache2
+import cache, cache2
 import config
 import pathutil
 import search
@@ -134,7 +134,7 @@ def set_active(path):
 
 def doc_exists_for_path(doc_type, path):
     # check cache, cache will query db if esid not found in cache
-    esid = es_doc_cache.retrieve_esid(doc_type, path)
+    esid = cache.retrieve_esid(doc_type, path)
     if esid is not None: return True
 
     # esid not found in cache or db, search es
@@ -171,7 +171,7 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
 
     # check cache for esid
     if media.esid is None and check_cache and path_in_cache(media.document_type, absolute_path):
-        media.esid = es_doc_cache.get_cached_esid(media.document_type, absolute_path)
+        media.esid = cache.get_cached_esid(media.document_type, absolute_path)
 
     if media.esid is None and check_db and path_in_db(media.document_type, absolute_path):
         media.esid = retrieve_esid(media.document_type, absolute_path)
@@ -199,7 +199,7 @@ def insert_esid(index, document_type, elasticsearch_id, absolute_path):
 
 
 def path_in_cache(document_type, path):
-    return es_doc_cache.get_cached_esid(document_type, path)
+    return cache.get_cached_esid(document_type, path)
 
 
 def path_in_db(document_type, path):

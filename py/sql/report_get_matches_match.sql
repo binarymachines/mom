@@ -5,4 +5,4 @@ SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.a
   FROM matched m, es_document es
  WHERE es.index_name = '%s'
    and es.id = m.match_doc_id
-   and m.media_doc_id = '%s'
+   and m.doc_id = '%s'

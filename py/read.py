@@ -4,7 +4,7 @@ import json, pprint, sys, logging, traceback
 from mutagen.id3 import ID3, ID3NoHeaderError
 from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
 
-import es_doc_cache
+import cache
 import cache2
 import config
 import library

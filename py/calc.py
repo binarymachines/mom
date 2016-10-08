@@ -13,7 +13,7 @@ import sys
 import traceback
 
 import cache2
-import es_doc_cache
+import cache
 import config
 import library
 import ops
@@ -60,11 +60,11 @@ def calculate_matches(context, cycle_context=False):
                 # this should never be true, but a test
                 if location[-1] != '/': location += '/'
 
-                es_doc_cache.cache_docs(config.DOCUMENT, location)
+                cache.cache_docs(config.DOCUMENT, location)
                 ops.cache_ops(location, 'match', apply_lifespan=True)
-                es_doc_cache.cache_matches(location)
+                cache.cache_matches(location)
 
-                for key in es_doc_cache.get_doc_keys(config.DOCUMENT):
+                for key in cache.get_doc_keys(config.DOCUMENT):
                     opcount += 1
                     ops.do_status_check(opcount)
 
@@ -77,14 +77,14 @@ def calculate_matches(context, cycle_context=False):
 
                 for matcher in matchers:
                     ops.write_ops_for_path(location, 'match', matcher.name)
-                    es_doc_cache.clear_matches(matcher.name, location)
+                    cache.clear_matches(matcher.name, location)
 
             except Exception, err:
                 LOG.error(': '.join([err.__class__.__name__, err.message, location]))
                 traceback.print_exc(file=sys.stdout)
             finally:
-                es_doc_cache.clear_docs(config.DOCUMENT, location)
-                es_doc_cache.write_paths()
+                cache.clear_docs(config.DOCUMENT, location)
+                cache.write_paths()
 
 
 def do_match_op(esid, absolute_path):

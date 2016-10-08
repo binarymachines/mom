@@ -15,7 +15,7 @@ import json
 
 from docopt import docopt
 
-import es_doc_cache
+import cache
 import config
 import library
 import ops
@@ -136,7 +136,7 @@ class Scanner(Walker):
                 LOG.debug('caching data..')
                 ops.cache_ops(path, SCAN)
                 ops.cache_ops(path, READ)
-                # es_doc_cache.cache_docs(config.DIRECTORY, path)
+                # cache.cache_docs(config.DIRECTORY, path)
                 LOG.debug('walking path %s..' % path)
 
                 self.walk(path)
@@ -144,7 +144,7 @@ class Scanner(Walker):
                 LOG.debug('clearing cache..')
                 ops.write_ops_for_path(path, SCAN)
                 ops.write_ops_for_path(path, READ)
-                # es_doc_cache.clear_docs(config.DIRECTORY, path)
+                # cache.clear_docs(config.DIRECTORY, path)
 
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))

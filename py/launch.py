@@ -1,5 +1,5 @@
 '''
-   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs]
+   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] [--reset]
 
    --path, -p                   The path to scan
 
@@ -28,6 +28,8 @@ def launch(args, run=True):
         start.execute(args)
 
         if config.launched:
+            if args['--reset']: reset()
+
             ops.record_exec()
             service =  Service()
 
@@ -72,7 +74,7 @@ def reset():
 
 def main(args):
     service = launch(args, run=False)
-    reset()
+    # reset()
     if service is not None:
         try:
             create_proc = docserv.create_service_process
