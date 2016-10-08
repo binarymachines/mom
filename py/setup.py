@@ -14,6 +14,6 @@ def setup_location_folder_names():
     folders = get_location_names()
     for f in folders:
         print f
-        rows = sql.retrieve_values('media_location_folder', ['name'], [f.lower()])
+        rows = sql.retrieve_values('directory', ['name'], [f.lower()])
         if len(rows) == 0:
-            sql.insert_values('media_location_folder', ['name'], [f.lower()])
+            sql.insert_values('directory', ['name'], [f.lower()])

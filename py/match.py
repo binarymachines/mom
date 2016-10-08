@@ -2,7 +2,7 @@
 
 import os, pprint, sys, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import es_doc_cache, config, ops2
+import es_doc_cache, config, ops
 from query import Builder
 import sql
 from errors import BaseClassException
@@ -29,12 +29,12 @@ class MediaMatcher(object):
     # TODO: assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
 
-        rows = sql.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, config.es_index])
+        rows = sql.retrieve_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, config.es_index])
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = sql.retrieve_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, config.es_index])
+        rows = sql.retrieve_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, config.es_index])
         if len(rows) == 1:
             return True
 
@@ -55,7 +55,7 @@ class MediaMatcher(object):
             LOG.info('match record for  %s ::: %s already exists.' % (media_id, match_id))
         else:
             LOG.info('recording match: %s ::: %s' % (media_id, match_id))
-            sql.insert_values('matched', ['media_doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
+            sql.insert_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
                 [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
 
 
@@ -117,7 +117,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
 
     def match(self, media):
-        ops2.record_op_begin(media, 'match', self.name)
+        ops.record_op_begin(media, 'match', self.name)
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
         previous_matches = es_doc_cache.get_matches(self.name, media.esid)
@@ -162,7 +162,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
-        ops2.record_op_complete(media, 'match', self.name)
+        ops.record_op_complete(media, 'match', self.name)
 
 
 class FolderNameMatcher(MediaMatcher):

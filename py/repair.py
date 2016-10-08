@@ -1,6 +1,6 @@
 import os, sys, traceback, logging
 
-import config, es_doc_cache, start, sql, ops2, search
+import config, es_doc_cache, start, sql, ops, search
 
 from assets import Asset, Document
 
@@ -72,16 +72,16 @@ def purge_problem_esids():
 
 def record_matches_as_ops():
 
-    rows = sql.retrieve_values('temp', ['media_doc_id', 'matcher_name', 'absolute_path'], [])
+    rows = sql.retrieve_values('temp', ['doc_id', 'matcher_name', 'absolute_path'], [])
     for r in rows:
         media = Document()
         matcher_name = r[1]
         media.esid = r[0]
         media.absolute_path = r[2]
 
-        if ops2.operation_completed(media, matcher_name, 'match') == False:
-            ops2.record_op_begin(media, matcher_name, 'match')
-            ops2.record_op_complete(media, matcher_name, 'match')
+        if ops.operation_completed(media, matcher_name, 'match') == False:
+            ops.record_op_begin(media, matcher_name, 'match')
+            ops.record_op_complete(media, matcher_name, 'match')
 
 
 # def transform_docs():
@@ -107,7 +107,7 @@ def record_matches_as_ops():
 
 # def main():
 #     start.execute()
-#     folders = sql.retrieve_values('media_location_folder', ['name'], [])
+#     folders = sql.retrieve_values('directory', ['name'], [])
 #     for folder in folders:
 #         asset = os.path.join(config.START_FOLDER, folder[0])
 #         files = sql.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.DIRECTORY])

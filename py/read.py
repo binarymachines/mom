@@ -8,7 +8,7 @@ import es_doc_cache
 import cache2
 import config
 import library
-import ops2
+import ops
 import sql
 
 from errors import ElasticSearchError, BaseClassException
@@ -53,33 +53,17 @@ class Reader:
                 if filename.endswith(extension):
                     return True
 
-    def read(self, media, file_handler_name=None):
-
-        data = media.to_dictionary()
+    def read(self, media, data, file_handler_name=None):
 
         for file_handler in self.get_file_handlers():
             for extension in file_handler.extensions:
                 if media.ext == extension or extension == '*':
                     if file_handler_name is None or file_handler.name == file_handler_name:
                         LOG.debug("%s reading file: %s" % (file_handler.name, media.short_name()))
-                        file_handler.read(media, data)
-
-        LOG.debug("indexing file: %s" % (media.file_name))
-        res = config.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
-
-        if res['_shards']['successful'] == 1:
-            esid = res['_id']
-            # LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
-            media.esid = esid
-            # LOG.debug("inserting NEW esid into MySQL")
-            # alchemy.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
-            try:
-                library.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
-            except Exception, err:
-                config.es.delete(config.es_index, self.document_type, media.esid)
-                raise err
-
-        else: raise ElasticSearchError(None, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
+                        try:
+                            file_handler.read(media, data)
+                        except Exception, err:
+                            LOG.error(err.message)
 
     def get_file_handlers(self):
         return (MutagenID3(), MutagenFLAC(), )
@@ -104,7 +88,7 @@ class MutagenFLAC(FileHandler):
     def read(self, media, data):
         read_failed = False
         try:
-            ops2.record_op_begin(media, 'read', self.name)
+            ops.record_op_begin(media, 'read', self.name)
 
             document = FLAC(media.absolute_path)
             for tag in document.tags:
@@ -135,7 +119,7 @@ class MutagenFLAC(FileHandler):
             # library.record_error(folder, "FLACVorbisError=" + err.message)
             # traceback.print_exc(file=sys.stdout)
         finally:
-            ops2.record_op_complete(media, 'read', self.name, op_failed=read_failed)
+            ops.record_op_complete(media, 'read', self.name, op_failed=read_failed)
 
 
 class MutagenID3(FileHandler):
@@ -145,7 +129,7 @@ class MutagenID3(FileHandler):
     def read(self, media, data):
         read_failed = False
         try:
-            ops2.record_op_begin(media, 'read', self.name)
+            ops.record_op_begin(media, 'read', self.name)
             document = ID3(media.absolute_path)
             metadata = document.pprint() # gets all metadata
             tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
@@ -188,7 +172,7 @@ class MutagenID3(FileHandler):
             # traceback.print_exc(file=sys.stdout)
 
         finally:
-            ops2.record_op_complete(media, 'read', self.name, op_failed=read_failed)
+            ops.record_op_complete(media, 'read', self.name, op_failed=read_failed)
 
 
 # class ImageHandler(FileHandler):

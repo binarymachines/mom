@@ -9,7 +9,7 @@ import redis
 import config
 import util
 
-from ops2 import LOG
+from ops import LOG
 
 LOG = logging.getLogger('cache2.log')
 

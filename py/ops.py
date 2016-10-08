@@ -89,7 +89,7 @@ def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
 
 def write_ops_for_path(path, operation=None, operator=None):
     table_name = 'op_record'
-    field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path']
+    field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path', 'status']
 
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation

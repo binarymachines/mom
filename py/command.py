@@ -7,16 +7,16 @@ import os, sys, docopt
 
 import redis
 
-import cache2, config, ops2
+import cache2, config, ops
 
 def _connect_to_redis():
     return redis.Redis('localhost')
 
 def _set_field_value(field, value):
     config.redis = _connect_to_redis()
-    values = cache2.get_hash(ops2.OPS, ops2.EXEC)
+    values = cache2.get_hash(ops.OPS, ops.EXEC)
     values[field] = value
-    cache2.set_hash(ops2.OPS, ops2.EXEC, values)
+    cache2.set_hash(ops.OPS, ops.EXEC, values)
 
 def request_stop(pid):
     print 'submitting stop request for %s...' % (str(pid))

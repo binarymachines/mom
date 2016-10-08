@@ -6,7 +6,7 @@ import cache2
 import config
 import sql
 import search
-import ops2
+import ops
 from config import pid, redis_host, es_host, es_port, es_index, mysql_host, mysql_db
 
 GET_PATHS = 'start_get_paths'
@@ -41,9 +41,9 @@ def execute(args):
             print 'Redis host: %s' % config.redis_host
             print 'Redis dbsize: %i' % config.redis.dbsize()
 
-            if 'clearmem' in options:
-                LOG.info('clearing data from previous run...')
-                ops2.flush_cache()
+            # if 'clearmem' in options:
+            LOG.info('clearing data from previous run...')
+            ops.flush_cache()
 
             if 'noflush' not in options:
                 LOG.info('flushing reddis cache...')
