@@ -3,6 +3,7 @@
 import json, pprint, sys, logging, traceback
 from mutagen.id3 import ID3, ID3NoHeaderError
 from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
+from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 
 import cache
 import cache2
@@ -164,6 +165,15 @@ class Mutagen(FileHandler):
     def read_tags(self, media, data):
         raise BaseClassException(Mutagen)
 
+class MutagenAPEv2(Mutagen):
+    def __init__(self):
+        super(MutagenAPEv2, self).__init__('mutagen-apev2', 'ape')
+
+    def read_tags(self, media, data):
+        ape_data = {}
+        document = APEv2(media.absolute_path)
+        print document
+        
 
 class MutagenFLAC(Mutagen):
     def __init__(self):
@@ -185,6 +195,7 @@ class MutagenFLAC(Mutagen):
         for tag in document.vc:
             if tag[0] not in get_known_fields('flac.vc'):
                 add_field('flac.vc', tag[0])
+
             key = tag[0]
             value = tag[1]
             if 'key' == 'COVERART':
@@ -209,13 +220,14 @@ class MutagenID3(Mutagen):
                 data[tag[0]] = tag[1]
 
             if tag[0] == "TXXX":
-                if tag[0] not in get_known_fields('ID3V2.TXXX'):
-                    add_field('ID3V2.TXXX', tag[0])
                 for sub_field in get_fields('ID3V2.TXXX'):
                     if sub_field in tag[1]:
                         subtags = tag[1].split('=')
                         key=subtags[0].replace(' ', '_').upper()
                         data[key] = subtags[1]
+                
+                        if key not in get_known_fields('ID3V2.TXXX'):
+                            add_field('ID3V2.TXXX', key)
 
             else:
                 if tag[0] not in get_known_fields('ID3V2'):

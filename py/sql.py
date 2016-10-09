@@ -95,9 +95,9 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
 def execute_query(query):
     con = None
     try:
-        LOG.info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
+        LOG.debug(query)
         cur.execute(query)
         con.commit()
     except mdb.Error, e:
@@ -121,7 +121,6 @@ def run_query(query):
     con = None
     rows = []
     try:
-        LOG.info(query)
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
         LOG.debug(query)
@@ -146,6 +145,11 @@ def run_query(query):
 
 
 # load and run query templates
+
+def execute_query_template(filename, *args):
+    query = _load_query(filename, args)
+    # you could do some kind of validation here
+    return execute_query(query)
 
 def run_query_template(filename, *args):
     query = _load_query(filename, args)
