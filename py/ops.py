@@ -106,8 +106,9 @@ def write_ops_for_path(path, operation=None, operator=None):
         try:
             sql.insert_values('op_record', field_names, field_values)
         except Exception, error:
+            # TODO: test the path to determine whether it is a file or a folder
             sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
-                [config.es_index, 'media_file', values['target_esid'], 'Unable to store/retrieve operation record'])
+                [config.es_index, config.DOCUMENT, values['target_esid'], 'Unable to store/retrieve operation record'])
         finally:
             cache2.delete_key(key)
 

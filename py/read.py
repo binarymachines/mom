@@ -24,7 +24,7 @@ def get_fields(doc_format):
     keygroup = 'fields'
     if not cache2.key_exists(keygroup, doc_format):
         key = cache2.create_key(keygroup, doc_format)
-        rows = sql.retrieve_values('document_metadata', ['document_format', 'attribute_name'], [doc_format])
+        rows = sql.retrieve_values('document_metadata', ['document_format', 'attribute_name'], [doc_format.upper()])
         cache2.add_items(keygroup, doc_format, [row[1] for row in rows])
 
     return cache2.get_items(keygroup, doc_format)
@@ -87,6 +87,7 @@ class MutagenFLAC(FileHandler):
 
     def read(self, media, data):
         read_failed = False
+        flac_data = {}
         try:
             ops.record_op_begin(media, 'read', self.name)
 
@@ -94,12 +95,18 @@ class MutagenFLAC(FileHandler):
             for tag in document.tags:
                 key = tag[0]
                 value = tag[1]
-                data[key] = value
+                if 'key' == 'COVERART':
+                    continue
+                flac_data[key] = value
 
             for tag in document.vc:
                 key = tag[0]
                 value = tag[1]
-                data[key] = value
+                if 'key' == 'COVERART':
+                    continue
+                flac_data[key] = value
+
+            data[self.name] = flac_data
 
             # data['version'] = document.version
 
