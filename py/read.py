@@ -18,7 +18,7 @@ pp = pprint.PrettyPrinter(indent=4)
 LOG = logging.getLogger('console.log')
 
 DELIMITER = ','
-
+READ = 'read'
 
 def get_fields(doc_format):
     keygroup = 'fields'
@@ -43,7 +43,6 @@ class Reader:
 
         return result
 
-
     def has_handler_for(self, filename):
         if filename.lower().startswith('incomplete~') or filename.lower().startswith('~incomplete'):
             return False
@@ -66,7 +65,7 @@ class Reader:
                             LOG.error(err.message)
 
     def get_file_handlers(self):
-        return (MutagenID3(), MutagenFLAC(), )
+        return MutagenID3(), MutagenFLAC(),
 
 
 class FileHandler(object):
@@ -74,18 +73,74 @@ class FileHandler(object):
         self.name = name
         self.extensions = extensions
 
-    def read(self, media, data):
+    def handle_file(self, media, data):
         raise BaseClassException(FileHandler)
 
 # class Archive(FileHandler)
 #     decompress files into temp folder and push content into path context. Deference records and substitute archive path/name for temp location
 
 
+class Mutagen(FileHandler):
+    def __init__(self, name, *extensions):
+        super(Mutagen, self).__init__(name, *extensions)
+
+
+    def handle_file(self, media, data):
+        read_failed = False
+        try:
+            self.read_tags(media, data)
+
+        except ID3NoHeaderError, err:
+            read_failed = True
+            data['read_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "ID3NoHeaderError=" + err.message)
+            # traceback.print_exc(file=sys.stdout)
+
+        except UnicodeEncodeError, err:
+            read_failed = True
+            data['read_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "UnicodeEncodeError=" + err.message)
+            # traceback.print_exc(file=sys.stdout)
+
+        except UnicodeDecodeError, err:
+            read_failed = True
+            data['read_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "UnicodeDecodeError=" + err.message)
+            # traceback.print_exc(file=sys.stdout)
+
+        except FLACNoHeaderError, err:
+            read_failed = True
+            data['read_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "FLACNoHeaderError=" + err.message)
+
+        except FLACVorbisError, err:
+            read_failed = True
+            data['read_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "FLACVorbisError=" + err.message)
+            # traceback.print_exc(file=sys.stdout)
+
+        finally:
+            ops.record_op_complete(media, 'read', self.name, op_failed=read_failed)
+
+    def read_tags(self, media, data):
+        raise BaseClassException(Mutagen)
+
+
 class MutagenFLAC(FileHandler):
     def __init__(self):
         super(MutagenFLAC, self).__init__('mutagen-flac', 'flac')
 
-    def read(self, media, data):
+    def handle_file(self, media, data):
         read_failed = False
         flac_data = {}
         try:
@@ -118,6 +173,7 @@ class MutagenFLAC(FileHandler):
             data['has_error'] = True
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "FLACNoHeaderError=" + err.message)
+
         except FLACVorbisError, err:
             read_failed = True
             data['read_error'] = err.message
@@ -133,7 +189,7 @@ class MutagenID3(FileHandler):
     def __init__(self):
         super(MutagenID3, self).__init__('mutagen-id3', 'mp3', 'flac')
 
-    def read(self, media, data):
+    def handle_file(self, media, data):
         read_failed = False
         try:
             ops.record_op_begin(media, 'read', self.name)

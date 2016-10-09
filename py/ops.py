@@ -53,7 +53,7 @@ def record_op_begin(asset, operation, operator):
     key = cache2.create_key(OPS, operation, operator, asset.absolute_path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid,
-        'target_path': asset.absolute_path }
+        'target_path': asset.absolute_path, 'index_name': config.es_index }
     cache2.set_hash2(key, values)
 
 
@@ -87,9 +87,12 @@ def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
             return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
 
 
+def update_op_records():
+    sql.run_query_template('ops_update_op_record')
+
 def write_ops_for_path(path, operation=None, operator=None):
     table_name = 'op_record'
-    field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path', 'status']
+    field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path', 'status', 'index_name']
 
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation
@@ -153,3 +156,4 @@ def remove_reconfig_request():
     values = cache2.get_hash(OPS, EXEC)
     values['reconfig_requested'] = False
     cache2.set_hash(OPS, EXEC, values)
+

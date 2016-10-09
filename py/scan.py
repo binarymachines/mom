@@ -74,7 +74,7 @@ class Scanner(Walker):
 
         LOG.debug('scanning folder: %s' % (root))
         ops.record_op_begin(folder, SCAN, 'scanner')
-        
+
         for filename in os.listdir(root):
             ops.do_status_check()
             if self.reader.has_handler_for(filename):
@@ -87,7 +87,7 @@ class Scanner(Walker):
                         self.reader.read(media, data, file_handler.name)
 
                 self.index_file(media, data)
-        
+
         ops.record_op_complete(folder, SCAN, 'scanner')
         LOG.debug('done scanning folder: %s' % (root))
 
@@ -145,6 +145,7 @@ class Scanner(Walker):
                 LOG.debug('clearing cache..')
                 ops.write_ops_for_path(path, SCAN)
                 ops.write_ops_for_path(path, READ)
+                ops.update_op_records()
                 # cache.clear_docs(config.DIRECTORY, path)
 
             elif not os.access(path, os.R_OK):

@@ -25,7 +25,7 @@ def display_status():
     print """Elasticsearch Index: %s""" % es_index
     print """MySQL Host: %s""" % config.mysql_host
     print """MySQL db: %s""" % config.mysql_db
-    print """Media Hound Username: %s""" % config.usernames
+    print """Media Hound Username: %s""" % config.username
     # print"""MySQL Host: %s.""" % mysql_host
     # print"""MySQL Host: %s.""" % mysql_host
 
@@ -46,7 +46,6 @@ def execute(args):
         
             if 'reset' in options: reset()
             if 'exit' in options: sys.exit(0)
-
 
             # if 'clearmem' in options:
             LOG.info('clearing data from prior execution...')
