@@ -1,11 +1,11 @@
 '''
-   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] [--reset]
+   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] [--reset] [--exit]
 
    --path, -p                   The path to scan
 
 '''
 
-import datetime
+import datetime, sys
 
 from docopt import docopt
 
@@ -28,8 +28,6 @@ def launch(args, run=True):
         start.execute(args)
 
         if config.launched:
-            if args['--reset']: reset()
-
             ops.record_exec()
             service =  Service()
 
@@ -58,23 +56,8 @@ def before(process):
     print '%s before launch' % process.name
 
 
-def reset():
-    if config.es.indices.exists(config.es_index):
-        search.clear_index(config.es_index)
-
-    if not config.es.indices.exists(config.es_index):
-        search.create_index(config.es_index)
-
-    config.redis.flushdb()
-
-    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
-        query = 'delete from %s where 1 = 1' % (table)
-        sql.execute_query(query)
-
-
 def main(args):
     service = launch(args, run=False)
-    # reset()
     if service is not None:
         try:
             create_proc = docserv.create_service_process

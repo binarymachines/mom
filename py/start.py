@@ -16,7 +16,8 @@ LOG = logging.getLogger('console.log')
 
 def display_status():
     print """Process ID: %i""" % config.pid
-    print """Redis Host: %s""" % config.redis_host
+    print 'Redis host: %s' % config.redis_host
+    print 'Redis dbsize: %i' % config.redis.dbsize()
     # print""""Redis Port: %s.""" % config.redis_host
     print 'cache db size: %i' % (config.redis.dbsize())
     print """Elasticsearch Host: %s""" % es_host
@@ -24,6 +25,7 @@ def display_status():
     print """Elasticsearch Index: %s""" % es_index
     print """MySQL Host: %s""" % config.mysql_host
     print """MySQL db: %s""" % config.mysql_db
+    print """Media Hound Username: %s""" % config.usernames
     # print"""MySQL Host: %s.""" % mysql_host
     # print"""MySQL Host: %s.""" % mysql_host
 
@@ -37,21 +39,25 @@ def execute(args):
 
         try:
             LOG.info('connecting to Redis...')
+            config.redis = redis.Redis(config.redis_host)
 
-            print 'Redis host: %s' % config.redis_host
-            print 'Redis dbsize: %i' % config.redis.dbsize()
+            LOG.info('connecting to Elasticsearch...')
+            config.es = search.connect()
+        
+            if 'reset' in options: reset()
+            if 'exit' in options: sys.exit(0)
+
 
             # if 'clearmem' in options:
-            LOG.info('clearing data from previous run...')
+            LOG.info('clearing data from prior execution...')
             ops.flush_cache()
 
             if 'noflush' not in options:
                 LOG.info('flushing reddis cache...')
                 cache2.flush_all()
 
-            LOG.info('connecting to Elasticsearch...')
-            config.es = search.connect()
             LOG.info('connecting to MySQL...')
+            load_user_info()
 
             config.launched = True
             display_status()
@@ -72,6 +78,10 @@ def get_paths(args):
                 paths.append(row[0])
     return paths
 
+def load_user_info():
+    rows = sql.retrieve_values('member', ['id', 'username'], ['1'])
+    if len(rows) == 1:
+        config.username = rows[0][1]
 
 def make_options(args):
     options = []
@@ -84,6 +94,8 @@ def make_options(args):
     if '--nomatch' in args and args['--nomatch']: options.append('no_match')
     if '--debug-mysql' in args and args['--debug-mysql']: options.append('debug_mysql')
     if '--check-for-bugs' in args and args['--check-for-bugs']: options.append('check_for_bugs')
+    if '--reset' in args and args['--reset']: options.append('reset')
+    if '--exit' in args and args['--exit']: options.append('exit')
     # if args['--debug-filter']: options.append('no_match')
 
     return options
@@ -143,7 +155,20 @@ def read_config(options):
 
     # redis
     config.redis_host = read(parser, "Redis")['host']
-    config.redis = redis.Redis(config.redis_host)
+
+
+def reset():
+    if config.es.indices.exists(config.es_index):
+        search.clear_index(config.es_index)
+
+    if not config.es.indices.exists(config.es_index):
+        search.create_index(config.es_index)
+
+    config.redis.flushdb()
+
+    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
+        query = 'delete from %s where 1 = 1' % (table)
+        sql.execute_query(query)
 
 
 def setup_log(file_name, log_name, logging_level):

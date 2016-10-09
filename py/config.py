@@ -12,6 +12,7 @@ DIRECTORY = 'directory'
 filename = "config.ini"
 launched = False
 start_time = datetime.datetime.now()
+username = None
 
 old_pid = None
 pid = os.getpid()

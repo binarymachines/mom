@@ -23,7 +23,7 @@ import pathutil
 import search
 
 from context import DirectoryContext
-from errors import AssetException
+from errors import AssetException, ElasticSearchError
 from walk import Walker
 from read import Reader
 
@@ -76,6 +76,7 @@ class Scanner(Walker):
         ops.record_op_begin(folder, SCAN, 'scanner')
         
         for filename in os.listdir(root):
+            ops.do_status_check()
             if self.reader.has_handler_for(filename):
 
                 media = library.get_media_object(os.path.join(root, filename), fail_on_fs_missing=True)
