@@ -136,7 +136,7 @@ def write_paths(flushkeys=True):
         if len(esids) >= config.path_cache_size:
             LOG.debug('clearing cached paths...')
 
-            esids = []
+            # esids = []
             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
                         'index_name': value['index_name'], 'document_type': value['document_type'] }
                      for value in esids]
