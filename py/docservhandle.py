@@ -127,7 +127,7 @@ class DocumentServiceProcessHandler():
 
     def after_scan(self):
         self.after()
-        LOG.info('%s done scanning, clearing cache..' % self.name)
+        LOG.info('%s done scanning, updating op records..' % self.name)
         clean.clean(self.context)
 
     def do_scan(self):
