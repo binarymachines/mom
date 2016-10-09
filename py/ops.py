@@ -56,6 +56,12 @@ def record_op_begin(asset, operation, operator):
         'target_path': asset.absolute_path, 'index_name': config.es_index }
     cache2.set_hash2(key, values)
 
+    key = cache2.get_key(OPS, EXEC)
+    values = cache2.get_hash2(key)
+    values['current_operation'] = operation
+    # values['current_operation'] = operation
+    values['operation_status'] = 'active'
+    cache2.set_hash2(key, values)
 
 def record_op_complete(asset, operation, operator, op_failed=False):
     # LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
