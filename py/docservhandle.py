@@ -3,7 +3,7 @@ import sys, os, traceback, logging, random
 from modes import Selector, Mode
 from context import DirectoryContext
 
-import config, calc, scan, report
+import config, calc, scan, report, clean
 
 LOG = logging.getLogger('console.log')
 
@@ -109,7 +109,7 @@ class DocumentServiceProcessHandler():
         dir = self.context.get_active ('match')
         LOG.info('%s matching in %s..' % (self.name, dir))
         try:
-            calc.calculate_matches(self.context)
+            calc.calc(self.context)
         except Exception, err:
             self.selector.handle_error(err)
             LOG.info(err.message)
@@ -128,7 +128,7 @@ class DocumentServiceProcessHandler():
     def after_scan(self):
         self.after()
         LOG.info('%s done scanning, clearing cache..' % self.name)
-
+        clean.clean(self.context)
 
     def do_scan(self):
         dir = self.context.get_next('scan')

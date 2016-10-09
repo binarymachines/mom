@@ -46,7 +46,7 @@ def cache_match_ops(matchers, path):
 
 # def split_location(into sets of media folders)
 
-def calculate_matches(context, cycle_context=False):
+def calc(context, cycle_context=False):
     # MAX_RECORDS = ...
     matchers = get_matchers()
 

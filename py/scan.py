@@ -145,7 +145,6 @@ class Scanner(Walker):
                 LOG.debug('clearing cache..')
                 ops.write_ops_for_path(path, SCAN)
                 ops.write_ops_for_path(path, READ)
-                ops.update_op_records()
                 # cache.clear_docs(config.DIRECTORY, path)
 
             elif not os.access(path, os.R_OK):

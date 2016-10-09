@@ -113,6 +113,7 @@ class Document(Asset):
         data['active'] = self.active
         data['deleted'] = self.deleted
         data['live_recording'] = self.is_filed_as_live()
+        data['properties'] = []
 
         return data
 

@@ -28,6 +28,8 @@
                 // "--pattern", "m u s l i m g a u z e",
                 // "--path",
                 // "/media/removable/Audio/albums/industrial",
+                // "--reset",
+                // "--exit",
                 "--scan",
                 // "--match",
                 "--clearmem"
