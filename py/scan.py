@@ -21,6 +21,7 @@ import library
 import ops
 import pathutil
 import search
+import sql
 
 from context import DirectoryContext
 from errors import AssetException, ElasticSearchError
@@ -126,24 +127,40 @@ class Scanner(Walker):
 
         return expanded
 
+    def path_has_handlers(self, path):
+        result = False
+        rows = sql.retrieve_values('directory', ['name', 'file_type'], [path])
+        if len(rows) == 1:
+            file_type = rows[0][1]
+            result = file_type in self.reader.get_supported_extensions()
+        
+        return result
+
+    def path_not_configured(self, path):
+        result = True
+        if path in self.context.paths:
+            result = False
+        return result
+
     def scan(self):
         while self.context.has_next(SCAN, True):
             path = self.context.get_next(SCAN, True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                if self.path_expands(path): continue
+                if self.path_has_handlers(path) or self.path_not_configured(path) or self.do_deep_scan: 
+                    if self.path_expands(path): continue
 
-                LOG.debug('caching data..')
-                ops.cache_ops(path, SCAN)
-                ops.cache_ops(path, READ)
-                # cache.cache_docs(config.DIRECTORY, path)
-                LOG.debug('walking path %s..' % path)
+                    LOG.debug('caching data..')
+                    ops.cache_ops(path, SCAN)
+                    ops.cache_ops(path, READ)
+                    # cache.cache_docs(config.DIRECTORY, path)
+                    LOG.debug('walking path %s..' % path)
 
-                self.walk(path)
+                    self.walk(path)
 
-                LOG.debug('clearing cache..')
-                ops.write_ops_for_path(path, SCAN)
-                ops.write_ops_for_path(path, READ)
-                # cache.clear_docs(config.DIRECTORY, path)
+                    LOG.debug('clearing cache..')
+                    ops.write_ops_data(path, SCAN)
+                    ops.write_ops_data(path, READ)
+                    # cache.clear_docs(config.DIRECTORY, path)
 
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))

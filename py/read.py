@@ -85,7 +85,7 @@ class Reader:
                         LOG.error(err.message)
 
     def get_file_handlers(self):
-        return MutagenID3(), MutagenFLAC(),
+        return MutagenID3(), MutagenFLAC(), MutagenAPEv2()
 
 
 class FileHandler(object):
@@ -149,6 +149,13 @@ class Mutagen(FileHandler):
             # library.record_error(folder, "FLACVorbisError=" + err.message)
             # traceback.print_exc(file=sys.stdout)
 
+        except APENoHeaderError, err:
+            read_failed = True
+            data['read_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+            # library.record_error(folder, "FLACNoHeaderError=" + err.message)
+
         except Exception, err:
             # read_failed = True
             # data['read_error'] = err.message
@@ -165,13 +172,23 @@ class Mutagen(FileHandler):
 
 class MutagenAPEv2(Mutagen):
     def __init__(self):
-        super(MutagenAPEv2, self).__init__('mutagen-apev2', 'ape')
+        super(MutagenAPEv2, self).__init__('mutagen-apev2', 'ape', 'mpc')
 
     def read_tags(self, media, data):
         ape_data = {}
         document = APEv2(media.absolute_path)
-        print document
-        
+        for item in document.items():
+            key = item[0]
+            value = item[1].value
+            
+            ape_data[key] = value
+            if key not in get_known_fields('ape'):
+                add_field('ape', key)
+
+        if len(ape_data) > 0:
+            ape_data['_reader'] = self.name
+            data['properties'].append(ape_data)
+
 
 class MutagenFLAC(Mutagen):
     def __init__(self):

@@ -76,7 +76,7 @@ def calc(context, cycle_context=False):
                 do_match_op(values['esid'], values['absolute_path'])
 
                 for matcher in matchers:
-                    ops.write_ops_for_path(location, 'match', matcher.name)
+                    ops.write_ops_data(location, 'match', matcher.name)
                     cache.clear_matches(matcher.name, location)
 
             except Exception, err:
@@ -104,7 +104,7 @@ def do_match_op(esid, absolute_path):
                 else:
                     LOG.info('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
                     matcher.match(media)
-                    ops.write_ops_for_path(media.absolute_path, 'match', matcher.name)
+                    ops.write_ops_data(media.absolute_path, 'match', matcher.name)
 
         except AssetException, err:
             LOG.warning(': '.join([err.__class__.__name__, err.message]))

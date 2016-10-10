@@ -213,7 +213,7 @@ class TestCache2(unittest.TestCase):
 #         pass
 #
 #
-#     def test_write_ops_for_path(self):
+#     def test_write_ops_data(self):
 #         pass
 
 
