@@ -4,6 +4,7 @@ import json, pprint, sys, logging, traceback
 from mutagen.id3 import ID3, ID3NoHeaderError
 from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
 from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
+from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 
 import cache
 import cache2
@@ -85,7 +86,7 @@ class Reader:
                         LOG.error(err.message)
 
     def get_file_handlers(self):
-        return MutagenID3(), MutagenFLAC(), MutagenAPEv2()
+        return MutagenID3(), MutagenFLAC(), MutagenAPEv2(), MutagenOggVorbis()
 
 
 class FileHandler(object):
@@ -156,6 +157,12 @@ class Mutagen(FileHandler):
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "FLACNoHeaderError=" + err.message)
 
+        except OggVorbisHeaderError, err:
+            read_failed = True
+            data['read_error'] = err.message
+            data['has_error'] = True
+            LOG.debug(': '.join([err.__class__.__name__, err.message]))
+
         except Exception, err:
             # read_failed = True
             # data['read_error'] = err.message
@@ -169,6 +176,7 @@ class Mutagen(FileHandler):
 
     def read_tags(self, media, data):
         raise BaseClassException(Mutagen)
+
 
 class MutagenAPEv2(Mutagen):
     def __init__(self):
@@ -251,6 +259,22 @@ class MutagenID3(Mutagen):
 
         data['version'] = document.version
 
+
+class MutagenOggVorbis(Mutagen):
+    def __init__(self):
+        super(MutagenID3, self).__init__('mutagen-oggvorbis', 'ogg')
+
+    def read_tags(self, media, data):
+        ogg_data = {}
+        document = FLAC(media.absolute_path)
+        for tag in document.tags:
+            if tag[0] not in get_known_fields('ogg'):
+                add_field('ogg', tag[0])
+
+            key = tag[0]
+            value = tag[1]
+            ogg_data[key] = value
+    
 
 # class ImageHandler(FileHandler):
 #     def __init__(self):
