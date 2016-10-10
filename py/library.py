@@ -123,15 +123,13 @@ def set_active(path):
         folder.absolute_path = path
         folder.document_type = config.DIRECTORY
         sync_active_directory_state(folder)
-
+	return True
     except ConnectionError, err:
         print ': '.join([err.__class__.__name__, err.message])
         # if config.library_debug:
         traceback.print_exc(file=sys.stdout)
         print '\nConnection lost, please verify network connectivity and restart.'
         sys.exit(1)
-
-    return True
 
 
 def doc_exists_for_path(doc_type, path):
@@ -145,9 +143,22 @@ def doc_exists_for_path(doc_type, path):
 
 def get_library_location(path):
     # LOG.debug("determining location for %s." % (path.split('/')[-1]))
+    possible = []
+
     for location in pathutil.get_locations():
         if location in path:
-            return location
+	    possible.append(location)
+    
+    if len(possible) == 1:
+	return possible[0]
+      
+    if len(possible) > 1:
+      result = possible[0]
+      for item in possible:
+	if len(item) > len(result):
+	  result = item
+
+      return result
 
 
 def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
@@ -199,6 +210,7 @@ def insert_esid(index_name, document_type, elasticsearch_id, absolute_path):
     # sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
     #     [index, document_type, elasticsearch_id, absolute_path])
     alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
+
 
 def path_in_cache(document_type, path):
     return cache.get_cached_esid(document_type, path)
