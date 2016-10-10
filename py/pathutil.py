@@ -2,7 +2,6 @@ import logging
 import os
 import redis
 
-import sql
 import cache2
 
 # path functions for media files and folders

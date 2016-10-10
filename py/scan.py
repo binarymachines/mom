@@ -98,23 +98,21 @@ class Scanner(Walker):
     # utility
 
     def index_file(self, media, data):
-        LOG.debug("indexing file: %s" % (media.file_name))
+        LOG.debug("indexing file: %s" % (media.absolute_path))
         try:
             res = config.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
-
             if res['_shards']['successful'] == 1:
                 esid = res['_id']
                 # LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
                 media.esid = esid
-                # LOG.debug("inserting NEW esid into MySQL")
-                # alchemy.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
                 try:
+                    # LOG.debug("inserting NEW esid into MySQL")
                     library.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
                 except Exception, err:
                     config.es.delete(config.es_index, self.document_type, media.esid)
                     raise err
         except Exception, err:
-            raise ElasticSearchError(err, 'Failed to write media file %s to Elasticsearch.' % (media.file_name))
+            raise ElasticSearchError(err, 'Failed to write media file %s to Elasticsearch.' % (media.absolute_path))
 
     def path_expands(self, path):
         expanded = False

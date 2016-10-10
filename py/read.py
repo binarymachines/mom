@@ -14,8 +14,6 @@ import sql
 
 from errors import ElasticSearchError, BaseClassException
 
-pp = pprint.PrettyPrinter(indent=4)
-
 LOG = logging.getLogger('console.log')
 
 DELIMITER = ','
@@ -33,6 +31,7 @@ def add_field(doc_format, field_name):
     cache2.delete_key(lkey)
 
     cache2.delete_key(cache2.key_name(KNOWN, doc_format))
+
 
 def get_fields(doc_format):
     keygroup = 'fields'

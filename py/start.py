@@ -7,25 +7,10 @@ import config
 import sql
 import search
 import ops
-from config import pid, redis_host, es_host, es_port, es_index, mysql_host, mysql_db
 
 GET_PATHS = 'start_get_paths'
 
 LOG = logging.getLogger('console.log')
-
-
-def display_status():
-    print """Process ID: %i""" % config.pid
-    print 'Redis host: %s' % config.redis_host
-    print 'Redis dbsize: %i' % config.redis.dbsize()
-    # print""""Redis Port: %s.""" % config.redis_host
-    print """Elasticsearch Port: %i""" % es_port
-    print """Elasticsearch Index: %s""" % es_index
-    print"""MySQL username: %s""" % config.mysql_user
-    print """MySQL Host: %s""" % config.mysql_host
-    print """MySQL db: %s""" % config.mysql_db
-    print """Media Hound Username: %s""" % config.username
-    # print"""MySQL Host: %s.""" % mysql_host
 
 
 def execute(args):
@@ -55,7 +40,7 @@ def execute(args):
             LOG.debug('connecting to MySQL...')
             load_user_info()
 
-            display_status()
+            config.display_status()
 
             if 'exit' in options: sys.exit(0)
 

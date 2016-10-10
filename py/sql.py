@@ -175,30 +175,3 @@ def _load_query(filename, args):
         return str(query % newargs).replace('*', WILD).replace("'", "\'")#.replace('\n', ' ')
     except IOError, e:
         raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename))
-    
-    
-# records
-
-class Record(object):
-    def __init__(self, type, table, fields):
-        self.table = table
-        self.fields = fields
-        self.values = {}
-
-    def insert(self):
-        values = []
-        for field in self.fields:
-            values.append(values[field])
-
-        insert_values(self.table_name, self.fields, values)
-
-    def update(self, updated_fields=None):
-        values = []
-        if updated_fields is None:
-            for field in self.fields:
-                values.append(values[field])
-            update_values(self.table_name, self.fields, values)
-        else:
-            for field in updated_fields:
-                values.append(values[field])
-        update_values(self.table_name, updated_fields, values)
