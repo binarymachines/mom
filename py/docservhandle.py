@@ -31,7 +31,8 @@ class DocumentServiceProcessHandler():
     def after(self):
         mode = self.selector.active
         LOG.debug("%s after '%s'" % (self.name, mode.name))
-
+        config.display_status()
+        
     def before(self):
         mode = self.selector.next
         LOG.debug("%s before '%s'" % (self.name, mode.name))

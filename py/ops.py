@@ -6,7 +6,6 @@ import cache
 import cache2
 import config
 import sql
-from sql import Record
 import start
 import alchemy
 
@@ -14,12 +13,6 @@ LOG = logging.getLogger('console.log')
 
 OPS = 'operations'
 EXEC = 'platform execution'
-
-
-class OperationRecord(Record):
-    def __init__(self, table, fields):
-        fields = ['pid', 'start_time', 'end_time', 'target_esid', 'target_path']
-        super(OperationRecord, self).__init__(table, table.upper(), fields)
 
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
@@ -31,14 +24,16 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False):
 
 def flush_cache():
     LOG.debug('updating op records..')
-    write_ops_for_path('/')
+    write_ops_data('/')
 
 
 def operation_completed(asset, operation, operator=None):
     LOG.debug("checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
     rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [operator, operation, asset.esid])
-    return len(rows) > 0
+    result = len(rows) > 0
+    #LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    return result
 
 
 def operation_in_cache(path, operation, operator=None):
@@ -63,6 +58,7 @@ def record_op_begin(asset, operation, operator):
     # values['current_operation'] = operation
     values['operation_status'] = 'active'
     cache2.set_hash2(key, values)
+
 
 def record_op_complete(asset, operation, operator, op_failed=False):
     # LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
@@ -94,11 +90,11 @@ def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
             return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
 
 
-def update_op_records():
+def update_ops_data():
     pass
     # sql.run_query_template('ops_update_op_record')
 
-def write_ops_for_path(path, operation=None, operator=None):
+def write_ops_data(path, operation=None, operator=None):
     table_name = 'op_record'
     field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path', 'status', 'index_name']
 
@@ -110,12 +106,7 @@ def write_ops_for_path(path, operation=None, operator=None):
         if values == {} or ('persisted' in values and values['persisted'] == 'True') or \
             ('end_time' in values and values['end_time'] == 'None'): continue
 
-        # field_values = []
-        # for field in field_names:
-        #     field_values.append(values[field])
-
         try:
-            # sql.insert_values('op_record', field_names, field_values)
             alchemy.insert_operation_record(values['operation_name'], values['operator_name'], values['target_esid'], values['target_path'], 
                 values['start_time'], values['end_time'], values['status'])
         except Exception, error:

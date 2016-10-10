@@ -44,6 +44,19 @@ no_scan = False
 no_match = False
 
 
+
+def display_status():
+    print """Process ID: %i""" % config.pid
+    print 'Redis host: %s' % config.redis_host
+    print 'Redis dbsize: %i' % config.redis.dbsize()
+    print """Elasticsearch Port: %i""" % es_port
+    print """Elasticsearch Index: %s""" % es_index
+    print"""MySQL username: %s""" % config.mysql_user
+    print """MySQL Host: %s""" % config.mysql_host
+    print """MySQL db: %s""" % config.mysql_db
+    print """Media Hound Username: %s""" % config.username
+
+
 def start_console_logging():
     logging_started = True
 
