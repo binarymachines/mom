@@ -30,7 +30,7 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False):
 
 
 def flush_cache():
-    LOG.info('updating op records..')
+    LOG.debug('updating op records..')
     write_ops_for_path('/')
 
 

@@ -25,8 +25,7 @@ METADATA = 'document_metadata'
 
 
 def add_field(doc_format, field_name):
-    if field_name in get_fields(doc_format):
-        return
+    if field_name in get_fields(doc_format): return
     sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
 
     cache2.clear_items(KNOWN, doc_format)
@@ -202,8 +201,9 @@ class MutagenFLAC(Mutagen):
                 continue
             flac_data[key] = value
 
-        flac_data['_reader'] = self.name
-        data['properties'].append(flac_data)
+        if len(flac_data) > 0:
+            flac_data['_reader'] = self.name
+            data['properties'].append(flac_data)
 
 
 class MutagenID3(Mutagen):

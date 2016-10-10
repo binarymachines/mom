@@ -57,4 +57,4 @@ def start_console_logging():
 
     log = logging.getLogger(console_log)
     log.addHandler(console)
-    log.info("console logging started.")
+    log.debug("console logging started.")
