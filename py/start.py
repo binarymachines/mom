@@ -19,14 +19,12 @@ def display_status():
     print 'Redis host: %s' % config.redis_host
     print 'Redis dbsize: %i' % config.redis.dbsize()
     # print""""Redis Port: %s.""" % config.redis_host
-    print 'cache db size: %i' % (config.redis.dbsize())
-    print """Elasticsearch Host: %s""" % es_host
     print """Elasticsearch Port: %i""" % es_port
     print """Elasticsearch Index: %s""" % es_index
+    print"""MySQL username: %s""" % config.mysql_user
     print """MySQL Host: %s""" % config.mysql_host
     print """MySQL db: %s""" % config.mysql_db
     print """Media Hound Username: %s""" % config.username
-    # print"""MySQL Host: %s.""" % mysql_host
     # print"""MySQL Host: %s.""" % mysql_host
 
 
@@ -38,28 +36,30 @@ def execute(args):
         read_config(options)
 
         try:
-            LOG.info('connecting to Redis...')
+            LOG.debug('connecting to Redis...')
             config.redis = redis.Redis(config.redis_host)
 
-            LOG.info('connecting to Elasticsearch...')
+            LOG.debug('connecting to Elasticsearch...')
             config.es = search.connect()
         
             if 'reset' in options: reset()
-            if 'exit' in options: sys.exit(0)
 
             # if 'clearmem' in options:
-            LOG.info('clearing data from prior execution...')
+            LOG.debug('clearing data from prior execution...')
             ops.flush_cache()
 
             if 'noflush' not in options:
-                LOG.info('flushing reddis cache...')
+                LOG.debug('flushing reddis cache...')
                 cache2.flush_all()
 
-            LOG.info('connecting to MySQL...')
+            LOG.debug('connecting to MySQL...')
             load_user_info()
 
-            config.launched = True
             display_status()
+
+            if 'exit' in options: sys.exit(0)
+
+            config.launched = True
         except Exception, err:
             config.launched = False
             LOG.error(err.message)
@@ -107,7 +107,7 @@ def read(parser, section):
         try:
             result[option] = parser.get(section, option)
             if result[option] == -1:
-                LOG.info("skip: %s" % option)
+                LOG.debug("skip: %s" % option)
         except:
             print("exception on %s!" % option)
             result[option] = None
@@ -116,7 +116,7 @@ def read(parser, section):
 
 def read_config(options):
 
-    print "\nloading configuration from %s....\n" % config.filename
+    LOG.debug("loading configuration from %s....\n" % config.filename)
 
     parser = ConfigParser.ConfigParser()
     parser.read(config.filename)

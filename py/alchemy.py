@@ -42,6 +42,7 @@ class SQLAsset(Base):
 #         return "<User(name='%s', fullname='%s', password='%s')>" % (
 #                                 self.name, self.fullname, self.password)
 
+
 def insert_asset(index_name, doc_type, id, absolute_path):
     # ed_user = User(name='ed', fullname='Ed Jones', password='edspassword')
     asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path)
@@ -61,6 +62,11 @@ class SQLOperationRecord(Base):
     status = Column('status', String(64), nullable=False)
     start_time = Column('start_time', DateTime, nullable=False)
     end_time = Column('end_time', DateTime, nullable=True)
+
+#     def __repr__(self):
+#         return "<User(name='%s', fullname='%s', password='%s')>" % (
+#                                 self.name, self.fullname, self.password)
+
 
 def insert_operation_record(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
     op_rec = SQLOperationRecord(pid=str(config.pid), index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \

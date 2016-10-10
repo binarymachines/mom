@@ -30,9 +30,9 @@
                 // "/media/removable/Audio/albums/industrial",
                 // "--reset",
                 // "--exit",
-                "--scan",
+                // "--scan",
                 // "--match",
-                "--clearmem"
+                // "--clearmem"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
