@@ -13,13 +13,13 @@ LOG = logging.getLogger('console.log')
 
 def clear_index(index):
     if config.es.indices.exists(index):
-        LOG.info("deleting '%s' index..." % index)
+        LOG.debug("deleting '%s' index..." % index)
         res = config.es.indices.delete(index = index)
-        # LOG.info(" response: '%s'" % (res))
+        # LOG.debug(" response: '%s'" % (res))
 
 
 def create_index(index):
-    LOG.info("creating '%s' index..." % index)
+    LOG.debug("creating '%s' index..." % index)
     # since we are running locally, use one shard and no replicas
     request_body = {
         "settings" : {
@@ -28,11 +28,11 @@ def create_index(index):
         }
     }
     res = config.es.indices.create(index, request_body)
-    LOG.info("response: '%s'" % res)
+    LOG.debug("response: '%s'" % res)
 
 
 def connect(hostname=config.es_host, port_num=config.es_port):
-    LOG.info('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
+    LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
     es = Elasticsearch([{'host': hostname, 'port': port_num}])
     return es
 

@@ -8,6 +8,8 @@ import traceback
 
 from elasticsearch.exceptions import ConnectionError
 
+import alchemy
+
 import cache, cache2
 import config
 import pathutil
@@ -193,10 +195,10 @@ def handle_asset_exception(error, path):
             [config.es_index, error.data.document_type, error.data.esid, error.message])
 
 
-def insert_esid(index, document_type, elasticsearch_id, absolute_path):
-    sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
-        [index, document_type, elasticsearch_id, absolute_path])
-
+def insert_esid(index_name, document_type, elasticsearch_id, absolute_path):
+    # sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
+    #     [index, document_type, elasticsearch_id, absolute_path])
+    alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
 
 def path_in_cache(document_type, path):
     return cache.get_cached_esid(document_type, path)

@@ -160,14 +160,14 @@ def run_query_template(filename, *args):
 def _load_query(filename, args):
     newargs = ()
     for arg in args:
-        newargs += (arg.replace('"', "'"),)
+        newargs += (arg,) #.replace('"', "'"),)
 
     try:
-        query = ''
+        query = ""
         with open('py/sql/%s.sql' % filename, 'r') as f:
             for line in f:
                 if line.startswith('--'):
-                    LOG.debug(line)
+                    LOG.debug(line.replace('\n', ''))
                     continue
                 query += line
             f.close()

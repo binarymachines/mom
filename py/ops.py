@@ -8,6 +8,7 @@ import config
 import sql
 from sql import Record
 import start
+import alchemy
 
 LOG = logging.getLogger('console.log')
 
@@ -94,7 +95,8 @@ def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
 
 
 def update_op_records():
-    sql.run_query_template('ops_update_op_record')
+    pass
+    # sql.run_query_template('ops_update_op_record')
 
 def write_ops_for_path(path, operation=None, operator=None):
     table_name = 'op_record'
@@ -108,20 +110,23 @@ def write_ops_for_path(path, operation=None, operator=None):
         if values == {} or ('persisted' in values and values['persisted'] == 'True') or \
             ('end_time' in values and values['end_time'] == 'None'): continue
 
-        field_values = []
-        for field in field_names:
-            field_values.append(values[field])
+        # field_values = []
+        # for field in field_names:
+        #     field_values.append(values[field])
 
         try:
-            sql.insert_values('op_record', field_names, field_values)
+            # sql.insert_values('op_record', field_names, field_values)
+            alchemy.insert_operation_record(values['operation_name'], values['operator_name'], values['target_esid'], values['target_path'], 
+                values['start_time'], values['end_time'], values['status'])
         except Exception, error:
+            raise error
             # TODO: test the path to determine whether it is a file or a folder
-            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
-                [config.es_index, config.DOCUMENT, values['target_esid'], 'Unable to store/retrieve operation record'])
+            # sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
+            #     [config.es_index, config.DOCUMENT, values['target_esid'], 'Unable to store/retrieve operation record'])
         finally:
             cache2.delete_key(key)
 
-    LOG.info('%s operations have been updated for %s in MySQL' % (operation, path))
+    # LOG.info('%s operations have been updated for %s in MySQL' % (operation, path))
 
 def check_for_bugs():
     if config.check_for_bugs: raw_input('check for bugs')

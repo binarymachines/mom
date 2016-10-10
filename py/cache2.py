@@ -19,12 +19,13 @@ HASH = 'hashset'
 DELIM = ':'
 WILDCARD = '*'
 
-#TODO: In order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
-#  these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
+#TODO: in order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
+# these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
 # identifier is an arbitrary list which will be separated by DELIM
 
 def str_clean4key(input):
     return util.str_clean4comp(input, DELIM, WILDCARD, '-', '_')
+
 
 def key_name(key_group, *identifier):
     """get a compound key name for a given identifier and a specified record type"""
@@ -34,6 +35,7 @@ def key_name(key_group, *identifier):
     result = str_clean4key(keyname)
     # LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
     return result
+
 
 def create_key(key_group, *identifier, **values):
     """create a new compound key"""
@@ -52,7 +54,7 @@ def create_key(key_group, *identifier, **values):
 # def delete_key(key, delete_list=False, delete_hash=False):
 def delete_key(key):
     result = config.redis.delete(key)
-    LOG.debug('redis.delete(key=%s) returns: %s' % (key, str(result)))
+    # LOG.debug('redis.delete(key=%s) returns: %s' % (key, str(result)))
 
 
 def delete_key_group(key_group):
@@ -193,9 +195,22 @@ def add_item(key_group, identifier, item):
     # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
+def add_item2(key, item):
+    key = DELIM.join([LIST, key])
+    result = config.redis.sadd(key, item)
+    # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+
+
 def add_items(key_group, identifier, items):
     for item in items:
         key = DELIM.join([key_group, LIST, identifier])
+        result = config.redis.sadd(key, item)
+        # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+
+
+def add_items2(key, items):
+    for item in items:
+        key = DELIM.join([LIST, key])
         result = config.redis.sadd(key, item)
         # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
@@ -208,8 +223,30 @@ def clear_items(key_group, identifier):
         # LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
+def clear_items2(key):
+    key = DELIM.join([LIST, key])
+    values = config.redis.smembers(key)
+    for value in values:
+        result = config.redis.srem(key, value)
+        # LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
+
+
 def get_items(key_group, identifier):
     key = DELIM.join([key_group, LIST, identifier])
+    result = config.redis.smembers(key)
+    # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
+    return result
+
+
+def get_items(key_group, identifier):
+    key = DELIM.join([key_group, LIST, identifier])
+    result = config.redis.smembers(key)
+    # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
+    return result
+
+
+def get_items2(key):
+    key = DELIM.join([LIST, key])
     result = config.redis.smembers(key)
     # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
     return result
