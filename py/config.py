@@ -50,7 +50,7 @@ def start_console_logging():
     # console handler
     console_log = 'console.log'
     CONSOLE = "logs/%s" % (console_log)
-    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.DEBUG, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.INFO)#, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
     console = logging.StreamHandler()
     console.setLevel(logging.DEBUG)
