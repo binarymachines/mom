@@ -49,12 +49,12 @@ def display_status():
     print """Process ID: %i""" % pid
     print 'Redis host: %s' % redis_host
     print 'Redis dbsize: %i' % redis.dbsize()
-    print """Elasticsearch Port: %i""" % es_port
-    print """Elasticsearch Index: %s""" % es_index
-    print"""MySQL username: %s""" % mysql_user
-    print """MySQL Host: %s""" % mysql_host
-    print """MySQL db: %s""" % mysql_db
-    print """Media Hound Username: %s""" % username
+    print """Elasticsearch port: %i""" % es_port
+    print """Elasticsearch index: %s""" % es_index
+    print"""MariaDB username: %s""" % mysql_user
+    print """MariaDB host: %s""" % mysql_host
+    print """MariaDB schema: %s""" % mysql_db
+    print """Media Hound username: %s""" % username
 
 
 def start_console_logging():
@@ -63,10 +63,11 @@ def start_console_logging():
     # console handler
     console_log = 'console.log'
     CONSOLE = "logs/%s" % (console_log)
-    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.INFO)#, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    FORMAT = '%(asctime)s %(levelname)s %(filename)s%(funcName)s %(message)s ' #, datefmt='%m/%d/%Y %I:%M:%S %p')
+    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.DEBUG, format=FORMAT)
 
     console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
+    console.setLevel(logging.INFO)
 
     log = logging.getLogger(console_log)
     log.addHandler(console)

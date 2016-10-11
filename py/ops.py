@@ -1,3 +1,4 @@
+import os
 import datetime
 import logging
 import sys
@@ -9,10 +10,13 @@ import sql
 import start
 import alchemy
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger('operations.log')
 
 OPS = 'operations'
-EXEC = 'platform execution'
+EXEC = 'execution'
+
+OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted', 'start_time', 'end_time', 'status' \
+    'target_esid', 'target_path']
 
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
@@ -23,8 +27,8 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False):
 
 
 def flush_cache():
-    LOG.debug('updating op records..')
-    write_ops_data('/')
+    LOG.debug('flushing cache...')
+    write_ops_data(os.path.sep)
 
 
 def operation_completed(asset, operation, operator=None):
@@ -32,7 +36,7 @@ def operation_completed(asset, operation, operator=None):
     rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [operator, operation, asset.esid])
     result = len(rows) > 0
-    #LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
 
@@ -40,16 +44,17 @@ def operation_in_cache(path, operation, operator=None):
     key = cache2.get_key(OPS, operation, operator, path)
     values = cache2.get_hash2(key)
     result = 'persisted' in values and values['persisted'] == 'True'
-    #LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
 
 def record_op_begin(asset, operation, operator):
-    # LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, asset.absolute_path))
+    LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, asset.absolute_path))
     key = cache2.create_key(OPS, operation, operator, asset.absolute_path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid,
-        'target_path': asset.absolute_path, 'index_name': config.es_index }
+        'target_path': asset.absolute_path, 'index_name': config.es_index, 'status': "ACTIVE" }
+    
     cache2.set_hash2(key, values)
 
     key = cache2.get_key(OPS, EXEC)
@@ -61,7 +66,7 @@ def record_op_begin(asset, operation, operator):
 
 
 def record_op_complete(asset, operation, operator, op_failed=False):
-    # LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
+    LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
 
     key = cache2.get_key(OPS, operation, operator, asset.absolute_path)
     values = cache2.get_hash2(key)
@@ -91,20 +96,29 @@ def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
 
 
 def update_ops_data():
-    pass
-    # sql.run_query_template('ops_update_op_record')
+    # pass
+    LOG.debug('Updating operation records')
+    # # TODO: add params to this query (index_name, date range, etc)
+    try:
+        sql.execute_query_template('ops_update_op_record')
+    except Exception, err:
+        LOG.error(err.message)
 
 def write_ops_data(path, operation=None, operator=None):
     table_name = 'op_record'
-    field_names = ['pid', 'operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time', 'target_path', 'status', 'index_name']
-
+  
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation
     keys = cache2.get_keys(OPS, operation, operator, path)
     for key in keys:
         values = cache2.get_hash2(key)
-        if values == {} or ('persisted' in values and values['persisted'] == 'True') or \
-            ('end_time' in values and values['end_time'] == 'None'): continue
+        skip = False
+        for key in OP_RECORD:
+            if not key in values: 
+                skip = True
+                break
+                
+        if skip or values['persisted'] == 'True' or values['end_time'] == 'None': continue
 
         try:
             alchemy.insert_operation_record(values['operation_name'], values['operator_name'], values['target_esid'], values['target_path'], 
@@ -117,7 +131,7 @@ def write_ops_data(path, operation=None, operator=None):
         finally:
             cache2.delete_key(key)
 
-    # LOG.info('%s operations have been updated for %s in MySQL' % (operation, path))
+    LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
 
 def check_for_bugs():
     if config.check_for_bugs: raw_input('check for bugs')

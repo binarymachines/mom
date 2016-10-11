@@ -38,7 +38,7 @@ class DocumentServiceProcessHandler():
         LOG.debug("%s before '%s'" % (self.name, mode.name))
         if mode.active_rule is not None:
             LOG.info("%s: %s follows '%s', because of '%s'" % \
-                (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '..'))
+                (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
     def mode_is_available(self, selector, active, possible):
 
@@ -102,13 +102,13 @@ class DocumentServiceProcessHandler():
     def after_match(self):
         self.after()
         dir = self.context.get_active ('match')
-        LOG.info('%s done matching in %s, clearing cache..' % (self.name, dir))
+        LOG.info('%s done matching in %s, clearing cache...' % (self.name, dir))
         # self.reportmode.priority += 1
 
 
     def do_match(self):
         dir = self.context.get_active ('match')
-        LOG.info('%s matching in %s..' % (self.name, dir))
+        LOG.info('%s matching in %s...' % (self.name, dir))
         try:
             calc.calc(self.context)
         except Exception, err:
@@ -117,7 +117,7 @@ class DocumentServiceProcessHandler():
 
     # requests
 
-    def do_reqs(self): LOG.info('%s handling requests..' % self.name)
+    def do_reqs(self): LOG.info('%s handling requests...' % self.name)
 
     # scan
 
@@ -128,12 +128,12 @@ class DocumentServiceProcessHandler():
 
     def after_scan(self):
         self.after()
-        LOG.info('%s done scanning, updating op records..' % self.name)
+        LOG.info('%s done scanning, updating op records...' % self.name)
         clean.clean(self.context)
 
     def do_scan(self):
-        dir = self.context.get_next('scan')
-        LOG.info('%s scanning %s..' % (self.name, dir))
+        # dir = self.context.peek_next('scan', True)
+        # LOG.info('%s scanning %s...' % (self.name, dir))
         try:
             scan.scan(self.context)
         except Exception, err:

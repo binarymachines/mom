@@ -115,7 +115,7 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
             mediafiles = get_media_files(folder_data[FOLDER])
             for media in mediafiles:
                 match_folder_data, parent_data = {}, {}
-                file_data = { FILE_ESID: media[0], FILE: media[1].split('/')[-1], FOLDER: folder_data[FOLDER],
+                file_data = { FILE_ESID: media[0], FILE: media[1].split(os.path.sep)[-1], FOLDER: folder_data[FOLDER],
                                 MATCHES: [], WEIGHT: calculate_weight(media[1], weights), DISCOUNT: calculate_discount(media[1], discounts) }
 
                 get_media_meta_data(es, file_data[FILE_ESID], file_data)
@@ -125,7 +125,7 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
 
                     matches_exist = True
                     match_parent = os.path.abspath(os.path.join(match[3], os.pardir))
-                    match_data = { MATCH_FOLDER: match_parent, 'matcher': match[0], MATCH_SCORE: match[1], MATCH_ESID: match[2], MATCH_FILENAME: match[3].split('/')[-1],
+                    match_data = { MATCH_FOLDER: match_parent, 'matcher': match[0], MATCH_SCORE: match[1], MATCH_ESID: match[2], MATCH_FILENAME: match[3].split(os.path.sep)[-1],
                         WEIGHT: calculate_weight(match[3], weights), DISCOUNT: calculate_discount(match[3], discounts), '_notes':'' }
 
                     calculate_suggestion(file_data, match_data, match[4])
@@ -364,7 +364,7 @@ def get_matches_for(pattern):
                 continue
 
             folders.append(path)
-            output = '.'.join([RESULTS, path.split('/')[-1], 'json'])
+            output = '.'.join([RESULTS, path.split(os.path.sep)[-1], 'json'])
             try:
                 generate_match_doc(path, False, False, output)
             except Exception, err:
@@ -410,7 +410,7 @@ def main(args):
     exclude_ignore = args['--exclude-ignore']
     show_in_subl = args['--subl']
 
-    outputfile = '.'.join([pattern.split('/')[-1].replace(' ', '_'), 'json'])
+    outputfile = '.'.join([pattern.split(os.path.sep)[-1].replace(' ', '_'), 'json'])
 
     start.execute(args)
     generate_match_doc(exclude_ignore, show_in_subl, pattern, False, outputfile, False)

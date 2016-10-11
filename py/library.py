@@ -96,12 +96,12 @@ def sync_active_directory_state(folder):
 
             res = config.es.index(index=config.es_index, doc_type=folder.document_type, body=json_str)
             if res['_shards']['successful'] == 1:
-                # if config.library_debug: print 'data indexed, updating MySQL'
+                # if config.library_debug: print 'data indexed, updating MariaDB'
                 folder.esid = res['_id']
-                # update MySQL
+                # update MariaDB
                 # alchemy.insert_asset(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
                 try:
-                    insert_esid(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                    insert_asset(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
                 except Exception, err:
                     if folder.esid is not None:
                         config.es.delete(config.es_index, folder.document_type, folder.esid)
@@ -142,7 +142,7 @@ def doc_exists_for_path(doc_type, path):
 
 
 def get_library_location(path):
-    # LOG.debug("determining location for %s." % (path.split('/')[-1]))
+    # LOG.debug("determining location for %s." % (path.split(os.path.sep)[-1]))
     possible = []
 
     for location in pathutil.get_locations():
@@ -206,7 +206,7 @@ def handle_asset_exception(error, path):
             [config.es_index, error.data.document_type, error.data.esid, error.message])
 
 
-def insert_esid(index_name, document_type, elasticsearch_id, absolute_path):
+def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
     # sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
     #     [index, document_type, elasticsearch_id, absolute_path])
     alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
@@ -227,36 +227,6 @@ def retrieve_esid(document_type, absolute_path):
     if len(rows) == 1: return rows[0][3]
     elif len(rows) >1: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
-
-# TODO: figure out why this fails
-# def add_artist_and_album_to_db(self, data):
-
-#     if 'TPE1' in data and 'TALB' in data:
-#         try:
-#             artist = data['TPE1'].lower()
-#             rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
-#             if len(rows) == 0:
-#                 try:
-#                     print 'adding %s to MySQL...' % (artist)
-#                     thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
-#                 except Exception, err:
-#                     print ': '.join([err.__class__.__name__, err.message])
-#                     if self.debug: traceback.print_exc(file=sys.stdout)
-
-#             # sql.insert_values('artist', ['name'], [artist])
-#             #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
-#             #
-#             # artistid = rows[0][1]
-#             #
-#             # if 'TALB' in data:
-#             #     album = data['TALB'].lower()
-#             #     rows2 = sql.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
-#             #     if len(rows2) == 0:
-#             #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
-
-#         except Exception, err:
-#             print ': '.join([err.__class__.__name__, err.message])
-#             if self.debug: traceback.print_exc(file=sys.stdout)
 
 
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later

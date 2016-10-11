@@ -15,7 +15,7 @@ import sql
 
 from errors import ElasticSearchError, BaseClassException
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger('scan.log')
 
 DELIMITER = ','
 READ = 'read'
@@ -164,9 +164,9 @@ class Mutagen(FileHandler):
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
 
         except Exception, err:
-            # read_failed = True
-            # data['read_error'] = err.message
-            # data['has_error'] = True
+            read_failed = True
+            data['read_error'] = err.message
+            data['has_error'] = True
             LOG.debug(': '.join([err.__class__.__name__, err.message]))
             # library.record_error(folder, "FLACVorbisError=" + err.message)
             # traceback.print_exc(file=sys.stdout)
@@ -240,33 +240,37 @@ class MutagenID3(Mutagen):
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
         for tag in tags:
-            if tag[0] in get_fields('ID3V2'):
-                data[tag[0]] = tag[1]
+            if len(tag) < 2: continue
 
-            if tag[0] == "TXXX":
+            key = tag[0]
+            value = tag[1]
+
+            if key in get_fields('ID3V2'):
+                data[key] = value
+
+            if key == "TXXX":
                 for sub_field in get_fields('ID3V2.TXXX'):
-                    if sub_field in tag[1]:
-                        subtags = tag[1].split('=')
-                        key=subtags[0].replace(' ', '_').upper()
-                        data[key] = subtags[1]
+                    if sub_field in value:
+                        subtags = value.split('=')
+                        subkey=subtags[0].replace(' ', '_').upper()
+                        data[subkey] = subtags[1]
                 
-                        if key not in get_known_fields('ID3V2.TXXX'):
+                        if subkey not in get_known_fields('ID3V2.TXXX'):
                             add_field('ID3V2.TXXX', key)
 
-            else:
-                if tag[0] not in get_known_fields('ID3V2'):
-                    add_field('ID3V2', tag[0])
+            elif len(key) == 4 and key not in get_known_fields('ID3V2'):
+                    add_field('ID3V2', key)
 
         data['version'] = document.version
 
 
 class MutagenOggVorbis(Mutagen):
     def __init__(self):
-        super(MutagenID3, self).__init__('mutagen-oggvorbis', 'ogg')
+        super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis', 'ogg')
 
     def read_tags(self, media, data):
         ogg_data = {}
-        document = FLAC(media.absolute_path)
+        document = OggVorbis(media.absolute_path)
         for tag in document.tags:
             if tag[0] not in get_known_fields('ogg'):
                 add_field('ogg', tag[0])

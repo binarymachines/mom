@@ -94,6 +94,18 @@ class TestCache2(unittest.TestCase):
         items = self.redis.smembers(listkey)
         self.assertItemsEqual(items, self.identifiers, 'add_item fails')
 
+
+    def test_add_item2(self):
+        keyname = 'add_item2'
+        key = cache2.create_key(KEYGROUP, keyname)
+        for item in self.identifiers:
+            cache2.add_item2(key, item)
+
+        listkey = cache2.DELIM.join([cache2.LIST, key])
+        items = self.redis.smembers(listkey)
+        self.assertItemsEqual(items, self.identifiers, 'add_item2 fails')
+
+
     def test_clear_items(self):
         keyname = 'clear_items'
         listkey = cache2.DELIM.join([KEYGROUP, cache2.LIST, keyname])
@@ -105,6 +117,18 @@ class TestCache2(unittest.TestCase):
         items = self.redis.smembers(listkey)
         self.assertItemsEqual(items, [], 'clear_items fails')
 
+
+    def test_clear_items2(self):
+        keyname = 'clear_items2'
+        key = cache2.create_key(KEYGROUP, keyname)
+
+        cache2.clear_items2(key)
+
+        listkey = cache2.DELIM.join([cache2.LIST, key])
+        items = self.redis.smembers(listkey)
+        self.assertItemsEqual(items, [], 'clear_items2 fails')
+
+
     def test_get_items(self):
         keyname = 'get_items'
         listkey = cache2.DELIM.join([KEYGROUP, cache2.LIST, keyname])
@@ -113,6 +137,19 @@ class TestCache2(unittest.TestCase):
 
         items = cache2.get_items(KEYGROUP, keyname)
         self.assertItemsEqual(items, self.test_vals, 'get_items fails')
+
+
+    # def test_get_items2(self):
+    #     keyname = 'get_items'
+    #     key = cache2.create_key(KEYGROUP, keyname)
+    #     listkey = cache2.DELIM.join([cache2.LIST, key])
+    #
+    #     for item in self.test_vals:
+    #         self.redis.sadd(listkey, item)
+    #
+    #
+    #     items = cache2.get_items2(listkey)
+    #     self.assertItemsEqual(items, self.test_vals, 'get_items fails')
 
     # Hashsets
 

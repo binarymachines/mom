@@ -38,9 +38,9 @@ class SQLAsset(Base):
     doc_type = Column(String(256), nullable=False)
     absolute_path = Column(String(256), nullable=False)
 
-#     def __repr__(self):
-#         return "<User(name='%s', fullname='%s', password='%s')>" % (
-#                                 self.name, self.fullname, self.password)
+    def __repr__(self):
+        return "<SQLAsset(index_name='%s', doc_type='%s', absolute_path='%s')>" % (
+                                self.index_name, self.doc_type, self.absolute_path)
 
 
 def insert_asset(index_name, doc_type, id, absolute_path):
@@ -63,10 +63,6 @@ class SQLOperationRecord(Base):
     start_time = Column('start_time', DateTime, nullable=False)
     end_time = Column('end_time', DateTime, nullable=True)
 
-#     def __repr__(self):
-#         return "<User(name='%s', fullname='%s', password='%s')>" % (
-#                                 self.name, self.fullname, self.password)
-
 
 def insert_operation_record(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
     op_rec = SQLOperationRecord(pid=str(config.pid), index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
@@ -85,3 +81,41 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
 #     __tablename__ = 'op_request'
 
 # ProblemDocRec, ProblemPathRec
+
+# TODO: write code
+# def add_artist_and_album_to_db(self, data):
+
+#     if 'TPE1' in data and 'TALB' in data:
+#         try:
+#             artist = data['TPE1'].lower()
+#             rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
+#             if len(rows) == 0:
+#                 try:
+#                     print 'adding %s to MariaDB...' % (artist)
+#                     thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
+#                 except Exception, err:
+#                     print ': '.join([err.__class__.__name__, err.message])
+#                     if self.debug: traceback.print_exc(file=sys.stdout)
+
+#             # sql.insert_values('artist', ['name'], [artist])
+#             #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
+#             #
+#             # artistid = rows[0][1]
+#             #
+#             # if 'TALB' in data:
+#             #     album = data['TALB'].lower()
+#             #     rows2 = sql.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
+#             #     if len(rows2) == 0:
+#             #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
+
+#         except Exception, err:
+#             print ': '.join([err.__class__.__name__, err.message])
+#             if self.debug: traceback.print_exc(file=sys.stdout)
+
+
+
+
+
+
+
+
