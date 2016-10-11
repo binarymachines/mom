@@ -6,7 +6,7 @@ import cache2
 
 # path functions for media files and folders
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 import config
 import sql
 
@@ -138,12 +138,12 @@ def path_contains_album_folders(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_contains_document_categories(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def file_type_recognized(path, extensions, recursive=False):
     # if self.debug: print path
     if os.path.isdir(path):
@@ -156,7 +156,7 @@ def file_type_recognized(path, extensions, recursive=False):
     else: raise Exception('Path does not exist: "' + path + '"')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def multiple_file_types_recognized(path, extensions):
     # if self.debug: print path
     if os.path.isdir(path):
@@ -174,9 +174,9 @@ def multiple_file_types_recognized(path, extensions):
     else: raise Exception('Path does not exist: "' + path + '"')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_has_location_name(path, names):
-    # if path.endswith('/'):
+    # if path.endswith(os.path.sep):
     for name in names():
         if path.endswith(name):
             print path
@@ -185,7 +185,7 @@ def path_has_location_name(path, names):
     # raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_in_album_folder(path):
     # if self.debug: print path
     if os.path.isdir(path) == False:
@@ -194,17 +194,17 @@ def path_in_album_folder(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_in_document_category(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_in_location_folder(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_is_album_folder(path):
     # if self.debug: print path
     if os.path.isdir(path) == False:
@@ -213,12 +213,12 @@ def path_is_album_folder(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_is_document_category(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
+# TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_is_location_folder(path):
     raise Exception('not implemented!')
 

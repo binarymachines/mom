@@ -1,3 +1,4 @@
+import os
 import logging
 
 import redis
@@ -21,12 +22,12 @@ def get_doc_group(document_type):
 
 def flush_cache():
     write_paths()
-    clear_docs(config.DOCUMENT, '/')
+    clear_docs(config.DOCUMENT, os.path.sep)
 
 # es documents
 
 def cache_docs(document_type, path, flush=True):
-    if flush: clear_docs(document_type, '/')
+    if flush: clear_docs(document_type, os.path.sep)
     LOG.debug('caching %s doc info for %s...' % (document_type, path))
     rows = retrieve_docs(document_type, path)
     key = get_doc_group(document_type)
@@ -150,9 +151,9 @@ def write_paths(flushkeys=True):
                     cached_paths = [row[0] for row in rows]
                     for path in paths:
                         if path['esid'] not in cached_paths:
-                            # if config.sql_debug: print('Updating MySQL...')
+                            # if config.sql_debug: print('Updating MariaDB...')
                             try:
-                                library.insert_esid(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
+                                library.insert_asset(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
                             except Exception, e:
                                 print e.message
 

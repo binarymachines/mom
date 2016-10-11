@@ -1,10 +1,4 @@
 #! /bin/bash
-pushd  /home/$USER/dev/mom
+rm $MOM/py/*.pyc
 clear
-#workon mom
-python py/serv.py --pattern music
-rm py/*.pyc
-popd
-pushd ~/dev/mom/
-python py/launch.py
-popd
+~/dev/_virtual_env/mom/bin/python2.7 $MOM/py/launch.py

@@ -11,6 +11,7 @@ import docopt
 import logging
 import sys
 import traceback
+import os
 
 import cache2
 import cache
@@ -58,7 +59,7 @@ def calc(context, cycle_context=False):
         if library.path_in_db(config.DOCUMENT, location):
             try:
                 # this should never be true, but a test
-                if location[-1] != '/': location += '/'
+                if location[-1] != os.path.sep: location += os.path.sep
 
                 cache.cache_docs(config.DOCUMENT, location)
                 ops.cache_ops(location, 'match', apply_lifespan=True)

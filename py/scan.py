@@ -15,7 +15,7 @@ import json
 
 from docopt import docopt
 
-import cache
+import cache2
 import config
 import library
 import ops
@@ -29,8 +29,9 @@ from walk import Walker
 from read import Reader
 
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger('scan.log')
 
+SCANNER = 'scanner'
 SCAN = 'scan'
 READ = 'read'
 
@@ -52,13 +53,13 @@ class Scanner(Walker):
     def after_handle_root(self, root):
         # folder = library.get_cached_directory()
         # if folder is not None and folder.absolute_path == root:
-        #     ops.record_op_complete(folder, SCAN, 'scanner')
+        #     ops.record_op_complete(folder, SCAN, SCANNER)
         library.set_active(None)
 
     def before_handle_root(self, root):
         ops.do_status_check()
         library.clear_directory_cache()
-        if ops.operation_in_cache(root, SCAN, 'scanner') and not self.do_deep_scan: return
+        if ops.operation_in_cache(root, SCAN, SCANNER) and not self.do_deep_scan: return
         if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
 
         try:
@@ -73,8 +74,8 @@ class Scanner(Walker):
         folder = library.get_cached_directory()
         if folder is None or folder.esid is None: return
 
-        LOG.debug('scanning folder: %s' % (root))
-        ops.record_op_begin(folder, SCAN, 'scanner')
+        LOG.debug('scanning %s' % (root))
+        ops.record_op_begin(folder, SCAN, SCANNER)
 
         for filename in os.listdir(root):
             ops.do_status_check()
@@ -89,12 +90,15 @@ class Scanner(Walker):
 
                 self.index_file(media, data)
 
-        ops.record_op_complete(folder, SCAN, 'scanner')
+        ops.record_op_complete(folder, SCAN, SCANNER)
         LOG.debug('done scanning folder: %s' % (root))
 
     def handle_root_error(self, err):
         LOG.error(': '.join([err.__class__.__name__, err.message]))
         traceback.print_exc(file=sys.stdout)
+        library.set_active(None)
+        # TODO: connectivity tests, delete operations on root from cache.
+
 
     # utility
 
@@ -107,22 +111,23 @@ class Scanner(Walker):
                 # LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
                 media.esid = esid
                 try:
-                    # LOG.debug("inserting NEW esid into MySQL")
-                    library.insert_esid(config.es_index, self.document_type, media.esid, media.absolute_path)
+                    LOG.debug("inserting asset into MariaDB")
+                    library.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
                 except Exception, err:
                     config.es.delete(config.es_index, self.document_type, media.esid)
                     raise err
         except Exception, err:
-            raise ElasticSearchError(err, 'Failed to write media file %s to Elasticsearch.' % (media.absolute_path))
+            raise ElasticSearchError(err, 'Failed to write document %s to Elasticsearch.' % (media.absolute_path))
 
     def path_expands(self, path):
         expanded = False
         if path in pathutil.get_locations():# or pathutil.is_curated(path):
             dirs = os.listdir(path)
+            dirs.sort()
             for dir in dirs:
                 sub_path = os.path.join(path, dir)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
-                    self.context.push_fifo(SCAN, sub_path)
+                    self.context.rpush_fifo(SCAN, sub_path)
                     expanded = True
 
         return expanded
@@ -149,17 +154,23 @@ class Scanner(Walker):
                 if self.path_has_handlers(path) or self.path_not_configured(path) or self.do_deep_scan: 
                     if self.path_expands(path): continue
 
-                    LOG.debug('caching data..')
+                    LOG.debug('caching data for %s...' % path)
                     ops.cache_ops(path, SCAN)
                     ops.cache_ops(path, READ)
                     # cache.cache_docs(config.DIRECTORY, path)
-                    LOG.debug('walking path %s..' % path)
-
+                    
+                    start_cache_size = len(cache2.get_keys(ops.OPS, READ))
                     self.walk(path)
+                    end_cache_size = len(cache2.get_keys(ops.OPS, READ))
 
-                    LOG.debug('clearing cache..')
+                    LOG.debug('clearing cache...')
                     ops.write_ops_data(path, SCAN)
                     ops.write_ops_data(path, READ)
+
+                    LOG.debug('updating MariaDB...')
+                    if start_cache_size != end_cache_size:
+                        ops.update_ops_data()
+
                     # cache.clear_docs(config.DIRECTORY, path)
 
             elif not os.access(path, os.R_OK):
@@ -170,9 +181,9 @@ class Scanner(Walker):
 
 
 def scan(context):
-    if 'scanner' not in context.data:
-        context.data['scanner'] = Scanner(context)
-    context.data['scanner'].scan()
+    if SCANNER not in context.data:
+        context.data[SCANNER] = Scanner(context)
+    context.data[SCANNER].scan()
 
 
 def main(args):

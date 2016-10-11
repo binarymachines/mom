@@ -37,7 +37,7 @@ def execute(args):
                 LOG.debug('flushing reddis cache...')
                 cache2.flush_all()
 
-            LOG.debug('connecting to MySQL...')
+            LOG.debug('connecting to MariaDB...')
             load_user_info()
 
             config.display_status()
@@ -167,8 +167,13 @@ def start_logging():
     if config.logging_started: return
 
     config.start_console_logging()
+    
     setup_log('elasticsearch.log', 'elasticsearch.trace', logging.INFO)
     setup_log('sql.log', 'sql.log', logging.DEBUG)
+    setup_log('operations.log', 'operations.log', logging.DEBUG)
+    setup_log('scan.log', 'scan.log', logging.DEBUG)
+    setup_log('cache2.log', 'cache2.log', logging.DEBUG)
+    setup_log('modes.log', 'modes.log', logging.DEBUG)
 
 
 # pids

@@ -5,7 +5,7 @@ import MySQLdb as mdb
 
 from errors import SQLConnectError
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger('sql.log')
 
 WILD = '%'
 

@@ -3,7 +3,7 @@ import sys, os, logging, traceback, datetime
 
 from errors import ModeDestinationException
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger('modes.log')
 
 class Mode(object):
     HIGHEST = 100;
@@ -295,7 +295,7 @@ class SuspensionHandler:
             self.success = self.recover()
         except Exception, err:
             self.success = False
-            LOG.info('recovery attempt for mode %s fails with %s' % (self.mode.name, err.message))
+            LOG.debug('recovery attempt for mode %s fails with %s' % (self.mode.name, err.message))
 
         return self.success
 
@@ -356,14 +356,14 @@ class Engine:
             self._sub_execute_()
 
     def report(self, selector):
-        LOG.info('%s reporting activity for: %s' % (self.name, selector.name))
+        LOG.debug('%s reporting activity for: %s' % (self.name, selector.name))
 
-        LOG.info('%s took %i steps.' % (selector.name, selector.step_count))
+        LOG.debug('%s took %i steps.' % (selector.name, selector.step_count))
         if selector.error_state:
-            LOG.info('%s has errors.' % selector.name)
-        elif selector.complete: LOG.info('%s executed to completion.' % selector.name)
+            LOG.debug('%s has errors.' % selector.name)
+        elif selector.complete: LOG.debug('%s executed to completion.' % selector.name)
         for mode in selector.modes:
-            LOG.info('%s: times activated = %i, times completed = %i, priority = %i, error count = %i, error state = %s ' % \
+            LOG.debug('%s: times activated = %i, times completed = %i, priority = %i, error count = %i, error state = %s ' % \
                 (mode.name, mode.times_activated, mode.times_completed, mode.priority, mode.error_count, str(mode.error_state)))
 
     def start(self):

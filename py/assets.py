@@ -27,7 +27,7 @@ class Asset(object):
     def short_name(self):
         if self.absolute_path is None:
             return None
-        return self.absolute_path.split('/')[-1]
+        return self.absolute_path.split(os.path.sep)[-1]
 
     def ignore(self):
         return pathutil.ignore(self.absolute_path)
