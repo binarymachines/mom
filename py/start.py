@@ -1,12 +1,17 @@
-import sys, os, datetime, traceback, ConfigParser, logging
+import ConfigParser
+import logging
+import os
+import sys
+import traceback
 
 import redis
 
 import cache2
 import config
-import sql
-import search
 import ops
+import search
+import sql
+import log
 
 GET_PATHS = 'start_get_paths'
 
@@ -14,7 +19,7 @@ LOG = logging.getLogger('console.log')
 
 
 def execute(args):
-    start_logging()
+    log.start_logging()
     if os.path.isfile(os.path.join(os.getcwd(), config.filename)):
 
         options = make_options(args)
@@ -153,27 +158,6 @@ def reset():
     for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
         query = 'delete from %s where 1 = 1' % (table)
         sql.execute_query(query)
-
-
-def setup_log(file_name, log_name, logging_level):
-    log = "logs/%s" % (file_name)
-    tracer = logging.getLogger(log_name)
-    tracer.setLevel(logging_level)
-    tracer.addHandler(logging.FileHandler(log))
-    return tracer
-
-
-def start_logging():
-    if config.logging_started: return
-
-    config.start_console_logging()
-    
-    setup_log('elasticsearch.log', 'elasticsearch.trace', logging.INFO)
-    setup_log('sql.log', 'sql.log', logging.DEBUG)
-    setup_log('operations.log', 'operations.log', logging.DEBUG)
-    setup_log('scan.log', 'scan.log', logging.DEBUG)
-    setup_log('cache2.log', 'cache2.log', logging.DEBUG)
-    setup_log('modes.log', 'modes.log', logging.DEBUG)
 
 
 # pids

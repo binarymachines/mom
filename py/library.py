@@ -165,8 +165,11 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
     """return a media file instance"""
     fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
     if fail_on_fs_missing and not fs_avail:
-        LOG.warning("Either file is missing or is not readable")
+        LOG.warning("File %s is missing or is not readable" % absolute_path)
         return None
+    
+    elif not fs_avail:
+        media.available = False
 
     media = Document()
     filename = os.path.split(absolute_path)[1]
@@ -179,8 +182,10 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
     media.file_name = filename
     media.location = get_library_location(absolute_path)
     media.ext = extension
-    media.folder_name = os.path.abspath(os.path.join(absolute_path, os.pardir)) if fs_avail else None
-    media.file_size = os.path.getsize(absolute_path) if fs_avail else None
+
+    if media.available:
+        media.folder_name = os.path.abspath(os.path.join(absolute_path, os.pardir)) if fs_avail else None
+        media.file_size = os.path.getsize(absolute_path) if fs_avail else None
 
     # check cache for esid
     if media.esid is None and check_cache and path_in_cache(media.document_type, absolute_path):
@@ -195,20 +200,7 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
     return media
 
 
-def handle_asset_exception(error, path):
-    if error.message.lower().startswith('multiple'):
-        for item in  error.data:
-            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-    # elif error.message.lower().startswith('unable'):
-    # elif error.message.lower().startswith('NO DOCUMENT'):
-    else:
-        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], \
-            [config.es_index, error.data.document_type, error.data.esid, error.message])
-
-
 def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
-    # sql.insert_values('es_document', ['index_name', 'doc_type', 'id', 'absolute_path'],
-    #     [index, document_type, elasticsearch_id, absolute_path])
     alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
 
 
@@ -228,7 +220,17 @@ def retrieve_esid(document_type, absolute_path):
     elif len(rows) >1: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
 
-
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later
+
+def handle_asset_exception(error, path):
+    if error.message.lower().startswith('multiple'):
+        for item in  error.data:
+            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+    # elif error.message.lower().startswith('unable'):
+    # elif error.message.lower().startswith('NO DOCUMENT'):
+    else:
+        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], \
+            [config.es_index, error.data.document_type, error.data.esid, error.message])
+
 
 

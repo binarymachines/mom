@@ -17,6 +17,7 @@ import cache2
 import cache
 import config
 import library
+import log
 import ops
 import search
 import sql
@@ -146,7 +147,7 @@ def get_matchers():
 
 def main(args):
     config.es = search.connect()
-    config.start_console_logging()
+    log.start_console_logging()
     paths = None if not args['--path'] else args['<path>']
     context = DirectoryContext('_path_context_', paths, ['mp3'])
     calculate_matches(context)
