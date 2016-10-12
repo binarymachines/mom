@@ -1,7 +1,6 @@
 #! /usr/bin/python
 
 import datetime
-import logging
 import os
 
 import redis
@@ -44,7 +43,6 @@ no_scan = False
 no_match = False
 
 
-
 def display_status():
     print """Process ID: %i""" % pid
     print 'Redis host: %s' % redis_host
@@ -57,18 +55,3 @@ def display_status():
     print """Media Hound username: %s""" % username
 
 
-def start_console_logging():
-    logging_started = True
-
-    # console handler
-    console_log = 'console.log'
-    CONSOLE = "logs/%s" % (console_log)
-    FORMAT = '%(asctime)s %(levelname)s %(filename)s%(funcName)s %(message)s ' #, datefmt='%m/%d/%Y %I:%M:%S %p')
-    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.DEBUG, format=FORMAT)
-
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-
-    log = logging.getLogger(console_log)
-    log.addHandler(console)
-    log.debug("console logging started.")

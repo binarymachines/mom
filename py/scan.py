@@ -18,6 +18,7 @@ from docopt import docopt
 import cache2
 import config
 import library
+import log
 import ops
 import pathutil
 import search
@@ -82,7 +83,7 @@ class Scanner(Walker):
             if self.reader.has_handler_for(filename):
 
                 media = library.get_media_object(os.path.join(root, filename), fail_on_fs_missing=True)
-                if media is None or media.ignore() or not media.available: continue
+                if media is None or media.ignore() or media.available == False: continue
                 data = media.to_dictionary()
                 for file_handler in self.reader.get_file_handlers():
                     if not ops.operation_in_cache(os.path.join(root, filename), READ, file_handler.name):
@@ -98,7 +99,6 @@ class Scanner(Walker):
         traceback.print_exc(file=sys.stdout)
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
-
 
     # utility
 
@@ -132,6 +132,7 @@ class Scanner(Walker):
 
         return expanded
 
+
     def path_has_handlers(self, path):
         result = False
         rows = sql.retrieve_values('directory', ['name', 'file_type'], [path])
@@ -141,17 +142,15 @@ class Scanner(Walker):
         
         return result
 
-    def path_not_configured(self, path):
-        result = True
-        if path in self.context.paths:
-            result = False
-        return result
+    def path_is_configured(self, path):
+        return path in self.context.paths
 
     def scan(self):
         while self.context.has_next(SCAN, True):
             path = self.context.get_next(SCAN, True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                if self.path_has_handlers(path) or self.path_not_configured(path) or self.do_deep_scan: 
+                # comparing path_is_configured to False to allow processing of expanded paths
+                if self.do_deep_scan or self.path_has_handlers(path) or not self.path_is_configured(path): 
                     if self.path_expands(path): continue
 
                     LOG.debug('caching data for %s...' % path)
@@ -174,10 +173,10 @@ class Scanner(Walker):
                     # cache.clear_docs(config.DIRECTORY, path)
 
             elif not os.access(path, os.R_OK):
-                LOG.warning("%s isn't currently available." % (path))
+                LOG.info("%s isn't currently available." % (path))
 
         # cache.cache_docs(config.DOCUMENT, path)
-        LOG.info('-----scan complete-----')
+        LOG.debug('-----scan complete-----')
 
 
 def scan(context):
@@ -187,7 +186,7 @@ def scan(context):
 
 
 def main(args):
-    config.start_console_logging()
+    log.start_console_logging()
     config.es = search.connect()
     # reset()
     paths = None if not args['--path'] else args['<path>']

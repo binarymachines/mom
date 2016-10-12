@@ -1,5 +1,6 @@
 import logging
 
+import log
 from serv import ServiceProcess
 
 from context import DirectoryContext
@@ -101,7 +102,7 @@ def before(process):
 
 
 def main():
-    config.start_console_logging()
+    log.start_console_logging()
     context = DirectoryContext('music', ['/media/removable/Audio/music/albums/industrial'], ['mp3'])
     process = DocumentServiceProcess('_Media Hound_', context, True)
     process.restart_on_fail = False

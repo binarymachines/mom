@@ -20,7 +20,7 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
-    rows = retrieve_ops__data(apply_lifespan, path, operation, operator)
+    rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
     for row in rows:
         key = cache2.create_key(OPS, row[0], row[1], row[2], value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name': row[0], 'operator_name':  row[1], 'target_path': row[2] })
@@ -81,7 +81,7 @@ def record_op_complete(asset, operation, operator, op_failed=False):
     cache2.set_hash2(key, values)
 
 
-def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
+def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
     if apply_lifespan:
         start = datetime.date.today() + datetime.timedelta(0 - config.op_life)
         if operator is None:
@@ -97,8 +97,8 @@ def retrieve_ops__data(apply_lifespan, path, operation, operator=None):
 
 def update_ops_data():
     # pass
-    LOG.debug('Updating operation records')
-    # # TODO: add params to this query (index_name, date range, etc)
+    LOG.debug('updating operation records')
+    # TODO: add params to this query (index_name, date range, etc)
     try:
         sql.execute_query_template('ops_update_op_record')
     except Exception, err:
