@@ -85,7 +85,7 @@ def record_error(self, directory, error):
     #     print '\nConnection lost, please verify network connectivity and restart.'
     #     sys.exit(1)
 
-def record_file_read(self, reader_name, directory, media):
+def record_file_read(self, reader_name, media):
         if directory is not None:
             file_data = { '_reader': reader_name, '_file_name': media.file_name }
             dir_vals = cache2.get_hash2(get_cache_key())
