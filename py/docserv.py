@@ -61,7 +61,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to matchmode
         self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
-            self.startmode, self.reportmode, self.startmode, self.evalmode, self.scanmode, self.evalmode, self.reqmode)
+           self.evalmode, self.scanmode, self.evalmode, self.reqmode)
 
         # paths to reqmode
         self.selector.add_rules(self.reqmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \

@@ -35,7 +35,7 @@ LOG = logging.getLogger('scan.log')
 
 SCANNER = 'scanner'
 SCAN = 'scan'
-
+HLSCAN = 'highlevelscan'
 
 class Scanner(Walker):
     def __init__(self, context):
@@ -153,22 +153,25 @@ class Scanner(Walker):
                 if self.do_deep_scan or self.path_has_handlers(path) or not self.path_is_configured(path): 
                     if self.path_expands(path): continue
 
+                    # hl_directory = 
+                    # if ops.operation_completed
+
                     LOG.debug('caching data for %s...' % path)
                     ops.cache_ops(path, SCAN)
                     ops.cache_ops(path, read.READ)
                     # cache.cache_docs(config.DIRECTORY, path)
                     
-                    start_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
+                    start_read_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
                     print("scanning %s..." % path)
                     self.walk(path)
-                    end_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
+                    end_read_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
 
                     LOG.debug('clearing cache...')
                     ops.write_ops_data(path, SCAN)
-                    ops.write_ops_data(path, read.READ)
-
+ 
                     LOG.debug('updating MariaDB...')
-                    if start_cache_size != end_cache_size:
+                    if start_read_cache_size != end_read_cache_size:
+                        ops.write_ops_data(path, read.READ)
                         ops.update_ops_data()
 
                     # cache.clear_docs(config.DIRECTORY, path)

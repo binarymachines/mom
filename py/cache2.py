@@ -24,7 +24,7 @@ WILDCARD = '*'
 # identifier is an arbitrary list which will be separated by DELIM
 
 def str_clean4key(input):
-    return util.str_clean4comp(input, DELIM, WILDCARD, '-', '_')
+    return util.str_clean4comp(input, DELIM, WILDCARD, '-', '_', '.')
 
 
 def key_name(key_group, *identifier):

@@ -50,17 +50,16 @@ def operation_in_cache(path, operation, operator=None):
 
 def record_op_begin(asset, operation, operator):
     LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, asset.absolute_path))
-    key = cache2.create_key(OPS, operation, operator, asset.absolute_path)
+    key = cache2.create_key(OPS, str(config.pid), operation, operator, asset.absolute_path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid,
         'target_path': asset.absolute_path, 'index_name': config.es_index, 'status': "ACTIVE" }
-    
     cache2.set_hash2(key, values)
 
     key = cache2.get_key(OPS, EXEC)
     values = cache2.get_hash2(key)
     values['current_operation'] = operation
-    # values['current_operation'] = operation
+    values['current_operator'] = operator
     values['operation_status'] = 'active'
     cache2.set_hash2(key, values)
 
@@ -68,9 +67,8 @@ def record_op_begin(asset, operation, operator):
 def record_op_complete(asset, operation, operator, op_failed=False):
     LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
 
-    key = cache2.get_key(OPS, operation, operator, asset.absolute_path)
+    key = cache2.get_key(OPS, str(config.pid), operation, operator, asset.absolute_path)
     values = cache2.get_hash2(key)
-    # values['effective_dt'] = datetime.datetime.now()
     values['status'] = "FAIL" if op_failed else 'SUCCESS'
     values['end_time'] = datetime.datetime.now().isoformat()
     cache2.set_hash2(key, values)
@@ -78,6 +76,7 @@ def record_op_complete(asset, operation, operator, op_failed=False):
     key = cache2.get_key(OPS, EXEC)
     values = cache2.get_hash2(key)
     values['current_operation'] = None
+    values['current_operator'] = None
     values['operation_status'] = None
     cache2.set_hash2(key, values)
 
