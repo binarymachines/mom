@@ -15,7 +15,7 @@ def clear_index(index):
     if config.es.indices.exists(index):
         LOG.debug("deleting '%s' index..." % index)
         res = config.es.indices.delete(index = index)
-        # LOG.debug(" response: '%s'" % (res))
+        LOG.debug(" response: '%s'" % (res))
 
 
 def create_index(index):
@@ -50,8 +50,12 @@ def find_docs(doc_type, attribute, value):
     result = ()
     res = config.es.search(config.es_index, doc_type, body={ "query": { "match" : { "%s" % attribute: value }}})
     for doc in res['hits']['hits']:
-        if doc['_source'][attribute] == value:
-            result += (doc,)
+        try:
+            if doc['_source'][attribute] == value:
+                result += (doc,)
+        except UnicodeWarning, warning:
+            LOG.warn(warning.message)
+    
     return result
 
 

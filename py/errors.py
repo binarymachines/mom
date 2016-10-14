@@ -14,8 +14,8 @@ class AssetException(Exception):
         super(AssetException, self).__init__(message)
         self.data = data
 
-# network and local resources
 
+# network and local resources
 
 class ElasticSearchError(Exception):
     def __init__(self, cause, message=None):
@@ -38,8 +38,8 @@ class SQLConnectError(SQLError):
     def __init__(self, cause, message=None):
         super(SQLError, self).__init__(cause, message)
 
-# modes, rules, selectors and engines
 
+# modes, rules, selectors and engines
 
 class ModeDestinationException(Exception):
     def __init__(self, message):

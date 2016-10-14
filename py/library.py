@@ -35,11 +35,11 @@ def get_cache_key():
 
 # directory cache
 
-def cache_directory(folder):
-    if folder is None:
+def cache_directory(directory):
+    if directory is None:
         cache2.set_hash2(get_cache_key(), { 'active:': None })
     else:
-        cache2.set_hash2(get_cache_key(), { 'esid': folder.esid, 'absolute_path': folder.absolute_path, 'doc_type': config.DIRECTORY })
+        cache2.set_hash2(get_cache_key(), directory.to_dictionary())
 
 
 def clear_directory_cache():
@@ -55,61 +55,80 @@ def get_cached_directory():
     result = Directory()
     result.esid = values['esid']
     result.absolute_path = values['absolute_path']
-    result.document_type = values['doc_type']
+    result.document_type = values['document_type']
 
     return result
 
 
 # def get_latest_operation(self, path):
 #
-#     folder = Directory()
-#     folder.absolute_path = path
+#     directory = Directory()
+#     directory.absolute_path = path
 #
-#     doc = search.get_doc(folder)
+#     doc = search.get_doc(directory)
 #     if doc is not None:
 #         latest_operation = doc['_source']['latest_operation']
 #         return latest_operation
 
-# def record_error(self, folder, error):
-#     try:
-#         if folder is not None and error is not None:
-#             self.folder.latest_error = error
-#             if config.library_debug: print("recording error: " + error + ", " + folder.esid + ", " + folder.absolute_path)
-#             res = config.es.update(index=config.es_index, doc_type=self.document_type, id=folder.esid, body={"doc": {"latest_error": error, "has_errors": True }})
-#     except ConnectionError, err:
-#         print ': '.join([err.__class__.__name__, err.message])
-#         # if config.library_debug:
-#         traceback.print_exc(file=sys.stdout)
-#         print '\nConnection lost, please verify network connectivity and restart.'
-#         sys.exit(1)
+def record_error(self, directory, error):
+    # try:
+    if directory is not None and error is not None:
+        LOG.info("recording error: " + error + ", " + directory.esid + ", " + directory.absolute_path)
+        dir_vals = cache2.get_hash2(get_cache_key())
+        dir_vals['latest_error'] = error.__class__
 
+            # res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body={"doc": {"latest_error": error, "has_errors": True }})
+    # except ConnectionError, err:
+    #     print ': '.join([err.__class__.__name__, err.message])
+    #     # if config.library_debug:
+    #     traceback.print_exc(file=sys.stdout)
+    #     print '\nConnection lost, please verify network connectivity and restart.'
+    #     sys.exit(1)
 
-def sync_active_directory_state(folder):
-    if folder is not None:
-        # LOG.debug('syncing metadata for %s' % folder.absolute_path)
-        if search.unique_doc_exists(config.DIRECTORY, 'absolute_path', folder.absolute_path):
-            folder.esid = search.unique_doc_id(config.DIRECTORY, 'absolute_path', folder.absolute_path)
+def record_file_read(self, reader_name, directory, media):
+        if directory is not None:
+            file_data = { '_reader': reader_name, '_file_name': media.file_name }
+            dir_vals = cache2.get_hash2(get_cache_key())
+            dir_vals['read_files'].append(file_data)
+
+def sync_active_directory_state(directory):
+    if directory is not None:
+        LOG.debug('syncing metadata for %s' % directory.absolute_path)
+        if search.unique_doc_exists(config.DIRECTORY, 'absolute_path', directory.absolute_path):
+            directory.esid = search.unique_doc_id(config.DIRECTORY, 'absolute_path', directory.absolute_path)
+
+            # TODO: resolve this cart before horse issue right here
+            # dir_vals = cache2.get_hash2(get_cache_key())
+            # if len (dir_vals['data.read_files']) > 0:
+            #     try:
+            #         res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body= json.dumps(dir_vals))
+            #     except ConnectionError, err:
+            #         print ': '.join([err.__class__.__name__, err.message])
+            #         # if config.library_debug:
+            #         traceback.print_exc(file=sys.stdout)
+            #         print '\nConnection lost, please verify network connectivity and restart.'
+            #         sys.exit(1)
+
         else:
-            # LOG.debug('indexing %s' % folder.absolute_path)
-            json_str = json.dumps(folder.to_dictionary())
+            LOG.debug('indexing %s' % directory.absolute_path)
+            json_str = json.dumps(directory.to_dictionary())
             # TODO:elasticsearch.exceptions.ConnectionTimeout, ConnectionTimeout caused by - ReadTimeoutError(HTTPConnectionPool(host='localhost', port=9200): Read timed out. (read timeout=10))
 
-            res = config.es.index(index=config.es_index, doc_type=folder.document_type, body=json_str)
+            res = config.es.index(index=config.es_index, doc_type=directory.document_type, body=json_str)
             if res['_shards']['successful'] == 1:
-                # if config.library_debug: print 'data indexed, updating MariaDB'
-                folder.esid = res['_id']
+                LOG.debug('data indexed, updating MariaDB')
+                directory.esid = res['_id']
                 # update MariaDB
-                # alchemy.insert_asset(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
                 try:
-                    insert_asset(config.es_index, folder.document_type, folder.esid, folder.absolute_path)
+                    insert_asset(config.es_index, directory.document_type, directory.esid, directory.absolute_path)
                 except Exception, err:
-                    if folder.esid is not None:
-                        config.es.delete(config.es_index, folder.document_type, folder.esid)
+                    if directory.esid is not None:
+                        config.es.delete(config.es_index, directory.document_type, directory.esid)
                     raise err
             else:
-                raise Exception('Failed to write folder %s to Elasticsearch.' % folder.absolute_path)
+                raise Exception('Failed to write directory %s to Elasticsearch.' % directory.absolute_path)
 
-    cache_directory(folder)
+    cache_directory(directory)
 
 
 def set_active(path):
@@ -119,10 +138,10 @@ def set_active(path):
         return
 
     try:
-        folder = Directory()
-        folder.absolute_path = path
-        folder.document_type = config.DIRECTORY
-        sync_active_directory_state(folder)
+        directory = Directory()
+        directory.absolute_path = path
+        directory.document_type = config.DIRECTORY
+        sync_active_directory_state(directory)
 	return True
     except ConnectionError, err:
         print ': '.join([err.__class__.__name__, err.message])
@@ -168,8 +187,6 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
         LOG.warning("File %s is missing or is not readable" % absolute_path)
         return None
     
-    elif not fs_avail:
-        media.available = False
 
     media = Document()
     filename = os.path.split(absolute_path)[1]
@@ -183,8 +200,9 @@ def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False
     media.location = get_library_location(absolute_path)
     media.ext = extension
 
+    media.available = fs_avail
     if media.available:
-        media.folder_name = os.path.abspath(os.path.join(absolute_path, os.pardir)) if fs_avail else None
+        media.directory_name = os.path.abspath(os.path.join(absolute_path, os.pardir)) if fs_avail else None
         media.file_size = os.path.getsize(absolute_path) if fs_avail else None
 
     # check cache for esid

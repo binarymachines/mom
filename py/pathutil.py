@@ -4,7 +4,7 @@ import redis
 
 import cache2
 
-# path functions for media files and folders
+# path functions for media files and s
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
 import config
@@ -13,7 +13,7 @@ import sql
 LOG = logging.getLogger('console.log')
 
 
-def get_folder_constants(identifier):
+def get__constants(identifier):
     keygroup = 'directory_constant'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
@@ -75,53 +75,53 @@ def get_active_document_formats():
 
 
 def is_curated(self, path):
-    curated = get_folder_constants('curated')
+    curated = get__constants('curated')
     for pattern in curated:
         if path.endswith(pattern):
             return True
 
 def is_expunged(path):
-    folders = ['[expunged]']
-    for f in folders:
+    directories = ['[expunged]']
+    for f in directories:
         if f in path:
             return True
 
 def is_filed(path):
-    folders = ['/albums', '/compilations']
-    for f in folders:
+    directories = ['/albums', '/compilations']
+    for f in directories:
         if f in path:
             return True
 
 
 def is_filed_as_compilation(path):
-    return path in get_folder_constants('compilation')
+    return path in get__constants('compilation')
 
 
 def is_filed_as_live(path):
-    return path in get_folder_constants('live_recordings')
+    return path in get__constants('live_recordings')
 
 
 def is_new(path):
-    return path in get_folder_constants('new')
+    return path in get__constants('new')
 
 
 def is_noscan(path):
-    folders = ['[noscan]']
-    for f in folders:
+    directories = ['[noscan]']
+    for f in directories:
         if f in path:
             return True
 
 
 def is_random(path):
-    return path in get_folder_constants('random')
+    return path in get__constants('random')
 
 
 def is_recent(path):
-    return path in get_folder_constants('recent')
+    return path in get__constants('recent')
 
 
 def is_unsorted(path):
-    return path in get_folder_constants('unsorted')
+    return path in get__constants('unsorted')
 
 
 def is_webcast(path):
@@ -129,12 +129,12 @@ def is_webcast(path):
 
 
 def ignore(path):
-    return path in get_folder_constants('ignore')
+    return path in get__constants('ignore')
 
 
 
 
-def path_contains_album_folders(path):
+def path_contains_album_directories(path):
     raise Exception('not implemented!')
 
 
@@ -186,7 +186,7 @@ def path_has_location_name(path, names):
 
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
-def path_in_album_folder(path):
+def path_in_album_directory(path):
     # if self.debug: print path
     if os.path.isdir(path) == False:
         raise Exception('Path does not exist: "' + path + '"')
@@ -200,12 +200,12 @@ def path_in_document_category(path):
 
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
-def path_in_location_folder(path):
+def path_in_location_directory(path):
     raise Exception('not implemented!')
 
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
-def path_is_album_folder(path):
+def path_is_album_directory(path):
     # if self.debug: print path
     if os.path.isdir(path) == False:
         raise Exception('Path does not exist: "' + path + '"')
@@ -219,7 +219,7 @@ def path_is_document_category(path):
 
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
-def path_is_location_folder(path):
+def path_is_location_directory(path):
     raise Exception('not implemented!')
 
 
@@ -228,7 +228,7 @@ def pathutils_demo():
 
     if not cache2.key_exists(keygroup, 'unsorted'):
         lkey = cache2.create_key(keygroup, 'unsorted')
-        data = get_folder_constants('unsorted')
+        data = get__constants('unsorted')
         for path in data:
             cache2.add_item(keygroup, 'unsorted', path)
 

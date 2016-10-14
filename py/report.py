@@ -27,9 +27,9 @@ import util
 pp = pprint.PrettyPrinter(indent=4)
 
 PATTERN = '_match_pattern'
-SOURCE = 'folders'
-FOLDER = '_folder'
-FOLDER_ESID = '_folder_esid'
+SOURCE = 'directories'
+FOLDER = '_'
+FOLDER_ESID = '_directory_esid'
 FILE = '_file_name'
 FILE_ESID = '_file_esid'
 FILE_LIST = 'files'
@@ -44,7 +44,7 @@ RESULTS = 'results'
 MATCH_SCORE = 'match_score'
 MATCH_ESID = '_match_esid'
 MATCH_FILENAME = '_match_filename'
-MATCH_FOLDER = '_match_folder'
+MATCH_FOLDER = '_match_'
 TAGS = 'tags'
 WEIGHT = '_weight'
 DISCOUNT = '_discount'
@@ -105,17 +105,17 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
 
         records = { }
 
-        folders = get_folders(source_path)
-        for folder in folders:
+        directories = get_directories(source_path)
+        for directory in directories:
             match_scores = []
             matches_exist = False
-            folder_data = { FOLDER: folder[1], FOLDER_ESID: folder[0], RESULTS: {FILE_LIST: []} }
+            directory_data = { FOLDER: [1], FOLDER_ESID: [0], RESULTS: {FILE_LIST: []} }
 
-            # print 'retrieving matches for: "%s"' % (folder_data[FOLDER])
-            mediafiles = get_media_files(folder_data[FOLDER])
+            # print 'retrieving matches for: "%s"' % (_data[FOLDER])
+            mediafiles = get_media_files(directory_data[FOLDER])
             for media in mediafiles:
-                match_folder_data, parent_data = {}, {}
-                file_data = { FILE_ESID: media[0], FILE: media[1].split(os.path.sep)[-1], FOLDER: folder_data[FOLDER],
+                match__data, parent_data = {}, {}
+                file_data = { FILE_ESID: media[0], FILE: media[1].split(os.path.sep)[-1], FOLDER: directory_data[FOLDER],
                                 MATCHES: [], WEIGHT: calculate_weight(media[1], weights), DISCOUNT: calculate_discount(media[1], discounts) }
 
                 get_media_meta_data(es, file_data[FILE_ESID], file_data)
@@ -139,19 +139,19 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
 
                     parent_data[match_parent][FILES_MATCHED].append(match_data)
 
-                for folder in parent_data:
-                    file_data[MATCHES].append(parent_data[folder])
+                for directory in parent_data:
+                    file_data[MATCHES].append(parent_data[directory])
 
-                folder_data[RESULTS][FILE_LIST].append(file_data)
+                directory_data[RESULTS][FILE_LIST].append(file_data)
 
             if match_scores != []:
-                folder_data[RESULTS][MEDIAN_SCORE] = median(match_scores)
-                folder_data[RESULTS][AVERAGE_SCORE] = average(match_scores)
+                directory_data[RESULTS][MEDIAN_SCORE] = median(match_scores)
+                directory_data[RESULTS][AVERAGE_SCORE] = average(match_scores)
 
-                post_process_folder_data(folder_data, exclude_ignore, records)
+                post_process__data(directory_data, exclude_ignore, records)
 
             if matches_exist or always_generate:
-                all_data[SOURCE].append(folder_data)
+                all_data[SOURCE].append(directory_data)
 
         handle_results(all_data, outputfile, append_existing, show_in_subl)
         for item in records:
@@ -209,15 +209,15 @@ def post_process_record(source_file, matched_file, records):
         match['average_match_score'] = match['total_match_score'] / match['match_counter']
 
 
-def post_process_folder_data(data, exclude_ignore, records):
+def post_process__data(data, exclude_ignore, records):
 
     for result in data[RESULTS]:
         average = data[RESULTS][AVERAGE_SCORE]
         for source_file in data[RESULTS][FILE_LIST]:
             # TODO: file post-process based on mediaFolder properties
             file_meta = source_file[META]
-            for folder in source_file[MATCHES]:
-                for matched_file in folder[FILES_MATCHED]:
+            for directory in source_file[MATCHES]:
+                for matched_file in [FILES_MATCHED]:
 
                     comp_meta = matched_file[META]
                     for item in file_meta:
@@ -232,21 +232,21 @@ def post_process_folder_data(data, exclude_ignore, records):
 
                     if matched_file[MATCH_SCORE] + matched_file[WEIGHT] - matched_file[DISCOUNT]  < average:
                         matched_file[SUGGEST] = 'IGNORE'
-                        folder[FILES_MATCHED].remove(matched_file)
+                        [FILES_MATCHED].remove(matched_file)
                         if exclude_ignore == False:
-                            if  FILES_IGNORED not in folder:
-                                folder[FILES_IGNORED] = []
-                            folder[FILES_IGNORED].append(matched_file)
+                            if  FILES_IGNORED not in directory:
+                                [FILES_IGNORED] = []
+                            [FILES_IGNORED].append(matched_file)
                     else:
                         post_process_record(source_file, matched_file, records)
 
-                # folder['_average_match_score'] = records[folder[MATCH_FOLDER]]['average_match_score']
-                # folder['_keep_count'] = records[folder[MATCH_FOLDER]]['keep']
-                # folder['_delete_count'] = records[folder[MATCH_FOLDER]]['delete']
-                # folder['_promote_count'] = records[folder[MATCH_FOLDER]]['promote']
+                # ['_average_match_score'] = records[[MATCH_FOLDER]]['average_match_score']
+                # ['_keep_count'] = records[[MATCH_FOLDER]]['keep']
+                # ['_delete_count'] = records[[MATCH_FOLDER]]['delete']
+                # ['_promote_count'] = records[[MATCH_FOLDER]]['promote']
 
-                if len(folder[FILES_MATCHED]) == 0:
-                    source_file[MATCHES].remove(folder)
+                if len([FILES_MATCHED]) == 0:
+                    source_file[MATCHES].remove()
 
         # data['_keep_count'] = records[data[FOLDER]]['keep']
         # data['_delete_count'] = records[data[FOLDER]]['delete']
@@ -254,11 +254,11 @@ def post_process_folder_data(data, exclude_ignore, records):
 
                 # data[RESULTS][FILE_LIST].remove(files)
 
-def get_folders(path):
-    print 'retrieving folders matching pattern: "%s"' % (path)
+def get_directories(path):
+    print 'retrieving s matching pattern: "%s"' % (path)
 
     q = """SELECT id, absolute_path FROM es_document
-            WHERE index_name = '%s' and doc_type = 'media_folder'
+            WHERE index_name = '%s' and doc_type = 'media_'
               and absolute_path like '%s%s%s' ORDER BY absolute_path""" % (config.es_index, '%', path, '%')
 
     return sql.run_query(q)
@@ -337,7 +337,7 @@ def get_media_meta_data(es, esid, media_data):
 
 def get_matches_for(pattern):
 
-    folders = []
+    directories = []
     q = """select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match'
              from matched m, es_document es1, es_document es2
             where m.same_ext_flag = 1
@@ -360,10 +360,10 @@ def get_matches_for(pattern):
         if row[1] in ['>', '=']:
             filename = row[0]
             path = os.path.abspath(os.path.join(filename, os.pardir))
-            if path in folders:
+            if path in directories:
                 continue
 
-            folders.append(path)
+            directories.append(path)
             output = '.'.join([RESULTS, path.split(os.path.sep)[-1], 'json'])
             try:
                 generate_match_doc(path, False, False, output)

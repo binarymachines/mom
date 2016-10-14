@@ -76,6 +76,7 @@ class Builder:
             elif query_type == 'match':
                 return self.get_multi_match(fieldnames, values, options)
 
+
     # this implementation is skeletal at best
     def get_multi_match(self, fieldnames, values, options):
         termset = []
@@ -90,6 +91,7 @@ class Builder:
                 termset.append(term)
 
         return { 'query' : { 'bool' : { 'should' : termset }}}
+
 
     #TODO: learn how to concatenate (builder variable)
     def get_multi_term(self, fieldnames, values, options):
@@ -108,12 +110,14 @@ class Builder:
 
         return { 'query' : { 'bool' : { 'should' : termset }}}
 
+
     def get_simple_match(self, fname, values, options):
         if len(options) == 0:
             param = values[fname]
             term = { 'match' : { fname : param }}
 
             return { 'query' : term }
+
 
     def get_simple_term(self, fname, values, options):
         if len(options) == 0:
@@ -122,7 +126,9 @@ class Builder:
 
             return { 'query' : term }
 
-    #UNIT TESTS
+
+    #TESTS
+
     def test_simple_term(self):
         fname = 'file_name'
         values = {}

@@ -122,6 +122,13 @@ class DirectoryContext(Context):
 
         return result
 
+    def path_in_context(self, path):
+        return path in self.paths
+
+    def path_in_fifo(self, path, consumer):
+        if consumer in self.fifos:
+            return path in self.fifos[consumer]
+
     def peek_next(self, consumer, use_fifo=False):
 
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:

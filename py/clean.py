@@ -1,4 +1,4 @@
-import ops
+"""housekeeping mode"""
 
 def clean(context):
-    ops.update_ops_data()
+    pass
