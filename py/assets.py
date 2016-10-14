@@ -73,7 +73,7 @@ class Document(Asset):
         self.ext = None
         self.file_name = None
         self.file_size = 0
-        self.folder_name = None
+        self.directory_name = None
         self.location = None
 
     def duplicates(self):
@@ -95,11 +95,11 @@ class Document(Asset):
                 'absolute_path': self.absolute_path,
                 'file_ext': self.ext,
                 'file_name': self.file_name,
-                'folder_name': self.folder_name,
+                'directory_name': self.directory_name,
                 'file_size': self.file_size
                 }
 
-        if self.location is not None: data['folder_location'] = self.location
+        if self.location is not None: data['directory_location'] = self.location
 
         data['ctime'] = time.ctime(os.path.getctime(self.absolute_path))
         data['mtime'] = time.ctime(os.path.getmtime(self.absolute_path))
@@ -114,6 +114,7 @@ class Document(Asset):
         data['deleted'] = self.deleted
         data['live_recording'] = self.is_filed_as_live()
         data['properties'] = []
+        data['errors'] = []
 
         return data
 
@@ -126,10 +127,16 @@ class Directory(Asset):
     # TODO: call Asset.to_dictionary and append values
     def to_dictionary(self):
 
-        data = {    'absolute_path': self.absolute_path,
+        data = {    'esid': self.esid,
+                    'document_type': self.document_type,
+                    'absolute_path': self.absolute_path,
                     'has_errors': self.has_errors,
                     'latest_error': self.latest_error,
                     'latest_operation': self.latest_operation }
+
+        data['files'] = []
+        data['read_files'] = []
+
         return data
 
     def all_files_have_matches(self):

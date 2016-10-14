@@ -7,13 +7,7 @@ import os, sys
 
 from docopt import docopt
 
-def str_clean4comp(input, *exception):
-    alphanum = "0123456789abcdefghijklmnopqrstuvwxyz"
-    for item in exception:
-        alphanum += item
-    return ''.join([letter.lower() for letter in input if letter.lower() in alphanum])
-
-# compare source and target folders, remove files from source that exist in target
+# compare source and target s, remove files from source that exist in target
 def delta(source, target, remove_source_files=False):
     for f in os.listdir(source):
         source_path = os.path.join(source, f)
@@ -27,9 +21,22 @@ def delta(source, target, remove_source_files=False):
                 else: print 'file: %s also exists in %s' % (f, target)
 
         elif os.path.isdir(source_path):
-            print 'folder: %s' % (source_path)
+            print ': %s' % (source_path)
             if os.path.exists(target_path):
                delta(source_path, target_path, remove_source_files)
+
+
+def smash(str):
+    return str.lower().replace(' ', '').replace('_', '').replace(',', '').replace('.', '').replace(':', '')
+    
+
+def str_clean4comp(input, *exception):
+    alphanum = "0123456789abcdefghijklmnopqrstuvwxyz"
+    for item in exception:
+        alphanum += item
+
+    return ''.join([letter.lower() for letter in input if letter.lower() in alphanum])
+
 
 def main(args):
     if args['--delta']:
@@ -43,7 +50,3 @@ def main(args):
 if __name__ == '__main__':
     args = docopt(__doc__)
     main(args)
-
-
-def smash(str):
-    return str.lower().replace(' ', '').replace('_', '').replace(',', '').replace('.', '').replace(':', '')

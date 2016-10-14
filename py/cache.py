@@ -39,7 +39,7 @@ def cache_docs(document_type, path, flush=True):
 
 
 def cache_esid_for_path(esid, path):
-    values = { 'esid': esid }
+    values = { 'esid': esid, 'absolute_path': path }
     config.redis.hmset(path, values)
 
 

@@ -15,7 +15,7 @@ LOG = logging.getLogger('operations.log')
 OPS = 'operations'
 EXEC = 'execution'
 
-OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted', 'start_time', 'end_time', 'status' \
+OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted', 'start_time', 'end_time', 'status', \
     'target_esid', 'target_path']
 
 
@@ -36,7 +36,7 @@ def operation_completed(asset, operation, operator=None):
     rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [operator, operation, asset.esid])
     result = len(rows) > 0
-    LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    # LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
 
@@ -70,6 +70,7 @@ def record_op_complete(asset, operation, operator, op_failed=False):
 
     key = cache2.get_key(OPS, operation, operator, asset.absolute_path)
     values = cache2.get_hash2(key)
+    # values['effective_dt'] = datetime.datetime.now()
     values['status'] = "FAIL" if op_failed else 'SUCCESS'
     values['end_time'] = datetime.datetime.now().isoformat()
     cache2.set_hash2(key, values)
@@ -104,9 +105,12 @@ def update_ops_data():
     except Exception, err:
         LOG.error(err.message)
 
+
 def write_ops_data(path, operation=None, operator=None):
-    table_name = 'op_record'
-  
+
+    LOG.debug('writing op records...')
+
+    table_name = 'op_record'  
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation
     keys = cache2.get_keys(OPS, operation, operator, path)
@@ -117,24 +121,21 @@ def write_ops_data(path, operation=None, operator=None):
             if not key in values: 
                 skip = True
                 break
-                
+
         if skip or values['persisted'] == 'True' or values['end_time'] == 'None': continue
 
         try:
-            alchemy.insert_operation_record(values['operation_name'], values['operator_name'], values['target_esid'], values['target_path'], 
-                values['start_time'], values['end_time'], values['status'])
+            alchemy.insert_operation_record(operation_name=values['operation_name'], operator_name=values['operator_name'], target_esid=values['target_esid'], \
+                target_path=values['target_path'], start_time=values['start_time'], end_time=values['end_time'], status=values['status'])
         except Exception, error:
             raise error
-            # TODO: test the path to determine whether it is a file or a folder
+            # TODO: test the path to determine whether it is a file or a 
             # sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
             #     [config.es_index, config.DOCUMENT, values['target_esid'], 'Unable to store/retrieve operation record'])
         finally:
             cache2.delete_key(key)
 
-    LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
-
-def check_for_bugs():
-    if config.check_for_bugs: raw_input('check for bugs')
+    # LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
 
 
 def check_for_reconfig_request():
@@ -149,7 +150,7 @@ def check_for_stop_request():
 
 def do_status_check(opcount=None):
 
-    # if opcount is not None and opcount % config.check_freq != 0: return
+    if opcount is not None and opcount % config.status_check_freq!= 0: return
 
     if check_for_reconfig_request():
         start.execute()

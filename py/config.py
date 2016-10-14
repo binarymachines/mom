@@ -16,13 +16,13 @@ username = None
 old_pid = None
 pid = os.getpid()
 path_cache_size = None
+
 op_life = 90
+status_check_freq= 1
 
 redis_host = 'localhost'
 redis = redis.Redis('localhost')
 
-check_freq = 1
-check_for_bugs = False
 
 logging_started = False
 
@@ -47,6 +47,7 @@ def display_status():
     print """Process ID: %i""" % pid
     print 'Redis host: %s' % redis_host
     print 'Redis dbsize: %i' % redis.dbsize()
+    print """Elasticsearch host: %s""" % es_host
     print """Elasticsearch port: %i""" % es_port
     print """Elasticsearch index: %s""" % es_index
     print"""MariaDB username: %s""" % mysql_user

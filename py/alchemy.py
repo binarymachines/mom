@@ -1,6 +1,7 @@
 import os
 import sys
 import datetime
+import logging
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
@@ -11,6 +12,7 @@ from sqlalchemy.orm import sessionmaker
 import config
 import sql
 
+LOG = logging.getLogger('console.log')
 
 Base = declarative_base()
 
@@ -62,11 +64,14 @@ class SQLOperationRecord(Base):
     status = Column('status', String(64), nullable=False)
     start_time = Column('start_time', DateTime, nullable=False)
     end_time = Column('end_time', DateTime, nullable=True)
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
 
 
 def insert_operation_record(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
+    LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
     op_rec = SQLOperationRecord(pid=str(config.pid), index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
-        target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status)
+        target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now())
+
     session.add(op_rec)
     session.commit()
 

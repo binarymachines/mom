@@ -19,7 +19,11 @@ LOG = logging.getLogger('console.log')
 
 
 def execute(args):
+    show_logo()
+    print 'Mildred starting...'
+    
     log.start_logging()
+    
     if os.path.isfile(os.path.join(os.getcwd(), config.filename)):
 
         options = make_options(args)
@@ -67,10 +71,12 @@ def get_paths(args):
                 paths.append(row[0])
     return paths
 
+
 def load_user_info():
     rows = sql.retrieve_values('member', ['id', 'username'], ['1'])
     if len(rows) == 1:
         config.username = rows[0][1]
+
 
 def make_options(args):
     options = []
@@ -82,7 +88,6 @@ def make_options(args):
     if '--noscan' in args and args['--noscan']: options.append('no_scan')
     if '--nomatch' in args and args['--nomatch']: options.append('no_match')
     if '--debug-mysql' in args and args['--debug-mysql']: options.append('debug_mysql')
-    if '--check-for-bugs' in args and args['--check-for-bugs']: options.append('check_for_bugs')
     if '--reset' in args and args['--reset']: options.append('reset')
     if '--exit' in args and args['--exit']: options.append('exit')
     # if args['--debug-filter']: options.append('no_match')
@@ -125,11 +130,8 @@ def read_config(options):
     config.mysql_user = read(parser, "MySQL")['user']
     config.mysql_pass = read(parser, "MySQL")['pass']
 
-    # debug
-    config.check_for_bugs = read(parser, "Debug")['checkforbugs'].lower() == 'true' or 'check_for_bugs' in options
-
     # status
-    config.check_freq = int(read(parser, "Status")['check_frequency'])
+    config.status_check_freq= int(read(parser, "Status")['check_frequency'])
 
     # action
     config.deep = read(parser, "Action")['deep_scan'].lower() == 'true'
@@ -160,6 +162,12 @@ def reset():
         sql.execute_query(query)
 
 
+def show_logo():
+    with open('logo.txt', 'r') as f:
+        print f.read()
+        f.close()
+
+
 # pids
 
 def read_pid():
@@ -174,5 +182,3 @@ def write_pid_file():
     f.write(str(config.pid))
     f.flush()
     f.close()
-
-

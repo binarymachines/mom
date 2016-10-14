@@ -15,6 +15,7 @@ import json
 
 from docopt import docopt
 
+import read
 import cache2
 import config
 import library
@@ -34,7 +35,6 @@ LOG = logging.getLogger('scan.log')
 
 SCANNER = 'scanner'
 SCAN = 'scan'
-READ = 'read'
 
 
 class Scanner(Walker):
@@ -52,9 +52,9 @@ class Scanner(Walker):
         pass
 
     def after_handle_root(self, root):
-        # folder = library.get_cached_directory()
-        # if folder is not None and folder.absolute_path == root:
-        #     ops.record_op_complete(folder, SCAN, SCANNER)
+        # directory = library.get_cached_directory()
+        # if  is not None and directory.absolute_path == root:
+        #     ops.record_op_complete(directory, SCAN, SCANNER)
         library.set_active(None)
 
     def before_handle_root(self, root):
@@ -72,27 +72,28 @@ class Scanner(Walker):
             library.clear_directory_cache()
 
     def handle_root(self, root):
-        folder = library.get_cached_directory()
-        if folder is None or folder.esid is None: return
+        directory = library.get_cached_directory()
+        if directory is None or directory.esid is None: return
 
         LOG.debug('scanning %s' % (root))
-        ops.record_op_begin(folder, SCAN, SCANNER)
+        ops.record_op_begin(directory, SCAN, SCANNER)
 
         for filename in os.listdir(root):
-            ops.do_status_check()
+            # ops.do_status_check()
             if self.reader.has_handler_for(filename):
 
                 media = library.get_media_object(os.path.join(root, filename), fail_on_fs_missing=True)
                 if media is None or media.ignore() or media.available == False: continue
                 data = media.to_dictionary()
-                for file_handler in self.reader.get_file_handlers():
-                    if not ops.operation_in_cache(os.path.join(root, filename), READ, file_handler.name):
-                        self.reader.read(media, data, file_handler.name)
+                # for file_handler in self.reader.get_file_handlers():
+                #     if not ops.operation_in_cache(os.path.join(root, filename), read.read.READ, file_handler.name):
+                #         self.reader.read(media, data, file_handler.name)
 
+                self.reader.read(media, data)
                 self.index_file(media, data)
 
-        ops.record_op_complete(folder, SCAN, SCANNER)
-        LOG.debug('done scanning folder: %s' % (root))
+        ops.record_op_complete(directory, SCAN, SCANNER)
+        LOG.debug('done scanning : %s' % (root))
 
     def handle_root_error(self, err):
         LOG.error(': '.join([err.__class__.__name__, err.message]))
@@ -132,7 +133,6 @@ class Scanner(Walker):
 
         return expanded
 
-
     def path_has_handlers(self, path):
         result = False
         rows = sql.retrieve_values('directory', ['name', 'file_type'], [path])
@@ -155,16 +155,17 @@ class Scanner(Walker):
 
                     LOG.debug('caching data for %s...' % path)
                     ops.cache_ops(path, SCAN)
-                    ops.cache_ops(path, READ)
+                    ops.cache_ops(path, read.READ)
                     # cache.cache_docs(config.DIRECTORY, path)
                     
-                    start_cache_size = len(cache2.get_keys(ops.OPS, READ))
+                    start_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
+                    print("scanning %s..." % path)
                     self.walk(path)
-                    end_cache_size = len(cache2.get_keys(ops.OPS, READ))
+                    end_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
 
                     LOG.debug('clearing cache...')
                     ops.write_ops_data(path, SCAN)
-                    ops.write_ops_data(path, READ)
+                    ops.write_ops_data(path, read.READ)
 
                     LOG.debug('updating MariaDB...')
                     if start_cache_size != end_cache_size:

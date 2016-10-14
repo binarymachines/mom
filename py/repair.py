@@ -15,7 +15,7 @@ def clear_bad_entries():
     rows  = sql.retrieve_values('problem_esid', ['distinct esid', 'index_name', 'document_type'], [])
     print "%i rows retrieved" % (len(rows))
 
-    es = Elasticsearch([{'host': '54.82.250.249', 'port': 9200}])
+    es = search.connect()
     for row in rows:
         print row[0]
         try:
@@ -100,16 +100,16 @@ def record_matches_as_ops():
 #                         data[field] = doc['_source'][field]
 #
 #                 print repr(data['absolute_path'])
-#                 config.es.index(index="media2", doc_type="media_folder", id=doc['_id'], body=data)
+#                 config.es.index(index="media2", doc_type="media_", id=doc['_id'], body=data)
 #
 #     sys.exit(1)
 #
 
 # def main():
 #     start.execute()
-#     folders = sql.retrieve_values('directory', ['name'], [])
-#     for folder in folders:
-#         asset = os.path.join(config.START_FOLDER, folder[0])
+#     s = sql.retrieve_values('directory', ['name'], [])
+#     for directory in directories:
+#         asset = os.path.join(config.START_FOLDER, [0])
 #         files = sql.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.DIRECTORY])
 #         for f in files:
 #             filename = f[0]

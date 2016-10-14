@@ -31,13 +31,12 @@ class DocumentServiceProcessHandler():
     def after(self):
         mode = self.selector.active
         LOG.debug("%s after '%s'" % (self.name, mode.name))
-        config.display_status()
         
     def before(self):
         mode = self.selector.next
         LOG.debug("%s before '%s'" % (self.name, mode.name))
         if mode.active_rule is not None:
-            LOG.info("%s: %s follows '%s', because of '%s'" % \
+            LOG.debug("%s: %s follows '%s', because of '%s'" % \
                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
     def mode_is_available(self, selector, active, possible):
@@ -53,91 +52,89 @@ class DocumentServiceProcessHandler():
 
     # start
 
-    def started(self): LOG.info("%s process has started" % self.name)
+    def started(self): LOG.debug("%s process has started" % self.name)
 
-    def starting(self): LOG.info("%s process will start" % self.name)
+    def starting(self): LOG.debug("%s process will start" % self.name)
 
-    def start(self): LOG.info("%s process is starting" % self.name)
+    def start(self): LOG.debug("%s process is starting" % self.name)
 
     # end
 
-    def ended(self): LOG.info("%s process has ended" % self.name)
+    def ended(self): LOG.debug("%s process has ended" % self.name)
 
-    def ending(self): LOG.info("%s process will end" % self.name)
+    def ending(self): LOG.debug("%s process will end" % self.name)
 
-    def end(self): LOG.info('%s handling shutdown request, clearing caches, writing data' % self.name)
+    def end(self): LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.name)
 
     # eval
 
-    def do_eval(self): LOG.info('%s evaluating' % self.name)
+    def do_eval(self): LOG.debug('%s evaluating' % self.name)
         # self.owner.fixmode.priority += 1
 
     # fix
 
     def after_fix(self):
         self.after()
-        LOG.info('%s clearing caches' % self.name)
+        LOG.debug('%s clearing caches' % self.name)
 
-    def before_fix(self): LOG.info('%s checking cache size'  % self.name)
+    def before_fix(self): LOG.debug('%s checking cache size'  % self.name)
 
-    def do_fix(self): LOG.info('%s writing data, generating work queue' % self.name)
+    def do_fix(self): LOG.debug('%s writing data, generating work queue' % self.name)
 
     # report
 
     def do_report(self):
-        LOG.info('%s generating report' % self.name)
-        LOG.info('%s took %i steps.' % (self.selector.name, self.selector.step_count))
+        LOG.debug('%s generating report' % self.name)
+        LOG.debug('%s took %i steps.' % (self.selector.name, self.selector.step_count))
         for mode in self.selector.modes:
             if mode not in (self.owner.startmode, self.owner.endmode):
-                LOG.info('%s: times activated = %i, priority = %i, error count = %i' % (mode.name, mode.times_activated, mode.priority, mode.error_count))
+                LOG.debug('%s: times activated = %i, priority = %i, error count = %i' % (mode.name, mode.times_activated, mode.priority, mode.error_count))
 
     # match
 
     def before_match(self):
         self.before()
         dir = self.context.get_next('match')
-        LOG.info('%s preparing for matching, caching data for %s' % (self.name, dir))
+        LOG.debug('%s preparing for matching, caching data for %s' % (self.name, dir))
 
 
     def after_match(self):
         self.after()
         dir = self.context.get_active ('match')
-        LOG.info('%s done matching in %s, clearing cache...' % (self.name, dir))
+        LOG.debug('%s done matching in %s, clearing cache...' % (self.name, dir))
         # self.reportmode.priority += 1
 
 
     def do_match(self):
         dir = self.context.get_active ('match')
-        LOG.info('%s matching in %s...' % (self.name, dir))
+        LOG.debug('%s matching in %s...' % (self.name, dir))
         try:
             calc.calc(self.context)
         except Exception, err:
             self.selector.handle_error(err)
-            LOG.info(err.message)
+            LOG.debug(err.message)
 
     # requests
 
-    def do_reqs(self): LOG.info('%s handling requests...' % self.name)
+    def do_reqs(self): LOG.debug('%s handling requests...' % self.name)
 
     # scan
 
     def before_scan(self):
-        LOG.info('%s preparing to scan, caching data' % self.name)
+        LOG.debug('%s preparing to scan, caching data' % self.name)
         self.before()
 
 
     def after_scan(self):
         self.after()
-        LOG.info('%s done scanning, updating op records...' % self.name)
+        LOG.debug('%s done scanning, updating op records...' % self.name)
         clean.clean(self.context)
 
     def do_scan(self):
-        # dir = self.context.peek_next('scan', True)
-        # LOG.info('%s scanning %s...' % (self.name, dir))
         try:
             scan.scan(self.context)
         except Exception, err:
-            LOG.info(err.message)
+            LOG.debug(err.message)
 
     # decisions and guesses
 

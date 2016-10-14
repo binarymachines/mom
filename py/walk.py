@@ -45,8 +45,8 @@ class Walker(object):
     def handle_root_error(self, error):
         pass
 
-    def walk(self, startfolder):
-        for root, dirs, files in os.walk(startfolder, topdown=True, followlinks=False):
+    def walk(self, start):
+        for root, dirs, files in os.walk(start, topdown=True, followlinks=False):
             try:
                 self.before_handle_root(root)
                 self.current_root = root
