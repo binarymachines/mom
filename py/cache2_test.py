@@ -90,7 +90,7 @@ class TestCache2(unittest.TestCase):
         for item in self.identifiers:
             cache2.add_item(KEYGROUP, keyname, item)
 
-        listkey = cache2.DELIM.join([KEYGROUP, cache2.LIST, keyname])
+        listkey = cache2.DELIM.join([cache2.LIST, KEYGROUP, keyname])
         items = self.redis.smembers(listkey)
         self.assertItemsEqual(items, self.identifiers, 'add_item fails')
 
@@ -108,7 +108,7 @@ class TestCache2(unittest.TestCase):
 
     def test_clear_items(self):
         keyname = 'clear_items'
-        listkey = cache2.DELIM.join([KEYGROUP, cache2.LIST, keyname])
+        listkey = cache2.DELIM.join([cache2.LIST, KEYGROUP, keyname])
         for item in self.test_vals:
             self.redis.sadd(listkey, item)
 
@@ -131,7 +131,7 @@ class TestCache2(unittest.TestCase):
 
     def test_get_items(self):
         keyname = 'get_items'
-        listkey = cache2.DELIM.join([KEYGROUP, cache2.LIST, keyname])
+        listkey = cache2.DELIM.join([cache2.LIST, KEYGROUP, keyname])
         for item in self.test_vals:
             self.redis.sadd(listkey, item)
 
@@ -156,7 +156,7 @@ class TestCache2(unittest.TestCase):
     def test_delete_hash(self):
         keyname = 'test_delete_hash'
         hash = {'operation': 'scan', 'operator': 'id3v2'}
-        hashkey = cache2.DELIM.join([KEYGROUP, cache2.HASH, keyname])
+        hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
 
         self.redis.hmset(hashkey, hash)
 
@@ -169,7 +169,7 @@ class TestCache2(unittest.TestCase):
     def test_get_hash(self):
         keyname = 'get_hash'
         hash = {'operation': 'scan', 'operator': 'id3v2'}
-        hashkey = cache2.DELIM.join([KEYGROUP, cache2.HASH, keyname])
+        hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
 
         self.redis.hmset(hashkey, hash)
 
@@ -184,8 +184,8 @@ class TestCache2(unittest.TestCase):
             { 'active_directory': '/media/removable/Audio/music/albums/', 'doc_type': 'DIRECTORY' }
         ]
 
-        hashkey1 = cache2.DELIM.join([KEYGROUP, cache2.HASH, keyname])
-        hashkey2 = cache2.DELIM.join([KEYGROUP, cache2.HASH, keyname + '2'])
+        hashkey1 = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
+        hashkey2 = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname + '2'])
 
         self.redis.hmset(hashkey1, hashes[0])
         self.redis.hmset(hashkey2, hashes[1])
@@ -207,7 +207,7 @@ class TestCache2(unittest.TestCase):
 
         cache2.set_hash(KEYGROUP, keyname, hash)
 
-        hashkey = cache2.DELIM.join([KEYGROUP, cache2.HASH, keyname])
+        hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
         testhash = self.redis.hgetall(hashkey)
         self.assertDictEqual(hash, testhash)
 

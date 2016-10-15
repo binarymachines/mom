@@ -130,7 +130,7 @@ def lpush2(key, **value):
 # hashsets
 
 def delete_hash(key_group, identifier):
-    key = DELIM.join([key_group, HASH, identifier])
+    key = DELIM.join([HASH, key_group, identifier])
     hkeys = config.redis.hkeys(key)
     for hkey in hkeys:
         config.redis.hdel(key, hkey)
@@ -144,7 +144,7 @@ def delete_hash2(key):
 
 
 def get_hash(key_group, identifier):
-    key = DELIM.join([key_group, HASH, identifier])
+    key = DELIM.join([HASH, key_group, identifier])
     result = config.redis.hgetall(key)
     # LOG.debug('get_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
@@ -160,13 +160,13 @@ def get_hash2(key):
 def get_hashes(key_group, *identifier):
     result = ()
     if identifier is ():
-        for key in get_keys(key_group):
+        for key in get_keys(DELIM.join([HASH, key_group])):
             hash = config.redis.hgetall(key)
             if hash is not None:
                 result += (hash,)
     #(else)
     for keyname in identifier:
-        key = DELIM.join([key_group, HASH, keyname])
+        key = DELIM.join([HASH, key_group, keyname])
         hash = config.redis.hgetall(key)
         if hash is not None:
             result += (hash,)
@@ -176,7 +176,7 @@ def get_hashes(key_group, *identifier):
 
 
 def set_hash(key_group, identifier, values):
-    key = DELIM.join([key_group, HASH, identifier])
+    key = DELIM.join([HASH, key_group, identifier])
     result = config.redis.hmset(key, values)
     # LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
 
@@ -190,7 +190,7 @@ def set_hash2(key, values):
 # lists
 
 def add_item(key_group, identifier, item):
-    key = DELIM.join([key_group, LIST, identifier])
+    key = DELIM.join([LIST, key_group, identifier])
     result = config.redis.sadd(key, item)
     # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
@@ -203,8 +203,9 @@ def add_item2(key, item):
 
 def add_items(key_group, identifier, items):
     for item in items:
-        key = DELIM.join([key_group, LIST, identifier])
-        result = config.redis.sadd(key, item)
+        add_item(key_group, identifier, item)
+        # key = DELIM.join([LIST, key_group, identifier])
+        # result = config.redis.sadd(key, item)
         # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
@@ -216,7 +217,7 @@ def add_items2(key, items):
 
 
 def clear_items(key_group, identifier):
-    key = DELIM.join([key_group, LIST, identifier])
+    key = DELIM.join([LIST, key_group, identifier])
     values = config.redis.smembers(key)
     for value in values:
         result = config.redis.srem(key, value)
@@ -232,17 +233,17 @@ def clear_items2(key):
 
 
 def get_items(key_group, identifier):
-    key = DELIM.join([key_group, LIST, identifier])
+    key = DELIM.join([LIST, key_group, identifier])
     result = config.redis.smembers(key)
     # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
     return result
 
 
-def get_items(key_group, identifier):
-    key = DELIM.join([key_group, LIST, identifier])
-    result = config.redis.smembers(key)
-    # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
-    return result
+# def get_items(key_group, identifier):
+#     key = DELIM.join([key_group, LIST, identifier])
+#     result = config.redis.smembers(key)
+#     # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
+#     return result
 
 
 def get_items2(key):
