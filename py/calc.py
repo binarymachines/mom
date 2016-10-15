@@ -91,7 +91,7 @@ def calc(context, cycle_context=False):
 
 def do_match_op(esid, absolute_path):
 
-    media = library.get_media_object(absolute_path, esid=esid, attach_doc=True)
+    media = library.get_document_asset(absolute_path, esid=esid, attach_doc=True)
     matchers = get_matchers()
 
     if media.doc and all_matchers_have_run(matchers, media):
