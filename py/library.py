@@ -82,31 +82,32 @@ def record_error(directory, error):
         sys.exit(1)
 
 
-def append_read_file_to_active_directory(self, reader_name, media):
+def append_read_file_to_active_directory(self, reader_name, asset):
     pass
     # """append file to _read_files section of the active directory's elasticsearch data *THIS DOES NOT UPDATE ELASTICSEARCH*"""
-    # if media is not None:
-    #     file_data = { '_reader': reader_name, '_file_name': media.file_name }
+    # if asset is not None:
+    #     file_data = { '_reader': reader_name, '_file_name': asset.file_name }
     #     dir_vals = cache2.get_hash2(get_cache_key())
     #     dir_vals['read_files'].append(file_data)
 
 
-def index_asset(media, data):
-    LOG.debug("indexing %s: %s" % (media.document_type, media.absolute_path))
+def index_asset(asset, data):
+    LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
     try:
-        res = config.es.index(index=config.es_index, doc_type=media.document_type, body=json.dumps(data))
+        res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
         if res['_shards']['successful'] == 1:
             esid = res['_id']
-            # LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
-            media.esid = esid
+            # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
+            asset.esid = esid
             try:
                 LOG.debug("inserting asset into MariaDB")
-                insert_asset(config.es_index, media.document_type, media.esid, media.absolute_path)
+                insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
             except Exception, err:
-                config.es.delete(config.es_index, media.document_type, media.esid)
+                config.es.delete(config.es_index, asset.document_type, asset.esid)
                 raise err
     except Exception, err:
-        raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (media.document_type, media.absolute_path))
+        record_error(get_cached_directory(), err)
+        # raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (asset.document_type, asset.absolute_path))
 
 
 def set_active(path):
@@ -150,56 +151,56 @@ def get_library_location(path):
 
     for location in pathutil.get_locations():
         if location in path:
-	    possible.append(location)
+	        possible.append(location)
     
     if len(possible) == 1:
-	return possible[0]
+    	return possible[0]
       
     if len(possible) > 1:
       result = possible[0]
       for item in possible:
-	if len(item) > len(result):
-	  result = item
+	    if len(item) > len(result):
+	        result = item
 
-      return result
+    return result
 
 
 def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
-    """return a media file instance"""
+    """return a document instance"""
     fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
     if fail_on_fs_missing and not fs_avail:
         LOG.warning("File %s is missing or is not readable" % absolute_path)
         return None
     
 
-    media = Document()
+    asset = Document()
     filename = os.path.split(absolute_path)[1]
     extension = os.path.splitext(absolute_path)[1]
     filename = filename.replace(extension, '')
     extension = extension.replace('.', '')
 
-    media.esid = esid
-    media.absolute_path = absolute_path
-    media.file_name = filename
-    media.location = get_library_location(absolute_path)
-    media.ext = extension
+    asset.esid = esid
+    asset.absolute_path = absolute_path
+    asset.file_name = filename
+    asset.location = get_library_location(absolute_path)
+    asset.ext = extension
 
-    media.available = fs_avail
-    if media.available:
-        media.directory_name = os.path.abspath(os.path.join(absolute_path, os.pardir)) if fs_avail else None
-        media.file_size = os.path.getsize(absolute_path) if fs_avail else None
+    asset.available = fs_avail
+    if asset.available:
+        asset.directory_name = os.path.abspath(os.path.join(absolute_path, os.pardir)) if fs_avail else None
+        asset.file_size = os.path.getsize(absolute_path) if fs_avail else None
 
     # check cache for esid
-    if media.esid is None and check_cache and path_in_cache(media.document_type, absolute_path):
-        media.esid = cache.get_cached_esid(media.document_type, absolute_path)
+    if asset.esid is None and check_cache and path_in_cache(asset.document_type, absolute_path):
+        asset.esid = cache.get_cached_esid(asset.document_type, absolute_path)
 
-    if media.esid is None and check_db and path_in_db(media.document_type, absolute_path):
-        media.esid = retrieve_esid(media.document_type, absolute_path)
+    if asset.esid is None and check_db and path_in_db(asset.document_type, absolute_path):
+        asset.esid = retrieve_esid(asset.document_type, absolute_path)
 
-    if media.esid and attach_doc:
-        media.doc = search.get_doc(media.document_type, media.esid)
+    if asset.esid and attach_doc:
+        asset.doc = search.get_doc(asset.document_type, asset.esid)
 
-    return media
+    return asset
 
 
 def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
