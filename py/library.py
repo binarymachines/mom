@@ -16,7 +16,7 @@ import pathutil
 import search
 import sql
 from assets import Directory, Document
-from errors import AssetException
+from errors import AssetException, ElasticSearchError
 import search
 
 LOG = logging.getLogger('console.log')
@@ -52,44 +52,63 @@ def get_cached_directory():
     if not 'esid' in values and not 'absolute_path' in values:
         return None
 
-    result = Directory()
-    result.esid = values['esid']
-    result.absolute_path = values['absolute_path']
-    result.document_type = values['document_type']
-
-    return result
+    return Directory(values['absolute_path'], esid=values['esid'])
 
 
 # def get_latest_operation(self, path):
 #
-#     directory = Directory()
-#     directory.absolute_path = path
+#     directory = Directory(path)
 #
 #     doc = search.get_doc(directory)
 #     if doc is not None:
 #         latest_operation = doc['_source']['latest_operation']
 #         return latest_operation
 
-def record_error(self, directory, error):
-    # try:
-    if directory is not None and error is not None:
+def record_error(directory, error):
+    
+    assert(directory is not None)
+    assert(error is not None)
+
+    try:
         LOG.info("recording error: " + error + ", " + directory.esid + ", " + directory.absolute_path)
         dir_vals = cache2.get_hash2(get_cache_key())
         dir_vals['latest_error'] = error.__class__
 
-            # res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body={"doc": {"latest_error": error, "has_errors": True }})
-    # except ConnectionError, err:
-    #     print ': '.join([err.__class__.__name__, err.message])
-    #     # if config.library_debug:
-    #     traceback.print_exc(file=sys.stdout)
-    #     print '\nConnection lost, please verify network connectivity and restart.'
-    #     sys.exit(1)
+        res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body={"doc": {"latest_error": error, "has_errors": True }})
+    except ConnectionError, err:
+        print ': '.join([err.__class__.__name__, err.message])
+        # if config.library_debug:
+        traceback.print_exc(file=sys.stdout)
+        print '\nConnection lost, please verify network connectivity and restart.'
+        sys.exit(1)
 
-def record_file_read(self, reader_name, media):
-        if directory is not None:
-            file_data = { '_reader': reader_name, '_file_name': media.file_name }
-            dir_vals = cache2.get_hash2(get_cache_key())
-            dir_vals['read_files'].append(file_data)
+
+def append_read_file_to_active_directory(self, reader_name, media):
+    pass
+    # """append file to _read_files section of the active directory's elasticsearch data *THIS DOES NOT UPDATE ELASTICSEARCH*"""
+    # if media is not None:
+    #     file_data = { '_reader': reader_name, '_file_name': media.file_name }
+    #     dir_vals = cache2.get_hash2(get_cache_key())
+    #     dir_vals['read_files'].append(file_data)
+
+
+def index_asset(media, data):
+    LOG.debug("indexing %s: %s" % (media.document_type, media.absolute_path))
+    try:
+        res = config.es.index(index=config.es_index, doc_type=media.document_type, body=json.dumps(data))
+        if res['_shards']['successful'] == 1:
+            esid = res['_id']
+            # LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
+            media.esid = esid
+            try:
+                LOG.debug("inserting asset into MariaDB")
+                insert_asset(config.es_index, media.document_type, media.esid, media.absolute_path)
+            except Exception, err:
+                config.es.delete(config.es_index, media.document_type, media.esid)
+                raise err
+    except Exception, err:
+        raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (media.document_type, media.absolute_path))
+
 
 def sync_active_directory_state(directory):
     if directory is not None:
@@ -110,23 +129,24 @@ def sync_active_directory_state(directory):
             #         sys.exit(1)
 
         else:
-            LOG.debug('indexing %s' % directory.absolute_path)
-            json_str = json.dumps(directory.to_dictionary())
-            # TODO:elasticsearch.exceptions.ConnectionTimeout, ConnectionTimeout caused by - ReadTimeoutError(HTTPConnectionPool(host='localhost', port=9200): Read timed out. (read timeout=10))
-
-            res = config.es.index(index=config.es_index, doc_type=directory.document_type, body=json_str)
-            if res['_shards']['successful'] == 1:
-                LOG.debug('data indexed, updating MariaDB')
-                directory.esid = res['_id']
-                # update MariaDB
-                try:
-                    insert_asset(config.es_index, directory.document_type, directory.esid, directory.absolute_path)
-                except Exception, err:
-                    if directory.esid is not None:
-                        config.es.delete(config.es_index, directory.document_type, directory.esid)
-                    raise err
-            else:
-                raise Exception('Failed to write directory %s to Elasticsearch.' % directory.absolute_path)
+            index_asset(directory, directory.to_dictionary())
+            # LOG.debug('indexing %s' % directory.absolute_path)
+            # json_str = json.dumps(directory.to_dictionary())
+            # # TODO:elasticsearch.exceptions.ConnectionTimeout, ConnectionTimeout caused by - ReadTimeoutError(HTTPConnectionPool(host='localhost', port=9200): Read timed out. (read timeout=10))
+            #
+            # res = config.es.index(index=config.es_index, doc_type=directory.document_type, body=json_str)
+            # if res['_shards']['successful'] == 1:
+            #     LOG.debug('data indexed, updating MariaDB')
+            #     directory.esid = res['_id']
+            #     # update MariaDB
+            #     try:
+            #         insert_asset(config.es_index, directory.document_type, directory.esid, directory.absolute_path)
+            #     except Exception, err:
+            #         if directory.esid is not None:
+            #             config.es.delete(config.es_index, directory.document_type, directory.esid)
+            #         raise err
+            # else:
+            #     raise Exception('Failed to write directory %s to Elasticsearch.' % directory.absolute_path)
 
     cache_directory(directory)
 
@@ -138,9 +158,7 @@ def set_active(path):
         return
 
     try:
-        directory = Directory()
-        directory.absolute_path = path
-        directory.document_type = config.DIRECTORY
+        directory = Directory(path)
         sync_active_directory_state(directory)
 	return True
     except ConnectionError, err:

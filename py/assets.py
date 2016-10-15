@@ -120,9 +120,11 @@ class Document(Asset):
 
 
 class Directory(Asset):
-    def __init__(self):
+    def __init__(self, absolute_path, esid=None):
         super(Directory, self).__init__()
         self.document_type = config.DIRECTORY
+        self.absolute_path = absolute_path
+        self.esid = esid
 
     # TODO: call Asset.to_dictionary and append values
     def to_dictionary(self):

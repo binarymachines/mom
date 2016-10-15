@@ -118,10 +118,12 @@ class Mutagen(FileHandler):
 
     def handle_file(self, media, data):
         read_failed = False
+
         try:
             ops.record_op_begin(media, 'read', self.name)
             self.read_tags(media, data)
-            library.record_file_read(self.name, library.get_cached_directory(), media)
+            # update elastic search doc for active directory IF reader succeeded
+            library.append_read_file_to_active_directory(self.name, library.get_cached_directory(), media)
 
         except ID3NoHeaderError, err:
             read_failed = True
@@ -157,6 +159,7 @@ class Mutagen(FileHandler):
 
         finally:
             ops.record_op_complete(media, 'read', self.name, op_failed=read_failed)
+
 
     def read_tags(self, media, data):
         raise BaseClassException(Mutagen)
