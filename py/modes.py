@@ -203,7 +203,7 @@ class Selector:
         elif len(applicable) == 0:
             raise ModeDestinationException("%s: No valid destination from %s" % (self.name, self.active.name))
 
-    def _call_mode_func_(self, mode, func):
+    def _call_mode_func(self, mode, func):
         try:
             if func is not None: func()
         except Exception, err:
@@ -216,7 +216,7 @@ class Selector:
                 LOG.error(err.message)
             raise err
 
-    def _call_switch_bracket_func_(self, mode, func):
+    def _call_switch_bracket_func(self, mode, func):
         try:
             if func is not None: func(self, mode)
         except Exception, err:
@@ -231,7 +231,7 @@ class Selector:
                 traceback.print_exc(file=sys.stdout)
             raise err
 
-    def _set_mode_funcs_(self, mode):
+    def _set_mode_funcs(self, mode):
         if mode.active_rule == None:
             rules = self.get_rules(self.active)
             for rule in rules:
@@ -244,28 +244,28 @@ class Selector:
         try:
             self.next = mode
 
-            self._set_mode_funcs_(mode)
-            self._call_switch_bracket_func_(mode, self.before_switch)
+            self._set_mode_funcs(mode)
+            self._call_switch_bracket_func(mode, self.before_switch)
 
             # call before() for what will be the current mode
-            if mode.active_rule is not None:
-                self._call_mode_func_(mode, mode.active_rule.before)
+            if mode.active_rule:
+                self._call_mode_func(mode, mode.active_rule.before)
 
             self.active = mode
             mode.times_activated += 1
             self.complete = True if mode == self.end else False
 
-            self._call_mode_func_(mode, mode.effect)
+            self._call_mode_func(mode, mode.effect)
 
             # call after() for what was be the current mode
-            if mode.active_rule is not None:
-                self._call_mode_func_(mode, mode.active_rule.after)
+            if mode.active_rule:
+                self._call_mode_func(mode, mode.active_rule.after)
 
             mode.times_completed += 1
             if mode.dec_priority:
                 mode.priority -= mode.dec_priority_amount
 
-            self._call_switch_bracket_func_(mode, self.after_switch)
+            self._call_switch_bracket_func(mode, self.after_switch)
 
             self.previous = mode
             self.rule_chain.append(mode.active_rule)
@@ -313,7 +313,7 @@ class Engine:
         if self.running:
             selector.run()
 
-    def _sub_execute_(self):
+    def _sub_execute(self):
         for selector in self.active:
             if selector.complete:
                 self.inactive.append(selector)
@@ -353,7 +353,7 @@ class Engine:
                 selector.run()
 
         while len(self.active) > 0 and cycle:
-            self._sub_execute_()
+            self._sub_execute()
 
     def report(self, selector):
         LOG.debug('%s reporting activity for: %s' % (self.name, selector.name))
@@ -367,7 +367,7 @@ class Engine:
                 (mode.name, mode.times_activated, mode.times_completed, mode.priority, mode.error_count, str(mode.error_state)))
 
     def start(self):
-        "this method probably shouldn't exist"
+        """this method probably shouldn't exist"""
         self.execute(False)
 
     def step(self):
@@ -375,7 +375,7 @@ class Engine:
             self.execute(False)
             return
 
-        self._sub_execute_()
+        self._sub_execute()
         self._update()
 
     def _update(self):
