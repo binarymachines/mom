@@ -29,7 +29,7 @@ def add_field(doc_format, field_name):
     sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
 
     cache2.clear_items(KNOWN, doc_format)
-    lkey = cache2.DELIM.join([KNOWN, cache2.LIST, doc_format])
+    lkey = cache2.DELIM.join([cache2.LIST, KNOWN, doc_format])
     cache2.delete_key(lkey)
     cache2.delete_key(cache2.key_name(KNOWN, doc_format))
 
@@ -75,14 +75,14 @@ class Reader:
                 if filename.endswith(extension):
                     return True
 
-    def read(self, media, data, file_handler_name=None, force_read=False):
+    def read(self, asset, data, file_handler_name=None, force_read=False):
         for file_handler in self.get_file_handlers():
             if file_handler_name is None or file_handler.name == file_handler_name:
-                if media.ext in file_handler.extensions or '*' in file_handler.extensions or force_read:
-                    if not ops.operation_in_cache(media.absolute_path, READ, file_handler.name):
-                        LOG.debug("%s reading file: %s" % (file_handler.name, media.short_name()))
+                if asset.ext in file_handler.extensions or '*' in file_handler.extensions or force_read:
+                    if not ops.operation_in_cache(asset.absolute_path, READ, file_handler.name):
+                        LOG.debug("%s reading file: %s" % (file_handler.name, asset.short_name()))
                         try:
-                            file_handler.handle_file(media, data)
+                            file_handler.handle_file(asset, data)
                         except Exception, err:
                             LOG.error(err.message)
 
@@ -95,7 +95,7 @@ class FileHandler(object):
         self.name = name
         self.extensions = extensions
 
-    def handle_file(self, media, data):
+    def handle_file(self, asset, data):
         raise BaseClassException(FileHandler)
 
 # class Archive(FileHandler)
@@ -113,17 +113,17 @@ class Mutagen(FileHandler):
         data['errors'].append(error_data)
 
         library.record_error(library.get_cached_directory(), exception)
-        LOG.debug(': '.join([exception.__class__.__name__, exception.message]))
-        traceback.print_exc(file=sys.stdout)
+        # LOG.debug(': '.join([exception.__class__.__name__, exception.message]))
+        # traceback.print_exc(file=sys.stdout)
 
-    def handle_file(self, media, data):
+    def handle_file(self, asset, data):
         read_failed = False
 
         try:
-            ops.record_op_begin(media, 'read', self.name)
-            self.read_tags(media, data)
+            ops.record_op_begin(asset, 'read', self.name)
+            self.read_tags(asset, data)
             # update elastic search doc for active directory IF reader succeeded
-            library.append_read_file_to_active_directory(self.name, library.get_cached_directory(), media)
+            library.append_read_file_to_active_directory(self.name, library.get_cached_directory(), asset)
 
         except ID3NoHeaderError, err:
             read_failed = True
@@ -158,10 +158,10 @@ class Mutagen(FileHandler):
             self.handle_exception(err, data)
 
         finally:
-            ops.record_op_complete(media, 'read', self.name, op_failed=read_failed)
+            ops.record_op_complete(asset, 'read', self.name, op_failed=read_failed)
 
 
-    def read_tags(self, media, data):
+    def read_tags(self, asset, data):
         raise BaseClassException(Mutagen)
 
 
@@ -169,9 +169,9 @@ class MutagenAPEv2(Mutagen):
     def __init__(self):
         super(MutagenAPEv2, self).__init__('mutagen-apev2', 'ape', 'mpc')
 
-    def read_tags(self, media, data):
+    def read_tags(self, asset, data):
         ape_data = {}
-        document = APEv2(media.absolute_path)
+        document = APEv2(asset.absolute_path)
         for item in document.items():
             if len(item) < 2: continue
 
@@ -191,9 +191,9 @@ class MutagenFLAC(Mutagen):
     def __init__(self):
         super(MutagenFLAC, self).__init__('mutagen-flac', 'flac')
 
-    def read_tags(self, media, data):
+    def read_tags(self, asset, data):
         flac_data = {}
-        document = FLAC(media.absolute_path)
+        document = FLAC(asset.absolute_path)
         for tag in document.tags:
             if len(tag) < 2: continue
             
@@ -225,8 +225,8 @@ class MutagenID3(Mutagen):
     def __init__(self):
         super(MutagenID3, self).__init__('mutagen-id3', 'mp3', 'flac')
 
-    def read_tags(self, media, data):
-        document = ID3(media.absolute_path)
+    def read_tags(self, asset, data):
+        document = ID3(asset.absolute_path)
         metadata = document.pprint() # gets all metadata
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
@@ -259,9 +259,9 @@ class MutagenOggVorbis(Mutagen):
     def __init__(self):
         super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis', 'ogg')
 
-    def read_tags(self, media, data):
+    def read_tags(self, asset, data):
         ogg_data = {}
-        document = OggVorbis(media.absolute_path)
+        document = OggVorbis(asset.absolute_path)
         for tag in document.tags:
             if tag[0] not in get_known_fields('ogg'):
                 add_field('ogg', tag[0])
@@ -275,7 +275,7 @@ class MutagenOggVorbis(Mutagen):
 #     def __init__(self):
 #         super(ImageHandler, self).__init__('mildred-img', get_supported_image_types())
 #
-#     def handle_file(self, media, data):
+#     def handle_file(self, asset, data):
 #         pass
 
 
@@ -283,7 +283,7 @@ class GenericText(FileHandler):
     def __init__(self):
         super(GenericText, self).__init__('mildred-txt', 'txt', 'java', 'c', 'cpp', 'xml', 'html')
 
-    def handle_file(self, media, data):
+    def handle_file(self, asset, data):
         pass
 
 
@@ -293,5 +293,5 @@ class DelimitedText(GenericText):
         super(GenericText, self).__init__('mildred-delimited', 'csv')
         self.DELIM = DELIM_char
 
-    def handle_file(self, media, data):
+    def handle_file(self, asset, data):
         pass

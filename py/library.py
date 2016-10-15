@@ -6,7 +6,7 @@ import os
 import sys
 import traceback
 
-from elasticsearch.exceptions import ConnectionError
+from elasticsearch.exceptions import ConnectionError, RequestError
 
 import alchemy
 
@@ -69,11 +69,12 @@ def record_error(directory, error):
     assert(error is not None)
 
     try:
-        LOG.info("recording error: " + error + ", " + directory.esid + ", " + directory.absolute_path)
+        error_class = error.__class__.__name__
+        LOG.info("recording error: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
         dir_vals = cache2.get_hash2(get_cache_key())
-        dir_vals['latest_error'] = error.__class__
+        # dir_vals['latest_error'] = error_class
 
-        res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body={"doc": {"latest_error": error, "has_errors": True }})
+        res = config.es.update(index=config.es_index, doc_type=directory.document_type, id=directory.esid, body={"doc": {"latest_error": error_class, "has_errors": True }})
     except ConnectionError, err:
         print ': '.join([err.__class__.__name__, err.message])
         # if config.library_debug:
@@ -105,7 +106,11 @@ def index_asset(asset, data):
             except Exception, err:
                 config.es.delete(config.es_index, asset.document_type, asset.esid)
                 raise err
+    # except RequestError, err:
+    #     message = err.in
     except Exception, err:
+        LOG.error(err.__class__.__name__, exc_info=True)
+        # traceback.print_exc(file=sys.stdout)
         record_error(get_cached_directory(), err)
         # raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (asset.document_type, asset.absolute_path))
 
