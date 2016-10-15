@@ -105,14 +105,14 @@ def update_ops_data():
         LOG.error(err.message)
 
 
-def write_ops_data(path, operation=None, operator=None):
+def write_ops_data(path, operation=None, operator=None, this_pid_only=False):
 
     LOG.debug('writing op records...')
 
     table_name = 'op_record'  
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation
-    keys = cache2.get_keys(OPS, operation, operator, path)
+    keys = cache2.get_keys(OPS, str(config.pid), operation, operator, path)
     for key in keys:
         values = cache2.get_hash2(key)
         skip = False
@@ -123,16 +123,18 @@ def write_ops_data(path, operation=None, operator=None):
 
         if skip or values['persisted'] == 'True' or values['end_time'] == 'None': continue
 
-        try:
-            alchemy.insert_operation_record(operation_name=values['operation_name'], operator_name=values['operator_name'], target_esid=values['target_esid'], \
-                target_path=values['target_path'], start_time=values['start_time'], end_time=values['end_time'], status=values['status'])
-        except Exception, error:
-            raise error
-            # TODO: test the path to determine whether it is a file or a 
-            # sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
-            #     [config.es_index, config.DOCUMENT, values['target_esid'], 'Unable to store/retrieve operation record'])
-        finally:
-            cache2.delete_key(key)
+        # try:
+
+        alchemy.insert_operation_record(operation_name=values['operation_name'], operator_name=values['operator_name'], target_esid=values['target_esid'], \
+            target_path=values['target_path'], start_time=values['start_time'], end_time=values['end_time'], status=values['status'])
+        cache2.delete_key(key)
+
+        # except Exception, error:
+        #     raise error
+        #     # TODO: test the path to determine whether it is a file or a 
+        #     # sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'],
+        #     #     [config.es_index, config.DOCUMENT, values['target_esid'], 'Unable to store/retrieve operation record'])
+        # finally:
 
     # LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
 

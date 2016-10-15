@@ -26,16 +26,17 @@ import search
 import sql
 
 from context import DirectoryContext
-from errors import AssetException, ElasticSearchError
+from errors import AssetException
 from walk import Walker
 from read import Reader
 
+from assets import Directory
 
 LOG = logging.getLogger('scan.log')
 
 SCANNER = 'scanner'
 SCAN = 'scan'
-HLSCAN = 'highlevelscan'
+HLSCAN = 'high.level.scan'
 
 class Scanner(Walker):
     def __init__(self, context):
@@ -85,12 +86,8 @@ class Scanner(Walker):
                 media = library.get_media_object(os.path.join(root, filename), fail_on_fs_missing=True)
                 if media is None or media.ignore() or media.available == False: continue
                 data = media.to_dictionary()
-                # for file_handler in self.reader.get_file_handlers():
-                #     if not ops.operation_in_cache(os.path.join(root, filename), read.read.READ, file_handler.name):
-                #         self.reader.read(media, data, file_handler.name)
-
                 self.reader.read(media, data)
-                self.index_file(media, data)
+                library.index_asset(media, data)
 
         ops.record_op_complete(directory, SCAN, SCANNER)
         LOG.debug('done scanning : %s' % (root))
@@ -102,23 +99,6 @@ class Scanner(Walker):
         # TODO: connectivity tests, delete operations on root from cache.
 
     # utility
-
-    def index_file(self, media, data):
-        LOG.debug("indexing file: %s" % (media.absolute_path))
-        try:
-            res = config.es.index(index=config.es_index, doc_type=self.document_type, body=json.dumps(data))
-            if res['_shards']['successful'] == 1:
-                esid = res['_id']
-                # LOG.debug("attaching NEW esid: %s to %s." % (esid, media.file_name))
-                media.esid = esid
-                try:
-                    LOG.debug("inserting asset into MariaDB")
-                    library.insert_asset(config.es_index, self.document_type, media.esid, media.absolute_path)
-                except Exception, err:
-                    config.es.delete(config.es_index, self.document_type, media.esid)
-                    raise err
-        except Exception, err:
-            raise ElasticSearchError(err, 'Failed to write document %s to Elasticsearch.' % (media.absolute_path))
 
     def path_expands(self, path):
         expanded = False
@@ -146,14 +126,25 @@ class Scanner(Walker):
         return path in self.context.paths
 
     def scan(self):
+        ops.cache_ops(os.path.sep, HLSCAN, SCANNER)
+        
         while self.context.has_next(SCAN, True):
             path = self.context.get_next(SCAN, True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 # comparing path_is_configured to False to allow processing of expanded paths
+                # TODO: replace path_is_configured with self.context.path_in_fifo(path)
                 if self.do_deep_scan or self.path_has_handlers(path) or not self.path_is_configured(path): 
-                    if self.path_expands(path): continue
+                    if self.path_expands(path): 
+                        LOG.debug('expanded %s...' % path)
+                        continue
 
-                    # hl_directory = 
+                    if ops.operation_in_cache(path, HLSCAN, SCANNER) and self.do_deep_scan == False: 
+                        LOG.debug('skipping %s...' % path)
+                        continue
+
+                    hl_directory = Directory(path)  
+                    ops.record_op_begin(hl_directory, HLSCAN, SCANNER)
+                    #  
                     # if ops.operation_completed
 
                     LOG.debug('caching data for %s...' % path)
@@ -175,6 +166,8 @@ class Scanner(Walker):
                         ops.update_ops_data()
 
                     # cache.clear_docs(config.DIRECTORY, path)
+                    ops.record_op_complete(hl_directory, HLSCAN, SCANNER)
+                    ops.write_ops_data(hl_directory.absolute_path, HLSCAN, SCANNER)
 
             elif not os.access(path, os.R_OK):
                 LOG.info("%s isn't currently available." % (path))
