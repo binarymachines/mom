@@ -24,7 +24,8 @@ LOG = logging.getLogger('console.log')
 KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'
 
-# cache functions
+
+# directory cache
 
 def get_cache_key():
     key = cache2.get_key(KEY_GROUP, str(config.pid))
@@ -32,8 +33,6 @@ def get_cache_key():
         key = cache2.create_key(KEY_GROUP, str(config.pid))
     return key
 
-
-# directory cache
 
 def cache_directory(directory):
     if directory is None:
@@ -110,63 +109,30 @@ def index_asset(media, data):
         raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (media.document_type, media.absolute_path))
 
 
-def sync_active_directory_state(directory):
+def set_active(path):
+    directory = None if path is None else Directory(path)
     if directory is not None:
         LOG.debug('syncing metadata for %s' % directory.absolute_path)
         if search.unique_doc_exists(config.DIRECTORY, 'absolute_path', directory.absolute_path):
             directory.esid = search.unique_doc_id(config.DIRECTORY, 'absolute_path', directory.absolute_path)
-
-            # TODO: resolve this cart before horse issue right here
-            # dir_vals = cache2.get_hash2(get_cache_key())
-            # if len (dir_vals['data.read_files']) > 0:
-            #     try:
-            #         res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body= json.dumps(dir_vals))
-            #     except ConnectionError, err:
-            #         print ': '.join([err.__class__.__name__, err.message])
-            #         # if config.library_debug:
-            #         traceback.print_exc(file=sys.stdout)
-            #         print '\nConnection lost, please verify network connectivity and restart.'
-            #         sys.exit(1)
-
+            # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
             index_asset(directory, directory.to_dictionary())
-            # LOG.debug('indexing %s' % directory.absolute_path)
-            # json_str = json.dumps(directory.to_dictionary())
-            # # TODO:elasticsearch.exceptions.ConnectionTimeout, ConnectionTimeout caused by - ReadTimeoutError(HTTPConnectionPool(host='localhost', port=9200): Read timed out. (read timeout=10))
-            #
-            # res = config.es.index(index=config.es_index, doc_type=directory.document_type, body=json_str)
-            # if res['_shards']['successful'] == 1:
-            #     LOG.debug('data indexed, updating MariaDB')
-            #     directory.esid = res['_id']
-            #     # update MariaDB
-            #     try:
-            #         insert_asset(config.es_index, directory.document_type, directory.esid, directory.absolute_path)
-            #     except Exception, err:
-            #         if directory.esid is not None:
-            #             config.es.delete(config.es_index, directory.document_type, directory.esid)
-            #         raise err
-            # else:
-            #     raise Exception('Failed to write directory %s to Elasticsearch.' % directory.absolute_path)
+    elif directory is None and get_cached_directory():
+        pass
+        # TODO: resolve this cart before horse issue right here 
+        # dir_vals = cache2.get_hash2(get_cache_key())
+        # if len (dir_vals['data.read_files']) > 0:
+        #     try:
+        #         res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body= json.dumps(dir_vals))
+        #     except ConnectionError, err:
+        #         print ': '.join([err.__class__.__name__, err.message])
+        #         # if config.library_debug:
+        #         traceback.print_exc(file=sys.stdout)
+        #         print '\nConnection lost, please verify network connectivity and restart.'
+        #         sys.exit(1)
 
     cache_directory(directory)
-
-
-def set_active(path):
-
-    if path is None:
-        sync_active_directory_state(None)
-        return
-
-    try:
-        directory = Directory(path)
-        sync_active_directory_state(directory)
-	return True
-    except ConnectionError, err:
-        print ': '.join([err.__class__.__name__, err.message])
-        # if config.library_debug:
-        traceback.print_exc(file=sys.stdout)
-        print '\nConnection lost, please verify network connectivity and restart.'
-        sys.exit(1)
 
 
 def doc_exists_for_path(doc_type, path):
@@ -198,7 +164,7 @@ def get_library_location(path):
       return result
 
 
-def get_media_object(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
+def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
     """return a media file instance"""
     fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
     if fail_on_fs_missing and not fs_avail:

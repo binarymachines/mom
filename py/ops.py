@@ -114,19 +114,19 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False):
     operation = '*' if operation is None else operation
     keys = cache2.get_keys(OPS, str(config.pid), operation, operator, path)
     for key in keys:
-        values = cache2.get_hash2(key)
+        record = cache2.get_hash2(key)
         skip = False
-        for key in OP_RECORD:
-            if not key in values: 
+        for field in OP_RECORD:
+            if not field in record: 
                 skip = True
                 break
 
-        if skip or values['persisted'] == 'True' or values['end_time'] == 'None': continue
+        if skip or record['persisted'] == 'True' or record['end_time'] == 'None': continue
 
         # try:
 
-        alchemy.insert_operation_record(operation_name=values['operation_name'], operator_name=values['operator_name'], target_esid=values['target_esid'], \
-            target_path=values['target_path'], start_time=values['start_time'], end_time=values['end_time'], status=values['status'])
+        alchemy.insert_operation_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
+            target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
         cache2.delete_key(key)
 
         # except Exception, error:

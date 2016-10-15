@@ -83,7 +83,7 @@ class Scanner(Walker):
             # ops.do_status_check()
             if self.reader.has_handler_for(filename):
 
-                media = library.get_media_object(os.path.join(root, filename), fail_on_fs_missing=True)
+                media = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
                 if media is None or media.ignore() or media.available == False: continue
                 data = media.to_dictionary()
                 self.reader.read(media, data)
@@ -144,8 +144,6 @@ class Scanner(Walker):
 
                     hl_directory = Directory(path)  
                     ops.record_op_begin(hl_directory, HLSCAN, SCANNER)
-                    #  
-                    # if ops.operation_completed
 
                     LOG.debug('caching data for %s...' % path)
                     ops.cache_ops(path, SCAN)
@@ -159,10 +157,10 @@ class Scanner(Walker):
 
                     LOG.debug('clearing cache...')
                     ops.write_ops_data(path, SCAN)
+                    ops.write_ops_data(path, read.READ)
  
                     LOG.debug('updating MariaDB...')
                     if start_read_cache_size != end_read_cache_size:
-                        ops.write_ops_data(path, read.READ)
                         ops.update_ops_data()
 
                     # cache.clear_docs(config.DIRECTORY, path)
@@ -171,10 +169,7 @@ class Scanner(Walker):
 
             elif not os.access(path, os.R_OK):
                 LOG.info("%s isn't currently available." % (path))
-
-        # cache.cache_docs(config.DOCUMENT, path)
-        LOG.debug('-----scan complete-----')
-
+                
 
 def scan(context):
     if SCANNER not in context.data:
@@ -187,7 +182,7 @@ def main(args):
     config.es = search.connect()
     # reset()
     paths = None if not args['--path'] else args['<path>']
-    context = DirectoryContext('_path_context_', paths)
+    context = DirectoryContext('_directory_context_', paths)
     scan(context)
 
 if __name__ == '__main__':
