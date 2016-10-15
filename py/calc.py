@@ -30,10 +30,10 @@ from match import ElasticSearchMatcher
 LOG = logging.getLogger('console.log')
 
 
-def all_matchers_have_run(matchers, media):
+def all_matchers_have_run(matchers, asset):
     skip_entirely = True
     for matcher in matchers:
-        if not ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
+        if not ops.operation_in_cache(asset.absolute_path, 'match', matcher.name):
             skip_entirely = False
             break
 
@@ -46,7 +46,7 @@ def cache_match_ops(matchers, path):
 
 # def clear cached_match_ops(self, matchers):
 
-# def split_location(into sets of media directory)
+# def split_location(into sets of asset directory)
 
 def calc(context, cycle_context=False):
     # MAX_RECORDS = ...
@@ -91,37 +91,37 @@ def calc(context, cycle_context=False):
 
 def do_match_op(esid, absolute_path):
 
-    media = library.get_document_asset(absolute_path, esid=esid, attach_doc=True)
+    asset = library.get_document_asset(absolute_path, esid=esid, attach_doc=True)
     matchers = get_matchers()
 
-    if media.doc and all_matchers_have_run(matchers, media):
-        LOG.debug('calc: skipping all match operations on %s, %s' % (media.esid, media.absolute_path))
+    if asset.doc and all_matchers_have_run(matchers, asset):
+        LOG.debug('calc: skipping all match operations on %s, %s' % (asset.esid, asset.absolute_path))
         return
 
-    elif media.doc:
+    elif asset.doc:
         try:
-            # if library.doc_exists_for_path(media.document_type, media.absolute_path):
+            # if library.doc_exists_for_path(asset.document_type, asset.absolute_path):
             for matcher in matchers:
-                if ops.operation_in_cache(media.absolute_path, 'match', matcher.name):
-                    LOG.debug('calc: skipping %s operation on %s' % (matcher.name, media.absolute_path))
+                if ops.operation_in_cache(asset.absolute_path, 'match', matcher.name):
+                    LOG.debug('calc: skipping %s operation on %s' % (matcher.name, asset.absolute_path))
                 else:
-                    LOG.debug('calc: %s seeking matches for %s' % (matcher.name, media.absolute_path))
-                    matcher.match(media)
-                    ops.write_ops_data(media.absolute_path, 'match', matcher.name)
+                    LOG.debug('calc: %s seeking matches for %s' % (matcher.name, asset.absolute_path))
+                    matcher.match(asset)
+                    ops.write_ops_data(asset.absolute_path, 'match', matcher.name)
 
         except AssetException, err:
             LOG.warning(': '.join([err.__class__.__name__, err.message]))
             # if config.matcher_debug:
             traceback.print_exc(file=sys.stdout)
-            library.handle_asset_exception(err, media.absolute_path)
+            library.handle_asset_exception(err, asset.absolute_path)
 
         except UnicodeDecodeError, u:
             # self.library.record_error(self.library.directory, "UnicodeDecodeError=" + u.message)
-            LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
+            LOG.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]))
 
         except Exception, u:
             # self.library.record_error(self.library.directory, "UnicodeDecodeError=" + u.message)
-            LOG.warning(': '.join([u.__class__.__name__, u.message, media.absolute_path]))
+            LOG.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]))
 
 
 def get_matchers():

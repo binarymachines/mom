@@ -3,6 +3,6 @@
 SELECT id, absolute_path
   FROM es_document
  WHERE index_name = '%s'
-   and doc_type = 'media_'
+  and doc_type = 'directory'
    and absolute_path like '*%s*'
  ORDER BY absolute_path

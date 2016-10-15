@@ -83,11 +83,11 @@ class Scanner(Walker):
             # ops.do_status_check()
             if self.reader.has_handler_for(filename):
 
-                media = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
-                if media is None or media.ignore() or media.available == False: continue
-                data = media.to_dictionary()
-                self.reader.read(media, data)
-                library.index_asset(media, data)
+                asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
+                if asset is None or asset.ignore() or asset.available == False: continue
+                data = asset.to_dictionary()
+                self.reader.read(asset, data)
+                library.index_asset(asset, data)
 
         ops.record_op_complete(directory, SCAN, SCANNER)
         LOG.debug('done scanning : %s' % (root))
