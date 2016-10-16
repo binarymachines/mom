@@ -115,7 +115,7 @@ def record_matches_as_ops():
 #             doc_type = f[1]
 
 #             try:
-#                 esid = cache.retrieve_esid(doc_type, filename)
+#                 esid = library.retrieve_esid(doc_type, filename)
 #                 if esid is not None:
 #                     print ','.join([esid, filename])
 #                 else:

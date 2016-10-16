@@ -2,9 +2,12 @@
 
 import os, pprint, sys, logging, traceback, thread
 from elasticsearch import Elasticsearch
-import cache, config, ops
-from query import Builder
+
+import config
+import library
+import ops
 import sql
+from query import Builder
 from errors import BaseClassException
 
 LOG = logging.getLogger(__name__)
@@ -120,7 +123,7 @@ class ElasticSearchMatcher(MediaMatcher):
         ops.record_op_begin(media, 'match', self.name)
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
-        previous_matches = cache.get_matches(self.name, media.esid)
+        previous_matches = library.get_matches(self.name, media.esid)
 
         query = self.get_query(media)
         # query_printed = False
@@ -153,11 +156,11 @@ class ElasticSearchMatcher(MediaMatcher):
             self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
-            # calc.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
-            try:
-                thread.start_new_thread(cache.ensure, (self.document_type, match['_id'], match['_source']['absolute_path'],))
-            except Exception, err:
-                LOG.error(err.message, exc_info=True)
+            # scratch.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
+            # try:
+            #     thread.start_new_thread(scratch.ensure, (self.document_type, match['_id'], match['_source']['absolute_path'],))
+            # except Exception, err:
+            #     LOG.error(err.message, exc_info=True)
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 

@@ -6,7 +6,6 @@ from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
 from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 
-import cache
 import cache2
 import config
 import library

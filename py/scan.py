@@ -53,15 +53,19 @@ class Scanner(Walker):
 
     def before_handle_root(self, root):
         ops.check_status()
-        if ops.operation_in_cache(root, SCAN, SCANNER) and not self.do_deep_scan: return
-        if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
+        if os.path.isdir(root) and os.access(root, os.R_OK):
+            if ops.operation_in_cache(root, SCAN, SCANNER) and not self.do_deep_scan: return
+            if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
 
-        try:
-            library.set_active(root)
-        except AssetException, err:
-            LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            library.handle_asset_exception(err, root)
-            library.clear_directory_cache()
+            try:
+                library.set_active(root)
+            except AssetException, err:
+                LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                library.handle_asset_exception(err, root)
+                library.clear_directory_cache()
+        else:
+            self.context.push_fifo(SCAN, root)
+            raise Exception("%s isn't currently available." % (root))
 
     def handle_root(self, root):
         directory = library.get_cached_directory()
@@ -83,7 +87,7 @@ class Scanner(Walker):
         ops.record_op_complete(directory, SCAN, SCANNER)
         LOG.debug('done scanning : %s' % (root))
 
-    def handle_root_error(self, err):
+    def handle_root_error(self, err, root):
         LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
@@ -138,7 +142,7 @@ class Scanner(Walker):
                     LOG.debug('caching data for %s...' % path)
                     ops.cache_ops(path, SCAN)
                     ops.cache_ops(path, read.READ)
-                    # cache.cache_docs(config.DIRECTORY, path)
+                    # library.cache_docs(config.DIRECTORY, path)
                     
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
                     print("scanning %s..." % path)
@@ -153,12 +157,12 @@ class Scanner(Walker):
                     if start_read_cache_size != end_read_cache_size:
                         ops.update_ops_data()
 
-                    # cache.clear_docs(config.DIRECTORY, path)
+                    # library.clear_docs(config.DIRECTORY, path)
                     ops.record_op_complete(hl_directory, HLSCAN, SCANNER)
                     ops.write_ops_data(hl_directory.absolute_path, HLSCAN, SCANNER)
 
             elif not os.access(path, os.R_OK):
-                LOG.info("%s isn't currently available." % (path))
+                LOG.warning("%s isn't currently available." % (path))
                 
 
 def scan(context):

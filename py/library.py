@@ -10,7 +10,7 @@ from elasticsearch.exceptions import ConnectionError, RequestError
 
 import alchemy
 
-import cache, cache2
+import cache2
 import config
 import pathutil
 import search
@@ -130,7 +130,7 @@ def append_read_file_to_active_directory(self, reader_name, asset):
 
 def doc_exists_for_path(doc_type, path):
     # check cache, cache will query db if esid not found in cache
-    esid = cache.retrieve_esid(doc_type, path)
+    esid = retrieve_esid(doc_type, path)
     if esid is not None: return True
 
     # esid not found in cache or db, search es
@@ -163,7 +163,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
 
     # check cache for esid
     if asset.esid is None and check_cache and path_in_cache(asset.document_type, absolute_path):
-        asset.esid = cache.get_cached_esid(asset.document_type, absolute_path)
+        asset.esid = get_cached_esid(asset.document_type, absolute_path)
 
     if asset.esid is None and check_db and path_in_db(asset.document_type, absolute_path):
         asset.esid = retrieve_esid(asset.document_type, absolute_path)
@@ -298,7 +298,7 @@ def get_library_location(path):
 
 
 def path_in_cache(document_type, path):
-    return cache.get_cached_esid(document_type, path)
+    return get_cached_esid(document_type, path)
 
 
 def path_in_db(document_type, path):
