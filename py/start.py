@@ -115,8 +115,10 @@ def read_config(options):
     parser = ConfigParser.ConfigParser()
     parser.read(config.filename)
 
-    # TODO write pidfile_TIMESTAMP and pass filenames to command.py
-    if not config.launched: write_pid_file()
+    
+    # TODO write pidfile_TIMESTAMP and pass filenames to command.py    
+    if not config.launched: 
+        write_pid_file()
 
     # elasticsearch
     config.es_host = read(parser, "Elasticsearch")['host']
@@ -169,7 +171,7 @@ def show_logo():
 
 # pids
 
-def read_pid():
+def read_pid_file():
     f = open('pid', 'rt')
     pid = f.readline()
     f.close()

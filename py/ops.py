@@ -131,6 +131,8 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 
         if record['end_time'] == 'None': 
             record['status'] = 'INCOMPLETE' if resuming == False else 'INTERRUPTED'
+        
+        if record['status'] == 'INCOMPLETE':
             record['end_time'] = datetime.datetime.now().isoformat()
 
         # try:
