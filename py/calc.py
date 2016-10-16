@@ -27,7 +27,7 @@ from context import DirectoryContext
 from errors import AssetException
 from match import ElasticSearchMatcher
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 
 def all_matchers_have_run(matchers, asset):
@@ -56,7 +56,7 @@ def calc(context, cycle_context=False):
     # if context.has_next('match')...pop locations and split directories here if needed ; call recursively when cycle_context equals true
     for location in context.paths:
         LOG.debug('calc: matching files in %s' % (location))
-        ops.do_status_check()
+        ops.check_status()
         if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, 'match'):
             try:
                 # this should never be true, but a test
@@ -68,7 +68,7 @@ def calc(context, cycle_context=False):
 
                 for key in cache.get_doc_keys(config.DOCUMENT):
                     opcount += 1
-                    ops.    do_status_check(opcount)
+                    ops.check_status(opcount)
 
                     values = config.redis.hgetall(key)
                     if 'esid' not in values:
@@ -82,8 +82,7 @@ def calc(context, cycle_context=False):
                     cache.clear_matches(matcher.name, location)
 
             except Exception, err:
-                LOG.error(': '.join([err.__class__.__name__, err.message, location]))
-                traceback.print_exc(file=sys.stdout)
+                LOG.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
             finally:
                 cache.clear_docs(config.DOCUMENT, location)
                 cache.write_paths()
@@ -110,9 +109,7 @@ def do_match_op(esid, absolute_path):
                     ops.write_ops_data(asset.absolute_path, 'match', matcher.name)
 
         except AssetException, err:
-            LOG.warning(': '.join([err.__class__.__name__, err.message]))
-            # if config.matcher_debug:
-            traceback.print_exc(file=sys.stdout)
+            LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             library.handle_asset_exception(err, asset.absolute_path)
 
         except UnicodeDecodeError, u:

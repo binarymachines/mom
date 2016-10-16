@@ -7,7 +7,7 @@ import config, sql, library
 import ops
 from errors import AssetException
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'
@@ -126,7 +126,7 @@ def write_paths(flushkeys=True):
     keys = []
     esids = []
     for key in config.redis.scan_iter(search):
-        ops.do_status_check()
+        ops.check_status()
         values = config.redis.hgetall(key)
         keys.append(key)
         if 'absolute_path' in values:

@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 import config
 import sql
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 Base = declarative_base()
 
@@ -99,8 +99,7 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
 #                     print 'adding %s to MariaDB...' % (artist)
 #                     thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
 #                 except Exception, err:
-#                     print ': '.join([err.__class__.__name__, err.message])
-#                     if self.debug: traceback.print_exc(file=sys.stdout)
+#                    LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 #             # sql.insert_values('artist', ['name'], [artist])
 #             #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
@@ -114,8 +113,7 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
 #             #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
 
 #         except Exception, err:
-#             print ': '.join([err.__class__.__name__, err.message])
-#             if self.debug: traceback.print_exc(file=sys.stdout)
+#             LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 

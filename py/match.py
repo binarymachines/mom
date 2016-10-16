@@ -7,7 +7,7 @@ from query import Builder
 import sql
 from errors import BaseClassException
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -157,8 +157,7 @@ class ElasticSearchMatcher(MediaMatcher):
             try:
                 thread.start_new_thread(cache.ensure, (self.document_type, match['_id'], match['_source']['absolute_path'],))
             except Exception, err:
-                print err.message
-                traceback.print_exc(file=sys.stdout)
+                LOG.error(err.message, exc_info=True)
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 

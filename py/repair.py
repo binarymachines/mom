@@ -6,7 +6,7 @@ from assets import Asset, Document
 
 from errors import AssetException
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 
 def clear_bad_entries():
@@ -66,8 +66,7 @@ def purge_problem_esids():
                 try:
                     config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
                 except Exception, err:
-                    LOG.error(': '.join([err.__class__.__name__, err.message]))
-                    traceback.print_exc(file=sys.stdout)
+                    LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 def record_matches_as_ops():

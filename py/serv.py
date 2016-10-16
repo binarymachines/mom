@@ -3,6 +3,8 @@ import sys, os, logging, traceback, thread
 from modes import Mode, Rule, Selector, Engine
 from errors import BaseClassException
 
+LOG = logging.getLogger(__name__)
+
 SERVICE_NAME = '::\`]'
 
 class ServiceProcess(object):
@@ -39,7 +41,7 @@ class ServiceProcess(object):
             if after is not None:
                 after(self)
         except Exception, err:
-            traceback.print_exc(file=sys.stdout)
+            LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             if self.restart_on_fail:
                 self.error_count += 1
                 self.initialize()
@@ -125,8 +127,7 @@ class Service(object):
 
             self.handle_processes()
         except Exception, err:
-            print err.message
-            traceback.print_exc(file=sys.stdout)
+            LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
     def handle_processes(self):
         while len(self.active) > 0:

@@ -28,8 +28,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 PATTERN = '_match_pattern'
 SOURCE = 'directories'
-FOLDER = '_'
-FOLDER_ESID = '_directory_esid'
+DIRECTORY = '_directory'
+DIRECTORY_ESID = '_directory_esid'
 FILE = '_file_name'
 FILE_ESID = '_file_esid'
 FILE_LIST = 'files'
@@ -44,7 +44,7 @@ RESULTS = 'results'
 MATCH_SCORE = 'match_score'
 MATCH_ESID = '_match_esid'
 MATCH_FILENAME = '_match_filename'
-MATCH_FOLDER = '_match_'
+MATCH_DIRECTORY = '_match_'
 TAGS = 'tags'
 WEIGHT = '_weight'
 DISCOUNT = '_discount'
@@ -109,13 +109,13 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
         for directory in directories:
             match_scores = []
             matches_exist = False
-            directory_data = { FOLDER: [1], FOLDER_ESID: [0], RESULTS: {FILE_LIST: []} }
+            directory_data = { DIRECTORY: [1], DIRECTORY_ESID: [0], RESULTS: {FILE_LIST: []} }
 
-            # print 'retrieving matches for: "%s"' % (_data[FOLDER])
-            mediafiles = get_media_files(directory_data[FOLDER])
+            # print 'retrieving matches for: "%s"' % (_data[DIRECTORY])
+            mediafiles = get_documents(directory_data[DIRECTORY])
             for media in mediafiles:
                 match__data, parent_data = {}, {}
-                file_data = { FILE_ESID: media[0], FILE: media[1].split(os.path.sep)[-1], FOLDER: directory_data[FOLDER],
+                file_data = { FILE_ESID: media[0], FILE: media[1].split(os.path.sep)[-1], DIRECTORY: directory_data[DIRECTORY],
                                 MATCHES: [], WEIGHT: calculate_weight(media[1], weights), DISCOUNT: calculate_discount(media[1], discounts) }
 
                 get_media_meta_data(es, file_data[FILE_ESID], file_data)
@@ -125,7 +125,7 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
 
                     matches_exist = True
                     match_parent = os.path.abspath(os.path.join(match[3], os.pardir))
-                    match_data = { MATCH_FOLDER: match_parent, 'matcher': match[0], MATCH_SCORE: match[1], MATCH_ESID: match[2], MATCH_FILENAME: match[3].split(os.path.sep)[-1],
+                    match_data = { MATCH_DIRECTORY: match_parent, 'matcher': match[0], MATCH_SCORE: match[1], MATCH_ESID: match[2], MATCH_FILENAME: match[3].split(os.path.sep)[-1],
                         WEIGHT: calculate_weight(match[3], weights), DISCOUNT: calculate_discount(match[3], discounts), '_notes':'' }
 
                     calculate_suggestion(file_data, match_data, match[4])
@@ -134,7 +134,7 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
 
                     get_media_meta_data(es, match_data[MATCH_ESID], match_data)
                     if match_parent not in parent_data:
-                        parent_data[match_parent] = {MATCH_FOLDER: match_parent }
+                        parent_data[match_parent] = {MATCH_DIRECTORY: match_parent }
                         parent_data[match_parent][FILES_MATCHED] = []
 
                     parent_data[match_parent][FILES_MATCHED].append(match_data)
@@ -158,9 +158,7 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
             pp.pprint(records[item])
 
     except Exception, err:
-        print err.message
-        traceback.print_exc(file=sys.stdout)
-
+        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 def new_record(path):
     return { '_path': path, 'files': [], 'matches': [], 'discount': 0, 'weight': 0, 'delete': 0, 'keep': 0, 'promote': 0,
@@ -168,11 +166,11 @@ def new_record(path):
 
 def post_process_record(source_file, matched_file, records):
 
-    if source_file[FOLDER] not in records:
-        records[source_file[FOLDER]] = new_record(source_file[FOLDER])
-        print 'adding %s to records' % (source_file[FOLDER])
+    if source_file[DIRECTORY] not in records:
+        records[source_file[DIRECTORY]] = new_record(source_file[DIRECTORY])
+        print 'adding %s to records' % (source_file[DIRECTORY])
 
-    source = records[source_file[FOLDER]]
+    source = records[source_file[DIRECTORY]]
 
     if source_file[FILE] not in source['files']:
         source['files'].append(source_file[FILE])
@@ -185,11 +183,11 @@ def post_process_record(source_file, matched_file, records):
         source['weight'] += source_file[WEIGHT]
         source['discount'] += source_file[DISCOUNT]
 
-    if matched_file[MATCH_FOLDER] not in records:
-        records[matched_file[MATCH_FOLDER]] = new_record(matched_file[MATCH_FOLDER])
-        print 'adding %s to records' % (matched_file[MATCH_FOLDER])
+    if matched_file[MATCH_DIRECTORY] not in records:
+        records[matched_file[MATCH_DIRECTORY]] = new_record(matched_file[MATCH_DIRECTORY])
+        print 'adding %s to records' % (matched_file[MATCH_DIRECTORY])
 
-    match = records[matched_file[MATCH_FOLDER]]
+    match = records[matched_file[MATCH_DIRECTORY]]
 
     if matched_file[MATCH_FILENAME] not in match['files']:
         match['files'].append(matched_file[MATCH_FILENAME])
@@ -214,7 +212,7 @@ def post_process__data(data, exclude_ignore, records):
     for result in data[RESULTS]:
         average = data[RESULTS][AVERAGE_SCORE]
         for source_file in data[RESULTS][FILE_LIST]:
-            # TODO: file post-process based on mediaFolder properties
+            # TODO: file post-process based on mediaDIRECTORY properties
             file_meta = source_file[META]
             for directory in source_file[MATCHES]:
                 for matched_file in [FILES_MATCHED]:
@@ -240,17 +238,17 @@ def post_process__data(data, exclude_ignore, records):
                     else:
                         post_process_record(source_file, matched_file, records)
 
-                # ['_average_match_score'] = records[[MATCH_FOLDER]]['average_match_score']
-                # ['_keep_count'] = records[[MATCH_FOLDER]]['keep']
-                # ['_delete_count'] = records[[MATCH_FOLDER]]['delete']
-                # ['_promote_count'] = records[[MATCH_FOLDER]]['promote']
+                # ['_average_match_score'] = records[[MATCH_DIRECTORY]]['average_match_score']
+                # ['_keep_count'] = records[[MATCH_DIRECTORY]]['keep']
+                # ['_delete_count'] = records[[MATCH_DIRECTORY]]['delete']
+                # ['_promote_count'] = records[[MATCH_DIRECTORY]]['promote']
 
                 if len([FILES_MATCHED]) == 0:
                     source_file[MATCHES].remove()
 
-        # data['_keep_count'] = records[data[FOLDER]]['keep']
-        # data['_delete_count'] = records[data[FOLDER]]['delete']
-        # data['_promote_count'] = records[data[FOLDER]]['promote']
+        # data['_keep_count'] = records[data[DIRECTORY]]['keep']
+        # data['_delete_count'] = records[data[DIRECTORY]]['delete']
+        # data['_promote_count'] = records[data[DIRECTORY]]['promote']
 
                 # data[RESULTS][FILE_LIST].remove(files)
 
@@ -284,7 +282,7 @@ def get_matches(esid, reverse=False, union=False):
     elif union: return sql.run_query(query['union'] + order_clause)
     else: return sql.run_query(query['match'] + order_clause)
 
-def get_media_files(path, reverse=False, union=False):
+def get_documents(path, reverse=False, union=False):
 
     print 'retrieving mediafiles for path: "%s"' % (path)
 

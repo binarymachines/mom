@@ -9,7 +9,6 @@ import redis
 import config
 import util
 
-from ops import LOG
 
 LOG = logging.getLogger('cache2.log')
 
@@ -89,7 +88,7 @@ def get_key_value(key_group, *identifier):
 def get_keys(key_group, *identifier):
     search = key_group + WILDCARD if identifier is () else key_name(key_group, *identifier) + WILDCARD
     result = config.redis.keys(str_clean4key(search))
-    # result = config.redis.lrange(search, 0, -1)
+    # result = config.redis.scan(str_clean4key(search), 0, -1)
     # LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 

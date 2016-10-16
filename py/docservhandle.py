@@ -5,7 +5,7 @@ from context import DirectoryContext
 
 import config, calc, scan, report, clean
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 
 class DocumentServiceProcessHandler():

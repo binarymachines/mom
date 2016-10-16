@@ -10,7 +10,7 @@ from modes import Mode, Selector
 import config
 import search
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 
 class DocumentServiceProcess(ServiceProcess):
