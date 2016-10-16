@@ -69,7 +69,7 @@ def record_op_complete(asset, operation, operator, op_failed=False):
 
     key = cache2.get_key(OPS, str(config.pid), operation, operator, asset.absolute_path)
     values = cache2.get_hash2(key)
-    values['status'] = "FAIL" if op_failed else 'SUCCESS'
+    values['status'] = "FAIL" if op_failed else 'COMPLETE'
     values['end_time'] = datetime.datetime.now().isoformat()
     cache2.set_hash2(key, values)
 
@@ -121,7 +121,11 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False):
                 skip = True
                 break
 
-        if skip or record['persisted'] == 'True' or record['end_time'] == 'None': continue
+        if skip or record['persisted'] == 'True':continue
+
+        if record['end_time'] == 'None': 
+            record['status'] = 'INCOMPLETE'
+            record['end_time'] = datetime.datetime.now().isoformat()
 
         # try:
 

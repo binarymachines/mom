@@ -6,4 +6,5 @@ SELECT DISTINCT operation_name, operator_name, target_path, target_esid, start_t
   WHERE operation_name = '%s'
     AND end_time IS NOT NULL
     AND target_path LIKE '%s*'
+    AND status = "COMPLETE"
   ORDER BY target_path
