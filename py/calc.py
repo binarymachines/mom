@@ -14,7 +14,6 @@ import traceback
 import os
 
 import cache2
-import cache
 import config
 import library
 import log
@@ -57,20 +56,23 @@ def calc(context, cycle_context=False):
     for location in context.paths:
         LOG.debug('calc: matching files in %s' % (location))
         ops.check_status()
+        
+        # TODO: use paths from op_records, maaake sure that HLSCAN operation had been completed for path
+ 
         if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, 'match'):
             try:
                 # this should never be true, but a test
                 if location[-1] != os.path.sep: location += os.path.sep
 
-                cache.cache_docs(config.DOCUMENT, location)
+                library.cache_docs(config.DOCUMENT, location)
                 ops.cache_ops(location, 'match', apply_lifespan=True)
-                cache.cache_matches(location)
+                library.cache_matches(location)
 
-                for key in cache.get_doc_keys(config.DOCUMENT):
+                for key in library.get_doc_keys(config.DOCUMENT):
                     opcount += 1
                     ops.check_status(opcount)
 
-                    values = config.redis.hgetall(key)
+                    values = cache2.get_hash2(key)
                     if 'esid' not in values:
                         LOG.debug('match calculator skipping %s' % (key))
                         continue
@@ -79,13 +81,13 @@ def calc(context, cycle_context=False):
 
                 for matcher in matchers:
                     ops.write_ops_data(location, 'match', matcher.name)
-                    cache.clear_matches(matcher.name, location)
+                    library.clear_matches(matcher.name, location)
 
             except Exception, err:
                 LOG.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
             finally:
-                cache.clear_docs(config.DOCUMENT, location)
-                cache.write_paths()
+                library.clear_docs(config.DOCUMENT, location)
+                # cache.write_paths()
 
 
 def do_match_op(esid, absolute_path):
@@ -113,10 +115,6 @@ def do_match_op(esid, absolute_path):
             library.handle_asset_exception(err, asset.absolute_path)
 
         except UnicodeDecodeError, u:
-            # self.library.record_error(self.library.directory, "UnicodeDecodeError=" + u.message)
-            LOG.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]))
-
-        except Exception, u:
             # self.library.record_error(self.library.directory, "UnicodeDecodeError=" + u.message)
             LOG.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]))
 

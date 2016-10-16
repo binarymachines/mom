@@ -30,19 +30,19 @@ class Walker(object):
     def handle_dir(self, directory):
         pass
 
-    def handle_dir_error(self, error):
+    def handle_dir_error(self, error, directory):
         pass
 
     def handle_file(self, filename):
         pass
 
-    def handle_file_error(self, error):
+    def handle_file_error(self, error, filename):
         pass
 
     def handle_root(self, root):
         pass
 
-    def handle_root_error(self, error):
+    def handle_root_error(self, error, root):
         pass
 
     def walk(self, start):
@@ -53,7 +53,7 @@ class Walker(object):
                 self.handle_root(root)
                 self.after_handle_root(root)
             except Exception, err:
-                self.handle_root_error(err)
+                self.handle_root_error(err, root)
 
             try:
                 for directory in dirs:
@@ -62,7 +62,7 @@ class Walker(object):
                     self.handle_dir(directory)
                     self.after_handle_dir(directory)
             except Exception, err:
-                self.handle_dir_error(err)
+                self.handle_dir_error(err, directory)
 
             try:
                 for filename in files:
@@ -71,4 +71,4 @@ class Walker(object):
                     self.handle_file(filename)
                     self.after_handle_file(filename)
             except Exception, err:
-                self.handle_file_error(err)
+                self.handle_file_error(err, filename)
