@@ -113,9 +113,8 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation
     
-    if resuming:
-        # TODO: use last pid
-        keys = cache2.get_keys(OPS, '*', operation, operator, path)
+    if resuming and config.old_pid:
+        keys = cache2.get_keys(OPS, str(config.old_pid), operation, operator, path)
     else: 
         keys = cache2.get_keys(OPS, str(config.pid), operation, operator, path)
     

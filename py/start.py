@@ -27,7 +27,7 @@ def execute(args):
     if os.path.isfile(os.path.join(os.getcwd(), config.filename)):
 
         options = make_options(args)
-        read_config(options)
+        configure(options)
 
         try:
             LOG.debug('connecting to Redis...')
@@ -108,14 +108,14 @@ def read(parser, section):
     return result
 
 
-def read_config(options):
+def configure(options):
 
     LOG.debug("loading configuration from %s....\n" % config.filename)
 
     parser = ConfigParser.ConfigParser()
     parser.read(config.filename)
 
-    
+    read_pid_file()
     # TODO write pidfile_TIMESTAMP and pass filenames to command.py    
     if not config.launched: 
         write_pid_file()
@@ -172,10 +172,10 @@ def show_logo():
 # pids
 
 def read_pid_file():
-    f = open('pid', 'rt')
-    pid = f.readline()
-    f.close()
-    return pid
+    if os.path.isfile(os.path.join(os.getcwd(), 'pid')):
+        f = open('pid', 'rt')
+        config.old_pid = f.readline()
+        f.close()
 
 
 def write_pid_file():
