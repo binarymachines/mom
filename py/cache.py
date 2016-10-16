@@ -1,3 +1,5 @@
+"""cache will be deprecated once new functionality in library has been tested"""
+
 import os
 import logging
 

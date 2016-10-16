@@ -249,6 +249,32 @@ def retrieve_esid(document_type, absolute_path):
     elif len(rows) >1: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
 
+# matched files
+
+
+def cache_matches(path):
+    LOG.debug('caching matches for %s...' % path)
+    rows = sql.run_query_template(CACHE_MATCHES, path, path)
+    for row in rows:
+        doc_id = row[0]
+        match_doc_id = row[1]
+        matcher_name = row[2]
+        key = cache2.get_key('match', matcher_name, doc_id)
+        cache2.add_item2(key, match_doc_id)
+
+
+def get_matches(matcher_name, esid):
+    key = cache2.get_key('match', matcher_name, esid)
+    result = cache2.get_items2(key)
+    return result
+
+
+def clear_matches(matcher_name, esid):
+    key = cache2.get_key('match', matcher_name, esid)
+    cache2.clear_items2(key)
+    cache2.delete_key(key)
+
+
 # util
 
 def get_library_location(path):
