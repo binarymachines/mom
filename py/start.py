@@ -15,7 +15,7 @@ import log
 
 GET_PATHS = 'start_get_paths'
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 
 def execute(args):
@@ -56,8 +56,7 @@ def execute(args):
             config.launched = True
         except Exception, err:
             config.launched = False
-            LOG.error(err.message)
-            traceback.print_exc(file=sys.stdout)
+            LOG.error(err.message, exc_info=True)
             print 'Initialization failure'
             raise err
 
@@ -163,7 +162,7 @@ def reset():
 
 
 def show_logo():
-    with open('logo.txt', 'r') as f:
+    with open('mildred.logo', 'r') as f:
         print f.read()
         f.close()
 

@@ -3,7 +3,7 @@ import sys, os, logging, traceback, datetime
 
 from errors import ModeDestinationException
 
-LOG = logging.getLogger('modes.log')
+LOG = logging.getLogger(__name__)
 
 class Mode(object):
     HIGHEST = 100;
@@ -64,8 +64,8 @@ class Rule:
             func = _parse_func_info(self.condition)
             return self.condition(selector, active, possible)
         except Exception, err:
-            LOG.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name))
-            traceback.print_exc(file=sys.stdout)
+            LOG.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name), exc_info=True)
+
 
 class Selector:
     def __init__(self, name, before_switch=None, after_switch=None):
@@ -166,7 +166,7 @@ class Selector:
             if level == Mode.HIGHEST and other.priority > mode.priority: return False
             if level == Mode.LOWEST and other.priority < mode.priority: return False
 
-    def _peep_(self):
+    def _peep(self):
 
         results = []
         for rule in self.get_rules(self.active):
@@ -185,7 +185,7 @@ class Selector:
         return results
 
     def select(self):
-        applicable = self._peep_()
+        applicable = self._peep()
         if len(applicable) == 1:
             applicable[0].end.active_rule = applicable[0]
             self.switch(applicable[0].end)
@@ -226,9 +226,7 @@ class Selector:
                 func_name = self._parse_func_info(func)
                 LOG.error('%s while applying %s -> %s from %s in %s.switch()' %  (err.message, previousmode, func_name, activemode, self.name))
             except Exception, logging_error:
-                LOG.warning(logging_error.message)
-                LOG.error(err.message)
-                traceback.print_exc(file=sys.stdout)
+                LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             raise err
 
     def _set_mode_funcs(self, mode):
@@ -270,7 +268,7 @@ class Selector:
             self.previous = mode
             self.rule_chain.append(mode.active_rule)
         except Exception, err:
-            traceback.print_exc(file=sys.stdout)
+            LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             raise err
 
     def run(self):
@@ -331,8 +329,7 @@ class Engine:
                         selector.switch(selector.previous, True)
                     else: raise error
                 except Exception, error:
-                    LOG.error("%s Handling error '%s' in selector %s" % (self.name, error.message, selector.name))
-                    traceback.print_exc(file=sys.stdout)
+                    LOG.error("%s Handling error '%s' in selector %s" % (self.name, error.message, selector.name), exc_info=True)
 
                     selector.error_state = True
                     self.inactive.append(selector)
@@ -395,5 +392,5 @@ def _parse_func_info(func):
         func_name = '.'.join([func_desc, func_strings[1].split('<')[1], func_strings[1].split('<')[0].replace(' of ', '()')])
         return func_name
     except Exception, err:
-        traceback.print_exc(file=sys.stdout)
+        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         return str(func)

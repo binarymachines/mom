@@ -19,11 +19,12 @@ from assets import Directory, Document
 from errors import AssetException, ElasticSearchError
 import search
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'
-
+CACHE_MATCHES = 'cache_cache_matches'
+RETRIEVE_DOCS = 'cache_retrieve_docs'
 
 # directory cache
 
@@ -54,67 +55,6 @@ def get_cached_directory():
     return Directory(values['absolute_path'], esid=values['esid'])
 
 
-# def get_latest_operation(self, path):
-#
-#     directory = Directory(path)
-#
-#     doc = search.get_doc(directory)
-#     if doc is not None:
-#         latest_operation = doc['_source']['latest_operation']
-#         return latest_operation
-
-def record_error(directory, error):
-    
-    assert(directory is not None)
-    assert(error is not None)
-
-    try:
-        error_class = error.__class__.__name__
-        LOG.info("recording error: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
-        dir_vals = cache2.get_hash2(get_cache_key())
-        # dir_vals['latest_error'] = error_class
-
-        res = config.es.update(index=config.es_index, doc_type=directory.document_type, id=directory.esid, body={"doc": {"latest_error": error_class, "has_errors": True }})
-    except ConnectionError, err:
-        print ': '.join([err.__class__.__name__, err.message])
-        # if config.library_debug:
-        traceback.print_exc(file=sys.stdout)
-        print '\nConnection lost, please verify network connectivity and restart.'
-        sys.exit(1)
-
-
-def append_read_file_to_active_directory(self, reader_name, asset):
-    pass
-    # """append file to _read_files section of the active directory's elasticsearch data *THIS DOES NOT UPDATE ELASTICSEARCH*"""
-    # if asset is not None:
-    #     file_data = { '_reader': reader_name, '_file_name': asset.file_name }
-    #     dir_vals = cache2.get_hash2(get_cache_key())
-    #     dir_vals['read_files'].append(file_data)
-
-
-def index_asset(asset, data):
-    LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
-    try:
-        res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
-        if res['_shards']['successful'] == 1:
-            esid = res['_id']
-            # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
-            asset.esid = esid
-            try:
-                LOG.debug("inserting asset into MariaDB")
-                insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
-            except Exception, err:
-                config.es.delete(config.es_index, asset.document_type, asset.esid)
-                raise err
-    # except RequestError, err:
-    #     message = err.in
-    except Exception, err:
-        LOG.error(err.__class__.__name__, exc_info=True)
-        # traceback.print_exc(file=sys.stdout)
-        record_error(get_cached_directory(), err)
-        # raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (asset.document_type, asset.absolute_path))
-
-
 def set_active(path):
     directory = None if path is None else Directory(path)
     if directory is not None:
@@ -132,13 +72,66 @@ def set_active(path):
         #     try:
         #         res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body= json.dumps(dir_vals))
         #     except ConnectionError, err:
-        #         print ': '.join([err.__class__.__name__, err.message])
-        #         # if config.library_debug:
-        #         traceback.print_exc(file=sys.stdout)
+        #         LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         #         print '\nConnection lost, please verify network connectivity and restart.'
         #         sys.exit(1)
 
     cache_directory(directory)
+
+# document cache
+
+def cache_docs(document_type, path, flush=True):
+    if flush: clear_docs(document_type, os.path.sep)
+
+    LOG.debug('caching %s doc info for %s...' % (document_type, path))
+    rows = retrieve_docs(document_type, path)
+    for row in rows:
+        docpath = row[0]
+        esid = row[1]
+        keyvalue = { 'absolute_path':docpath, 'esid': esid }
+        cache2.create_key(KEY_GROUP, document_type, docpath, value=keyvalue)
+
+
+def clear_docs(document_type, path):
+    keys = cache2.get_keys(KEY_GROUP, document_type, path)
+    for key in keys:
+        cache2.delete_key(key)
+
+
+def get_cached_esid(document_type, path):
+    values = cache2.get_key_value(KEY_GROUP, document_type, path)
+    if 'esid' in values:
+        return values['esid']
+
+
+def retrieve_esid(document_type, path):
+    values = config.redis.hgetall(path)
+    if 'esid' in values:
+        return values['esid']
+
+    rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, path])
+    if len(rows) == 0: return None
+    if len(rows) == 1: return rows[0][3]
+    elif len(rows) >1: raise AssetException("Multiple Ids for '" + path + "' returned", rows)
+
+
+def get_doc_keys(document_type):
+    keys = cache2.get_keys(KEY_GROUP, document_type)
+    return keys
+    
+
+def retrieve_docs(document_type, path):
+    return sql.run_query_template(RETRIEVE_DOCS, config.es_index, document_type, path)
+
+# assets
+
+def append_read_file_to_active_directory(self, reader_name, asset):
+    pass
+    # """append file to _read_files section of the active directory's elasticsearch data *THIS DOES NOT UPDATE ELASTICSEARCH*"""
+    # if asset is not None:
+    #     file_data = { '_reader': reader_name, '_file_name': asset.file_name }
+    #     dir_vals = cache2.get_hash2(get_cache_key())
+    #     dir_vals['read_files'].append(file_data)
 
 
 def doc_exists_for_path(doc_type, path):
@@ -150,26 +143,6 @@ def doc_exists_for_path(doc_type, path):
     return search.unique_doc_exists(doc_type, 'absolute_path', path)
 
 
-def get_library_location(path):
-    # LOG.debug("determining location for %s." % (path.split(os.path.sep)[-1]))
-    possible = []
-
-    for location in pathutil.get_locations():
-        if location in path:
-	        possible.append(location)
-    
-    if len(possible) == 1:
-    	return possible[0]
-      
-    if len(possible) > 1:
-      result = possible[0]
-      for item in possible:
-	    if len(item) > len(result):
-	        result = item
-
-    return result
-
-
 def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
     """return a document instance"""
     fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
@@ -177,7 +150,6 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
         LOG.warning("File %s is missing or is not readable" % absolute_path)
         return None
     
-
     asset = Document()
     filename = os.path.split(absolute_path)[1]
     extension = os.path.splitext(absolute_path)[1]
@@ -208,16 +180,58 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
     return asset
 
 
+# def get_latest_operation(self, path):
+#
+#     directory = Directory(path)
+#
+#     doc = search.get_doc(directory)
+#     if doc is not None:
+#         latest_operation = doc['_source']['latest_operation']
+#         return latest_operation
+
+
+def index_asset(asset, data):
+    LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
+    try:
+        res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
+        if res['_shards']['successful'] == 1:
+            esid = res['_id']
+            # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
+            asset.esid = esid
+            try:
+                LOG.debug("inserting asset into MariaDB")
+                insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
+            except Exception, err:
+                config.es.delete(config.es_index, asset.document_type, asset.esid)
+                raise err
+    # except RequestError, err:
+    #     message = err.in
+    except Exception, err:
+        LOG.error(err.__class__.__name__, exc_info=True)
+        record_error(get_cached_directory(), err)
+        # raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (asset.document_type, asset.absolute_path))
+
+
 def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
     alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
 
 
-def path_in_cache(document_type, path):
-    return cache.get_cached_esid(document_type, path)
+def record_error(directory, error):
+    
+    assert(directory is not None)
+    assert(error is not None)
 
+    try:
+        error_class = error.__class__.__name__
+        LOG.info("recording error: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
+        dir_vals = cache2.get_hash2(get_cache_key())
+        # dir_vals['latest_error'] = error_class
 
-def path_in_db(document_type, path):
-    return len(sql.run_query_template(PATH_IN_DB, config.es_index, document_type, path)) is 1
+        res = config.es.update(index=config.es_index, doc_type=directory.document_type, id=directory.esid, body={"doc": {"latest_error": error_class, "has_errors": True }})
+    except ConnectionError, err:
+        print ': '.join([err.__class__.__name__, err.message], exc_info=True)
+        print '\nConnection lost, please verify network connectivity and restart.'
+        sys.exit(1)
 
 
 def retrieve_esid(document_type, absolute_path):
@@ -226,6 +240,36 @@ def retrieve_esid(document_type, absolute_path):
     if len(rows) == 0: return None
     if len(rows) == 1: return rows[0][3]
     elif len(rows) >1: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
+
+
+# util
+
+def get_library_location(path):
+    # LOG.debug("determining location for %s." % (path.split(os.path.sep)[-1]))
+    possible = []
+
+    for location in pathutil.get_locations():
+        if location in path:
+	        possible.append(location)
+    
+    if len(possible) == 1:
+    	return possible[0]
+      
+    if len(possible) > 1:
+      result = possible[0]
+      for item in possible:
+	    if len(item) > len(result):
+	        result = item
+
+    return result
+
+
+def path_in_cache(document_type, path):
+    return cache.get_cached_esid(document_type, path)
+
+
+def path_in_db(document_type, path):
+    return len(sql.run_query_template(PATH_IN_DB, config.es_index, document_type, path)) is 1
 
 
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later

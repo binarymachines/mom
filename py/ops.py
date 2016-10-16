@@ -10,7 +10,7 @@ import sql
 import start
 import alchemy
 
-LOG = logging.getLogger('operations.log')
+LOG = logging.getLogger(__name__)
 
 OPS = 'operations'
 EXEC = 'execution'
@@ -36,7 +36,7 @@ def operation_completed(asset, operation, operator=None):
     rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
         [operator, operation, asset.esid])
     result = len(rows) > 0
-    # LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
 
@@ -149,13 +149,13 @@ def check_for_stop_request():
     return 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True'
 
 
-def do_status_check(opcount=None):
+def check_status(opcount=None):
 
     if opcount is not None and opcount % config.status_check_freq!= 0: return
 
     if check_for_reconfig_request():
         start.execute()
-        remove_reconfig_request()
+        clear_reconfig_request()
 
     if check_for_stop_request():
         print 'stop requested, terminating...'
@@ -164,14 +164,13 @@ def do_status_check(opcount=None):
         sys.exit(0)
 
 
-def record_exec():
-    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
-    cache2.create_key(OPS, EXEC)
-    cache2.set_hash(OPS, EXEC, values)
-
-
-def remove_reconfig_request():
+def clear_reconfig_request():
     values = cache2.get_hash(OPS, EXEC)
     values['reconfig_requested'] = False
     cache2.set_hash(OPS, EXEC, values)
 
+
+def record_exec():
+    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
+    cache2.create_key(OPS, EXEC)
+    cache2.set_hash(OPS, EXEC, values)

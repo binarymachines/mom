@@ -10,10 +10,10 @@ import cache2
 import config
 import sql
 
-LOG = logging.getLogger('console.log')
+LOG = logging.getLogger(__name__)
 
 
-def get__constants(identifier):
+def get_directory_constants(identifier):
     keygroup = 'directory_constant'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
@@ -75,7 +75,7 @@ def get_active_document_formats():
 
 
 def is_curated(self, path):
-    curated = get__constants('curated')
+    curated = get_directory_constants('curated')
     for pattern in curated:
         if path.endswith(pattern):
             return True
@@ -94,15 +94,15 @@ def is_filed(path):
 
 
 def is_filed_as_compilation(path):
-    return path in get__constants('compilation')
+    return path in get_directory_constants('compilation')
 
 
 def is_filed_as_live(path):
-    return path in get__constants('live_recordings')
+    return path in get_directory_constants('live_recordings')
 
 
 def is_new(path):
-    return path in get__constants('new')
+    return path in get_directory_constants('new')
 
 
 def is_noscan(path):
@@ -113,15 +113,15 @@ def is_noscan(path):
 
 
 def is_random(path):
-    return path in get__constants('random')
+    return path in get_directory_constants('random')
 
 
 def is_recent(path):
-    return path in get__constants('recent')
+    return path in get_directory_constants('recent')
 
 
 def is_unsorted(path):
-    return path in get__constants('unsorted')
+    return path in get_directory_constants('unsorted')
 
 
 def is_webcast(path):
@@ -129,7 +129,7 @@ def is_webcast(path):
 
 
 def ignore(path):
-    return path in get__constants('ignore')
+    return path in get_directory_constants('ignore')
 
 
 
@@ -177,13 +177,9 @@ def multiple_file_types_recognized(path, extensions):
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_has_location_name(path, names):
     # if path.endswith(os.path.sep):
-    for name in names():
+    for name in get_locations():
         if path.endswith(name):
-            print path
-
-    # sys.exit(1)
-    # raise Exception('not implemented!')
-
+            return True
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_in_album_directory(path):
@@ -228,7 +224,7 @@ def pathutils_demo():
 
     if not cache2.key_exists(keygroup, 'unsorted'):
         lkey = cache2.create_key(keygroup, 'unsorted')
-        data = get__constants('unsorted')
+        data = get_directory_constants('unsorted')
         for path in data:
             cache2.add_item(keygroup, 'unsorted', path)
 

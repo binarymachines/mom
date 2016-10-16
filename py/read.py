@@ -15,7 +15,7 @@ import sql
 
 from errors import ElasticSearchError, BaseClassException
 
-LOG = logging.getLogger('scan.log')
+LOG = logging.getLogger(__name__)
 
 DELIM = ','
 READ = 'read'
@@ -113,8 +113,7 @@ class Mutagen(FileHandler):
         data['errors'].append(error_data)
 
         library.record_error(library.get_cached_directory(), exception)
-        # LOG.debug(': '.join([exception.__class__.__name__, exception.message]))
-        # traceback.print_exc(file=sys.stdout)
+
 
     def handle_file(self, asset, data):
         read_failed = False

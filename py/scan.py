@@ -32,7 +32,7 @@ from read import Reader
 
 from assets import Directory
 
-LOG = logging.getLogger('scan.log')
+LOG = logging.getLogger(__name__)
 
 SCANNER = 'scanner'
 SCAN = 'scan'
@@ -59,7 +59,7 @@ class Scanner(Walker):
         library.set_active(None)
 
     def before_handle_root(self, root):
-        ops.do_status_check()
+        ops.check_status()
         library.clear_directory_cache()
         if ops.operation_in_cache(root, SCAN, SCANNER) and not self.do_deep_scan: return
         if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
@@ -67,8 +67,7 @@ class Scanner(Walker):
         try:
             library.set_active(root)
         except AssetException, err:
-            LOG.warning(': '.join([err.__class__.__name__, err.message]))
-            traceback.print_exc(file=sys.stdout)
+            LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             library.handle_asset_exception(err, root)
             library.clear_directory_cache()
 
@@ -80,7 +79,7 @@ class Scanner(Walker):
         ops.record_op_begin(directory, SCAN, SCANNER)
 
         for filename in os.listdir(root):
-            # ops.do_status_check()
+            # ops.check_status()
             if self.reader.has_handler_for(filename):
 
                 asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
@@ -93,8 +92,7 @@ class Scanner(Walker):
         LOG.debug('done scanning : %s' % (root))
 
     def handle_root_error(self, err):
-        LOG.error(': '.join([err.__class__.__name__, err.message]))
-        traceback.print_exc(file=sys.stdout)
+        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
