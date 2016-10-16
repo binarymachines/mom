@@ -26,9 +26,9 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False):
         cache2.set_hash2(key, {'persisted': True, 'operation_name': row[0], 'operator_name':  row[1], 'target_path': row[2] })
 
 
-def flush_cache():
+def flush_cache(resuming=False):
     LOG.debug('flushing cache...')
-    write_ops_data(os.path.sep)
+    write_ops_data(os.path.sep, resuming=resuming)
 
 
 def operation_completed(asset, operation, operator=None):
@@ -105,14 +105,20 @@ def update_ops_data():
         LOG.error(err.message)
 
 
-def write_ops_data(path, operation=None, operator=None, this_pid_only=False):
+def write_ops_data(path, operation=None, operator=None, this_pid_only=False, resuming=False):
 
     LOG.debug('writing op records...')
 
     table_name = 'op_record'  
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation
-    keys = cache2.get_keys(OPS, str(config.pid), operation, operator, path)
+    
+    if resuming:
+        # TODO: use last pid
+        keys = cache2.get_keys(OPS, '*', operation, operator, path)
+    else: 
+        keys = cache2.get_keys(OPS, str(config.pid), operation, operator, path)
+    
     for key in keys:
         record = cache2.get_hash2(key)
         skip = False
@@ -121,10 +127,10 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False):
                 skip = True
                 break
 
-        if skip or record['persisted'] == 'True':continue
+        if skip or record['persisted'] == 'True': continue
 
         if record['end_time'] == 'None': 
-            record['status'] = 'INCOMPLETE'
+            record['status'] = 'INCOMPLETE' if resuming == False else 'INTERRUPTED'
             record['end_time'] = datetime.datetime.now().isoformat()
 
         # try:

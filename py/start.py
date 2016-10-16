@@ -40,7 +40,7 @@ def execute(args):
 
             # if 'clearmem' in options:
             LOG.debug('clearing data from prior execution...')
-            ops.flush_cache()
+            ops.flush_cache(resuming=True)
 
             if 'noflush' not in options:
                 LOG.debug('flushing reddis cache...')
