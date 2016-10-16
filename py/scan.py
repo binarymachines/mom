@@ -48,19 +48,11 @@ class Scanner(Walker):
 
     # Walker methods
 
-    def handle_dir(self, directory):
-        # super(Scanner, self).handle_dir(directory)
-        pass
-
     def after_handle_root(self, root):
-        # directory = library.get_cached_directory()
-        # if  is not None and directory.absolute_path == root:
-        #     ops.record_op_complete(directory, SCAN, SCANNER)
         library.set_active(None)
 
     def before_handle_root(self, root):
         ops.check_status()
-        library.clear_directory_cache()
         if ops.operation_in_cache(root, SCAN, SCANNER) and not self.do_deep_scan: return
         if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
 

@@ -39,3 +39,14 @@ class TestLibrary(unittest.TestCase):
 
         dockeys = cache2.get_keys(library.KEY_GROUP, config.DOCUMENT, '/some/other/path')
         self.assertEquals(len(dockeys), 1)
+
+
+    def test_get_cached_esid(self):
+        path = '/media/removable/Audio/music/albums/ambient/biosphere/substrata'
+        document_type = config.DIRECTORY
+
+        key = cache2.create_key(library.KEY_GROUP, document_type, path, value=path)
+        cache2.set_hash2(key, { 'absolute_path':path, 'esid': '0123456789' })
+
+        esid = library.get_cached_esid(document_type, path)
+        self.assertEquals(esid, '0123456789')
