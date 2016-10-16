@@ -26,6 +26,7 @@ PATH_IN_DB = 'lib_path_in_db'
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'
 
+
 # directory cache
 
 def get_cache_key():
@@ -78,6 +79,7 @@ def set_active(path):
 
     cache_directory(directory)
 
+
 # document cache
 
 def cache_docs(document_type, path, flush=True):
@@ -88,8 +90,9 @@ def cache_docs(document_type, path, flush=True):
     for row in rows:
         docpath = row[0]
         esid = row[1]
-        keyvalue = { 'absolute_path':docpath, 'esid': esid }
-        cache2.create_key(KEY_GROUP, document_type, docpath, value=keyvalue)
+        key = cache2.create_key(KEY_GROUP, document_type, docpath, value=docpath)
+        keyvalue = {'absolute_path': docpath, 'esid': esid}
+        cache2.set_hash2(key, keyvalue)
 
 
 def clear_docs(document_type, path):
@@ -99,20 +102,10 @@ def clear_docs(document_type, path):
 
 
 def get_cached_esid(document_type, path):
-    values = cache2.get_key_value(KEY_GROUP, document_type, path)
+    key = cache2.get_key(KEY_GROUP, document_type, path)
+    values = cache2.get_hash2(key)
     if 'esid' in values:
         return values['esid']
-
-
-def retrieve_esid(document_type, path):
-    values = config.redis.hgetall(path)
-    if 'esid' in values:
-        return values['esid']
-
-    rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, path])
-    if len(rows) == 0: return None
-    if len(rows) == 1: return rows[0][3]
-    elif len(rows) >1: raise AssetException("Multiple Ids for '" + path + "' returned", rows)
 
 
 def get_doc_keys(document_type):
@@ -122,6 +115,7 @@ def get_doc_keys(document_type):
 
 def retrieve_docs(document_type, path):
     return sql.run_query_template(RETRIEVE_DOCS, config.es_index, document_type, path)
+
 
 # assets
 
@@ -234,6 +228,19 @@ def record_error(directory, error):
         sys.exit(1)
 
 
+# def retrieve_esid(document_type, path):
+#     values = config.redis.hgetall(path)
+#     if 'esid' in values:
+#         return values['esid']
+#
+#     rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, path])
+#     if len(rows) == 0: return None
+#     if len(rows) == 1: return rows[0][3]
+#     elif len(rows) >1: raise AssetException("Multiple Ids for '" + path + "' returned", rows)
+#
+
+
+# TODO: check cache, as seen above from cache.py
 def retrieve_esid(document_type, absolute_path):
     rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
     # rows = sql.run_query("select index_name, doc_type, absolute_path")
