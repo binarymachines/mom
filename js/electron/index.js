@@ -5,7 +5,7 @@ const app = electron.app;
 
 
 // adds debug features like hotkeys for triggering dev tools and reload
-require('electron-debug')();
+// require('electron-debug')();
 
 // prevent window being garbage collected
 let mainWindow;
@@ -22,7 +22,7 @@ function createMainWindow() {
 		width: 1000,
 		height: 600
 	});
-
+	win.setMenu(null);
 	win.loadURL(`file://${__dirname}/index.html`);
 	win.on('closed', onClosed);
 
