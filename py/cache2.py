@@ -53,6 +53,7 @@ def create_key(key_group, *identifier, **values):
 # def delete_key(key, delete_list=False, delete_hash=False):
 def delete_key(key):
     result = config.redis.delete(key)
+        
     if DEBUG: LOG.debug('redis.delete(key=%s) returns: %s' % (key, str(result)))
 
 
