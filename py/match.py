@@ -120,7 +120,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
 
     def match(self, media):
-        ops.record_op_begin(media, 'match', self.name)
+        ops.record_op_begin('match', self.name, media.absolute_path, media.esid)
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
         previous_matches = library.get_matches(self.name, media.esid)
@@ -164,7 +164,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
-        ops.record_op_complete(media, 'match', self.name)
+        ops.record_op_complete('match', self.name, media.absolute_path, media.esid)
 
 
 class FolderNameMatcher(MediaMatcher):

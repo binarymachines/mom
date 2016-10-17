@@ -30,12 +30,12 @@ def flush_cache(resuming=False):
     write_ops_data(os.path.sep, resuming=resuming)
 
 
-def operation_completed(asset, operation, operator=None):
-    LOG.debug("checking for record of %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
-    rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_esid', 'start_time', 'end_time'],
-        [operator, operation, asset.esid])
+def operation_completed(path, operation, operator=None):
+    LOG.debug("checking for record of %s:::%s on path %s " % (operator, operation, path))
+    rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_path', 'start_time', 'end_time'],
+        [operator, operation, path])
     result = len(rows) > 0
-    LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    # LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
 
@@ -47,12 +47,12 @@ def operation_in_cache(path, operation, operator=None):
     return result
 
 
-def record_op_begin(asset, operation, operator):
-    LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, asset.absolute_path))
-    key = cache2.create_key(OPS, str(config.pid), operation, operator, asset.absolute_path)
+def record_op_begin(operation, operator, path, esid=None):
+    LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
+    key = cache2.create_key(OPS, str(config.pid), operation, operator, path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
-        'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': asset.esid,
-        'target_path': asset.absolute_path, 'index_name': config.es_index, 'status': "ACTIVE" }
+        'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': esid,
+        'target_path': path, 'index_name': config.es_index, 'status': "ACTIVE" }
     cache2.set_hash2(key, values)
 
     key = cache2.get_key(OPS, EXEC)
@@ -63,10 +63,10 @@ def record_op_begin(asset, operation, operator):
     cache2.set_hash2(key, values)
 
 
-def record_op_complete(asset, operation, operator, op_failed=False):
-    LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, asset.esid, asset.absolute_path))
+def record_op_complete(operation, operator, path, esid=None, op_failed=False):
+    LOG.debug("recording operation complete : %s:::%s on %s - path %s " % (operator, operation, esid, path))
 
-    key = cache2.get_key(OPS, str(config.pid), operation, operator, asset.absolute_path)
+    key = cache2.get_key(OPS, str(config.pid), operation, operator, path)
     values = cache2.get_hash2(key)
     values['status'] = "FAIL" if op_failed else 'COMPLETE'
     values['end_time'] = datetime.datetime.now().isoformat()
