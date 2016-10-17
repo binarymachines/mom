@@ -161,19 +161,15 @@ class Mutagen(FileHandler):
 
         except MutagenError, err:
             if isinstance(err.args[0], IOError):
-                print 'IO Error'
+                fs_avail = False
+                while fs_avail == False:
+                    print "file system offline, retrying in 5 seconds..." 
+                    time.sleep(5)
+                    fs_avail = os.access(asset.absolute_path, os.R_OK) 
+                    ops.check_status()
 
-            fs_avail = False
-            while fs_avail == False:
-                print "file system offline, retrying in 5 seconds..." 
-                time.sleep(5)
-                fs_avail = os.access(asset.absolute_path, os.R_OK) 
-                ops.check_status()
-                
-            self.read_tags(asset, data)
-            return True
-
-
+                self.read_tags(asset, data)
+                return True
 
         except Exception, err:
             read_failed = True
