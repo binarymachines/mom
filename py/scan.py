@@ -65,7 +65,7 @@ class Scanner(Walker):
                 library.clear_directory_cache()
         else:
             self.context.push_fifo(SCAN, root)
-            raise Exception("%s isn't currently available." % (root))
+            # raise Exception("%s isn't currently available." % (root))
 
     def handle_root(self, root):
         directory = library.get_cached_directory()
@@ -157,7 +157,8 @@ class Scanner(Walker):
                         ops.update_ops_data()
 
                     # library.clear_docs(config.DIRECTORY, path)
-                    ops.record_op_complete(HLSCAN, SCANNER, path)
+                    if os.access(path, os.R_OK):
+                        ops.record_op_complete(HLSCAN, SCANNER, path)
                     ops.write_ops_data(path, HLSCAN, SCANNER)
 
             elif not os.access(path, os.R_OK):

@@ -1,10 +1,12 @@
 #! /usr/bin/python
 
-import json, sys, logging, traceback
+import os, json, sys, logging, traceback, time
+
 from mutagen.id3 import ID3, ID3NoHeaderError
 from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
 from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
+from mutagen import MutagenError
 
 import cache2
 import config
@@ -93,6 +95,20 @@ class FileHandler(object):
         self.name = name
         self.extensions = extensions
 
+    def handle_exception(self, exception, asset, data):
+
+        if isinstance(exception, IOError):
+            pass
+
+
+        else:
+            error_data = { 'reader:': self.name, 'error': exception.__class__.__name__, 'details': exception.message }
+            
+            data['has_error'] = True
+            data['errors'].append(error_data)
+
+            library.record_error(exception)
+
     def handle_file(self, asset, data):
         raise BaseClassException(FileHandler)
 
@@ -103,14 +119,6 @@ class FileHandler(object):
 class Mutagen(FileHandler):
     def __init__(self, name, *extensions):
         super(Mutagen, self).__init__(name, *extensions)
-
-    def handle_exception(self, exception, data):
-        error_data = { 'reader:': self.name, 'error': exception.__class__.__name__, 'details': exception.message }
-        
-        data['has_error'] = True
-        data['errors'].append(error_data)
-
-        library.record_error(exception)
 
 
     def handle_file(self, asset, data):
@@ -125,35 +133,51 @@ class Mutagen(FileHandler):
         except ID3NoHeaderError, err:
             read_failed = True
             if asset.absolute_path.lower().endswith('mp3'):
-                self.handle_exception(err, data)
+                self.handle_exception(err, asset, data)
 
         except UnicodeEncodeError, err:
             read_failed = True
-            self.handle_exception(err, data)
+            self.handle_exception(err, asset, data)
 
         except UnicodeDecodeError, err:
             read_failed = True
-            self.handle_exception(err, data)
+            self.handle_exception(err, asset, data)
 
         except FLACNoHeaderError, err:
             read_failed = True
-            self.handle_exception(err, data)
+            self.handle_exception(err, asset, data)
 
         except FLACVorbisError, err:
             read_failed = True
-            self.handle_exception(err, data)
+            self.handle_exception(err, asset, data)
 
         except APENoHeaderError, err:
             read_failed = True
-            self.handle_exception(err, data)
+            self.handle_exception(err, asset, data)
 
         except OggVorbisHeaderError, err:
             read_failed = True
-            self.handle_exception(err, data)
+            self.handle_exception(err, asset, data)
+
+        except MutagenError, err:
+            if isinstance(err.args[0], IOError):
+                print 'IO Error'
+
+            fs_avail = False
+            while fs_avail == False:
+                print "file system offline, retrying in 5 seconds..." 
+                time.sleep(5)
+                fs_avail = os.access(asset.absolute_path, os.R_OK) 
+                ops.check_status()
+                
+            self.read_tags(asset, data)
+            return True
+
+
 
         except Exception, err:
             read_failed = True
-            self.handle_exception(err, data)
+            self.handle_exception(err, asset, data)
 
         finally:
             ops.record_op_complete('read', self.name, asset.absolute_path, asset.esid, op_failed=read_failed)
@@ -228,6 +252,7 @@ class MutagenID3(Mutagen):
         metadata = document.pprint() # gets all metadata
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
+        id3_data = {}
         for tag in tags:
             if len(tag) < 2: continue
 
@@ -235,14 +260,14 @@ class MutagenID3(Mutagen):
             value = tag[1]
 
             if key in get_fields('ID3V2'):
-                data[key] = value
+                id3_data[key] = value
 
             if key == "TXXX":
                 for sub_field in get_fields('ID3V2.TXXX'):
                     if sub_field in value:
                         subtags = value.split('=')
                         subkey=subtags[0].replace(' ', '_').upper()
-                        data[subkey] = subtags[1]
+                        id3_data[subkey] = subtags[1]
                 
                         if subkey not in get_known_fields('ID3V2.TXXX'):
                             add_field('ID3V2.TXXX', key)
@@ -250,8 +275,10 @@ class MutagenID3(Mutagen):
             elif len(key) == 4 and key not in get_known_fields('ID3V2'):
                 add_field('ID3V2', key)
 
-        data['version'] = document.version
+        id3_data['version'] = document.version
 
+        for key in id3_data:
+            data[key] = id3_data[key]
 
 class MutagenOggVorbis(Mutagen):
     def __init__(self):

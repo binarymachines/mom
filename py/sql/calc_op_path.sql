@@ -3,5 +3,5 @@
 --
 select target_path from op_record
  where operation_name = "%s"
-   and sstatus = "%s"
+   and status = "%s"
    and target_path like "%s*"
