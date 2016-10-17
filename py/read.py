@@ -27,11 +27,14 @@ def add_field(doc_format, field_name):
     if field_name in get_fields(doc_format): return
     sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
 
-    cache2.clear_items(KNOWN, doc_format)
-    lkey = cache2.DELIM.join([cache2.LIST, KNOWN, doc_format])
-    cache2.delete_key(lkey)
-    cache2.delete_key(cache2.key_name(KNOWN, doc_format))
+    # cache2.clear_items(KNOWN, doc_format)
+    # lkey = cache2.DELIM.join([cache2.LIST, KNOWN, doc_format])
+    # cache2.delete_key(lkey)
+    # cache2.delete_key(cache2.key_name(KNOWN, doc_format))
 
+    key = cache2.get_key(keygroup, doc_format)
+    cache2.clear_items2(key)
+    cache2.delete_key( key)
 
 def get_fields(doc_format):
     keygroup = 'fields'
