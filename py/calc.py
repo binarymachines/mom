@@ -46,19 +46,23 @@ def cache_match_ops(matchers, path):
 # def clear cached_match_ops(self, matchers):
 
 # def split_location(into sets of asset directory)
+def path_expands(path, context):
+    rows = sql.run_query_template('calc_op_path', 'high.level.scan', 'COMPLETE', path)
+    if len(rows) > 0:
+        for row in rows:
+            context.rpush_fifo('match', row[0])
+        return True
 
 def calc(context, cycle_context=False):
     # MAX_RECORDS = ...
     matchers = get_matchers()
-
     opcount = 0
-    # if context.has_next('match')...pop locations and split directories here if needed ; call recursively when cycle_context equals true
+
     for location in context.paths:
         LOG.debug('calc: matching files in %s' % (location))
         ops.check_status()
-        
-        # TODO: use paths from op_records, maaake sure that HLSCAN operation had been completed for path
- 
+        if path_expands(location, context): continue
+
         if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, 'match'):
             try:
                 # this should never be true, but a test
@@ -115,8 +119,8 @@ def do_match_op(esid, absolute_path):
             library.handle_asset_exception(err, asset.absolute_path)
 
         except UnicodeDecodeError, u:
-            # self.library.record_error(self.library.directory, "UnicodeDecodeError=" + u.message)
-            LOG.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]))
+            library.record_error(u)
+            LOG.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
 
 
 def get_matchers():

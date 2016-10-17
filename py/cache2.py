@@ -9,7 +9,7 @@ import redis
 import config
 import util
 
-
+DEBUG = False
 LOG = logging.getLogger('cache2.log')
 
 
@@ -32,7 +32,7 @@ def key_name(key_group, *identifier):
         else DELIM.join([key_group, DELIM.join(identifier)])
 
     result = str_clean4key(keyname)
-    # LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
+    if DEBUG: LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
     return result
 
 
@@ -46,18 +46,18 @@ def create_key(key_group, *identifier, **values):
     for name in values:
         val = values[name]
         result = config.redis.rpush(key, val)
-    # LOG.debug('create_key(key_group=%s, identifier=%s) returns %s' % (key, identifier, result))
+    if DEBUG: LOG.debug('create_key(key_group=%s, identifier=%s) returns %s' % (key, identifier, result))
     return key
 
 
 # def delete_key(key, delete_list=False, delete_hash=False):
 def delete_key(key):
     result = config.redis.delete(key)
-    # LOG.debug('redis.delete(key=%s) returns: %s' % (key, str(result)))
+    if DEBUG: LOG.debug('redis.delete(key=%s) returns: %s' % (key, str(result)))
 
 
 def delete_key_group(key_group):
-    # LOG.debug('delete_key_group(key_group=%s)' % key_group)
+    if DEBUG: LOG.debug('delete_key_group(key_group=%s)' % key_group)
     search = key_group + WILDCARD
     for key in config.redis.keys(search):
         delete_key(key)
@@ -70,7 +70,7 @@ def delete_keys(key_group, *identifier):
 
 def get_key(key_group, *identifier):
     result = get_keys(key_group, *identifier)
-    # LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+    if DEBUG: LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     if len(result) is 1:
         return result[0]
     # (else)
@@ -89,7 +89,7 @@ def get_keys(key_group, *identifier):
     search = key_group + WILDCARD if identifier is () else key_name(key_group, *identifier) + WILDCARD
     result = config.redis.keys(str_clean4key(search))
     # result = config.redis.scan(str_clean4key(search), 0, -1)
-    # LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+    if DEBUG: LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
@@ -145,14 +145,14 @@ def delete_hash2(key):
 def get_hash(key_group, identifier):
     key = DELIM.join([HASH, key_group, identifier])
     result = config.redis.hgetall(key)
-    # LOG.debug('get_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+    if DEBUG: LOG.debug('get_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
 def get_hash2(key):
     identifier = DELIM.join([HASH, key])
     result = config.redis.hgetall(identifier)
-    # LOG.debug('get_hash2ss(key=%s) returns %s' % (key, result))
+    if DEBUG: LOG.debug('get_hash2ss(key=%s) returns %s' % (key, result))
     return result
 
 
@@ -170,20 +170,20 @@ def get_hashes(key_group, *identifier):
         if hash is not None:
             result += (hash,)
 
-    # LOG.debug('get_hashes(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+    if DEBUG: LOG.debug('get_hashes(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
 def set_hash(key_group, identifier, values):
     key = DELIM.join([HASH, key_group, identifier])
     result = config.redis.hmset(key, values)
-    # LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
+    if DEBUG: LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
 
 
 def set_hash2(key, values):
     identifier = DELIM.join([HASH, key])
     result = config.redis.hmset(identifier, values)
-    # LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
+    if DEBUG: LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
 
 
 # lists
@@ -191,13 +191,13 @@ def set_hash2(key, values):
 def add_item(key_group, identifier, item):
     key = DELIM.join([LIST, key_group, identifier])
     result = config.redis.sadd(key, item)
-    # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+    if DEBUG: LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def add_item2(key, item):
     key = DELIM.join([LIST, key])
     result = config.redis.sadd(key, item)
-    # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+    if DEBUG: LOG.debug('add_item(key=%s,item=%s) returns: %s' % (key, item, str(result)))
 
 
 def add_items(key_group, identifier, items):
@@ -205,14 +205,14 @@ def add_items(key_group, identifier, items):
         add_item(key_group, identifier, item)
         # key = DELIM.join([LIST, key_group, identifier])
         # result = config.redis.sadd(key, item)
-        # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+        # if DEBUG: LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def add_items2(key, items):
     for item in items:
         key = DELIM.join([LIST, key])
         result = config.redis.sadd(key, item)
-        # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+        if DEBUG: LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def clear_items(key_group, identifier):
@@ -220,7 +220,7 @@ def clear_items(key_group, identifier):
     values = config.redis.smembers(key)
     for value in values:
         result = config.redis.srem(key, value)
-        # LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
+        if DEBUG: LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def clear_items2(key):
@@ -228,20 +228,20 @@ def clear_items2(key):
     values = config.redis.smembers(key)
     for value in values:
         result = config.redis.srem(key, value)
-        # LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
+        if DEBUG: LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def get_items(key_group, identifier):
     key = DELIM.join([LIST, key_group, identifier])
     result = config.redis.smembers(key)
-    # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
+    if DEBUG: LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
     return result
 
 
 def get_items2(key):
     key = DELIM.join([LIST, key])
     result = config.redis.smembers(key)
-    # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
+    if DEBUG: LOG.debug('get_items(key=%s) returns: %s' % (key, str(result)))
     return result
 
 

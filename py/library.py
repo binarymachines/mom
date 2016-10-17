@@ -26,21 +26,32 @@ PATH_IN_DB = 'lib_path_in_db'
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'
 
-
 # directory cache
 
-def get_cache_key():
-    key = cache2.get_key(KEY_GROUP, str(config.pid))
-    if key is None:
-        key = cache2.create_key(KEY_GROUP, str(config.pid))
-    return key
-
+def get_cache_key(subset=None):
+    if subset is None:
+        return cache2.get_key(KEY_GROUP, str(config.pid))
+    # (else)
+    return cache2.get_key(KEY_GROUP, subset, str(config.pid))
 
 def cache_directory(directory):
     if directory is None:
-        cache2.set_hash2(get_cache_key(), { 'active:': None })
+        cache2.delete_hash2(get_cache_key())
+        # cache2.delete_hash2(get_cache_key('errors'))
+        # cache2.delete_hash2(get_cache_key('properties'))
+        # cache2.delete_hash2(get_cache_key('files'))
+        # cache2.delete_hash2(get_cache_key('read_files'))
+
     else:
         cache2.set_hash2(get_cache_key(), directory.to_dictionary())
+        # if len(directory.errors) > 0:
+        #     cache2.set_hash2(get_cache_key('errors'), directory.errors)
+        # if len(directory.properties) > 0:
+        #     cache2.set_hash2(get_cache_key('properties'), directory.properties)
+        # if len(directory.files) > 0:
+        #     cache2.set_hash2(get_cache_key('files'), directory.files)
+        # if len(directory.read_files) > 0:
+        #     cache2.set_hash2(get_cache_key('read_files'), directory.read_files)
 
 
 def clear_directory_cache():
@@ -50,11 +61,18 @@ def clear_directory_cache():
 def get_cached_directory():
     values = cache2.get_hash2(get_cache_key())
     if len(values) is 0: return None
-    if not 'esid' in values and not 'absolute_path' in values:
-        return None
+   
+    result = Directory(values['absolute_path'], esid=values['esid'])
+    result.dirty = values['dirty'] == 'True'
+    result.has_errors = values['has_errors'] == 'True'
+    result.latest_error = values['latest_error']
+    result.latest_operation = values['latest_operation']
+    result.errors.extend(cache2.get_hash2(get_cache_key('errors')))
+    result.properties.extend(cache2.get_hash2(get_cache_key('properties')))
+    result.files.extend(cache2.get_hash2(get_cache_key('files')))
+    result.read_files.extend(cache2.get_hash2(get_cache_key('read_files')))
 
-    return Directory(values['absolute_path'], esid=values['esid'])
-
+    return result
 
 def set_active(path):
     directory = None if path is None else Directory(path)
@@ -66,16 +84,14 @@ def set_active(path):
         else:
             index_asset(directory, directory.to_dictionary())
     elif directory is None and get_cached_directory():
-        pass
-        # TODO: resolve this cart before horse issue right here 
-        # dir_vals = cache2.get_hash2(get_cache_key())
-        # if len (dir_vals['data.read_files']) > 0:
-        #     try:
-        #         res = config.es.update(index=config.es_index, doc_type=self.document_type, id=directory.esid, body= json.dumps(dir_vals))
-        #     except ConnectionError, err:
-        #         LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        #         print '\nConnection lost, please verify network connectivity and restart.'
-        #         sys.exit(1)
+        cached_directory = get_cached_directory()
+        if cached_directory.dirty:        
+            try:
+                res = config.es.update(index=config.es_index, doc_type=cached_directory.directory, id=cached_directory.esid, body= json.dumps(cached_directory.to_dictionary()))
+            except ConnectionError, err:
+                LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                print '\nConnection lost, please verify network connectivity and restart.'
+                sys.exit(1)
 
     cache_directory(directory)
 
@@ -156,11 +172,6 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
     asset.location = get_library_location(absolute_path)
     asset.ext = extension
 
-    asset.available = fs_avail
-    if asset.available:
-        asset.directory_name = os.path.abspath(os.path.join(absolute_path, os.pardir)) if fs_avail else None
-        asset.file_size = os.path.getsize(absolute_path) if fs_avail else None
-
     # check cache for esid
     if asset.esid is None and check_cache and path_in_cache(asset.document_type, absolute_path):
         asset.esid = get_cached_esid(asset.document_type, absolute_path)
@@ -202,7 +213,7 @@ def index_asset(asset, data):
     #     message = err.in
     except Exception, err:
         LOG.error(err.__class__.__name__, exc_info=True)
-        record_error(get_cached_directory(), err)
+        record_error(err)
         # raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (asset.document_type, asset.absolute_path))
 
 
@@ -210,38 +221,29 @@ def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
     alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
 
 
-def record_error(directory, error):
-    
-    assert(directory is not None)
-    assert(error is not None)
+def record_error(error):
+    # error_class = error.__class__.__name__
+    # LOG.info("recording error: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
+    # cached_dir = get_cached_directory()
+    # cached_dir.errors.append(error_class)
+    # cached_dir.has_errors = True
+    # cached_dir.dirty = True
+    # cache_directory(cached_dir)
+    pass
 
-    try:
-        error_class = error.__class__.__name__
-        LOG.info("recording error: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
-        dir_vals = cache2.get_hash2(get_cache_key())
-        # dir_vals['latest_error'] = error_class
+def record_file_read(file_handler_name, asset):
+    # read_record = { 'read_by': file_handler_name, 'filename': asset.file_name, 'file_ext': asset.ext }
+    # LOG.info("recording file read: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
+    # cached_dir = get_cached_directory()
+    # cached_dir.read_files.append(read_record)
+    # cached_dir.dirty = True
+    # cache_directory(cached_dir)
+    pass
 
-        res = config.es.update(index=config.es_index, doc_type=directory.document_type, id=directory.esid, body={"doc": {"latest_error": error_class, "has_errors": True }})
-    except ConnectionError, err:
-        print ': '.join([err.__class__.__name__, err.message], exc_info=True)
-        print '\nConnection lost, please verify network connectivity and restart.'
-        sys.exit(1)
-
-
-# def retrieve_esid(document_type, path):
-#     values = config.redis.hgetall(path)
-#     if 'esid' in values:
-#         return values['esid']
-#
-#     rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, path])
-#     if len(rows) == 0: return None
-#     if len(rows) == 1: return rows[0][3]
-#     elif len(rows) >1: raise AssetException("Multiple Ids for '" + path + "' returned", rows)
-#
-
-
-# TODO: check cache, as seen above from cache.py
 def retrieve_esid(document_type, absolute_path):
+    cached = get_cached_esid(document_type, absolute_path)
+    if cached: return cached
+
     rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
     # rows = sql.run_query("select index_name, doc_type, absolute_path")
     if len(rows) == 0: return None

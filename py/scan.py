@@ -72,7 +72,7 @@ class Scanner(Walker):
         if directory is None or directory.esid is None: return
 
         LOG.debug('scanning %s' % (root))
-        ops.record_op_begin(directory, SCAN, SCANNER)
+        ops.record_op_begin(SCAN, SCANNER, directory.absolute_path, directory.esid)
 
         for filename in os.listdir(root):
             # ops.check_status()
@@ -84,7 +84,7 @@ class Scanner(Walker):
                 self.reader.read(asset, data)
                 library.index_asset(asset, data)
 
-        ops.record_op_complete(directory, SCAN, SCANNER)
+        ops.record_op_complete(SCAN, SCANNER, directory.absolute_path, directory.esid)
         LOG.debug('done scanning : %s' % (root))
 
     def handle_root_error(self, err, root):
@@ -136,8 +136,7 @@ class Scanner(Walker):
                         LOG.debug('skipping %s...' % path)
                         continue
 
-                    hl_directory = Directory(path)  
-                    ops.record_op_begin(hl_directory, HLSCAN, SCANNER)
+                    ops.record_op_begin(HLSCAN, SCANNER, path)
 
                     LOG.debug('caching data for %s...' % path)
                     ops.cache_ops(path, SCAN)
@@ -158,8 +157,8 @@ class Scanner(Walker):
                         ops.update_ops_data()
 
                     # library.clear_docs(config.DIRECTORY, path)
-                    ops.record_op_complete(hl_directory, HLSCAN, SCANNER)
-                    ops.write_ops_data(hl_directory.absolute_path, HLSCAN, SCANNER)
+                    ops.record_op_complete(HLSCAN, SCANNER, path)
+                    ops.write_ops_data(path, HLSCAN, SCANNER)
 
             elif not os.access(path, os.R_OK):
                 LOG.warning("%s isn't currently available." % (path))

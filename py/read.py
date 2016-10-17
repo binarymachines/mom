@@ -22,21 +22,18 @@ KNOWN = 'known_fields'
 METADATA = 'document_metadata'
 
 
-#TODO: use 'x2' functions instead of screwing around with cache2's  internal behavior'
 def add_field(doc_format, field_name):
+    """add an attribute to document_metadata for the specified document_type"""
+    keygroup = 'fields'
     if field_name in get_fields(doc_format): return
     sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
 
-    # cache2.clear_items(KNOWN, doc_format)
-    # lkey = cache2.DELIM.join([cache2.LIST, KNOWN, doc_format])
-    # cache2.delete_key(lkey)
-    # cache2.delete_key(cache2.key_name(KNOWN, doc_format))
-
     key = cache2.get_key(keygroup, doc_format)
     cache2.clear_items2(key)
-    cache2.delete_key( key)
+    cache2.delete_key(key)
 
 def get_fields(doc_format):
+    """get attributes from document_metadata for the specified document_type"""
     keygroup = 'fields'
     if not cache2.key_exists(keygroup, doc_format):
         key = cache2.create_key(keygroup, doc_format)
@@ -47,6 +44,7 @@ def get_fields(doc_format):
 
 
 def get_known_fields(doc_format):
+    """retrieve all attributes, innnncluding unused ones, from document_metadata for the specified document_type"""
     if not cache2.key_exists(KNOWN, doc_format):
         key = cache2.create_key(KNOWN, doc_format)
         rows = sql.retrieve_values('document_metadata', ['document_format', 'attribute_name'], [doc_format.upper()])
@@ -83,10 +81,8 @@ class Reader:
                 if asset.ext in file_handler.extensions or '*' in file_handler.extensions or force_read:
                     if not ops.operation_in_cache(asset.absolute_path, READ, file_handler.name):
                         LOG.debug("%s reading file: %s" % (file_handler.name, asset.short_name()))
-                        try:
-                            file_handler.handle_file(asset, data)
-                        except Exception, err:
-                            LOG.error(err.message)
+                        if file_handler.handle_file(asset, data):
+                            library.record_file_read(file_handler.name, asset)
 
     def get_file_handlers(self):
         return MutagenID3(), MutagenFLAC(), MutagenAPEv2(), MutagenOggVorbis()
@@ -114,21 +110,22 @@ class Mutagen(FileHandler):
         data['has_error'] = True
         data['errors'].append(error_data)
 
-        library.record_error(library.get_cached_directory(), exception)
+        library.record_error(exception)
 
 
     def handle_file(self, asset, data):
         read_failed = False
 
         try:
-            ops.record_op_begin(asset, 'read', self.name)
+            ops.record_op_begin('read', self.name, asset.absolute_path, asset.esid)
             self.read_tags(asset, data)
-            # update elastic search doc for active directory IF reader succeeded
-            library.append_read_file_to_active_directory(self.name, library.get_cached_directory(), asset)
+            
+            return True
 
         except ID3NoHeaderError, err:
             read_failed = True
-            self.handle_exception(err, data)
+            if asset.absolute_path.lower().endswith('mp3'):
+                self.handle_exception(err, data)
 
         except UnicodeEncodeError, err:
             read_failed = True
@@ -159,7 +156,7 @@ class Mutagen(FileHandler):
             self.handle_exception(err, data)
 
         finally:
-            ops.record_op_complete(asset, 'read', self.name, op_failed=read_failed)
+            ops.record_op_complete('read', self.name, asset.absolute_path, asset.esid, op_failed=read_failed)
 
 
     def read_tags(self, asset, data):
@@ -251,7 +248,7 @@ class MutagenID3(Mutagen):
                             add_field('ID3V2.TXXX', key)
 
             elif len(key) == 4 and key not in get_known_fields('ID3V2'):
-                    add_field('ID3V2', key)
+                add_field('ID3V2', key)
 
         data['version'] = document.version
 

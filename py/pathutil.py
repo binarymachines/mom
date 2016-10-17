@@ -1,26 +1,27 @@
 import logging
 import os
-import redis
 
 import cache2
 
 # path functions for media files and s
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
-import config
+
 import sql
 
 LOG = logging.getLogger(__name__)
 
 
 def get_directory_constants(identifier):
-    keygroup = 'directory_constant'
+    keygroup = 'directory_constants'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
         rows = sql.retrieve_values('directory_constant', ['location_type', 'pattern'], [identifier.lower()])
-        cache2.add_items(keygroup, identifier, [row[1] for row in rows])
+        for row in rows:
+            cache2.add_item2(key, row[1])
 
-    return cache2.get_items(keygroup, identifier)
+    key = cache2.get_key(keygroup, identifier)
+    return cache2.get_items2(key)
 
 
 def get_items(keygroup, identifier):
@@ -132,8 +133,6 @@ def ignore(path):
     return path in get_directory_constants('ignore')
 
 
-
-
 def path_contains_album_directories(path):
     raise Exception('not implemented!')
 
@@ -217,26 +216,3 @@ def path_is_document_category(path):
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_is_location_directory(path):
     raise Exception('not implemented!')
-
-
-def pathutils_demo():
-    keygroup = 'pathutils'
-
-    if not cache2.key_exists(keygroup, 'unsorted'):
-        lkey = cache2.create_key(keygroup, 'unsorted')
-        data = get_directory_constants('unsorted')
-        for path in data:
-            cache2.add_item(keygroup, 'unsorted', path)
-
-    list = cache2.get_items(keygroup, 'unsorted')
-    print '/unsorted' in list
-
-
-def main():
-    # config.start_console_logging()
-    config.redis = redis.Redis('localhost')
-    # config.redis.flushdb()
-    pathutils_demo()
-
-if __name__ == '__main__':
-    main()

@@ -24,6 +24,10 @@ class Asset(object):
         self.latest_operation = u''
         self.latest_operation_start_time = None
 
+        # TODO: use in scanner, reader and to_dictionary()
+        self.errors = []
+        self.properties = []
+
     def short_name(self):
         if self.absolute_path is None:
             return None
@@ -101,8 +105,12 @@ class Document(Asset):
 
         if self.location is not None: data['directory_location'] = self.location
 
-        data['ctime'] = time.ctime(os.path.getctime(self.absolute_path))
-        data['mtime'] = time.ctime(os.path.getmtime(self.absolute_path))
+        fs_avail = os.path.isfile(self.absolute_path) and os.access(self.absolute_path, os.R_OK)
+        self.available = fs_avail
+        if fs_avail:
+            data['ctime'] = time.ctime(os.path.getctime(self.absolute_path))
+            data['mtime'] = time.ctime(os.path.getmtime(self.absolute_path))
+        
         data['filed'] = self.is_filed()
         data['compilation'] = self.is_filed_as_compilation()
         data['webcast']= self.is_webcast()
@@ -111,10 +119,10 @@ class Document(Asset):
         data['new'] = self.is_new()
         data['recent'] = self.is_recent()
         data['active'] = self.active
-        data['deleted'] = self.deleted
         data['live_recording'] = self.is_filed_as_live()
-        data['properties'] = []
-        data['errors'] = []
+        data['deleted'] = self.deleted
+        data['properties'] = self.properties
+        data['errors'] = self.errors
 
         return data
 
@@ -125,6 +133,10 @@ class Directory(Asset):
         self.document_type = config.DIRECTORY
         self.absolute_path = absolute_path
         self.esid = esid
+        self.files = []
+        self.read_files = []
+
+        self.dirty = False
 
     # TODO: call Asset.to_dictionary and append values
     def to_dictionary(self):
@@ -134,10 +146,14 @@ class Directory(Asset):
                     'absolute_path': self.absolute_path,
                     'has_errors': self.has_errors,
                     'latest_error': self.latest_error,
-                    'latest_operation': self.latest_operation }
+                    'latest_operation': self.latest_operation,
+                    'dirty': self.dirty
+                 }
 
-        data['files'] = []
-        data['read_files'] = []
+        data['errors'] = self.errors
+        data['files'] = self.files
+        data['properties'] = self.properties
+        data['read_files'] = self.read_files
 
         return data
 
