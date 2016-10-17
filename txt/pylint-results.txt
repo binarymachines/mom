@@ -1,0 +1,2423 @@
+************* Module py
+C:  1, 0: Missing module docstring (missing-docstring)
+************* Module py.alchemy
+W: 90, 0: TODO: write code (fixme)
+C: 19, 0: Line too long (87/80) (line-too-long)
+C: 44, 0: Line too long (83/80) (line-too-long)
+C: 45, 0: Line too long (83/80) (line-too-long)
+C: 50, 0: Line too long (98/80) (line-too-long)
+C: 70, 0: Line too long (115/80) (line-too-long)
+C: 71, 0: Line too long (154/80) (line-too-long)
+C: 72, 0: Line too long (142/80) (line-too-long)
+C: 73, 0: Line too long (152/80) (line-too-long)
+C:100, 0: Line too long (101/80) (line-too-long)
+C:102, 0: Line too long (95/80) (line-too-long)
+C:105, 0: Line too long (82/80) (line-too-long)
+C:111, 0: Line too long (104/80) (line-too-long)
+C:113, 0: Line too long (92/80) (line-too-long)
+C:116, 0: Line too long (88/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  6, 0: Unable to import 'sqlalchemy' (import-error)
+F:  7, 0: Unable to import 'sqlalchemy.ext.declarative' (import-error)
+F:  8, 0: Unable to import 'sqlalchemy.orm' (import-error)
+F:  9, 0: Unable to import 'sqlalchemy' (import-error)
+F: 10, 0: Unable to import 'sqlalchemy.orm' (import-error)
+W: 12, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 13, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+C: 17, 0: Invalid constant name "Base" (invalid-name)
+C: 21, 0: Invalid constant name "engine" (invalid-name)
+C: 26, 0: Invalid constant name "DBSession" (invalid-name)
+C: 34, 0: Invalid constant name "session" (invalid-name)
+C: 36, 0: Missing class docstring (missing-docstring)
+W: 36, 0: Class has no __init__ method (no-init)
+C: 38, 4: Invalid class attribute name "id" (invalid-name)
+R: 36, 0: Too few public methods (0/2) (too-few-public-methods)
+W: 48,39: Redefining built-in 'id' (redefined-builtin)
+C: 48, 0: Invalid argument name "id" (invalid-name)
+C: 48, 0: Missing function docstring (missing-docstring)
+C: 55, 0: Missing class docstring (missing-docstring)
+W: 55, 0: Class has no __init__ method (no-init)
+C: 57, 4: Invalid class attribute name "id" (invalid-name)
+R: 55, 0: Too few public methods (0/2) (too-few-public-methods)
+C: 70, 0: Missing function docstring (missing-docstring)
+R: 70, 0: Too many arguments (7/5) (too-many-arguments)
+W: 71, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:  8, 0: Unused import relationship (unused-import)
+W:  2, 0: Unused import sys (unused-import)
+W: 13, 0: Unused import sql (unused-import)
+W:  6, 0: Unused import ForeignKey (unused-import)
+W:  1, 0: Unused import os (unused-import)
+************* Module py.api
+C:  1, 0: Line too long (120/80) (line-too-long)
+C:  3, 0: Final newline missing (missing-final-newline)
+************* Module py.assets
+W: 92, 0: TODO: call Asset.to_dictionary() and append values (fixme)
+W:129, 0: TODO: call Asset.to_dictionary and append values (fixme)
+C:108, 0: Exactly one space required before assignment
+        data['webcast']= self.is_webcast()
+                       ^ (bad-whitespace)
+C:132, 0: No space allowed after bracket
+        data = {    'esid': self.esid,
+               ^ (bad-whitespace)
+C:137, 0: No space allowed before bracket
+                    'latest_operation': self.latest_operation }
+                                                              ^ (bad-whitespace)
+C:157, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  7, 0: Relative import 'config', should be 'py.config' (relative-import)
+W:  8, 0: Relative import 'pathutil', should be 'py.pathutil' (relative-import)
+C: 11, 0: Missing class docstring (missing-docstring)
+R: 11, 0: Too many instance attributes (13/7) (too-many-instance-attributes)
+C: 27, 4: Missing method docstring (missing-docstring)
+C: 32, 4: Missing method docstring (missing-docstring)
+C: 35, 4: Missing method docstring (missing-docstring)
+C: 38, 4: Missing method docstring (missing-docstring)
+C: 41, 4: Missing method docstring (missing-docstring)
+C: 44, 4: Missing method docstring (missing-docstring)
+C: 47, 4: Missing method docstring (missing-docstring)
+C: 50, 4: Missing method docstring (missing-docstring)
+C: 53, 4: Missing method docstring (missing-docstring)
+C: 56, 4: Missing method docstring (missing-docstring)
+C: 59, 4: Missing method docstring (missing-docstring)
+C: 62, 4: Missing method docstring (missing-docstring)
+C: 65, 4: Missing method docstring (missing-docstring)
+E: 66,26: Instance of 'Asset' has no 'to_dictionary' member (no-member)
+C: 69, 0: Missing class docstring (missing-docstring)
+C: 79, 4: Missing method docstring (missing-docstring)
+R: 79, 4: Method could be a function (no-self-use)
+C: 82, 4: Missing method docstring (missing-docstring)
+R: 82, 4: Method could be a function (no-self-use)
+C: 86, 4: Missing method docstring (missing-docstring)
+R: 86, 4: Method could be a function (no-self-use)
+C: 89, 4: Missing method docstring (missing-docstring)
+R: 89, 4: Method could be a function (no-self-use)
+C: 93, 4: Missing method docstring (missing-docstring)
+C:102,38: More than one statement on a single line (multiple-statements)
+C:122, 0: Missing class docstring (missing-docstring)
+C:130, 4: Missing method docstring (missing-docstring)
+C:144, 4: Missing method docstring (missing-docstring)
+R:144, 4: Method could be a function (no-self-use)
+C:147, 4: Missing method docstring (missing-docstring)
+R:147, 4: Method could be a function (no-self-use)
+C:150, 4: Missing method docstring (missing-docstring)
+R:150, 4: Method could be a function (no-self-use)
+C:153, 4: Missing method docstring (missing-docstring)
+R:153, 4: Method could be a function (no-self-use)
+C:156, 4: Missing method docstring (missing-docstring)
+R:156, 4: Method could be a function (no-self-use)
+************* Module py.cache2
+W: 21, 0: TODO: in order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used (fixme)
+C:  1, 0: Line too long (152/80) (line-too-long)
+C: 21, 0: Line too long (157/80) (line-too-long)
+C: 22, 0: Line too long (114/80) (line-too-long)
+C: 30, 0: Line too long (84/80) (line-too-long)
+C: 31, 0: Line too long (124/80) (line-too-long)
+C: 35, 0: Line too long (98/80) (line-too-long)
+C: 49, 0: Line too long (97/80) (line-too-long)
+C: 73, 0: Line too long (101/80) (line-too-long)
+C: 89, 0: Line too long (102/80) (line-too-long)
+C: 92, 0: Line too long (101/80) (line-too-long)
+W: 97, 0: Bad indentation. Found 5 spaces, expected 4 (bad-indentation)
+W: 98, 0: Bad indentation. Found 5 spaces, expected 4 (bad-indentation)
+C:148, 0: Line too long (101/80) (line-too-long)
+C:173, 0: Line too long (103/80) (line-too-long)
+C:180, 0: Line too long (126/80) (line-too-long)
+C:186, 0: Line too long (88/80) (line-too-long)
+C:194, 0: Line too long (122/80) (line-too-long)
+C:200, 0: Line too long (122/80) (line-too-long)
+C:208, 0: Line too long (126/80) (line-too-long)
+C:215, 0: Line too long (126/80) (line-too-long)
+C:223, 0: Line too long (102/80) (line-too-long)
+C:231, 0: Line too long (102/80) (line-too-long)
+C:237, 0: Line too long (108/80) (line-too-long)
+C:244, 0: Line too long (108/80) (line-too-long)
+C:253, 0: Final newline missing (missing-final-newline)
+F:  7, 0: Unable to import 'redis' (import-error)
+W:  9, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 10, 0: Relative import 'util', should be 'py.util' (relative-import)
+W: 25,18: Redefining built-in 'input' (redefined-builtin)
+C: 25, 0: Missing function docstring (missing-docstring)
+W: 44, 8: Unused variable 'result' (unused-variable)
+C: 54, 0: Missing function docstring (missing-docstring)
+W: 55, 4: Unused variable 'result' (unused-variable)
+C: 59, 0: Missing function docstring (missing-docstring)
+C: 66, 0: Missing function docstring (missing-docstring)
+C: 71, 0: Missing function docstring (missing-docstring)
+C: 80, 0: Missing function docstring (missing-docstring)
+C: 88, 0: Missing function docstring (missing-docstring)
+C: 96, 0: Missing function docstring (missing-docstring)
+C:101, 0: Missing function docstring (missing-docstring)
+C:107, 0: Missing function docstring (missing-docstring)
+C:113, 0: Missing function docstring (missing-docstring)
+C:118, 0: Missing function docstring (missing-docstring)
+C:124, 0: Missing function docstring (missing-docstring)
+C:131, 0: Missing function docstring (missing-docstring)
+C:138, 0: Missing function docstring (missing-docstring)
+C:145, 0: Missing function docstring (missing-docstring)
+C:152, 0: Missing function docstring (missing-docstring)
+W:163,12: Redefining built-in 'hash' (redefined-builtin)
+C:159, 0: Missing function docstring (missing-docstring)
+C:177, 0: Missing function docstring (missing-docstring)
+W:179, 4: Unused variable 'result' (unused-variable)
+C:183, 0: Missing function docstring (missing-docstring)
+W:185, 4: Unused variable 'result' (unused-variable)
+C:191, 0: Missing function docstring (missing-docstring)
+W:193, 4: Unused variable 'result' (unused-variable)
+C:197, 0: Missing function docstring (missing-docstring)
+W:199, 4: Unused variable 'result' (unused-variable)
+C:203, 0: Missing function docstring (missing-docstring)
+C:211, 0: Missing function docstring (missing-docstring)
+W:214, 8: Unused variable 'result' (unused-variable)
+C:218, 0: Missing function docstring (missing-docstring)
+W:222, 8: Unused variable 'result' (unused-variable)
+C:226, 0: Missing function docstring (missing-docstring)
+W:230, 8: Unused variable 'result' (unused-variable)
+C:234, 0: Missing function docstring (missing-docstring)
+C:241, 0: Missing function docstring (missing-docstring)
+C:250, 0: Missing function docstring (missing-docstring)
+W:  7, 0: Unused import redis (unused-import)
+W:  4, 0: Unused import datetime (unused-import)
+W:  3, 0: Unused import os (unused-import)
+************* Module py.cache2_test
+W:  8, 0: TODO: This unit test does not account for Redis' dislike of key names containing spaces (fixme)
+C:  8, 0: Line too long (88/80) (line-too-long)
+C: 16, 0: Line too long (100/80) (line-too-long)
+C: 17, 0: Line too long (95/80) (line-too-long)
+C: 20, 0: Line too long (88/80) (line-too-long)
+C: 26, 0: Line too long (100/80) (line-too-long)
+C: 30, 0: Line too long (100/80) (line-too-long)
+C: 30, 0: Exactly one space required before keyword argument assignment
+        self.assertTrue(testkey  == [self.identifier], 'no key returned for "%s"' % self.identifier)
+                                 ^^ (bad-whitespace)
+C: 60, 0: Line too long (84/80) (line-too-long)
+C: 66, 0: Line too long (105/80) (line-too-long)
+C: 73, 0: Line too long (98/80) (line-too-long)
+C:184, 0: Line too long (99/80) (line-too-long)
+C:184, 0: No space allowed after bracket
+            { 'active_directory': '/media/removable/Audio/music/albums/', 'doc_type': 'DIRECTORY' }
+            ^ (bad-whitespace)
+C:184, 0: No space allowed before bracket
+            { 'active_directory': '/media/removable/Audio/music/albums/', 'doc_type': 'DIRECTORY' }
+                                                                                                  ^ (bad-whitespace)
+C:206, 0: No space allowed after bracket
+        hash = { 'operation': 'scan', 'operator': 'id3v2' }
+               ^ (bad-whitespace)
+C:206, 0: No space allowed before bracket
+        hash = { 'operation': 'scan', 'operator': 'id3v2' }
+                                                          ^ (bad-whitespace)
+C:227, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  1, 0: Unable to import 'redis' (import-error)
+W:  3, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W:  4, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+C: 19, 4: Missing method docstring (missing-docstring)
+C: 25, 4: Missing method docstring (missing-docstring)
+C: 32, 4: Missing method docstring (missing-docstring)
+C: 41, 4: Missing method docstring (missing-docstring)
+C: 44, 4: Missing method docstring (missing-docstring)
+C: 47, 4: Missing method docstring (missing-docstring)
+C: 51, 4: Missing method docstring (missing-docstring)
+C: 75, 4: Missing method docstring (missing-docstring)
+W: 80, 8: Unused variable 'key' (unused-variable)
+C: 88, 4: Missing method docstring (missing-docstring)
+C: 98, 4: Missing method docstring (missing-docstring)
+C:109, 4: Missing method docstring (missing-docstring)
+C:121, 4: Missing method docstring (missing-docstring)
+C:132, 4: Missing method docstring (missing-docstring)
+W:158, 8: Redefining built-in 'hash' (redefined-builtin)
+C:156, 4: Missing method docstring (missing-docstring)
+W:171, 8: Redefining built-in 'hash' (redefined-builtin)
+C:169, 4: Missing method docstring (missing-docstring)
+C:179, 4: Missing method docstring (missing-docstring)
+W:206, 8: Redefining built-in 'hash' (redefined-builtin)
+C:204, 4: Missing method docstring (missing-docstring)
+R: 10, 0: Too many public methods (62/20) (too-many-public-methods)
+W:  4, 0: Unused import sql (unused-import)
+************* Module py.calc
+W: 60, 0: TODO: use paths from op_records, maaake sure that HLSCAN operation had been completed for path (fixme)
+C: 35, 0: Line too long (82/80) (line-too-long)
+C: 55, 0: Line too long (137/80) (line-too-long)
+C: 59, 0: Trailing whitespace (trailing-whitespace)
+C: 60, 0: Line too long (104/80) (line-too-long)
+C: 61, 0: Trailing whitespace (trailing-whitespace)
+C: 62, 0: Line too long (100/80) (line-too-long)
+C: 87, 0: Line too long (100/80) (line-too-long)
+C: 95, 0: Line too long (81/80) (line-too-long)
+C: 99, 0: Line too long (102/80) (line-too-long)
+C:104, 0: Line too long (87/80) (line-too-long)
+C:106, 0: Line too long (86/80) (line-too-long)
+C:107, 0: Line too long (104/80) (line-too-long)
+C:109, 0: Line too long (102/80) (line-too-long)
+C:111, 0: Line too long (82/80) (line-too-long)
+C:114, 0: Line too long (88/80) (line-too-long)
+C:118, 0: Line too long (98/80) (line-too-long)
+C:119, 0: Line too long (90/80) (line-too-long)
+C:126, 0: Line too long (106/80) (line-too-long)
+C:129, 0: Line too long (116/80) (line-too-long)
+C:129, 0: No space allowed after bracket
+            cache2.set_hash(keygroup, identifier, { 'name': row[1], 'query_type': row[2], 'minimum_score': row[3] })
+                                                  ^ (bad-whitespace)
+C:129, 0: No space allowed before bracket
+            cache2.set_hash(keygroup, identifier, { 'name': row[1], 'query_type': row[2], 'minimum_score': row[3] })
+                                                                                                                  ^ (bad-whitespace)
+F: 10, 0: Unable to import 'docopt' (import-error)
+W: 16, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W: 17, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 18, 0: Relative import 'library', should be 'py.library' (relative-import)
+W: 19, 0: Relative import 'log', should be 'py.log' (relative-import)
+W: 20, 0: Relative import 'ops', should be 'py.ops' (relative-import)
+W: 21, 0: Relative import 'search', should be 'py.search' (relative-import)
+W: 22, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W: 24, 0: Relative import 'assets', should be 'py.assets' (relative-import)
+W: 25, 0: Relative import 'context', should be 'py.context' (relative-import)
+W: 26, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+W: 27, 0: Relative import 'match', should be 'py.match' (relative-import)
+C: 32, 0: Missing function docstring (missing-docstring)
+C: 41, 0: Missing function docstring (missing-docstring)
+W: 42, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 43, 8: Unused variable 'matcher' (unused-variable)
+C: 50, 0: Missing function docstring (missing-docstring)
+W: 57, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 86,19: Catching too general exception Exception (broad-except)
+C: 65,48: More than one statement on a single line (multiple-statements)
+W: 77,24: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 50,18: Unused argument 'cycle_context' (unused-argument)
+C: 93, 0: Missing function docstring (missing-docstring)
+W: 99, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:107,20: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:109,20: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:117,35: Invalid variable name "u" (invalid-name)
+C:122, 0: Missing function docstring (missing-docstring)
+W:138, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:144, 9: Redefining name 'args' from outer scope (line 153) (redefined-outer-name)
+C:144, 0: Missing function docstring (missing-docstring)
+E:146, 4: Module 'py.log' has no 'start_console_logging' member (no-member)
+C:153, 4: Invalid constant name "args" (invalid-name)
+W: 12, 0: Unused import sys (unused-import)
+W: 24, 0: Unused import Document (unused-import)
+W: 13, 0: Unused import traceback (unused-import)
+************* Module py.clean
+C:  3, 0: Missing function docstring (missing-docstring)
+W:  3,10: Unused argument 'context' (unused-argument)
+************* Module py.command
+W: 13, 0: TODO: add ip address/port as command line options (fixme)
+C: 52, 0: Final newline missing (missing-final-newline)
+F:  6, 0: Unable to import 'docopt' (import-error)
+F:  8, 0: Unable to import 'redis' (import-error)
+W: 10, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W: 10, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 10, 0: Relative import 'ops', should be 'py.ops' (relative-import)
+C: 14, 0: Missing function docstring (missing-docstring)
+C: 18, 0: Missing function docstring (missing-docstring)
+C: 25, 0: Missing function docstring (missing-docstring)
+C: 30, 0: Missing function docstring (missing-docstring)
+C: 35, 0: Missing function docstring (missing-docstring)
+C: 36, 4: Invalid variable name "f" (invalid-name)
+W: 36, 8: "rt" is not a valid mode for open. (bad-open-mode)
+W: 42, 9: Redefining name 'args' from outer scope (line 51) (redefined-outer-name)
+C: 42, 0: Missing function docstring (missing-docstring)
+C: 45,31: More than one statement on a single line (multiple-statements)
+C: 46,27: More than one statement on a single line (multiple-statements)
+C: 51, 4: Invalid constant name "args" (invalid-name)
+W:  6, 0: Unused import os (unused-import)
+W:  6, 0: Unused import sys (unused-import)
+************* Module py.config
+C: 21, 0: Exactly one space required before assignment
+status_check_freq= 1
+                 ^ (bad-whitespace)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  6, 0: Unable to import 'redis' (import-error)
+C: 11, 0: Invalid constant name "filename" (invalid-name)
+C: 12, 0: Invalid constant name "launched" (invalid-name)
+C: 13, 0: Invalid constant name "start_time" (invalid-name)
+C: 14, 0: Invalid constant name "username" (invalid-name)
+C: 16, 0: Invalid constant name "old_pid" (invalid-name)
+C: 17, 0: Invalid constant name "pid" (invalid-name)
+C: 18, 0: Invalid constant name "path_cache_size" (invalid-name)
+C: 20, 0: Invalid constant name "op_life" (invalid-name)
+C: 21, 0: Invalid constant name "status_check_freq" (invalid-name)
+C: 23, 0: Invalid constant name "redis_host" (invalid-name)
+C: 24, 0: Invalid constant name "redis" (invalid-name)
+C: 27, 0: Invalid constant name "logging_started" (invalid-name)
+C: 29, 0: Invalid constant name "es" (invalid-name)
+C: 30, 0: Invalid constant name "es_host" (invalid-name)
+C: 31, 0: Invalid constant name "es_port" (invalid-name)
+C: 32, 0: Invalid constant name "es_index" (invalid-name)
+C: 34, 0: Invalid constant name "mysql_host" (invalid-name)
+C: 35, 0: Invalid constant name "mysql_db" (invalid-name)
+C: 36, 0: Invalid constant name "mysql_user" (invalid-name)
+C: 37, 0: Invalid constant name "mysql_pass" (invalid-name)
+C: 39, 0: Invalid constant name "scan" (invalid-name)
+C: 40, 0: Invalid constant name "match" (invalid-name)
+C: 41, 0: Invalid constant name "deep" (invalid-name)
+C: 42, 0: Invalid constant name "no_scan" (invalid-name)
+C: 43, 0: Invalid constant name "no_match" (invalid-name)
+C: 46, 0: Missing function docstring (missing-docstring)
+************* Module py.context
+C:  5, 0: Line too long (108/80) (line-too-long)
+C: 64, 0: Line too long (114/80) (line-too-long)
+C: 89, 0: Line too long (88/80) (line-too-long)
+C:112, 0: Line too long (88/80) (line-too-long)
+C:134, 0: Line too long (88/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+C: 16, 4: Missing method docstring (missing-docstring)
+C: 25, 4: Missing method docstring (missing-docstring)
+E: 27,12: Instance of 'dict' has no 'remove' member (no-member)
+C: 29, 4: Missing method docstring (missing-docstring)
+E: 31,12: Instance of 'dict' has no 'remove' member (no-member)
+C: 33, 4: Missing method docstring (missing-docstring)
+C: 37, 4: Missing method docstring (missing-docstring)
+C: 41, 4: Missing method docstring (missing-docstring)
+C: 45, 4: Missing method docstring (missing-docstring)
+C: 49, 4: Missing method docstring (missing-docstring)
+C: 54, 4: Missing method docstring (missing-docstring)
+C: 59, 4: Missing method docstring (missing-docstring)
+C: 65, 4: Missing method docstring (missing-docstring)
+C: 68, 4: Missing method docstring (missing-docstring)
+C: 72, 0: Missing class docstring (missing-docstring)
+C: 81, 4: Missing method docstring (missing-docstring)
+C: 87, 4: Missing method docstring (missing-docstring)
+C: 92,33: More than one statement on a single line (multiple-statements)
+C:110, 4: Missing method docstring (missing-docstring)
+C:115,33: More than one statement on a single line (multiple-statements)
+C:120,54: More than one statement on a single line (multiple-statements)
+C:125, 4: Missing method docstring (missing-docstring)
+C:128, 4: Missing method docstring (missing-docstring)
+C:132, 4: Missing method docstring (missing-docstring)
+C:137,33: More than one statement on a single line (multiple-statements)
+W:  2, 0: Unused import sys (unused-import)
+W:  2, 0: Unused import os (unused-import)
+************* Module py.delta
+C:  1, 0: Missing module docstring (missing-docstring)
+************* Module py.direct
+W: 24, 0: TODO: else compare now to self_applied and respond false if time too short (fixme)
+C: 15, 0: Line too long (117/80) (line-too-long)
+C: 16, 0: Line too long (97/80) (line-too-long)
+W: 17, 0: Bad indentation. Found 12 spaces, expected 8 (bad-indentation)
+C: 17, 0: Line too long (90/80) (line-too-long)
+C: 17, 0: No space allowed after bracket
+            self.requirements.append({ 'condition': condition, 'description': description,
+                                     ^ (bad-whitespace)
+C: 18, 0: Line too long (89/80) (line-too-long)
+C: 18, 0: No space allowed before bracket
+                'objective': objective, 'resolution': resolution, 'approach': approach })
+                                                                                       ^ (bad-whitespace)
+C: 24, 0: Line too long (87/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Relative import 'context', should be 'py.context' (relative-import)
+C:  5, 0: Missing class docstring (missing-docstring)
+C:  5, 0: Old-style class defined. (old-style-class)
+C: 16, 4: Missing method docstring (missing-docstring)
+R: 16, 4: Too many arguments (6/5) (too-many-arguments)
+C: 20, 4: Missing method docstring (missing-docstring)
+C: 34, 4: Missing method docstring (missing-docstring)
+C: 37,44: More than one statement on a single line (multiple-statements)
+C: 38,45: More than one statement on a single line (multiple-statements)
+C: 39,46: More than one statement on a single line (multiple-statements)
+W: 23,16: Attribute 'applied' defined outside __init__ (attribute-defined-outside-init)
+C: 43, 0: Missing class docstring (missing-docstring)
+C: 43, 0: Old-style class defined. (old-style-class)
+W: 45, 8: Unused variable 'directives' (unused-variable)
+R: 43, 0: Too few public methods (0/2) (too-few-public-methods)
+W:  1, 0: Unused import sys (unused-import)
+W:  3, 0: Unused import Context (unused-import)
+W:  1, 0: Unused import os (unused-import)
+************* Module py.dirwalk
+W: 63, 0: TODO: set up query-based matchers (fixme)
+W: 67, 0: TODO: run matchers (fixme)
+W: 87, 0: TODO: add this directory to work queue (fixme)
+C: 39, 0: Line too long (104/80) (line-too-long)
+C: 40, 0: Line too long (94/80) (line-too-long)
+C: 41, 0: Line too long (94/80) (line-too-long)
+W: 45, 0: Bad indentation. Found 6 spaces, expected 8 (bad-indentation)
+C: 51, 0: Line too long (87/80) (line-too-long)
+C: 55, 0: Line too long (87/80) (line-too-long)
+C: 59, 0: Line too long (87/80) (line-too-long)
+C: 82, 0: Line too long (87/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Relative import 'pathutil', should be 'py.pathutil' (relative-import)
+W:  4, 0: Relative import 'walk', should be 'py.walk' (relative-import)
+W:  5, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+C: 10, 0: Missing class docstring (missing-docstring)
+C: 20, 4: Missing method docstring (missing-docstring)
+C: 24, 4: Missing method docstring (missing-docstring)
+C: 28, 4: Missing method docstring (missing-docstring)
+W: 92, 4: Attribute 'debug' defined outside __init__ (attribute-defined-outside-init)
+C: 43, 0: Missing class docstring (missing-docstring)
+C: 47, 4: Missing method docstring (missing-docstring)
+W: 47,24: Unused argument 'path' (unused-argument)
+R: 47, 4: Method could be a function (no-self-use)
+R: 43, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 50, 0: Missing class docstring (missing-docstring)
+R: 50, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 54, 0: Missing class docstring (missing-docstring)
+R: 54, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 58, 0: Missing class docstring (missing-docstring)
+R: 58, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 62, 0: Missing class docstring (missing-docstring)
+R: 62, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 71, 0: Missing class docstring (missing-docstring)
+R: 71, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 74, 0: Missing class docstring (missing-docstring)
+R: 74, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 77, 0: Missing class docstring (missing-docstring)
+R: 77, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 80, 0: Missing class docstring (missing-docstring)
+C: 85,33: More than one statement on a single line (multiple-statements)
+R: 80, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 90, 0: Missing function docstring (missing-docstring)
+************* Module py.docserv
+C: 19, 0: Line too long (83/80) (line-too-long)
+C: 32, 0: Line too long (108/80) (line-too-long)
+C: 37, 0: Line too long (109/80) (line-too-long)
+C: 38, 0: Line too long (111/80) (line-too-long)
+C: 49, 0: Line too long (98/80) (line-too-long)
+C: 50, 0: Line too long (107/80) (line-too-long)
+C: 50, 0: Exactly one space required after comma
+        self.selector.modes = [self.startmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
+                                                                                           ^ (bad-whitespace)
+C: 56, 0: Line too long (131/80) (line-too-long)
+C: 59, 0: Line too long (128/80) (line-too-long)
+C: 63, 0: Line too long (134/80) (line-too-long)
+C: 67, 0: Line too long (120/80) (line-too-long)
+C: 68, 0: Line too long (93/80) (line-too-long)
+C: 71, 0: Line too long (111/80) (line-too-long)
+C: 72, 0: Line too long (117/80) (line-too-long)
+C: 75, 0: Line too long (131/80) (line-too-long)
+C: 76, 0: Line too long (119/80) (line-too-long)
+C: 79, 0: Line too long (121/80) (line-too-long)
+C: 80, 0: Line too long (103/80) (line-too-long)
+C: 83, 0: Line too long (108/80) (line-too-long)
+C:106, 0: Line too long (100/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Relative import 'log', should be 'py.log' (relative-import)
+W:  4, 0: Relative import 'serv', should be 'py.serv' (relative-import)
+W:  6, 0: Relative import 'context', should be 'py.context' (relative-import)
+W:  7, 0: Relative import 'docservhandle', should be 'py.docservhandle' (relative-import)
+W:  8, 0: Relative import 'modes', should be 'py.modes' (relative-import)
+W: 10, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 11, 0: Relative import 'search', should be 'py.search' (relative-import)
+C: 16, 0: Missing class docstring (missing-docstring)
+R: 16, 0: Too many instance attributes (10/7) (too-many-instance-attributes)
+C: 22, 4: Missing method docstring (missing-docstring)
+C: 25, 4: Missing method docstring (missing-docstring)
+C: 53,41: More than one statement on a single line (multiple-statements)
+W: 41, 8: Attribute 'reportmode' defined outside __init__ (attribute-defined-outside-init)
+W: 32, 8: Attribute 'handler' defined outside __init__ (attribute-defined-outside-init)
+W: 36, 8: Attribute 'scanmode' defined outside __init__ (attribute-defined-outside-init)
+W: 40, 8: Attribute 'fixmode' defined outside __init__ (attribute-defined-outside-init)
+W: 43, 8: Attribute 'endmode' defined outside __init__ (attribute-defined-outside-init)
+W: 39, 8: Attribute 'matchmode' defined outside __init__ (attribute-defined-outside-init)
+W: 35, 8: Attribute 'evalmode' defined outside __init__ (attribute-defined-outside-init)
+W: 34, 8: Attribute 'startmode' defined outside __init__ (attribute-defined-outside-init)
+W: 42, 8: Attribute 'reqmode' defined outside __init__ (attribute-defined-outside-init)
+C: 87, 0: Missing function docstring (missing-docstring)
+C: 96, 0: Missing function docstring (missing-docstring)
+W: 97, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:100, 0: Missing function docstring (missing-docstring)
+W:101, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:104, 0: Missing function docstring (missing-docstring)
+E:105, 4: Module 'py.log' has no 'start_console_logging' member (no-member)
+W:  8, 0: Unused import Selector (unused-import)
+************* Module py.docservhandle
+C: 34, 0: Trailing whitespace (trailing-whitespace)
+C: 40, 0: Line too long (150/80) (line-too-long)
+C: 44, 0: Line too long (128/80) (line-too-long)
+W: 45, 0: Bad indentation. Found 13 spaces, expected 12 (bad-indentation)
+C: 67, 0: Line too long (103/80) (line-too-long)
+C: 82, 0: Line too long (85/80) (line-too-long)
+C: 88, 0: Line too long (87/80) (line-too-long)
+C: 91, 0: Line too long (155/80) (line-too-long)
+C: 98, 0: Line too long (86/80) (line-too-long)
+C:103, 0: No space allowed before bracket
+        dir = self.context.get_active ('match')
+                                      ^ (bad-whitespace)
+C:104, 0: Line too long (81/80) (line-too-long)
+C:109, 0: No space allowed before bracket
+        dir = self.context.get_active ('match')
+                                      ^ (bad-whitespace)
+W:150, 0: Bad indentation. Found 13 spaces, expected 12 (bad-indentation)
+C:151, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Relative import 'modes', should be 'py.modes' (relative-import)
+W:  4, 0: Relative import 'context', should be 'py.context' (relative-import)
+W:  6, 0: Relative import 'config', should be 'py.config' (relative-import)
+W:  6, 0: Relative import 'calc', should be 'py.calc' (relative-import)
+W:  6, 0: Relative import 'scan', should be 'py.scan' (relative-import)
+W:  6, 0: Relative import 'report', should be 'py.report' (relative-import)
+W:  6, 0: Relative import 'clean', should be 'py.clean' (relative-import)
+C: 11, 0: Missing class docstring (missing-docstring)
+C: 11, 0: Old-style class defined. (old-style-class)
+C: 22, 4: Missing method docstring (missing-docstring)
+C: 26, 4: Missing method docstring (missing-docstring)
+C: 31, 4: Missing method docstring (missing-docstring)
+W: 33, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 35, 4: Missing method docstring (missing-docstring)
+W: 37, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 39,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 42, 4: Missing method docstring (missing-docstring)
+W: 42,42: Unused argument 'active' (unused-argument)
+W: 42,32: Unused argument 'selector' (unused-argument)
+C: 55, 4: Missing method docstring (missing-docstring)
+C: 55,23: More than one statement on a single line (multiple-statements)
+W: 55,23: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 57, 4: Missing method docstring (missing-docstring)
+C: 57,24: More than one statement on a single line (multiple-statements)
+W: 57,24: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 59, 4: Missing method docstring (missing-docstring)
+C: 59,21: More than one statement on a single line (multiple-statements)
+W: 59,21: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 63, 4: Missing method docstring (missing-docstring)
+C: 63,21: More than one statement on a single line (multiple-statements)
+W: 63,21: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 65, 4: Missing method docstring (missing-docstring)
+C: 65,22: More than one statement on a single line (multiple-statements)
+W: 65,22: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 67, 4: Missing method docstring (missing-docstring)
+C: 67,19: More than one statement on a single line (multiple-statements)
+W: 67,19: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 71, 4: Missing method docstring (missing-docstring)
+C: 71,23: More than one statement on a single line (multiple-statements)
+W: 71,23: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 76, 4: Missing method docstring (missing-docstring)
+W: 78, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 80, 4: Missing method docstring (missing-docstring)
+C: 80,26: More than one statement on a single line (multiple-statements)
+W: 80,26: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 82, 4: Missing method docstring (missing-docstring)
+C: 82,22: More than one statement on a single line (multiple-statements)
+W: 82,22: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 86, 4: Missing method docstring (missing-docstring)
+W: 87, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 88, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 91,16: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 97, 8: Redefining built-in 'dir' (redefined-builtin)
+C: 95, 4: Missing method docstring (missing-docstring)
+W: 98, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:103, 8: Redefining built-in 'dir' (redefined-builtin)
+C:101, 4: Missing method docstring (missing-docstring)
+W:104, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:109, 8: Redefining built-in 'dir' (redefined-builtin)
+C:108, 4: Missing method docstring (missing-docstring)
+W:110, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:113,15: Catching too general exception Exception (broad-except)
+C:119, 4: Missing method docstring (missing-docstring)
+C:119,23: More than one statement on a single line (multiple-statements)
+W:119,23: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:123, 4: Missing method docstring (missing-docstring)
+W:124, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:128, 4: Missing method docstring (missing-docstring)
+W:130, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:133, 4: Missing method docstring (missing-docstring)
+W:136,15: Catching too general exception Exception (broad-except)
+C:141, 4: Missing method docstring (missing-docstring)
+C:141,54: More than one statement on a single line (multiple-statements)
+W:141,35: Unused argument 'active' (unused-argument)
+W:141,43: Unused argument 'possible' (unused-argument)
+W:141,25: Unused argument 'selector' (unused-argument)
+R:141, 4: Method could be a function (no-self-use)
+C:143, 4: Missing method docstring (missing-docstring)
+W:143,30: Unused argument 'active' (unused-argument)
+W:143,20: Unused argument 'selector' (unused-argument)
+W:143,38: Unused argument 'possible' (unused-argument)
+R:143, 4: Method could be a function (no-self-use)
+C:147, 4: Missing method docstring (missing-docstring)
+C:150,45: More than one statement on a single line (multiple-statements)
+W:149,12: Unused variable 'mode' (unused-variable)
+W:147,33: Unused argument 'active' (unused-argument)
+W:147,41: Unused argument 'possible' (unused-argument)
+W:147,23: Unused argument 'selector' (unused-argument)
+R: 11, 0: Too many public methods (26/20) (too-many-public-methods)
+W:  1, 0: Unused import os (unused-import)
+W:  1, 0: Unused import traceback (unused-import)
+W:  3, 0: Unused import Selector (unused-import)
+W:  1, 0: Unused import sys (unused-import)
+W:  3, 0: Unused import Mode (unused-import)
+W:  6, 0: Unused import report (unused-import)
+W:  4, 0: Unused import DirectoryContext (unused-import)
+************* Module py.errors
+C:  1, 0: Missing module docstring (missing-docstring)
+C:  5, 0: Missing class docstring (missing-docstring)
+W:  6,23: Unused argument 'source' (unused-argument)
+C: 12, 0: Missing class docstring (missing-docstring)
+C: 20, 0: Missing class docstring (missing-docstring)
+W: 21, 4: __init__ method from base class 'Exception' is not called (super-init-not-called)
+C: 26, 0: Missing class docstring (missing-docstring)
+C: 31, 0: Missing class docstring (missing-docstring)
+W: 32, 4: __init__ method from base class 'Exception' is not called (super-init-not-called)
+C: 37, 0: Missing class docstring (missing-docstring)
+E: 39, 8: Bad first argument 'SQLError' given to super() (bad-super-call)
+C: 44, 0: Missing class docstring (missing-docstring)
+W:  1, 0: Unused import sys (unused-import)
+W:  1, 0: Unused import os (unused-import)
+************* Module py.kodi
+C:  1, 0: Missing module docstring (missing-docstring)
+************* Module py.launch
+W: 78, 0: TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process (fixme)
+W: 81, 0: TODO: tests with threaded services reveals design/implementation flaws (fixme)
+C:  2, 0: Line too long (213/80) (line-too-long)
+C: 26, 0: Line too long (89/80) (line-too-long)
+C: 32, 0: Exactly one space required after assignment
+            service =  Service()
+                    ^ (bad-whitespace)
+C: 39, 0: Line too long (88/80) (line-too-long)
+C: 46, 0: Line too long (105/80) (line-too-long)
+C: 51, 0: No space allowed before bracket
+def after (process):
+          ^ (bad-whitespace)
+C: 78, 0: Line too long (132/80) (line-too-long)
+C: 81, 0: Line too long (84/80) (line-too-long)
+C: 82, 0: Line too long (87/80) (line-too-long)
+F: 10, 0: Unable to import 'docopt' (import-error)
+W: 12, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 13, 0: Relative import 'docserv', should be 'py.docserv' (relative-import)
+W: 14, 0: Relative import 'start', should be 'py.start' (relative-import)
+W: 15, 0: Relative import 'ops', should be 'py.ops' (relative-import)
+W: 16, 0: Relative import 'pathutil', should be 'py.pathutil' (relative-import)
+W: 17, 0: Relative import 'search', should be 'py.search' (relative-import)
+W: 18, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W: 19, 0: Relative import 'serv', should be 'py.serv' (relative-import)
+W: 21, 0: Relative import 'context', should be 'py.context' (relative-import)
+W: 23,11: Redefining name 'args' from outer scope (line 88) (redefined-outer-name)
+C: 23, 0: Missing function docstring (missing-docstring)
+W: 47,11: Catching too general exception Exception (broad-except)
+C: 51, 0: Missing function docstring (missing-docstring)
+C: 55, 0: Missing function docstring (missing-docstring)
+W: 59, 9: Redefining name 'args' from outer scope (line 88) (redefined-outer-name)
+C: 59, 0: Missing function docstring (missing-docstring)
+W: 84,15: Catching too general exception Exception (broad-except)
+C: 70,12: Invalid variable name "a" (invalid-name)
+C: 88, 4: Invalid constant name "args" (invalid-name)
+W:  8, 0: Unused import sys (unused-import)
+W: 18, 0: Unused import sql (unused-import)
+W: 17, 0: Unused import search (unused-import)
+************* Module py.library
+W: 70, 0: TODO: resolve this cart before horse issue right here  (fixme)
+W:243, 0: TODO: check cache, as seen above from cache.py (fixme)
+C: 41, 0: No space allowed after bracket
+        cache2.set_hash2(get_cache_key(), { 'active:': None })
+                                          ^ (bad-whitespace)
+C: 41, 0: No space allowed before bracket
+        cache2.set_hash2(get_cache_key(), { 'active:': None })
+                                                            ^ (bad-whitespace)
+C: 63, 0: Line too long (96/80) (line-too-long)
+C: 64, 0: Line too long (109/80) (line-too-long)
+C: 65, 0: Line too long (85/80) (line-too-long)
+C: 70, 0: Trailing whitespace (trailing-whitespace)
+C: 74, 0: Line too long (139/80) (line-too-long)
+C: 76, 0: Line too long (92/80) (line-too-long)
+C: 77, 0: Line too long (92/80) (line-too-long)
+C: 93, 0: Line too long (81/80) (line-too-long)
+C:114, 0: Trailing whitespace (trailing-whitespace)
+C:117, 0: Line too long (86/80) (line-too-long)
+C:124, 0: Line too long (128/80) (line-too-long)
+C:140, 0: Line too long (128/80) (line-too-long)
+C:142, 0: Line too long (82/80) (line-too-long)
+C:146, 0: Trailing whitespace (trailing-whitespace)
+C:161, 0: Line too long (108/80) (line-too-long)
+C:165, 0: Line too long (96/80) (line-too-long)
+C:168, 0: Line too long (90/80) (line-too-long)
+C:190, 0: Line too long (105/80) (line-too-long)
+C:193, 0: Line too long (82/80) (line-too-long)
+C:197, 0: Line too long (99/80) (line-too-long)
+C:199, 0: Line too long (82/80) (line-too-long)
+C:206, 0: Line too long (127/80) (line-too-long)
+C:210, 0: Line too long (84/80) (line-too-long)
+C:214, 0: Trailing whitespace (trailing-whitespace)
+C:215, 0: Unnecessary parens after 'assert' keyword (superfluous-parens)
+C:216, 0: Unnecessary parens after 'assert' keyword (superfluous-parens)
+C:220, 0: Line too long (108/80) (line-too-long)
+C:224, 0: Line too long (172/80) (line-too-long)
+C:224, 0: No space allowed before bracket
+        res = config.es.update(index=config.es_index, doc_type=directory.document_type, id=directory.esid, body={"doc": {"latest_error": error_class, "has_errors": True }})
+                                                                                                                                                                         ^ (bad-whitespace)
+C:227, 0: Line too long (82/80) (line-too-long)
+C:236, 0: Line too long (138/80) (line-too-long)
+C:239, 0: Line too long (95/80) (line-too-long)
+C:245, 0: Line too long (145/80) (line-too-long)
+C:249, 0: Line too long (102/80) (line-too-long)
+C:249, 0: Exactly one space required after comparison
+    elif len(rows) >1: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
+                   ^ (bad-whitespace)
+W:286, 0: Found indentation with tabs instead of spaces (mixed-indentation)
+C:287, 0: Trailing whitespace (trailing-whitespace)
+W:289, 0: Found indentation with tabs instead of spaces (mixed-indentation)
+C:290, 0: Trailing whitespace (trailing-whitespace)
+W:292, 0: Bad indentation. Found 6 spaces, expected 8 (bad-indentation)
+W:293, 0: Bad indentation. Found 6 spaces, expected 8 (bad-indentation)
+W:294, 0: Found indentation with tabs instead of spaces (mixed-indentation)
+W:295, 0: Found indentation with tabs instead of spaces (mixed-indentation)
+C:305, 0: Line too long (93/80) (line-too-long)
+C:308, 0: Line too long (135/80) (line-too-long)
+C:313, 0: Line too long (153/80) (line-too-long)
+C:317, 0: Line too long (107/80) (line-too-long)
+C:318, 0: Line too long (88/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  9, 0: Unable to import 'elasticsearch.exceptions' (import-error)
+W: 11, 0: Relative import 'alchemy', should be 'py.alchemy' (relative-import)
+W: 13, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W: 14, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 15, 0: Relative import 'pathutil', should be 'py.pathutil' (relative-import)
+W: 16, 0: Relative import 'search', should be 'py.search' (relative-import)
+W: 17, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W: 18, 0: Relative import 'assets', should be 'py.assets' (relative-import)
+W: 19, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+W: 20, 0: Relative import 'search', should be 'py.search' (relative-import)
+W: 20, 0: Reimport 'search' (imported line 16) (reimported)
+C: 32, 0: Missing function docstring (missing-docstring)
+C: 39, 0: Missing function docstring (missing-docstring)
+C: 46, 0: Missing function docstring (missing-docstring)
+C: 50, 0: Missing function docstring (missing-docstring)
+C: 52,25: More than one statement on a single line (multiple-statements)
+C: 59, 0: Missing function docstring (missing-docstring)
+W: 62, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 85, 0: Missing function docstring (missing-docstring)
+C: 86,14: More than one statement on a single line (multiple-statements)
+W: 88, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 98, 0: Missing function docstring (missing-docstring)
+C:104, 0: Missing function docstring (missing-docstring)
+C:111, 0: Missing function docstring (missing-docstring)
+C:116, 0: Missing function docstring (missing-docstring)
+C:122, 0: Invalid function name "append_read_file_to_active_directory" (invalid-name)
+C:122, 0: Missing function docstring (missing-docstring)
+W:122,41: Unused argument 'self' (unused-argument)
+W:122,60: Unused argument 'asset' (unused-argument)
+W:122,47: Unused argument 'reader_name' (unused-argument)
+C:131, 0: Missing function docstring (missing-docstring)
+C:134,25: More than one statement on a single line (multiple-statements)
+R:140, 0: Too many arguments (6/5) (too-many-arguments)
+W:144, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:187, 0: Missing function docstring (missing-docstring)
+W:188, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:203,11: Catching too general exception Exception (broad-except)
+C:209, 0: Missing function docstring (missing-docstring)
+C:213, 0: Missing function docstring (missing-docstring)
+W:224, 8: Unused variable 'res' (unused-variable)
+W:221, 8: Unused variable 'dir_vals' (unused-variable)
+C:244, 0: Missing function docstring (missing-docstring)
+C:247,23: More than one statement on a single line (multiple-statements)
+C:248,23: More than one statement on a single line (multiple-statements)
+C:249,23: More than one statement on a single line (multiple-statements)
+C:255, 0: Missing function docstring (missing-docstring)
+W:256, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:266, 0: Missing function docstring (missing-docstring)
+C:272, 0: Missing function docstring (missing-docstring)
+C:280, 0: Missing function docstring (missing-docstring)
+C:300, 0: Missing function docstring (missing-docstring)
+C:304, 0: Missing function docstring (missing-docstring)
+C:310, 0: Missing function docstring (missing-docstring)
+W:310,34: Unused argument 'path' (unused-argument)
+W:  9, 0: Unused import RequestError (unused-import)
+W: 19, 0: Unused import ElasticSearchError (unused-import)
+W:  7, 0: Unused import traceback (unused-import)
+************* Module py.library_test
+C: 22, 0: Line too long (92/80) (line-too-long)
+C: 23, 0: Line too long (93/80) (line-too-long)
+C: 34, 0: Line too long (107/80) (line-too-long)
+C: 40, 0: Line too long (89/80) (line-too-long)
+C: 48, 0: Line too long (83/80) (line-too-long)
+C: 49, 0: No space allowed after bracket
+        cache2.set_hash2(key, { 'absolute_path':path, 'esid': '0123456789' })
+                              ^ (bad-whitespace)
+C: 49, 0: No space allowed before bracket
+        cache2.set_hash2(key, { 'absolute_path':path, 'esid': '0123456789' })
+                                                                           ^ (bad-whitespace)
+C: 52, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  1, 0: Unable to import 'redis' (import-error)
+W:  3, 0: Relative import 'config', should be 'py.config' (relative-import)
+W:  3, 0: Relative import 'library', should be 'py.library' (relative-import)
+W:  3, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W:  3, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+C: 18, 4: Missing method docstring (missing-docstring)
+C: 27, 4: Missing method docstring (missing-docstring)
+C: 44, 4: Missing method docstring (missing-docstring)
+R:  9, 0: Too many public methods (48/20) (too-many-public-methods)
+************* Module py.log
+C:  6, 0: Line too long (110/80) (line-too-long)
+C: 15, 0: Line too long (125/80) (line-too-long)
+C: 28, 0: Line too long (123/80) (line-too-long)
+C: 36, 0: Trailing whitespace (trailing-whitespace)
+C: 42, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Relative import 'config', should be 'py.config' (relative-import)
+C:  9, 0: Missing function docstring (missing-docstring)
+C: 20, 0: Missing function docstring (missing-docstring)
+C: 21,31: More than one statement on a single line (multiple-statements)
+C: 27, 4: Invalid variable name "CONSOLE" (invalid-name)
+W: 23, 4: Unused variable 'logging_started' (unused-variable)
+************* Module py.manage
+C:  1, 0: Missing module docstring (missing-docstring)
+************* Module py.match
+W: 32, 0: TODO: assign weights to various matchers. (fixme)
+W: 51, 0: TODO: Oh, come on, you wrote this? (fixme)
+W: 80, 0: TODO: this is a kludge. This module uses self.comparison_fields, which is a single-dimensional array (fixme)
+C: 18, 0: Line too long (97/80) (line-too-long)
+C: 35, 0: Line too long (153/80) (line-too-long)
+C: 40, 0: Line too long (153/80) (line-too-long)
+C: 46, 0: Line too long (83/80) (line-too-long)
+C: 47, 0: Line too long (84/80) (line-too-long)
+C: 48, 0: Line too long (83/80) (line-too-long)
+C: 53, 0: Line too long (86/80) (line-too-long)
+C: 56, 0: Line too long (136/80) (line-too-long)
+C: 57, 0: Line too long (104/80) (line-too-long)
+C: 58, 0: Line too long (90/80) (line-too-long)
+C: 61, 0: Line too long (169/80) (line-too-long)
+C: 62, 0: Line too long (136/80) (line-too-long)
+C: 71, 0: Line too long (85/80) (line-too-long)
+C: 73, 0: Line too long (93/80) (line-too-long)
+C: 76, 0: Line too long (100/80) (line-too-long)
+C: 80, 0: Line too long (114/80) (line-too-long)
+C: 81, 0: Line too long (121/80) (line-too-long)
+C: 82, 0: Line too long (117/80) (line-too-long)
+C:101, 0: Line too long (175/80) (line-too-long)
+C:125, 0: Line too long (97/80) (line-too-long)
+C:135, 0: Line too long (91/80) (line-too-long)
+C:137, 0: Line too long (84/80) (line-too-long)
+C:140, 0: Line too long (87/80) (line-too-long)
+C:141, 0: Line too long (102/80) (line-too-long)
+C:148, 0: Line too long (87/80) (line-too-long)
+W:153, 0: Bad indentation. Found 20 spaces, expected 16 (bad-indentation)
+C:153, 0: Line too long (83/80) (line-too-long)
+W:154, 0: Bad indentation. Found 24 spaces, expected 20 (bad-indentation)
+C:156, 0: Line too long (117/80) (line-too-long)
+C:156, 0: Exactly one space required after comma
+            self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
+                                        ^ (bad-whitespace)
+C:157, 0: Line too long (119/80) (line-too-long)
+C:159, 0: Line too long (97/80) (line-too-long)
+C:161, 0: Line too long (129/80) (line-too-long)
+C:165, 0: Line too long (95/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  4, 0: Unable to import 'elasticsearch' (import-error)
+W:  6, 0: Relative import 'config', should be 'py.config' (relative-import)
+W:  7, 0: Relative import 'library', should be 'py.library' (relative-import)
+W:  8, 0: Relative import 'ops', should be 'py.ops' (relative-import)
+W:  9, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W: 10, 0: Relative import 'query', should be 'py.query' (relative-import)
+W: 11, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+C: 15, 0: Invalid constant name "pp" (invalid-name)
+C: 17, 0: Missing function docstring (missing-docstring)
+C: 20, 0: Missing class docstring (missing-docstring)
+C: 28, 4: Missing method docstring (missing-docstring)
+W: 28,20: Unused argument 'media' (unused-argument)
+R: 28, 4: Method could be a function (no-self-use)
+C: 33, 4: Missing method docstring (missing-docstring)
+C: 45, 4: Missing method docstring (missing-docstring)
+C: 46,73: More than one statement on a single line (multiple-statements)
+C: 47,74: More than one statement on a single line (multiple-statements)
+C: 48,73: More than one statement on a single line (multiple-statements)
+R: 45, 4: Method could be a function (no-self-use)
+C: 52, 4: Missing method docstring (missing-docstring)
+R: 52, 4: Method could be a function (no-self-use)
+C: 56, 4: Missing method docstring (missing-docstring)
+R: 56, 4: Too many arguments (9/5) (too-many-arguments)
+W: 58,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 60,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 65, 0: Missing class docstring (missing-docstring)
+C: 77,16: Invalid variable name "r" (invalid-name)
+W: 85,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 88, 4: Missing method docstring (missing-docstring)
+C: 95, 8: Invalid variable name "qb" (invalid-name)
+C: 99, 4: Missing method docstring (missing-docstring)
+W:104, 8: Unused variable 'query_printed' (unused-variable)
+C:107, 4: Missing method docstring (missing-docstring)
+W:107,52: Unused argument 'query' (unused-argument)
+W:107,45: Unused argument 'media' (unused-argument)
+W:125, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:148,20: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:134, 8: Unused variable 'matches' (unused-variable)
+C:170, 0: Missing class docstring (missing-docstring)
+W:  3, 0: Unused import sys (unused-import)
+W:  3, 0: Unused import thread (unused-import)
+W:  3, 0: Unused import traceback (unused-import)
+W:  4, 0: Unused import Elasticsearch (unused-import)
+************* Module py.modes
+W:164, 0: TODO: selector should filter comparisons by checking for paths to active modes (fixme)
+W:324, 0: TODO: selector should retain a queue of modes to support a full-fledged rewind() method wherein it verifies viable (fixme)
+W:  9, 0: Unnecessary semicolon (unnecessary-semicolon)
+C: 67, 0: Line too long (124/80) (line-too-long)
+W: 95, 0: Unnecessary semicolon (unnecessary-semicolon)
+C:109, 0: Line too long (83/80) (line-too-long)
+C:115, 0: Line too long (107/80) (line-too-long)
+C:134, 0: Line too long (93/80) (line-too-long)
+C:139, 0: Line too long (101/80) (line-too-long)
+C:140, 0: Line too long (146/80) (line-too-long)
+C:153, 0: Exactly one space required after assignment
+                result =  True
+                       ^ (bad-whitespace)
+C:164, 0: Line too long (88/80) (line-too-long)
+C:166, 0: Line too long (85/80) (line-too-long)
+C:167, 0: Line too long (84/80) (line-too-long)
+C:173, 0: Line too long (99/80) (line-too-long)
+C:182, 0: Line too long (88/80) (line-too-long)
+C:197, 0: Line too long (84/80) (line-too-long)
+C:204, 0: Line too long (110/80) (line-too-long)
+C:212, 0: Line too long (95/80) (line-too-long)
+C:213, 0: Line too long (113/80) (line-too-long)
+C:224, 0: Line too long (95/80) (line-too-long)
+C:225, 0: Line too long (103/80) (line-too-long)
+C:227, 0: Line too long (143/80) (line-too-long)
+C:229, 0: Line too long (90/80) (line-too-long)
+C:271, 0: Line too long (86/80) (line-too-long)
+C:296, 0: Line too long (99/80) (line-too-long)
+C:324, 0: Line too long (136/80) (line-too-long)
+C:325, 0: Line too long (122/80) (line-too-long)
+C:326, 0: Line too long (91/80) (line-too-long)
+C:327, 0: Line too long (159/80) (line-too-long)
+C:332, 0: Line too long (129/80) (line-too-long)
+C:361, 0: Line too long (87/80) (line-too-long)
+C:363, 0: Line too long (126/80) (line-too-long)
+C:364, 0: Line too long (128/80) (line-too-long)
+C:392, 0: Line too long (125/80) (line-too-long)
+C:395, 0: Line too long (82/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  4, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+C:  8, 0: Missing class docstring (missing-docstring)
+R:  8, 0: Too many instance attributes (15/7) (too-many-instance-attributes)
+C: 35, 4: Missing method docstring (missing-docstring)
+C: 38, 4: Missing method docstring (missing-docstring)
+C: 40,30: More than one statement on a single line (multiple-statements)
+C: 49, 0: Missing class docstring (missing-docstring)
+C: 49, 0: Old-style class defined. (old-style-class)
+R: 50, 4: Too many arguments (7/5) (too-many-arguments)
+C: 62, 4: Missing method docstring (missing-docstring)
+W: 66,15: Catching too general exception Exception (broad-except)
+W: 67,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+R: 49, 0: Too few public methods (1/2) (too-few-public-methods)
+C: 70, 0: Missing class docstring (missing-docstring)
+R: 70, 0: Too many instance attributes (19/7) (too-many-instance-attributes)
+C: 70, 0: Old-style class defined. (old-style-class)
+C:109, 4: Missing method docstring (missing-docstring)
+R:109, 4: Too many arguments (7/5) (too-many-arguments)
+C:113, 4: Missing method docstring (missing-docstring)
+C:118, 4: Missing method docstring (missing-docstring)
+C:125, 4: Missing method docstring (missing-docstring)
+C:133, 4: Missing method docstring (missing-docstring)
+W:134, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:140,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:149, 4: Missing method docstring (missing-docstring)
+C:159, 4: Missing method docstring (missing-docstring)
+C:166,73: More than one statement on a single line (multiple-statements)
+C:167,72: More than one statement on a single line (multiple-statements)
+W:162, 8: Unused variable 'lower' (unused-variable)
+W:160, 8: Unused variable 'compval' (unused-variable)
+W:161, 8: Unused variable 'higher' (unused-variable)
+C:169, 4: Missing method docstring (missing-docstring)
+C:179,44: More than one statement on a single line (multiple-statements)
+W:182,16: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:187, 4: Missing method docstring (missing-docstring)
+C:206, 4: Missing method docstring (missing-docstring)
+C:208,33: More than one statement on a single line (multiple-statements)
+W:214,19: Catching too general exception Exception (broad-except)
+E:211,28: Instance of 'Selector' has no '_parse_func_info' member (no-member)
+W:213,16: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:219, 4: Missing method docstring (missing-docstring)
+C:221,33: More than one statement on a single line (multiple-statements)
+W:228,19: Catching too general exception Exception (broad-except)
+E:226,28: Instance of 'Selector' has no '_parse_func_info' member (no-member)
+W:227,16: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:228,30: Unused variable 'logging_error' (unused-variable)
+C:232, 4: Missing method docstring (missing-docstring)
+C:241, 4: Missing method docstring (missing-docstring)
+W:241,27: Unused argument 'rewind' (unused-argument)
+C:274, 4: Missing method docstring (missing-docstring)
+C:280, 0: Missing class docstring (missing-docstring)
+C:280, 0: Old-style class defined. (old-style-class)
+W:281,53: Unused argument 'times_to_fail' (unused-argument)
+C:290, 4: Missing method docstring (missing-docstring)
+E:290, 4: An attribute affected in py.modes line 283 hide this method (method-hidden)
+W:294,15: Catching too general exception Exception (broad-except)
+W:296,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+R:280, 0: Too few public methods (1/2) (too-few-public-methods)
+C:301, 0: Missing class docstring (missing-docstring)
+C:301, 0: Old-style class defined. (old-style-class)
+C:309, 4: Missing method docstring (missing-docstring)
+C:314, 4: Missing method docstring (missing-docstring)
+W:327,24: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:332,20: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:345, 4: Missing method docstring (missing-docstring)
+C:355, 4: Missing method docstring (missing-docstring)
+W:356, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:358, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:360,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:361,32: More than one statement on a single line (multiple-statements)
+W:361,32: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:363,12: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:370, 4: Missing method docstring (missing-docstring)
+C:378, 4: Missing method docstring (missing-docstring)
+C:387, 0: Missing function docstring (missing-docstring)
+C:388,21: More than one statement on a single line (multiple-statements)
+W:394,11: Catching too general exception Exception (broad-except)
+W:  2, 0: Unused import sys (unused-import)
+W:  2, 0: Unused import traceback (unused-import)
+W:  2, 0: Unused import os (unused-import)
+************* Module py.move
+C:  5, 0: Final newline missing (missing-final-newline)
+C:  5, 0: Line too long (104/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Unused import sys (unused-import)
+W:  3, 0: Unused import os (unused-import)
+************* Module py.ops
+W:100, 0: TODO: add params to this query (index_name, date range, etc) (fixme)
+W:144, 0: TODO: test the path to determine whether it is a file or a  (fixme)
+C: 17, 0: Line too long (119/80) (line-too-long)
+C: 25, 0: Line too long (126/80) (line-too-long)
+C: 25, 0: No space allowed before bracket
+        cache2.set_hash2(key, {'persisted': True, 'operation_name': row[0], 'operator_name':  row[1], 'target_path': row[2] })
+                                                                                                                            ^ (bad-whitespace)
+C: 34, 0: Line too long (121/80) (line-too-long)
+C: 35, 0: Line too long (121/80) (line-too-long)
+C: 38, 0: Line too long (102/80) (line-too-long)
+C: 46, 0: Line too long (102/80) (line-too-long)
+C: 51, 0: Line too long (106/80) (line-too-long)
+C: 52, 0: Line too long (91/80) (line-too-long)
+C: 53, 0: Line too long (109/80) (line-too-long)
+C: 53, 0: No space allowed after bracket
+    values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
+             ^ (bad-whitespace)
+C: 54, 0: Line too long (103/80) (line-too-long)
+C: 55, 0: Line too long (95/80) (line-too-long)
+C: 55, 0: No space allowed before bracket
+        'target_path': asset.absolute_path, 'index_name': config.es_index, 'status': "ACTIVE" }
+                                                                                              ^ (bad-whitespace)
+C: 67, 0: Line too long (129/80) (line-too-long)
+C: 69, 0: Line too long (88/80) (line-too-long)
+C: 87, 0: Line too long (109/80) (line-too-long)
+C: 89, 0: Line too long (119/80) (line-too-long)
+C: 92, 0: Line too long (87/80) (line-too-long)
+C: 94, 0: Line too long (106/80) (line-too-long)
+C:107, 0: Line too long (93/80) (line-too-long)
+C:111, 0: Trailing whitespace (trailing-whitespace)
+C:114, 0: Trailing whitespace (trailing-whitespace)
+C:116, 0: Line too long (83/80) (line-too-long)
+C:117, 0: Trailing whitespace (trailing-whitespace)
+C:119, 0: Trailing whitespace (trailing-whitespace)
+C:124, 0: Trailing whitespace (trailing-whitespace)
+C:130, 0: Trailing whitespace (trailing-whitespace)
+C:131, 0: Line too long (83/80) (line-too-long)
+C:132, 0: Trailing whitespace (trailing-whitespace)
+C:138, 0: Line too long (156/80) (line-too-long)
+C:139, 0: Line too long (133/80) (line-too-long)
+C:144, 0: Trailing whitespace (trailing-whitespace)
+C:145, 0: Line too long (113/80) (line-too-long)
+C:146, 0: Line too long (123/80) (line-too-long)
+C:149, 0: Line too long (87/80) (line-too-long)
+C:154, 0: Line too long (122/80) (line-too-long)
+C:159, 0: Line too long (118/80) (line-too-long)
+C:164, 0: Exactly one space required before comparison
+    if opcount is not None and opcount % config.status_check_freq!= 0: return
+                                                                 ^^ (bad-whitespace)
+C:184, 0: Line too long (120/80) (line-too-long)
+C:184, 0: No space allowed after bracket
+    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
+             ^ (bad-whitespace)
+C:184, 0: No space allowed before bracket
+    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
+                                                                                                                       ^ (bad-whitespace)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  6, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W:  7, 0: Relative import 'config', should be 'py.config' (relative-import)
+W:  8, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W:  9, 0: Relative import 'start', should be 'py.start' (relative-import)
+W: 10, 0: Relative import 'alchemy', should be 'py.alchemy' (relative-import)
+C: 21, 0: Missing function docstring (missing-docstring)
+C: 28, 0: Missing function docstring (missing-docstring)
+C: 33, 0: Missing function docstring (missing-docstring)
+W: 34, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 38, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+E: 38,72: Undefined variable 'path' (undefined-variable)
+C: 42, 0: Missing function docstring (missing-docstring)
+W: 46, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 50, 0: Missing function docstring (missing-docstring)
+W: 51, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 66, 0: Missing function docstring (missing-docstring)
+W: 67, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 85, 8: Redefining name 'start' from outer scope (line 9) (redefined-outer-name)
+C: 83, 0: Missing function docstring (missing-docstring)
+C: 97, 0: Missing function docstring (missing-docstring)
+W:103,11: Catching too general exception Exception (broad-except)
+C:107, 0: Missing function docstring (missing-docstring)
+C:128,50: More than one statement on a single line (multiple-statements)
+W:107,56: Unused argument 'this_pid_only' (unused-argument)
+W:111, 4: Unused variable 'table_name' (unused-variable)
+C:152, 0: Missing function docstring (missing-docstring)
+C:157, 0: Missing function docstring (missing-docstring)
+C:162, 0: Missing function docstring (missing-docstring)
+C:164,71: More than one statement on a single line (multiple-statements)
+E:167, 8: No value passed for parameter 'args' in function call (no-value-for-parameter)
+C:177, 0: Missing function docstring (missing-docstring)
+C:183, 0: Missing function docstring (missing-docstring)
+************* Module py.ops_test
+C:  1, 0: Missing module docstring (missing-docstring)
+************* Module py.pathutil
+W:  9, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:141, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:146, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:159, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:177, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:184, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:193, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:198, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:203, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:212, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+W:217, 0: TODO: Offline mode - query MariaDB and ES before looking at the file system (fixme)
+C: 20, 0: Line too long (108/80) (line-too-long)
+C: 71, 0: Line too long (84/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  3, 0: Unable to import 'redis' (import-error)
+W:  5, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W: 10, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 11, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+C: 16, 0: Missing function docstring (missing-docstring)
+W: 19, 8: Unused variable 'key' (unused-variable)
+C: 26, 0: Missing function docstring (missing-docstring)
+C: 33, 0: Missing function docstring (missing-docstring)
+W: 37, 8: Unused variable 'key' (unused-variable)
+C: 44, 0: Missing function docstring (missing-docstring)
+W: 48, 8: Unused variable 'key' (unused-variable)
+C: 55, 0: Missing function docstring (missing-docstring)
+W: 59, 8: Unused variable 'key' (unused-variable)
+C: 66, 0: Missing function docstring (missing-docstring)
+W: 70, 8: Unused variable 'key' (unused-variable)
+C: 77, 0: Missing function docstring (missing-docstring)
+W: 77,15: Unused argument 'self' (unused-argument)
+C: 83, 0: Missing function docstring (missing-docstring)
+C: 85, 8: Invalid variable name "f" (invalid-name)
+C: 89, 0: Missing function docstring (missing-docstring)
+C: 91, 8: Invalid variable name "f" (invalid-name)
+C: 96, 0: Missing function docstring (missing-docstring)
+C:100, 0: Missing function docstring (missing-docstring)
+C:104, 0: Missing function docstring (missing-docstring)
+C:108, 0: Missing function docstring (missing-docstring)
+C:110, 8: Invalid variable name "f" (invalid-name)
+C:115, 0: Missing function docstring (missing-docstring)
+C:119, 0: Missing function docstring (missing-docstring)
+C:123, 0: Missing function docstring (missing-docstring)
+C:127, 0: Missing function docstring (missing-docstring)
+W:127,15: Unused argument 'path' (unused-argument)
+C:131, 0: Missing function docstring (missing-docstring)
+C:137, 0: Missing function docstring (missing-docstring)
+W:137,36: Unused argument 'path' (unused-argument)
+C:142, 0: Invalid function name "path_contains_document_categories" (invalid-name)
+C:142, 0: Missing function docstring (missing-docstring)
+W:142,38: Unused argument 'path' (unused-argument)
+C:147, 0: Missing function docstring (missing-docstring)
+C:150,12: Invalid variable name "f" (invalid-name)
+W:147,43: Unused argument 'recursive' (unused-argument)
+C:160, 0: Missing function docstring (missing-docstring)
+C:165,12: Invalid variable name "f" (invalid-name)
+C:178, 0: Missing function docstring (missing-docstring)
+W:178,33: Unused argument 'names' (unused-argument)
+C:185, 0: Missing function docstring (missing-docstring)
+C:194, 0: Missing function docstring (missing-docstring)
+W:194,30: Unused argument 'path' (unused-argument)
+C:199, 0: Missing function docstring (missing-docstring)
+W:199,31: Unused argument 'path' (unused-argument)
+C:204, 0: Missing function docstring (missing-docstring)
+C:213, 0: Missing function docstring (missing-docstring)
+W:213,30: Unused argument 'path' (unused-argument)
+C:218, 0: Missing function docstring (missing-docstring)
+W:218,31: Unused argument 'path' (unused-argument)
+W:231, 4: Redefining built-in 'list' (redefined-builtin)
+C:222, 0: Missing function docstring (missing-docstring)
+W:226, 8: Unused variable 'lkey' (unused-variable)
+C:235, 0: Missing function docstring (missing-docstring)
+************* Module py.query
+W: 54, 0: TODO: add options to simple query (fixme)
+W: 96, 0: TODO: learn how to concatenate (builder variable) (fixme)
+C: 21, 0: Line too long (84/80) (line-too-long)
+C: 36, 0: Line too long (86/80) (line-too-long)
+C: 47, 0: Line too long (91/80) (line-too-long)
+C: 48, 0: Line too long (110/80) (line-too-long)
+C: 88, 0: No space allowed after bracket
+                term = { "match" : { fname  : param }}
+                       ^ (bad-whitespace)
+C: 88, 0: No space allowed after bracket
+                term = { "match" : { fname  : param }}
+                                   ^ (bad-whitespace)
+C: 88, 0: No space allowed before bracket
+                term = { "match" : { fname  : param }}
+                                                    ^ (bad-whitespace)
+C: 90, 0: Line too long (107/80) (line-too-long)
+C: 93, 0: No space allowed after bracket
+        return { 'query' : { 'bool' : { 'should' : termset }}}
+               ^ (bad-whitespace)
+C: 93, 0: No space allowed after bracket
+        return { 'query' : { 'bool' : { 'should' : termset }}}
+                           ^ (bad-whitespace)
+C: 93, 0: No space allowed after bracket
+        return { 'query' : { 'bool' : { 'should' : termset }}}
+                                      ^ (bad-whitespace)
+C: 93, 0: No space allowed before bracket
+        return { 'query' : { 'bool' : { 'should' : termset }}}
+                                                           ^ (bad-whitespace)
+C:104, 0: No space allowed after bracket
+                    term = { "term" : { fname : { "value" : param }}}
+                           ^ (bad-whitespace)
+C:104, 0: No space allowed after bracket
+                    term = { "term" : { fname : { "value" : param }}}
+                                      ^ (bad-whitespace)
+C:104, 0: No space allowed after bracket
+                    term = { "term" : { fname : { "value" : param }}}
+                                                ^ (bad-whitespace)
+C:104, 0: No space allowed before bracket
+                    term = { "term" : { fname : { "value" : param }}}
+                                                                  ^ (bad-whitespace)
+C:107, 0: Line too long (104/80) (line-too-long)
+C:107, 0: No space allowed after bracket
+                    term = { "term" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
+                           ^ (bad-whitespace)
+C:107, 0: No space allowed after bracket
+                    term = { "term" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
+                                      ^ (bad-whitespace)
+C:107, 0: No space allowed after bracket
+                    term = { "term" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
+                                                ^ (bad-whitespace)
+C:107, 0: No space allowed before bracket
+                    term = { "term" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
+                                                                                                     ^ (bad-whitespace)
+C:111, 0: No space allowed after bracket
+        return { 'query' : { 'bool' : { 'should' : termset }}}
+               ^ (bad-whitespace)
+C:111, 0: No space allowed after bracket
+        return { 'query' : { 'bool' : { 'should' : termset }}}
+                           ^ (bad-whitespace)
+C:111, 0: No space allowed after bracket
+        return { 'query' : { 'bool' : { 'should' : termset }}}
+                                      ^ (bad-whitespace)
+C:111, 0: No space allowed before bracket
+        return { 'query' : { 'bool' : { 'should' : termset }}}
+                                                           ^ (bad-whitespace)
+C:117, 0: No space allowed after bracket
+            term = { 'match' : { fname : param }}
+                   ^ (bad-whitespace)
+C:117, 0: No space allowed after bracket
+            term = { 'match' : { fname : param }}
+                               ^ (bad-whitespace)
+C:117, 0: No space allowed before bracket
+            term = { 'match' : { fname : param }}
+                                               ^ (bad-whitespace)
+C:119, 0: No space allowed after bracket
+            return { 'query' : term }
+                   ^ (bad-whitespace)
+C:119, 0: No space allowed before bracket
+            return { 'query' : term }
+                                    ^ (bad-whitespace)
+C:125, 0: No space allowed after bracket
+            term = { 'term' : { fname : param }}
+                   ^ (bad-whitespace)
+C:125, 0: No space allowed after bracket
+            term = { 'term' : { fname : param }}
+                              ^ (bad-whitespace)
+C:125, 0: No space allowed before bracket
+            term = { 'term' : { fname : param }}
+                                              ^ (bad-whitespace)
+C:127, 0: No space allowed after bracket
+            return { 'query' : term }
+                   ^ (bad-whitespace)
+C:127, 0: No space allowed before bracket
+            return { 'query' : term }
+                                    ^ (bad-whitespace)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  4, 0: Unable to import 'elasticsearch' (import-error)
+W:  5, 0: Relative import 'config', should be 'py.config' (relative-import)
+W:  5, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+C:  7, 0: Invalid constant name "pp" (invalid-name)
+C:  9, 0: Missing class docstring (missing-docstring)
+C:  9, 0: Old-style class defined. (old-style-class)
+C: 14, 4: Missing method docstring (missing-docstring)
+E: 17,16: No value passed for parameter 'values' in function call (no-value-for-parameter)
+C: 20, 8: Invalid variable name "es" (invalid-name)
+C: 45, 4: Missing method docstring (missing-docstring)
+C: 81, 4: Missing method docstring (missing-docstring)
+W: 81,50: Unused argument 'options' (unused-argument)
+R: 81, 4: Method could be a function (no-self-use)
+C: 97, 4: Missing method docstring (missing-docstring)
+R: 97, 4: Method could be a function (no-self-use)
+C:114, 4: Missing method docstring (missing-docstring)
+R:114, 4: Method could be a function (no-self-use)
+C:122, 4: Missing method docstring (missing-docstring)
+R:122, 4: Method could be a function (no-self-use)
+C:132, 4: Missing method docstring (missing-docstring)
+C:139, 4: Missing method docstring (missing-docstring)
+C:151, 4: Missing method docstring (missing-docstring)
+W:  3, 0: Unused import sys (unused-import)
+W:  3, 0: Unused import json (unused-import)
+W:  5, 0: Unused import sql (unused-import)
+W:  3, 0: Unused import os (unused-import)
+************* Module py.read
+W: 25, 0: TODO: use 'x2' functions instead of screwing around with cache2's  internal behavior' (fixme)
+W:243, 0: XXX": (fixme)
+W:244, 0: XXX'): (fixme)
+W:250, 0: XXX'): (fixme)
+W:251, 0: XXX', key) (fixme)
+C: 25, 0: Line too long (86/80) (line-too-long)
+C: 28, 0: Line too long (104/80) (line-too-long)
+C: 37, 0: No space allowed after bracket
+    cache2.delete_key( key)
+                     ^ (bad-whitespace)
+C: 43, 0: Line too long (136/80) (line-too-long)
+C: 52, 0: Line too long (116/80) (line-too-long)
+C: 72, 0: Line too long (100/80) (line-too-long)
+C: 82, 0: Line too long (83/80) (line-too-long)
+C: 83, 0: Line too long (104/80) (line-too-long)
+C: 84, 0: Line too long (96/80) (line-too-long)
+C: 85, 0: Line too long (98/80) (line-too-long)
+C:104, 0: Line too long (141/80) (line-too-long)
+C:112, 0: Line too long (114/80) (line-too-long)
+C:112, 0: No space allowed after bracket
+        error_data = { 'reader:': self.name, 'error': exception.__class__.__name__, 'details': exception.message }
+                     ^ (bad-whitespace)
+C:112, 0: No space allowed before bracket
+        error_data = { 'reader:': self.name, 'error': exception.__class__.__name__, 'details': exception.message }
+                                                                                                                 ^ (bad-whitespace)
+C:113, 0: Trailing whitespace (trailing-whitespace)
+C:127, 0: Line too long (106/80) (line-too-long)
+C:162, 0: Line too long (83/80) (line-too-long)
+C:181, 0: Trailing whitespace (trailing-whitespace)
+C:200, 0: Trailing whitespace (trailing-whitespace)
+C:232, 0: Line too long (90/80) (line-too-long)
+C:232, 0: Exactly one space required after comma
+        tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
+                           ^ (bad-whitespace)
+C:247, 0: Exactly one space required around assignment
+                        subkey=subtags[0].replace(' ', '_').upper()
+                              ^ (bad-whitespace)
+C:249, 0: Trailing whitespace (trailing-whitespace)
+W:254, 0: Bad indentation. Found 20 spaces, expected 16 (bad-indentation)
+C:273, 0: Trailing whitespace (trailing-whitespace)
+C:277, 0: Line too long (88/80) (line-too-long)
+C:285, 0: Line too long (98/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  9, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W: 10, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 11, 0: Relative import 'library', should be 'py.library' (relative-import)
+W: 12, 0: Relative import 'ops', should be 'py.ops' (relative-import)
+W: 13, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W: 15, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+C: 26, 0: Missing function docstring (missing-docstring)
+C: 27,45: More than one statement on a single line (multiple-statements)
+E: 35,25: Undefined variable 'keygroup' (undefined-variable)
+C: 39, 0: Missing function docstring (missing-docstring)
+W: 42, 8: Unused variable 'key' (unused-variable)
+C: 49, 0: Missing function docstring (missing-docstring)
+W: 51, 8: Unused variable 'key' (unused-variable)
+C: 58, 0: Missing class docstring (missing-docstring)
+C: 58, 0: Old-style class defined. (old-style-class)
+C: 62, 4: Missing method docstring (missing-docstring)
+C: 71, 4: Missing method docstring (missing-docstring)
+C: 80, 4: Missing method docstring (missing-docstring)
+W: 85,24: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 88,31: Catching too general exception Exception (broad-except)
+C: 91, 4: Missing method docstring (missing-docstring)
+R: 91, 4: Method could be a function (no-self-use)
+C: 95, 0: Missing class docstring (missing-docstring)
+C:100, 4: Missing method docstring (missing-docstring)
+W:100,33: Unused argument 'data' (unused-argument)
+W:100,26: Unused argument 'asset' (unused-argument)
+R:100, 4: Method could be a function (no-self-use)
+R: 95, 0: Too few public methods (1/2) (too-few-public-methods)
+C:107, 0: Missing class docstring (missing-docstring)
+C:111, 4: Missing method docstring (missing-docstring)
+C:165, 4: Missing method docstring (missing-docstring)
+W:165,31: Unused argument 'data' (unused-argument)
+W:165,24: Unused argument 'asset' (unused-argument)
+R:165, 4: Method could be a function (no-self-use)
+C:169, 0: Missing class docstring (missing-docstring)
+C:177,30: More than one statement on a single line (multiple-statements)
+C:191, 0: Missing class docstring (missing-docstring)
+C:199,29: More than one statement on a single line (multiple-statements)
+C:225, 0: Missing class docstring (missing-docstring)
+C:235,29: More than one statement on a single line (multiple-statements)
+C:259, 0: Missing class docstring (missing-docstring)
+C:283, 0: Missing class docstring (missing-docstring)
+R:283, 0: Too few public methods (1/2) (too-few-public-methods)
+C:295, 8: Invalid attribute name "DELIM" (invalid-name)
+C:292, 0: Missing class docstring (missing-docstring)
+E:294, 8: Bad first argument 'GenericText' given to super() (bad-super-call)
+R:292, 0: Too few public methods (1/2) (too-few-public-methods)
+W:  3, 0: Unused import json (unused-import)
+W: 15, 0: Unused import ElasticSearchError (unused-import)
+W:  3, 0: Unused import sys (unused-import)
+W:  3, 0: Unused import traceback (unused-import)
+W:  6, 0: Unused import APEUnsupportedVersionError (unused-import)
+************* Module py.repair
+C: 15, 0: Line too long (101/80) (line-too-long)
+C: 15, 0: Exactly one space required before assignment
+    rows  = sql.retrieve_values('problem_esid', ['distinct esid', 'index_name', 'document_type'], [])
+          ^ (bad-whitespace)
+C: 22, 0: Exactly one space required after comma
+            es.delete(index=row[1],doc_type=row[2],id=row[0])
+                                  ^ (bad-whitespace)
+C: 22, 0: Exactly one space required after comma
+            es.delete(index=row[1],doc_type=row[2],id=row[0])
+                                                  ^ (bad-whitespace)
+C: 27, 0: No space allowed after bracket
+def delete_docs_for_path( indexname, doctype, path):
+                        ^ (bad-whitespace)
+C: 28, 0: Line too long (152/80) (line-too-long)
+C: 31, 0: Exactly one space required after comma
+        res = config.es.delete(index=indexname,doc_type=doctype,id=esid)
+                                              ^ (bad-whitespace)
+C: 31, 0: Exactly one space required after comma
+        res = config.es.delete(index=indexname,doc_type=doctype,id=esid)
+                                                               ^ (bad-whitespace)
+C: 33, 0: Line too long (82/80) (line-too-long)
+C: 39, 0: Line too long (95/80) (line-too-long)
+C: 53, 0: Line too long (86/80) (line-too-long)
+C: 55, 0: Line too long (97/80) (line-too-long)
+C: 59, 0: Line too long (93/80) (line-too-long)
+C: 61, 0: Line too long (100/80) (line-too-long)
+C: 63, 0: Line too long (96/80) (line-too-long)
+C: 67, 0: Line too long (92/80) (line-too-long)
+C: 67, 0: Exactly one space required after comma
+                    config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
+                                                          ^ (bad-whitespace)
+C: 67, 0: Exactly one space required after comma
+                    config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
+                                                                                   ^ (bad-whitespace)
+C: 69, 0: Line too long (94/80) (line-too-long)
+C: 74, 0: Line too long (87/80) (line-too-long)
+C: 90, 0: Line too long (84/80) (line-too-long)
+C:102, 0: Line too long (94/80) (line-too-long)
+C:112, 0: Line too long (115/80) (line-too-long)
+C:122, 0: Line too long (169/80) (line-too-long)
+C:128, 0: Line too long (167/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Relative import 'config', should be 'py.config' (relative-import)
+F:  3, 0: Unable to import 'cache' (import-error)
+W:  3, 0: Relative import 'start', should be 'py.start' (relative-import)
+W:  3, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W:  3, 0: Relative import 'ops', should be 'py.ops' (relative-import)
+W:  3, 0: Relative import 'search', should be 'py.search' (relative-import)
+W:  5, 0: Relative import 'assets', should be 'py.assets' (relative-import)
+W:  7, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+C: 12, 0: Missing function docstring (missing-docstring)
+C: 18, 4: Invalid variable name "es" (invalid-name)
+W: 23,15: Catching too general exception Exception (broad-except)
+W: 14, 4: Unused variable 'data' (unused-variable)
+C: 27, 0: Missing function docstring (missing-docstring)
+C: 29, 8: Invalid variable name "r" (invalid-name)
+C: 36, 0: Missing function docstring (missing-docstring)
+C: 47, 8: Invalid variable name "a" (invalid-name)
+W: 68,23: Catching too general exception Exception (broad-except)
+C: 72, 0: Missing function docstring (missing-docstring)
+C: 75, 8: Invalid variable name "r" (invalid-name)
+W:  1, 0: Unused import traceback (unused-import)
+W:  1, 0: Unused import sys (unused-import)
+W:  1, 0: Unused import os (unused-import)
+W:  3, 0: Unused import cache (unused-import)
+W:  3, 0: Unused import start (unused-import)
+W:  7, 0: Unused import AssetException (unused-import)
+************* Module py.report
+W:215, 0: TODO: file post-process based on mediaDIRECTORY properties (fixme)
+C:  4, 0: Line too long (92/80) (line-too-long)
+C: 54, 0: Line too long (84/80) (line-too-long)
+C: 81, 0: Line too long (98/80) (line-too-long)
+C: 89, 0: Line too long (97/80) (line-too-long)
+C: 96, 0: Line too long (130/80) (line-too-long)
+C: 96, 0: No space allowed after keyword argument assignment
+def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generate= False, outputfile=None, append_existing=False):
+                                                                                 ^ (bad-whitespace)
+W:100, 0: Unnecessary semicolon (unnecessary-semicolon)
+W:101, 0: Unnecessary semicolon (unnecessary-semicolon)
+C:103, 0: No space allowed after bracket
+        all_data = { PATTERN: source_path}
+                   ^ (bad-whitespace)
+C:106, 0: No space allowed after bracket
+        records = { }
+                  ^ (bad-whitespace)
+C:106, 0: No space allowed before bracket
+        records = { }
+                    ^ (bad-whitespace)
+C:112, 0: Line too long (94/80) (line-too-long)
+C:112, 0: No space allowed after bracket
+            directory_data = { DIRECTORY: [1], DIRECTORY_ESID: [0], RESULTS: {FILE_LIST: []} }
+                             ^ (bad-whitespace)
+C:112, 0: No space allowed before bracket
+            directory_data = { DIRECTORY: [1], DIRECTORY_ESID: [0], RESULTS: {FILE_LIST: []} }
+                                                                                             ^ (bad-whitespace)
+C:118, 0: Line too long (127/80) (line-too-long)
+C:118, 0: No space allowed after bracket
+                file_data = { FILE_ESID: media[0], FILE: media[1].split(os.path.sep)[-1], DIRECTORY: directory_data[DIRECTORY],
+                            ^ (bad-whitespace)
+C:119, 0: Line too long (141/80) (line-too-long)
+C:119, 0: No space allowed before bracket
+                                MATCHES: [], WEIGHT: calculate_weight(media[1], weights), DISCOUNT: calculate_discount(media[1], discounts) }
+                                                                                                                                            ^ (bad-whitespace)
+C:127, 0: Line too long (85/80) (line-too-long)
+C:128, 0: Line too long (180/80) (line-too-long)
+C:128, 0: No space allowed after bracket
+                    match_data = { MATCH_DIRECTORY: match_parent, 'matcher': match[0], MATCH_SCORE: match[1], MATCH_ESID: match[2], MATCH_FILENAME: match[3].split(os.path.sep)[-1],
+                                 ^ (bad-whitespace)
+C:129, 0: Line too long (133/80) (line-too-long)
+C:129, 0: No space allowed before bracket
+                        WEIGHT: calculate_weight(match[3], weights), DISCOUNT: calculate_discount(match[3], discounts), '_notes':'' }
+                                                                                                                                    ^ (bad-whitespace)
+C:137, 0: Line too long (84/80) (line-too-long)
+C:137, 0: No space allowed before bracket
+                        parent_data[match_parent] = {MATCH_DIRECTORY: match_parent }
+                                                                                   ^ (bad-whitespace)
+C:161, 0: Line too long (82/80) (line-too-long)
+C:164, 0: Line too long (121/80) (line-too-long)
+C:164, 0: No space allowed after bracket
+    return { '_path': path, 'files': [], 'matches': [], 'discount': 0, 'weight': 0, 'delete': 0, 'keep': 0, 'promote': 0,
+           ^ (bad-whitespace)
+C:165, 0: No space allowed before bracket
+        'ignore': 0, 'total_match_score': 0, 'match_counter': 0 }
+                                                                ^ (bad-whitespace)
+C:187, 0: Line too long (90/80) (line-too-long)
+C:207, 0: Line too long (90/80) (line-too-long)
+C:225, 0: Line too long (103/80) (line-too-long)
+C:228, 0: Line too long (107/80) (line-too-long)
+C:231, 0: Line too long (108/80) (line-too-long)
+C:231, 0: Exactly one space required before comparison
+                    if matched_file[MATCH_SCORE] + matched_file[WEIGHT] - matched_file[DISCOUNT]  < average:
+                                                                                                  ^ (bad-whitespace)
+C:241, 0: Line too long (94/80) (line-too-long)
+C:260, 0: Line too long (107/80) (line-too-long)
+C:266, 0: Line too long (152/80) (line-too-long)
+C:269, 0: No space allowed before bracket
+                         """ % (config.es_index, esid) }
+                                                       ^ (bad-whitespace)
+C:272, 0: Line too long (153/80) (line-too-long)
+C:292, 0: Line too long (131/80) (line-too-long)
+C:292, 0: No space allowed before bracket
+                            and es.id IN (SELECT doc_id FROM matched) ORDER BY es.absolute_path""" % (config.es_index, path, '%') }
+                                                                                                                                  ^ (bad-whitespace)
+C:297, 0: Line too long (127/80) (line-too-long)
+C:319, 0: Line too long (114/80) (line-too-long)
+C:323, 0: Line too long (119/80) (line-too-long)
+C:327, 0: Line too long (134/80) (line-too-long)
+C:327, 0: No space allowed after bracket
+        meta_data = { 'encoding': 'ID3v2' if len(tag_data) > 0 else doc['_source']['file_ext'], 'format': doc['_source']['file_ext'] }
+                    ^ (bad-whitespace)
+C:327, 0: No space allowed before bracket
+        meta_data = { 'encoding': 'ID3v2' if len(tag_data) > 0 else doc['_source']['file_ext'], 'format': doc['_source']['file_ext'] }
+                                                                                                                                     ^ (bad-whitespace)
+C:339, 0: Line too long (103/80) (line-too-long)
+C:411, 0: Line too long (85/80) (line-too-long)
+C:414, 0: Line too long (87/80) (line-too-long)
+F: 17, 0: Unable to import 'docopt' (import-error)
+W: 19, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 20, 0: Relative import 'read', should be 'py.read' (relative-import)
+W: 21, 0: Relative import 'search', should be 'py.search' (relative-import)
+W: 22, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W: 23, 0: Relative import 'start', should be 'py.start' (relative-import)
+W: 24, 0: Relative import 'assets', should be 'py.assets' (relative-import)
+W: 25, 0: Relative import 'util', should be 'py.util' (relative-import)
+C: 27, 0: Invalid constant name "pp" (invalid-name)
+C: 52, 0: Missing function docstring (missing-docstring)
+C: 56, 0: Missing function docstring (missing-docstring)
+W: 66,15: Catching too general exception Exception (broad-except)
+C: 71, 0: Missing function docstring (missing-docstring)
+C: 79, 0: Missing function docstring (missing-docstring)
+C: 87, 0: Missing function docstring (missing-docstring)
+C: 96, 0: Missing function docstring (missing-docstring)
+R: 96, 0: Too many arguments (6/5) (too-many-arguments)
+R: 96, 0: Too many local variables (27/15) (too-many-locals)
+W:160,11: Catching too general exception Exception (broad-except)
+C: 98, 8: Invalid variable name "es" (invalid-name)
+E:161, 8: Undefined variable 'LOG' (undefined-variable)
+W:117,16: Unused variable 'match__data' (unused-variable)
+C:163, 0: Missing function docstring (missing-docstring)
+C:167, 0: Missing function docstring (missing-docstring)
+C:178,46: More than one statement on a single line (multiple-statements)
+C:179,45: More than one statement on a single line (multiple-statements)
+C:180,43: More than one statement on a single line (multiple-statements)
+C:181,45: More than one statement on a single line (multiple-statements)
+C:195,42: More than one statement on a single line (multiple-statements)
+C:196,43: More than one statement on a single line (multiple-statements)
+C:197,42: More than one statement on a single line (multiple-statements)
+C:198,40: More than one statement on a single line (multiple-statements)
+R:167, 0: Too many branches (13/12) (too-many-branches)
+W:213, 8: Redefining name 'average' from outer scope (line 383) (redefined-outer-name)
+W:236,33: Redefining name 'FILES_IGNORED' from outer scope (line 36) (redefined-outer-name)
+C:210, 0: Missing function docstring (missing-docstring)
+W:236,32: Possible unbalanced tuple unpacking with sequence []: left side has 1 label(s), right side has 0 value(s) (unbalanced-tuple-unpacking)
+C:236,33: Invalid variable name "FILES_IGNORED" (invalid-name)
+W:212, 8: Unused variable 'result' (unused-variable)
+R:210, 0: Too many branches (15/12) (too-many-branches)
+C:255, 0: Missing function docstring (missing-docstring)
+C:258, 4: Invalid variable name "q" (invalid-name)
+C:264, 0: Missing function docstring (missing-docstring)
+C:281,16: More than one statement on a single line (multiple-statements)
+C:282,16: More than one statement on a single line (multiple-statements)
+C:285, 0: Missing function docstring (missing-docstring)
+C:301,16: More than one statement on a single line (multiple-statements)
+C:302,16: More than one statement on a single line (multiple-statements)
+C:306, 0: Invalid argument name "es" (invalid-name)
+C:306, 0: Missing function docstring (missing-docstring)
+W:331,11: Catching too general exception Exception (broad-except)
+W:306,24: Unused argument 'es' (unused-argument)
+C:336, 0: Missing function docstring (missing-docstring)
+C:339, 4: Invalid variable name "q" (invalid-name)
+W:368,19: Catching too general exception Exception (broad-except)
+C:372, 0: Missing function docstring (missing-docstring)
+C:383, 0: Missing function docstring (missing-docstring)
+C:390, 0: Missing function docstring (missing-docstring)
+W:402,11: Catching too general exception Exception (broad-except)
+W:406, 9: Redefining name 'args' from outer scope (line 419) (redefined-outer-name)
+C:406, 0: Missing function docstring (missing-docstring)
+C:419, 4: Invalid constant name "args" (invalid-name)
+W: 15, 0: Unused import traceback (unused-import)
+W: 14, 0: Unused import sys (unused-import)
+************* Module py.run
+C:  4, 0: Trailing whitespace (trailing-whitespace)
+C:  6, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Missing module docstring (missing-docstring)
+C:  3, 0: Missing class docstring (missing-docstring)
+W:  3, 0: Class has no __init__ method (no-init)
+C:  3, 0: Old-style class defined. (old-style-class)
+C:  5, 4: Missing method docstring (missing-docstring)
+E:  5, 4: Method should have "self" as first argument (no-self-argument)
+R:  3, 0: Too few public methods (1/2) (too-few-public-methods)
+W:  1, 0: Unused import sys (unused-import)
+W:  1, 0: Unused import subprocess (unused-import)
+W:  1, 0: Unused import os (unused-import)
+************* Module py.scan
+W: 93, 0: TODO: connectivity tests, delete operations on root from cache. (fixme)
+W:129, 0: TODO: replace path_is_configured with self.context.path_in_fifo(path) (fixme)
+C: 57, 0: Line too long (92/80) (line-too-long)
+C: 58, 0: Line too long (102/80) (line-too-long)
+C: 63, 0: Line too long (92/80) (line-too-long)
+C: 81, 0: Line too long (105/80) (line-too-long)
+C: 82, 0: Line too long (88/80) (line-too-long)
+C: 91, 0: Line too long (82/80) (line-too-long)
+C:116, 0: Trailing whitespace (trailing-whitespace)
+C:124, 0: Trailing whitespace (trailing-whitespace)
+C:128, 0: Line too long (93/80) (line-too-long)
+C:129, 0: Line too long (87/80) (line-too-long)
+C:130, 0: Trailing whitespace (trailing-whitespace)
+C:130, 0: Line too long (106/80) (line-too-long)
+C:131, 0: Trailing whitespace (trailing-whitespace)
+C:135, 0: Trailing whitespace (trailing-whitespace)
+C:135, 0: Line too long (100/80) (line-too-long)
+C:139, 0: Trailing whitespace (trailing-whitespace)
+C:146, 0: Trailing whitespace (trailing-whitespace)
+C:147, 0: Line too long (84/80) (line-too-long)
+C:148, 0: Unnecessary parens after 'print' keyword (superfluous-parens)
+C:150, 0: Line too long (82/80) (line-too-long)
+C:155, 0: Trailing whitespace (trailing-whitespace)
+C:162, 0: Line too long (83/80) (line-too-long)
+C:166, 0: Trailing whitespace (trailing-whitespace)
+F: 16, 0: Unable to import 'docopt' (import-error)
+W: 18, 0: Relative import 'read', should be 'py.read' (relative-import)
+W: 19, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W: 20, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 21, 0: Relative import 'library', should be 'py.library' (relative-import)
+W: 22, 0: Relative import 'log', should be 'py.log' (relative-import)
+W: 23, 0: Relative import 'ops', should be 'py.ops' (relative-import)
+W: 24, 0: Relative import 'pathutil', should be 'py.pathutil' (relative-import)
+W: 25, 0: Relative import 'search', should be 'py.search' (relative-import)
+W: 26, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W: 28, 0: Relative import 'context', should be 'py.context' (relative-import)
+W: 29, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+W: 30, 0: Relative import 'walk', should be 'py.walk' (relative-import)
+W: 31, 0: Relative import 'read', should be 'py.read' (relative-import)
+W: 33, 0: Relative import 'assets', should be 'py.assets' (relative-import)
+C: 41, 0: Missing class docstring (missing-docstring)
+C: 57,86: More than one statement on a single line (multiple-statements)
+C: 58,96: More than one statement on a single line (multiple-statements)
+C: 72,56: More than one statement on a single line (multiple-statements)
+W: 74, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 82,80: More than one statement on a single line (multiple-statements)
+W: 88, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:102,16: Redefining built-in 'dir' (redefined-builtin)
+C: 97, 4: Missing method docstring (missing-docstring)
+C:110, 4: Missing method docstring (missing-docstring)
+C:119, 4: Missing method docstring (missing-docstring)
+C:122, 4: Missing method docstring (missing-docstring)
+W:132,24: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:136,24: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:142,20: Specify string format arguments as logging function parameters (logging-not-lazy)
+W:165,16: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:168, 0: Missing function docstring (missing-docstring)
+W:174, 9: Redefining name 'args' from outer scope (line 183) (redefined-outer-name)
+C:174, 0: Missing function docstring (missing-docstring)
+E:175, 4: Module 'py.log' has no 'start_console_logging' member (no-member)
+C:183, 4: Invalid constant name "args" (invalid-name)
+W: 13, 0: Unused import traceback (unused-import)
+W: 12, 0: Unused import sys (unused-import)
+W: 14, 0: Unused import json (unused-import)
+************* Module py.scratch
+C: 24, 0: Line too long (119/80) (line-too-long)
+C: 24, 0: No space allowed after bracket
+        values = { 'index_name': config.es_index, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
+                 ^ (bad-whitespace)
+C: 24, 0: No space allowed before bracket
+        values = { 'index_name': config.es_index, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
+                                                                                                                      ^ (bad-whitespace)
+C: 56, 0: Line too long (86/80) (line-too-long)
+C: 56, 0: No space allowed after bracket
+            paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
+                     ^ (bad-whitespace)
+C: 57, 0: Line too long (100/80) (line-too-long)
+C: 57, 0: No space allowed before bracket
+                        'index_name': value['index_name'], 'document_type': value['document_type'] }
+                                                                                                   ^ (bad-whitespace)
+C: 60, 0: Line too long (87/80) (line-too-long)
+C: 62, 0: Line too long (120/80) (line-too-long)
+C: 64, 0: Line too long (92/80) (line-too-long)
+C: 71, 0: Line too long (132/80) (line-too-long)
+C: 84, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  3, 0: Unable to import 'redis' (import-error)
+W:  5, 0: Relative import 'config', should be 'py.config' (relative-import)
+W:  5, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+C: 20, 0: Missing function docstring (missing-docstring)
+E: 21,18: Undefined variable 'get_cached_esid' (undefined-variable)
+E: 23,14: Undefined variable 'DELIM' (undefined-variable)
+C: 28, 0: Missing function docstring (missing-docstring)
+W: 34,15: Catching too general exception Exception (broad-except)
+W: 31,12: Unused variable 'values' (unused-variable)
+C: 38, 0: Missing function docstring (missing-docstring)
+E: 44, 8: Undefined variable 'ops' (undefined-variable)
+E: 53,12: Undefined variable 'LOG' (undefined-variable)
+W: 72,35: Catching too general exception Exception (broad-except)
+E: 71,32: Undefined variable 'library' (undefined-variable)
+C: 72,46: Invalid variable name "e" (invalid-name)
+C: 75,18: More than one statement on a single line (multiple-statements)
+C: 80, 0: Missing function docstring (missing-docstring)
+W:  3, 0: Unused import redis (unused-import)
+W:  1, 0: Unused import sys (unused-import)
+W:  1, 0: Unused import os (unused-import)
+************* Module py.search
+C: 17, 0: No space allowed around keyword argument assignment
+        res = config.es.indices.delete(index = index)
+                                             ^ (bad-whitespace)
+C: 35, 0: Line too long (86/80) (line-too-long)
+C: 51, 0: Line too long (112/80) (line-too-long)
+C: 51, 0: No space allowed after bracket
+    res = config.es.search(config.es_index, doc_type, body={ "query": { "match" : { "%s" % attribute: value }}})
+                                                           ^ (bad-whitespace)
+C: 51, 0: No space allowed after bracket
+    res = config.es.search(config.es_index, doc_type, body={ "query": { "match" : { "%s" % attribute: value }}})
+                                                                      ^ (bad-whitespace)
+C: 51, 0: No space allowed after bracket
+    res = config.es.search(config.es_index, doc_type, body={ "query": { "match" : { "%s" % attribute: value }}})
+                                                                                  ^ (bad-whitespace)
+C: 51, 0: No space allowed before bracket
+    res = config.es.search(config.es_index, doc_type, body={ "query": { "match" : { "%s" % attribute: value }}})
+                                                                                                            ^ (bad-whitespace)
+C: 58, 0: Trailing whitespace (trailing-whitespace)
+C: 63, 0: Line too long (90/80) (line-too-long)
+C: 63, 0: No space allowed after bracket
+    query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : attribute }}}}}
+            ^ (bad-whitespace)
+C: 63, 0: No space allowed after bracket
+    query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : attribute }}}}}
+                        ^ (bad-whitespace)
+C: 63, 0: No space allowed after bracket
+    query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : attribute }}}}}
+                                   ^ (bad-whitespace)
+C: 63, 0: No space allowed after bracket
+    query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : attribute }}}}}
+                                                  ^ (bad-whitespace)
+C: 63, 0: No space allowed after bracket
+    query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : attribute }}}}}
+                                                               ^ (bad-whitespace)
+C: 63, 0: No space allowed before bracket
+    query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : attribute }}}}}
+                                                                                     ^ (bad-whitespace)
+C: 69, 0: Line too long (84/80) (line-too-long)
+C: 80, 0: Line too long (83/80) (line-too-long)
+C: 93, 0: Line too long (83/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  7, 0: Unable to import 'elasticsearch' (import-error)
+W:  9, 0: Relative import 'config', should be 'py.config' (relative-import)
+C: 14, 0: Missing function docstring (missing-docstring)
+W: 16, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 18, 8: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 21, 0: Missing function docstring (missing-docstring)
+W: 22, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+W: 31, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 34, 0: Missing function docstring (missing-docstring)
+W: 35, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C: 36, 4: Invalid variable name "es" (invalid-name)
+C: 40, 0: Missing function docstring (missing-docstring)
+C: 49, 0: Missing function docstring (missing-docstring)
+C: 62, 0: Missing function docstring (missing-docstring)
+C: 67, 0: Missing function docstring (missing-docstring)
+C: 75, 0: Missing function docstring (missing-docstring)
+C: 83, 0: Missing function docstring (missing-docstring)
+C: 88, 0: Missing function docstring (missing-docstring)
+W:  3, 0: Unused import sys (unused-import)
+W:  7, 0: Unused import ConnectionError (unused-import)
+W:  4, 0: Unused import traceback (unused-import)
+************* Module py.serv
+C: 34, 0: Line too long (82/80) (line-too-long)
+C: 35, 0: Line too long (99/80) (line-too-long)
+C: 44, 0: Line too long (86/80) (line-too-long)
+W: 60, 0: Unnecessary semicolon (unnecessary-semicolon)
+C: 82, 0: Line too long (117/80) (line-too-long)
+C: 91, 0: Line too long (117/80) (line-too-long)
+C: 96, 0: Line too long (87/80) (line-too-long)
+C: 99, 0: Line too long (87/80) (line-too-long)
+C:110, 0: No space allowed after bracket
+        return { 'process': process, 'before': before, 'after': after }
+               ^ (bad-whitespace)
+C:110, 0: No space allowed before bracket
+        return { 'process': process, 'before': before, 'after': after }
+                                                                      ^ (bad-whitespace)
+C:126, 0: No space allowed after bracket
+                thread.start_new_thread( process.run, ( before, after, ) )
+                                       ^ (bad-whitespace)
+C:126, 0: No space allowed after bracket
+                thread.start_new_thread( process.run, ( before, after, ) )
+                                                      ^ (bad-whitespace)
+C:126, 0: No space allowed before bracket
+                thread.start_new_thread( process.run, ( before, after, ) )
+                                                                         ^ (bad-whitespace)
+C:130, 0: Line too long (86/80) (line-too-long)
+C:135, 0: Line too long (91/80) (line-too-long)
+C:138, 0: Line too long (90/80) (line-too-long)
+C:146, 0: Final newline missing (missing-final-newline)
+W:  8, 0: Anomalous backslash in string: '\`'. String constant might be missing an r prefix. (anomalous-backslash-in-string)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Relative import 'modes', should be 'py.modes' (relative-import)
+W:  4, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+C: 10, 0: Missing class docstring (missing-docstring)
+R: 10, 0: Too many instance attributes (10/7) (too-many-instance-attributes)
+C: 32, 4: Missing method docstring (missing-docstring)
+C: 33,40: More than one statement on a single line (multiple-statements)
+C: 34,38: More than one statement on a single line (multiple-statements)
+C: 35,53: More than one statement on a single line (multiple-statements)
+W: 43,15: Catching too general exception Exception (broad-except)
+C: 51, 4: Missing method docstring (missing-docstring)
+C: 55, 4: Missing method docstring (missing-docstring)
+R: 55, 4: Method could be a function (no-self-use)
+C: 58, 4: Missing method docstring (missing-docstring)
+E: 62,38: Instance of 'ServiceProcess' has no 'before_switch' member (no-member)
+E: 63,37: Instance of 'ServiceProcess' has no 'after_switch' member (no-member)
+C: 72, 4: Missing method docstring (missing-docstring)
+R: 72, 4: Method could be a function (no-self-use)
+C: 76, 4: Missing method docstring (missing-docstring)
+C: 95, 4: Missing method docstring (missing-docstring)
+R: 95, 4: Method could be a function (no-self-use)
+E: 98, 4: method already defined line 95 (function-redefined)
+C: 98, 4: Missing method docstring (missing-docstring)
+R: 98, 4: Method could be a function (no-self-use)
+W: 60, 8: Attribute 'engine' defined outside __init__ (attribute-defined-outside-init)
+W: 61, 8: Attribute 'selector' defined outside __init__ (attribute-defined-outside-init)
+W: 59, 8: Attribute 'halted' defined outside __init__ (attribute-defined-outside-init)
+C:102, 0: Missing class docstring (missing-docstring)
+C:109, 4: Missing method docstring (missing-docstring)
+R:109, 4: Method could be a function (no-self-use)
+C:112, 4: Missing method docstring (missing-docstring)
+C:114,42: More than one statement on a single line (multiple-statements)
+C:116,42: More than one statement on a single line (multiple-statements)
+C:119, 4: Missing method docstring (missing-docstring)
+W:129,15: Catching too general exception Exception (broad-except)
+C:132, 4: Missing method docstring (missing-docstring)
+C:142,39: More than one statement on a single line (multiple-statements)
+C:144, 4: Missing method docstring (missing-docstring)
+W:  1, 0: Unused import traceback (unused-import)
+W:  3, 0: Unused import Rule (unused-import)
+W:  1, 0: Unused import sys (unused-import)
+W:  3, 0: Unused import Mode (unused-import)
+W:  1, 0: Unused import os (unused-import)
+************* Module py.setup
+C:  1, 0: Missing module docstring (missing-docstring)
+C:  3, 0: Missing function docstring (missing-docstring)
+E:  5,18: Undefined variable 'get_document_category_names' (undefined-variable)
+C:  6, 8: Invalid variable name "f" (invalid-name)
+E:  8,15: Undefined variable 'sql' (undefined-variable)
+E: 10,12: Undefined variable 'sql' (undefined-variable)
+C: 12, 0: Missing function docstring (missing-docstring)
+E: 13,18: Undefined variable 'get_location_names' (undefined-variable)
+C: 14, 8: Invalid variable name "f" (invalid-name)
+E: 16,15: Undefined variable 'sql' (undefined-variable)
+E: 18,12: Undefined variable 'sql' (undefined-variable)
+************* Module py.sql
+W: 28, 0: TODO: add handling for boolean values (fixme)
+W: 41, 0: TODO: use range(len(field_names) instead of pos (fixme)
+C: 22, 0: Exactly one space required before assignment
+    result  = []
+            ^ (bad-whitespace)
+C: 31, 0: Line too long (109/80) (line-too-long)
+C: 49, 0: Line too long (102/80) (line-too-long)
+C: 55, 0: Line too long (85/80) (line-too-long)
+C: 55, 0: Exactly one space required after comma
+    query = ' '.join(['SELECT', ', '.join(field_names), 'FROM', table_name,'WHERE '])
+                                                                          ^ (bad-whitespace)
+C: 68, 0: Line too long (110/80) (line-too-long)
+C: 69, 0: Line too long (89/80) (line-too-long)
+C: 98, 0: Line too long (99/80) (line-too-long)
+C:111, 0: Line too long (105/80) (line-too-long)
+C:124, 0: Line too long (99/80) (line-too-long)
+C:136, 0: Line too long (105/80) (line-too-long)
+C:175, 0: Line too long (93/80) (line-too-long)
+C:177, 0: Final newline missing (missing-final-newline)
+C:177, 0: Line too long (89/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+W:  3, 0: Relative import 'config', should be 'py.config' (relative-import)
+F:  4, 0: Unable to import 'MySQLdb' (import-error)
+W:  6, 0: Relative import 'errors', should be 'py.errors' (relative-import)
+C: 13, 0: Missing function docstring (missing-docstring)
+C: 21, 0: Missing function docstring (missing-docstring)
+W: 22, 4: Unused variable 'result' (unused-variable)
+C: 29, 0: Missing function docstring (missing-docstring)
+C: 35, 0: Missing function docstring (missing-docstring)
+W: 35,59: Unused argument 'order_by' (unused-argument)
+C: 53, 0: Missing function docstring (missing-docstring)
+W: 54, 4: Unused variable 'formatted_values' (unused-variable)
+C: 68, 0: Missing function docstring (missing-docstring)
+C: 95, 0: Missing function docstring (missing-docstring)
+C:103,22: Invalid variable name "e" (invalid-name)
+C:108,22: Invalid variable name "e" (invalid-name)
+C:112,22: Invalid variable name "e" (invalid-name)
+C:117,16: More than one statement on a single line (multiple-statements)
+C:120, 0: Missing function docstring (missing-docstring)
+C:129,22: Invalid variable name "e" (invalid-name)
+C:133,22: Invalid variable name "e" (invalid-name)
+C:137,22: Invalid variable name "e" (invalid-name)
+C:142,16: More than one statement on a single line (multiple-statements)
+C:149, 0: Missing function docstring (missing-docstring)
+C:154, 0: Missing function docstring (missing-docstring)
+C:160, 0: Missing function docstring (missing-docstring)
+C:167,54: Invalid variable name "f" (invalid-name)
+C:176,20: Invalid variable name "e" (invalid-name)
+W:  3, 0: Unused import traceback (unused-import)
+W:  3, 0: Unused import datetime (unused-import)
+W:  3, 0: Unused import sys (unused-import)
+W:  3, 0: Unused import os (unused-import)
+************* Module py.start
+W:119, 0: TODO write pidfile_TIMESTAMP and pass filenames to command.py     (fixme)
+C: 24, 0: Trailing whitespace (trailing-whitespace)
+C: 26, 0: Trailing whitespace (trailing-whitespace)
+C: 38, 0: Trailing whitespace (trailing-whitespace)
+C: 89, 0: Line too long (87/80) (line-too-long)
+C:106, 0: Unnecessary parens after 'print' keyword (superfluous-parens)
+C:119, 0: Trailing whitespace (trailing-whitespace)
+C:120, 0: Trailing whitespace (trailing-whitespace)
+C:135, 0: Exactly one space required before assignment
+    config.status_check_freq= int(read(parser, "Status")['check_frequency'])
+                            ^ (bad-whitespace)
+C:140, 0: Line too long (91/80) (line-too-long)
+C:142, 0: Line too long (94/80) (line-too-long)
+C:161, 0: Line too long (89/80) (line-too-long)
+C:185, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Missing module docstring (missing-docstring)
+F:  7, 0: Unable to import 'redis' (import-error)
+W:  9, 0: Relative import 'cache2', should be 'py.cache2' (relative-import)
+W: 10, 0: Relative import 'config', should be 'py.config' (relative-import)
+W: 11, 0: Relative import 'ops', should be 'py.ops' (relative-import)
+W: 12, 0: Relative import 'search', should be 'py.search' (relative-import)
+W: 13, 0: Relative import 'sql', should be 'py.sql' (relative-import)
+W: 14, 0: Relative import 'log', should be 'py.log' (relative-import)
+C: 21, 0: Missing function docstring (missing-docstring)
+C: 39,35: More than one statement on a single line (multiple-statements)
+C: 54,34: More than one statement on a single line (multiple-statements)
+C: 64, 0: Missing function docstring (missing-docstring)
+C: 68,12: Invalid variable name "p" (invalid-name)
+C: 74, 0: Missing function docstring (missing-docstring)
+C: 80, 0: Missing function docstring (missing-docstring)
+C: 83,52: More than one statement on a single line (multiple-statements)
+C: 84,50: More than one statement on a single line (multiple-statements)
+C: 85,44: More than one statement on a single line (multiple-statements)
+C: 86,46: More than one statement on a single line (multiple-statements)
+C: 87,48: More than one statement on a single line (multiple-statements)
+C: 88,50: More than one statement on a single line (multiple-statements)
+C: 89,58: More than one statement on a single line (multiple-statements)
+C: 90,46: More than one statement on a single line (multiple-statements)
+C: 91,44: More than one statement on a single line (multiple-statements)
+C: 97, 0: Missing function docstring (missing-docstring)
+W:105, 8: No exception type(s) specified (bare-except)
+W:104,16: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:111, 0: Missing function docstring (missing-docstring)
+W:113, 4: Specify string format arguments as logging function parameters (logging-not-lazy)
+C:152, 0: Missing function docstring (missing-docstring)
+C:166, 0: Missing function docstring (missing-docstring)
+C:167,38: Invalid variable name "f" (invalid-name)
+C:174, 0: Missing function docstring (missing-docstring)
+C:176, 8: Invalid variable name "f" (invalid-name)
+W:176,12: "rt" is not a valid mode for open. (bad-open-mode)
+C:181, 0: Missing function docstring (missing-docstring)
+C:182, 4: Invalid variable name "f" (invalid-name)
+W:182, 8: "wt" is not a valid mode for open. (bad-open-mode)
+W:  5, 0: Unused import traceback (unused-import)
+************* Module py.stop
+C:  1, 0: Missing module docstring (missing-docstring)
+************* Module py.suspend
+C:  1, 0: Missing module docstring (missing-docstring)
+************* Module py.tag
+C:  1, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Line too long (113/80) (line-too-long)
+************* Module py.tree
+C:  1, 0: Final newline missing (missing-final-newline)
+C:  1, 0: Line too long (131/80) (line-too-long)
+************* Module py.util
+W: 26, 0: Bad indentation. Found 15 spaces, expected 16 (bad-indentation)
+C: 30, 0: Line too long (107/80) (line-too-long)
+C: 31, 0: Trailing whitespace (trailing-whitespace)
+C: 38, 0: Line too long (86/80) (line-too-long)
+F:  8, 0: Unable to import 'docopt' (import-error)
+C: 11, 0: Missing function docstring (missing-docstring)
+C: 12, 8: Invalid variable name "f" (invalid-name)
+W: 29,10: Redefining built-in 'str' (redefined-builtin)
+C: 29, 0: Missing function docstring (missing-docstring)
+W: 33,19: Redefining built-in 'input' (redefined-builtin)
+C: 33, 0: Missing function docstring (missing-docstring)
+W: 41, 9: Redefining name 'args' from outer scope (line 51) (redefined-outer-name)
+C: 41, 0: Missing function docstring (missing-docstring)
+C: 51, 4: Invalid constant name "args" (invalid-name)
+W:  6, 0: Unused import sys (unused-import)
+************* Module py.walk
+C: 49, 0: Line too long (81/80) (line-too-long)
+C:  1, 0: Missing module docstring (missing-docstring)
+C:  5, 0: Missing class docstring (missing-docstring)
+C: 12, 4: Missing method docstring (missing-docstring)
+C: 15, 4: Missing method docstring (missing-docstring)
+C: 18, 4: Missing method docstring (missing-docstring)
+C: 21, 4: Missing method docstring (missing-docstring)
+C: 24, 4: Missing method docstring (missing-docstring)
+C: 27, 4: Missing method docstring (missing-docstring)
+C: 30, 4: Missing method docstring (missing-docstring)
+C: 33, 4: Missing method docstring (missing-docstring)
+C: 36, 4: Missing method docstring (missing-docstring)
+C: 39, 4: Missing method docstring (missing-docstring)
+C: 42, 4: Missing method docstring (missing-docstring)
+C: 45, 4: Missing method docstring (missing-docstring)
+C: 48, 4: Missing method docstring (missing-docstring)
+W: 55,19: Catching too general exception Exception (broad-except)
+W: 64,19: Catching too general exception Exception (broad-except)
+W: 73,19: Catching too general exception Exception (broad-except)
+************* Module py.weigh
+C:  1, 0: Missing module docstring (missing-docstring)
+R:  1, 0: Cyclic import (py.ops -> py.start) (cyclic-import)
+R:  1, 0: Similar lines in 2 files
+==py.calc:15
+==py.scan:18
+import cache2
+import config
+import library
+import log
+import ops (duplicate-code)
+
+
+Report
+======
+3258 statements analysed.
+
+Duplication
+-----------
+
++-------------------------+------+---------+-----------+
+|                         |now   |previous |difference |
++=========================+======+=========+===========+
+|nb duplicated lines      |5     |NC       |NC         |
++-------------------------+------+---------+-----------+
+|percent duplicated lines |0.096 |NC       |NC         |
++-------------------------+------+---------+-----------+
+
+
+
+Statistics by type
+------------------
+
++---------+-------+-----------+-----------+------------+---------+
+|type     |number |old number |difference |%documented |%badname |
++=========+=======+===========+===========+============+=========+
+|module   |48     |NC         |NC         |22.92       |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|class    |53     |NC         |NC         |5.66        |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|method   |238    |NC         |NC         |26.05       |0.00     |
++---------+-------+-----------+-----------+------------+---------+
+|function |197    |NC         |NC         |1.52        |1.02     |
++---------+-------+-----------+-----------+------------+---------+
+
+
+
+Messages by category
+--------------------
+
++-----------+-------+---------+-----------+
+|type       |number |previous |difference |
++===========+=======+=========+===========+
+|convention |1183   |NC       |NC         |
++-----------+-------+---------+-----------+
+|refactor   |65     |NC       |NC         |
++-----------+-------+---------+-----------+
+|warning    |508    |NC       |NC         |
++-----------+-------+---------+-----------+
+|error      |31     |NC       |NC         |
++-----------+-------+---------+-----------+
+
+
+
+% errors / warnings by module
+-----------------------------
+
++-----------------+------+--------+---------+-----------+
+|module           |error |warning |refactor |convention |
++=================+======+========+=========+===========+
+|py.setup         |19.35 |0.00    |0.00     |0.42       |
++-----------------+------+--------+---------+-----------+
+|py.scratch       |16.13 |1.57    |0.00     |1.61       |
++-----------------+------+--------+---------+-----------+
+|py.modes         |9.68  |6.50    |9.23     |6.34       |
++-----------------+------+--------+---------+-----------+
+|py.serv          |9.68  |2.76    |9.23     |3.21       |
++-----------------+------+--------+---------+-----------+
+|py.read          |6.45  |4.92    |9.23     |4.40       |
++-----------------+------+--------+---------+-----------+
+|py.ops           |6.45  |3.15    |0.00     |4.99       |
++-----------------+------+--------+---------+-----------+
+|py.context       |6.45  |0.39    |0.00     |2.45       |
++-----------------+------+--------+---------+-----------+
+|py.scan          |3.23  |5.31    |0.00     |2.96       |
++-----------------+------+--------+---------+-----------+
+|py.calc          |3.23  |5.12    |0.00     |2.54       |
++-----------------+------+--------+---------+-----------+
+|py.report        |3.23  |4.72    |6.15     |7.27       |
++-----------------+------+--------+---------+-----------+
+|py.docserv       |3.23  |3.74    |1.54     |2.45       |
++-----------------+------+--------+---------+-----------+
+|py.query         |3.23  |1.77    |6.15     |4.14       |
++-----------------+------+--------+---------+-----------+
+|py.errors        |3.23  |0.98    |0.00     |0.68       |
++-----------------+------+--------+---------+-----------+
+|py.assets        |3.23  |0.79    |15.38    |2.79       |
++-----------------+------+--------+---------+-----------+
+|py.run           |3.23  |0.79    |1.54     |0.51       |
++-----------------+------+--------+---------+-----------+
+|py.docservhandle |0.00  |10.83   |4.62     |4.48       |
++-----------------+------+--------+---------+-----------+
+|py.library       |0.00  |6.50    |1.54     |6.34       |
++-----------------+------+--------+---------+-----------+
+|py.pathutil      |0.00  |6.10    |0.00     |3.38       |
++-----------------+------+--------+---------+-----------+
+|py.match         |0.00  |4.92    |6.15     |4.31       |
++-----------------+------+--------+---------+-----------+
+|py.cache2        |0.00  |3.74    |0.00     |4.40       |
++-----------------+------+--------+---------+-----------+
+|py.launch        |0.00  |3.54    |0.00     |1.27       |
++-----------------+------+--------+---------+-----------+
+|py.repair        |0.00  |3.15    |0.00     |2.87       |
++-----------------+------+--------+---------+-----------+
+|py.start         |0.00  |2.56    |0.00     |3.21       |
++-----------------+------+--------+---------+-----------+
+|py.alchemy       |0.00  |2.36    |4.62     |2.20       |
++-----------------+------+--------+---------+-----------+
+|py.sql           |0.00  |2.17    |0.00     |3.04       |
++-----------------+------+--------+---------+-----------+
+|py.dirwalk       |0.00  |1.77    |15.38    |2.03       |
++-----------------+------+--------+---------+-----------+
+|py.search        |0.00  |1.77    |0.00     |2.54       |
++-----------------+------+--------+---------+-----------+
+|py.direct        |0.00  |1.57    |3.08     |1.52       |
++-----------------+------+--------+---------+-----------+
+|py.cache2_test   |0.00  |1.57    |1.54     |2.87       |
++-----------------+------+--------+---------+-----------+
+|py.command       |0.00  |1.57    |0.00     |0.93       |
++-----------------+------+--------+---------+-----------+
+|py.util          |0.00  |0.98    |0.00     |0.76       |
++-----------------+------+--------+---------+-----------+
+|py.library_test  |0.00  |0.79    |1.54     |1.01       |
++-----------------+------+--------+---------+-----------+
+|py.walk          |0.00  |0.59    |0.00     |1.35       |
++-----------------+------+--------+---------+-----------+
+|py.log           |0.00  |0.39    |0.00     |0.85       |
++-----------------+------+--------+---------+-----------+
+|py.move          |0.00  |0.39    |0.00     |0.25       |
++-----------------+------+--------+---------+-----------+
+|py.clean         |0.00  |0.20    |0.00     |0.08       |
++-----------------+------+--------+---------+-----------+
+
+
+
+Messages
+--------
+
++-------------------------------+------------+
+|message id                     |occurrences |
++===============================+============+
+|missing-docstring              |457         |
++-------------------------------+------------+
+|line-too-long                  |374         |
++-------------------------------+------------+
+|relative-import                |127         |
++-------------------------------+------------+
+|bad-whitespace                 |115         |
++-------------------------------+------------+
+|multiple-statements            |85          |
++-------------------------------+------------+
+|unused-import                  |84          |
++-------------------------------+------------+
+|invalid-name                   |82          |
++-------------------------------+------------+
+|logging-not-lazy               |75          |
++-------------------------------+------------+
+|fixme                          |46          |
++-------------------------------+------------+
+|unused-argument                |42          |
++-------------------------------+------------+
+|trailing-whitespace            |40          |
++-------------------------------+------------+
+|unused-variable                |37          |
++-------------------------------+------------+
+|no-self-use                    |27          |
++-------------------------------+------------+
+|broad-except                   |27          |
++-------------------------------+------------+
+|import-error                   |25          |
++-------------------------------+------------+
+|too-few-public-methods         |18          |
++-------------------------------+------------+
+|missing-final-newline          |16          |
++-------------------------------+------------+
+|undefined-variable             |14          |
++-------------------------------+------------+
+|attribute-defined-outside-init |14          |
++-------------------------------+------------+
+|redefined-builtin              |13          |
++-------------------------------+------------+
+|bad-indentation                |12          |
++-------------------------------+------------+
+|redefined-outer-name           |10          |
++-------------------------------+------------+
+|old-style-class                |10          |
++-------------------------------+------------+
+|no-member                      |10          |
++-------------------------------+------------+
+|too-many-arguments             |7           |
++-------------------------------+------------+
+|unnecessary-semicolon          |5           |
++-------------------------------+------------+
+|too-many-instance-attributes   |5           |
++-------------------------------+------------+
+|superfluous-parens             |4           |
++-------------------------------+------------+
+|mixed-indentation              |4           |
++-------------------------------+------------+
+|too-many-public-methods        |3           |
++-------------------------------+------------+
+|no-init                        |3           |
++-------------------------------+------------+
+|bad-open-mode                  |3           |
++-------------------------------+------------+
+|too-many-branches              |2           |
++-------------------------------+------------+
+|super-init-not-called          |2           |
++-------------------------------+------------+
+|no-value-for-parameter         |2           |
++-------------------------------+------------+
+|bad-super-call                 |2           |
++-------------------------------+------------+
+|unbalanced-tuple-unpacking     |1           |
++-------------------------------+------------+
+|too-many-locals                |1           |
++-------------------------------+------------+
+|reimported                     |1           |
++-------------------------------+------------+
+|no-self-argument               |1           |
++-------------------------------+------------+
+|method-hidden                  |1           |
++-------------------------------+------------+
+|function-redefined             |1           |
++-------------------------------+------------+
+|duplicate-code                 |1           |
++-------------------------------+------------+
+|cyclic-import                  |1           |
++-------------------------------+------------+
+|bare-except                    |1           |
++-------------------------------+------------+
+|anomalous-backslash-in-string  |1           |
++-------------------------------+------------+
+
+
+
+Global evaluation
+-----------------
+Your code has been rated at 4.13/10
+
+Raw metrics
+-----------
+
++----------+-------+------+---------+-----------+
+|type      |number |%     |previous |difference |
++==========+=======+======+=========+===========+
+|code      |3226   |74.92 |NC       |NC         |
++----------+-------+------+---------+-----------+
+|docstring |105    |2.44  |NC       |NC         |
++----------+-------+------+---------+-----------+
+|comment   |415    |9.64  |NC       |NC         |
++----------+-------+------+---------+-----------+
+|empty     |560    |13.01 |NC       |NC         |
++----------+-------+------+---------+-----------+
+
+
+
+External dependencies
+---------------------
+::
+
+    mutagen 
+      \-apev2 
+      | \-APENoHeaderError (py.read)
+      | \-APEUnsupportedVersionError (py.read)
+      | \-APEv2 (py.read)
+      \-flac 
+      | \-FLAC (py.read)
+      | \-FLACNoHeaderError (py.read)
+      | \-FLACVorbisError (py.read)
+      \-id3 
+      | \-ID3 (py.read)
+      | \-ID3NoHeaderError (py.read)
+      \-oggvorbis 
+        \-OggVorbis (py.read)
+        \-OggVorbisHeaderError (py.read)
+    py 
+      \-alchemy (py.library,py.ops)
+      \-assets 
+      | \-Asset (py.repair)
+      | \-Directory (py.library,py.scan)
+      | \-Document (py.report,py.repair,py.library,py.calc)
+      \-cache2 (py.pathutil,py.library,py.library_test,py.cache2_test,py.ops,py.read,py.start,py.calc,py.command,py.scan)
+      \-calc (py.docservhandle)
+      \-clean (py.docservhandle)
+      \-config (py.report,py.docserv,py.pathutil,py.scratch,py.read,py.repair,py.docservhandle,py.alchemy,py.log,py.cache2,py.library_test,py.assets,py.scan,py.calc,py.command,py.ops,py.sql,py.launch,py.library,py.match,py.start,py.search,py.query)
+      \-context 
+      | \-Context (py.direct)
+      | \-DirectoryContext (py.launch,py.scan,py.docserv,py.calc,py.docservhandle)
+      \-docserv (py.launch)
+      \-docservhandle 
+      | \-DocumentServiceProcessHandler (py.docserv)
+      \-errors 
+      | \-AssetException (py.repair,py.library,py.calc,py.scan)
+      | \-BaseClassException (py.match,py.serv,py.read,py.dirwalk)
+      | \-ElasticSearchError (py.library,py.read)
+      | \-ModeDestinationException (py.modes)
+      | \-SQLConnectError (py.sql)
+      \-library (py.match,py.scan,py.calc,py.library_test,py.read)
+      \-log (py.start,py.docserv,py.calc,py.scan)
+      \-match 
+      | \-ElasticSearchMatcher (py.calc)
+      \-modes 
+      | \-Engine (py.serv)
+      | \-Mode (py.serv,py.docserv,py.docservhandle)
+      | \-Rule (py.serv)
+      | \-Selector (py.serv,py.docserv,py.docservhandle)
+      \-ops (py.match,py.scan,py.read,py.launch,py.repair,py.calc,py.command,py.start)
+      \-pathutil (py.launch,py.assets,py.library,py.scan,py.dirwalk)
+      \-query 
+      | \-Builder (py.match)
+      \-read (py.report,py.scan)
+      | \-Reader (py.scan)
+      \-report (py.docservhandle)
+      \-scan (py.docservhandle)
+      \-search (py.report,py.docserv,py.library,py.scan,py.launch,py.repair,py.calc,py.start)
+      \-serv 
+      | \-Service (py.launch)
+      | \-ServiceProcess (py.docserv)
+      \-sql (py.match,py.report,py.repair,py.pathutil,py.scan,py.library,py.start,py.cache2_test,py.alchemy,py.scratch,py.library_test,py.read,py.launch,py.query,py.calc,py.ops)
+      \-start (py.launch,py.report,py.repair,py.ops)
+      \-util (py.cache2,py.report)
+      \-walk 
+        \-Walker (py.scan,py.dirwalk)
+
+
+

@@ -18,7 +18,7 @@ HASH = 'hashset'
 DELIM = ':'
 WILDCARD = '*'
 
-#TODO: in order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
+# TODO: in order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
 # these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
 # identifier is an arbitrary list which will be separated by DELIM
 
@@ -238,13 +238,6 @@ def get_items(key_group, identifier):
     return result
 
 
-# def get_items(key_group, identifier):
-#     key = DELIM.join([key_group, LIST, identifier])
-#     result = config.redis.smembers(key)
-#     # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
-#     return result
-
-
 def get_items2(key):
     key = DELIM.join([LIST, key])
     result = config.redis.smembers(key)
@@ -252,7 +245,7 @@ def get_items2(key):
     return result
 
 
-# utilities
+# utility
 
 def flush_all():
     # flush_cache()
