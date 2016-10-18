@@ -20,6 +20,7 @@ import log
 import ops
 import search
 import sql
+import scan
 
 from assets import Document
 from context import DirectoryContext
@@ -28,11 +29,12 @@ from match import ElasticSearchMatcher
 
 LOG = logging.getLogger(__name__)
 
+CALC = 'match'
 
 def all_matchers_have_run(matchers, asset):
     skip_entirely = True
     for matcher in matchers:
-        if not ops.operation_in_cache(asset.absolute_path, 'match', matcher.name):
+        if not ops.operation_in_cache(asset.absolute_path, CALC, matcher.name):
             skip_entirely = False
             break
 
@@ -41,56 +43,64 @@ def all_matchers_have_run(matchers, asset):
 def cache_match_ops(matchers, path):
     LOG.debug('caching match ops for %s...' % path)
     for matcher in matchers:
-        ops.cache_ops(path, 'match', apply_lifespan=True)
+        ops.cache_ops(path, CALC, apply_lifespan=True)
 
-# def clear cached_match_ops(self, matchers):
 
-# def split_location(into sets of asset directory)
+# use paths expanded by scan ops to segment dataset for matching operations
 def path_expands(path, context):
-    rows = sql.run_query_template('calc_op_path', 'high.level.scan', 'COMPLETE', path)
+    rows = sql.run_query_template('calc_op_path', scan.HLSCAN, 'COMPLETE', path, os.path.sep)
     if len(rows) > 0:
         for row in rows:
-            context.rpush_fifo('match', row[0])
+            context.rpush_fifo(CALC, row[0])
         return True
+
 
 def calc(context, cycle_context=False):
     # MAX_RECORDS = ...
     matchers = get_matchers()
     opcount = 0
 
-    for location in context.paths:
-        LOG.debug('calc: matching files in %s' % (location))
+    while context.has_next(CALC, True):
         ops.check_status()
-        if path_expands(location, context): continue
+        location = context.get_next(CALC, True)
 
-        if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, 'match'):
-            try:
-                # this should never be true, but a test
-                if location[-1] != os.path.sep: location += os.path.sep
+        # if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, CALC):
+        
+        if path_expands(location, context): 
+            print 'expanding %s' % location
+            continue
 
-                library.cache_docs(config.DOCUMENT, location)
-                ops.cache_ops(location, 'match', apply_lifespan=True)
-                library.cache_matches(location)
+        if ops.operation_completed(location, scan.HLSCAN): 
+        
+            # try:
+            LOG.debug('calc: matching files in %s' % (location))
 
-                for key in library.get_doc_keys(config.DOCUMENT):
-                    opcount += 1
-                    ops.check_status(opcount)
+            # this should never be true, but a test
+            if location[-1] != os.path.sep: location += os.path.sep
 
-                    values = cache2.get_hash2(key)
-                    if 'esid' not in values:
-                        LOG.debug('match calculator skipping %s' % (key))
-                        continue
+            library.cache_docs(config.DOCUMENT, location)
+            ops.cache_ops(location, CALC, apply_lifespan=True)
+            library.cache_matches(location)
 
-                    do_match_op(values['esid'], values['absolute_path'])
+            for key in library.get_doc_keys(config.DOCUMENT):
+                opcount += 1
+                ops.check_status(opcount)
 
-                for matcher in matchers:
-                    ops.write_ops_data(location, 'match', matcher.name)
-                    library.clear_matches(matcher.name, location)
+                values = cache2.get_hash2(key)
+                if 'esid' not in values:
+                    LOG.debug('match calculator skipping %s' % (key))
+                    continue
 
-            except Exception, err:
-                LOG.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
-            finally:
-                library.clear_docs(config.DOCUMENT, location)
+                do_match_op(values['esid'], values['absolute_path'])
+
+            for matcher in matchers:
+                ops.write_ops_data(location, CALC, matcher.name)
+                library.clear_matches(matcher.name, location)
+
+            # except Exception, err:
+            #     LOG.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
+            # finally:
+            library.clear_docs(config.DOCUMENT, location)
                 # cache.write_paths()
 
 
@@ -107,12 +117,12 @@ def do_match_op(esid, absolute_path):
         try:
             # if library.doc_exists_for_path(asset.document_type, asset.absolute_path):
             for matcher in matchers:
-                if ops.operation_in_cache(asset.absolute_path, 'match', matcher.name):
+                if ops.operation_in_cache(asset.absolute_path, CALC, matcher.name):
                     LOG.debug('calc: skipping %s operation on %s' % (matcher.name, asset.absolute_path))
                 else:
                     LOG.debug('calc: %s seeking matches for %s' % (matcher.name, asset.absolute_path))
                     matcher.match(asset)
-                    ops.write_ops_data(asset.absolute_path, 'match', matcher.name)
+                    ops.write_ops_data(asset.absolute_path, CALC, matcher.name)
 
         except AssetException, err:
             LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -138,7 +148,7 @@ def get_matchers():
     for item in matcherdata:
         matcher = ElasticSearchMatcher(item['name'], config.DOCUMENT)
         matcher.query_type = item['query_type']
-        matcher.minimum_score = item['minimum_score']
+        matcher.minimum_score = float(item['minimum_score'])
         LOG.debug('matcher %s configured' % (item['name']))
         matchers += [matcher]
 
@@ -147,9 +157,9 @@ def get_matchers():
 
 def main(args):
     config.es = search.connect()
-    log.start_console_logging()
+    log.start_logging()
     paths = None if not args['--path'] else args['<path>']
-    context = DirectoryContext('_path_context_', paths, ['mp3'])
+    context = DirectoryContext('_path_context_', paths)
     calc(context)
 
 

@@ -143,10 +143,10 @@ class ElasticSearchMatcher(MediaMatcher):
             if match_parent == orig_parent:
                 continue
 
-            if self.minimum_score > 0:
-                if match['_score'] < self.minimum_score:
-                    LOG.info('eliminating: \t%s' % (match['_source']['absolute_path']))
-                    continue
+            match_score = float(match['_score'])
+            if match_score < self.minimum_score:
+                LOG.info('eliminating: \t%s' % (match['_source']['absolute_path']))
+                continue
 
             matched_fields = []
             for field in self.comparison_fields:
