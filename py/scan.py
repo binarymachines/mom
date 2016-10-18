@@ -24,6 +24,7 @@ import ops
 import pathutil
 import search
 import sql
+import log
 
 from context import DirectoryContext
 from errors import AssetException
@@ -32,7 +33,7 @@ from read import Reader
 
 from assets import Directory
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.INFO)
 
 SCANNER = 'scanner'
 SCAN = 'scan'
@@ -51,6 +52,7 @@ class Scanner(Walker):
     def after_handle_root(self, root):
         library.set_active(None)
 
+    #TODO: parrot behavior for IOError as seen in read.py 
     def before_handle_root(self, root):
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
@@ -67,11 +69,12 @@ class Scanner(Walker):
             self.context.push_fifo(SCAN, root)
             # raise Exception("%s isn't currently available." % (root))
 
+    #TODO: parrot behavior for IOError as seen in read.py 
     def handle_root(self, root):
         directory = library.get_cached_directory()
         if directory is None or directory.esid is None: return
 
-        LOG.debug('scanning %s' % (root))
+        LOG.info('scanning %s' % (root))
         ops.record_op_begin(SCAN, SCANNER, directory.absolute_path, directory.esid)
 
         for filename in os.listdir(root):
@@ -85,7 +88,7 @@ class Scanner(Walker):
                 library.index_asset(asset, data)
 
         ops.record_op_complete(SCAN, SCANNER, directory.absolute_path, directory.esid)
-        LOG.debug('done scanning : %s' % (root))
+        LOG.info('done scanning : %s' % (root))
 
     def handle_root_error(self, err, root):
         LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -116,8 +119,27 @@ class Scanner(Walker):
         
         return result
 
-    def path_is_configured(self, path):
-        return path in self.context.paths
+    def _pre_scan(self, path):
+        ops.record_op_begin(HLSCAN, SCANNER, path)
+
+        LOG.info('caching data for %s...' % path)
+        ops.cache_ops(path, SCAN)
+        ops.cache_ops(path, read.READ)
+        # library.cache_docs(config.DIRECTORY, path)
+
+    def _post_scan(self, path, update_ops):
+        LOG.info('clearing cache...')
+        ops.write_ops_data(path, SCAN)
+        ops.write_ops_data(path, read.READ)
+
+        LOG.info('updating MariaDB...')
+        if update_ops:
+            ops.update_ops_data()
+
+        # library.clear_docs(config.DIRECTORY, path)
+        if os.access(path, os.R_OK):
+            ops.record_op_complete(HLSCAN, SCANNER, path)
+        ops.write_ops_data(path, HLSCAN, SCANNER)
 
     def scan(self):
         ops.cache_ops(os.path.sep, HLSCAN, SCANNER)
@@ -125,43 +147,26 @@ class Scanner(Walker):
         while self.context.has_next(SCAN, True):
             path = self.context.get_next(SCAN, True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                # comparing path_is_configured to False to allow processing of expanded paths
-                # TODO: replace path_is_configured with self.context.path_in_fifo(path)
-                if self.do_deep_scan or self.path_has_handlers(path) or not self.path_is_configured(path): 
+                if self.do_deep_scan or self.path_has_handlers(path) or context.path_in_fifos(path, SCAN): 
                     if self.path_expands(path): 
-                        LOG.debug('expanded %s...' % path)
+                        LOG.info('expanded %s...' % path)
                         continue
 
                     if ops.operation_in_cache(path, HLSCAN, SCANNER) and self.do_deep_scan == False: 
-                        LOG.debug('skipping %s...' % path)
+                        LOG.info('skipping %s...' % path)
                         continue
 
-                    ops.record_op_begin(HLSCAN, SCANNER, path)
+                    _pre_scan(path)
 
-                    LOG.debug('caching data for %s...' % path)
-                    ops.cache_ops(path, SCAN)
-                    ops.cache_ops(path, read.READ)
-                    # library.cache_docs(config.DIRECTORY, path)
-                    
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
                     print("scanning %s..." % path)
                     self.walk(path)
                     end_read_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
 
-                    LOG.debug('clearing cache...')
-                    ops.write_ops_data(path, SCAN)
-                    ops.write_ops_data(path, read.READ)
- 
-                    LOG.debug('updating MariaDB...')
-                    if start_read_cache_size != end_read_cache_size:
-                        ops.update_ops_data()
-
-                    # library.clear_docs(config.DIRECTORY, path)
-                    if os.access(path, os.R_OK):
-                        ops.record_op_complete(HLSCAN, SCANNER, path)
-                    ops.write_ops_data(path, HLSCAN, SCANNER)
+                    _post_scan(path, start_read_cache_size != end_read_cache_size)
 
             elif not os.access(path, os.R_OK):
+                #TODO: parrot behavior for IOError as seen in read.py 
                 LOG.warning("%s isn't currently available." % (path))
                 
 

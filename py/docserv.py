@@ -9,8 +9,9 @@ from modes import Mode, Selector
 
 import config
 import search
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 class DocumentServiceProcess(ServiceProcess):

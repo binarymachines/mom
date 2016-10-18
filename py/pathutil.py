@@ -8,8 +8,9 @@ import cache2
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
 
 import sql
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 def get_directory_constants(identifier):
