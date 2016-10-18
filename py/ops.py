@@ -54,6 +54,7 @@ def operation_in_cache(path, operation, operator=None):
 
 def record_op_begin(operation, operator, path, esid=None):
     LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
+    
     key = cache2.create_key(OPS, str(config.pid), operation, operator, path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': esid,
@@ -154,25 +155,17 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
     # LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
 
 
-def check_for_reconfig_request():
-    values = cache2.get_hash(OPS, EXEC)
-    return 'start_time' in values and values['start_time'] == config.start_time and values['reconfig_requested'] == 'True'
-
-
-def check_for_stop_request():
-    values = cache2.get_hash(OPS, EXEC)
-    return 'start_time' in values and values['start_time'] == config.start_time and values['stop_requested'] == 'True'
-
+# external commands
 
 def check_status(opcount=None):
 
     if opcount is not None and opcount % config.status_check_freq!= 0: return
 
-    if check_for_reconfig_request():
+    if reconfig_requested():
         start.execute()
         clear_reconfig_request()
 
-    if check_for_stop_request():
+    if stop_requested():
         print 'stop requested, terminating...'
         flush_cache()
         # cache.flush_cache()
@@ -184,6 +177,18 @@ def clear_reconfig_request():
     values['reconfig_requested'] = False
     cache2.set_hash(OPS, EXEC, values)
 
+
+def reconfig_requested():
+    values = cache2.get_hash(OPS, EXEC)
+    return values['pid'] == str(config.pid) and values['reconfig_requested'] == 'True'
+
+
+def stop_requested():
+    values = cache2.get_hash(OPS, EXEC)
+    return values['pid'] == str(config.pid) and values['stop_requested'] == 'True'
+
+
+# execution record
 
 def record_exec():
     values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }

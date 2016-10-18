@@ -122,7 +122,7 @@ def do_match_op(esid, absolute_path):
                 else:
                     LOG.debug('calc: %s seeking matches for %s' % (matcher.name, asset.absolute_path))
                     matcher.match(asset)
-                    ops.write_ops_data(asset.absolute_path, CALC, matcher.name)
+                    # ops.write_ops_data(asset.absolute_path, CALC, matcher.name)
 
         except AssetException, err:
             LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
