@@ -11,8 +11,9 @@ from sqlalchemy.orm import sessionmaker
 
 import config
 import sql
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 Base = declarative_base()
 

@@ -21,13 +21,14 @@ import ops
 import search
 import sql
 import scan
+import log
 
 from assets import Document
 from context import DirectoryContext
 from errors import AssetException
 from match import ElasticSearchMatcher
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 CALC = 'match'
 

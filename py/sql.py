@@ -5,7 +5,9 @@ import MySQLdb as mdb
 
 from errors import SQLConnectError
 
-LOG = logging.getLogger('sql.log')
+import log
+
+LOG = log.get_log(__name__, logging.INFO)
 
 WILD = '%'
 
@@ -97,7 +99,7 @@ def execute_query(query):
     try:
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
-        LOG.debug(query)
+        LOG.info(query)
         cur.execute(query)
         con.commit()
     except mdb.Error, e:
@@ -123,7 +125,7 @@ def run_query(query):
     try:
         con = mdb.connect(config.mysql_host, config.mysql_user, config.mysql_pass, config.mysql_db)
         cur = con.cursor()
-        LOG.debug(query)
+        LOG.info(query)
         cur.execute(query)
         rows = cur.fetchall()
     except mdb.Error, e:
@@ -167,7 +169,7 @@ def _load_query(filename, args):
         with open('py/sql/%s.sql' % filename, 'r') as f:
             for line in f:
                 if line.startswith('--'):
-                    LOG.debug(line.replace('\n', ''))
+                    LOG.info(line.replace('\n', ''))
                     continue
                 query += line
             f.close()

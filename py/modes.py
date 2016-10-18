@@ -2,8 +2,9 @@
 import sys, os, logging, traceback, datetime
 
 from errors import ModeDestinationException
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 class Mode(object):
     HIGHEST = 100;

@@ -18,8 +18,9 @@ import sql
 from assets import Directory, Document
 from errors import AssetException, ElasticSearchError
 import search
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'

@@ -2,8 +2,9 @@ import sys, os, logging, traceback, thread
 
 from modes import Mode, Rule, Selector, Engine
 from errors import BaseClassException
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 SERVICE_NAME = '::\`]'
 

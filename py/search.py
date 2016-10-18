@@ -7,8 +7,9 @@ import logging
 from elasticsearch import Elasticsearch, ConnectionError
 
 import config
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 def clear_index(index):

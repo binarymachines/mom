@@ -15,7 +15,7 @@ import log
 
 GET_PATHS = 'start_get_paths'
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 def execute(args):

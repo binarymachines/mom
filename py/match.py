@@ -10,7 +10,10 @@ import sql
 from query import Builder
 from errors import BaseClassException
 
-LOG = logging.getLogger(__name__)
+import log
+
+
+LOG = log.get_log(__name__, logging.DEBUG)
 
 pp = pprint.PrettyPrinter(indent=4)
 

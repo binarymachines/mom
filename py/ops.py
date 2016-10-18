@@ -8,8 +8,9 @@ import config
 import sql
 import start
 import alchemy
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 OPS = 'operations'
 EXEC = 'execution'

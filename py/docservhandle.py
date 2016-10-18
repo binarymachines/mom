@@ -4,8 +4,9 @@ from modes import Selector, Mode
 from context import DirectoryContext
 
 import config, calc, scan, report, clean
+import log
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 class DocumentServiceProcessHandler():

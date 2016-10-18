@@ -4,7 +4,9 @@ import pathutil
 from walk import Walker
 from errors import BaseClassException
 
-LOG = logging.getLogger(__name__)
+import log
+
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 class DirectoryWalker(Walker):

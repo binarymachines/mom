@@ -13,10 +13,11 @@ import config
 import library
 import ops
 import sql
+import log
 
 from errors import ElasticSearchError, BaseClassException
 
-LOG = logging.getLogger(__name__)
+LOG = log.get_log(__name__, logging.INFO)
 
 DELIM = ','
 READ = 'read'
@@ -81,10 +82,11 @@ class Reader:
         for file_handler in self.get_file_handlers():
             if file_handler_name is None or file_handler.name == file_handler_name:
                 if asset.ext in file_handler.extensions or '*' in file_handler.extensions or force_read:
-                    if not ops.operation_in_cache(asset.absolute_path, READ, file_handler.name):
-                        LOG.debug("%s reading file: %s" % (file_handler.name, asset.short_name()))
-                        if file_handler.handle_file(asset, data):
-                            library.record_file_read(file_handler.name, asset)
+                    if ops.operation_in_cache(asset.absolute_path, READ, file_handler.name):
+                        continue
+                    LOG.info("%s reading file: %s" % (file_handler.name, asset.short_name()))
+                    if file_handler.handle_file(asset, data):
+                        library.record_file_read(file_handler.name, asset)
 
     def get_file_handlers(self):
         return MutagenID3(), MutagenFLAC(), MutagenAPEv2(), MutagenOggVorbis()
@@ -168,6 +170,7 @@ class Mutagen(FileHandler):
                     time.sleep(5)
                     fs_avail = os.access(asset.absolute_path, os.R_OK) 
 
+                print "resuming..." 
                 self.read_tags(asset, data)
                 return True
 
