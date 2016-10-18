@@ -31,9 +31,14 @@ def flush_cache(resuming=False):
 
 
 def operation_completed(path, operation, operator=None):
-    LOG.debug("checking for record of %s:::%s on path %s " % (operator, operation, path))
-    rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_path', 'start_time', 'end_time'],
-        [operator, operation, path])
+    # LOG.debug("checking for record of %s:::%s on path %s " % (operator, operation, path))
+    if operator is None:
+        rows = sql.retrieve_values('op_record', ['operation_name', 'target_path', 'start_time', 'end_time'],
+            [operation, path])
+    else:            
+        rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_path', 'start_time', 'end_time'],
+            [operator, operation, path])
+
     result = len(rows) > 0
     # LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
@@ -119,6 +124,7 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
     
     for key in keys:
         record = cache2.get_hash2(key)
+        cache2.delete_key(key)
         skip = False
         for field in OP_RECORD:
             if not field in record: 
@@ -137,7 +143,6 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 
         alchemy.insert_operation_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
             target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
-        cache2.delete_key(key)
 
         # except Exception, error:
         #     raise error

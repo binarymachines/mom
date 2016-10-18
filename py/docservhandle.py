@@ -106,8 +106,8 @@ class DocumentServiceProcessHandler():
 
 
     def do_match(self):
-        dir = self.context.get_active ('match')
-        LOG.debug('%s matching in %s...' % (self.name, dir))
+        # dir = self.context.get_active ('match')
+        # LOG.debug('%s matching in %s...' % (self.name, dir))
         try:
             calc.calc(self.context)
         except Exception, err:

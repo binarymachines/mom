@@ -163,10 +163,10 @@ class Mutagen(FileHandler):
             if isinstance(err.args[0], IOError):
                 fs_avail = False
                 while fs_avail == False:
+                    ops.check_status()
                     print "file system offline, retrying in 5 seconds..." 
                     time.sleep(5)
                     fs_avail = os.access(asset.absolute_path, os.R_OK) 
-                    ops.check_status()
 
                 self.read_tags(asset, data)
                 return True

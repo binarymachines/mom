@@ -86,7 +86,7 @@ class DirectoryContext(Context):
 
     def get_next(self, consumer, use_fifo=False):
 
-        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return self.pop_fifo(consumer)
 
         if len(self.paths) == 0: return None
@@ -109,7 +109,7 @@ class DirectoryContext(Context):
 
     def has_next(self, consumer, use_fifo=False):
 
-        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return True
 
         if len(self.paths) == 0: return False

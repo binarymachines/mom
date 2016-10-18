@@ -50,7 +50,7 @@
             "program": "${workspaceRoot}/py/calc.py",
             "args": [
                 "--path",
-                "/media/removable/PNY16/media/music/"
+                "/media/removable/Audio/music/albums"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
