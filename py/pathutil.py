@@ -184,7 +184,7 @@ def path_has_location_name(path, names):
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_in_album_directory(path):
     # if self.debug: print path
-    if os.path.isdir(path) == False:
+    if os.path.isdir(path) is False:
         raise Exception('Path does not exist: "' + path + '"')
 
     raise Exception('not implemented!')
@@ -203,7 +203,7 @@ def path_in_location_directory(path):
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
 def path_is_album_directory(path):
     # if self.debug: print path
-    if os.path.isdir(path) == False:
+    if os.path.isdir(path) is False:
         raise Exception('Path does not exist: "' + path + '"')
 
     raise Exception('not implemented!')

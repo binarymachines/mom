@@ -195,32 +195,57 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
 #         latest_operation = doc['_source']['latest_operation']
 #         return latest_operation
 
+def _sub_index_asset(asset, data):
+    res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
+    if res['_shards']['successful'] == 1:
+        esid = res['_id']
+        # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
+        asset.esid = esid
+        try:
+            LOG.debug("inserting %s: %s into MariaDB" % (asset.document_type, asset.absolute_path))
+            insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
+        except Exception, err:
+            config.es.delete(config.es_index, asset.document_type, asset.esid)
+            raise err
+
 
 def index_asset(asset, data):
     LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
     try:
-        res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
-        if res['_shards']['successful'] == 1:
-            esid = res['_id']
-            # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
-            asset.esid = esid
-            try:
-                LOG.debug("inserting asset into MariaDB")
-                insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
-            except Exception, err:
-                config.es.delete(config.es_index, asset.document_type, asset.esid)
-                raise err
-    # except RequestError, err:
-    #     message = err.in
+        _sub_index_asset(asset, data)
     except Exception, err:
-        LOG.error(err.__class__.__name__, exc_info=True)
-        record_error(err)
-        # raise ElasticSearchError(err, 'Failed to write %s %s to Elasticsearch.' % (asset.document_type, asset.absolute_path))
+        # TODO: if ES doesn't become available after alloted time or number of retries, INVALIDATE ALL READ OPERATIONS FOR THIS ASSET
+        print "Elasticsearch connectivity error, retrying in 5 seconds..." 
+        es_avail = False
+        while es_avail is False:
+            LOG.error(err.__class__.__name__, exc_info=True)
+            ops.check_status()
+            time.sleep(5)
+            try:
+                config.es = search.connect()
+                if config.es.indices.exists(config.es_index):
+                    _sub_index_asset(asset, data)
+                    es_avail = True
+            # except RequeeestError
+            except Exception, err:
+                print "elastic search connectivity error, retrying in 5 seconds..." 
 
 
 def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
     alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
-
+    # except Exception, err:
+    #         print "database connectivity error, retrying in 5 seconds..." 
+    #         db_avail = False
+    #         while db_avail is False:
+    #             LOG.error(err.__class__.__name__, exc_info=True)
+    #             ops.check_status()
+    #             time.sleep(5)
+    #             try:
+    #                 if DATABASE_AVAILABLE:
+    #                     alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
+    #                     db_avail = True
+    #             except Exception, err:
+    #                 print "database connectivity error, retrying in 5 seconds..." 
 
 def record_error(error):
     # error_class = error.__class__.__name__

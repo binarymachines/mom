@@ -13,6 +13,7 @@ import pprint
 import subprocess
 import sys
 import traceback
+import logging
 
 from docopt import docopt
 
@@ -23,6 +24,9 @@ import sql
 import start
 from assets import Document
 import util
+import log
+
+LOG = log.get_log(__name__, logging.DEBUG)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -231,7 +235,7 @@ def post_process__data(data, exclude_ignore, records):
                     if matched_file[MATCH_SCORE] + matched_file[WEIGHT] - matched_file[DISCOUNT]  < average:
                         matched_file[SUGGEST] = 'IGNORE'
                         [FILES_MATCHED].remove(matched_file)
-                        if exclude_ignore == False:
+                        if exclude_ignore is False:
                             if  FILES_IGNORED not in directory:
                                 [FILES_IGNORED] = []
                             [FILES_IGNORED].append(matched_file)

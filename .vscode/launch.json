@@ -24,15 +24,7 @@
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/py/launch.py",
             // "args": [
-                // "--config", "cloud.ini",
-                // "--pattern", "m u s l i m g a u z e",
-                // "--path",
-                // "/media/removable/Audio/albums/industrial",
-                // "--reset"
-                // "--exit",
-                // "--scan",
-                // "--match",
-                // "--clearmem"
+            //     "--reset"
             // ],
             "debugOptions": [
                 "WaitOnAbnormalExit",

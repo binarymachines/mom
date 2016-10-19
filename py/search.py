@@ -34,8 +34,7 @@ def create_index(index):
 
 def connect(hostname=config.es_host, port_num=config.es_port):
     LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
-    es = Elasticsearch([{'host': hostname, 'port': port_num}])
-    return es
+    return Elasticsearch([{'host': hostname, 'port': port_num}])
 
 
 def delete_docs(doc_type, attribute, value):
