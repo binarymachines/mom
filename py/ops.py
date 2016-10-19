@@ -22,13 +22,14 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
     rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
     for row in rows:
-        key = cache2.create_key(OPS, row[0], row[1], row[2], str(config.pid), value=path)
+        key = cache2.create_key(OPS, row[0], row[1], row[2], value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name': row[0], 'operator_name':  row[1], 'target_path': row[2] })
 
 
 def flush_cache(resuming=False):
     LOG.debug('flushing cache...')
     write_ops_data(os.path.sep, resuming=resuming)
+
 
 def operation_completed(path, operation, operator=None):
     # LOG.debug("checking for record of %s:::%s on path %s " % (operator, operation, path))
@@ -45,7 +46,7 @@ def operation_completed(path, operation, operator=None):
 
 
 def operation_in_cache(path, operation, operator=None):
-    key = cache2.get_key(OPS, operation, operator, path, str(config.pid))
+    key = cache2.get_key(OPS, config.pid, operation, operator, path)
     values = cache2.get_hash2(key)
     result = 'persisted' in values and values['persisted'] == 'True'
     LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
@@ -55,13 +56,13 @@ def operation_in_cache(path, operation, operator=None):
 def record_op_begin(operation, operator, path, esid=None):
     LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
     
-    key = cache2.create_key(OPS, operation, operator, path, str(config.pid))
+    key = cache2.create_key(OPS, config.pid, operation, operator, path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': esid,
         'target_path': path, 'index_name': config.es_index, 'status': "ACTIVE" }
     cache2.set_hash2(key, values)
 
-    key = cache2.get_key(OPS, EXEC, str(config.pid))
+    key = cache2.get_key(OPS, EXEC, config.pid)
     values = cache2.get_hash2(key)
     values['current_operation'] = operation
     values['current_operator'] = operator
@@ -72,13 +73,13 @@ def record_op_begin(operation, operator, path, esid=None):
 def record_op_complete(operation, operator, path, esid=None, op_failed=False):
     LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
 
-    key = cache2.get_key(OPS, operation, operator, path, str(config.pid))
+    key = cache2.get_key(OPS, config.pid, operation, operator, path)
     values = cache2.get_hash2(key)
     values['status'] = "FAIL" if op_failed else 'COMPLETE'
     values['end_time'] = datetime.datetime.now().isoformat()
     cache2.set_hash2(key, values)
 
-    key = cache2.get_key(OPS, EXEC, str(config.pid))
+    key = cache2.get_key(OPS, EXEC, config.pid)
     values = cache2.get_hash2(key)
     values['current_operation'] = None
     values['current_operator'] = None
@@ -89,13 +90,12 @@ def record_op_complete(operation, operator, path, esid=None, op_failed=False):
 def mark_operation_invalid(operation, operator, path):
     LOG.debug("marking operation invalid: %s:::%s - path %s " % (operator, operation, path))
 
-    key = cache2.get_key(OPS, operation, operator, path, str(config.pid))
+    key = cache2.get_key(OPS, config.pid, operation, operator, path)
     values = cache2.get_hash2(key)
     values['status'] = 'INVALID'
     cache2.set_hash2(key, values)
 
     
-
 def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
     if apply_lifespan:
         start = datetime.date.today() + datetime.timedelta(0 - config.op_life)
@@ -129,9 +129,9 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
     operation = '*' if operation is None else operation
     
     if resuming and config.old_pid:
-        keys = cache2.get_keys(OPS, operation, operator, path, str(config.old_pid))
+        keys = cache2.get_keys(OPS, config.old_pid, operation, operator, path)
     else: 
-        keys = cache2.get_keys(OPS, operation, operator, path, str(config.pid))
+        keys = cache2.get_keys(OPS, config.pid, operation, operator, path)
     
     for key in keys:
         record = cache2.get_hash2(key)
@@ -163,9 +163,10 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 # execution record
 
 def get_exec_key():
-    return cache2.get_key(OPS, EXEC, str(config.pid))
+    return cache2.get_key(OPS, EXEC, config.pid)
 
 
+# TODO: use execution record to select redis db
 def record_exec():
     values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
     cache2.set_hash2(get_exec_key(), values)
@@ -196,10 +197,10 @@ def clear_reconfig_request():
 
 def reconfig_requested():
     values = cache2.get_hash2(get_exec_key())
-    return values['pid'] == str(config.pid) and values['reconfig_requested'] == 'True'
+    return values['pid'] == config.pid and values['reconfig_requested'] == 'True'
 
 
 def stop_requested():
     values = cache2.get_hash2(get_exec_key())
-    return values['pid'] == str(config.pid) and values['stop_requested'] == 'True'
+    return values['pid'] == config.pid and values['stop_requested'] == 'True'
 
