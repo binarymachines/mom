@@ -52,10 +52,22 @@ def operation_in_cache(path, operation, operator=None):
     LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
+def push_operation(operation, operator, path):
+    op_key = cache2.get_key(OPS, config.pid, operation, operator, path)
+    # op_values = cache2.get_hash2(op_key)
+
+    stack_key = cache2.get_key(OPS, config.pid, 'op-stack')
+    cache2.lpush2(stack_key, op_key)
+    pass
+
+def pop_operation(operation, operator, path):
+    op_key = cache2.get_key(OPS, config.pid, operation, operator, path)
+    op_values = cache2.get_hash2(op_key)
+    pass
 
 def record_op_begin(operation, operator, path, esid=None):
     LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
-    
+
     key = cache2.create_key(OPS, config.pid, operation, operator, path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': esid,
@@ -69,9 +81,11 @@ def record_op_begin(operation, operator, path, esid=None):
     values['operation_status'] = 'active'
     cache2.set_hash2(key, values)
 
+    push_operation(operation, operator, path)
 
 def record_op_complete(operation, operator, path, esid=None, op_failed=False):
     LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
+    pop_operation(operation, operator, path)
 
     key = cache2.get_key(OPS, config.pid, operation, operator, path)
     values = cache2.get_hash2(key)

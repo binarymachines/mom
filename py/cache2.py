@@ -105,6 +105,15 @@ def key_exists2(key):
 
 # ordered list functions for compound keys and key groups
 
+def rpeek(key_group, *identifier):
+    key = key_name(key_group, identifier)
+    return config.redis.range(key, -1, -1)
+
+
+def rpeek2(key):
+    return config.redis.range(key, -1, -1)
+
+
 def rpush(key_group, *identifier, **value):
     key = key_name(key_group, identifier)
     for val in value:
@@ -114,6 +123,15 @@ def rpush(key_group, *identifier, **value):
 def rpush2(key, **value):
     for val in value:
         config.redis.rpush(key, value[val])
+
+
+def lpeek(key_group, *identifier):
+    key = key_name(key_group, identifier)
+    return config.redis.range(key, 0, 0)
+
+
+def lpeek2(key):
+    return config.redis.range(key, 0, 0)
 
 
 def lpush(key_group, *identifier, **value):
