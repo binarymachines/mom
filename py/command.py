@@ -17,7 +17,7 @@ def _connect_to_redis():
 
 def _set_field_value(pid, field, value):
     config.redis = _connect_to_redis()
-    key =  cache2.get_key(ops.OPS, ops.EXEC, str(pid))
+    key =  cache2.get_key(ops.OPS, ops.EXEC, pid)
 
     values = cache2.get_hash2(key)
     values[field] = value
@@ -25,12 +25,12 @@ def _set_field_value(pid, field, value):
 
 
 def request_stop(pid):
-    print 'submitting stop request for %s...' % (str(pid))
+    print 'submitting stop request for %s...' % (pid)
     _set_field_value(pid, 'stop_requested', True)
 
 
 def request_reconfig(pid):
-    print 'submitting reconfig request for %s...' % (str(pid))
+    print 'submitting reconfig request for %s...' % (pid)
     _set_field_value(pid, 'reconfig_requested', True)
 
 

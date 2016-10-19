@@ -31,9 +31,9 @@ RETRIEVE_DOCS = 'cache_retrieve_docs'
 
 def get_cache_key(subset=None):
     if subset is None:
-        return cache2.get_key(KEY_GROUP, str(config.pid))
+        return cache2.get_key(KEY_GROUP, config.pid)
     # (else)
-    return cache2.get_key(KEY_GROUP, subset, str(config.pid))
+    return cache2.get_key(KEY_GROUP, subset, config.pid)
 
 def cache_directory(directory):
     if directory is None:

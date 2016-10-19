@@ -14,7 +14,7 @@ start_time = datetime.datetime.now()
 username = None
 
 old_pid = None
-pid = os.getpid()
+pid = str(os.getpid())
 path_cache_size = None
 
 op_life = 90
@@ -44,7 +44,7 @@ no_match = False
 
 
 def display_status():
-    print """Process ID: %i""" % pid
+    print """Process ID: %s""" % pid
     print 'Redis host: %s' % redis_host
     print 'Redis dbsize: %i' % redis.dbsize()
     print """Elasticsearch host: %s""" % es_host

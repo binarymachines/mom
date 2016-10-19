@@ -132,9 +132,8 @@ class Mutagen(FileHandler):
         read_failed = False
 
         try:
-            ops.record_op_begin('read', self.name, asset.absolute_path, asset.esid)
+            ops.record_op_begin(READ, self.name, asset.absolute_path, asset.esid)
             self.read_tags(asset, data)
-            
             return True
 
         except ID3NoHeaderError, err:
@@ -185,7 +184,7 @@ class Mutagen(FileHandler):
             self.handle_exception(err, asset, data)
 
         finally:
-            ops.record_op_complete('read', self.name, asset.absolute_path, asset.esid, op_failed=read_failed)
+            ops.record_op_complete(READ, self.name, asset.absolute_path, asset.esid, op_failed=read_failed)
 
 
     def read_tags(self, asset, data):

@@ -42,6 +42,20 @@ def insert_asset(index_name, doc_type, id, absolute_path):
     session.commit()
 
 
+def retrieve_assets(doc_type, absolute_path):
+    # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else 
+    path = '%s%s' % (path, '%')
+
+    result = ()
+    for instance in session.query(SQLAsset).\
+        filter(SQLAsset.index_name == config.es_index).\
+        filter(SQLAsset.doc_type == doc_type).\
+        filter(SQLAsset.absolute_path.like(path)):
+            result += (instance,)
+
+    return result
+
+
 class SQLMatchRecord(Base):
     __tablename__ = 'matched'
     doc_id = Column('doc_id', String(64), primary_key=True, nullable=False)
@@ -60,10 +74,12 @@ def insert_match_record(doc_id, match_doc_id, matcher_name, matched_fields, matc
 
     session.add(match_rec)
     session.commit()
+
     
-def list_matches():
-    for instance in session.query(SQLMatchRecord).order_by(SQLMatchRecord.doc_id):
-	print(instance.doc_id, instance.match_doc_id)
+# def list_matches():
+#     for instance in session.query(SQLMatchRecord).order_by(SQLMatchRecord.doc_id):
+# 	print(instance.doc_id, instance.match_doc_id)
+
 
 class SQLOperationRecord(Base):
     __tablename__ = 'op_record'
@@ -82,46 +98,58 @@ class SQLOperationRecord(Base):
 
 def insert_operation_record(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
-    op_rec = SQLOperationRecord(pid=str(config.pid), index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
+    op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
         target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now())
 
     session.add(op_rec)
     session.commit()
 
 
-def retrieve_op_records(operation, operator, path, apply_lifespan=False):
-    path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else '%s%s' % (path, '%')
+def retrieve_op_records(path, operation, operator=None, apply_lifespan=False):
+    # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else 
+    path = '%s%s' % (path, '%')
+
     result = ()
+    if operator is None:
+        for instance in session.query(SQLOperationRecord).\
+            filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
+            filter(SQLOperationRecord.operation_name == operation):
+                result += (instance,)
+    else:
+        for instance in session.query(SQLOperationRecord).\
+            filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
+            filter(SQLOperationRecord.operation_name == operation).\
+            filter(SQLOperationRecord.operator_name == operator):
+                result += (instance,)
 
-    for instance in session.query(SQLOperationRecord).\
-        filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
-        filter(SQLOperationRecord.operation_name == operation).\
-        filter(SQLOperationRecord.operator_name == operator):
-            result += (instance,)
+    return result
 
-    for op_rec in result:
-        print (op_rec.operation_name, op_rec.operator_name, op_rec.target_path)
 
 def main():
-    retrieve_op_records('scan', 'scanner', '/media/removable/SG932/media/music/incoming/complete/')
+    path = '/'
+    # for op_rec in retrieve_op_records(path, 'scan', 'scanner'):
+    #     print (op_rec.operation_name, op_rec.operator_name, op_rec.target_path)
+
+    for op_rec in retrieve_op_records(path, 'read'):
+        print (op_rec.operation_name, op_rec.operator_name, op_rec.target_path)
 
 if __name__ == '__main__':
     main()
 
 
-    # else:
+# else:
 
-    # if apply_lifespan:
-    #     start = datetime.date.today() + datetime.timedelta(0 - config.op_life)
-    #     if operator is None:
-    #         return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start, path)
-    #     else:
-    #         return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start, path)
-    # else:
-    #     if operator is None:
-    #         return sql.run_query_template('ops_retrieve_complete_ops', operation, path)
-    #     else:
-    #         return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
+# if apply_lifespan:
+#     start = datetime.date.today() + datetime.timedelta(0 - config.op_life)
+#     if operator is None:
+#         return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start, path)
+#     else:
+#         return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start, path)
+# else:
+#     if operator is None:
+#         return sql.run_query_template('ops_retrieve_complete_ops', operation, path)
+#     else:
+#         return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
 
 
 
@@ -140,7 +168,7 @@ if __name__ == '__main__':
 
 # def insert_interupted_operation_record(operation_name, operator_name, target_esid, target_path, start_time, status):
 #     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time,status))
-#     op_rec = SQLInterruptedOperationRecord(pid=str(config.pid), index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
+#     op_rec = SQLInterruptedOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
 #         target_esid=target_esid, target_path=target_path, start_time=start_time, status=status, effective_dt=datetime.datetime.now())
 
 #     session.add(op_rec)

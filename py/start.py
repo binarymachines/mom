@@ -180,6 +180,6 @@ def read_pid_file():
 
 def write_pid_file():
     f = open('pid', 'wt')
-    f.write(str(config.pid))
+    f.write(config.pid)
     f.flush()
     f.close()
