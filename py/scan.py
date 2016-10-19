@@ -55,6 +55,9 @@ class Scanner(Walker):
 
     #TODO: parrot behavior for IOError as seen in read.py 
     def before_handle_root(self, root):
+        # MAX_RETRIES = 10
+        # attempts = 1
+
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if ops.operation_in_cache(root, SCAN, SCANNER) and not self.do_deep_scan: return
@@ -65,15 +68,17 @@ class Scanner(Walker):
             except AssetException, err:
                 LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                 library.handle_asset_exception(err, root)
-                library.clear_directory_cache()
-            
+                self.context.rpush_fifo(SCAN, root)
+                
+            # except TransportError:
             except Exception, err:
+                # attempts += 1
                 LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                # library.handle_asset_exception(err, root)
                 self.context.push_fifo(SCAN, root)
-                library.clear_directory_cache()
+                
                 raise err
-        else:
+        
+        elif os.access(root, os.R_OK) == False:
             self.context.push_fifo(SCAN, root)
             # raise Exception("%s isn't currently available." % (root))
 
