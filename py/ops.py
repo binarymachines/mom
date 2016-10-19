@@ -22,13 +22,16 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
     rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
     for row in rows:
-        key = cache2.create_key(OPS, row[0], row[1], row[2], value=path)
+        key = cache2.create_key(config.pid, OPS, row[0], row[1], row[2], value=path)
+        LOG.debug(row)
         cache2.set_hash2(key, {'persisted': True, 'operation_name': row[0], 'operator_name':  row[1], 'target_path': row[2] })
 
 
 def flush_cache(resuming=False):
     LOG.debug('flushing cache...')
     write_ops_data(os.path.sep, resuming=resuming)
+    if resuming is False:
+        config.redis.flushdb()
 
 
 def operation_completed(path, operation, operator=None):
@@ -46,35 +49,51 @@ def operation_completed(path, operation, operator=None):
 
 
 def operation_in_cache(path, operation, operator=None):
-    key = cache2.get_key(OPS, config.pid, operation, operator, path)
+    key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(key)
     result = 'persisted' in values and values['persisted'] == 'True'
     LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
 def push_operation(operation, operator, path):
-    op_key = cache2.get_key(OPS, config.pid, operation, operator, path)
-    # op_values = cache2.get_hash2(op_key)
-
-    stack_key = cache2.get_key(OPS, config.pid, 'op-stack')
+    op_key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
     cache2.lpush2(stack_key, op_key)
-    pass
 
-def pop_operation(operation, operator, path):
-    op_key = cache2.get_key(OPS, config.pid, operation, operator, path)
-    op_values = cache2.get_hash2(op_key)
-    pass
+    # print 'current operation: %s' % operation
+
+def pop_operation():
+    try:
+        exec_key = cache2.get_key(config.pid, OPS, EXEC)
+        stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
+
+        op_key = cache2.lpop2(stack_key)
+        # op_values = cache2.get_hash2(op_key)
+
+        last_op_key = cache2.lpeek2(stack_key)[0]
+        
+        if last_op_key == 'None':
+            set_exec_record_value('current_operation', None)
+            set_exec_record_value('current_operator', None)
+            set_exec_record_value('operation_status', None)
+        else:
+            values = cache2.get_hash2(last_op_key)
+            cache2.set_hash2(exec_key, values)
+            # print 'current operation: %s' % values['current_operator']
+
+    except Exception, err:
+        LOG.error(err.message)
 
 def record_op_begin(operation, operator, path, esid=None):
     LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
 
-    key = cache2.create_key(OPS, config.pid, operation, operator, path)
+    key = cache2.create_key(config.pid, OPS, operation, operator, path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': esid,
         'target_path': path, 'index_name': config.es_index, 'status': "ACTIVE" }
     cache2.set_hash2(key, values)
 
-    key = cache2.get_key(OPS, EXEC, config.pid)
+    key = cache2.get_key(config.pid, OPS, EXEC)
     values = cache2.get_hash2(key)
     values['current_operation'] = operation
     values['current_operator'] = operator
@@ -85,26 +104,19 @@ def record_op_begin(operation, operator, path, esid=None):
 
 def record_op_complete(operation, operator, path, esid=None, op_failed=False):
     LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
-    pop_operation(operation, operator, path)
 
-    key = cache2.get_key(OPS, config.pid, operation, operator, path)
+    key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(key)
     values['status'] = "FAIL" if op_failed else 'COMPLETE'
     values['end_time'] = datetime.datetime.now().isoformat()
     cache2.set_hash2(key, values)
 
-    key = cache2.get_key(OPS, EXEC, config.pid)
-    values = cache2.get_hash2(key)
-    values['current_operation'] = None
-    values['current_operator'] = None
-    values['operation_status'] = None
-    cache2.set_hash2(key, values)
-
+    pop_operation()
 
 def mark_operation_invalid(operation, operator, path):
     LOG.debug("marking operation invalid: %s:::%s - path %s " % (operator, operation, path))
 
-    key = cache2.get_key(OPS, config.pid, operation, operator, path)
+    key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(key)
     values['status'] = 'INVALID'
     cache2.set_hash2(key, values)
@@ -143,9 +155,9 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
     operation = '*' if operation is None else operation
     
     if resuming and config.old_pid:
-        keys = cache2.get_keys(OPS, config.old_pid, operation, operator, path)
+        keys = cache2.get_keys(config.old_pid, OPS, operation, operator, path)
     else: 
-        keys = cache2.get_keys(OPS, config.pid, operation, operator, path)
+        keys = cache2.get_keys(config.pid, OPS, operation, operator, path)
     
     for key in keys:
         record = cache2.get_hash2(key)
@@ -177,12 +189,22 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 # execution record
 
 def get_exec_key():
-    return cache2.get_key(OPS, EXEC, config.pid)
+    return cache2.get_key(config.pid, OPS, EXEC)
 
+def get_exec_record_value(field):
+    values = cache2.get_hash2(get_exec_key())
+    if field in values:
+        return  values[field]
 
 # TODO: use execution record to select redis db
 def record_exec():
     values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
+    cache2.set_hash2(get_exec_key(), values)
+
+
+def set_exec_record_value(field, value):
+    values = cache2.get_hash2(get_exec_key())
+    values[field] = value
     cache2.set_hash2(get_exec_key(), values)
 
 
@@ -204,9 +226,7 @@ def check_status(opcount=None):
 
 
 def clear_reconfig_request():
-    values = cache2.get_hash2(get_exec_key())
-    values['reconfig_requested'] = False
-    cache2.set_hash2(get_exec_key(), values)
+    set_exec_record_value('reconfig_requested', False)
 
 
 def reconfig_requested():

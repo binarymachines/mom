@@ -43,7 +43,6 @@ def execute(args):
             ops.flush_cache(resuming=True)
 
             if 'noflush' not in options:
-                LOG.debug('flushing reddis cache...')
                 cache2.flush_all()
 
             LOG.debug('connecting to MariaDB...')

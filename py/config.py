@@ -54,6 +54,7 @@ def display_status():
     print """MariaDB host: %s""" % mysql_host
     print """MariaDB port: %i""" % mysql_port
     print """MariaDB schema: %s""" % mysql_db
-    print """Media Hound username: %s""" % username
+    print """Media Hound username: %s\n""" % username
+    
 
 
