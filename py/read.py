@@ -78,6 +78,11 @@ class Reader:
                 if filename.endswith(extension):
                     return True
 
+    def invalidate_read_ops(self, asset):
+        for file_handler in self.get_file_handlers():
+           if ops.operation_in_cache(asset.absolute_path, READ, file_handler.name):
+               ops.mark_operation_invalid(asset.absolute_path, READ, file_handler.name)
+
     def read(self, asset, data, file_handler_name=None, force_read=False):
         for file_handler in self.get_file_handlers():
             if file_handler_name is None or file_handler.name == file_handler_name:
@@ -162,9 +167,10 @@ class Mutagen(FileHandler):
             self.handle_exception(err, asset, data)
 
         except MutagenError, err:
+            LOG.error(err.__class__.__name__, exc_info=True)
             if isinstance(err.args[0], IOError):
                 fs_avail = False
-                while fs_avail == False:
+                while fs_avail is False:
                     ops.check_status()
                     print "file system offline, retrying in 5 seconds..." 
                     time.sleep(5)

@@ -15,21 +15,23 @@ def _connect_to_redis():
     return redis.Redis('localhost')
 
 
-def _set_field_value(field, value):
+def _set_field_value(pid, field, value):
     config.redis = _connect_to_redis()
-    values = cache2.get_hash(ops.OPS, ops.EXEC)
+    key =  cache2.get_key(ops.OPS, ops.EXEC, str(pid))
+
+    values = cache2.get_hash2(key)
     values[field] = value
-    cache2.set_hash(ops.OPS, ops.EXEC, values)
+    cache2.set_hash2(key, values)
 
 
 def request_stop(pid):
     print 'submitting stop request for %s...' % (str(pid))
-    _set_field_value('stop_requested', True)
+    _set_field_value(pid, 'stop_requested', True)
 
 
 def request_reconfig(pid):
     print 'submitting reconfig request for %s...' % (str(pid))
-    _set_field_value('reconfig_requested', True)
+    _set_field_value(pid, 'reconfig_requested', True)
 
 
 def get_pid():

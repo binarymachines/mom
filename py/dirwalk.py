@@ -85,7 +85,7 @@ class IsInGenrePath(DirectoryHandler):
             filed = False
             for name in pathutil.get_document_category_names():
                 if name in path: filed = True
-            if filed == False:
+            if filed is False:
                 #TODO: add this directory to work queue
                 print "%s contains music but hasn't been filed." % (path)
 

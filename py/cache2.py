@@ -16,6 +16,7 @@ LIST = 'list'
 HASH = 'hashset'
 DELIM = ':'
 WILDCARD = '*'
+PID = str(os.getpid())
 
 # TODO: in order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
 # these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data

@@ -57,7 +57,7 @@ class MediaMatcher(object):
 
 
     def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
-        if self.match_recorded(media_id, match_id) == False and self.match_recorded(match_id, media_id):
+        if self.match_recorded(media_id, match_id) is False and self.match_recorded(match_id, media_id):
             LOG.info('match record for  %s ::: %s already exists.' % (media_id, match_id))
         else:
             LOG.info('recording match: %s ::: %s' % (media_id, match_id))
@@ -130,7 +130,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
         query = self.get_query(media)
         # query_printed = False
-        # if config.matcher_debug == True:
+        # if config.matcher_debug:
         #     self.print_match_query_debug_header(media, query)
         #     query_printed = True
 

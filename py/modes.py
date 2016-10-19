@@ -150,10 +150,10 @@ class Selector:
     def has_path(self, mode, destination):
         result = False
         for rule in self.get_rules(mode):
-            if result == False and rule.end == destination:
+            if result is False and rule.end == destination:
                 result =  True
                 break
-            elif result == False:
+            elif result is False:
                 result = self.has_path(rule.end, destination)
         return result
 
@@ -347,7 +347,7 @@ class Engine:
 
         self.running = True
         for selector in self.active:
-            if selector.complete == False:
+            if selector.complete is False:
                 selector.run()
 
         while len(self.active) > 0 and cycle:
@@ -369,7 +369,7 @@ class Engine:
         self.execute(False)
 
     def step(self):
-        if self.running == False:
+        if self.running is False:
             self.execute(False)
             return
 
@@ -379,7 +379,7 @@ class Engine:
     def _update(self):
         running = False
         for selector in self.active:
-            if selector.complete == False:
+            if selector.complete is False:
                 running = True
                 break
         self.running = running
