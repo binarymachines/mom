@@ -17,7 +17,7 @@ def _connect_to_redis():
 
 def _set_field_value(pid, field, value):
     config.redis = _connect_to_redis()
-    key =  cache2.get_key(ops.OPS, ops.EXEC, pid)
+    key =  cache2.get_key(pid, ops.OPS, ops.EXEC)
 
     values = cache2.get_hash2(key)
     values[field] = value

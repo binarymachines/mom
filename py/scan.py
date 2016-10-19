@@ -75,7 +75,7 @@ class Scanner(Walker):
                 # attempts += 1
                 LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                 self.context.push_fifo(SCAN, root)
-                
+                # ops.invalid
                 raise err
         
         elif os.access(root, os.R_OK) == False:
@@ -154,8 +154,8 @@ class Scanner(Walker):
             ops.update_ops_data()
 
         # library.clear_docs(config.DIRECTORY, path)
-        if os.access(path, os.R_OK):
-            ops.record_op_complete(HLSCAN, SCANNER, path)
+        # if os.access(path, os.R_OK):
+        ops.record_op_complete(HLSCAN, SCANNER, path)
         ops.write_ops_data(path, HLSCAN, SCANNER)
 
     def scan(self):
@@ -184,6 +184,8 @@ class Scanner(Walker):
 
                     self._post_scan(path, start_read_cache_size != end_read_cache_size)
                 except Exception, err:
+                    ops.record_op_complete(HLSCAN, SCANNER, path, op_failed=True)
+
                     LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 

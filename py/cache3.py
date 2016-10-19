@@ -28,8 +28,8 @@ def str_clean4key(input):
 
 def key_name(key_group, *identifier):
     """get a compound key name for a given identifier and a specified record type"""
-    keyname = DELIM.join([key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
-        else DELIM.join([key_group, DELIM.join(identifier)])
+    keyname = DELIM.join([config.pid, key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
+        else DELIM.join([config.pid, key_group, DELIM.join(identifier)])
 
     result = str_clean4key(keyname)
     # LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
@@ -131,17 +131,8 @@ def lpeek(key_group, *identifier):
 
 
 def lpeek2(key):
-    if config.redis.llen(key) == 0:
-        return None
+    return config.redis.range(key, 0, 0)
 
-    return config.redis.lrange(key, 0, 0)
-
-
-def lpop2(key):
-    if config.redis.llen(key) == 0:
-        return None
-
-    return config.redis.lpop(key)
 
 def lpush(key_group, *identifier, **value):
     key = key_name(key_group, identifier)
@@ -149,11 +140,10 @@ def lpush(key_group, *identifier, **value):
         config.redis.lpush(key, value[val])
 
 
-def lpush2(key, value):
-    # for name in values:
-    #     val = values[name]
-    config.redis.lpush(key, value)
-    
+def lpush2(key, **value):
+    for val in value:
+        config.redis.lpush(key, value[val])
+
 
 # hashsets
 
