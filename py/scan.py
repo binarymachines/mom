@@ -99,7 +99,8 @@ class Scanner(Walker):
                 data = asset.to_dictionary()
                 self.reader.read(asset, data)
                 try:
-                    library.index_asset(asset, data)
+                    if library.index_asset(asset, data) is False:
+                        raise Exception('failed index')
                 except Exception, err:
                     self.reader.invalidate_read_ops(asset)
         
