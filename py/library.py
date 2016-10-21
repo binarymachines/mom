@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import sys
-import traceback
+import time
 
 from elasticsearch.exceptions import ConnectionError, RequestError
 
@@ -13,7 +13,7 @@ import alchemy
 import cache2
 import config
 import pathutil
-import search
+import ops
 import sql
 from assets import Directory, Document
 from errors import AssetException, ElasticSearchError
@@ -213,7 +213,16 @@ def index_asset(asset, data):
     LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
     try:
         _sub_index_asset(asset, data)
-    except Exception, err:
+    except RequestError, err:
+        LOG.error(err.__class__.__name__, exc_info=True)
+        print 'Error code: %i' % err.args[0]
+        print 'Error class: %s' % err.args[1]
+        print err.args[2]
+        # pp.pprint(err.args[2])  
+
+        raise Exception(err, err.message)
+
+    except ConnectionError, err:
         # TODO: if ES doesn't become available after alloted time or number of retries, INVALIDATE ALL READ OPERATIONS FOR THIS ASSET
         print "Elasticsearch connectivity error, retrying in 5 seconds..." 
         es_avail = False
@@ -227,8 +236,10 @@ def index_asset(asset, data):
                     _sub_index_asset(asset, data)
                     es_avail = True
             # except RequeeestError
-            except Exception, err:
-                print "elastic search connectivity error, retrying in 5 seconds..." 
+            except ConnectionError, err:
+                print "Elasticsearch connectivity error, retrying in 5 seconds..."
+
+    return True        
 
 
 def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):

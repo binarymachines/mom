@@ -83,7 +83,6 @@ def get_key_value(key_group, *identifier):
     value = config.redis.lrange(key, 0, 1)
     if len(value) == 1:
         return value[0]
-    return None
 
 
 def get_keys(key_group, *identifier):
@@ -105,55 +104,68 @@ def key_exists2(key):
 
 # ordered list functions for compound keys and key groups
 
-def rpeek(key_group, *identifier):
-    key = key_name(key_group, identifier)
-    return config.redis.range(key, -1, -1)
-
-
-def rpeek2(key):
-    return config.redis.range(key, -1, -1)
-
-
-def rpush(key_group, *identifier, **value):
-    key = key_name(key_group, identifier)
-    for val in value:
-        config.redis.rpush(key, value[val])
-
-
-def rpush2(key, **value):
-    for val in value:
-        config.redis.rpush(key, value[val])
-
-
 def lpeek(key_group, *identifier):
     key = key_name(key_group, identifier)
-    return config.redis.range(key, 0, 0)
+    lpeek2(key)
 
 
 def lpeek2(key):
-    if config.redis.llen(key) == 0:
-        return None
+    if config.redis.llen(key) > 0:
+        result = config.redis.lrange(key, 0, 0)
+        return result[0]
 
-    return config.redis.lrange(key, 0, 0)
+
+def lpop(key_group, *identifier):
+    key = key_name(key_group, identifier)
+    lpop2(key)
 
 
 def lpop2(key):
-    if config.redis.llen(key) == 0:
-        return None
+    if config.redis.llen(key) > 0:
+        return config.redis.lpop(key)
 
-    return config.redis.lpop(key)
 
-def lpush(key_group, *identifier, **value):
+# def lpush(key_group, *identifier, **value):
+#     key = key_name(key_group, identifier)
+#     for val in value:
+#         config.redis.lpush(key, value[val])
+
+
+def lpush(key, *values):
+    for val in values:
+        config.redis.lpush(key, val)
+
+
+def rpeek(key_group, *identifier):
     key = key_name(key_group, identifier)
-    for val in value:
-        config.redis.lpush(key, value[val])
+    return rpeek2(key)
 
 
-def lpush2(key, value):
-    # for name in values:
-    #     val = values[name]
-    config.redis.lpush(key, value)
-    
+def rpeek2(key):
+    if config.redis.llen(key) > 0:
+        result = config.redis.lrange(key, -1, -1)
+        return result[0]
+
+
+def rpop(key_group, *identifier):
+    key = key_name(key_group, identifier)
+    rpop2(key)
+
+
+def rpop2(key):
+    if config.redis.llen(key) > 0:
+        return config.redis.rpop(key)
+
+# def rpush(key_group, *identifier, **value):
+#     key = key_name(key_group, identifier)
+#     for val in value:
+#         config.redis.rpush(key, value[val])
+
+
+def rpush(key, *values):
+    for val in values:
+        config.redis.rpush(key, val)
+
 
 # hashsets
 
@@ -214,6 +226,45 @@ def set_hash2(key, values):
     result = config.redis.hmset(identifier, values)
     # LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
 
+
+# lists of hashsets
+def add_hashset(keygroup, identifier, hashset):
+
+    key = get_key(keygroup, identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+
+    count = len(get_items2(hlkey))
+    keyinlist = DELIM.join([key, str(count)])
+
+    set_hash2(keyinlist, hashset)
+    add_item2(hlkey, keyinlist)
+
+
+def clear_hashsets(keygroup, identifier):
+    key = get_key(keygroup, identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+
+    count = len(get_items2(hlkey))
+    for index in range(count):
+        keyinlist = DELIM.join([key, str(index)])
+        delete_hash2(keyinlist)
+
+    clear_items2(hlkey)
+
+
+def get_hashsets(keygroup, identifier):
+    result = []
+
+    key = get_key(keygroup, identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+    count = len(get_items2(hlkey))
+
+    for index in range(count):
+        keyinlist = DELIM.join([key, str(index)])
+        hash = get_hash2(keyinlist)
+        result.append(hash)
+
+    return result
 
 # lists
 

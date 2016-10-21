@@ -3,7 +3,7 @@ import logging
 import config
 
 
-FORMAT = '%(asctime)s %(levelname)s %(filename)s %(funcName)s %(message)s ' #, datefmt='%m/%d/%Y %I:%M:%S %p')
+FORMAT = '%(asctime)s %(levelname)s %(filename)s %(funcName)s :: %(message)s ' #, datefmt='%m/%d/%Y %I:%M:%S %p')
 
 def get_log(log_name, logging_level):
     if config.logging_started is False:

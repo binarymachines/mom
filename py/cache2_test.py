@@ -151,6 +151,46 @@ class TestCache2(unittest.TestCase):
     #     items = cache2.get_items2(listkey)
     #     self.assertItemsEqual(items, self.test_vals, 'get_items fails')
 
+    # Ordered Liss
+
+    def test_lpush(self):
+        cache2.lpush(KEYGROUP, 'a', 'b', 'c', 'd')
+
+        pa = cache2.rpeek2(KEYGROUP)
+        pd = cache2.lpeek2(KEYGROUP)
+
+        self.assertEquals(pa, 'a')
+        self.assertEquals(pd, 'd')
+
+        a = self.redis.rpop(KEYGROUP)
+        b = self.redis.rpop(KEYGROUP)
+        c = self.redis.rpop(KEYGROUP)
+        d = self.redis.rpop(KEYGROUP)
+
+        self.assertEquals(a, 'a')
+        self.assertEquals(b, 'b')
+        self.assertEquals(c, 'c')
+        self.assertEquals(d, 'd')
+
+    def test_rpush(self):
+        cache2.rpush(KEYGROUP, 'a', 'b', 'c', 'd')
+
+        pa = cache2.lpeek2(KEYGROUP)
+        pd = cache2.rpeek2(KEYGROUP)
+
+        self.assertEquals(pa, 'a')
+        self.assertEquals(pd, 'd')
+
+        a = self.redis.lpop(KEYGROUP)
+        b = self.redis.lpop(KEYGROUP)
+        c = self.redis.lpop(KEYGROUP)
+        d = self.redis.lpop(KEYGROUP)
+
+        self.assertEquals(a, 'a')
+        self.assertEquals(b, 'b')
+        self.assertEquals(c, 'c')
+        self.assertEquals(d, 'd')
+
     # Hashsets
 
     def test_delete_hash(self):
@@ -220,6 +260,24 @@ class TestCache2(unittest.TestCase):
     #     hashkey = cache2.DELIM.join([KEYGROUP, cache2.HASH, keyname])
     #     testhash = self.redis.hgetall(hashkey)
     #     self.assertDictEqual(hash, testhash)
+
+    # Lists of hashsets
+
+    def test_add_hashset(self):
+        keyname = 'add_hashset'
+        hash = { 'operation': 'scan', 'operator': 'id3v2' }
+
+        key = cache2.get_key(KEYGROUP, keyname)
+        cache2.add_hashset(key, hash)
+
+        comp = cache2.get_hashsets(key)
+
+    def test_get_hashset(self):
+        keyname = 'add_hashset'
+        hash = {'operation': 'scan', 'operator': 'id3v2'}
+
+        key = cache2.get_key(KEYGROUP, keyname)
+        cache2.add_hashset(key, hash)
 
 
 

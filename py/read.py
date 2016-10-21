@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-import os, json, sys, logging, traceback, time
+import os, json, sys, logging, traceback, time, datetime
 
 from mutagen.id3 import ID3, ID3NoHeaderError
 from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
@@ -29,7 +29,7 @@ def add_field(doc_format, field_name):
     """add an attribute to document_metadata for the specified document_type"""
     keygroup = 'fields'
     if field_name in get_fields(doc_format): return
-    sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
+    sql.insert_values(METADATA, ['document_metadata', 'attribute_name'], [doc_format.upper(), field_name])
 
     key = cache2.get_key(keygroup, doc_format)
     cache2.clear_items2(key)
@@ -47,7 +47,7 @@ def get_fields(doc_format):
 
 
 def get_known_fields(doc_format):
-    """retrieve all attributes, innnncluding unused ones, from document_metadata for the specified document_type"""
+    """retrieve all attributes, including unused ones, from document_metadata for the specified document_type"""
     if not cache2.key_exists(KNOWN, doc_format):
         key = cache2.create_key(KNOWN, doc_format)
         rows = sql.retrieve_values('document_metadata', ['document_format', 'attribute_name'], [doc_format.upper()])
@@ -210,6 +210,7 @@ class MutagenAPEv2(Mutagen):
 
         if len(ape_data) > 0:
             ape_data['_reader'] = self.name
+            ape_data['_read_date'] = datetime.datetime.now().isoformat()
             data['properties'].append(ape_data)
 
 
@@ -244,6 +245,7 @@ class MutagenFLAC(Mutagen):
 
         if len(flac_data) > 0:
             flac_data['_reader'] = self.name
+            flac_data['_read_date'] = datetime.datetime.now().isoformat()
             data['properties'].append(flac_data)
 
 
@@ -280,13 +282,14 @@ class MutagenID3(Mutagen):
                 add_field('ID3V2', key)
 
         id3_data['version'] = document.version
+        id3_data['_read_date'] = datetime.datetime.now().isoformat()
 
         for key in id3_data:
             data[key] = id3_data[key]
 
 class MutagenOggVorbis(Mutagen):
     def __init__(self):
-        super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis', 'ogg')
+        super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis', 'ogg', 'oga')
 
     def read_tags(self, asset, data):
         ogg_data = {}
@@ -298,7 +301,11 @@ class MutagenOggVorbis(Mutagen):
             key = tag[0]
             value = tag[1]
             ogg_data[key] = value
-    
+
+        if len(ogg_data) > 0:
+            ogg_data['_reader'] = self.name
+            ogg_data['_read_date'] = datetime.datetime.now().isoformat()
+            data['properties'].append(ogg_data)
 
 # class ImageHandler(FileHandler):
 #     def __init__(self):

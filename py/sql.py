@@ -130,8 +130,7 @@ def run_query(query):
         rows = cur.fetchall()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        LOG.error(message)
-        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
+        raise Exception(e, message)
     except TypeError, e:
         LOG.error(e.message)
         # LOG.warn(query)
