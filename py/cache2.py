@@ -288,7 +288,7 @@ def add_items(key_group, identifier, items):
         add_item(key_group, identifier, item)
         # key = DELIM.join([LIST, key_group, identifier])
         # result = config.redis.sadd(key, item)
-        # # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+        # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def add_items2(key, items):

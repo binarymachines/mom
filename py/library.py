@@ -6,6 +6,7 @@ import os
 import sys
 import datetime
 import time
+import pprint 
 
 from elasticsearch.exceptions import ConnectionError, RequestError
 
@@ -27,6 +28,8 @@ KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'
+
+pp = pprint.PrettyPrinter(indent=4)
 
 # directory cache
 
@@ -218,9 +221,11 @@ def index_asset(asset, data):
         LOG.error(err.__class__.__name__, exc_info=True)
         print 'Error code: %i' % err.args[0]
         print 'Error class: %s' % err.args[1]
-        print err.args[2]
-        # pp.pprint(err.args[2])  
+        error_string = err.args[2]
+        pp.pprint(error_string)
 
+        error_obj = json.loads(error_string)
+        
         raise Exception(err, err.message)
 
     except ConnectionError, err:

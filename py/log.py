@@ -28,7 +28,7 @@ def start_logging():
     # logging.basicConfig(level=logging.DEBUG, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
 
     # console handler
-    clog = 'console.log'
+    clog = 'console'
     CONSOLE = "%s%slogs%s%s.log" % (util.get_working_directory(), os.path.sep, os.path.sep, clog)
 
     logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.INFO, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
