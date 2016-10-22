@@ -29,7 +29,8 @@ def start_logging():
 
     # console handler
     clog = 'console.log'
-    CONSOLE = "logs/%s" % (clog)
+    CONSOLE = "%s%slogs%s%s.log" % (util.get_working_directory(), os.path.sep, os.path.sep, clog)
+
     logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.INFO, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
 
     console = logging.StreamHandler()
