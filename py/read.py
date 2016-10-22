@@ -29,7 +29,7 @@ def add_field(doc_format, field_name):
     """add an attribute to document_metadata for the specified document_type"""
     keygroup = 'fields'
     if field_name in get_fields(doc_format): return
-    sql.insert_values(METADATA, ['document_metadata', 'attribute_name'], [doc_format.upper(), field_name])
+    sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
 
     key = cache2.get_key(keygroup, doc_format)
     cache2.clear_items2(key)
