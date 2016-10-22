@@ -5,7 +5,7 @@
 
 '''
 
-import datetime, sys
+import datetime, sys, os
 
 from docopt import docopt
 
@@ -16,6 +16,8 @@ import ops
 import pathutil
 import search
 import sql
+import util
+
 from serv import Service
 
 from context import DirectoryContext
@@ -57,6 +59,10 @@ def before(process):
 
 
 def main(args):
+    pydir = os.path.abspath(os.path.join(__file__, os.pardir))
+    workdir = os.path.abspath(os.path.join(pydir, os.pardir))
+    os.chdir(workdir)
+    
     service = launch(args, run=False)
     if service is not None:
         try:

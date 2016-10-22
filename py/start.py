@@ -17,7 +17,6 @@ GET_PATHS = 'start_get_paths'
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-
 def execute(args):
     show_logo()
     print 'Mildred starting...'
@@ -40,7 +39,7 @@ def execute(args):
 
             # if 'clearmem' in options:
             LOG.debug('clearing data from prior execution...')
-            ops.flush_cache(resuming=True)
+            ops.flush_cache(resuming=config.old_pid)
 
             if 'noflush' not in options:
                 cache2.flush_all()

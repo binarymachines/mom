@@ -9,10 +9,6 @@
 
 import logging
 import os
-import sys
-import traceback
-import json
-import time
 
 from docopt import docopt
 
@@ -20,7 +16,6 @@ import read
 import cache2
 import config
 import library
-import log
 import ops
 import pathutil
 import search
@@ -31,8 +26,6 @@ from context import DirectoryContext
 from errors import AssetException
 from walk import Walker
 from read import Reader
-
-from assets import Directory
 
 LOG = log.get_log(__name__, logging.INFO)
 
@@ -45,7 +38,7 @@ class Scanner(Walker):
         super(Scanner, self).__init__()
         self.context = context
         self.document_type = config.DOCUMENT
-        self.do_deep_scan = config.deep
+        self.deep_scan = config.deep
         self.reader = Reader()
 
     # Walker methods
@@ -60,7 +53,7 @@ class Scanner(Walker):
 
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if ops.operation_in_cache(root, SCAN, SCANNER) and not self.do_deep_scan: return
+            if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan: return
             if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
 
             try:
@@ -79,9 +72,10 @@ class Scanner(Walker):
                 raise err
         
         elif os.access(root, os.R_OK) == False:
-            self.context.push_fifo(SCAN, root)
+            # self.context.push_fifo(SCAN, root)
             # raise Exception("%s isn't currently available." % (root))
-
+            print "%s isn't currently available." % (root)
+            
     #TODO: parrot behavior for IOError as seen in read.py 
     def handle_root(self, root):
         directory = library.get_cached_directory()
@@ -104,7 +98,6 @@ class Scanner(Walker):
                 except Exception, err:
                     self.reader.invalidate_read_ops(asset)
         
-
         ops.record_op_complete(SCAN, SCANNER, directory.absolute_path, directory.esid)
         LOG.info('done scanning : %s' % (root))
 
@@ -138,12 +131,11 @@ class Scanner(Walker):
         return result
 
     def _pre_scan(self, path):
-        ops.record_op_begin(HLSCAN, SCANNER, path)
-
         LOG.info('caching data for %s...' % path)
         ops.cache_ops(path, SCAN)
         ops.cache_ops(path, read.READ)
         # library.cache_docs(config.DIRECTORY, path)
+        ops.record_op_begin(HLSCAN, SCANNER, path)
 
     def _post_scan(self, path, update_ops):
         LOG.info('clearing cache...')
@@ -166,12 +158,12 @@ class Scanner(Walker):
             ops.check_status()
             path = self.context.get_next(SCAN, True)
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                # if self.do_deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
+                # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
                 if self.path_expands(path): 
                     LOG.info('expanded %s...' % path)
                     continue
 
-                if ops.operation_in_cache(path, HLSCAN, SCANNER) and self.do_deep_scan is False:
+                if ops.operation_in_cache(path, HLSCAN, SCANNER) and self.deep_scan is False:
                     LOG.info('skipping %s...' % path)
                     continue
 
@@ -193,7 +185,7 @@ class Scanner(Walker):
             elif not os.access(path, os.R_OK):
                 #TODO: parrot behavior for IOError as seen in read.py 
                 LOG.warning("%s isn't currently available." % (path))
-                
+
 
 def scan(context):
     if SCANNER not in context.data:

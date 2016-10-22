@@ -30,8 +30,8 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False):
 def flush_cache(resuming=False):
 
     write_ops_data(os.path.sep, resuming=resuming)
-    if resuming is False:
-        config.redis.flushdb()
+    # if resuming is False:
+    config.redis.flushdb()
 
 
 def operation_completed(path, operation, operator=None):
@@ -108,11 +108,13 @@ def record_op_complete(operation, operator, path, esid=None, op_failed=False):
 
     key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(key)
-    values['status'] = "FAIL" if op_failed else 'COMPLETE'
-    values['end_time'] = datetime.datetime.now().isoformat()
-    cache2.set_hash2(key, values)
+    
+    if len(values) > 0:
+        values['status'] = "FAIL" if op_failed else 'COMPLETE'
+        values['end_time'] = datetime.datetime.now().isoformat()
+        cache2.set_hash2(key, values)
 
-    pop_operation()
+        pop_operation()
 
 def mark_operation_invalid(operation, operator, path):
     LOG.debug("marking operation invalid: %s:::%s - path %s " % (operator, operation, path))
@@ -221,8 +223,10 @@ def check_status(opcount=None):
 
     if stop_requested():
         print 'stop requested, terminating...'
+        LOG.debug('stop requested, terminating...')
         flush_cache()
         # cache.flush_cache()
+        LOG.debug('Run complete')
         sys.exit(0)
 
 

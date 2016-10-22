@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import sys
+import datetime
 import time
 
 from elasticsearch.exceptions import ConnectionError, RequestError
@@ -36,27 +37,26 @@ def get_cache_key(subset=None):
     return cache2.get_key(KEY_GROUP, subset, config.pid)
 
 def cache_directory(directory):
-    if directory is None:
-        cache2.delete_hash2(get_cache_key())
-        # cache2.delete_hash2(get_cache_key('errors'))
-        # cache2.delete_hash2(get_cache_key('properties'))
-        # cache2.delete_hash2(get_cache_key('files'))
-        # cache2.delete_hash2(get_cache_key('read_files'))
+    clear_directory_cache()
 
-    else:
+    if directory:
         cache2.set_hash2(get_cache_key(), directory.to_dictionary())
-        # if len(directory.errors) > 0:
-        #     cache2.set_hash2(get_cache_key('errors'), directory.errors)
-        # if len(directory.properties) > 0:
-        #     cache2.set_hash2(get_cache_key('properties'), directory.properties)
-        # if len(directory.files) > 0:
-        #     cache2.set_hash2(get_cache_key('files'), directory.files)
-        # if len(directory.read_files) > 0:
-        #     cache2.set_hash2(get_cache_key('read_files'), directory.read_files)
+        # for hash in directory.errors:
+        #     cache2.add_hashset(get_cache_key(), 'errors', hash)
+        # for hash in directory.properties:
+        #     cache2.add_hashset(get_cache_key(), 'properties', hash)
+        # for hash in directory.files:
+        #     cache2.add_hashset(get_cache_key(), 'files', hash)
+        # for hash in directory.read_files:
+        #     cache2.add_hashset(get_cache_key(), 'read_files', hash)
 
 
 def clear_directory_cache():
     cache2.delete_hash2(get_cache_key())
+    # cache2.clear_hashsets(get_cache_key(), 'errors')
+    # cache2.clear_hashsets(get_cache_key(), 'properties')
+    # cache2.clear_hashsets(get_cache_key(), 'files')
+    # cache2.clear_hashsets(get_cache_key(), 'read_files')
 
 
 def get_cached_directory():
@@ -68,10 +68,11 @@ def get_cached_directory():
     result.has_errors = values['has_errors'] == 'True'
     result.latest_error = values['latest_error']
     result.latest_operation = values['latest_operation']
-    result.errors.extend(cache2.get_hash2(get_cache_key('errors')))
-    result.properties.extend(cache2.get_hash2(get_cache_key('properties')))
-    result.files.extend(cache2.get_hash2(get_cache_key('files')))
-    result.read_files.extend(cache2.get_hash2(get_cache_key('read_files')))
+
+    # result.errors = cache2.get_hashsets(get_cache_key(), 'errors')
+    # result.properties = cache2.get_hashsets(get_cache_key(), 'properties')
+    # result.files = cache2.get_hashsets(get_cache_key(), 'files')
+    # result.read_files = cache2.get_hashsets(get_cache_key(), 'read_files')
 
     return result
 
@@ -260,7 +261,6 @@ def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
 
 def record_error(error):
     # error_class = error.__class__.__name__
-    # LOG.info("recording error: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
     # cached_dir = get_cached_directory()
     # cached_dir.errors.append(error_class)
     # cached_dir.has_errors = True
@@ -268,9 +268,10 @@ def record_error(error):
     # cache_directory(cached_dir)
     pass
 
+
 def record_file_read(file_handler_name, asset):
-    # read_record = { 'read_by': file_handler_name, 'filename': asset.file_name, 'file_ext': asset.ext }
     # LOG.info("recording file read: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
+    # read_record = {'read_by': file_handler_name, 'filename': asset.file_name, 'file_ext': asset.ext, 'read_date' : datetime.datetime.now().isoformat()}
     # cached_dir = get_cached_directory()
     # cached_dir.read_files.append(read_record)
     # cached_dir.dirty = True

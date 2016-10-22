@@ -228,9 +228,12 @@ def set_hash2(key, values):
 
 
 # lists of hashsets
-def add_hashset(keygroup, identifier, hashset):
+# These hashsets differ from the hashes handled by set_hash, set_hash2, get_hash, get_hash2, etc. in that they are \
+# intended to be owned by a compound key and are removed when that key is deleted
 
-    key = get_key(keygroup, identifier)
+def add_hashset(keyname, set_identifier, hashset):
+
+    key = get_key(keyname, set_identifier)
     hlkey = DELIM.join([LIST, HASH, key])
 
     count = len(get_items2(hlkey))
@@ -240,8 +243,8 @@ def add_hashset(keygroup, identifier, hashset):
     add_item2(hlkey, keyinlist)
 
 
-def clear_hashsets(keygroup, identifier):
-    key = get_key(keygroup, identifier)
+def clear_hashsets(keyname, set_identifier):
+    key = get_key(keyname, set_identifier)
     hlkey = DELIM.join([LIST, HASH, key])
 
     count = len(get_items2(hlkey))
@@ -252,10 +255,10 @@ def clear_hashsets(keygroup, identifier):
     clear_items2(hlkey)
 
 
-def get_hashsets(keygroup, identifier):
+def get_hashsets(keyname, set_identifier):
     result = []
 
-    key = get_key(keygroup, identifier)
+    key = get_key(keyname, set_identifier)
     hlkey = DELIM.join([LIST, HASH, key])
     count = len(get_items2(hlkey))
 
