@@ -89,8 +89,7 @@ class Reader:
                 if asset.ext in file_handler.extensions or '*' in file_handler.extensions or force_read:
                     if ops.operation_in_cache(asset.absolute_path, READ, file_handler.name):
                         continue
-                    LOG.info("%s reading file: %s" % (file_handler.name, asset.short_name()))
-                    if file_handler.handle_file(asset, data):
+                    elif file_handler.handle_file(asset, data):
                         library.record_file_read(file_handler.name, asset)
 
     def get_file_handlers(self):
@@ -109,10 +108,10 @@ class FileHandler(object):
 
 
         else:
-            error_data = { 'reader:': self.name, 'error': exception.__class__.__name__, 'details': exception.message }
+            # error_data = { 'reader:': self.name, 'error': exception.__class__.__name__, 'details': exception.message }
             
-            data['has_error'] = True
-            data['errors'].append(error_data)
+            # data['has_error'] = True
+            # data['errors'].append(error_data)
 
             library.record_error(exception)
 
@@ -129,6 +128,8 @@ class Mutagen(FileHandler):
 
 
     def handle_file(self, asset, data):
+        LOG.info("%s reading file: %s" % (self.name, asset.absolute_path))
+
         read_failed = False
 
         try:
@@ -191,6 +192,27 @@ class Mutagen(FileHandler):
         raise BaseClassException(Mutagen)
 
 
+class MutagenAAC(Mutagen):
+    def __init__(self):
+        super(MutagenAAC, self).__init__('mutagen-aac', 'aac')
+
+
+class MutagenM4A(Mutagen):
+    def __init__(self):
+        super(MutagenM4A, self).__init__('mutagen-m4a', 'm4a')
+
+
+class MutagenMP4(Mutagen):
+    def __init__(self):
+        super(MutagenMP4, self).__init__('mutagen-mp4', 'mp4')
+
+
+class MutagenOggFlac(Mutagen):
+    def __init__(self):
+        super(MutagenOggFlac, self).__init__('mutagen-oggflac', 'flac')
+
+
+
 class MutagenAPEv2(Mutagen):
     def __init__(self):
         super(MutagenAPEv2, self).__init__('mutagen-apev2', 'ape', 'mpc')
@@ -205,8 +227,8 @@ class MutagenAPEv2(Mutagen):
             value = item[1].value
             
             ape_data[key] = value
-            if key not in get_known_fields('ape'):
-                add_field('ape', key)
+            if key not in get_known_fields('apev2'):
+                add_field('apev2', key)
 
         if len(ape_data) > 0:
             ape_data['_reader'] = self.name

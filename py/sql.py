@@ -105,16 +105,21 @@ def execute_query(query):
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
         LOG.error(message)
-        # LOG.warn(query)
-        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s")
+        for arg in e.args:
+            print arg
+        print query
+        raise Exception(e, message)
     except TypeError, e:
-        LOG.error(e.message)
-        # LOG.warn(query)
-        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        LOG.error(message)
+        for arg in e.args:
+            print arg
+        print query
+        raise Exception(message)
     except Exception, e:
-        LOG.error(e.message)
-        # LOG.warn(e.query)
-        raise Exception(e.message)
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        LOG.error(message)
+        raise Exception(message)
     finally:
         if con: con.close()
 
@@ -130,15 +135,22 @@ def run_query(query):
         rows = cur.fetchall()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
+        LOG.error(message)
+        for arg in e.args:
+            print arg
+        print query
         raise Exception(e, message)
     except TypeError, e:
-        LOG.error(e.message)
-        # LOG.warn(query)
-        raise SQLConnectError(e, "Failed to Connect. %s occured. Message: %s" % (e.__class__, e.message))
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        LOG.error(message)
+        for arg in e.args:
+            print arg
+        print query
+        raise Exception(message)
     except Exception, e:
-        LOG.error(e.message)
-        # LOG.warn(query)
-        raise Exception(e.message)
+        message = "Error %d: %s" % (e.args[0], e.args[1])
+        LOG.error(message)
+        raise Exception(message)
     finally:
         if con: con.close()
 
