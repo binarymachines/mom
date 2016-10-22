@@ -20,11 +20,13 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
-    rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
+    # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
+    rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan)
     LOG.debug('caching %i operations...' % len(rows))
-    for row in rows:
-        key = cache2.create_key(config.pid, OPS, row[0], row[1], row[2], value=path)
-        cache2.set_hash2(key, {'persisted': True, 'operation_name': row[0], 'operator_name':  row[1], 'target_path': row[2] })
+    for op_record in rows:
+        key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
+        cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
+            'target_path': op_record.target_path })
 
 
 def flush_cache(resuming=False):
@@ -138,6 +140,7 @@ def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
         else:
             return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
 
+    return rows
 
 def update_ops_data():
     # pass

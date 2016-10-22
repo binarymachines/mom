@@ -23,25 +23,26 @@ DELIM = ','
 READ = 'read'
 KNOWN = 'known_fields'
 METADATA = 'document_metadata'
-
+MAX_DATA_LENGTH =256
 
 def add_field(doc_format, field_name):
     """add an attribute to document_metadata for the specified document_type"""
     keygroup = 'fields'
-    if field_name in get_fields(doc_format): return
-    sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
-
-    key = cache2.get_key(keygroup, doc_format)
-    cache2.clear_items2(key)
-    cache2.delete_key(key)
+    if field_name in get_known_fields(doc_format): 
+        return
+    try:
+        sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
+        cache2.add_item(KNOWN, doc_format, field_name)
+    except Exception, err:
+        LOG.error(err.message, exc_info=True)
 
 def get_fields(doc_format):
     """get attributes from document_metadata for the specified document_type"""
     keygroup = 'fields'
     if not cache2.key_exists(keygroup, doc_format):
-        key = cache2.create_key(keygroup, doc_format)
+        key = cache2.get_key(keygroup, doc_format)
         rows = sql.retrieve_values('document_metadata', ['active_flag', 'document_format', 'attribute_name'], ['1', doc_format.upper()])
-        cache2.add_items(keygroup, doc_format, [row[2] for row in rows])
+        cache2.add_items2(key, [row[2] for row in rows])
 
     return cache2.get_items(keygroup, doc_format)
 
@@ -181,6 +182,7 @@ class Mutagen(FileHandler):
                 return True
 
         except Exception, err:
+            LOG.error(err.message, exc_info=True)
             read_failed = True
             self.handle_exception(err, asset, data)
 
@@ -212,7 +214,6 @@ class MutagenOggFlac(Mutagen):
         super(MutagenOggFlac, self).__init__('mutagen-oggflac', 'flac')
 
 
-
 class MutagenAPEv2(Mutagen):
     def __init__(self):
         super(MutagenAPEv2, self).__init__('mutagen-apev2', 'ape', 'mpc')
@@ -225,7 +226,10 @@ class MutagenAPEv2(Mutagen):
 
             key = item[0]
             value = item[1].value
-            
+            if len(value) > MAX_DATA_LENGTH:
+                report_invalid_field(key, value)
+                continue
+
             ape_data[key] = value
             if key not in get_known_fields('apev2'):
                 add_field('apev2', key)
@@ -251,7 +255,8 @@ class MutagenFLAC(Mutagen):
 
             key = tag[0]
             value = tag[1]
-            if 'key' == 'COVERART':
+            if len(value) > MAX_DATA_LENGTH:
+                report_invalid_field(key, value)
                 continue
             flac_data[key] = value
 
@@ -261,8 +266,10 @@ class MutagenFLAC(Mutagen):
 
             key = tag[0]
             value = tag[1]
-            if 'key' == 'COVERART':
+            if len(value) > MAX_DATA_LENGTH:
+                report_invalid_field(key, value)
                 continue
+
             flac_data[key] = value
 
         if len(flac_data) > 0:
@@ -286,6 +293,9 @@ class MutagenID3(Mutagen):
 
             key = tag[0]
             value = tag[1]
+            if len(value) > MAX_DATA_LENGTH:
+                report_invalid_field(asset.absolute_path, key, value)
+                continue
 
             if key in get_fields('ID3V2'):
                 id3_data[key] = value
@@ -322,6 +332,9 @@ class MutagenOggVorbis(Mutagen):
 
             key = tag[0]
             value = tag[1]
+            if len(value) > MAX_DATA_LENGTH:
+                report_invalid_field(key, value)
+                continue
             ogg_data[key] = value
 
         if len(ogg_data) > 0:
@@ -353,3 +366,9 @@ class DelimitedText(GenericText):
 
     def handle_file(self, asset, data):
         pass
+
+
+def report_invalid_field(path, key, value):
+
+    LOG.debug('Field %s in %s contains too much data.' % key, path)
+    LOG.debug(value)
