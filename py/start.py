@@ -131,9 +131,14 @@ def configure(options):
 
     # action
     config.deep = read(parser, "Action")['deep_scan'].lower() == 'true'
-    if 'no_scan' not in options:
+    if 'no_scan' in options:
+        config.scan = False
+    else:
         config.scan = read(parser, "Action")['scan'].lower() == 'true' or 'scan' in options
-    if 'no_match' not in options:
+
+    if 'no_match' in options:
+        config.match = False
+    else: 
         config.match = read(parser, "Action")['match'].lower() == 'true' or 'match' in options
 
     # cache

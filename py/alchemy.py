@@ -43,8 +43,8 @@ def insert_asset(index_name, doc_type, id, absolute_path):
 
 
 def retrieve_assets(doc_type, absolute_path):
-    # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else 
-    path = '%s%s' % (path, '%')
+    # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path
+    path = '%s%s' % (absolute_path, '%')
 
     result = ()
     for instance in session.query(SQLAsset).\
