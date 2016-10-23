@@ -6,7 +6,8 @@ import os
 import sys
 import datetime
 import time
-import pprint 
+import pprint
+from httplib import FAILED_DEPENDENCY
 
 from elasticsearch.exceptions import ConnectionError, RequestError
 
@@ -23,6 +24,7 @@ import search
 import log
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'
@@ -94,7 +96,7 @@ def set_active(path):
             try:
                 res = config.es.update(index=config.es_index, doc_type=cached_directory.directory, id=cached_directory.esid, body= json.dumps(cached_directory.to_dictionary()))
             except ConnectionError, err:
-                LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                ERROR_LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                 print '\nConnection lost, please verify network connectivity and restart.'
                 sys.exit(1)
 
@@ -218,14 +220,30 @@ def index_asset(asset, data):
     try:
         _sub_index_asset(asset, data)
     except RequestError, err:
-        LOG.error(err.__class__.__name__, exc_info=True)
+        ERROR_LOG.error(err.__class__.__name__, exc_info=True)
+        ERROR_LOG.error(asset.absolute_path)
         print 'Error code: %i' % err.args[0]
         print 'Error class: %s' % err.args[1]
-        error_string = err.args[2]
-        pp.pprint(error_string)
+        error_string = err.args[2]['error']['reason']
+        PROPERTIES = 'properties'
+        FAILED_TO_PARSE = 'failed to parse'
+        if error_string.startswith(FAILED_TO_PARSE):
 
-        error_obj = json.loads(error_string)
-        
+            error_field = error_string.replace(FAILED_TO_PARSE, '').replace('[', '').replace(']', '').strip()
+            error_type = err.args[2]['error']['type']
+            error_cause =  err.args[2]['error']['caused_by']['reason']
+            error_value = error_cause.split('"')[1]
+
+            if error_field.startswith(PROPERTIES):
+                error_field = error_field.replace('%s.' % PROPERTIES, '').strip()
+                for index in range(len(data[PROPERTIES])):
+                    props = data[PROPERTIES][index]
+                    if props[error_field] == error_value:
+                        props[error_field] = None
+                        data[PROPERTIES][index] = props
+
+                        return index_asset(asset, data)
+ 
         raise Exception(err, err.message)
 
     except ConnectionError, err:
@@ -233,7 +251,7 @@ def index_asset(asset, data):
         print "Elasticsearch connectivity error, retrying in 5 seconds..." 
         es_avail = False
         while es_avail is False:
-            LOG.error(err.__class__.__name__, exc_info=True)
+            ERROR_LOG.error(err.__class__.__name__, exc_info=True)
             ops.check_status()
             time.sleep(5)
             try:
@@ -254,7 +272,7 @@ def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
     #         print "database connectivity error, retrying in 5 seconds..." 
     #         db_avail = False
     #         while db_avail is False:
-    #             LOG.error(err.__class__.__name__, exc_info=True)
+    #             ERROR_LOG.error(err.__class__.__name__, exc_info=True)
     #             ops.check_status()
     #             time.sleep(5)
     #             try:

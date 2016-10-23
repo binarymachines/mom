@@ -18,6 +18,7 @@ import log
 from errors import ElasticSearchError, BaseClassException
 
 LOG = log.get_log(__name__, logging.INFO)
+ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 DELIM = ','
 READ = 'read'
@@ -34,7 +35,7 @@ def add_field(doc_format, field_name):
         sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
         cache2.add_item(KNOWN, doc_format, field_name)
     except Exception, err:
-        LOG.error(err.message, exc_info=True)
+        LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 def get_fields(doc_format):
     """get attributes from document_metadata for the specified document_type"""
@@ -168,7 +169,7 @@ class Mutagen(FileHandler):
             self.handle_exception(err, asset, data)
 
         except MutagenError, err:
-            LOG.error(err.__class__.__name__, exc_info=True)
+            ERROR_LOG.error(err.__class__.__name__, exc_info=True)
             if isinstance(err.args[0], IOError):
                 fs_avail = False
                 while fs_avail is False:
@@ -182,7 +183,7 @@ class Mutagen(FileHandler):
                 return True
 
         except Exception, err:
-            LOG.error(err.message, exc_info=True)
+            ERROR_LOG.error(err.message, exc_info=True)
             read_failed = True
             self.handle_exception(err, asset, data)
 
@@ -227,7 +228,7 @@ class MutagenAPEv2(Mutagen):
             key = item[0]
             value = item[1].value
             if len(value) > MAX_DATA_LENGTH:
-                report_invalid_field(key, value)
+                report_invalid_field(asset.absolute_path, key, value)
                 continue
 
             ape_data[key] = value
@@ -256,9 +257,10 @@ class MutagenFLAC(Mutagen):
             key = tag[0]
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
-                report_invalid_field(key, value)
+                report_invalid_field(asset.absolute_path, key, value)
                 continue
             flac_data[key] = value
+
 
         for tag in document.vc:
             if tag[0] not in get_known_fields('flac.vc'):
@@ -267,7 +269,7 @@ class MutagenFLAC(Mutagen):
             key = tag[0]
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
-                report_invalid_field(key, value)
+                report_invalid_field(asset.absolute_path, key, value)
                 continue
 
             flac_data[key] = value
@@ -280,7 +282,7 @@ class MutagenFLAC(Mutagen):
 
 class MutagenID3(Mutagen):
     def __init__(self):
-        super(MutagenID3, self).__init__('mutagen-id3', 'mp3', 'flac')
+        super(MutagenID3, self).__init__('mutagen-id3', 'mp3') #, 'flac')
 
     def read_tags(self, asset, data):
         document = ID3(asset.absolute_path)
@@ -333,7 +335,7 @@ class MutagenOggVorbis(Mutagen):
             key = tag[0]
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
-                report_invalid_field(key, value)
+                report_invalid_field(asset.absolute_path, key, value)
                 continue
             ogg_data[key] = value
 
@@ -370,5 +372,5 @@ class DelimitedText(GenericText):
 
 def report_invalid_field(path, key, value):
 
-    LOG.debug('Field %s in %s contains too much data.' % key, path)
+    LOG.debug('Field %s in %s contains too much data.' % (key, path))
     LOG.debug(value)

@@ -8,6 +8,7 @@ from errors import SQLConnectError
 import log
 
 LOG = log.get_log(__name__, logging.INFO)
+ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 WILD = '%'
 
@@ -104,21 +105,21 @@ def execute_query(query):
         con.commit()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        LOG.error(message)
+        ERROR_LOG.error(message, exc_info=True)
         for arg in e.args:
             print arg
         print query
         raise Exception(e, message)
     except TypeError, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        LOG.error(message)
+        ERROR_LOG.error(message, exc_info=True)
         for arg in e.args:
             print arg
         print query
         raise Exception(message)
     except Exception, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        LOG.error(message)
+        ERROR_LOG.error(message, exc_info=True)
         raise Exception(message)
     finally:
         if con: con.close()
@@ -135,21 +136,21 @@ def run_query(query):
         rows = cur.fetchall()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        LOG.error(message)
+        ERROR_LOG.error(message, exc_info=True)
         for arg in e.args:
             print arg
         print query
         raise Exception(e, message)
     except TypeError, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        LOG.error(message)
+        ERROR_LOG.error(message, exc_info=True)
         for arg in e.args:
             print arg
         print query
         raise Exception(message)
     except Exception, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        LOG.error(message)
+        ERROR_LOG.error(message)
         raise Exception(message)
     finally:
         if con: con.close()
@@ -187,4 +188,4 @@ def _load_query(filename, args):
         # substitute wildcard and escape single quotes
         return str(query % newargs).replace('*', WILD).replace("'", "\'")#.replace('\n', ' ')
     except IOError, e:
-        raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename))
+        raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename), exc_info=True)
