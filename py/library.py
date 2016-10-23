@@ -109,12 +109,10 @@ def cache_docs(document_type, path, flush=True):
     if flush: clear_docs(document_type, os.path.sep)
 
     LOG.debug('caching %s doc info for %s...' % (document_type, path))
-    rows = retrieve_docs(document_type, path)
-    for row in rows:
-        docpath = row[0]
-        esid = row[1]
-        key = cache2.create_key(KEY_GROUP, document_type, docpath, value=docpath)
-        keyvalue = {'absolute_path': docpath, 'esid': esid}
+    rows = alchemy.retrieve_assets(document_type, path)
+    for sql_asset in rows:
+        key = cache2.create_key(KEY_GROUP, sql_asset.doc_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
+        keyvalue = {'absolute_path': sql_asset.absolute_path, 'esid': sql_asset.id}
         cache2.set_hash2(key, keyvalue)
 
 
