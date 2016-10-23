@@ -41,9 +41,6 @@ def execute(args):
             LOG.debug('clearing data from prior execution...')
             ops.flush_cache(resuming=config.old_pid)
 
-            if 'noflush' not in options:
-                cache2.flush_all()
-
             LOG.debug('connecting to MariaDB...')
             load_user_info()
 
