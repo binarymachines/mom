@@ -94,7 +94,7 @@ def set_active(path):
         cached_directory = get_cached_directory()
         if cached_directory.dirty:        
             try:
-                res = config.es.update(index=config.es_index, doc_type=cached_directory.directory, id=cached_directory.esid, body= json.dumps(cached_directory.to_dictionary()))
+                res = config.es.update(index=config.es_index, doc_type=cached_directory.directory, id=cached_directory.esid, body=json.dumps(cached_directory.to_dictionary()))
             except ConnectionError, err:
                 ERROR_LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                 print '\nConnection lost, please verify network connectivity and restart.'
@@ -200,6 +200,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
 #         return latest_operation
 
 def _sub_index_asset(asset, data):
+    data['_hash_id'] = hash(asset.absolute_path)
     res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
     if res['_shards']['successful'] == 1:
         esid = res['_id']
@@ -310,8 +311,31 @@ def retrieve_esid(document_type, absolute_path):
     elif len(rows) >1: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
 
-# matched files
+def update_asset(asset, data):
+    hash_id = data['_hash_id'] = hash(asset.absolute_path)
+    if search.unique_doc_exists(asset.document_type, '_hash_id', hash_id):
+        esid = search.unique_doc_id(asset.document_type, '_hash_id', hash_id)
+        old_doc = search.get_doc(asset.document_type, esid)
+        old_data = old_doc['_source']['properties']
 
+        updated_reads = []
+        for index in range(len(data['properties'])):
+            updated_reads.append(data['properties'][index]['_reader'])
+
+        for index in range(len(old_data)):
+            if old_data[index]['_reader'] not in updated_reads:
+                data['properties'].append(old_data[index])
+
+        new_doc = json.dumps({'doc': data})
+        try:
+            res = config.es.update(index=config.es_index, doc_type=asset.document_type, id=esid, body=new_doc)
+        except Exception, err:
+            print err.message
+    else:
+        index_asset(asset, data)
+
+
+# matched files
 
 def cache_matches(path):
     LOG.debug('caching matches for %s...' % path)

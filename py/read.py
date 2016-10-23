@@ -282,7 +282,7 @@ class MutagenFLAC(Mutagen):
 
 class MutagenID3(Mutagen):
     def __init__(self):
-        super(MutagenID3, self).__init__('mutagen-id3', 'mp3') #, 'flac')
+        super(MutagenID3, self).__init__('mutagen-id3', 'mp3', 'flac')
 
     def read_tags(self, asset, data):
         document = ID3(asset.absolute_path)

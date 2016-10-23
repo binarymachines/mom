@@ -93,8 +93,10 @@ class Scanner(Walker):
                 data = asset.to_dictionary()
                 self.reader.read(asset, data)
                 try:
-                    if library.index_asset(asset, data) is False:
-                        raise Exception('failed index')
+                    if self.deep_scan and len(data['properties']) > 0:
+                        library.update_asset(asset, data)
+                    else:
+                        library.index_asset(asset, data)
                 except Exception, err:
                     self.reader.invalidate_read_ops(asset)
         
@@ -135,7 +137,9 @@ class Scanner(Walker):
         ops.cache_ops(path, SCAN)
         ops.cache_ops(path, read.READ)
         # library.cache_docs(config.DIRECTORY, path)
-        ops.record_op_begin(HLSCAN, SCANNER, path)
+
+        if self.deep_scan == False:
+            ops.record_op_begin(HLSCAN, SCANNER, path)
 
     def _post_scan(self, path, update_ops):
         LOG.info('clearing cache...')
@@ -148,8 +152,9 @@ class Scanner(Walker):
 
         # library.clear_docs(config.DIRECTORY, path)
         # if os.access(path, os.R_OK):
-        ops.record_op_complete(HLSCAN, SCANNER, path)
-        ops.write_ops_data(path, HLSCAN, SCANNER)
+        if self.deep_scan == False:
+            ops.record_op_complete(HLSCAN, SCANNER, path)
+            ops.write_ops_data(path, HLSCAN, SCANNER)
 
     def scan(self):
         ops.cache_ops(os.path.sep, HLSCAN, SCANNER)
@@ -160,11 +165,11 @@ class Scanner(Walker):
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
                 if self.path_expands(path): 
-                    LOG.info('expanded %s...' % path)
+                    LOG.debug('expanded %s...' % path)
                     continue
-
+                
                 if ops.operation_in_cache(path, HLSCAN, SCANNER) and self.deep_scan is False:
-                    LOG.info('skipping %s...' % path)
+                    LOG.debug('skipping %s...' % path)
                     continue
 
                 try:
