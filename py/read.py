@@ -290,6 +290,7 @@ class MutagenID3(Mutagen):
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
         id3_data = {}
+        id3_data_r2 = {}
         for tag in tags:
             if len(tag) < 2: continue
 
@@ -298,28 +299,35 @@ class MutagenID3(Mutagen):
             if len(value) > MAX_DATA_LENGTH:
                 report_invalid_field(asset.absolute_path, key, value)
                 continue
+            
+            # for version 2.0
+            id3_data_r2[key] = value
 
             if key in get_fields('ID3V2'):
                 id3_data[key] = value
-
+            
             if key == "TXXX":
                 for sub_field in get_fields('ID3V2.TXXX'):
                     if sub_field in value:
                         subtags = value.split('=')
                         subkey=subtags[0].replace(' ', '_').upper()
                         id3_data[subkey] = subtags[1]
-                
+
                         if subkey not in get_known_fields('ID3V2.TXXX'):
                             add_field('ID3V2.TXXX', key)
 
             elif len(key) == 4 and key not in get_known_fields('ID3V2'):
                 add_field('ID3V2', key)
 
+
         id3_data['version'] = document.version
         id3_data['_read_date'] = datetime.datetime.now().isoformat()
 
         for key in id3_data:
             data[key] = id3_data[key]
+
+        # for version 2.0
+        data['properties'].append(id3_data_r2)
 
 class MutagenOggVorbis(Mutagen):
     def __init__(self):
