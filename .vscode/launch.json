@@ -23,12 +23,12 @@
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/py/launch.py",
-            "args": [
-                "--noscan"
+            // "args": [
+            //     "--noscan"
             //     "--reset",
             //     "--path",
             //     "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
-            ],
+            // ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
