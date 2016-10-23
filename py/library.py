@@ -200,7 +200,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
 #         return latest_operation
 
 def _sub_index_asset(asset, data):
-    data['_hash_id'] = hash(asset.absolute_path)
+    data['_hex_id'] = asset.absolute_path.encode('hex')
     res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
     if res['_shards']['successful'] == 1:
         esid = res['_id']
@@ -221,8 +221,12 @@ def index_asset(asset, data):
     except RequestError, err:
         ERROR_LOG.error(err.__class__.__name__, exc_info=True)
         ERROR_LOG.error(asset.absolute_path)
-        print 'Error code: %i' % err.args[0]
-        print 'Error class: %s' % err.args[1]
+        
+        # print.error(asset.absolute_path)
+        # print 'Error code: %i' % err.args[0]
+        # print 'Error class: %s' % err.args[1]
+        print 'Error encountered handling %s:\n %s' % (asset.absolute_path, err.args[2])
+        
         error_string = err.args[2]['error']['reason']
         PROPERTIES = 'properties'
         FAILED_TO_PARSE = 'failed to parse'
@@ -312,9 +316,9 @@ def retrieve_esid(document_type, absolute_path):
 
 
 def update_asset(asset, data):
-    hash_id = data['_hash_id'] = hash(asset.absolute_path)
-    if search.unique_doc_exists(asset.document_type, '_hash_id', hash_id):
-        esid = search.unique_doc_id(asset.document_type, '_hash_id', hash_id)
+    hex_id = asset.absolute_path.encode('hex')
+    if search.unique_doc_exists(asset.document_type, '_hex_id', hex_id):
+        esid = search.unique_doc_id(asset.document_type, '_hex_id', hex_id)
         old_doc = search.get_doc(asset.document_type, esid)
         old_data = old_doc['_source']['properties']
 
