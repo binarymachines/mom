@@ -105,21 +105,24 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
     session.commit()
 
 
-def retrieve_op_records(path, operation, operator=None, apply_lifespan=False):
+def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op_status=None):
     # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else 
     path = '%s%s' % (path, '%')
+    op_status = 'COMPLETE' if op_status is None else op_status
 
     result = ()
     if operator is None:
         for instance in session.query(SQLOperationRecord).\
             filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
-            filter(SQLOperationRecord.operation_name == operation):
+            filter(SQLOperationRecord.operation_name == operation).\
+            filter(SQLOperationRecord.status == op_status):
                 result += (instance,)
     else:
         for instance in session.query(SQLOperationRecord).\
             filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
             filter(SQLOperationRecord.operation_name == operation).\
-            filter(SQLOperationRecord.operator_name == operator):
+            filter(SQLOperationRecord.operator_name == operator).\
+            filter(SQLOperationRecord.status == op_status):
                 result += (instance,)
 
     return result

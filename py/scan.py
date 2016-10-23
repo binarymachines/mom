@@ -78,14 +78,14 @@ class Scanner(Walker):
             
     #TODO: parrot behavior for IOError as seen in read.py 
     def handle_root(self, root):
+        ops.check_status()
         directory = library.get_cached_directory()
         if directory is None or directory.esid is None: return
 
         LOG.info('scanning %s' % (root))
         ops.record_op_begin(SCAN, SCANNER, directory.absolute_path, directory.esid)
-
+            
         for filename in os.listdir(root):
-            # ops.check_status()
             if self.reader.has_handler_for(filename):
 
                 asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)

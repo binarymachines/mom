@@ -21,7 +21,7 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
-    rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan)
+    rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status='COMPLETE')
     # LOG.debug('caching %i operations...' % len(rows))
     for op_record in rows:
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
@@ -40,11 +40,11 @@ def flush_cache(resuming=False):
 def operation_completed(path, operation, operator=None):
     # LOG.debug("checking for record of %s:::%s on path %s " % (operator, operation, path))
     if operator is None:
-        rows = sql.retrieve_values('op_record', ['operation_name', 'target_path', 'start_time', 'end_time'],
-            [operation, path])
+        rows = sql.retrieve_values('op_record', ['operation_name', 'target_path', 'status', 'start_time', 'end_time'],
+            [operation, path, 'COMPLETE'])
     else:
-        rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_path', 'start_time', 'end_time'],
-            [operator, operation, path])
+        rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_path', 'status', 'start_time', 'end_time'],
+            [operator, operation, path, 'COMPLETE'])
 
     result = len(rows) > 0
     # LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
