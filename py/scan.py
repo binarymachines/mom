@@ -27,7 +27,7 @@ from errors import AssetException
 from walk import Walker
 from read import Reader
 
-LOG = log.get_log(__name__, logging.INFO)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 SCANNER = 'scanner'
 SCAN = 'scan'
@@ -95,7 +95,7 @@ class Scanner(Walker):
                 try:
                     if self.deep_scan and len(data['properties']) > 0:
                         library.update_asset(asset, data)
-                    else:
+                    elif self.deep_scan == False:
                         library.index_asset(asset, data)
                 except Exception, err:
                     self.reader.invalidate_read_ops(asset)
@@ -136,6 +136,7 @@ class Scanner(Walker):
         LOG.info('caching data for %s...' % path)
         ops.cache_ops(path, SCAN)
         ops.cache_ops(path, read.READ)
+        ops.cache_ops(path, read.READ, op_status='FAIL')
         # library.cache_docs(config.DIRECTORY, path)
 
         if self.deep_scan == False:
@@ -168,9 +169,10 @@ class Scanner(Walker):
                     LOG.debug('expanded %s...' % path)
                     continue
                 
-                if ops.operation_in_cache(path, HLSCAN, SCANNER) and self.deep_scan is False:
-                    LOG.debug('skipping %s...' % path)
-                    continue
+                if self.deep_scan is False:
+                    if ops.operation_in_cache(path, HLSCAN, SCANNER):
+                        LOG.debug('skipping %s...' % path)
+                        continue
 
                 try:
                     self._pre_scan(path)

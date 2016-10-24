@@ -327,6 +327,7 @@ class MutagenID3(Mutagen):
             data[key] = id3_data[key]
 
         # for version 2.0
+        id3_data_r2['_reader'] = self.name
         data['properties'].append(id3_data_r2)
 
 class MutagenOggVorbis(Mutagen):
