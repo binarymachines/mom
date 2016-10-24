@@ -268,16 +268,16 @@ class TestCache2(unittest.TestCase):
         hash = { 'operation': 'scan', 'operator': 'id3v2' }
 
         key = cache2.get_key(KEYGROUP, keyname)
-        cache2.add_hashset(key, hash)
+        cache2.add_hashset(KEYGROUP, keyname, hash)
 
-        comp = cache2.get_hashsets(key)
+        comp = cache2.get_hashsets(KEYGROUP, keyname)
 
     def test_get_hashset(self):
         keyname = 'add_hashset'
         hash = {'operation': 'scan', 'operator': 'id3v2'}
 
         key = cache2.get_key(KEYGROUP, keyname)
-        cache2.add_hashset(key, hash)
+        cache2.add_hashset(KEYGROUP, keyname, hash)
 
 
 

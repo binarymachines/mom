@@ -17,7 +17,7 @@ import log
 
 from errors import ElasticSearchError, BaseClassException
 
-LOG = log.get_log(__name__, logging.INFO)
+LOG = log.get_log(__name__, logging.DEBUG)
 ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 DELIM = ','
@@ -37,15 +37,18 @@ def add_field(doc_format, field_name):
     except Exception, err:
         LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
+
 def get_fields(doc_format):
     """get attributes from document_metadata for the specified document_type"""
     keygroup = 'fields'
     if not cache2.key_exists(keygroup, doc_format):
         key = cache2.get_key(keygroup, doc_format)
         rows = sql.retrieve_values('document_metadata', ['active_flag', 'document_format', 'attribute_name'], ['1', doc_format.upper()])
-        cache2.add_items2(key, [row[2] for row in rows])
+        cache2.add_items(keygroup, doc_format, [row[2] for row in rows])
 
-    return cache2.get_items(keygroup, doc_format)
+    result = cache2.get_items(keygroup, doc_format)
+    # LOG.debug('get_fields(doc_format=%s) returns: %s' % (doc_format, str(result)))
+    return result
 
 
 def get_known_fields(doc_format):
@@ -55,7 +58,9 @@ def get_known_fields(doc_format):
         rows = sql.retrieve_values('document_metadata', ['document_format', 'attribute_name'], [doc_format.upper()])
         cache2.add_items(KNOWN, doc_format, [row[1] for row in rows])
 
-    return cache2.get_items(KNOWN, doc_format)
+    result = cache2.get_items(KNOWN, doc_format)
+    # LOG.debug('get_known_fields(doc_format=%s) returns: %s' % (doc_format, str(result)))
+    return result
 
 
 class Reader:
@@ -290,7 +295,6 @@ class MutagenID3(Mutagen):
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
         id3_data = {}
-        id3_data_r2 = {}
         for tag in tags:
             if len(tag) < 2: continue
 
@@ -298,14 +302,14 @@ class MutagenID3(Mutagen):
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
                 report_invalid_field(asset.absolute_path, key, value)
+                # print value
                 continue
             
-            # for version 2.0
-            id3_data_r2[key] = value
-
             if key in get_fields('ID3V2'):
                 id3_data[key] = value
-            
+                # TODO: remove for version 0.9.0
+                data[key] = value
+
             if key == "TXXX":
                 for sub_field in get_fields('ID3V2.TXXX'):
                     if sub_field in value:
@@ -319,16 +323,12 @@ class MutagenID3(Mutagen):
             elif len(key) == 4 and key not in get_known_fields('ID3V2'):
                 add_field('ID3V2', key)
 
-
-        id3_data['version'] = document.version
-        id3_data['_read_date'] = datetime.datetime.now().isoformat()
-
-        for key in id3_data:
-            data[key] = id3_data[key]
-
-        # for version 2.0
-        id3_data_r2['_reader'] = self.name
-        data['properties'].append(id3_data_r2)
+        # for version 0.9.0
+        if len(id3_data) > 0:
+            id3_data['version'] = document.version
+            id3_data['_reader'] = self.name
+            id3_data['_read_date'] = datetime.datetime.now().isoformat()
+            data['properties'].append(id3_data)
 
 class MutagenOggVorbis(Mutagen):
     def __init__(self):
