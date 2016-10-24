@@ -19,9 +19,9 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
     'target_esid', 'target_path']
 
 
-def cache_ops(path, operation, operator=None, apply_lifespan=False):
+def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
-    rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status='COMPLETE')
+    rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
     # LOG.debug('caching %i operations...' % len(rows))
     for op_record in rows:
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
