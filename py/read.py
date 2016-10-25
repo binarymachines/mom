@@ -6,6 +6,7 @@ from mutagen.id3 import ID3, ID3NoHeaderError
 from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
 from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
+from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamInfoError
 from mutagen import MutagenError
 
 import cache2
@@ -82,7 +83,7 @@ class Reader:
 
         for file_handler in self.get_file_handlers():
             for extension in file_handler.extensions:
-                if filename.endswith(extension):
+                if filename.lower().endswith(extension):
                     return True
 
     def invalidate_read_ops(self, asset):
@@ -93,26 +94,27 @@ class Reader:
     def read(self, asset, data, file_handler_name=None, force_read=False):
         for file_handler in self.get_file_handlers():
             if file_handler_name is None or file_handler.name == file_handler_name:
-                if asset.ext in file_handler.extensions or '*' in file_handler.extensions or force_read:
+                if asset.ext.lower() in file_handler.extensions or '*' in file_handler.extensions or force_read:
                     if ops.operation_in_cache(asset.absolute_path, READ, file_handler.name):
                         continue
                     elif file_handler.handle_file(asset, data):
                         library.record_file_read(file_handler.name, asset)
 
     def get_file_handlers(self):
-        return MutagenID3(), MutagenFLAC(), MutagenAPEv2(), MutagenOggVorbis()
+        return MutagenID3(), MutagenFLAC(), MutagenAPEv2(), MutagenOggVorbis(), MutagenMP4()
 
 
 class FileHandler(object):
     def __init__(self, name, *extensions):
         self.name = name
-        self.extensions = extensions
+        self.extensions = []
+        for extension in extensions:
+            self.extensions += extension.lower()
 
     def handle_exception(self, exception, asset, data):
 
         if isinstance(exception, IOError):
             pass
-
 
         else:
             # error_data = { 'reader:': self.name, 'error': exception.__class__.__name__, 'details': exception.message }
@@ -173,6 +175,18 @@ class Mutagen(FileHandler):
             read_failed = True
             self.handle_exception(err, asset, data)
 
+        except MP4MetadataError, err:
+            read_failed = True
+            self.handle_exception(err, asset, data)
+
+        except MP4MetadataValueError, err:
+            read_failed = True
+            self.handle_exception(err, asset, data)
+
+        except MP4StreamInfoError, err:
+            read_failed = True
+            self.handle_exception(err, asset, data)
+
         except MutagenError, err:
             ERROR_LOG.error(err.__class__.__name__, exc_info=True)
             if isinstance(err.args[0], IOError):
@@ -212,13 +226,39 @@ class MutagenM4A(Mutagen):
 
 class MutagenMP4(Mutagen):
     def __init__(self):
-        super(MutagenMP4, self).__init__('mutagen-mp4', 'mp4')
+        super(MutagenMP4, self).__init__('mutagen-mp4', 'mp4', 'm4a')
+
+    def read_tags(self, asset, data):
+        mp4_data = {}
+        document = MP4(asset.absolute_path)
+        for item in document.items():
+            if len(item) < 2: continue
+
+            key = item[0]
+            if key not in get_known_fields('m4a'):
+                add_field('m4a', key)
+
+            try:
+                value = item[1][0]
+            except Exception, err:
+                value = item[1]
+
+            if isinstance(value, basestring):
+                if len(value) > MAX_DATA_LENGTH:
+                    report_invalid_field(asset.absolute_path, key, value)
+                    continue
+
+            mp4_data[key] = value
+
+        if len(mp4_data) > 0:
+            mp4_data['_reader'] = self.name
+            mp4_data['_read_date'] = datetime.datetime.now().isoformat()
+            data['properties'].append(mp4_data)
 
 
 class MutagenOggFlac(Mutagen):
     def __init__(self):
-        super(MutagenOggFlac, self).__init__('mutagen-oggflac', 'flac')
-
+        super(MutagenOggFlac, self).__init__('mutagen-mp4', 'm4a', 'mp4')
 
 class MutagenAPEv2(Mutagen):
     def __init__(self):

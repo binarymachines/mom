@@ -158,7 +158,7 @@ def reset():
 
     config.redis.flushdb()
 
-    for table in ['es_document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
+    for table in ['document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
         query = 'delete from %s where 1 = 1' % (table)
         sql.execute_query(query)
 

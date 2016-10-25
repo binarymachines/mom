@@ -259,7 +259,7 @@ def post_process__data(data, exclude_ignore, records):
 def get_directories(path):
     print 'retrieving s matching pattern: "%s"' % (path)
 
-    q = """SELECT id, absolute_path FROM es_document
+    q = """SELECT id, absolute_path FROM document
             WHERE index_name = '%s' and doc_type = 'media_'
               and absolute_path like '%s%s%s' ORDER BY absolute_path""" % (config.es_index, '%', path, '%')
 
@@ -268,13 +268,13 @@ def get_directories(path):
 def get_matches(esid, reverse=False, union=False):
 
     query = {'match': """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result
-                           FROM matched m, es_document es
+                           FROM matched m, document es
                          WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.doc_id = '%s'
                          """ % (config.es_index, esid) }
 
 
     query['reverse'] = """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result
-                                  FROM matched m, es_document es
+                                  FROM matched m, document es
                                 WHERE es.index_name = '%s' and es.id = m.doc_id and m.match_doc_id = '%s'
                                 """ % (config.es_index, esid)
 
@@ -290,12 +290,12 @@ def get_documents(path, reverse=False, union=False):
 
     print 'retrieving mediafiles for path: "%s"' % (path)
 
-    query = {'match':  """SELECT es.id, es.absolute_path FROM es_document es
+    query = {'match':  """SELECT es.id, es.absolute_path FROM document es
                         WHERE index_name = '%s'
                             and es.absolute_path LIKE "%s%s"
                             and es.id IN (SELECT doc_id FROM matched) ORDER BY es.absolute_path""" % (config.es_index, path, '%') }
 
-    query['reverse'] = """SELECT es.id, es.absolute_path FROM es_document es
+    query['reverse'] = """SELECT es.id, es.absolute_path FROM document es
                 WHERE index_name = '%s'
                     and es.absolute_path LIKE "%s%s"
                     and es.id IN (SELECT match_doc_id FROM matched) ORDER BY es.absolute_path""" % (config.es_index, path, '%')
@@ -341,7 +341,7 @@ def get_matches_for(pattern):
 
     directories = []
     q = """select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match'
-             from matched m, es_document es1, es_document es2
+             from matched m, document es1, document es2
             where m.same_ext_flag = 1
               and m.matcher_name = 'match_artist_album_song'
               and es1.id = m.doc_id
@@ -349,7 +349,7 @@ def get_matches_for(pattern):
               and es1.absolute_path like '%s%s%s'
            UNION
            select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match'
-             from matched m, es_document es1, es_document es2
+             from matched m, document es1, document es2
             where m.same_ext_flag = 1
               and m.matcher_name = 'match_artist_album_song'
               and es2.id = m.doc_id

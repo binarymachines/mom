@@ -85,8 +85,8 @@ def set_active(path):
     directory = None if path is None else Directory(path)
     if directory is not None:
         LOG.debug('syncing metadata for %s' % directory.absolute_path)
-        if search.unique_doc_exists(config.DIRECTORY, 'absolute_path', directory.absolute_path):
-            directory.esid = search.unique_doc_id(config.DIRECTORY, 'absolute_path', directory.absolute_path)
+        if search.unique_doc_exists(config.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex')):
+            directory.esid = search.unique_doc_id(config.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex'))
             # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
             index_asset(directory, directory.to_dictionary())
@@ -155,7 +155,7 @@ def doc_exists_for_path(doc_type, path):
     if esid is not None: return True
 
     # esid not found in cache or db, search es
-    return search.unique_doc_exists(doc_type, 'absolute_path', path)
+    return search.unique_doc_exists(doc_type, '_hex_id', path.encode('hex'))
 
 
 def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
@@ -188,7 +188,6 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
         asset.doc = search.get_doc(asset.document_type, asset.esid)
 
     return asset
-
 
 # def get_latest_operation(self, path):
 #
@@ -308,7 +307,7 @@ def retrieve_esid(document_type, absolute_path):
     cached = get_cached_esid(document_type, absolute_path)
     if cached: return cached
 
-    rows = sql.retrieve_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
+    rows = sql.retrieve_values('document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
     # rows = sql.run_query("select index_name, doc_type, absolute_path")
     if len(rows) == 0: return None
     if len(rows) == 1: return rows[0][3]
@@ -376,7 +375,9 @@ def get_library_location(path):
     
     if len(possible) == 1:
     	return possible[0]
-      
+
+    result = None
+
     if len(possible) > 1:
       result = possible[0]
       for item in possible:

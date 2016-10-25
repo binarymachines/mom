@@ -45,7 +45,7 @@ def delete_docs(doc_type, attribute, value):
         # if res['_shards']['successful'] == 1:
 
 
-# find documents with matching top-level attribute (doc['_source']['attribute'])
+# find documents with matching top-level attribute, (doc['_source']['attribute'])
 def find_docs(doc_type, attribute, value):
     result = ()
     res = config.es.search(config.es_index, doc_type, body={ "query": { "match" : { "%s" % attribute: value }}})

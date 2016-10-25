@@ -1,20 +1,20 @@
 {
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "cache2",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": false,
-            "pythonPath": "${config.python.pythonPath}",
-            "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/cache2.py",
-            "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
-                "RedirectOutput"
-            ]
-        },
+        // {
+        //     "name": "cache2",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "stopOnEntry": false,
+        //     "pythonPath": "${config.python.pythonPath}",
+        //     "cwd": "${workspaceRoot}",
+        //     "program": "${workspaceRoot}/py/cache2.py",
+        //     "debugOptions": [
+        //         "WaitOnAbnormalExit",
+        //         "WaitOnNormalExit",
+        //         "RedirectOutput"
+        //     ]
+        // },
         {
             "name": "media hound",
             "type": "python",
