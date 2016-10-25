@@ -246,13 +246,13 @@ INSERT INTO `document_type` VALUES (1,'Audio'),(2,'Graphic'),(3,'Video');
 UNLOCK TABLES;
 
 --
--- Table structure for table `es_document`
+-- Table structure for table `document`
 --
 
-DROP TABLE IF EXISTS `es_document`;
+DROP TABLE IF EXISTS `document`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `es_document` (
+CREATE TABLE `document` (
   `id` varchar(128) NOT NULL,
   `index_name` varchar(128) NOT NULL,
   `doc_type` varchar(64) NOT NULL,
@@ -262,12 +262,12 @@ CREATE TABLE `es_document` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `es_document`
+-- Dumping data for table `document`
 --
 
-LOCK TABLES `es_document` WRITE;
-/*!40000 ALTER TABLE `es_document` DISABLE KEYS */;
-/*!40000 ALTER TABLE `es_document` ENABLE KEYS */;
+LOCK TABLES `document` WRITE;
+/*!40000 ALTER TABLE `document` DISABLE KEYS */;
+/*!40000 ALTER TABLE `document` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

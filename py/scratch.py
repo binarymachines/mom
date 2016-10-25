@@ -57,7 +57,7 @@ import eyed3
 #
 #             clause = ', '.join([sql.quote_if_string(value['esid']) for value in paths])
 #             if clause != '':
-#                 # q = """SELECT id FROM es_document WHERE index_name ="%s" AND id in (%s)""" % (config.es_index, clause)
+#                 # q = """SELECT id FROM document WHERE index_name ="%s" AND id in (%s)""" % (config.es_index, clause)
 #                 # rows = sql.run_query(q)
 #                 rows = sql.run_query_template('doc_select_esid_in', config.es_index, clause)
 #                 if len(rows) != len(paths):

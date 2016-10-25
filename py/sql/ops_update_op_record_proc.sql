@@ -16,21 +16,21 @@ SELECT id, target_esid, target_path
   FROM op_record opr
  WHERE opr.target_esid = "None";
  
-DROP TABLE IF EXISTS es_document_temp;
+DROP TABLE IF EXISTS document_temp;
 
-CREATE TEMPORARY TABLE es_document_temp (
+CREATE TEMPORARY TABLE document_temp (
   id varchar(128) NOT NULL,
   absolute_path varchar(1024) NOT NULL,
   PRIMARY KEY (id)
 );
 
-INSERT INTO es_document_temp (id, absolute_path)
+INSERT INTO document_temp (id, absolute_path)
 SELECT id, absolute_path 
-  FROM es_document esd
+  FROM document esd
  WHERE esd.absolute_path IN (SELECT DISTINCT absolute_path FROM op_record_temp);
 
    UPDATE op_record_temp ops
-LEFT JOIN es_document_temp esd
+LEFT JOIN document_temp esd
        ON ops.target_path = esd.absolute_path
       SET ops.target_esid = esd.id;
       
@@ -40,4 +40,4 @@ LEFT JOIN op_record_temp opt
       SET ops.target_esid = opt.id;
 
 --DROP TABLE IF EXISTS op_record_temp;
---DROP TABLE IF EXISTS es_document_temp;
+--DROP TABLE IF EXISTS document_temp;

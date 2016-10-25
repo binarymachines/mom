@@ -25,7 +25,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 class SQLAsset(Base):
-    __tablename__ = 'es_document'
+    __tablename__ = 'document'
     id = Column(String(256), primary_key=True)
     index_name = Column(String(256), nullable=False)
     doc_type = Column(String(256), nullable=False)
@@ -67,6 +67,7 @@ class SQLMatchRecord(Base):
     comparison_result = Column('comparison_result', String(1), nullable=True)
     same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
     
+    
 def insert_match_record(doc_id, match_doc_id, matcher_name, matched_fields, match_score, comparison_result, same_ext_flag):
     # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
     match_rec = SQLMatchRecord(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
@@ -97,7 +98,7 @@ class SQLOperationRecord(Base):
 
 
 def insert_operation_record(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
-    LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
+    LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
     op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
         target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now())
 

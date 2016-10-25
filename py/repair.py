@@ -26,19 +26,19 @@ def clear_bad_entries():
 
 
 def delete_docs_for_path( indexname, doctype, path):
-    rows = sql.retrieve_like_values('es_document', ['index_name', 'doc_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, str(1)])
+    rows = sql.retrieve_like_values('document', ['index_name', 'doc_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, str(1)])
     for r in rows:
         esid = r[4]
         res = config.es.delete(index=indexname,doc_type=doctype,id=esid)
         if res['_shards']['successful'] == 1:
-            sql.update_values('es_document', 'active_flag', False, ['id'], [esid])
+            sql.update_values('document', 'active_flag', False, ['id'], [esid])
 
 
 def purge_problem_esids():
 
     problems = sql.run_query(
         """select distinct pe.esid, pe.document_type, esd.absolute_path, pe.problem_description
-             from problem_esid pe, es_document esd
+             from problem_esid pe, document esd
             where pe.esid = esd.id""")
 
     # if len(problems) > 0:
@@ -53,11 +53,11 @@ def purge_problem_esids():
 
         if a.document_type == config.DIRECTORY and problem.lower().startswith('mult'):
             print '%s, %s' % (a.esid, a.absolute_path)
-            docs = sql.retrieve_values('es_document', ['absolute_path', 'id'], [a.absolute_path])
+            docs = sql.retrieve_values('document', ['absolute_path', 'id'], [a.absolute_path])
             for doc in docs:
                 esid = doc[1]
 
-                query = "delete from es_document where id = %s" % (sql.quote_if_string(esid))
+                query = "delete from document where id = %s" % (sql.quote_if_string(esid))
                 sql.execute_query(query)
                 query = "delete from op_record where target_esid = %s" % (sql.quote_if_string(esid))
                 sql.execute_query(query)
@@ -110,7 +110,7 @@ def record_matches_as_ops():
 #     s = sql.retrieve_values('directory', ['name'], [])
 #     for directory in directories:
 #         asset = os.path.join(config.START_FOLDER, [0])
-#         files = sql.retrieve_like_values('es_document', ['absolute_path', 'doc_type'], [asset, config.DIRECTORY])
+#         files = sql.retrieve_like_values('document', ['absolute_path', 'doc_type'], [asset, config.DIRECTORY])
 #         for f in files:
 #             filename = f[0]
 #             doc_type = f[1]

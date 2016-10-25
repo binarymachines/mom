@@ -82,26 +82,30 @@ class Scanner(Walker):
         directory = library.get_cached_directory()
         if directory is None or directory.esid is None: return
 
-        LOG.info('scanning %s' % (root))
+        LOG.debug('scanning %s' % (root))
         ops.record_op_begin(SCAN, SCANNER, directory.absolute_path, directory.esid)
             
         for filename in os.listdir(root):
             if self.reader.has_handler_for(filename):
 
-                asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
-                if asset is None or asset.ignore() or asset.available is False: continue
-                data = asset.to_dictionary()
-                self.reader.read(asset, data)
+                file_was_read = False
                 try:
+                    asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
+                    if asset is None or asset.ignore() or asset.available is False: continue
+                    data = asset.to_dictionary()
+                    self.reader.read(asset, data)
+                    file_was_read = True
+
                     if self.deep_scan and len(data['properties']) > 0:
                         library.update_asset(asset, data)
                     elif self.deep_scan == False:
                         library.index_asset(asset, data)
                 except Exception, err:
-                    self.reader.invalidate_read_ops(asset)
+                    if file_was_read:
+                        self.reader.invalidate_read_ops(asset)
         
         ops.record_op_complete(SCAN, SCANNER, directory.absolute_path, directory.esid)
-        LOG.info('done scanning : %s' % (root))
+        LOG.debug('done scanning : %s' % (root))
 
     def handle_root_error(self, err, root):
         LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -133,7 +137,7 @@ class Scanner(Walker):
         return result
 
     def _pre_scan(self, path):
-        LOG.info('caching data for %s...' % path)
+        LOG.debug('caching data for %s...' % path)
         ops.cache_ops(path, SCAN)
         ops.cache_ops(path, read.READ)
         ops.cache_ops(path, read.READ, op_status='FAIL')
@@ -143,11 +147,11 @@ class Scanner(Walker):
             ops.record_op_begin(HLSCAN, SCANNER, path)
 
     def _post_scan(self, path, update_ops):
-        LOG.info('clearing cache...')
+        LOG.debug('clearing cache...')
         ops.write_ops_data(path, SCAN)
         ops.write_ops_data(path, read.READ)
 
-        LOG.info('updating MariaDB...')
+        LOG.debug('updating MariaDB...')
         if update_ops:
             ops.update_ops_data()
 
