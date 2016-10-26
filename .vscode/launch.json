@@ -116,13 +116,13 @@
             ]
         },
         {
-            "name": "resolve",
+            "name": "desktop",
             "type": "node",
-            "program": "${workspaceRoot}/js/electron/index.js",
+            "program": "${workspaceRoot}/js/desktop/index.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}/",
-            "runtimeExecutable": "${workspaceRoot}/js/electron/node_modules/.bin/electron",
+            "runtimeExecutable": "${workspaceRoot}/js/desktop/node_modules/.bin/electron",
             "runtimeArgs": [],
             "env": {},
             "sourceMaps": false,

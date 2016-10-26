@@ -2,6 +2,7 @@ import os
 import sys
 import datetime
 import logging
+import warnings
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float, Boolean, and_, or_
 from sqlalchemy.ext.declarative import declarative_base
@@ -36,11 +37,16 @@ class SQLAsset(Base):
                                 self.index_name, self.doc_type, self.absolute_path)
 
 def insert_asset(index_name, doc_type, id, absolute_path):
-    # ed_user = User(name='ed', fullname='Ed Jones', password='edspassword')
     asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path)
-    session.add(asset)
-    session.commit()
 
+    try:
+        session.add(asset)
+        session.commit()
+    except RuntimeWarning, warn:
+        LOG.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+    except Exception, err:
+        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        raise err
 
 def retrieve_assets(doc_type, absolute_path):
     # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path
@@ -73,9 +79,12 @@ def insert_match_record(doc_id, match_doc_id, matcher_name, matched_fields, matc
     match_rec = SQLMatchRecord(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
         matcher_name=matcher_name, matched_fields=matched_fields, match_score=match_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
 
-    session.add(match_rec)
-    session.commit()
-
+    try:
+        session.add(match_rec)
+        session.commit()
+    except Exception, err:
+        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        raise err
     
 # def list_matches():
 #     for instance in session.query(SQLMatchRecord).order_by(SQLMatchRecord.doc_id):
@@ -101,10 +110,15 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
     op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
         target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now())
-
-    session.add(op_rec)
-    session.commit()
-
+    try:
+        # assert isinstance(session, object)
+        session.add(op_rec)
+        session.commit()
+    except RuntimeWarning, warn:
+        LOG.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+    except Exception, err:
+        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        raise err
 
 def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op_status=None):
     # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else 

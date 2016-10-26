@@ -53,7 +53,9 @@ class Scanner(Walker):
 
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan: return
+            if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan:
+                LOG.debug('skipping %s' % root)
+                return
             if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
 
             try:
@@ -108,7 +110,7 @@ class Scanner(Walker):
         LOG.debug('done scanning : %s' % (root))
 
     def handle_root_error(self, err, root):
-        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        c
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
@@ -127,14 +129,14 @@ class Scanner(Walker):
 
         return expanded
 
-    def path_has_handlers(self, path):
-        result = False
-        rows = sql.retrieve_values('directory', ['name', 'file_type'], [path])
-        if len(rows) == 1:
-            file_type = rows[0][1]
-            result = file_type in self.reader.get_supported_extensions()
-        
-        return result
+    # def handlers_exist_for_path(self, path):
+    #     result = False
+    #     rows = sql.retrieve_values('directory', ['name', 'file_type'], [path])
+    #     if len(rows) == 1:
+    #         file_type = rows[0][1]
+    #         result = file_type in self.reader.get_supported_extensions()
+    #
+    #     return result
 
     def _pre_scan(self, path):
         LOG.debug('caching data for %s...' % path)
@@ -143,7 +145,8 @@ class Scanner(Walker):
         ops.cache_ops(path, read.READ, op_status='FAIL')
         # library.cache_docs(config.DIRECTORY, path)
 
-        if self.deep_scan == False:
+        # if self.deep_scan == False:
+        if self.context.get_param('scan', HLSCAN):
             ops.record_op_begin(HLSCAN, SCANNER, path)
 
     def _post_scan(self, path, update_ops):
@@ -157,12 +160,15 @@ class Scanner(Walker):
 
         # library.clear_docs(config.DIRECTORY, path)
         # if os.access(path, os.R_OK):
-        if self.deep_scan == False:
+
+        # if self.deep_scan == False:        
+        if self.context.get_param('scan', HLSCAN):
             ops.record_op_complete(HLSCAN, SCANNER, path)
             ops.write_ops_data(path, HLSCAN, SCANNER)
 
     def scan(self):
-        ops.cache_ops(os.path.sep, HLSCAN, SCANNER)
+        if self.context.get_param('scan', HLSCAN):
+            ops.cache_ops(os.path.sep, HLSCAN, SCANNER)
         
         while self.context.has_next(SCAN, True):
             ops.check_status()
@@ -174,7 +180,7 @@ class Scanner(Walker):
                     continue
                 
                 if self.deep_scan is False:
-                    if ops.operation_in_cache(path, HLSCAN, SCANNER):
+                    if self.context.get_param('scan', HLSCAN) and  ops.operation_in_cache(path, HLSCAN, SCANNER):
                         LOG.debug('skipping %s...' % path)
                         continue
 
@@ -188,7 +194,8 @@ class Scanner(Walker):
 
                     self._post_scan(path, start_read_cache_size != end_read_cache_size)
                 except Exception, err:
-                    ops.record_op_complete(HLSCAN, SCANNER, path, op_failed=True)
+                    if self.context.get_param('scan', HLSCAN):
+                        ops.record_op_complete(HLSCAN, SCANNER, path, op_failed=True)
 
                     LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
