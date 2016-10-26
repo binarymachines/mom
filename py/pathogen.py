@@ -1,4 +1,4 @@
-#! /usr/bin/python
+"""pathogen is a wrapper around the mutagen API"""
 
 import os, json, sys, logging, traceback, time, datetime
 

@@ -107,9 +107,7 @@ class Reader:
 class FileHandler(object):
     def __init__(self, name, *extensions):
         self.name = name
-        self.extensions = []
-        for extension in extensions:
-            self.extensions += extension.lower()
+        self.extensions = extensions
 
     def handle_exception(self, exception, asset, data):
 
@@ -214,6 +212,7 @@ class Mutagen(FileHandler):
         raise BaseClassException(Mutagen)
 
 
+
 class MutagenAAC(Mutagen):
     def __init__(self):
         super(MutagenAAC, self).__init__('mutagen-aac', 'aac')
@@ -271,14 +270,15 @@ class MutagenAPEv2(Mutagen):
             if len(item) < 2: continue
 
             key = item[0]
+            if key not in get_known_fields('apev2'):
+                add_field('apev2', key)
+
             value = item[1].value
             if len(value) > MAX_DATA_LENGTH:
                 report_invalid_field(asset.absolute_path, key, value)
                 continue
 
             ape_data[key] = value
-            if key not in get_known_fields('apev2'):
-                add_field('apev2', key)
 
         if len(ape_data) > 0:
             ape_data['_reader'] = self.name
@@ -296,10 +296,10 @@ class MutagenFLAC(Mutagen):
         for tag in document.tags:
             if len(tag) < 2: continue
             
-            if tag[0] not in get_known_fields('flac'):
-                add_field('flac', tag[0])
-
             key = tag[0]
+            if key not in get_known_fields('flac'):
+                add_field('flac', key)
+
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
                 report_invalid_field(asset.absolute_path, key, value)
@@ -308,10 +308,10 @@ class MutagenFLAC(Mutagen):
 
 
         for tag in document.vc:
-            if tag[0] not in get_known_fields('flac.vc'):
-                add_field('flac.vc', tag[0])
-
             key = tag[0]
+            if key not in get_known_fields('flac.vc'):
+                add_field('flac.vc', key)
+
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
                 report_invalid_field(asset.absolute_path, key, value)
@@ -339,6 +339,9 @@ class MutagenID3(Mutagen):
             if len(tag) < 2: continue
 
             key = tag[0]
+            if len(key) == 4 and key not in get_known_fields('ID3V2'):
+                add_field('ID3V2', key)
+
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
                 report_invalid_field(asset.absolute_path, key, value)
@@ -354,14 +357,11 @@ class MutagenID3(Mutagen):
                 for sub_field in get_fields('ID3V2.TXXX'):
                     if sub_field in value:
                         subtags = value.split('=')
-                        subkey=subtags[0].replace(' ', '_').upper()
-                        id3_data[subkey] = subtags[1]
-
+                        subkey = subtags[0].replace(' ', '_').upper()
                         if subkey not in get_known_fields('ID3V2.TXXX'):
                             add_field('ID3V2.TXXX', key)
 
-            elif len(key) == 4 and key not in get_known_fields('ID3V2'):
-                add_field('ID3V2', key)
+                        id3_data[subkey] = subtags[1]
 
         # for version 0.9.0
         if len(id3_data) > 0:
@@ -369,6 +369,7 @@ class MutagenID3(Mutagen):
             id3_data['_reader'] = self.name
             id3_data['_read_date'] = datetime.datetime.now().isoformat()
             data['properties'].append(id3_data)
+
 
 class MutagenOggVorbis(Mutagen):
     def __init__(self):
@@ -378,14 +379,17 @@ class MutagenOggVorbis(Mutagen):
         ogg_data = {}
         document = OggVorbis(asset.absolute_path)
         for tag in document.tags:
-            if tag[0] not in get_known_fields('ogg'):
-                add_field('ogg', tag[0])
+            if len(tag) < 2: continue
 
             key = tag[0]
+            if key not in get_known_fields('ogg'):
+                add_field('ogg', key)
+
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
                 report_invalid_field(asset.absolute_path, key, value)
                 continue
+
             ogg_data[key] = value
 
         if len(ogg_data) > 0:

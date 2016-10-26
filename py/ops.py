@@ -22,23 +22,39 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
     rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
-    # LOG.debug('caching %i operations...' % len(rows))
+    LOG.debug('caching %i operations...' % len(rows))
     for op_record in rows:
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
             'target_path': op_record.target_path })
 
 
+def clear_cached_operation(path, operation, operator=None):
+    key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    values = cache2.get_hash2(key)
+    cache2.delete_hash2(key)
+    cache2.delete_key(key)
+
+
 def flush_cache(resuming=False):
 
     write_ops_data(os.path.sep, resuming=resuming)
     if resuming is False:
-        # LOG.info('flushing redis database')
+        LOG.info('flushing redis database')
         config.redis.flushdb()
 
 
+def mark_operation_invalid(operation, operator, path):
+    LOG.debug("marking operation invalid: %s:::%s - path %s " % (operator, operation, path))
+
+    key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    values = cache2.get_hash2(key)
+    values['status'] = 'INVALID'
+    cache2.set_hash2(key, values)
+
+
 def operation_completed(path, operation, operator=None):
-    # LOG.debug("checking for record of %s:::%s on path %s " % (operator, operation, path))
+    LOG.debug("checking for record of %s:::%s on path %s " % (operator, operation, path))
     if operator is None:
         rows = sql.retrieve_values('op_record', ['operation_name', 'target_path', 'status', 'start_time', 'end_time'],
             [operation, path, 'COMPLETE'])
@@ -47,7 +63,7 @@ def operation_completed(path, operation, operator=None):
             [operator, operation, path, 'COMPLETE'])
 
     result = len(rows) > 0
-    # LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    LOG.debug('operation_completed(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
 
@@ -55,16 +71,9 @@ def operation_in_cache(path, operation, operator=None):
     key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(key)
     result = 'persisted' in values and values['persisted'] == 'True'
-    # LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
+    #LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
     return result
 
-
-def push_operation(operation, operator, path):
-    op_key = cache2.get_key(config.pid, OPS, operation, operator, path)
-    stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
-    cache2.lpush(stack_key, op_key)
-
-    # print 'current operation: %s' % operation
 
 def pop_operation():
     try:
@@ -88,8 +97,17 @@ def pop_operation():
     except Exception, err:
         LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
+
+def push_operation(operation, operator, path):
+    op_key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
+    cache2.lpush(stack_key, op_key)
+
+    # print 'current operation: %s' % operation
+
+
 def record_op_begin(operation, operator, path, esid=None):
-    # LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
+    LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
 
     key = cache2.create_key(config.pid, OPS, operation, operator, path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
@@ -107,7 +125,7 @@ def record_op_begin(operation, operator, path, esid=None):
     push_operation(operation, operator, path)
 
 def record_op_complete(operation, operator, path, esid=None, op_failed=False):
-    # LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
+    LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
 
     key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(key)
@@ -118,14 +136,6 @@ def record_op_complete(operation, operator, path, esid=None, op_failed=False):
         cache2.set_hash2(key, values)
 
         pop_operation()
-
-def mark_operation_invalid(operation, operator, path):
-    # LOG.debug("marking operation invalid: %s:::%s - path %s " % (operator, operation, path))
-
-    key = cache2.get_key(config.pid, OPS, operation, operator, path)
-    values = cache2.get_hash2(key)
-    values['status'] = 'INVALID'
-    cache2.set_hash2(key, values)
 
 
 def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
@@ -145,7 +155,7 @@ def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
 
 def update_ops_data():
     # pass
-    # LOG.debug('updating operation records')
+    LOG.debug('updating operation records')
     # TODO: add params to this query (index_name, date range, etc)
     try:
         sql.execute_query_template('ops_update_op_record')
@@ -155,7 +165,7 @@ def update_ops_data():
 
 def write_ops_data(path, operation=None, operator=None, this_pid_only=False, resuming=False):
 
-    # LOG.debug('writing op records...')
+    LOG.debug('writing op records...')
 
     table_name = 'op_record'
     operator = '*' if operator is None else operator
@@ -180,17 +190,19 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
         if record['end_time'] == 'None':
             record['status'] = 'INCOMPLETE' if resuming is False else 'INTERRUPTED'
 
+        if record['status'] == 'INTERRUPTED':
+            pass
+
         if record['status'] == 'INCOMPLETE':
             record['end_time'] = datetime.datetime.now().isoformat()
 
-        # if record['status'] == 'INTERRUPTED':
-        #     alchemy.insert_interupted_operation_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
-        #         target_path=record['target_path'], start_time=record['start_time'], status=record['status'])
-        # else:
+        # TODO: if esids were cached after document has been indexed, they COULD be inserted HERE instead of using update_ops_data() post-ipso
+
         alchemy.insert_operation_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
             target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
 
-    # LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
+    update_ops_data()
+    LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
 
 
 # execution record
@@ -227,10 +239,10 @@ def check_status(opcount=None):
 
     if stop_requested():
         print 'stop requested, terminating...'
-        # LOG.debug('stop requested, terminating...')
+        LOG.debug('stop requested, terminating...')
         flush_cache()
         # cache.flush_cache()
-        # LOG.debug('Run complete')
+        LOG.debug('Run complete')
         sys.exit(0)
 
 

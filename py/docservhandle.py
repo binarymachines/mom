@@ -46,6 +46,11 @@ class DocumentServiceProcessHandler():
              return True
 
         if possible is self.owner.scanmode and self.context.has_next('scan'):
+            if self.owner.scanmode.on_first_activation():
+                self.context.set_param('scan', scan.HLSCAN, True)
+            else:
+                self.context.set_param('scan', scan.HLSCAN, False)
+                
             return config.scan
 
         if possible is self.owner.matchmode and self.context.has_next('match'):

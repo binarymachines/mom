@@ -9,8 +9,9 @@ class Context(object):
         # one per consumer
         self.fifos = {}
         self.stacks = {}
+        self.params = {}
 
-        # shared across all consumers
+        # shared by all consumers
         self.data = {}
 
     def clear(self):
@@ -22,29 +23,27 @@ class Context(object):
         for consumer in self.stacks.keys:
             self.clear_stack(consumer)
 
+    # cache
+    def restore_from_cache(self):
+        # context should be able to save and restore whatever portion of its data is not contained in object instances
+        pass
+
+    def save_to_cache(self):
+        pass
+
+    # FIFO
+
     def clear_fifo(self, consumer):
         if consumer in self.fifos:
             self.fifos.remove(consumer)
-
-    def clear_stack(self, consumer):
-        if consumer in self.stacks:
-            self.stacks.remove(consumer)
 
     def peek_fifo(self, consumer):
         if consumer in self.fifos and len(self.fifos[consumer]) > 0:
             return self.fifos[consumer][0]
 
-    def peek_stack(self, consumer):
-        if consumer in self.stacks and len(self.stacks[consumer]) > 0:
-            return self.stacks[consumer][-1]
-
     def pop_fifo(self, consumer):
         if consumer in self.fifos and len(self.fifos[consumer]) > 0:
             return self.fifos[consumer].pop(0)
-
-    def pop_stack(self, consumer):
-        if consumer in self.stacks and len(self.stacks[consumer]) > 0:
-            return self.stacks[consumer].pop(0)
 
     def push_fifo(self, consumer, value):
         if consumer not in self.fifos:
@@ -56,17 +55,36 @@ class Context(object):
             self.fifos[consumer] = []
         self.fifos[consumer].append(value)
 
+    # stack
+
+    def clear_stack(self, consumer):
+        if consumer in self.stacks:
+            self.stacks.remove(consumer)
+
+    def peek_stack(self, consumer):
+        if consumer in self.stacks and len(self.stacks[consumer]) > 0:
+            return self.stacks[consumer][-1]
+
+    def pop_stack(self, consumer):
+        if consumer in self.stacks and len(self.stacks[consumer]) > 0:
+            return self.stacks[consumer].pop(0)
+
     def push_stack(self, consumer, value):
         if consumer not in self.stacks:
             self.stacks[consumer] = []
         self.stacks[consumer].append(value)
 
-    # context should be able to save and restore whatever portion of its data is not contained in object instances
-    def restore_from_cache(self):
-        pass
+    # params
 
-    def save_to_cache(self):
-        pass
+    def get_param(self, consumer, param):
+        if consumer in self.params:
+            if param in self.params[consumer]:
+                return self.params[consumer][param]
+
+    def set_param(self, consumer, param, value):
+        if consumer not in self.params:
+            self.params[consumer] = {}
+            self.params[consumer][param] = value
 
 
 class DirectoryContext(Context):
