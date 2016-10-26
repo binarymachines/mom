@@ -116,6 +116,19 @@
             ]
         },
         {
+            "name": "console",
+            "type": "node",
+            "program": "${workspaceRoot}/js/console/server.js",
+            "stopOnEntry": false,
+            "args": [],
+            "cwd": "${workspaceRoot}/",
+            "runtimeExecutable": "${workspaceRoot}/js/console/njs",
+            "runtimeArgs": [],
+            "env": {},
+            "sourceMaps": false,
+            "outDir": null
+        },
+         {
             "name": "desktop",
             "type": "node",
             "program": "${workspaceRoot}/js/desktop/index.js",

@@ -261,7 +261,8 @@ def index_asset(asset, data):
                 if config.es.indices.exists(config.es_index):
                     _sub_index_asset(asset, data)
                     es_avail = True
-            # except RequeeestError
+                    print "resuming..." 
+            # except RequestError
             except ConnectionError, err:
                 print "Elasticsearch connectivity error, retrying in 5 seconds..."
 
