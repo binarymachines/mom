@@ -84,7 +84,7 @@ class Context(object):
     def set_param(self, consumer, param, value):
         if consumer not in self.params:
             self.params[consumer] = {}
-            self.params[consumer][param] = value
+        self.params[consumer][param] = value
 
 
 class DirectoryContext(Context):
