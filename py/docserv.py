@@ -1,17 +1,14 @@
 import logging
 
-import log
-from serv import ServiceProcess
-
-from context import DirectoryContext
-from docservhandle import DocumentServiceProcessHandler
-from modes import Mode, Selector
-
 import config
+import  core.log
 import search
-import log
+from core.context import DirectoryContext
+from core.modes import Mode
+from core.serv import ServiceProcess
+from docservhandler import DocumentServiceProcessHandler
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 
 class DocumentServiceProcess(ServiceProcess):

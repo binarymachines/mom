@@ -1,26 +1,22 @@
 '''
-   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] [--reset] [--exit]
+   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all]
 
    --path, -p                   The path to scan
 
 '''
 
-import datetime, sys, os
+import datetime
+import os
 
 from docopt import docopt
 
 import config
 import docserv
-import start
 import ops
 import pathutil
-import search
-import sql
-import util
-
-from serv import Service
-
-from context import DirectoryContext
+import start
+from core.context import DirectoryContext
+from core.serv import Service
 
 def launch(args, run=True):
     try:
@@ -35,10 +31,18 @@ def launch(args, run=True):
 
             if run:
                 paths = start.get_paths(args)
+                path_args = start.get_paths(args)
+                paths = pathutil.get_locations() if path_args is None else path_args
+            
                 context = DirectoryContext('_path_context_', paths)
+
+                if args['--expand-all']:
+                    context.set_param('all', 'expand_all', True)
+
                 context.peep_fifo = True
                 # directive = direct.create(paths)
-                process_name = None if not args['--process'] else args['<process_name>']
+                # process_name = None if not args['--process'] else args['<process_name>']
+                process_name = 'Boy, howdy'
                 process = docserv.create_service_process(process_name, context)
 
                 service.run(process, context)
@@ -72,6 +76,8 @@ def main(args):
             paths = pathutil.get_locations() if path_args is None else path_args
 
             context = DirectoryContext('path context', paths)
+            if args['--expand-all']:
+                context.set_param('all', 'expand_all', True)
 
             a = create_proc('a service', context)
             a.after = after

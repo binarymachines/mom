@@ -21,9 +21,6 @@ op_life = 90
 status_check_freq= 1
 
 redis_host = 'localhost'
-redis = redis.Redis(redis_host)
-
-logging_started = False
 
 es = None
 es_host = 'localhost'

@@ -3,28 +3,25 @@
 import json
 import logging
 import os
-import sys
-import datetime
-import time
 import pprint
-from httplib import FAILED_DEPENDENCY
+import sys
+import time
 
 from elasticsearch.exceptions import ConnectionError, RequestError
 
 import alchemy
-
-import cache2
 import config
-import pathutil
+import  core.log
 import ops
+import pathutil
+import search
 import sql
 from assets import Directory, Document
-from errors import AssetException, ElasticSearchError
-import search
-import log
+from core import cache2
+from errors import AssetException
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERROR_LOG = log.get_log('errors', logging.WARNING)
+LOG = core.log.get_log(__name__, logging.DEBUG)
+ERROR_LOG = core.log.get_log('errors', logging.WARNING)
 
 KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'

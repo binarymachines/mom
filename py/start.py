@@ -2,26 +2,25 @@ import ConfigParser
 import logging
 import os
 import sys
-import traceback
 
 import redis
 
-import cache2
 import config
+import core.log
+import core.var
 import ops
 import search
 import sql
-import log
 
 GET_PATHS = 'start_get_paths'
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 def execute(args):
     show_logo()
     print 'Mildred starting...'
     
-    log.start_logging()
+    core.log.start_logging()
     
     if os.path.isfile(os.path.join(os.getcwd(), config.filename)):
 
@@ -30,7 +29,7 @@ def execute(args):
 
         try:
             LOG.debug('connecting to Redis...')
-            config.redis = redis.Redis(config.redis_host)
+            core.var.redis = redis.Redis(config.redis_host)
 
             LOG.debug('connecting to Elasticsearch...')
             config.es = search.connect()
@@ -83,6 +82,7 @@ def make_options(args):
     if '--nomatch' in args and args['--nomatch']: options.append('no_match')
     if '--debug-mysql' in args and args['--debug-mysql']: options.append('debug_mysql')
     if '--reset' in args and args['--reset']: options.append('reset')
+    if '--expand-all' in args and args['--expand-all']: options.append('expand_all')
     if '--exit' in args and args['--exit']: options.append('exit')
     # if args['--debug-filter']: options.append('no_match')
 
@@ -156,7 +156,7 @@ def reset():
     if not config.es.indices.exists(config.es_index):
         search.create_index(config.es_index)
 
-    config.redis.flushdb()
+    core.var.redis.flushdb()
 
     for table in ['document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
         query = 'delete from %s where 1 = 1' % (table)

@@ -5,10 +5,10 @@ import MySQLdb as mdb
 
 from errors import SQLConnectError
 
-import log
+import  core.log
 
-LOG = log.get_log(__name__, logging.INFO)
-ERROR_LOG = log.get_log('errors', logging.WARNING)
+LOG = core.log.get_log(__name__, logging.INFO)
+ERROR_LOG = core.log.get_log('errors', logging.WARNING)
 
 WILD = '%'
 

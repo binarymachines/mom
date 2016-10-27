@@ -3,20 +3,20 @@
 
 '''
 
-import os, sys, docopt
-
+import docopt
 import redis
 
-import cache2, config, ops
+import core.var
+import ops
+from core import cache2
 
 
-# TODO: add ip address/port as command line options
 def _connect_to_redis():
     return redis.Redis('localhost')
 
 
 def _set_field_value(pid, field, value):
-    config.redis = _connect_to_redis()
+    core.var.redis = _connect_to_redis()
     key =  cache2.get_key(pid, ops.OPS, ops.EXEC)
 
     values = cache2.get_hash2(key)

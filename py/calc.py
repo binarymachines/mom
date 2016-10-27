@@ -7,28 +7,24 @@
 
 '''
 
-import docopt
 import logging
-import sys
-import traceback
 import os
 
-import cache2
+import docopt
+
 import config
+import  core.log
 import library
-import log
 import ops
+import scan
 import search
 import sql
-import scan
-import log
-
-from assets import Document
-from context import DirectoryContext
+from core import cache2
+from core.context import DirectoryContext
 from errors import AssetException
 from match import ElasticSearchMatcher
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 CALC = 'match'
 
@@ -141,7 +137,7 @@ def get_matchers():
         rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
         for row in rows:
             # key = cache2.create_key(keygroup, identifier, row[1], row[2])
-            cache2.set_hash(keygroup, identifier, { 'name': row[1], 'query_type': row[2], 'minimum_score': row[3] })
+            cache2.set_hash(keygroup, identifier, {'name': row[1], 'query_type': row[2], 'minimum_score': row[3]})
 
     matcherdata = cache2.get_hashes(keygroup, identifier)
 

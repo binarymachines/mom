@@ -1,6 +1,5 @@
-import os, sys, datetime
+import datetime
 
-from context import Context
 
 class Directive:
 

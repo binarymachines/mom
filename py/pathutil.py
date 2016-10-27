@@ -1,16 +1,11 @@
 import logging
 import os
 
-import cache2
-
-# path functions for media files and s
-
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
-
+import  core.log
 import sql
-import log
+from core import cache2
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 
 def get_directory_constants(identifier):

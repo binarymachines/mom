@@ -24,6 +24,7 @@ class Context(object):
             self.clear_stack(consumer)
 
     # cache
+    
     def restore_from_cache(self):
         # context should be able to save and restore whatever portion of its data is not contained in object instances
         pass
@@ -161,3 +162,9 @@ class DirectoryContext(Context):
         # elif cycle:
         else: return self.paths[0]
 
+    def reset(self, consumer, use_fifo=False):
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
+            self.clear_fifo(consumer)
+        
+        if consumer in self.fake_path_queue:
+            del(self.fake_path_queue[consumer])
