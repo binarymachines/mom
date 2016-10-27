@@ -12,9 +12,9 @@ from sqlalchemy.orm import sessionmaker
 
 import config
 #import sql
-#import log
+#import  core.log
 
-# LOG = log.get_log(__name__, logging.DEBUG)
+# LOG = core.log.get_log(__name__, logging.DEBUG)
 LOG = logging.getLogger('alchemy.log')
 
 Base = declarative_base()

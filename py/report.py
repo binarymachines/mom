@@ -23,10 +23,10 @@ import search
 import sql
 import start
 from assets import Document
-import util
-import log
+import core.util
+import  core.log
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 pp = pprint.PrettyPrinter(indent=4)
 

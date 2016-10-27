@@ -8,12 +8,12 @@ import library
 import ops
 import sql
 from query import Builder
-from errors import BaseClassException
+from core.errors import BaseClassException
 
-import log
+import  core.log
 
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -121,7 +121,7 @@ class ElasticSearchMatcher(MediaMatcher):
         pp.pprint(matchrecord)
         print '\n'
 
-
+    # TODO: use res['hits']['max_score'] and percentage of max score to determine best matches
     def match(self, media):
         ops.record_op_begin('match', self.name, media.absolute_path, media.esid)
 

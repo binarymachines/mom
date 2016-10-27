@@ -1,14 +1,11 @@
 """Cache2 is a wrapper around a subset of Redis, it provides support for complex keys as indexes for redis lists and key groups for other Redis types"""
 
 import os
-import datetime
 import logging
 
-import redis
-
-import config
 import util
 import log
+import var
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -28,8 +25,8 @@ def str_clean4key(input):
 
 def key_name(key_group, *identifier):
     """get a compound key name for a given identifier and a specified record type"""
-    keyname = DELIM.join([config.pid, key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
-        else DELIM.join([config.pid, key_group, DELIM.join(identifier)])
+    keyname = DELIM.join([key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
+        else DELIM.join([key_group, DELIM.join(identifier)])
 
     result = str_clean4key(keyname)
     # LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
@@ -41,26 +38,25 @@ def create_key(key_group, *identifier, **values):
     key = key_name(key_group, *identifier)
     if len(values) == 0:
         val = None
-        result = config.redis.rpush(key, val)
+        result = var.redis.rpush(key, val)
     # (else)
     for name in values:
         val = values[name]
-        result = config.redis.rpush(key, val)
+        result = var.redis.rpush(key, val)
     # LOG.debug('create_key(key_group=%s, identifier=%s) returns %s' % (key, identifier, result))
     return key
 
 
 # def delete_key(key, delete_list=False, delete_hash=False):
 def delete_key(key):
-    result = config.redis.delete(key)
-        
+    result = var.redis.delete(key)
     # LOG.debug('redis.delete(key=%s) returns: %s' % (key, str(result)))
 
 
 def delete_key_group(key_group):
     # LOG.debug('delete_key_group(key_group=%s)' % key_group)
     search = key_group + WILDCARD
-    for key in config.redis.keys(search):
+    for key in var.redis.keys(search):
         delete_key(key)
 
 
@@ -80,15 +76,14 @@ def get_key(key_group, *identifier):
 
 def get_key_value(key_group, *identifier):
     key = get_key(key_group, *identifier)
-    value = config.redis.lrange(key, 0, 1)
+    value = var.redis.lrange(key, 0, 1)
     if len(value) == 1:
         return value[0]
-    return None
 
 
 def get_keys(key_group, *identifier):
     search = key_group + WILDCARD if identifier is () else key_name(key_group, *identifier) + WILDCARD
-    result = config.redis.keys(str_clean4key(search))
+    result = var.redis.keys(str_clean4key(search))
     # result = config.redis.scan(str_clean4key(search), 0, -1)
     # LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
@@ -96,81 +91,104 @@ def get_keys(key_group, *identifier):
 
 def key_exists(key_group, *identifier):
      key = key_name(key_group, *identifier)
-     return config.redis.exists(key)
+     return var.redis.exists(key)
 
 
 def key_exists2(key):
-    return config.redis.exists(key)
+    return var.redis.exists(key)
 
 
 # ordered list functions for compound keys and key groups
 
-def rpeek(key_group, *identifier):
-    key = key_name(key_group, identifier)
-    return config.redis.range(key, -1, -1)
-
-
-def rpeek2(key):
-    return config.redis.range(key, -1, -1)
-
-
-def rpush(key_group, *identifier, **value):
-    key = key_name(key_group, identifier)
-    for val in value:
-        config.redis.rpush(key, value[val])
-
-
-def rpush2(key, **value):
-    for val in value:
-        config.redis.rpush(key, value[val])
-
-
 def lpeek(key_group, *identifier):
     key = key_name(key_group, identifier)
-    return config.redis.range(key, 0, 0)
+    lpeek2(key)
 
 
 def lpeek2(key):
-    return config.redis.range(key, 0, 0)
+    if var.redis.llen(key) > 0:
+        result = var.redis.lrange(key, 0, 0)
+        return result[0]
 
 
-def lpush(key_group, *identifier, **value):
+def lpop(key_group, *identifier):
     key = key_name(key_group, identifier)
-    for val in value:
-        config.redis.lpush(key, value[val])
+    lpop2(key)
 
 
-def lpush2(key, **value):
-    for val in value:
-        config.redis.lpush(key, value[val])
+def lpop2(key):
+    if var.redis.llen(key) > 0:
+        return var.redis.lpop(key)
+
+
+# def lpush(key_group, *identifier, **value):
+#     key = key_name(key_group, identifier)
+#     for val in value:
+#         config.redis.lpush(key, value[val])
+
+
+def lpush(key, *values):
+    for val in values:
+        var.redis.lpush(key, val)
+
+
+def rpeek(key_group, *identifier):
+    key = key_name(key_group, identifier)
+    return rpeek2(key)
+
+
+def rpeek2(key):
+    if var.redis.llen(key) > 0:
+        result = var.redis.lrange(key, -1, -1)
+        return result[0]
+
+
+def rpop(key_group, *identifier):
+    key = key_name(key_group, identifier)
+    rpop2(key)
+
+
+def rpop2(key):
+    if var.redis.llen(key) > 0:
+        return var.redis.rpop(key)
+
+# def rpush(key_group, *identifier, **value):
+#     key = key_name(key_group, identifier)
+#     for val in value:
+#         config.redis.rpush(key, value[val])
+
+
+def rpush(key, *values):
+    for val in values:
+        var.redis.rpush(key, val)
 
 
 # hashsets
 
 def delete_hash(key_group, identifier):
     key = DELIM.join([HASH, key_group, identifier])
-    hkeys = config.redis.hkeys(key)
+    hkeys = var.redis.hkeys(key)
     for hkey in hkeys:
-        config.redis.hdel(key, hkey)
+        var.redis.hdel(key, hkey)
 
 
 def delete_hash2(key):
     identifier = DELIM.join([HASH, key])
-    hkeys = config.redis.hkeys(identifier)
+    hkeys = var.redis.hkeys(identifier)
     for hkey in hkeys:
-        config.redis.hdel(identifier, hkey)
+        var.redis.hdel(identifier, hkey)
 
 
 def get_hash(key_group, identifier):
     key = DELIM.join([HASH, key_group, identifier])
-    result = config.redis.hgetall(key)
+    result = var.redis.hgetall(key)
     # LOG.debug('get_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
 def get_hash2(key):
     identifier = DELIM.join([HASH, key])
-    result = config.redis.hgetall(identifier)
+    result = var.redis.hgetall(identifier)
     # LOG.debug('get_hash2ss(key=%s) returns %s' % (key, result))
     return result
 
@@ -179,13 +197,13 @@ def get_hashes(key_group, *identifier):
     result = ()
     if identifier is ():
         for key in get_keys(DELIM.join([HASH, key_group])):
-            hash = config.redis.hgetall(key)
+            hash = var.redis.hgetall(key)
             if hash is not None:
                 result += (hash,)
     #(else)
     for keyname in identifier:
         key = DELIM.join([HASH, key_group, keyname])
-        hash = config.redis.hgetall(key)
+        hash = var.redis.hgetall(key)
         if hash is not None:
             result += (hash,)
 
@@ -195,27 +213,69 @@ def get_hashes(key_group, *identifier):
 
 def set_hash(key_group, identifier, values):
     key = DELIM.join([HASH, key_group, identifier])
-    result = config.redis.hmset(key, values)
+    result = var.redis.hmset(key, values)
     # LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
 
 
 def set_hash2(key, values):
     identifier = DELIM.join([HASH, key])
-    result = config.redis.hmset(identifier, values)
+    result = var.redis.hmset(identifier, values)
     # LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
 
+
+# lists of hashsets
+# These hashsets differ from the hashes handled by set_hash, set_hash2, get_hash, get_hash2, etc. in that they are \
+# intended to be owned by a compound key and are removed when that key is deleted
+
+def add_hashset(keyname, set_identifier, hashset):
+
+    key = get_key(keyname, set_identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+
+    count = len(get_items2(hlkey))
+    keyinlist = DELIM.join([key, str(count)])
+
+    set_hash2(keyinlist, hashset)
+    add_item2(hlkey, keyinlist)
+
+
+def clear_hashsets(keyname, set_identifier):
+    key = get_key(keyname, set_identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+
+    count = len(get_items2(hlkey))
+    for index in range(count):
+        keyinlist = DELIM.join([key, str(index)])
+        delete_hash2(keyinlist)
+
+    clear_items2(hlkey)
+
+
+def get_hashsets(keyname, set_identifier):
+    result = []
+
+    key = get_key(keyname, set_identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+    count = len(get_items2(hlkey))
+
+    for index in range(count):
+        keyinlist = DELIM.join([key, str(index)])
+        hash = get_hash2(keyinlist)
+        result.append(hash)
+
+    return result
 
 # lists
 
 def add_item(key_group, identifier, item):
     key = DELIM.join([LIST, key_group, identifier])
-    result = config.redis.sadd(key, item)
+    result = var.redis.sadd(key, item)
     # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def add_item2(key, item):
     key = DELIM.join([LIST, key])
-    result = config.redis.sadd(key, item)
+    result = var.redis.sadd(key, item)
     # LOG.debug('add_item(key=%s,item=%s) returns: %s' % (key, item, str(result)))
 
 
@@ -224,42 +284,42 @@ def add_items(key_group, identifier, items):
         add_item(key_group, identifier, item)
         # key = DELIM.join([LIST, key_group, identifier])
         # result = config.redis.sadd(key, item)
-        # # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+        # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def add_items2(key, items):
     for item in items:
         key = DELIM.join([LIST, key])
-        result = config.redis.sadd(key, item)
+        result = var.redis.sadd(key, item)
         # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def clear_items(key_group, identifier):
     key = DELIM.join([LIST, key_group, identifier])
-    values = config.redis.smembers(key)
+    values = var.redis.smembers(key)
     for value in values:
-        result = config.redis.srem(key, value)
+        result = var.redis.srem(key, value)
         # LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def clear_items2(key):
     key = DELIM.join([LIST, key])
-    values = config.redis.smembers(key)
+    values = var.redis.smembers(key)
     for value in values:
-        result = config.redis.srem(key, value)
+        result = var.redis.srem(key, value)
         # LOG.debug('redis.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def get_items(key_group, identifier):
     key = DELIM.join([LIST, key_group, identifier])
-    result = config.redis.smembers(key)
+    result = var.redis.smembers(key)
     # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
     return result
 
 
 def get_items2(key):
     key = DELIM.join([LIST, key])
-    result = config.redis.smembers(key)
+    result = var.redis.smembers(key)
     # LOG.debug('get_items(key=%s) returns: %s' % (key, str(result)))
     return result
 
@@ -269,4 +329,4 @@ def get_items2(key):
 def flush_all():
     # flush_cache()
     LOG.info('flushing redis database')
-    config.redis.flushall()
+    var.redis.flushall()

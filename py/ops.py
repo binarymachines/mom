@@ -1,16 +1,17 @@
-import os
 import datetime
 import logging
+import os
 import sys
 
-import cache2
+import alchemy
 import config
+import core.log
+import core.var
 import sql
 import start
-import alchemy
-import log
+from core import cache2
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 OPS = 'ops'
 EXEC = 'exec'
@@ -26,7 +27,7 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
     for op_record in rows:
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
-            'target_path': op_record.target_path })
+            'target_path': op_record.target_path})
 
 
 def clear_cached_operation(path, operation, operator=None):
@@ -41,7 +42,7 @@ def flush_cache(resuming=False):
     write_ops_data(os.path.sep, resuming=resuming)
     if resuming is False:
         LOG.info('flushing redis database')
-        config.redis.flushdb()
+        core.var.redis.flushdb()
 
 
 def mark_operation_invalid(operation, operator, path):

@@ -1,25 +1,27 @@
 #! /usr/bin/python
 
-import os, json, sys, logging, traceback, time, datetime
+import datetime
+import logging
+import os
+import time
 
-from mutagen.id3 import ID3, ID3NoHeaderError
-from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
-from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
-from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
-from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamInfoError
 from mutagen import MutagenError
+from mutagen.apev2 import APEv2, APENoHeaderError
+from mutagen.flac import FLAC, FLACNoHeaderError, FLACVorbisError
+from mutagen.id3 import ID3, ID3NoHeaderError
+from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamInfoError
+from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 
-import cache2
 import config
+import  core.log
 import library
 import ops
 import sql
-import log
+from core import cache2
+from core.errors import BaseClassException
 
-from errors import ElasticSearchError, BaseClassException
-
-LOG = log.get_log(__name__, logging.DEBUG)
-ERROR_LOG = log.get_log('errors', logging.WARNING)
+LOG = core.log.get_log(__name__, logging.DEBUG)
+ERROR_LOG = core.log.get_log('errors', logging.WARNING)
 
 DELIM = ','
 READ = 'read'

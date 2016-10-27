@@ -12,22 +12,20 @@ import os
 
 from docopt import docopt
 
-import read
-import cache2
 import config
+import  core.log
 import library
 import ops
 import pathutil
+import read
 import search
-import sql
-import log
-
-from context import DirectoryContext
+from core import cache2
+from core.context import DirectoryContext
 from errors import AssetException
-from walk import Walker
 from read import Reader
+from walk import Walker
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 SCANNER = 'scanner'
 SCAN = 'scan'
@@ -110,7 +108,6 @@ class Scanner(Walker):
         LOG.debug('done scanning : %s' % (root))
 
     def handle_root_error(self, err, root):
-        c
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
@@ -118,7 +115,17 @@ class Scanner(Walker):
 
     def path_expands(self, path):
         expanded = False
-        if path in pathutil.get_locations():# or pathutil.is_curated(path):
+        do_expand = False
+
+        if path in pathutil.get_locations():
+            do_expand = True
+        
+        if path in self.context.paths:
+            if self.context.get_param('all', 'expand_all'):
+                do_expand = True
+        
+        if do_expand:
+            # or pathutil.is_curated(path):
             dirs = os.listdir(path)
             dirs.sort()
             for dir in dirs:
