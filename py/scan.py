@@ -96,8 +96,10 @@ class Scanner(Walker):
                     self.reader.read(asset, data)
                     file_was_read = True
 
-                    if self.deep_scan and len(data['properties']) > 0:
-                        library.update_asset(asset, data)
+                    existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
+                    if self.deep_scan or existing_esid:
+                        if len(data['properties']) > 0:
+                            library.update_asset(asset, data)
                     elif self.deep_scan == False:
                         library.index_asset(asset, data)
                 except Exception, err:
@@ -150,7 +152,7 @@ class Scanner(Walker):
         ops.cache_ops(path, SCAN)
         ops.cache_ops(path, read.READ)
         ops.cache_ops(path, read.READ, op_status='FAIL')
-        # library.cache_docs(config.DIRECTORY, path)
+        library.cache_docs(config.DOCUMENT, path)
 
         # if self.deep_scan == False:
         if self.context.get_param('scan', HLSCAN):
@@ -165,7 +167,7 @@ class Scanner(Walker):
         if update_ops:
             ops.update_ops_data()
 
-        # library.clear_docs(config.DIRECTORY, path)
+        library.clear_docs(config.DOCUMENT, path)
         # if os.access(path, os.R_OK):
 
         # if self.deep_scan == False:        
