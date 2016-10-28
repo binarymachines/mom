@@ -1,6 +1,6 @@
 import sys, os
 
-import eyed3
+import sql
 
 # doc = "The doc_name property."
 # def fget(self):
@@ -11,7 +11,6 @@ import eyed3
 #     del self._doc_name
 # return locals()
 # doc_name = property(**doc_name()))
-
 
 # ensured paths
 
@@ -76,15 +75,28 @@ import eyed3
 
 
 def main():
-    path = "/media/removable/Audio/music/albums/experimental/david jackman (organum)/sol mara"
-    for file in os.listdir(path):
+    # index = 'media'
+    # rows = sql.retrieve_values('document', ['id', 'absolute_path', 'doc_type'], [])
+    # for row in rows:
+    #     id = row[0]
+    #     path = row[1]
+    #     doc_type = row[2]
+    #     hex = path.encode('hex')
+    #     try:
+    #         sql.insert_values('document2', ['id', 'index_name', 'doc_type', 'absolute_path', 'hexadecimal_key'], [id, index, doc_type, path, hex])
+    #     except Exception, err:
+    #         print err.message
+
+    rows = sql.retrieve_values('op_record', ['id', 'target_path'], [])
+    for row in rows:
+        id = int(row[0])
+        key = row[1].encode('hex')
         try:
-            audiofile = eyed3.load(os.path.join(path, file))
-            tag = eyed3.id3.Tag()
-            tag.parse(os.path.join(path, file))
-            print(tag.artist)
+            query = 'update op_record set target_hexadecimal_key = "%s" where id = %i' % (key, id)
+            print query
+            sql.execute_query(query)
         except Exception, err:
-            print err.message
+            raise err
 
 if __name__ == '__main__':
     main()

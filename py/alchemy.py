@@ -29,13 +29,14 @@ class SQLAsset(Base):
     index_name = Column(String(256), nullable=False)
     doc_type = Column(String(256), nullable=False)
     absolute_path = Column(String(256), nullable=False)
+    hexadecimal_key = Column(String(640), nullable=False)
 
     def __repr__(self):
         return "<SQLAsset(index_name='%s', doc_type='%s', absolute_path='%s')>" % (
                                 self.index_name, self.doc_type, self.absolute_path)
 
 def insert_asset(index_name, doc_type, id, absolute_path):
-    asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path)
+    asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'))
 
     try:
         session.add(asset)
@@ -102,12 +103,14 @@ class SQLOperationRecord(Base):
     start_time = Column('start_time', DateTime, nullable=False)
     end_time = Column('end_time', DateTime, nullable=True)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
-
+    target_hexadecimal_key = Column(String(640), nullable=False)
 
 def insert_operation_record(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
     op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
-        target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now())
+        target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now(), \
+        target_hexadecimal_key=target_path.encode('hex'))
+
     try:
         # assert isinstance(session, object)
         session.add(op_rec)
