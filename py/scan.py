@@ -100,7 +100,7 @@ class Scanner(Walker):
                     if self.deep_scan or existing_esid:
                         if len(data['properties']) > 0:
                             library.update_asset(asset, data)
-                    elif self.deep_scan == False:
+                    else:
                         library.index_asset(asset, data)
                 except Exception, err:
                     if file_was_read:

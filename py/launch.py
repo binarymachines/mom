@@ -16,6 +16,18 @@ import start
 
 from core.context import DirectoryContext
 from core.serv import Service
+from core import util
+
+
+def get_process_create_func():
+    proc_name = config.create_proc.split('.')
+    module_name =  proc_name[0]
+    module = __import__(module_name)
+    func = proc_name[1]
+    create_func = getattr(module, func)
+
+    return create_func
+
 
 def launch(args, run=True):
     try:
@@ -25,27 +37,29 @@ def launch(args, run=True):
         start.execute(args)
 
         if config.launched:
-            ops.record_exec()
             service =  Service()
 
             if run:
-                # paths = start.get_paths(args)
-                # path_args = start.get_paths(args)
-                # paths = pathutil.get_locations() if path_args is None else path_args
-                #
-                # context = DirectoryContext('_path_context_', paths)
-                #
-                # if args['--expand-all']:
-                #     context.set_param('all', 'expand_all', True)
-                #
-                # context.peep_fifo = True
-                # # directive = direct.create(paths)
-                # # process_name = None if not args['--process'] else args['<process_name>']
-                # process_name = 'Boy, howdy'
-                # process = docserv.create_service_process(process_name, context)
-                #
-                # service.run(process, context)
-                pass
+                create_func = get_process_create_func()
+
+                path_args = start.get_paths(args)
+                paths = pathutil.get_locations() if path_args is None else path_args
+
+                context = DirectoryContext('path context', paths)
+                context.peep_fifo = True
+                if args['--expand-all']:
+                    context.set_param('all', 'expand_all', True)
+
+                process = create_func('MILDRED', context)
+                process.after = after
+                process.before = before
+
+                ops.record_exec()
+    
+                service.queue(process)
+                # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
+                service.handle_processes()
+
             return service
 
         else: raise Exception('unable to initialize with current configuration in %s.' % config.filename)
@@ -62,42 +76,39 @@ def before(process):
 
 
 def main(args):
-    pydir = os.path.abspath(os.path.join(__file__, os.pardir))
-    workdir = os.path.abspath(os.path.join(pydir, os.pardir))
-    os.chdir(workdir)
-    
-    service = launch(args, run=False)
-    if service is not None:
-        try:
-            proc_name = config.create_proc.split('.')
-            module_name =  proc_name[0]
-            module = __import__(module_name)
-            func = proc_name[1]
-            create_func = getattr(module, func)
+    os.chdir(util.get_working_directory())
+    service = launch(args)
 
-            path_args = start.get_paths(args)
-            paths = pathutil.get_locations() if path_args is None else path_args
+    # service = launch(args, run=False)
+    # if service is not None:
+    #     try:
+    #         create_func = get_process_create_func()
 
-            context = DirectoryContext('path context', paths)
-            if args['--expand-all']:
-                context.set_param('all', 'expand_all', True)
+    #         path_args = start.get_paths(args)
+    #         paths = pathutil.get_locations() if path_args is None else path_args
 
-            a = create_func('a service', context)
-            a.after = after
-            a.before = before
-            # b = create_func('b service', context)
-            # c = create_func('c service', context)
+    #         context = DirectoryContext('path context', paths)
+    #         if args['--expand-all']:
+    #             context.set_param('all', 'expand_all', True)
 
-            service.queue(a)
+    #         directive = direct.create(paths)
 
-            # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
-            service.handle_processes()
+    #         a = create_func('a service', context)
+    #         a.after = after
+    #         a.before = before
+    #         # b = create_func('b service', context)
+    #         # c = create_func('c service', context)
 
-            # TODO: tests with threaded services reveals design/implementation flaws
-            # service.run(create_func('Threaded worker', context), True, before, after)
-            # service.run(create_func('Threaded sleeper', context), True)
-        except Exception, err:
-            print 'Unable to create process due to %s' % err.message
+    #         service.queue(a)
+
+    #         # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
+    #         service.handle_processes()
+
+    #         # TODO: tests with threaded services reveals design/implementation flaws
+    #         # service.run(create_func('Threaded worker', context), True, before, after)
+    #         # service.run(create_func('Threaded sleeper', context), True)
+    #     except Exception, err:
+    #         print 'Unable to create process due to %s' % err.message
 
 if __name__ == '__main__':
     args = docopt(__doc__)

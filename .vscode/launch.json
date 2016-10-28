@@ -1,20 +1,6 @@
 {
     "version": "0.2.0",
     "configurations": [
-        // {
-        //     "name": "cache2",
-        //     "type": "python",
-        //     "request": "launch",
-        //     "stopOnEntry": false,
-        //     "pythonPath": "${config.python.pythonPath}",
-        //     "cwd": "${workspaceRoot}",
-        //     "program": "${workspaceRoot}/py/cache2.py",
-        //     "debugOptions": [
-        //         "WaitOnAbnormalExit",
-        //         "WaitOnNormalExit",
-        //         "RedirectOutput"
-        //     ]
-        // },
         {
             "name": "media hound",
             "type": "python",
@@ -24,12 +10,12 @@
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/py/launch.py",
             "args": [
-            //     "--noscan"
-            //     "--reset",
+                // "--noscan"
+                // "--reset",
                 "--path",
-                "/media/removable/Audio/music/albums/industrial",
-                "--expand-all"
-            //     "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
+                "/media/removable/Audio/music/albums/industrial"
+                // "--expand-all"
+                // "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
