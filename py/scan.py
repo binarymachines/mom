@@ -13,13 +13,14 @@ import os
 from docopt import docopt
 
 import config
-from core import log
+import consts
 import library
 import ops
 import pathutil
-import read
 import search
+from consts import SCANNER, SCAN, HLSCAN, READ
 from core import cache2
+from core import log
 from core.context import DirectoryContext
 from errors import AssetException
 from read import Reader
@@ -27,9 +28,6 @@ from walk import Walker
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-SCANNER = 'scanner'
-SCAN = 'scan'
-HLSCAN = 'high.level.scan'
 
 class Scanner(Walker):
     def __init__(self, context):
@@ -150,8 +148,8 @@ class Scanner(Walker):
     def _pre_scan(self, path):
         LOG.debug('caching data for %s...' % path)
         ops.cache_ops(path, SCAN)
-        ops.cache_ops(path, read.READ)
-        ops.cache_ops(path, read.READ, op_status='FAIL')
+        ops.cache_ops(path, READ)
+        ops.cache_ops(path, READ, op_status='FAIL')
         library.cache_docs(config.DOCUMENT, path)
 
         # if self.deep_scan == False:
@@ -161,7 +159,7 @@ class Scanner(Walker):
     def _post_scan(self, path, update_ops):
         LOG.debug('clearing cache...')
         ops.write_ops_data(path, SCAN)
-        ops.write_ops_data(path, read.READ)
+        ops.write_ops_data(path, READ)
 
         LOG.debug('updating MariaDB...')
         if update_ops:
@@ -196,10 +194,10 @@ class Scanner(Walker):
                 try:
                     self._pre_scan(path)
 
-                    start_read_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
+                    start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
                     print("scanning %s..." % path)
                     self.walk(path)
-                    end_read_cache_size = len(cache2.get_keys(ops.OPS, read.READ))
+                    end_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
 
                     self._post_scan(path, start_read_cache_size != end_read_cache_size)
                 except Exception, err:

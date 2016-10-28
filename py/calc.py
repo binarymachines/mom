@@ -12,6 +12,7 @@ import os
 import docopt
 
 import config
+import consts
 import library
 import ops
 import scan
@@ -44,7 +45,7 @@ def cache_match_ops(matchers, path):
 
 # use paths expanded by scan ops to segment dataset for matching operations
 def path_expands(path, context):
-    rows = sql.run_query_template('calc_op_path', scan.HLSCAN, 'COMPLETE', path, os.path.sep)
+    rows = sql.run_query_template('calc_op_path', consts.HLSCAN, 'COMPLETE', path, os.path.sep)
     if len(rows) > 0:
         for row in rows:
             context.rpush_fifo(CALC, row[0])
@@ -66,7 +67,7 @@ def calc(context, cycle_context=False):
             print 'expanding %s' % location
             continue
 
-        if ops.operation_completed(location, scan.HLSCAN): 
+        if ops.operation_completed(location, consts.HLSCAN):
         
             # try:
             LOG.debug('calc: matching files in %s' % (location))
