@@ -6,6 +6,7 @@
 import docopt
 import redis
 
+import core.cache2
 from core import var
 import ops
 from core import cache2
@@ -15,7 +16,7 @@ def _connect_to_redis():
 
 
 def _set_field_value(pid, field, value):
-    var.redis = _connect_to_redis()
+    core.cache2.redis = _connect_to_redis()
     key =  cache2.get_key(pid, ops.OPS, ops.EXEC)
 
     values = cache2.get_hash2(key)

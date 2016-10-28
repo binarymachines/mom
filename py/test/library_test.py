@@ -1,7 +1,11 @@
-import unittest, redis
+import unittest
 
-import config, library, cache2, sql
+import redis
 
+import config
+import library
+import sql
+from core import cache2
 
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'
@@ -46,7 +50,7 @@ class TestLibrary(unittest.TestCase):
         document_type = config.DIRECTORY
 
         key = cache2.create_key(library.KEY_GROUP, document_type, path, value=path)
-        cache2.set_hash2(key, { 'absolute_path':path, 'esid': '0123456789' })
+        cache2.set_hash2(key, {'absolute_path':path, 'esid': '0123456789'})
 
         esid = library.get_cached_esid(document_type, path)
         self.assertEquals(esid, '0123456789')

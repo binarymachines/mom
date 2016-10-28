@@ -9,8 +9,6 @@
 
 import logging
 import os
-
-import sql
 import docopt
 
 import config

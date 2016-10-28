@@ -4,6 +4,8 @@
 '''
 
 import os
+import sys
+import types
 
 from docopt import docopt
 
@@ -23,6 +25,33 @@ from docopt import docopt
 #             return os.path.dirname(os.path.abspath(p))
 #     raise Exception("could not find caller directory")
 
+def str_to_class(self, objectTypeName):
+    """A rudimentary class loader function.
+
+    Arguments:
+    objectTypeName -- a fully qualified name for the class to be loaded,
+    in the form 'packagename.classname'.
+
+    Returns:
+    a Python Class object.
+    """
+
+    if objectTypeName.count('.') == 0:
+        moduleName = __name__
+        typeName = objectTypeName
+    else:
+        tokens = objectTypeName.rsplit('.', 1)
+        moduleName = tokens[0]
+        typeName = tokens[1]
+
+    try:
+        identifier = getattr(sys.modules[moduleName], typeName)
+    except AttributeError:
+        raise NameError("Class %s doesn't exist." % objectTypeName)
+    if isinstance(identifier, (types.ClassType, types.TypeType)):
+        return identifier
+    raise TypeError("%s is not a class." % objectTypeName)
+
 
 # compare source and target s, remove files from source that exist in target
 def delta(source, target, remove_source_files=False):
@@ -41,6 +70,7 @@ def delta(source, target, remove_source_files=False):
             print ': %s' % (source_path)
             if os.path.exists(target_path):
                delta(source_path, target_path, remove_source_files)
+
 
 def get_working_directory():
     coredir = os.path.abspath(os.path.join(__file__, os.pardir))
