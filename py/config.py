@@ -3,7 +3,7 @@
 import datetime
 import os
 
-import redis
+from core import var
 
 DOCUMENT = 'document'
 DIRECTORY = 'directory'
@@ -43,7 +43,7 @@ no_match = False
 def display_status():
     print """Process ID: %s""" % pid
     print 'Redis host: %s' % redis_host
-    print 'Redis dbsize: %i' % redis.dbsize()
+    print 'Redis dbsize: %i' % var.redis.dbsize()
     print """Elasticsearch host: %s""" % es_host
     print """Elasticsearch port: %i""" % es_port
     print """Elasticsearch index: %s""" % es_index

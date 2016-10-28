@@ -10,21 +10,22 @@
 import logging
 import os
 
+import sql
 import docopt
 
 import config
-import  core.log
 import library
 import ops
 import scan
 import search
 import sql
+from core import log
 from core import cache2
 from core.context import DirectoryContext
 from errors import AssetException
 from match import ElasticSearchMatcher
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 CALC = 'match'
 

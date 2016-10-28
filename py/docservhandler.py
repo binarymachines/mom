@@ -3,10 +3,10 @@ import random
 
 import calc
 import config
-import  core.log
+from core import log
 import scan
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 class DocumentServiceProcessHandler():
@@ -126,11 +126,11 @@ class DocumentServiceProcessHandler():
         self.before()
 
         self.context.reset('scan')
-        if self.context.get_param('all', 'expand_all') == False:
-            if self.owner.scanmode.on_first_activation():
-                self.context.set_param('scan', scan.HLSCAN, True)
-            else:
-                self.context.set_param('scan', scan.HLSCAN, False)
+        # if self.context.get_param('all', 'expand_all') == False:
+        if self.owner.scanmode.on_first_activation():
+            self.context.set_param('scan', scan.HLSCAN, True)
+        else:
+            self.context.set_param('scan', scan.HLSCAN, False)
 
     def after_scan(self):
         self.after()

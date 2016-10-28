@@ -1,14 +1,14 @@
 import logging
 
 import config
-import  core.log
+from core import log
 import search
 from core.context import DirectoryContext
 from core.modes import Mode
 from core.serv import ServiceProcess
 from docservhandler import DocumentServiceProcessHandler
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 class DocumentServiceProcess(ServiceProcess):

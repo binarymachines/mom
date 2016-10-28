@@ -13,7 +13,7 @@ import os
 from docopt import docopt
 
 import config
-import  core.log
+from core import log
 import library
 import ops
 import pathutil
@@ -25,7 +25,7 @@ from errors import AssetException
 from read import Reader
 from walk import Walker
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 SCANNER = 'scanner'
 SCAN = 'scan'

@@ -1,12 +1,12 @@
 import os, logging
 
-import pathcore.util
+import pathutil
 from walk import Walker
 from core.errors import BaseClassException
 
-import  core.log
+from core import log
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 class DirectoryWalker(Walker):

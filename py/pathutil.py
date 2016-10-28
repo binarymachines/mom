@@ -1,11 +1,10 @@
 import logging
 import os
 
-import  core.log
 import sql
-from core import cache2
+from core import cache2, log
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 def get_directory_constants(identifier):

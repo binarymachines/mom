@@ -6,21 +6,21 @@ import sys
 import redis
 
 import config
-import core.log
-import core.var
+from core import log
+from core import var
 import ops
 import search
 import sql
 
 GET_PATHS = 'start_get_paths'
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 def execute(args):
     show_logo()
     print 'Mildred starting...'
     
-    core.log.start_logging()
+    log.start_logging()
     
     if os.path.isfile(os.path.join(os.getcwd(), config.filename)):
 
@@ -29,7 +29,7 @@ def execute(args):
 
         try:
             LOG.debug('connecting to Redis...')
-            core.var.redis = redis.Redis(config.redis_host)
+            var.redis = redis.Redis(config.redis_host)
 
             LOG.debug('connecting to Elasticsearch...')
             config.es = search.connect()
@@ -156,7 +156,7 @@ def reset():
     if not config.es.indices.exists(config.es_index):
         search.create_index(config.es_index)
 
-    core.var.redis.flushdb()
+    var.redis.flushdb()
 
     for table in ['document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
         query = 'delete from %s where 1 = 1' % (table)

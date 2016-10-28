@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
-import os, sys, json, pprint
+import pprint
+
 from elasticsearch import Elasticsearch
-import config, sql
+
+import config
 
 pp = pprint.PrettyPrinter(indent=2)
 

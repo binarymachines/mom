@@ -1,13 +1,13 @@
-import os, sys, traceback, logging
+import logging
 
-import config, cache, start, sql, ops, search
-
+import config
+from core import log
+import ops
+import search
+import sql
 from assets import Asset, Document
 
-from errors import AssetException
-import  core.log
-
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 
 def clear_bad_entries():
