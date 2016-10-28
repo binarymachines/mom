@@ -1,19 +1,18 @@
 #! /usr/bin/python
 
-import os, pprint, sys, logging, traceback, thread
-from elasticsearch import Elasticsearch
+import logging
+import os
+import pprint
 
 import config
+from core import log
 import library
 import ops
 import sql
-from query import Builder
 from core.errors import BaseClassException
+from query import Builder
 
-import  core.log
-
-
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -62,7 +61,7 @@ class MediaMatcher(object):
         else:
             LOG.info('recording match: %s ::: %s' % (media_id, match_id))
             sql.insert_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
-                [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
+                              [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
 
 
 class ElasticSearchMatcher(MediaMatcher):

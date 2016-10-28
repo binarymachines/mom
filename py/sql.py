@@ -1,14 +1,14 @@
 #! /usr/bin/python
 
-import os, sys, datetime, traceback, config, logging
+import config, logging
 import MySQLdb as mdb
 
 from errors import SQLConnectError
 
-import  core.log
+from core import log
 
-LOG = core.log.get_log(__name__, logging.INFO)
-ERROR_LOG = core.log.get_log('errors', logging.WARNING)
+LOG = log.get_log(__name__, logging.INFO)
+ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 WILD = '%'
 

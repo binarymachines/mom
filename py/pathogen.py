@@ -13,7 +13,7 @@ import read
 
 from read import FileHandler
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
-ERROR_LOG = core.log.get_log('errors', logging.WARNING)
+LOG = log.get_log(__name__, logging.DEBUG)
+ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 

@@ -13,15 +13,14 @@ from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamI
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 
 import config
-import  core.log
 import library
 import ops
+from core import cache2, log
 import sql
-from core import cache2
 from core.errors import BaseClassException
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
-ERROR_LOG = core.log.get_log('errors', logging.WARNING)
+LOG = log.get_log(__name__, logging.DEBUG)
+ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 DELIM = ','
 READ = 'read'

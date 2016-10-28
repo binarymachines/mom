@@ -2,7 +2,6 @@ import os
 import sys
 import datetime
 import logging
-import warnings
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float, Boolean, and_, or_
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,12 +9,11 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import config
-#import sql
-#import  core.log
+from core import log
 
-# LOG = core.log.get_log(__name__, logging.DEBUG)
-LOG = logging.getLogger('alchemy.log')
+import config
+
+LOG = log.get_log(__name__, logging.DEBUG)
 
 Base = declarative_base()
 

@@ -5,13 +5,13 @@ import sys
 
 import alchemy
 import config
-import core.log
-import core.var
-import sql
+from core import log
+from core import var
 import start
 from core import cache2
+import sql
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 OPS = 'ops'
 EXEC = 'exec'
@@ -42,7 +42,7 @@ def flush_cache(resuming=False):
     write_ops_data(os.path.sep, resuming=resuming)
     if resuming is False:
         LOG.info('flushing redis database')
-        core.var.redis.flushdb()
+        var.redis.flushdb()
 
 
 def mark_operation_invalid(operation, operator, path):
@@ -58,10 +58,10 @@ def operation_completed(path, operation, operator=None):
     LOG.debug("checking for record of %s:::%s on path %s " % (operator, operation, path))
     if operator is None:
         rows = sql.retrieve_values('op_record', ['operation_name', 'target_path', 'status', 'start_time', 'end_time'],
-            [operation, path, 'COMPLETE'])
+                                   [operation, path, 'COMPLETE'])
     else:
         rows = sql.retrieve_values('op_record', ['operator_name', 'operation_name', 'target_path', 'status', 'start_time', 'end_time'],
-            [operator, operation, path, 'COMPLETE'])
+                                   [operator, operation, path, 'COMPLETE'])
 
     result = len(rows) > 0
     LOG.debug('operation_completed(path=%s, operation=%s) returns %s' % (path, operation, str(result)))

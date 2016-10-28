@@ -8,25 +8,22 @@
 
 '''
 
+import logging
 import os
 import pprint
 import subprocess
-import sys
-import traceback
-import logging
 
 from docopt import docopt
 
 import config
+from core import log
 import read
 import search
 import sql
 import start
 from assets import Document
-import core.util
-import  core.log
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.DEBUG)
 
 pp = pprint.PrettyPrinter(indent=4)
 

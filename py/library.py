@@ -11,17 +11,16 @@ from elasticsearch.exceptions import ConnectionError, RequestError
 
 import alchemy
 import config
-import  core.log
 import ops
 import pathutil
 import search
 import sql
 from assets import Directory, Document
-from core import cache2
+from core import cache2, log
 from errors import AssetException
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
-ERROR_LOG = core.log.get_log('errors', logging.WARNING)
+LOG = log.get_log(__name__, logging.DEBUG)
+ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'
@@ -403,7 +402,7 @@ def handle_asset_exception(error, path):
     # elif error.message.lower().startswith('NO DOCUMENT'):
     else:
         sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], \
-            [config.es_index, error.data.document_type, error.data.esid, error.message])
+                          [config.es_index, error.data.document_type, error.data.esid, error.message])
 
 
 
