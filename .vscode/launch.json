@@ -12,8 +12,8 @@
             "args": [
                 // "--noscan"
                 // "--reset",
-                "--path",
-                "/media/removable/Audio/music/albums/industrial"
+                // "--path",
+                // "/media/removable/Audio/music/albums/industrial",
                 // "--expand-all"
                 // "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
             ],
