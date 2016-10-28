@@ -5,8 +5,8 @@ import sys
 
 import alchemy
 import config
+import core.cache2
 from core import log
-from core import var
 import start
 from core import cache2
 import sql
@@ -42,7 +42,7 @@ def flush_cache(resuming=False):
     write_ops_data(os.path.sep, resuming=resuming)
     if resuming is False:
         LOG.info('flushing redis database')
-        var.redis.flushdb()
+        core.cache2.redis.flushdb()
 
 
 def mark_operation_invalid(operation, operator, path):
@@ -141,11 +141,11 @@ def record_op_complete(operation, operator, path, esid=None, op_failed=False):
 
 def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
     if apply_lifespan:
-        start = datetime.date.today() + datetime.timedelta(0 - config.op_life)
+        start_time = datetime.date.today() + datetime.timedelta(0 - config.op_life)
         if operator is None:
-            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start, path)
+            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start_time, path)
         else:
-            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start, path)
+            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start_time, path)
     else:
         if operator is None:
             return sql.run_query_template('ops_retrieve_complete_ops', operation, path)

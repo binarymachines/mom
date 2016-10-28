@@ -1,7 +1,7 @@
-import unittest, redis
+import redis
+import unittest
 
-import cache2
-import sql
+from core import cache2
 
 KEYGROUP = 'test-suite'
 

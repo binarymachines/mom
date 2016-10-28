@@ -1,6 +1,6 @@
 import sys, os
 
-import sql
+# ss
 
 # doc = "The doc_name property."
 # def fget(self):
@@ -72,7 +72,8 @@ import sql
 #     if flushkeys: flush_keys(keys)
 
 
-
+def test_func():
+    print 'test'
 
 def main():
     # index = 'media'
@@ -87,16 +88,17 @@ def main():
     #     except Exception, err:
     #         print err.message
 
-    rows = sql.retrieve_values('op_record', ['id', 'target_path'], [])
-    for row in rows:
-        id = int(row[0])
-        key = row[1].encode('hex')
-        try:
-            query = 'update op_record set target_hexadecimal_key = "%s" where id = %i' % (key, id)
-            print query
-            sql.execute_query(query)
-        except Exception, err:
-            raise err
+    # rows = sql.retrieve_values('op_record', ['id', 'target_path'], [])
+    # for row in rows:
+    #     id = int(row[0])
+    #     key = row[1].encode('hex')
+    #     try:
+    #         query = 'update op_record set target_hexadecimal_key = "%s" where id = %i' % (key, id)
+    #         print query
+    #         sql.execute_query(query)
+    #     except Exception, err:
+    #         raise err
+    pass
 
 if __name__ == '__main__':
     main()

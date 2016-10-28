@@ -6,8 +6,8 @@ import sys
 import redis
 
 import config
+from core import cache2
 from core import log
-from core import var
 import ops
 import search
 import sql
@@ -15,6 +15,7 @@ import sql
 GET_PATHS = 'start_get_paths'
 
 LOG = log.get_log(__name__, logging.DEBUG)
+
 
 def execute(args):
     show_logo()
@@ -29,7 +30,7 @@ def execute(args):
 
         try:
             LOG.debug('connecting to Redis...')
-            var.redis = redis.Redis(config.redis_host)
+            cache2.redis = redis.Redis(config.redis_host)
 
             LOG.debug('connecting to Elasticsearch...')
             config.es = search.connect()
@@ -115,6 +116,8 @@ def configure(options):
     if not config.launched: 
         write_pid_file()
 
+    config.create_proc = read(parser, 'Process')['create_proc']
+
     # elasticsearch
     config.es_host = read(parser, "Elasticsearch")['host']
     config.es_port = int(read(parser, "Elasticsearch")['port'])
@@ -156,7 +159,7 @@ def reset():
     if not config.es.indices.exists(config.es_index):
         search.create_index(config.es_index)
 
-    var.redis.flushdb()
+    cache2.redis.flushdb()
 
     for table in ['document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
         query = 'delete from %s where 1 = 1' % (table)
@@ -167,7 +170,6 @@ def show_logo():
     with open('mildred.logo', 'r') as f:
         print f.read()
         f.close()
-
 
 # pids
 
