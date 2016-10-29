@@ -1,8 +1,9 @@
-import redis
 import unittest
 
+import redis
+
 import config
-from core import cache3
+from scratch import cache3
 
 KEYGROUP = cache3.DELIM.join([config.pid, 'test-suite'])
 

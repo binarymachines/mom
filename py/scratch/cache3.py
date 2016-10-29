@@ -5,11 +5,11 @@ import logging
 
 import config
 import core.cache2
-import util
-import log
-import vars
+import core.util
+import core.log
+import core.vars
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = core.log.get_log(__name__, logging.DEBUG)
 
 LIST = 'list'
 HASH = 'hashset'
@@ -22,7 +22,7 @@ PID = str(os.getpid())
 # identifier is an arbitrary list which will be separated by DELIM
 
 def str_clean4key(input):
-    return util.str_clean4comp(input, DELIM, WILDCARD, '-', '_', '.')
+    return core.util.str_clean4comp(input, DELIM, WILDCARD, '-', '_', '.')
 
 
 def key_name(key_group, *identifier):
