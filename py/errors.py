@@ -1,8 +1,9 @@
 import sys, os
 
 #assets and library
+from core.errors import MildredException
 
-class AssetException(Exception):
+class AssetException(MildredException):
     def __init__(self, message, data):
         super(AssetException, self).__init__(message)
         self.data = data
@@ -10,7 +11,7 @@ class AssetException(Exception):
 
 # network and local resources
 
-class ElasticSearchError(Exception):
+class ElasticSearchError(MildredException):
     def __init__(self, cause, message=None):
         self.cause = cause
         self.message = message
@@ -21,7 +22,7 @@ class IndexNotFoundException(ElasticSearchError):
         super(IndexNotFoundException, self).__init__(cause)
 
 
-class SQLError(Exception):
+class SQLError(MildredException):
     def __init__(self, cause, message=None):
         self.cause = cause
         self.message = message

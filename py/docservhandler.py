@@ -46,8 +46,9 @@ class DocumentServiceProcessHandler():
         if possible in [self.owner.fixmode, self.owner.reportmode, self.owner.evalmode, self.owner.reqmode, self.owner.endmode]:
              return True
 
-        if possible is self.owner.scanmode and self.context.has_next('scan'):
-            return config.scan
+        if possible is self.owner.scanmode: 
+            if self.context.has_next('scan'):
+                return config.scan
 
         if possible is self.owner.matchmode and self.context.has_next('match'):
             return config.match
@@ -137,7 +138,8 @@ class DocumentServiceProcessHandler():
         self.after()
         LOG.debug('%s done scanning, updating op records...' % self.name)
         # clean.clean(self.context)
- 
+        self.context.reset('scan')        
+
     def do_scan(self):
         try:
             scan.scan(self.context)

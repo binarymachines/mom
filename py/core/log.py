@@ -2,12 +2,12 @@ import logging
 import os
 
 import util
-import var
+import vars
 
 FORMAT = '%(asctime)s %(levelname)s %(filename)s %(funcName)s :: %(message)s ' #, datefmt='%m/%d/%Y %I:%M:%S %p')
 
 def get_log(log_name, logging_level):
-    if var.logging_started is False:
+    if vars.logging_started is False:
         start_logging()
 
     return setup_log(log_name, log_name, logging_level)
@@ -24,10 +24,10 @@ def setup_log(file_name, log_name, logging_level):
 
 
 def start_logging():
-    if var.logging_started:
+    if vars.logging_started:
         return
 
-    var.logging_started = True
+    vars.logging_started = True
     # logging.basicConfig(level=logging.DEBUG, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
 
     # console handler

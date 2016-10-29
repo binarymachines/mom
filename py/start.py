@@ -6,6 +6,8 @@ import sys
 import redis
 
 import config
+import consts
+import core.vars
 from core import cache2
 from core import log
 import ops
@@ -61,7 +63,7 @@ def get_paths(args):
     pattern = None if not args['--pattern'] else args['<pattern>']
     if args['--pattern']:
         for p in pattern:
-            for row in sql.run_query_template(GET_PATHS, p, config.DIRECTORY):
+            for row in sql.run_query_template(GET_PATHS, p, consts.DIRECTORY):
                 paths.append(row[0])
     return paths
 
@@ -116,7 +118,7 @@ def configure(options):
     if not config.launched: 
         write_pid_file()
 
-    config.create_proc = read(parser, 'Process')['create_proc']
+    core.vars.service_create_func = read(parser, 'Process')['create_proc']
 
     # elasticsearch
     config.es_host = read(parser, "Elasticsearch")['host']

@@ -11,8 +11,8 @@ from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamI
 
 import consts
 import ops
-import filehandlerintf
-from filehandlerintf import FileHandler
+import filehandler
+from filehandler import FileHandler
 from consts import MAX_DATA_LENGTH
 from core import log
 from core.errors import BaseClassException
@@ -127,8 +127,8 @@ class MutagenMP4(Mutagen):
             if len(item) < 2: continue
 
             key = item[0]
-            if key not in filehandlerintf.get_known_fields('m4a'):
-                filehandlerintf.add_field('m4a', key)
+            if key not in filehandler.get_known_fields('m4a'):
+                filehandler.add_field('m4a', key)
 
             try:
                 value = item[1][0]
@@ -137,7 +137,7 @@ class MutagenMP4(Mutagen):
 
             if isinstance(value, basestring):
                 if len(value) > MAX_DATA_LENGTH:
-                    filehandlerintf.report_invalid_field(asset.absolute_path, key, value)
+                    filehandler.report_invalid_field(asset.absolute_path, key, value)
                     continue
 
             mp4_data[key] = value
@@ -163,12 +163,12 @@ class MutagenAPEv2(Mutagen):
             if len(item) < 2: continue
 
             key = item[0]
-            if key not in filehandlerintf.get_known_fields('apev2'):
-                filehandlerintf.add_field('apev2', key)
+            if key not in filehandler.get_known_fields('apev2'):
+                filehandler.add_field('apev2', key)
 
             value = item[1].value
             if len(value) > MAX_DATA_LENGTH:
-                filehandlerintf.report_invalid_field(asset.absolute_path, key, value)
+                filehandler.report_invalid_field(asset.absolute_path, key, value)
                 continue
 
             ape_data[key] = value
@@ -190,24 +190,24 @@ class MutagenFLAC(Mutagen):
             if len(tag) < 2: continue
             
             key = tag[0]
-            if key not in filehandlerintf.get_known_fields('flac'):
-                filehandlerintf.add_field('flac', key)
+            if key not in filehandler.get_known_fields('flac'):
+                filehandler.add_field('flac', key)
 
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
-                filehandlerintf.report_invalid_field(asset.absolute_path, key, value)
+                filehandler.report_invalid_field(asset.absolute_path, key, value)
                 continue
             flac_data[key] = value
 
 
         for tag in document.vc:
             key = tag[0]
-            if key not in filehandlerintf.get_known_fields('flac.vc'):
-                filehandlerintf.add_field('flac.vc', key)
+            if key not in filehandler.get_known_fields('flac.vc'):
+                filehandler.add_field('flac.vc', key)
 
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
-                filehandlerintf.report_invalid_field(asset.absolute_path, key, value)
+                filehandler.report_invalid_field(asset.absolute_path, key, value)
                 continue
 
             flac_data[key] = value
@@ -232,27 +232,27 @@ class MutagenID3(Mutagen):
             if len(tag) < 2: continue
 
             key = tag[0]
-            if len(key) == 4 and key not in filehandlerintf.get_known_fields('ID3V2'):
-                filehandlerintf.add_field('ID3V2', key)
+            if len(key) == 4 and key not in filehandler.get_known_fields('ID3V2'):
+                filehandler.add_field('ID3V2', key)
 
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
-                filehandlerintf.report_invalid_field(asset.absolute_path, key, value)
+                filehandler.report_invalid_field(asset.absolute_path, key, value)
                 # print value
                 continue
             
-            if key in filehandlerintf.get_fields('ID3V2'):
+            if key in filehandler.get_fields('ID3V2'):
                 id3_data[key] = value
                 # TODO: remove for version 0.9.0
                 data[key] = value
 
             if key == "TXXX":
-                for sub_field in filehandlerintf.get_fields('ID3V2.TXXX'):
+                for sub_field in filehandler.get_fields('ID3V2.TXXX'):
                     if sub_field in value:
                         subtags = value.split('=')
                         subkey = subtags[0].replace(' ', '_').upper()
-                        if subkey not in filehandlerintf.get_known_fields('ID3V2.TXXX'):
-                            filehandlerintf.add_field('ID3V2.TXXX', key)
+                        if subkey not in filehandler.get_known_fields('ID3V2.TXXX'):
+                            filehandler.add_field('ID3V2.TXXX', key)
 
                         id3_data[subkey] = subtags[1]
 
@@ -275,12 +275,12 @@ class MutagenOggVorbis(Mutagen):
             if len(tag) < 2: continue
 
             key = tag[0]
-            if key not in filehandlerintf.get_known_fields('ogg'):
-                filehandlerintf.add_field('ogg', key)
+            if key not in filehandler.get_known_fields('ogg'):
+                filehandler.add_field('ogg', key)
 
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
-                filehandlerintf.report_invalid_field(asset.absolute_path, key, value)
+                filehandler.report_invalid_field(asset.absolute_path, key, value)
                 continue
 
             ogg_data[key] = value

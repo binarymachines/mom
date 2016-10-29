@@ -1,10 +1,9 @@
 #! /usr/bin/python
 
-import sys
-import traceback
+
 import logging
 
-from elasticsearch import Elasticsearch, ConnectionError
+from elasticsearch import Elasticsearch
 
 import config
 from core import log
@@ -19,6 +18,11 @@ def clear_index(index):
         LOG.debug(" response: '%s'" % (res))
 
 
+def connect(hostname=config.es_host, port_num=config.es_port):
+    LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
+    return Elasticsearch([{'host': hostname, 'port': port_num}])
+
+
 def create_index(index):
     LOG.debug("creating '%s' index..." % index)
     # since we are running locally, use one shard and no replicas
@@ -30,11 +34,6 @@ def create_index(index):
     }
     res = config.es.indices.create(index, request_body)
     LOG.debug("response: '%s'" % res)
-
-
-def connect(hostname=config.es_host, port_num=config.es_port):
-    LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
-    return Elasticsearch([{'host': hostname, 'port': port_num}])
 
 
 def delete_docs(doc_type, attribute, value):

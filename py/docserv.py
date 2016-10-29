@@ -31,7 +31,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         self.startmode = Mode("STARTUP", self.handler.start, 0)
         self.evalmode = Mode("EVAL", self.handler.do_eval, 10)
-        self.scanmode = Mode("SCAN", self.handler.do_scan, 25)
+        self.scanmode = Mode("SCAN", self.handler.do_scan, 35)
         # self.scanmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
         # self.scanmode = Mode("CLEAN", self.handler.do_sync, 25) # bring ElasticSearch in line with filesystem
         self.matchmode = Mode("MATCH", self.handler.do_match, 25)

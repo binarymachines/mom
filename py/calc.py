@@ -75,11 +75,11 @@ def calc(context, cycle_context=False):
             # this should never be true, but a test
             if location[-1] != os.path.sep: location += os.path.sep
 
-            library.cache_docs(config.DOCUMENT, location)
+            library.cache_docs(consts.DOCUMENT, location)
             ops.cache_ops(location, CALC, apply_lifespan=True)
             library.cache_matches(location)
 
-            for key in library.get_doc_keys(config.DOCUMENT):
+            for key in library.get_doc_keys(consts.DOCUMENT):
                 opcount += 1
                 ops.check_status(opcount)
 
@@ -97,7 +97,7 @@ def calc(context, cycle_context=False):
             # except Exception, err:
             #     LOG.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
             # finally:
-            library.clear_docs(config.DOCUMENT, location)
+            library.clear_docs(consts.DOCUMENT, location)
                 # cache.write_paths()
 
 
@@ -143,7 +143,7 @@ def get_matchers():
 
     matchers = []
     for item in matcherdata:
-        matcher = ElasticSearchMatcher(item['name'], config.DOCUMENT)
+        matcher = ElasticSearchMatcher(item['name'], consts.DOCUMENT)
         matcher.query_type = item['query_type']
         matcher.minimum_score = float(item['minimum_score'])
         LOG.debug('matcher %s configured' % (item['name']))
