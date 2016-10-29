@@ -9,6 +9,8 @@ import types
 
 from docopt import docopt
 
+import vars
+
 # def caller_directory():
 #     mod_name = inspect.currentframe().f_back.f_back.f_globals.get('__name__')
 #     module = sys.modules[mod_name]
@@ -73,11 +75,12 @@ def delta(source, target, remove_source_files=False):
 
 
 def get_working_directory():
-    coredir = os.path.abspath(os.path.join(__file__, os.pardir))
-    pydir = os.path.abspath(os.path.join(coredir, os.pardir))
-    workdir = os.path.abspath(os.path.join(pydir, os.pardir))
+    if vars.workdir is None:                                                                                    
+        coredir = os.path.abspath(os.path.join(__file__, os.pardir))
+        pydir = os.path.abspath(os.path.join(coredir, os.pardir))
+        return os.path.abspath(os.path.join(pydir, os.pardir))
 
-    return workdir
+    else: return vars.workdir
 
 
 def smash(str):

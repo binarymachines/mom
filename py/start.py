@@ -87,6 +87,8 @@ def make_options(args):
     if '--reset' in args and args['--reset']: options.append('reset')
     if '--expand-all' in args and args['--expand-all']: options.append('expand_all')
     if '--exit' in args and args['--exit']: options.append('exit')
+
+    # if '--workdir' in args
     # if args['--debug-filter']: options.append('no_match')
 
     return options

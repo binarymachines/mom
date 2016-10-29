@@ -1,5 +1,5 @@
 '''
-   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all]
+   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)]
 
    --path, -p                   The path to scan
 
@@ -18,6 +18,7 @@ import start
 from core.context import DirectoryContext
 from core.serv import Service
 from core import util
+from core import vars
 
 
 def get_process_create_func():
@@ -32,7 +33,11 @@ def get_process_create_func():
 
 def launch(args, run=True):
     try:
+        # TODO: set vars.workdir BEFORE any calls to log.start_logging() are made 
+        # vars.workdir = util.get_working_directory() if not args['--workdir'] else args['<directory>']
+
         # NOTE: final changes to config happen here
+        
         config.filename = config.filename if not args['--config'] else args['<filename>']
         config.start_time = datetime.datetime.now().isoformat()
         start.execute(args)
