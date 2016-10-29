@@ -1,10 +1,11 @@
 #! /usr/bin/python
 
-import config, logging
+import logging
+
 import MySQLdb as mdb
 
+import config
 from errors import SQLConnectError
-
 from core import log
 
 LOG = log.get_log(__name__, logging.INFO)
