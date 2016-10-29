@@ -3,6 +3,7 @@ import unittest
 import redis
 
 import config
+import consts
 import library
 import sql
 from core import cache2
@@ -21,33 +22,33 @@ class TestLibrary(unittest.TestCase):
 
     def test_cache_docs(self):
         path = '/media/removable/Audio/music/albums/ambient/biosphere/substrata'
-        library.cache_docs(config.DOCUMENT, path)
+        library.cache_docs(consts.DOCUMENT, path)
 
-        rows = sql.run_query_template(RETRIEVE_DOCS, config.es_index, config.DOCUMENT, path)
-        keys = cache2.get_keys(cache2.DELIM.join([library.KEY_GROUP, config.DOCUMENT, path]))
+        rows = sql.run_query_template(RETRIEVE_DOCS, config.es_index, consts.DOCUMENT, path)
+        keys = cache2.get_keys(cache2.DELIM.join([library.KEY_GROUP, consts.DOCUMENT, path]))
         self.assertEqual(len(rows), len(keys))
 
 
     def test_clear_docs(self):
         path = '/media/removable/Audio/music/albums/ambient/biosphere/substrata'
-        library.cache_docs(config.DOCUMENT, path)
+        library.cache_docs(consts.DOCUMENT, path)
 
-        dockeys = cache2.get_keys(library.KEY_GROUP, config.DOCUMENT, path)
+        dockeys = cache2.get_keys(library.KEY_GROUP, consts.DOCUMENT, path)
         self.assertEquals(len(dockeys), 12)
 
-        cache2.create_key(library.KEY_GROUP, config.DOCUMENT, '/some/other/path', value='/some/other/path')
-        library.clear_docs(config.DOCUMENT, path)
+        cache2.create_key(library.KEY_GROUP, consts.DOCUMENT, '/some/other/path', value='/some/other/path')
+        library.clear_docs(consts.DOCUMENT, path)
 
-        dockeys = cache2.get_keys(library.KEY_GROUP, config.DOCUMENT, path)
+        dockeys = cache2.get_keys(library.KEY_GROUP, consts.DOCUMENT, path)
         self.assertEquals(len(dockeys), 0)
 
-        dockeys = cache2.get_keys(library.KEY_GROUP, config.DOCUMENT, '/some/other/path')
+        dockeys = cache2.get_keys(library.KEY_GROUP, consts.DOCUMENT, '/some/other/path')
         self.assertEquals(len(dockeys), 1)
 
 
     def test_get_cached_esid(self):
         path = '/media/removable/Audio/music/albums/ambient/biosphere/substrata'
-        document_type = config.DIRECTORY
+        document_type = consts.DIRECTORY
 
         key = cache2.create_key(library.KEY_GROUP, document_type, path, value=path)
         cache2.set_hash2(key, {'absolute_path':path, 'esid': '0123456789'})
