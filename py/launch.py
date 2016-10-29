@@ -1,5 +1,6 @@
 '''
-   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)]
+   Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] 
+                    [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)]
 
    --path, -p                   The path to scan
 
@@ -10,7 +11,7 @@ import os
 from docopt import docopt
 
 import config
-import core.vars
+import core.var
 import ops
 import pathutil
 import start
@@ -18,11 +19,11 @@ import start
 from core.context import DirectoryContext
 from core.serv import Service
 from core import util
-from core import vars
+from core import var
 
 
 def get_process_create_func():
-    proc_name = core.vars.service_create_func.split('.')
+    proc_name = core.var.service_create_func.split('.')
     module_name =  proc_name[0]
     module = __import__(module_name)
     func = proc_name[1]

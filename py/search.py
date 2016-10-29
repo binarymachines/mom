@@ -40,6 +40,7 @@ def delete_docs(doc_type, attribute, value):
     docs = find_docs(doc_type, attribute, value)
     for doc in docs:
         # res =
+        # save a backup of the doc to local file system
         config.es.delete(config.es_index, doc_type, doc['_id'])
         # if res['_shards']['successful'] == 1:
 

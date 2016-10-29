@@ -11,7 +11,7 @@ from elasticsearch.exceptions import ConnectionError, RequestError
 
 import alchemy
 import config
-import consts
+import const
 import ops
 import pathutil
 import search
@@ -82,8 +82,8 @@ def set_active(path):
     directory = None if path is None else Directory(path)
     if directory is not None:
         LOG.debug('syncing metadata for %s' % directory.absolute_path)
-        if search.unique_doc_exists(consts.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex')):
-            directory.esid = search.unique_doc_id(consts.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex'))
+        if search.unique_doc_exists(const.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex')):
+            directory.esid = search.unique_doc_id(const.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex'))
             # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
             index_asset(directory, directory.to_dictionary())

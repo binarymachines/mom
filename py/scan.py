@@ -13,12 +13,12 @@ import os
 from docopt import docopt
 
 import config
-import consts
+import const
 import library
 import ops
 import pathutil
 import search
-from consts import SCANNER, SCAN, HLSCAN, READ
+from const import SCANNER, SCAN, HLSCAN, READ
 from core import cache2
 from core import log
 from core.context import DirectoryContext
@@ -33,7 +33,7 @@ class Scanner(Walker):
     def __init__(self, context):
         super(Scanner, self).__init__()
         self.context = context
-        self.document_type = consts.DOCUMENT
+        self.document_type = const.DOCUMENT
         self.deep_scan = config.deep
         self.reader = Reader()
 
@@ -150,7 +150,7 @@ class Scanner(Walker):
         ops.cache_ops(path, SCAN)
         ops.cache_ops(path, READ)
         ops.cache_ops(path, READ, op_status='FAIL')
-        library.cache_docs(consts.DOCUMENT, path)
+        library.cache_docs(const.DOCUMENT, path)
 
         # if self.deep_scan == False:
         if self.context.get_param('scan', HLSCAN):
@@ -165,7 +165,7 @@ class Scanner(Walker):
         if update_ops:
             ops.update_ops_data()
 
-        library.clear_docs(consts.DOCUMENT, path)
+        library.clear_docs(const.DOCUMENT, path)
         # if os.access(path, os.R_OK):
 
         # if self.deep_scan == False:        

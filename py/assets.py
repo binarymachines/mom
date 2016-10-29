@@ -4,7 +4,7 @@ import os
 import time
 import json
 
-import consts
+import const
 import pathutil
 
 
@@ -73,7 +73,7 @@ class Asset(object):
 class Document(Asset):
     def __init__(self):
         super(Document, self).__init__()
-        self.document_type = consts.DOCUMENT
+        self.document_type = const.DOCUMENT
         self.ext = None
         self.file_name = None
         self.file_size = 0
@@ -130,7 +130,7 @@ class Document(Asset):
 class Directory(Asset):
     def __init__(self, absolute_path, esid=None):
         super(Directory, self).__init__()
-        self.document_type = consts.DIRECTORY
+        self.document_type = const.DIRECTORY
         self.absolute_path = absolute_path
         self.esid = esid
         self.files = []

@@ -1,7 +1,7 @@
 import logging
 
 import library
-from consts import KNOWN, METADATA
+from const import KNOWN, METADATA
 from core.errors import BaseClassException
 from core import log
 from core import cache2
