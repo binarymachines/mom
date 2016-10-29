@@ -9,7 +9,7 @@ import types
 
 from docopt import docopt
 
-import vars
+import var
 
 # def caller_directory():
 #     mod_name = inspect.currentframe().f_back.f_back.f_globals.get('__name__')
@@ -55,8 +55,9 @@ def str_to_class(self, objectTypeName):
     raise TypeError("%s is not a class." % objectTypeName)
 
 
-# compare source and target s, remove files from source that exist in target
+# compare source and targets, remove files from source that exist in target
 def delta(source, target, remove_source_files=False):
+    print source
     for f in os.listdir(source):
         source_path = os.path.join(source, f)
         target_path = os.path.join(target, f)
@@ -75,12 +76,40 @@ def delta(source, target, remove_source_files=False):
 
 
 def get_working_directory():
-    if vars.workdir is None:                                                                                    
+    if var.workdir is None:
         coredir = os.path.abspath(os.path.join(__file__, os.pardir))
         pydir = os.path.abspath(os.path.join(coredir, os.pardir))
-        return os.path.abspath(os.path.join(pydir, os.pardir))
+        nominalresult = os.path.abspath(os.path.join(pydir, os.pardir))
+        cwd = os.getcwd()
 
-    else: return vars.workdir
+        if cwd != nominalresult:
+            response = raw_input('Do you want to run application in %s? (yes, no)')
+            if response.lower() == 'no':
+                var.workdir = nominalresult
+        else:
+            prep_work_dir(cwd)
+            var.workdir = cwd
+
+    return var.workdir
+
+def mkdirs(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+
+def prep_work_dir(workdir):
+    dirs = os.listdir(workdir)
+    if not 'logs' in dirs:
+        logs = os.path.join(workdir, 'logs')
+        mkdirs(logs)
+
+    if not 'tmp' in dirs:
+        tmp = os.path.join(workdir, 'tmp')
+        mkdirs(tmp)
+
+    if not 'bak' in dirs:
+        bak = os.path.join(workdir, 'bak')
+        mkdirs(bak)
 
 
 def smash(str):

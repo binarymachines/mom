@@ -6,8 +6,8 @@ import sys
 import redis
 
 import config
-import consts
-import core.vars
+import const
+import core.var
 from core import cache2
 from core import log
 import ops
@@ -31,6 +31,7 @@ def execute(args):
         configure(options)
 
         try:
+            # TODO: connect to an explicit redis database. Check for execution record. Change database if required.
             LOG.debug('connecting to Redis...')
             cache2.redis = redis.Redis(config.redis_host)
 
@@ -63,7 +64,7 @@ def get_paths(args):
     pattern = None if not args['--pattern'] else args['<pattern>']
     if args['--pattern']:
         for p in pattern:
-            for row in sql.run_query_template(GET_PATHS, p, consts.DIRECTORY):
+            for row in sql.run_query_template(GET_PATHS, p, const.DIRECTORY):
                 paths.append(row[0])
     return paths
 
@@ -120,7 +121,7 @@ def configure(options):
     if not config.launched: 
         write_pid_file()
 
-    core.vars.service_create_func = read(parser, 'Process')['create_proc']
+    core.var.service_create_func = read(parser, 'Process')['create_proc']
 
     # elasticsearch
     config.es_host = read(parser, "Elasticsearch")['host']
@@ -157,17 +158,20 @@ def configure(options):
 
 
 def reset():
-    if config.es.indices.exists(config.es_index):
-        search.clear_index(config.es_index)
 
-    if not config.es.indices.exists(config.es_index):
-        search.create_index(config.es_index)
+    response = raw_input("All data will be deleted, are you sure? (yes, no)")
+    if response.lower() == 'yes':
+        cache2.redis.flushdb()
 
-    cache2.redis.flushdb()
+        if config.es.indices.exists(config.es_index):
+            search.clear_index(config.es_index)
 
-    for table in ['document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
-        query = 'delete from %s where 1 = 1' % (table)
-        sql.execute_query(query)
+        if not config.es.indices.exists(config.es_index):
+            search.create_index(config.es_index)
+
+        for table in ['document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
+            query = 'delete from %s where 1 = 1' % (table)
+            sql.execute_query(query)
 
 
 def show_logo():

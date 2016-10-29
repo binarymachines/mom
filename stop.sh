@@ -1,1 +1,1 @@
-~/dev/_virtual_env/mom/bin/python2.7 $MOM/py/command.py --stop
+~/dev/_virtual_env/mom/bin/python2.7 $m2/py/command.py --stop

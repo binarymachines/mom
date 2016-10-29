@@ -3,7 +3,7 @@ import random
 
 import calc
 import config
-import consts
+import const
 from core import log
 import scan
 
@@ -130,9 +130,9 @@ class DocumentServiceProcessHandler():
         # if self.context.get_param('all', 'expand_all') == False:
         self.context.reset('scan')
         if self.owner.scanmode.on_first_activation():
-            self.context.set_param('scan', consts.HLSCAN, True)
+            self.context.set_param('scan', const.HLSCAN, True)
         else:
-            self.context.set_param('scan', consts.HLSCAN, False)
+            self.context.set_param('scan', const.HLSCAN, False)
 
     def after_scan(self):
         self.after()

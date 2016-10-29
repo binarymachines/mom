@@ -9,11 +9,11 @@ from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamInfoError
 
-import consts
+import const
 import ops
 import filehandler
 from filehandler import FileHandler
-from consts import MAX_DATA_LENGTH
+from const import MAX_DATA_LENGTH
 from core import log
 from core.errors import BaseClassException
 
@@ -33,7 +33,7 @@ class Mutagen(FileHandler):
         read_failed = False
 
         try:
-            ops.record_op_begin(consts.READ, self.name, asset.absolute_path, asset.esid)
+            ops.record_op_begin(const.READ, self.name, asset.absolute_path, asset.esid)
             self.read_tags(asset, data)
             return True
 
@@ -98,7 +98,7 @@ class Mutagen(FileHandler):
             self.handle_exception(err, asset, data)
 
         finally:
-            ops.record_op_complete(consts.READ, self.name, asset.absolute_path, asset.esid, op_failed=read_failed)
+            ops.record_op_complete(const.READ, self.name, asset.absolute_path, asset.esid, op_failed=read_failed)
 
 
     def read_tags(self, asset, data):

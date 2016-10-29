@@ -1,7 +1,7 @@
 import logging
 
 import config
-import consts
+import const
 from core import log
 import ops
 import search
@@ -52,7 +52,7 @@ def purge_problem_esids():
         a.absolute_path = row[2]
         problem = row[3]
 
-        if a.document_type == consts.DIRECTORY and problem.lower().startswith('mult'):
+        if a.document_type == const.DIRECTORY and problem.lower().startswith('mult'):
             print '%s, %s' % (a.esid, a.absolute_path)
             docs = sql.retrieve_values('document', ['absolute_path', 'id'], [a.absolute_path])
             for doc in docs:

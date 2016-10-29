@@ -5,7 +5,7 @@ import os
 import pprint
 
 import config
-import consts
+import const
 from core import log
 import library
 import ops
@@ -135,7 +135,7 @@ class ElasticSearchMatcher(MediaMatcher):
         #     query_printed = True
 
         matches = False
-        res = config.es.search(index=config.es_index, doc_type=consts.DOCUMENT, body=query)
+        res = config.es.search(index=config.es_index, doc_type=const.DOCUMENT, body=query)
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches:
                 continue

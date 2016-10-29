@@ -12,10 +12,9 @@ import os
 import docopt
 
 import config
-import consts
+import const
 import library
 import ops
-import scan
 import search
 import sql
 from core import log
@@ -37,6 +36,7 @@ def all_matchers_have_run(matchers, asset):
 
     return skip_entirely
 
+
 def cache_match_ops(matchers, path):
     LOG.debug('caching match ops for %s...' % path)
     for matcher in matchers:
@@ -45,11 +45,18 @@ def cache_match_ops(matchers, path):
 
 # use paths expanded by scan ops to segment dataset for matching operations
 def path_expands(path, context):
-    rows = sql.run_query_template('calc_op_path', consts.HLSCAN, 'COMPLETE', path, os.path.sep)
+    expanded = []
+
+    rows = sql.run_query_template('calc_op_path', const.HLSCAN, 'COMPLETE', path, os.path.sep)
     if len(rows) > 0:
         for row in rows:
-            context.rpush_fifo(CALC, row[0])
-        return True
+            if row[0] not in expanded:
+                expanded.append(row[0])
+
+    for ex_path in expanded:
+        context.rpush_fifo(CALC, ex_path)
+
+    return len(expanded) > 0
 
 
 def calc(context, cycle_context=False):
@@ -67,7 +74,7 @@ def calc(context, cycle_context=False):
             print 'expanding %s' % location
             continue
 
-        if ops.operation_completed(location, consts.HLSCAN):
+        if ops.operation_completed(location, const.HLSCAN):
         
             # try:
             LOG.debug('calc: matching files in %s' % (location))
@@ -75,11 +82,11 @@ def calc(context, cycle_context=False):
             # this should never be true, but a test
             if location[-1] != os.path.sep: location += os.path.sep
 
-            library.cache_docs(consts.DOCUMENT, location)
+            library.cache_docs(const.DOCUMENT, location)
             ops.cache_ops(location, CALC, apply_lifespan=True)
             library.cache_matches(location)
 
-            for key in library.get_doc_keys(consts.DOCUMENT):
+            for key in library.get_doc_keys(const.DOCUMENT):
                 opcount += 1
                 ops.check_status(opcount)
 
@@ -97,7 +104,7 @@ def calc(context, cycle_context=False):
             # except Exception, err:
             #     LOG.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
             # finally:
-            library.clear_docs(consts.DOCUMENT, location)
+            library.clear_docs(const.DOCUMENT, location)
                 # cache.write_paths()
 
 
@@ -143,7 +150,7 @@ def get_matchers():
 
     matchers = []
     for item in matcherdata:
-        matcher = ElasticSearchMatcher(item['name'], consts.DOCUMENT)
+        matcher = ElasticSearchMatcher(item['name'], const.DOCUMENT)
         matcher.query_type = item['query_type']
         matcher.minimum_score = float(item['minimum_score'])
         LOG.debug('matcher %s configured' % (item['name']))
