@@ -17,7 +17,7 @@ ERROR_LOG = log.get_log('errors', logging.WARNING)
 
 class Reader:
     def __init__(self):
-        self.document_type = config.DOCUMENT
+        self.document_type = consts.DOCUMENT
 
     def get_supported_extensions(self):
         result = ()

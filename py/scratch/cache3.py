@@ -7,7 +7,7 @@ import config
 import core.cache2
 import util
 import log
-import var
+import vars
 
 LOG = log.get_log(__name__, logging.DEBUG)
 

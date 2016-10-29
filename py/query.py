@@ -5,6 +5,7 @@ import pprint
 from elasticsearch import Elasticsearch
 
 import config
+import consts
 
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -20,7 +21,7 @@ class Builder:
         pp.pprint(query)
 
         es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
-        res = es.search(index=config.es_index, doc_type=config.DOCUMENT, body=query)
+        res = es.search(index=config.es_index, doc_type=consts.DOCUMENT, body=query)
 
         print 'results\n----------------------\n'
         for doc in res['hits']['hits']:

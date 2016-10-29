@@ -10,6 +10,7 @@ import os
 from docopt import docopt
 
 import config
+import core.vars
 import ops
 import pathutil
 import start
@@ -20,7 +21,7 @@ from core import util
 
 
 def get_process_create_func():
-    proc_name = config.create_proc.split('.')
+    proc_name = core.vars.service_create_func.split('.')
     module_name =  proc_name[0]
     module = __import__(module_name)
     func = proc_name[1]

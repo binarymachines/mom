@@ -33,7 +33,7 @@ class Scanner(Walker):
     def __init__(self, context):
         super(Scanner, self).__init__()
         self.context = context
-        self.document_type = config.DOCUMENT
+        self.document_type = consts.DOCUMENT
         self.deep_scan = config.deep
         self.reader = Reader()
 
@@ -150,7 +150,7 @@ class Scanner(Walker):
         ops.cache_ops(path, SCAN)
         ops.cache_ops(path, READ)
         ops.cache_ops(path, READ, op_status='FAIL')
-        library.cache_docs(config.DOCUMENT, path)
+        library.cache_docs(consts.DOCUMENT, path)
 
         # if self.deep_scan == False:
         if self.context.get_param('scan', HLSCAN):
@@ -165,7 +165,7 @@ class Scanner(Walker):
         if update_ops:
             ops.update_ops_data()
 
-        library.clear_docs(config.DOCUMENT, path)
+        library.clear_docs(consts.DOCUMENT, path)
         # if os.access(path, os.R_OK):
 
         # if self.deep_scan == False:        
@@ -173,6 +173,7 @@ class Scanner(Walker):
             ops.record_op_complete(HLSCAN, SCANNER, path)
             ops.write_ops_data(path, HLSCAN, SCANNER)
 
+    # TODO: individual paths in the directory context should have their own scan configuration
     def scan(self):
         if self.context.get_param('scan', HLSCAN):
             ops.cache_ops(os.path.sep, HLSCAN, SCANNER)

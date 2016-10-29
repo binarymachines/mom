@@ -94,7 +94,7 @@ class Selector:
         self.selection_mode = None
 
         # internal stats
-        self.step_count = 0;
+        self.step_count = 0
 
         # in support of rewind()
         self.rule_chain = []
@@ -179,7 +179,6 @@ class Selector:
                 self.possible = rule.end
                 if rule.applies(self, self.active, self.possible):
                     if rule not in results: results.append(rule)
-                    # if rule.end not in results: results.append(rule.end)
             except Exception, err:
                 LOG.error('%s while trying to apply rule %s' % (err.message, rule.name))
                 raise err
@@ -239,7 +238,6 @@ class Selector:
                     mode.active_rule = rule
                     break
 
-    # NOTE: this function has ordering dependencies
     def switch(self, mode, rewind=False):
         try:
             self.next = mode

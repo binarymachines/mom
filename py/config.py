@@ -1,17 +1,12 @@
 #! /usr/bin/python
 
-import datetime
 import os
 
-import core.cache2
-from core import var
-
-DOCUMENT = 'document'
-DIRECTORY = 'directory'
+from core import cache2
 
 filename = "config.ini"
 launched = False
-start_time = datetime.datetime.now()
+start_time = None
 username = None
 
 old_pid = None
@@ -40,12 +35,10 @@ deep = False
 no_scan = False
 no_match = False
 
-create_proc = None
-
 def display_status():
     print """Process ID: %s""" % pid
     print 'Redis host: %s' % redis_host
-    print 'Redis dbsize: %i' % core.cache2.redis.dbsize()
+    print 'Redis dbsize: %i' % cache2.redis.dbsize()
     print """Elasticsearch host: %s""" % es_host
     print """Elasticsearch port: %i""" % es_port
     print """Elasticsearch index: %s""" % es_index

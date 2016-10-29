@@ -7,7 +7,7 @@ import docopt
 import redis
 
 import core.cache2
-from core import var
+from core import vars
 import ops
 from core import cache2
 
