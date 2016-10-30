@@ -139,15 +139,15 @@ def path_contains_document_categories(path):
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system
 def file_type_recognized(path, extensions, recursive=False):
-    # if self.debug: print path
-    if os.path.isdir(path):
-        for f in os.listdir(path):
-            if os.path.isfile(os.path.join(path, f)):
-                for ext in extensions:
-                    if f.lower().endswith('.' + ext.lower()):
-                        return True
+    # TODO: add 'safe mode'
+    # if os.path.isdir(path):
+    for f in os.listdir(path):
+        # if os.path.isfile(os.path.join(path, f)):
+        for ext in extensions:
+            if f.lower().endswith('.' + ext.lower()):
+                return True
 
-    else: raise Exception('Path does not exist: "' + path + '"')
+    # else: raise Exception('Path does not exist: "' + path + '"')
 
 
 # TODO: Offline mode - query MariaDB and ES before looking at the file system

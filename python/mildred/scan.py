@@ -36,7 +36,7 @@ class Scanner(Walker):
         self.document_type = const.DOCUMENT
         self.deep_scan = config.deep
         self.reader = Reader()
-
+        
     # Walker methods
 
     def after_handle_root(self, root):
@@ -48,26 +48,27 @@ class Scanner(Walker):
         # attempts = 1
 
         ops.check_status()
-        if os.path.isdir(root) and os.access(root, os.R_OK):
-            if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan:
-                LOG.debug('skipping %s' % root)
-                return
-            if not pathutil.file_type_recognized(root, self.reader.get_supported_extensions()): return
 
-            try:
-                library.set_active(root)
-            except AssetException, err:
-                LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                library.handle_asset_exception(err, root)
-                self.context.rpush_fifo(SCAN, root)
-                
-            # except TransportError:
-            except Exception, err:
-                # attempts += 1
-                LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                self.context.push_fifo(SCAN, root)
-                # ops.invalid
-                raise err
+        if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan:
+            LOG.debug('skipping %s' % root)
+            return
+
+        if os.path.isdir(root) and os.access(root, os.R_OK):
+            if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
+                try:
+                    library.set_active(root)
+                except AssetException, err:
+                    LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                    library.handle_asset_exception(err, root)
+                    self.context.rpush_fifo(SCAN, root)
+                    
+                # except TransportError:
+                except Exception, err:
+                    # attempts += 1
+                    LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                    self.context.push_fifo(SCAN, root)
+                    # ops.invalid
+                    raise err
         
         elif os.access(root, os.R_OK) == False:
             # self.context.push_fifo(SCAN, root)
@@ -181,17 +182,17 @@ class Scanner(Walker):
         while self.context.has_next(SCAN, True):
             ops.check_status()
             path = self.context.get_next(SCAN, True)
+            if self.deep_scan is False:
+                if self.context.get_param('scan', HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
+                    LOG.debug('skipping %s...' % path)
+                    continue
+
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
                 if self.path_expands(path): 
                     LOG.debug('expanded %s...' % path)
                     continue
                 
-                if self.deep_scan is False:
-                    if self.context.get_param('scan', HLSCAN) and  ops.operation_in_cache(path, HLSCAN, SCANNER):
-                        LOG.debug('skipping %s...' % path)
-                        continue
-
                 try:
                     self._pre_scan(path)
 
@@ -206,7 +207,6 @@ class Scanner(Walker):
                         ops.record_op_complete(HLSCAN, SCANNER, path, op_failed=True)
 
                     LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-
 
             elif not os.access(path, os.R_OK):
                 #TODO: parrot behavior for IOError as seen in read.py 
