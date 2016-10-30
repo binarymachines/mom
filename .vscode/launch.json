@@ -1,6 +1,19 @@
 {
     "version": "0.2.0",
     "configurations": [
+         {
+            "name": "desktop",
+            "type": "node",
+            "program": "${workspaceRoot}/js/desktop/index.js",
+            "stopOnEntry": false,
+            "args": [],
+            "cwd": "${workspaceRoot}/",
+            "runtimeExecutable": "${workspaceRoot}/js/desktop/node_modules/.bin/electron",
+            "runtimeArgs": [],
+            "env": {},
+            "sourceMaps": false,
+            "outDir": null
+        },
         {
             "name": "media hound",
             "type": "python",
@@ -8,7 +21,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/launch.py",
+            "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
                 // "--noscan"
                 // "--reset",
@@ -30,7 +43,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/calc.py",
+            "program": "${workspaceRoot}/python/mildred/calc.py",
             "args": [
                 "--path",
                 "/media/removable/Audio/music/albums"
@@ -48,7 +61,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/scan.py",
+            "program": "${workspaceRoot}/python/mildred/scan.py",
             "args": [
                 // "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
                 // "--path", "/media/removable/PNY16/media/music/"
@@ -68,7 +81,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/docserv.py",
+            "program": "${workspaceRoot}/python/mildred/docserv.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
@@ -82,7 +95,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/finder.py",
+            "program": "${workspaceRoot}/python/mildred/finder.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
@@ -96,7 +109,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceRoot}/py/valid.py",
+            "program": "${workspaceRoot}/python/mildred/svalid.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
@@ -115,78 +128,65 @@
             "env": {},
             "sourceMaps": false,
             "outDir": null
-        },
-         {
-            "name": "desktop",
-            "type": "node",
-            "program": "${workspaceRoot}/js/desktop/index.js",
-            "stopOnEntry": false,
-            "args": [],
-            "cwd": "${workspaceRoot}/",
-            "runtimeExecutable": "${workspaceRoot}/js/desktop/node_modules/.bin/electron",
-            "runtimeArgs": [],
-            "env": {},
-            "sourceMaps": false,
-            "outDir": null
-        },
-        {
-            "name": "Python Console App",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": true,
-            "pythonPath": "${config.python.pythonPath}",
-            "program": "${file}",
-            "externalConsole": true,
-            "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit"
-            ]
-        },
-        {
-            "name": "Django",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": true,
-            "pythonPath": "${config.python.pythonPath}",
-            "program": "${workspaceRoot}/manage.py",
-            "args": [
-                "runserver",
-                "--noreload"
-            ],
-            "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
-                "RedirectOutput",
-                "DjangoDebugging"
-            ]
-        },
-        {
-            "name": "Watson",
-            "type": "python",
-            "request": "launch",
-            "stopOnEntry": true,
-            "pythonPath": "${config.python.pythonPath}",
-            "program": "${workspaceRoot}/console.py",
-            "args": [
-                "dev",
-                "runserver",
-                "--noreload=True"
-            ],
-            "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
-                "RedirectOutput"
-            ]
-        },
-        {
-            "name": "Attach",
-            "type": "python",
-            "request": "attach",
-            "localRoot": "${workspaceRoot}",
-            "remoteRoot": "${workspaceRoot}",
-            "port": 3000,
-            "secret": "my_secret",
-            "host": "localhost"
         }
+        // {
+        //     "name": "Python Console App",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "stopOnEntry": true,
+        //     "pythonPath": "${config.python.pythonPath}",
+        //     "program": "${file}",
+        //     "externalConsole": true,
+        //     "debugOptions": [
+        //         "WaitOnAbnormalExit",
+        //         "WaitOnNormalExit"
+        //     ]
+        // },
+        // {
+        //     "name": "Django",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "stopOnEntry": true,
+        //     "pythonPath": "${config.python.pythonPath}",
+        //     "program": "${workspaceRoot}/manage.py",
+        //     "args": [
+        //         "runserver",
+        //         "--noreload"
+        //     ],
+        //     "debugOptions": [
+        //         "WaitOnAbnormalExit",
+        //         "WaitOnNormalExit",
+        //         "RedirectOutput",
+        //         "DjangoDebugging"
+        //     ]
+        // },
+        // {
+        //     "name": "Watson",
+        //     "type": "python",
+        //     "request": "launch",
+        //     "stopOnEntry": true,
+        //     "pythonPath": "${config.python.pythonPath}",
+        //     "program": "${workspaceRoot}/console.py",
+        //     "args": [
+        //         "dev",
+        //         "runserver",
+        //         "--noreload=True"
+        //     ],
+        //     "debugOptions": [
+        //         "WaitOnAbnormalExit",
+        //         "WaitOnNormalExit",
+        //         "RedirectOutput"
+        //     ]
+        // },
+        // {
+        //     "name": "Attach",
+        //     "type": "python",
+        //     "request": "attach",
+        //     "localRoot": "${workspaceRoot}",
+        //     "remoteRoot": "${workspaceRoot}",
+        //     "port": 3000,
+        //     "secret": "my_secret",
+        //     "host": "localhost"
+        // }
     ]
 }
