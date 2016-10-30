@@ -83,7 +83,7 @@ def get_working_directory():
         cwd = os.getcwd()
 
         if cwd != nominalresult:
-            response = raw_input('Do you want to run application in %s? (yes, no)')
+            response = raw_input('Do you want to run application in %s? (yes, no): ' % cwd)
             if response.lower() == 'no':
                 var.workdir = nominalresult
         else:
@@ -111,6 +111,9 @@ def prep_work_dir(workdir):
         bak = os.path.join(workdir, 'bak')
         mkdirs(bak)
 
+    coredir = os.path.abspath(os.path.join(__file__, os.pardir))
+    pydir = os.path.abspath(os.path.join(coredir, os.pardir))
+    var.sqldir = os.path.join(pydir, 'sql')
 
 def smash(str):
     return str.lower().replace(' ', '').replace('_', '').replace(',', '').replace('.', '').replace(':', '')

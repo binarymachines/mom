@@ -6,7 +6,7 @@ import MySQLdb as mdb
 
 import config
 from errors import SQLConnectError
-from core import log
+from core import log, var
 
 LOG = log.get_log(__name__, logging.INFO)
 ERROR_LOG = log.get_log('errors', logging.WARNING)
@@ -179,7 +179,7 @@ def _load_query(filename, args):
 
     try:
         query = ""
-        with open('py/sql/%s.sql' % filename, 'r') as f:
+        with open('%s/%s.sql' % (var.sqldir, filename), 'r') as f:
             for line in f:
                 if line.startswith('--'):
                     LOG.info(line.replace('\n', ''))
@@ -189,4 +189,5 @@ def _load_query(filename, args):
         # substitute wildcard and escape single quotes
         return str(query % newargs).replace('*', WILD).replace("'", "\'")#.replace('\n', ' ')
     except IOError, e:
-        raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename), exc_info=True)
+        raise e
+        # raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename), exc_info=True)

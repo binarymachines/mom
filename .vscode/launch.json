@@ -20,7 +20,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
                 // "--noscan"
@@ -42,7 +42,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/calc.py",
             "args": [
                 "--path",
@@ -60,7 +60,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/scan.py",
             "args": [
                 // "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
@@ -80,7 +80,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/docserv.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
@@ -94,7 +94,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/finder.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
@@ -108,7 +108,7 @@
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/svalid.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
