@@ -189,5 +189,7 @@ def _load_query(filename, args):
         # substitute wildcard and escape single quotes
         return str(query % newargs).replace('*', WILD).replace("'", "\'")#.replace('\n', ' ')
     except IOError, e:
-        raise e
+        message = e.message
+        ERROR_LOG.error(message, exc_info=True)
         # raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename), exc_info=True)
+        sys.exit(0)

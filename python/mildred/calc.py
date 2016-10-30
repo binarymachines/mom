@@ -54,6 +54,7 @@ def path_expands(path, context):
                 expanded.append(row[0])
 
     for ex_path in expanded:
+        # TODO: count(expath pathsep) == count (path pathsep) + 1
         context.rpush_fifo(CALC, ex_path)
 
     return len(expanded) > 0
