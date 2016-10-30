@@ -2,21 +2,24 @@
    Usage: command.py [--stop] [--reconfig] ([--inc_path_cache_size])
 
 '''
+import os
 
 import docopt
 import redis
 
-import core.cache2
 from core import var
-import ops
-from core import cache2
+
 
 def _connect_to_redis():
     return redis.Redis('localhost')
 
 
 def _set_field_value(pid, field, value):
-    core.cache2.redis = _connect_to_redis()
+
+    import ops
+    from core import cache2
+
+    cache2.redis = _connect_to_redis()
     key =  cache2.get_key(pid, ops.OPS, ops.EXEC)
 
     values = cache2.get_hash2(key)
@@ -42,8 +45,10 @@ def get_pid():
 
 
 def main(args):
+
     pid = get_pid()
     if pid is not None:
+        var.workdir = os.path.abspath(os.path.join('pid', os.pardir))
         if args['--reconfig']: request_reconfig(pid)
         if args['--stop']: request_stop(pid)
         # if args['--inc_path_cache_size']: inc_cache_size(pid, 'path')

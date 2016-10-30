@@ -18,15 +18,16 @@ ERROR_LOG = log.get_log('errors', logging.WARNING)
 class Reader:
     def __init__(self):
         self.document_type = const.DOCUMENT
+        self.extensions = ()
 
     def get_supported_extensions(self):
-        result = ()
-        for file_handler in self.get_file_handlers():
-            for extension in file_handler.extensions:
-                if extension not in result:
-                    result += (extension,)
+        if len(self.extensions) == 0:
+            for file_handler in self.get_file_handlers():
+                for extension in file_handler.extensions:
+                    if extension not in self.extensions:
+                        self.extensions += (extension,)
 
-        return result
+        return self.extensions
 
     def has_handler_for(self, filename):
         if filename.lower().startswith('incomplete~') or filename.lower().startswith('~incomplete'):
