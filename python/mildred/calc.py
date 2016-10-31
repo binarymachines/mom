@@ -24,6 +24,7 @@ from errors import AssetException
 from match import ElasticSearchMatcher
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
 
 CALC = 'match'
 
@@ -103,7 +104,7 @@ def calc(context, cycle_context=False):
                 library.clear_matches(matcher.name, location)
 
             # except Exception, err:
-            #     LOG.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
+            #     ERR.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
             # finally:
             library.clear_docs(const.DOCUMENT, location)
                 # cache.write_paths()
@@ -130,12 +131,12 @@ def do_match_op(esid, absolute_path):
                     # ops.write_ops_data(asset.absolute_path, CALC, matcher.name)
 
         except AssetException, err:
-            LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             library.handle_asset_exception(err, asset.absolute_path)
 
         except UnicodeDecodeError, u:
             library.record_error(u)
-            LOG.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
+            ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
 
 
 def get_matchers():

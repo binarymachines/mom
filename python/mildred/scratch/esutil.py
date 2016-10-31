@@ -5,7 +5,7 @@ import sql
 def copy_index(source_index, target_host, target_port, target_index):
 
     config.es = search.connect()
-    target = search.connect(target_host,  target_port)
+    target = search.connect(target_host, target_port)
 
     rows = sql.retrieve_values('document', ['index_name', 'id', 'doc_type'], [source_index])
     for row in rows:

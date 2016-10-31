@@ -38,10 +38,12 @@ def request_reconfig(pid):
 
 
 def get_pid():
-    f = open('pid', 'rt')
-    pid = f.readline()
-    f.close()
-    return pid
+    if os.path.exists('pid'):
+        f = open('pid', 'rt')
+        pid = f.readline()
+        f.close()
+
+        return pid
 
 
 def main(args):

@@ -14,6 +14,7 @@ from core import log
 import config
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
 
 Base = declarative_base()
 
@@ -45,9 +46,9 @@ def insert_asset(index_name, doc_type, id, absolute_path):
         session.add(asset)
         session.commit()
     except RuntimeWarning, warn:
-        LOG.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+        ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
     except Exception, err:
-        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         raise err
 
 def retrieve_assets(doc_type, absolute_path):
@@ -85,7 +86,7 @@ def insert_match_record(doc_id, match_doc_id, matcher_name, matched_fields, matc
         session.add(match_rec)
         session.commit()
     except Exception, err:
-        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         raise err
     
 # def list_matches():
@@ -120,9 +121,9 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
         session.add(op_rec)
         session.commit()
     except RuntimeWarning, warn:
-        LOG.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+        ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
     except Exception, err:
-        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         raise err
 
 def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op_status=None):
@@ -221,7 +222,7 @@ if __name__ == '__main__':
 #                     print 'adding %s to MariaDB...' % (artist)
 #                     thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
 #                 except Exception, err:
-#                    LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+#                    ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 #             # sql.insert_values('artist', ['name'], [artist])
 #             #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
@@ -235,7 +236,7 @@ if __name__ == '__main__':
 #             #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
 
 #         except Exception, err:
-#             LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+#             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 

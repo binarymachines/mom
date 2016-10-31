@@ -12,7 +12,7 @@ from core import log
 from pathogen import MutagenID3, MutagenFLAC, MutagenAPEv2, MutagenOggVorbis, MutagenMP4
 
 LOG = log.get_log(__name__, logging.DEBUG)
-ERROR_LOG = log.get_log('errors', logging.WARNING)
+ERR = log.get_log('errors', logging.WARNING)
 
 
 class Reader:

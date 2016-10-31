@@ -30,14 +30,14 @@ class DocumentServiceProcess(ServiceProcess):
         self.handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
         self.startmode = Mode("STARTUP", self.handler.start, 0)
-        self.evalmode = Mode("EVAL", self.handler.do_eval, 10)
-        self.scanmode = Mode("SCAN", self.handler.do_scan, 35)
+        self.evalmode = Mode("EVAL", self.handler.do_eval, 1)
+        self.scanmode = Mode("SCAN", self.handler.do_scan, 2)
         # self.scanmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
         # self.scanmode = Mode("CLEAN", self.handler.do_sync, 25) # bring ElasticSearch in line with filesystem
-        self.matchmode = Mode("MATCH", self.handler.do_match, 25)
-        self.fixmode = Mode("FIX", self.handler.do_fix, 5)
-        self.reportmode = Mode("REPORT", self.handler.do_report, 3)
-        self.reqmode = Mode("REQUESTS", self.handler.do_reqs, 5)
+        self.matchmode = Mode("MATCH", self.handler.do_match, 2)
+        self.fixmode = Mode("FIX", self.handler.do_fix, 1)
+        self.reportmode = Mode("REPORT", self.handler.do_report, 1)
+        self.reqmode = Mode("REQUESTS", self.handler.do_reqs, 1)
         self.endmode = Mode("SHUTDOWN", self.handler.end, 0)
 
         self.selector.remove_at_error_tolerance = True

@@ -5,6 +5,7 @@ from errors import BaseClassException
 import log
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
 
 SERVICE_NAME = '::\`]'
 
@@ -42,7 +43,7 @@ class ServiceProcess(object):
             if after is not None:
                 after(self)
         except Exception, err:
-            LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             if self.restart_on_fail:
                 self.error_count += 1
                 self.initialize()
@@ -80,7 +81,7 @@ class ServiceProcess(object):
             try:
                 before()
             except Exception, err:
-                # LOG.error('%s while applying [%s].before() from [%s]' % (err.message, mode.name, self.active.name))
+                # ERR.error('%s while applying [%s].before() from [%s]' % (err.message, mode.name, self.active.name))
                 raise err
 
         self.engine.step()
@@ -89,7 +90,7 @@ class ServiceProcess(object):
             try:
                 after()
             except Exception, err:
-                # LOG.error('%s while applying [%s].before() from [%s]' % (err.message, mode.name, self.active.name))
+                # ERR.error('%s while applying [%s].before() from [%s]' % (err.message, mode.name, self.active.name))
                 raise err
 
     # mode priority adjustment
@@ -128,7 +129,7 @@ class Service(object):
 
             self.handle_processes()
         except Exception, err:
-            LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
     def handle_processes(self):
         while len(self.active) > 0:
