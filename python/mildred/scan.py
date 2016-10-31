@@ -176,6 +176,7 @@ class Scanner(Walker):
         while self.context.has_next(SCAN, True):
             ops.check_status()
             path = self.context.get_next(SCAN, True)
+            # update context params based on path
             if self.deep_scan is False:
                 if self.context.get_param('scan', HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
                     LOG.debug('skipping %s...' % path)
