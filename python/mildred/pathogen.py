@@ -19,7 +19,7 @@ from core.errors import BaseClassException
 
 
 LOG = log.get_log(__name__, logging.DEBUG)
-ERROR_LOG = log.get_log('errors', logging.WARNING)
+ERR = log.get_log('errors', logging.WARNING)
 
 
 class Mutagen(FileHandler):
@@ -79,7 +79,7 @@ class Mutagen(FileHandler):
             self.handle_exception(err, asset, data)
 
         except MutagenError, err:
-            ERROR_LOG.error(err.__class__.__name__, exc_info=True)
+            ERR.error(err.__class__.__name__, exc_info=True)
             if isinstance(err.args[0], IOError):
                 fs_avail = False
                 while fs_avail is False:
@@ -93,7 +93,7 @@ class Mutagen(FileHandler):
                 return True
 
         except Exception, err:
-            ERROR_LOG.error(err.message, exc_info=True)
+            ERR.error(err.message, exc_info=True)
             read_failed = True
             self.handle_exception(err, asset, data)
 

@@ -25,11 +25,25 @@
             "args": [
                 // "--noscan"
                 // "--reset",
-                "--path",
-                "/media/removable/Audio/music/albums/hip-hop"
+                // "--path",
+                // "/media/removable/Audio/music/albums/hip-hop"
                 // "--expand-all"
                 // "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
             ],
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "desktop II",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}/python",
+            "program": "${workspaceRoot}/python/mildred/desktop/kivy-hello.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",

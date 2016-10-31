@@ -27,6 +27,7 @@ from read import Reader
 from walk import Walker
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
 
 
 class Scanner(Walker):
@@ -46,7 +47,7 @@ class Scanner(Walker):
     def before_handle_root(self, root):
         # MAX_RETRIES = 10
         # attempts = 1
-
+        LOG.info('Considering %s...' % root)
         ops.check_status()
 
         if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan:
@@ -58,15 +59,15 @@ class Scanner(Walker):
                 try:
                     library.set_active(root)
                 except AssetException, err:
-                    LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                    ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                     library.handle_asset_exception(err, root)
                     self.context.rpush_fifo(SCAN, root)
                     
                 # except TransportError:
                 except Exception, err:
                     # attempts += 1
-                    LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                    self.context.push_fifo(SCAN, root)
+                    ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                    # self.context.push_fifo(SCAN, root)
                     # ops.invalid
                     raise err
         
@@ -137,15 +138,6 @@ class Scanner(Walker):
 
         return expanded
 
-    # def handlers_exist_for_path(self, path):
-    #     result = False
-    #     rows = sql.retrieve_values('directory', ['name', 'file_type'], [path])
-    #     if len(rows) == 1:
-    #         file_type = rows[0][1]
-    #         result = file_type in self.reader.get_supported_extensions()
-    #
-    #     return result
-
     def _pre_scan(self, path):
         LOG.debug('caching data for %s...' % path)
         ops.cache_ops(path, SCAN)
@@ -210,7 +202,7 @@ class Scanner(Walker):
 
             elif not os.access(path, os.R_OK):
                 #TODO: parrot behavior for IOError as seen in read.py 
-                LOG.warning("%s isn't currently available." % (path))
+                ERR.warning("%s isn't currently available." % (path))
 
 
 def scan(context):

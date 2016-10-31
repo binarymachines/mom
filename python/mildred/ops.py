@@ -12,6 +12,7 @@ from core import cache2
 import sql
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
 
 OPS = 'ops'
 EXEC = 'exec'
@@ -96,7 +97,7 @@ def pop_operation():
             # print 'current operation: %s' % values['current_operator']
 
     except Exception, err:
-        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 def push_operation(operation, operator, path):
@@ -161,7 +162,7 @@ def update_ops_data():
     try:
         sql.execute_query_template('ops_update_op_record')
     except Exception, err:
-        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 def write_ops_data(path, operation=None, operator=None, this_pid_only=False, resuming=False):

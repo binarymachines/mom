@@ -14,6 +14,7 @@ from core.errors import BaseClassException
 from query import Builder
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -163,7 +164,7 @@ class ElasticSearchMatcher(MediaMatcher):
             # try:
             #     thread.start_new_thread(scratch.ensure, (self.document_type, match['_id'], match['_source']['absolute_path'],))
             # except Exception, err:
-            #     LOG.error(err.message, exc_info=True)
+            #     ERR.error(err.message, exc_info=True)
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 

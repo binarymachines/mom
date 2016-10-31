@@ -9,7 +9,7 @@ from errors import SQLConnectError
 from core import log, var
 
 LOG = log.get_log(__name__, logging.INFO)
-ERROR_LOG = log.get_log('errors', logging.WARNING)
+ERR = log.get_log('errors', logging.WARNING)
 
 WILD = '%'
 
@@ -106,21 +106,21 @@ def execute_query(query):
         con.commit()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERROR_LOG.error(message, exc_info=True)
+        ERR.error(message, exc_info=True)
         for arg in e.args:
             print arg
         print query
         raise Exception(e, message)
     except TypeError, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERROR_LOG.error(message, exc_info=True)
+        ERR.error(message, exc_info=True)
         for arg in e.args:
             print arg
         print query
         raise Exception(message)
     except Exception, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERROR_LOG.error(message, exc_info=True)
+        ERR.error(message, exc_info=True)
         raise Exception(message)
     finally:
         if con: con.close()
@@ -137,21 +137,21 @@ def run_query(query):
         rows = cur.fetchall()
     except mdb.Error, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERROR_LOG.error(message, exc_info=True)
+        ERR.error(message, exc_info=True)
         for arg in e.args:
             print arg
         print query
         raise Exception(e, message)
     except TypeError, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERROR_LOG.error(message, exc_info=True)
+        ERR.error(message, exc_info=True)
         for arg in e.args:
             print arg
         print query
         raise Exception(message)
     except Exception, e:
         message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERROR_LOG.error(message)
+        ERR.error(message)
         raise Exception(message)
     finally:
         if con: con.close()
@@ -190,6 +190,6 @@ def _load_query(filename, args):
         return str(query % newargs).replace('*', WILD).replace("'", "\'")#.replace('\n', ' ')
     except IOError, e:
         message = e.message
-        ERROR_LOG.error(message, exc_info=True)
+        ERR.error(message, exc_info=True)
         # raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename), exc_info=True)
         sys.exit(0)

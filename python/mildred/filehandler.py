@@ -10,6 +10,7 @@ import sql
 DELIM = ','
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
 
 def add_field(doc_format, field_name):
     """add an attribute to document_metadata for the specified document_type"""
@@ -20,7 +21,7 @@ def add_field(doc_format, field_name):
         sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
         cache2.add_item(KNOWN, doc_format, field_name)
     except Exception, err:
-        LOG.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 def get_fields(doc_format):

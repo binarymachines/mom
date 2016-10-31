@@ -6,6 +6,7 @@ from errors import ModeDestinationException
 import log
 
 LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
 
 class Mode(object):
     HIGHEST = 100;
@@ -66,7 +67,7 @@ class Rule:
             func = _parse_func_info(self.condition)
             return self.condition(selector, active, possible)
         except Exception, err:
-            LOG.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name), exc_info=True)
+            ERR.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name), exc_info=True)
 
 
 class Selector:
@@ -133,13 +134,13 @@ class Selector:
         return results
 
     def handle_error(self, error):
-        LOG.error("%s Handling %s in mode %s" % (self.name, error.message, self.active.name))
+        ERR.error("%s Handling %s in mode %s" % (self.name, error.message, self.active.name))
 
         self.active.error_count += 1
         self.active.error_state = True
 
         if self.remove_at_error_tolerance and self.active.error_count >= self.active.error_tolerance:
-            LOG.warning("%s error tolerance level limit reached for %s due to %i errors" % (self.name, self.active.name, self.active.error_count))
+            ERR.warning("%s error tolerance level limit reached for %s due to %i errors" % (self.name, self.active.name, self.active.error_count))
             self.active.suspended = True
             # if self.recovery_possible(error):
             #     print 'recovery possible'
@@ -180,7 +181,7 @@ class Selector:
                 if rule.applies(self, self.active, self.possible):
                     if rule not in results: results.append(rule)
             except Exception, err:
-                LOG.error('%s while trying to apply rule %s' % (err.message, rule.name))
+                ERR.error('%s while trying to apply rule %s' % (err.message, rule.name))
                 raise err
 
         return results
@@ -211,10 +212,10 @@ class Selector:
             try:
                 func_name = self._parse_func_info(func)
                 activemode = self.active.name  if self.active is not None else 'NO ACTIVE MODE'
-                LOG.error('%s while applying %s -> %s from %s' % (err.message, mode.name, func_name, activemode))
+                ERR.error('%s while applying %s -> %s from %s' % (err.message, mode.name, func_name, activemode))
             except Exception, logging_error:
-                LOG.warning(logging_error.message)
-                LOG.error(err.message)
+                ERR.warning(logging_error.message)
+                ERR.error(err.message)
             raise err
 
     def _call_switch_bracket_func(self, mode, func):
@@ -225,9 +226,9 @@ class Selector:
                 activemode = self.active.name  if self.active is not None else 'NO ACTIVE MODE'
                 previousmode = self.previous.name  if self.previous is not None else 'NO PREVIOUS MODE'
                 func_name = self._parse_func_info(func)
-                LOG.error('%s while applying %s -> %s from %s in %s.switch()' %  (err.message, previousmode, func_name, activemode, self.name))
+                ERR.error('%s while applying %s -> %s from %s in %s.switch()' %  (err.message, previousmode, func_name, activemode, self.name))
             except Exception, logging_error:
-                LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             raise err
 
     def _set_mode_funcs(self, mode):
@@ -268,7 +269,7 @@ class Selector:
             self.previous = mode
             self.rule_chain.append(mode.active_rule)
         except Exception, err:
-            LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             raise err
 
     def run(self):
@@ -324,12 +325,12 @@ class Engine:
                     # TODO: selector should retain a queue of modes to support a full-fledged rewind() method wherein it verifies viable
                     # alternative paths instead of just going to the previous mode, which might result in mode oscillation
                     if selector.rewind_on_no_destination and selector.previous is not None:
-                        LOG.error("%s Handling error '%s' in selector %s, rewinding to %s" % (self.name, error.message, selector.name, selector.previous.name))
+                        ERR.error("%s Handling error '%s' in selector %s, rewinding to %s" % (self.name, error.message, selector.name, selector.previous.name))
                         # suspend this mode.
                         selector.switch(selector.previous, True)
                     else: raise error
                 except Exception, error:
-                    LOG.error("%s Handling error '%s' in selector %s" % (self.name, error.message, selector.name), exc_info=True)
+                    ERR.error("%s Handling error '%s' in selector %s" % (self.name, error.message, selector.name), exc_info=True)
 
                     selector.error_state = True
                     self.inactive.append(selector)
@@ -392,5 +393,5 @@ def _parse_func_info(func):
         func_name = '.'.join([func_desc, func_strings[1].split('<')[1], func_strings[1].split('<')[0].replace(' of ', '()')])
         return func_name
     except Exception, err:
-        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         return str(func)

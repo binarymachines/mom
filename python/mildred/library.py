@@ -21,7 +21,7 @@ from core import cache2, log
 from errors import AssetException
 
 LOG = log.get_log(__name__, logging.DEBUG)
-ERROR_LOG = log.get_log('errors', logging.WARNING)
+ERR = log.get_log('errors', logging.WARNING)
 
 KEY_GROUP = 'library'
 PATH_IN_DB = 'lib_path_in_db'
@@ -93,7 +93,7 @@ def set_active(path):
             try:
                 res = config.es.update(index=config.es_index, doc_type=cached_directory.directory, id=cached_directory.esid, body=json.dumps(cached_directory.to_dictionary()))
             except ConnectionError, err:
-                ERROR_LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                 print '\nConnection lost, please verify network connectivity and restart.'
                 sys.exit(1)
 
@@ -159,7 +159,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
     """return a document instance"""
     fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
     if fail_on_fs_missing and not fs_avail:
-        LOG.warning("File %s is missing or is not readable" % absolute_path)
+        ERR.warning("File %s is missing or is not readable" % absolute_path)
         return None
     
     asset = Document()
@@ -215,8 +215,8 @@ def index_asset(asset, data):
     try:
         _sub_index_asset(asset, data)
     except RequestError, err:
-        ERROR_LOG.error(err.__class__.__name__, exc_info=True)
-        ERROR_LOG.error(asset.absolute_path)
+        ERR.error(err.__class__.__name__, exc_info=True)
+        ERR.error(asset.absolute_path)
         
         # print.error(asset.absolute_path)
         # print 'Error code: %i' % err.args[0]
@@ -250,7 +250,7 @@ def index_asset(asset, data):
         print "Elasticsearch connectivity error, retrying in 5 seconds..." 
         es_avail = False
         while es_avail is False:
-            ERROR_LOG.error(err.__class__.__name__, exc_info=True)
+            ERR.error(err.__class__.__name__, exc_info=True)
             ops.check_status()
             time.sleep(5)
             try:
@@ -272,7 +272,7 @@ def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
     #         print "database connectivity error, retrying in 5 seconds..." 
     #         db_avail = False
     #         while db_avail is False:
-    #             ERROR_LOG.error(err.__class__.__name__, exc_info=True)
+    #             ERR.error(err.__class__.__name__, exc_info=True)
     #             ops.check_status()
     #             time.sleep(5)
     #             try:
