@@ -26,7 +26,7 @@ from errors import AssetException
 from read import Reader
 from walk import Walker
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
 
@@ -47,7 +47,7 @@ class Scanner(Walker):
     def before_handle_root(self, root):
         # MAX_RETRIES = 10
         # attempts = 1s
-        # LOG.info('Considering %s...' % root)
+        # LOG.debug('Considering %s...' % root)
         ops.check_status()
 
         if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan:

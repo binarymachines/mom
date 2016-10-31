@@ -269,6 +269,6 @@ def stop_requested():
 def update_listeners(operation, operator, path):
     name = 'OPS'
     channel = 'OPS'
-    message = '%s, %s, %s' % (operation, operator, path)
+    message = '%s|%s|%s' % (operation, operator, path)
     # print 'Welcome to {channel}'.format(**locals())
     cache2.redis.publish(channel, message)
