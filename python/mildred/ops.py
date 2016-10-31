@@ -25,6 +25,7 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
     rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
     LOG.debug('caching %i %s operations (%s)...' % (len(rows), operation, op_status))
+    update_listeners('caching %s' % operation, operator, path)
     for op_record in rows:
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
@@ -94,6 +95,7 @@ def pop_operation():
         else:
             values = cache2.get_hash2(last_op_key)
             cache2.set_hash2(exec_key, values)
+            # update_listeners(operation, operator, path)
             # print 'current operation: %s' % values['current_operator']
 
     except Exception, err:
@@ -105,6 +107,7 @@ def push_operation(operation, operator, path):
     stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
     cache2.lpush(stack_key, op_key)
 
+    update_listeners(operation, operator, path)
     # print 'current operation: %s' % operation
 
 
@@ -260,3 +263,12 @@ def reconfig_requested():
 def stop_requested():
     values = cache2.get_hash2(get_exec_key())
     return values['pid'] == config.pid and values['stop_requested'] == 'True'
+
+# redis pub/sub
+
+def update_listeners(operation, operator, path):
+    name = 'OPS'
+    channel = 'OPS'
+    message = '%s, %s, %s' % (operation, operator, path)
+    # print 'Welcome to {channel}'.format(**locals())
+    cache2.redis.publish(channel, message)

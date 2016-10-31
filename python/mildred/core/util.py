@@ -80,15 +80,16 @@ def get_working_directory():
         coredir = os.path.abspath(os.path.join(__file__, os.pardir))
         pydir = os.path.abspath(os.path.join(coredir, os.pardir))
         nominalresult = os.path.abspath(os.path.join(pydir, os.pardir))
-        cwd = os.getcwd()
 
-        if cwd != nominalresult:
-            response = raw_input('Do you want to run application in %s? (yes, no): ' % cwd)
-            if response.lower() == 'no':
-                var.workdir = nominalresult
-        else:
-            prep_work_dir(cwd)
-            var.workdir = cwd
+        # cwd = os.getcwd()
+        # if cwd != nominalresult:
+        #     response = raw_input('Do you want to run application in %s? (yes, no): ' % cwd)
+        #     if response.lower() == 'no':
+        #         var.workdir = nominalresult
+        # else:
+        #     prep_work_dir(cwd)
+
+        var.workdir = nominalresult
 
     return var.workdir
 
