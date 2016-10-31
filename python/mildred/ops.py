@@ -24,8 +24,8 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
     rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
-    LOG.debug('caching %i %s operations (%s)...' % (len(rows), operation, op_status))
-    update_listeners('caching %s' % operation, operator, path)
+    LOG.debug('%s caching %i %s operations (%s)...' % (operator, len(rows), operation, op_status))
+    update_listeners('caching %i %s' % (len(rows), operation, operator, path))
     for op_record in rows:
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
@@ -33,6 +33,7 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
 
 
 def clear_cached_operation(path, operation, operator=None):
+    # LOG.debug('%s caching %i %s operations (%s)...' % (operator, len(rows), operation, op_status))
     key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(key)
     cache2.delete_hash2(key)
@@ -161,6 +162,7 @@ def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
 def update_ops_data():
     # pass
     LOG.debug('updating operation records')
+    # update_listeners('caching %i %s' % (len(rows), operation, operator, path))
     # TODO: add params to this query (index_name, date range, etc)
     try:
         sql.execute_query_template('ops_update_op_record')
@@ -202,6 +204,7 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
             record['end_time'] = datetime.datetime.now().isoformat()
 
         # TODO: if esids were cached after document has been indexed, they COULD be inserted HERE instead of using update_ops_data() post-ipso
+        update_listeners('writing %s' % record['operation_name'], operator, path))
 
         alchemy.insert_operation_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
             target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])

@@ -4,7 +4,7 @@ import os
 import util
 import var
 
-FORMAT = '%(asctime)s %(levelname)s %(filename)s %(funcName)s :: %(message)s ' #, datefmt='%m/%d/%Y %I:%M:%S %p')
+FORMAT = '%(asctime)s %(levelname)s %(filename)s %(funcName)s : %(message)s ' #, datefmt='%m/%d/%Y %I:%M:%S %p')
 
 def get_log(log_name, logging_level):
     if var.logging_started is False:
@@ -34,7 +34,7 @@ def start_logging():
     clog = 'console'
     CONSOLE = "%s%slog%s%s.log" % (util.get_working_directory(), os.path.sep, os.path.sep, clog)
 
-    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.DEBUG, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
+    logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.INFO, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
 
     console = logging.StreamHandler()
     console.setLevel(logging.DEBUG)

@@ -16,9 +16,7 @@ class CacheMonitor(App):
         self.operation_lbl = None
         self.operator_lbl = None
         self.op_target_lbl = None
-
-        # self.configure_sub()
-
+        
     def build(self):
         root = BoxLayout()
         root.orientation = 'vertical'
@@ -30,12 +28,13 @@ class CacheMonitor(App):
         root.add_widget(self.operator_lbl)
         root.add_widget(self.operation_lbl)
         root.add_widget(self.op_target_lbl)
+        # root.height = 200
 
-        thread.start_new_thread( self.configure_sub, ( 'OPS', ) )
+        thread.start_new_thread( self.listen, ( 'OPS', ) )
 
         return root
 
-    def configure_sub(self, topic):
+    def listen(self, topic):
         try:
             r = redis.Redis('localhost')
             pubsub = r.pubsub()
@@ -45,9 +44,13 @@ class CacheMonitor(App):
 
             while True:
                 for item in pubsub.listen():
-                    print item['data']
-                    self.operation_lbl.text = str(item['data'])
-                    
+                    message = str(item['data']).split(',')
+
+                    if len(message) == 3:
+                        self.operation_lbl.text = message[0]
+                        self.operator_lbl.text = message[1]
+                        self.op_target_lbl.text = message[2]
+
         except Exception, err:
             print err.message
 
