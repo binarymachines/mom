@@ -105,7 +105,7 @@ def set_active(path):
 def cache_docs(document_type, path, flush=True):
     if flush: clear_docs(document_type, os.path.sep)
 
-    LOG.debug('caching %s doc info for %s...' % (document_type, path))
+    LOG.debug('caching %s records for %s...' % (document_type, path))
     rows = alchemy.retrieve_assets(document_type, path)
     for sql_asset in rows:
         key = cache2.create_key(KEY_GROUP, sql_asset.doc_type, sql_asset.absolute_path, value=sql_asset.absolute_path)

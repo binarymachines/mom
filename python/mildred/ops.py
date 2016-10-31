@@ -24,7 +24,7 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
     rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
-    LOG.debug('caching %i %s operations...' % (len(rows), operation))
+    LOG.debug('caching %i %s operations (%s)...' % (len(rows), operation, op_status))
     for op_record in rows:
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
@@ -203,7 +203,7 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
         alchemy.insert_operation_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
             target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
 
-    update_ops_data()
+    # update_ops_data()
     LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
 
 
