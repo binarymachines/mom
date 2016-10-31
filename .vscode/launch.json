@@ -43,7 +43,21 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/desktop/kivy-hello.py",
+            "program": "${workspaceRoot}/python/mildred/desktop/cachemon.py",
+            "debugOptions": [
+                "WaitOnAbnormalExit",
+                "WaitOnNormalExit",
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "kivy window",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config.python.pythonPath}",
+            "cwd": "${workspaceRoot}/python",
+            "program": "${workspaceRoot}/python/mildred/desktop/kivy-window.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
