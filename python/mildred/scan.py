@@ -46,12 +46,13 @@ class Scanner(Walker):
     #TODO: parrot behavior for IOError as seen in read.py 
     def before_handle_root(self, root):
         # MAX_RETRIES = 10
-        # attempts = 1
-        LOG.info('Considering %s...' % root)
+        # attempts = 1s
+        # LOG.info('Considering %s...' % root)
         ops.check_status()
 
         if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan:
             LOG.debug('skipping %s' % root)
+            ops.update_listeners('skipping scan', SCANNER, root)
             return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
@@ -83,6 +84,7 @@ class Scanner(Walker):
         if directory is None or directory.esid is None: return
 
         LOG.debug('scanning %s' % (root))
+        ops.update_listeners('scanning', SCANNER, root)
         ops.record_op_begin(SCAN, SCANNER, directory.absolute_path, directory.esid)
             
         for filename in os.listdir(root):
@@ -177,12 +179,14 @@ class Scanner(Walker):
             if self.deep_scan is False:
                 if self.context.get_param('scan', HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
                     LOG.debug('skipping %s...' % path)
+                    ops.update_listeners('skipping high level scan', SCANNER, path)
                     continue
 
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
                 if self.path_expands(path): 
                     LOG.debug('expanded %s...' % path)
+                    ops.update_listeners('expanded', SCANNER, path)
                     continue
                 
                 try:
@@ -190,6 +194,7 @@ class Scanner(Walker):
 
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
                     print("scanning %s..." % path)
+                    ops.update_listeners('scanning', SCANNER, path)
                     self.walk(path)
                     end_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
 

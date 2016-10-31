@@ -176,7 +176,7 @@ def reset():
 
 
 def show_logo():
-    with open('mildred.logo', 'r') as f:
+    with open('logo.txt', 'r') as f:
         print f.read()
         f.close()
 

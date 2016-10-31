@@ -26,7 +26,7 @@
                 // "--noscan"
                 // "--reset",
                 // "--path",
-                // "/media/removable/Audio/music/albums/hip-hop"
+                // "/media/removable/Audio/music"
                 // "--expand-all"
                 // "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
             ],
@@ -37,7 +37,7 @@
             ]
         },
         {
-            "name": "desktop II",
+            "name": "cachemon",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
