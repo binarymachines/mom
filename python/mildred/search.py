@@ -1,12 +1,12 @@
 #! /usr/bin/python
 
 
-import logging
+import os, logging, datetime
 
 from elasticsearch import Elasticsearch
 
 import config
-from core import log
+from core import log, var, util
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -35,14 +35,25 @@ def create_index(index):
     res = config.es.indices.create(index, request_body)
     LOG.debug("response: '%s'" % res)
 
+def delete_doc(doc):
+    doc_id = doc['_id']
+    backupfolder = os.join(var.outqueuedir, doc_id)
+    doc_name = str(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]).replace(' ', '_')
+    backup = os.join(backupfolder, docname)
+    with open(backup, 'w') as backup:
+        backup.write(doc)
+
+    if os.path.isfile(backup):
+        config.es.delete(config.es_index, doc_type, doc_id)
+        # if res['_shards']['successful'] == 1:
+    else:
+        raise Exception("Could not write doc, delete failed")
 
 def delete_docs(doc_type, attribute, value):
     docs = find_docs(doc_type, attribute, value)
     for doc in docs:
-        # res =
         # save a backup of the doc to local file system
-        config.es.delete(config.es_index, doc_type, doc['_id'])
-        # if res['_shards']['successful'] == 1:
+        delete_doc(doc)
 
 
 # find documents with matching top-level attribute, (doc['_source']['attribute'])

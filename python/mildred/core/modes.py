@@ -8,6 +8,7 @@ import log
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
+# TODO: use times_to_complete to enforce a minimum run count (ex: scan has multiple submodes, each needs to complete for scan to be complete)
 class Mode(object):
     HIGHEST = 100;
     LOWEST = 0
@@ -19,8 +20,9 @@ class Mode(object):
         self.active_rule = None
         self.times_activated = 0
         self.times_completed = 0
+        self.times_to_complete = 0
         self.last_active = None
-
+        
         #priorities
         self.priority = priority
         self.dec_priority = False
@@ -34,6 +36,12 @@ class Mode(object):
         self.error_tolerance = 0
         # self.error_handler = None
         self.suspended = False
+
+    def has_reached_complete_count(self):
+        if self.times_to_complete == 0:
+            return self.times_completed > 0
+        else: 
+            return self.times_completed > self.times_to_complete
 
     def on_first_activation(self):
         return self.times_activated == 0
@@ -260,11 +268,11 @@ class Selector:
             if mode.active_rule:
                 self._call_mode_func(mode, mode.active_rule.after)
 
-            mode.times_completed += 1
             if mode.dec_priority:
                 mode.priority -= mode.dec_priority_amount
 
             self._call_switch_bracket_func(mode, self.after_switch)
+            mode.times_completed += 1
 
             self.previous = mode
             self.rule_chain.append(mode.active_rule)
