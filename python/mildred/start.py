@@ -61,7 +61,7 @@ def execute(args):
 
 
 def get_paths(args):
-    paths = None if not args['--path'] else args['<path>']
+    paths = [] if not args['--path'] else args['<path>']
     pattern = None if not args['--pattern'] else args['<pattern>']
     if args['--pattern']:
         for p in pattern:

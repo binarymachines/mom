@@ -170,12 +170,15 @@ class Scanner(Walker):
 
     # TODO: individual paths in the directory context should have their own scan configuration
     def scan(self):
-        if self.context.get_param('scan', HLSCAN):
-            ops.cache_ops(os.path.sep, HLSCAN, SCANNER)
+        # if self.context.get_param('scan', HLSCAN):
+        #     ops.cache_ops(os.path.sep, HLSCAN, SCANNER)
         
         while self.context.has_next(SCAN, True):
             ops.check_status()
             path = self.context.get_next(SCAN, True)
+            if self.context.get_param('scan', HLSCAN):
+                ops.cache_ops(path, HLSCAN, SCANNER)
+
             # update context params based on path
             if self.deep_scan is False:
                 if self.context.get_param('scan', HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
@@ -194,7 +197,7 @@ class Scanner(Walker):
                     self._pre_scan(path)
 
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
-                    print("scanning %s..." % path)
+                    # print("scanning %s..." % path)s
                     ops.update_listeners('scanning', SCANNER, path)
                     self.walk(path)
                     end_read_cache_size = len(cache2.get_keys(ops.OPS, READ))

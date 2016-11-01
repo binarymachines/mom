@@ -104,14 +104,19 @@ def set_active(path):
 
 def cache_docs(document_type, path, flush=True):
     if flush: clear_docs(document_type, os.path.sep)
-
-    LOG.debug('caching %s records for %s...' % (document_type, path))
+    ops.update_listeners('retrieving %s records...' % (document_type), 'library', path)
+    LOG.debug('retrieving %s records for %s...' % (document_type, path))
     rows = alchemy.retrieve_assets(document_type, path)
+
+    count = len(rows)
+    cached_count = 0
+
     for sql_asset in rows:
+        ops.update_listeners('caching %i %s records...' % (count - cached_count, document_type), 'library', path)
         key = cache2.create_key(KEY_GROUP, sql_asset.doc_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
         keyvalue = {'absolute_path': sql_asset.absolute_path, 'esid': sql_asset.id}
         cache2.set_hash2(key, keyvalue)
-
+        cached_count += 1
 
 def clear_docs(document_type, path):
     keys = cache2.get_keys(KEY_GROUP, document_type, path)
@@ -262,6 +267,10 @@ def index_asset(asset, data):
             # except RequestError
             except ConnectionError, err:
                 print "Elasticsearch connectivity error, retrying in 5 seconds..."
+
+    except Exception, err:
+        print err.message
+        raise err
 
     return True        
 

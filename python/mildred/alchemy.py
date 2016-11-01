@@ -3,11 +3,17 @@ import sys
 import datetime
 import logging
 
+import MySQLdb as mdb
+
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float, Boolean, and_, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy.exc import IntegrityError
+
+from errors import SQLIntegrityError
 
 from core import log
 
@@ -45,11 +51,28 @@ def insert_asset(index_name, doc_type, id, absolute_path):
     try:
         session.add(asset)
         session.commit()
-    except RuntimeWarning, warn:
-        ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
-    except Exception, err:
+    # except RuntimeWarning, warn:
+    #     ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+    except IntegrityError, err:
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        raise err
+        print err.__class__.__name__
+        for param in err.params:
+            print param
+        for arg in err.args:
+            print arg
+
+        session.rollback()
+
+        raise SQLIntegrityError(err, err.message)
+    # except Exception, err:
+    #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+    #     print err.__class__.__name__
+    #     for param in err.params:
+    #         print param
+    #     for arg in err.args:
+    #         print arg
+    #
+    #     raise err
 
 def retrieve_assets(doc_type, absolute_path):
     # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path

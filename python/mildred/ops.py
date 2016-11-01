@@ -23,13 +23,21 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
+    LOG.debug('%s retrieving %s operations (%s)...' % (operator, operation, op_status))    
+    update_listeners('retrieving %s operations (%s)...' % (operation, op_status), operator, path)
+
     rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
-    LOG.debug('%s caching %i %s operations (%s)...' % (operator, len(rows), operation, op_status))
-    update_listeners('caching %i %s' % (len(rows), operation, operator, path))
+    
+    count = len(rows)
+    cached_count = 0
+
+    LOG.debug('%s caching %i %s operations (%s)...' % (operator, count, operation, op_status))
     for op_record in rows:
+        update_listeners('caching %i %s operations  (%s)...' % (count - cached_count, operation, op_status), operator, path)
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
             'target_path': op_record.target_path})
+        cached_count += 1
 
 
 def clear_cached_operation(path, operation, operator=None):
@@ -96,7 +104,7 @@ def pop_operation():
         else:
             values = cache2.get_hash2(last_op_key)
             cache2.set_hash2(exec_key, values)
-            # update_listeners(operation, operator, path)
+            update_listeners(values['operation_name'], values['operator_name'], values['target_path'])
             # print 'current operation: %s' % values['current_operator']
 
     except Exception, err:
@@ -204,7 +212,7 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
             record['end_time'] = datetime.datetime.now().isoformat()
 
         # TODO: if esids were cached after document has been indexed, they COULD be inserted HERE instead of using update_ops_data() post-ipso
-        update_listeners('writing %s' % record['operation_name'], operator, path))
+        update_listeners('writing %s' % record['operation_name'], operator, path)
 
         alchemy.insert_operation_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
             target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
@@ -270,6 +278,8 @@ def stop_requested():
 # redis pub/sub
 
 def update_listeners(operation, operator, path):
+    operator = 'ops' if operator is None else operator
+    
     name = 'OPS'
     channel = 'OPS'
     message = '%s|%s|%s' % (operation, operator, path)
