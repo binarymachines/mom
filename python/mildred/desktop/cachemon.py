@@ -30,9 +30,10 @@ class CacheMonitor(App):
         root.add_widget(self.op_target_lbl)
         # root.height = 200
 
-        thread.start_new_thread( self.listen, ( 'OPS', ) )
-
         return root
+    
+    def on_start(self):
+        thread.start_new_thread( self.listen, ( 'OPS', ) )
 
     def listen(self, topic):
         try:
@@ -44,7 +45,7 @@ class CacheMonitor(App):
 
             while True:
                 for item in pubsub.listen():
-                    message = str(item['data']).split(',')
+                    message = str(item['data']).split('|')
 
                     if len(message) == 3:
                         self.operation_lbl.text = message[0]
