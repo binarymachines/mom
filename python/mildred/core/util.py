@@ -122,7 +122,14 @@ def prep_work_dir(workdir):
     coredir = os.path.abspath(os.path.join(__file__, os.pardir))
     pydir = os.path.abspath(os.path.join(coredir, os.pardir))
     var.sqldir = os.path.join(pydir, 'sql')
+    
+    jsondir = os.path.join(pydir, 'jsondocs')
+    var.outqueuedir = os.path.join(jsondir, 'outqueue')
+    var.snapshotdir = os.path.join(jsondir, 'snapshot')
 
+    mkdirs(var.outqueuedir)
+    mkdirs(var.snapshotdir)
+    
 def smash(str):
     return str.lower().replace(' ', '').replace('_', '').replace(',', '').replace('.', '').replace(':', '')
     

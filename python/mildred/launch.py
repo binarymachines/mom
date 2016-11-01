@@ -51,7 +51,7 @@ def launch(args, run=True):
                 create_func = get_process_create_func()
 
                 path_args = start.get_paths(args)
-                paths = pathutil.get_locations() if path_args is None else path_args
+                paths = pathutil.get_locations() if path_args == [] else path_args
 
                 context = DirectoryContext('path context', paths)
                 context.peep_fifo = True

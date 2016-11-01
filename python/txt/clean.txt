@@ -12,6 +12,7 @@
 # or
 
 # copy rows one by one into indexed table and delete rows that generate exceptions
+# add 'verified' tag to documents in indexed table, find docs missing tags and delete them
 
 # clear HLSCAN ops for directories that aren't in primary path context or immediate sub-directories
 # RULE: if the path contains media, it was not an HLSCAN, it was a SCAN
@@ -19,7 +20,8 @@
 # delete docs missing hex key
 # delete docs that do not have a unique hex key
 
-#rescan folders for deleted docs and records
+# rescan folders for deleted docs and records
+
 
 /media/removable/PNY16/home/mpippins/dev/_virtual_env/mom/bin/python /var/host/media/removable/PNY16/var/bin/pycharm-community-2016.2.3/helpers/pydev/pydevd.py --multiproc --qt-support --client 127.0.0.1 --port 52053 --file /home/mpippins/dev/mom/py/scratch.py
 pydev debugger: process 19424 is connecting

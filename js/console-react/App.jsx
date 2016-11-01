@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 class App extends React.Component {
 
@@ -6,17 +6,16 @@ class App extends React.Component {
       super();
 		
       this.state = {
-         data: 'Initial data...'
+         showTable: false,
+         tableName: "Database Management"
       }
 
       this.updateState = this.updateState.bind(this);
    };
   
-    updateState() {
-      this.setState({data: 'Data updated from the child component...'})
-      console.log('Data updated from the child component...')
+    updateState(e) {
+      this.setState({showTable: true, tableName: e.target.id})
    };
-
 
     render() {
       return (
@@ -24,11 +23,10 @@ class App extends React.Component {
             <Navbar/>
             <div className="container-fluid">
               <div className="row">
-                <Sidebar myDataProp = {this.state.data} updateStateProp = {this.updateState}/>
+                <Sidebar updateStateProp = {this.updateState}/>
                 <div className="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                  <h1 className="page-header">Database Management</h1>
-                  <h3>{this.props.myDataProp}</h3>
-                  <Table myDataProp = {this.state.data} />
+                  <h1 className="page-header">{this.state.tableName}</h1>
+                  { this.state.showTable ? <DataTable /> : null }
                 </div>
               </div>
             </div>
@@ -41,13 +39,13 @@ class Sidebar extends React.Component {
    render() {
       return (
         <div className="col-sm-3 col-md-2 sidebar">
-          <button onClick = {this.props.updateStateProp}>CLICK</button>
-          <h3>{this.props.myDataProp}</h3>
+          {/* <button onClick = {this.props.updateStateProp}>CLICK</button>
+          <h3>{this.props.myDataProp}</h3> */}
           <ul className="nav nav-sidebar">
             <li className="active"><a href="#">Database Management <span className="sr-only"/></a></li>
-            <li><a href="#" onClick = {this.props.updateStateProp}>Directories</a></li>
-            <li><a href="">Directory Constants</a></li>
-            <li><a href="">Document Categories</a></li>
+            <li><a href="#" id="Directories" onClick = {this.props.updateStateProp}>Directories</a></li>
+            <li><a href="#" id="Directory Constants" onClick = {this.props.updateStateProp}>Directory Constants</a></li>
+            <li><a href="#" id="Document Categories" onClick = {this.props.updateStateProp}>Document Categories</a></li>
             <li><a href="">Document Formats</a></li>
             <li><a href="">Document Metadata</a></li>
           </ul>
@@ -107,7 +105,7 @@ class Search extends React.Component {
    }
 }
 
-class Table extends React.Component {
+class DataTable extends React.Component {
    render() {
       return (
           <div className="table-responsive">
@@ -124,7 +122,7 @@ class Table extends React.Component {
               <tbody>
                 <tr>
                   <td>1,001</td>
-                  <td>{this.props.myDataProp}</td>
+                  <td>ABCD</td>
                   <td>ipsum</td>
                   <td>dolor</td>
                   <td>sit</td>
