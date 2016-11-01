@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 import logging
+import os, sys
 
 import MySQLdb as mdb
 
@@ -162,6 +163,7 @@ def run_query(query):
 # load and run query templates
 
 def execute_query_template(filename, *args):
+    print os.getcwd()
     query = _load_query(filename, args)
     # you could do some kind of validation here
     return execute_query(query)

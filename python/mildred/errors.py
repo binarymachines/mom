@@ -27,7 +27,10 @@ class SQLError(MildredException):
         self.cause = cause
         self.message = message
 
-
+class SQLIntegrityError(SQLError):
+    def __init__(self, cause, message=None):
+        super(SQLIntegrityError, self).__init__(cause, message)
+    
 class SQLConnectError(SQLError):
     def __init__(self, cause, message=None):
-        super(SQLError, self).__init__(cause, message)
+        super(SQLConnectError, self).__init__(cause, message)

@@ -8,6 +8,7 @@
 
 import datetime
 import os
+import subprocess
 from docopt import docopt
 
 import config
@@ -83,8 +84,11 @@ def before(process):
 
 
 def main(args):
+    # subprocess.Popen([util.get_kivy_directory(), 'cachemon.py', '--size=1200x100'], shell=True)
+
     os.chdir(util.get_working_directory())
     service = launch(args)
+
 
     # service = launch(args, run=False)
     # if service is not None:

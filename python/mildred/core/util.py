@@ -74,7 +74,14 @@ def delta(source, target, remove_source_files=False):
             if os.path.exists(target_path):
                delta(source_path, target_path, remove_source_files)
 
+def get_kivy_directory():
+        coredir = os.path.abspath(os.path.join(__file__, os.pardir))
+        pydir = os.path.abspath(os.path.join(coredir, os.pardir))
+        mildir = os.path.abspath(os.path.join(pydir, os.pardir))
+        kivydir = os.path.abspath(os.path.join(mildir, os.pardir))
 
+        return kivydir
+        
 def get_working_directory():
     if var.workdir is None:
         coredir = os.path.abspath(os.path.join(__file__, os.pardir))
@@ -87,8 +94,8 @@ def get_working_directory():
         #     if response.lower() == 'no':
         #         var.workdir = nominalresult
         # else:
-        #     prep_work_dir(cwd)
 
+        prep_work_dir(nominalresult)    
         var.workdir = nominalresult
 
     return var.workdir
