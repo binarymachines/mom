@@ -269,7 +269,7 @@ def index_asset(asset, data):
                 print "Elasticsearch connectivity error, retrying in 5 seconds..."
 
     except AssetException, err:
-        handle_asset_exception(err, asset)
+        handle_asset_exception(err, asset.absolute_path)
         return False
         
     return True        
@@ -324,28 +324,31 @@ def retrieve_esid(document_type, absolute_path):
 
 def update_asset(asset, data):
     hex_id = asset.absolute_path.encode('hex')
-    if search.unique_doc_exists(asset.document_type, '_hex_id', hex_id, except_on_multiples=True):
-        esid = search.unique_doc_id(asset.document_type, '_hex_id', hex_id)
-        old_doc = search.get_doc(asset.document_type, esid)
-        old_data = old_doc['_source']['properties']
+    try:
+        if search.unique_doc_exists(asset.document_type, '_hex_id', hex_id, except_on_multiples=True):
+            esid = search.unique_doc_id(asset.document_type, '_hex_id', hex_id)
+            old_doc = search.get_doc(asset.document_type, esid)
+            old_data = old_doc['_source']['properties']
 
-        updated_reads = []
-        for index in range(len(data['properties'])):
-            updated_reads.append(data['properties'][index]['_reader'])
+            updated_reads = []
+            for index in range(len(data['properties'])):
+                updated_reads.append(data['properties'][index]['_reader'])
 
-        for index in range(len(old_data)):
-            if old_data[index]['_reader'] not in updated_reads:
-                data['properties'].append(old_data[index])
+            for index in range(len(old_data)):
+                if old_data[index]['_reader'] not in updated_reads:
+                    data['properties'].append(old_data[index])
 
-        new_doc = json.dumps({'doc': data})
-        try:
-            res = config.es.update(index=config.es_index, doc_type=asset.document_type, id=esid, body=new_doc)
-        except Exception, err:
-            print err.message
-    else:
-        index_asset(asset, data)
-
-
+            new_doc = json.dumps({'doc': data})
+            try:
+                res = config.es.update(index=config.es_index, doc_type=asset.document_type, id=esid, body=new_doc)
+            except Exception, err:
+                print err.message
+        else:
+            index_asset(asset, data)
+    except MultipleDocsException, err:
+        handle_asset_exception(err, asset.absolute_path)
+        update_asset(asset, data)
+        
 # matched files
 
 def cache_matches(path):

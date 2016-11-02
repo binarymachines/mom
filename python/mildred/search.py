@@ -1,11 +1,12 @@
+
 #! /usr/bin/python
 
 
-import os, logging, datetime, json
+import os, sys, logging, datetime, json
 
 from elasticsearch import Elasticsearch
 
-import config
+import config, const
 from core import log, var, util
 from errors import MultipleDocsException
 
@@ -50,7 +51,7 @@ def delete_doc(doc):
     doc_type = doc['_source']['document_type']
     with open(backup, 'w') as backup:
         try:
-            data = json.dumps(doc, ensure_ascii=True)
+            data = json.dumps(doc, ensure_ascii=True, indent=4, sort_keys=True)
             backup.write(data)
             backup.flush()
             backup.close()
@@ -108,6 +109,10 @@ def unique_doc_exists(doc_type, attribute, value, except_on_multiples=False):
     doc_count = len(docs)
 
     if doc_count > 1 and except_on_multiples:
+        if doc_type == const.DOCUMENT:
+            print "multiple documents found"
+            sys.exit(1)
+
         raise MultipleDocsException(doc_type, attribute, value)
 
     return doc_count is 1

@@ -56,7 +56,7 @@ class Mode(object):
 #         self.recovery_funcs = recovery_funcs
 #         self.test_func = test_func
 
-
+# TODO: implement back-chaining by finding rules to move to previous modes
 class Rule:
     def __init__(self, name, start, end, condition, before=None, after=None):
         self.name = name

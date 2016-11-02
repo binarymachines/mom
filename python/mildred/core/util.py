@@ -81,7 +81,8 @@ def get_kivy_directory():
         kivydir = os.path.abspath(os.path.join(mildir, os.pardir))
 
         return kivydir
-        
+
+# TODO:	use start mode to store working directories in the context         
 def get_working_directory():
     if var.workdir is None:
         coredir = os.path.abspath(os.path.join(__file__, os.pardir))
