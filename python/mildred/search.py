@@ -110,8 +110,8 @@ def unique_doc_exists(doc_type, attribute, value, except_on_multiples=False):
 
     if doc_count > 1 and except_on_multiples:
         if doc_type == const.DOCUMENT:
-            print "multiple documents found"
-            sys.exit(1)
+            print "multiple documents found for % %s (%s)" % (doc_type, attribute, value)
+            # sys.exit(1)
 
         raise MultipleDocsException(doc_type, attribute, value)
 

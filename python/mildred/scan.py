@@ -64,13 +64,13 @@ class Scanner(Walker):
                     library.handle_asset_exception(err, root)
                     self.context.rpush_fifo(SCAN, root)
                     
-                # except TransportError:
-                except Exception, err:
-                    # attempts += 1
-                    ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                    # self.context.push_fifo(SCAN, root)
-                    # ops.invalid
-                    raise err
+                # # except TransportError:
+                # except Exception, err:
+                #     # attempts += 1
+                #     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                #     # self.context.push_fifo(SCAN, root)
+                #     # ops.invalid
+                #     raise err
         
         elif os.access(root, os.R_OK) == False:
             # self.context.push_fifo(SCAN, root)
@@ -176,6 +176,10 @@ class Scanner(Walker):
         while self.context.has_next(SCAN, True):
             ops.check_status()
             path = self.context.get_next(SCAN, True)
+
+            if os.path.isfile(path):
+                path = os.path.join(path, os.pardir)
+ 
             if self.context.get_param('scan', HLSCAN):
                 ops.cache_ops(path, HLSCAN, SCANNER)
 
