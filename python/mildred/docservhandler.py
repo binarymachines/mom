@@ -1,6 +1,7 @@
 import logging
 import random
 
+import clean
 import calc
 import config
 import const
@@ -43,7 +44,7 @@ class DocumentServiceProcessHandler():
 
     def mode_is_available(self, selector, active, possible):
 
-        if possible in [self.owner.fixmode, self.owner.reportmode, self.owner.evalmode, self.owner.reqmode, self.owner.endmode]:
+        if possible in [self.owner.fixmode, self.owner.cleanmode, self.owner.reportmode, self.owner.evalmode, self.owner.reqmode, self.owner.endmode]:
              return True
 
         if possible is self.owner.scanmode: 
@@ -76,16 +77,24 @@ class DocumentServiceProcessHandler():
 
     # fix
 
-    def after_fix(self):
-        self.after()
-        LOG.debug('%s clearing caches' % self.name)
+    def after_fix(self): LOG.debug('%s done fixing' % self.name)
 
-    def before_fix(self): LOG.debug('%s checking cache size'  % self.name)
+    def before_fix(self): LOG.debug('%s preparing to fix'  % self.name)
 
-    def do_fix(self): LOG.debug('%s writing data, generating work queue' % self.name)
+    def do_fix(self): LOG.debug('%s fixing' % self.name)
+
+    # clean
+
+    def after_clean(self): LOG.debug('%s done cleanining' % self.name)
+
+    def before_clean(self): LOG.debug('%s preparing to clean'  % self.name)
+
+    def do_clean(self): 
+        LOG.debug('%s clean' % self.name)
+        clean.clean(self.context)
 
     # report
-
+    
     def do_report(self):
         LOG.debug('%s generating report' % self.name)
         LOG.debug('%s took %i steps.' % (self.selector.name, self.selector.step_count))

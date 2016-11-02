@@ -3,6 +3,7 @@ import logging
 import config
 from core import log
 import search
+import clean
 from core.context import DirectoryContext
 from core.modes import Mode
 from core.serv import ServiceProcess
@@ -32,8 +33,8 @@ class DocumentServiceProcess(ServiceProcess):
         self.startmode = Mode("STARTUP", self.handler.start, 0)
         self.evalmode = Mode("EVAL", self.handler.do_eval, 1)
         self.scanmode = Mode("SCAN", self.handler.do_scan, 2)
-        # self.scanmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
-        # self.scanmode = Mode("CLEAN", self.handler.do_sync, 25) # bring ElasticSearch in line with filesystem
+        # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
+        self.cleanmode = Mode("CLEAN", self.handler.do_clean, 3) # bring ElasticSearch into line with MariaDB
         self.matchmode = Mode("MATCH", self.handler.do_match, 2)
         self.fixmode = Mode("FIX", self.handler.do_fix, 1)
         self.reportmode = Mode("REPORT", self.handler.do_report, 1)
@@ -45,7 +46,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         # startmode must appear first in this list and endmode most appear last
         # selector should figure which modes are start and end and validate rules before executing
-        self.selector.modes = [self.startmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
+        self.selector.modes = [self.startmode, self.cleanmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
             self.reportmode, self.reqmode, self.endmode]
 
         for mode in self.selector.modes: mode.dec_priority = True
@@ -56,6 +57,10 @@ class DocumentServiceProcess(ServiceProcess):
         # paths to fixmode
         self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
             self.reportmode, self.reqmode)
+
+        # paths to cleanmode
+        self.selector.add_rules(self.cleanmode, self.handler.mode_is_available, self.handler.before_clean, self.handler.after_clean, \
+            self.startmode, self.scanmode, self.reportmode, self.reqmode)
 
         # paths to matchmode
         self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \

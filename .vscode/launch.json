@@ -23,7 +23,7 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
-                // "--noscan"
+                "--noscan"
                 // "--reset",
                 // "--pattern",
                 // "skillionaire"
