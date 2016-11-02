@@ -1,12 +1,13 @@
 #! /usr/bin/python
 
 
-import os, logging, datetime
+import os, logging, datetime, json
 
 from elasticsearch import Elasticsearch
 
 import config
 from core import log, var, util
+from errors import MultipleDocsException
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -37,17 +38,28 @@ def create_index(index):
 
 def delete_doc(doc):
     doc_id = doc['_id']
-    backupfolder = os.join(var.outqueuedir, doc_id)
-    doc_name = str(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]).replace(' ', '_')
-    backup = os.join(backupfolder, docname)
+
+    backupfolder = os.path.join(var.outqueuedir, doc_id)
+    if not os.path.isdir(backupfolder):
+        os.makedirs(backupfolder)
+
+    doc_name = '.'.join([str(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]).replace(' ', '_'), 'json'])
+
+    backup = os.path.join(backupfolder, doc_name)
+
+    doc_type = doc['_source']['document_type']
     with open(backup, 'w') as backup:
-        backup.write(doc)
+        try:
+            data = json.dumps(doc, ensure_ascii=True)
+            backup.write(data)
+            backup.flush()
+            backup.close()
+            config.es.delete(config.es_index, doc_type, doc_id)
+        except Exception, err:
+            raise err
 
     if os.path.isfile(backup):
-        config.es.delete(config.es_index, doc_type, doc_id)
-        # if res['_shards']['successful'] == 1:
-    else:
-        raise Exception("Could not write doc, delete failed")
+        print "can't see file"
 
 def delete_docs(doc_type, attribute, value):
     docs = find_docs(doc_type, attribute, value)
@@ -91,9 +103,14 @@ def get_doc_id(doc_type, attribute, value):
     raise Exception("Attribute %s does not identify a unique document" % attribute)
 
 
-def unique_doc_exists(doc_type, attribute, value):
+def unique_doc_exists(doc_type, attribute, value, except_on_multiples=False):
     docs = find_docs(doc_type, attribute, value)
-    return len(docs) is 1
+    doc_count = len(docs)
+
+    if doc_count > 1 and except_on_multiples:
+        raise MultipleDocsException(doc_type, attribute, value)
+
+    return doc_count is 1
 
 
 def unique_doc_id(doc_type, attribute, value):
@@ -101,4 +118,3 @@ def unique_doc_id(doc_type, attribute, value):
     if len(docs) is 1:
         return docs[0]['_id']
     # else
-    raise Exception("Attribute %s does not identify a unique document" % attribute)

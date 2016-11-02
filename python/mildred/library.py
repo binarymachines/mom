@@ -18,7 +18,7 @@ import search
 import sql
 from assets import Directory, Document
 from core import cache2, log
-from errors import AssetException
+from errors import AssetException, MultipleDocsException
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -82,7 +82,7 @@ def set_active(path):
     directory = None if path is None else Directory(path)
     if directory is not None:
         LOG.debug('syncing metadata for %s' % directory.absolute_path)
-        if search.unique_doc_exists(const.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex')):
+        if search.unique_doc_exists(const.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex'), except_on_multiples=True):
             directory.esid = search.unique_doc_id(const.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex'))
             # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
@@ -157,7 +157,7 @@ def doc_exists_for_path(doc_type, path):
     if esid is not None: return True
 
     # esid not found in cache or db, search es
-    return search.unique_doc_exists(doc_type, '_hex_id', path.encode('hex'))
+    return search.unique_doc_exists(doc_type, '_hex_id', path.encode('hex'), except_on_multiples=True)
 
 
 def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
@@ -212,7 +212,7 @@ def _sub_index_asset(asset, data):
             insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
         except Exception, err:
             config.es.delete(config.es_index, asset.document_type, asset.esid)
-            raise err
+            raise AssetException(err, asset)
 
 
 def index_asset(asset, data):
@@ -268,10 +268,10 @@ def index_asset(asset, data):
             except ConnectionError, err:
                 print "Elasticsearch connectivity error, retrying in 5 seconds..."
 
-    except Exception, err:
-        print err.message
-        raise err
-
+    except AssetException, err:
+        handle_asset_exception(err, asset)
+        return False
+        
     return True        
 
 
@@ -318,12 +318,13 @@ def retrieve_esid(document_type, absolute_path):
     # rows = sql.run_query("select index_name, doc_type, absolute_path")
     if len(rows) == 0: return None
     if len(rows) == 1: return rows[0][3]
-    elif len(rows) >1: raise AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
+    elif len(rows) >1: raise MultipleDocsException(document_type, 'absolute_path', absolute_path)
+    # AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
 
 def update_asset(asset, data):
     hex_id = asset.absolute_path.encode('hex')
-    if search.unique_doc_exists(asset.document_type, '_hex_id', hex_id):
+    if search.unique_doc_exists(asset.document_type, '_hex_id', hex_id, except_on_multiples=True):
         esid = search.unique_doc_id(asset.document_type, '_hex_id', hex_id)
         old_doc = search.get_doc(asset.document_type, esid)
         old_data = old_doc['_source']['properties']
@@ -405,14 +406,19 @@ def path_in_db(document_type, path):
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later
 
 def handle_asset_exception(error, path):
-    if error.message.lower().startswith('multiple'):
-        for item in  error.data:
-            sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-    # elif error.message.lower().startswith('unable'):
-    # elif error.message.lower().startswith('NO DOCUMENT'):
-    else:
-        sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], \
-                          [config.es_index, error.data.document_type, error.data.esid, error.message])
+    if isinstance(error, MultipleDocsException):
+        docs = search.find_docs(error.doc_type, error.attribute, error.data)
+        for doc in docs:
+            search.delete_doc(doc)
+
+    # if error.message.lower().startswith('multiple'):
+    #     for item in  error.data:
+    #         sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
+    # # elif error.message.lower().startswith('unable'):
+    # # elif error.message.lower().startswith('NO DOCUMENT'):
+    # else:
+    #     sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], \
+    #                       [config.es_index, error.data.document_type, error.data.esid, error.message])
 
 
 

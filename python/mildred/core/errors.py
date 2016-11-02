@@ -1,8 +1,6 @@
-import sys, os
-
 class MildredException(Exception):
     def __init__(self, message):
-        super(ModeDestinationException, self).__init__(message)
+        super(MildredException, self).__init__(message)
 
 # api
 
@@ -15,3 +13,4 @@ class BaseClassException(MildredException):
 class ModeDestinationException(MildredException):
     def __init__(self, message):
         super(ModeDestinationException, self).__init__(message)
+
