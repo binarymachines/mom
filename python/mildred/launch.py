@@ -76,11 +76,11 @@ def launch(args, run=True):
 
 
 def after (process):
-    print '%s after launch' % process.name
+    print '%s after completion' % process.name
 
 
 def before(process):
-    print '%s before launch' % process.name
+    print '%s before start' % process.name
 
 
 def main(args):

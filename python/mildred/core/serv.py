@@ -16,9 +16,14 @@ class ServiceProcess(object):
         self.owner = owner
         self.threaded = False
 
+        self.before = None
+        self.after = None
+
         self.error_count = 0
         self.restart_on_fail = False
         self.stop_on_errors = stop_on_errors
+        self.started = False
+        self.completed = False
 
         self.initialize()
 
@@ -138,10 +143,19 @@ class Service(object):
                     self.inactive.append(rec)
 
                 elif not rec['process'].selector.complete and not rec['process'].threaded:
+                    if rec['process'].started == False and rec['process'].before is not None:
+                        rec['process'].before(rec['process'])
+                        rec['process'].started = True
+
                     rec['process'].step()
 
             for rec in self.inactive:
-                if rec in self.active: self.active.remove(rec)
+                if rec in self.active: 
+                    self.active.remove(rec)
+                    if rec['process'].after is not None:
+                        rec['process'].after(rec['process'])
+
+                    rec['process'].completed = True
 
     def queue(self, *process):
         for process in process:
