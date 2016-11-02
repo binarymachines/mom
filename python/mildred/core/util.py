@@ -120,7 +120,9 @@ def prep_work_dir(workdir):
         mkdirs(bak)
 
     coredir = os.path.abspath(os.path.join(__file__, os.pardir))
-    pydir = os.path.abspath(os.path.join(coredir, os.pardir))
+    mildir = os.path.abspath(os.path.join(coredir, os.pardir))
+    pydir = os.path.abspath(os.path.join(mildir, os.pardir))
+
     var.sqldir = os.path.join(pydir, 'sql')
     
     jsondir = os.path.join(pydir, 'jsondocs')

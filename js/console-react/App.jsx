@@ -46,15 +46,15 @@ class Sidebar extends React.Component {
             <li><a href="#" id="Directories" onClick = {this.props.updateStateProp}>Directories</a></li>
             <li><a href="#" id="Directory Constants" onClick = {this.props.updateStateProp}>Directory Constants</a></li>
             <li><a href="#" id="Document Categories" onClick = {this.props.updateStateProp}>Document Categories</a></li>
-            <li><a href="">Document Formats</a></li>
-            <li><a href="">Document Metadata</a></li>
+            <li><a href="#">Document Formats</a></li>
+            <li><a href="#">Document Metadata</a></li>
           </ul>
           <ul className="nav nav-sidebar">
             <li className="active"><a href="#">Matcher Configuration <span className="sr-only"/></a></li>
-            <li><a href="">Matchers</a></li>
-            <li><a href="">Match Discount</a></li>
-            <li><a href="">Match Weights</a></li>
-            <li><a href="">Matcher Config</a></li>
+            <li><a href="#">Matchers</a></li>
+            <li><a href="#">Match Discount</a></li>
+            <li><a href="#">Match Weights</a></li>
+            <li><a href="#">Matcher Config</a></li>
           </ul>
           <ul className="nav nav-sidebar">
             <li className="active"><a href="#">Scanner Configuration <span className="sr-only"/></a></li>

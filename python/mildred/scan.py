@@ -22,7 +22,7 @@ from const import SCANNER, SCAN, HLSCAN, READ
 from core import cache2
 from core import log
 from core.context import DirectoryContext
-from errors import AssetException
+from errors import MultipleDocsException
 from read import Reader
 from walk import Walker
 
@@ -59,7 +59,7 @@ class Scanner(Walker):
             if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
                 try:
                     library.set_active(root)
-                except AssetException, err:
+                except MultipleDocsException, err:
                     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                     library.handle_asset_exception(err, root)
                     self.context.rpush_fifo(SCAN, root)
@@ -107,7 +107,7 @@ class Scanner(Walker):
                 except Exception, err:
                     if file_was_read:
                         self.reader.invalidate_read_ops(asset)
-        
+
         ops.record_op_complete(SCAN, SCANNER, directory.absolute_path, directory.esid)
         LOG.debug('done scanning : %s' % (root))
 
