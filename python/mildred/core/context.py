@@ -1,6 +1,8 @@
 
 import sys, os
 
+import cache2
+
 class Context(object):
     """context is a container for state that is accessible to different parts of a process or application"""
     def __init__(self, name):
@@ -93,13 +95,13 @@ class DirectoryContext(Context):
     def __init__(self, name, paths, cycle=False):
         super(DirectoryContext, self).__init__(name)
         self.paths = paths
-        self.fake_path_queue = {}
+        self.consumer_paths = {}
         self.cycle = cycle
         self.always_peek_fifo = True
 
     def get_active(self, consumer):
-        if consumer in self.fake_path_queue:
-            return self.fake_path_queue[consumer]
+        if consumer in self.consumer_paths:
+            return self.consumer_paths[consumer]
         else:
             return self.get_next(consumer)
 
@@ -112,17 +114,17 @@ class DirectoryContext(Context):
 
         result = None
 
-        if consumer in self.fake_path_queue:
-            index = self.paths.index(self.fake_path_queue[consumer]) + 1
+        if consumer in self.consumer_paths:
+            index = self.paths.index(self.consumer_paths[consumer]) + 1
             if len(self.paths) > index:
                 result = self.paths[index]
-                self.fake_path_queue[consumer] = result
+                self.consumer_paths[consumer] = result
             elif self.cycle:
                 result = self.paths[0]
-                self.fake_path_queue[consumer] = result
+                self.consumer_paths[consumer] = result
         else:
             result = self.paths[0]
-            self.fake_path_queue[consumer] = result
+            self.consumer_paths[consumer] = result
 
         return result
 
@@ -134,8 +136,8 @@ class DirectoryContext(Context):
         if len(self.paths) == 0: return False
 
         result = False
-        if consumer in self.fake_path_queue:
-            index = self.paths.index(self.fake_path_queue[consumer]) + 1
+        if consumer in self.consumer_paths:
+            index = self.paths.index(self.consumer_paths[consumer]) + 1
             if len(self.paths) > index or self.cycle: result = True
         else: result = True
 
@@ -155,8 +157,8 @@ class DirectoryContext(Context):
 
         if len(self.paths) == 0: return None
 
-        if consumer in self.fake_path_queue:
-            index = self.paths.index(self.fake_path_queue[consumer]) + 1
+        if consumer in self.consumer_paths:
+            index = self.paths.index(self.consumer_paths[consumer]) + 1
             if len(self.paths) > index:
                 return self.paths[index]
         # elif cycle:
@@ -166,5 +168,111 @@ class DirectoryContext(Context):
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             self.clear_fifo(consumer)
         
-        if consumer in self.fake_path_queue:
-            del(self.fake_path_queue[consumer])
+        if consumer in self.consumer_paths:
+            del(self.consumer_paths[consumer])
+
+
+def class CachedDirectoryContext(DirectoryContext):
+    def __init__(self, name, paths, cycle=False):
+        super(CachedDirectoryContext, self).__init__(name)
+        self.consumer_key = cache2.create_key('CachedDirectoryContext', 'consumers')
+
+  # FIFO
+
+    def clear_fifo(self, consumer):
+        while self.peek_fifo(consumer) is not None:
+            self.pop_fifo(consumer)
+s
+    def peek_fifo(self, consumer):
+        key = cache2.get_key('CachedDirectoryContext', consumer)
+        value = cache2.rpeek2(key)
+        return value
+
+    def pop_fifo(self, consumer):
+        key = cache2.get_key('CachedDirectoryContext', consumer)
+        value = cache2.rpop2(key)
+        return value
+
+    def push_fifo(self, consumer, value):
+        key = cache2.get_key('CachedDirectoryContext', consumer)
+        cache2.lpush(key, value)
+        
+    def rpush_fifo(self, consumer, value):
+        key = cache2.get_key('CachedDirectoryContext', consumer)
+        cache2.rpush(key, value)
+
+    # Path
+
+    def get_active(self, consumer):
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+
+        if consumer in self.cached_consumer_paths:
+            return self.cached_consumer_paths[consumer]
+        else:
+            return self.get_next(consumer)
+
+    def get_next(self, consumer, use_fifo=False):
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
+            return self.pop_fifo(consumer)
+
+        if len(self.paths) == 0: return None
+
+        result = None
+
+        if consumer in cached_consumer_paths:
+            index = self.paths.index(cached_consumer_paths[consumer]) + 1
+            if len(self.paths) > index:
+                result = self.paths[index]
+                cached_consumer_paths[consumer] = result
+            elif self.cycle:
+                result = self.paths[0]
+                self.cached_consumer_paths[consumer] = result
+        else:
+            result = self.paths[0]
+            self.cached_consumer_paths[consumer] = result
+
+        return result
+
+    def has_next(self, consumer, use_fifo=False):
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
+            return True
+
+        if len(self.paths) == 0: return False
+
+        result = False
+        if consumer in self.consumer_paths:
+            index = self.paths.index(cached_consumer_paths[consumer]) + 1
+            if len(self.paths) > index or self.cycle: result = True
+        else: result = True
+
+        return result
+
+    # def path_in_fifo(self, path, consumer):
+    #     if consumer in self.fifos:
+    #         return path in self.fifos[consumer]
+
+    def peek_next(self, consumer, use_fifo=False):
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:
+            return self.peek_fifo(consumer)
+
+        if len(self.paths) == 0: return None
+
+        if consumer in self.consumer_paths:
+            index = self.paths.index(cached_consumer_paths[consumer]) + 1
+            if len(self.paths) > index:
+                return self.paths[index]
+        # elif cycle:
+        else: return self.paths[0]
+
+    # def reset(self, consumer, use_fifo=False):
+    #     if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
+    #         self.clear_fifo(consumer)
+        
+    #     if consumer in self.consumer_paths:
+    #         del(self.consumer_paths[consumer])

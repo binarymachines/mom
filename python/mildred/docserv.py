@@ -60,27 +60,27 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to cleanmode
         self.selector.add_rules(self.cleanmode, self.handler.mode_is_available, self.handler.before_clean, self.handler.after_clean, \
-            self.startmode, self.scanmode, self.reportmode, self.reqmode)
+            self.startmode, self.scanmode)
 
         # paths to matchmode
         self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
-           self.evalmode, self.scanmode, self.evalmode, self.reqmode)
+           self.evalmode, self.scanmode, self.cleanmode, self.reqmode)
 
         # paths to reqmode
         self.selector.add_rules(self.reqmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
-            self.startmode, self, self.fixmode, self.evalmode, self.matchmode, self.scanmode)
+            self.startmode, self.fixmode, self.evalmode, self.matchmode, self.scanmode)
 
         # paths to reportmode
         self.selector.add_rules(self.reportmode, self.handler.maybe, self.handler.before, self.handler.after, \
-            self.startmode, self.reqmode, self.fixmode, self.startmode, self.evalmode, self.matchmode, self.scanmode)
+            self.startmode, self.cleanmode, self.reqmode, self.fixmode, self.startmode, self.evalmode, self.matchmode, self.scanmode)
 
         # paths to scanmode
         self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
-            self.startmode, self.reportmode, self.startmode, self.evalmode, self.fixmode, self.matchmode, self.reqmode)
+            self.startmode, self.reportmode, self.startmode, self.cleanmode, self.evalmode, self.fixmode, self.matchmode, self.reqmode)
 
         # paths to evalmode
         self.selector.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
-            self.startmode, self.fixmode, self.reportmode, self.reqmode, self.scanmode, self.matchmode)
+            self.startmode, self.fixmode, self.cleanmode, self.reportmode, self.reqmode, self.scanmode, self.matchmode)
 
         # paths to endmode
         self.selector.add_rules(self.endmode, self.handler.maybe, self.handler.ending, self.handler.ended, \
