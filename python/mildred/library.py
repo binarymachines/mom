@@ -411,8 +411,10 @@ def path_in_db(document_type, path):
 def handle_asset_exception(error, path):
     if isinstance(error, MultipleDocsException):
         docs = search.find_docs(error.doc_type, error.attribute, error.data)
+        keepdoc = docs[0]
         for doc in docs:
-            search.delete_doc(doc)
+            if doc is not keepdoc:
+                search.delete_doc(doc)
 
     # if error.message.lower().startswith('multiple'):
     #     for item in  error.data:

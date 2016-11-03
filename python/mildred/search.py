@@ -48,19 +48,18 @@ def delete_doc(doc):
 
     backup = os.path.join(backupfolder, doc_name)
 
-    doc_type = doc['_source']['document_type']
-    with open(backup, 'w') as backup:
+    doc_type = doc['_type']
+    with open(backup, 'w') as file:
         try:
             data = json.dumps(doc, ensure_ascii=True, indent=4, sort_keys=True)
-            backup.write(data)
-            backup.flush()
-            backup.close()
-            config.es.delete(config.es_index, doc_type, doc_id)
+            file.write(data)
+            file.flush()
+            file.close()
+            if os.path.isfile(backup):
+                config.es.delete(config.es_index, doc_type, doc_id)
         except Exception, err:
             raise err
 
-    if os.path.isfile(backup):
-        print "can't see file"
 
 def delete_docs(doc_type, attribute, value):
     docs = find_docs(doc_type, attribute, value)
@@ -109,8 +108,8 @@ def unique_doc_exists(doc_type, attribute, value, except_on_multiples=False):
     doc_count = len(docs)
 
     if doc_count > 1 and except_on_multiples:
-        if doc_type == const.DOCUMENT:
-            print "multiple documents found for % %s (%s)" % (doc_type, attribute, value)
+        # if doc_type == const.DOCUMENT:
+            # print "multiple documents found for % %s (%s)" % (doc_type, attribute, value)
             # sys.exit(1)
 
         raise MultipleDocsException(doc_type, attribute, value)
