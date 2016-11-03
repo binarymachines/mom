@@ -1,10 +1,10 @@
 import os, logging
 
-import pathutil
-from walk import Walker
-from core.errors import BaseClassException
+import python.mildred.pathutil
+from python.mildred.walk import Walker
+from python.mildred.core.errors import BaseClassException
 
-from core import log
+from python.mildred.core import log
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -34,7 +34,7 @@ class DirectoryWalker(Walker):
     def handle_dir(self, directory):
         super(DirectoryWalker, self).handle_dir(directory)
         path = os.path.join(self.current_root, directory)
-        if directory in pathutil.get_document_category_names():
+        if directory in python.mildred.pathutil.get_document_category_names():
             self.check_genre_dir(path)
         else: self.check_album_dir(path)
 
@@ -81,9 +81,9 @@ class IsInMediaTypePath(DirectoryHandler):
 
 class IsInGenrePath(DirectoryHandler):
     def check_dir(self, path):
-        if pathutil.file_type_recognized(path, pathutil.get_active_document_formats()):
+        if python.mildred.pathutil.file_type_recognized(path, python.mildred.pathutil.get_active_document_formats()):
             filed = False
-            for name in pathutil.get_document_category_names():
+            for name in python.mildred.pathutil.get_document_category_names():
                 if name in path: filed = True
             if filed is False:
                 #TODO: add this directory to work queue

@@ -91,13 +91,16 @@ class Context(object):
 
 
 class DirectoryContext(Context):
-
     def __init__(self, name, paths, cycle=False):
         super(DirectoryContext, self).__init__(name)
         self.paths = paths
         self.consumer_paths = {}
         self.cycle = cycle
         self.always_peek_fifo = True
+
+    def clear_active(self, consumer):
+        if consumer in self.consumer_paths:
+            del(self.consumer_paths[consumer])
 
     def get_active(self, consumer):
         if consumer in self.consumer_paths:
@@ -127,6 +130,9 @@ class DirectoryContext(Context):
             self.consumer_paths[consumer] = result
 
         return result
+
+    def has_active(self, consumer):
+        return consumer in self.consumer_paths
 
     def has_next(self, consumer, use_fifo=False):
 
@@ -171,43 +177,55 @@ class DirectoryContext(Context):
         if consumer in self.consumer_paths:
             del(self.consumer_paths[consumer])
 
+CDC = 'CachedDirectoryContext'
 
-def class CachedDirectoryContext(DirectoryContext):
+class CachedDirectoryContext(DirectoryContext):
     def __init__(self, name, paths, cycle=False):
-        super(CachedDirectoryContext, self).__init__(name)
-        self.consumer_key = cache2.create_key('CachedDirectoryContext', 'consumers')
+        super(CachedDirectoryContext, self).__init__(name, paths, cycle)
+        self.consumer_key = cache2.create_key(CDC, 'consumers')
 
   # FIFO
 
     def clear_fifo(self, consumer):
         while self.peek_fifo(consumer) is not None:
             self.pop_fifo(consumer)
-s
+
     def peek_fifo(self, consumer):
-        key = cache2.get_key('CachedDirectoryContext', consumer)
+        key = cache2.get_key(CDC, consumer)
         value = cache2.rpeek2(key)
+        if value == 'None':
+            return None
         return value
 
     def pop_fifo(self, consumer):
-        key = cache2.get_key('CachedDirectoryContext', consumer)
-        value = cache2.rpop2(key)
+        key = cache2.get_key(CDC, consumer)
+        value = cache2.lpop2(key)
+        if value == 'None':
+            return None
         return value
 
     def push_fifo(self, consumer, value):
-        key = cache2.get_key('CachedDirectoryContext', consumer)
+        key = cache2.get_key(CDC, consumer)
         cache2.lpush(key, value)
         
     def rpush_fifo(self, consumer, value):
-        key = cache2.get_key('CachedDirectoryContext', consumer)
+        key = cache2.get_key(CDC, consumer)
         cache2.rpush(key, value)
 
     # Path
+    def clear_active(self, consumer):
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+
+        if consumer in cached_consumer_paths:
+            del(cached_consumer_paths[consumer])
+
+        cache2.set_hash2(self.consumer_key, cached_consumer_paths)
 
     def get_active(self, consumer):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
 
-        if consumer in self.cached_consumer_paths:
-            return self.cached_consumer_paths[consumer]
+        if consumer in cached_consumer_paths:
+            return cached_consumer_paths[consumer]
         else:
             return self.get_next(consumer)
 
@@ -228,12 +246,17 @@ s
                 cached_consumer_paths[consumer] = result
             elif self.cycle:
                 result = self.paths[0]
-                self.cached_consumer_paths[consumer] = result
+                cached_consumer_paths[consumer] = result
         else:
             result = self.paths[0]
-            self.cached_consumer_paths[consumer] = result
+            cached_consumer_paths[consumer] = result
 
+        cache2.set_hash2(self.consumer_key, cached_consumer_paths)
         return result
+
+    def has_active(self, consumer):
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+        return consumer in cached_consumer_paths
 
     def has_next(self, consumer, use_fifo=False):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
@@ -270,9 +293,13 @@ s
         # elif cycle:
         else: return self.paths[0]
 
-    # def reset(self, consumer, use_fifo=False):
-    #     if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
-    #         self.clear_fifo(consumer)
+    def reset(self, consumer, use_fifo=False):
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
+            self.clear_fifo(consumer)
         
-    #     if consumer in self.consumer_paths:
-    #         del(self.consumer_paths[consumer])
+        if consumer in self.consumer_paths:
+            del(cached_consumer_paths[consumer])
+
+        cache2.set_hash2(self.consumer_key, cached_consumer_paths)
+

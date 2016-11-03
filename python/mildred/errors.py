@@ -8,7 +8,7 @@ class AssetException(MildredException):
         self.data = data
 
 
-class MultipleDocsException(AssetException):
+class ElasticDataIntegrityException(AssetException):
     def __init__(self, doc_type, attribute, value):
         self.doc_type = doc_type
         self.attribute = attribute
@@ -21,7 +21,7 @@ class MultipleDocsException(AssetException):
         if attribute == 'absolute_path':
             data = value
 
-        super(MultipleDocsException, self).__init__('multiple documents found for %s' % data, value)
+        super(ElasticDataIntegrityException, self).__init__('multiple documents found for %s' % data, value)
 
 
 # network and local resources

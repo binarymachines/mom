@@ -2,7 +2,7 @@ import logging
 
 import search, sql, library, ops
 from const import CLEAN
-from errors import MultipleDocsException
+from errors import ElasticDataIntegrityException
 from core import log
 
 LOG = log.get_log(__name__, logging.INFO)
@@ -23,7 +23,7 @@ def clear_dupes_from_es(context):
                 try:
                     ops.update_listeners('enforcing data integrity', 'elasticsearch cleaner', row[0])
                     search.unique_doc_exists(row[1], '_hex_id', row[2], except_on_multiples=True)
-                except MultipleDocsException, err:
+                except ElasticDataIntegrityException, err:
                     LOG.info('Duplicate documents found for %s' % row[0])
                     library.handle_asset_exception(err, row[0])
                 except Exception, err:

@@ -5,10 +5,10 @@
    --path, -p                   The path to scan
 
 '''
+import traceback
 
 import datetime
 import os
-import subprocess
 from docopt import docopt
 
 import config
@@ -17,10 +17,9 @@ import ops
 import pathutil
 import start
 
-from core.context import DirectoryContext
+from core.context import CachedDirectoryContext
 from core.serv import Service
 from core import util
-from core import var
 
 
 def get_process_create_func():
@@ -53,12 +52,12 @@ def launch(args, run=True):
                 path_args = start.get_paths(args)
                 paths = pathutil.get_locations() if path_args == [] else path_args
 
-                context = DirectoryContext('path context', paths)
+                context = CachedDirectoryContext('path context', paths)
                 context.peep_fifo = True
                 if args['--expand-all']:
                     context.set_param('all', 'expand_all', True)
 
-                process = create_func('MILDRED', context)
+                process = create_func('Document Server', context)
                 process.after = after
                 process.before = before
 
@@ -73,7 +72,7 @@ def launch(args, run=True):
         else: raise Exception('unable to initialize with current configuration in %s.' % config.filename)
     except Exception, err:
         print err.message
-
+        traceback.print_exc()
 
 def after (process):
     print '%s after completion' % process.name
@@ -84,42 +83,9 @@ def before(process):
 
 
 def main(args):
-    # subprocess.Popen([util.get_kivy_directory(), 'cachemon.py', '--size=1200x100'], shell=True)
-
     os.chdir(util.get_working_directory())
-    service = launch(args)
+    launch(args)
 
-
-    # service = launch(args, run=False)
-    # if service is not None:
-    #     try:
-    #         create_func = get_process_create_func()
-
-    #         path_args = start.get_paths(args)
-    #         paths = pathutil.get_locations() if path_args is None else path_args
-
-    #         context = DirectoryContext('path context', paths)
-    #         if args['--expand-all']:
-    #             context.set_param('all', 'expand_all', True)
-
-    #         directive = direct.create(paths)
-
-    #         a = create_func('a service', context)
-    #         a.after = after
-    #         a.before = before
-    #         # b = create_func('b service', context)
-    #         # c = create_func('c service', context)
-
-    #         service.queue(a)
-
-    #         # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
-    #         service.handle_processes()
-
-    #         # TODO: tests with threaded services reveals design/implementation flaws
-    #         # service.run(create_func('Threaded worker', context), True, before, after)
-    #         # service.run(create_func('Threaded sleeper', context), True)
-    #     except Exception, err:
-    #         print 'Unable to create process due to %s' % err.message
 
 if __name__ == '__main__':
     args = docopt(__doc__)

@@ -11,14 +11,14 @@ from elasticsearch.exceptions import ConnectionError, RequestError
 
 import alchemy
 import config
-import const
+from const import DOCUMENT, DIRECTORY, HEXID, MATCH
 import ops
 import pathutil
 import search
 import sql
 from assets import Directory, Document
 from core import cache2, log
-from errors import AssetException, MultipleDocsException
+from errors import AssetException, ElasticDataIntegrityException
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -82,8 +82,8 @@ def set_active(path):
     directory = None if path is None else Directory(path)
     if directory is not None:
         LOG.debug('syncing metadata for %s' % directory.absolute_path)
-        if search.unique_doc_exists(const.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex'), except_on_multiples=True):
-            directory.esid = search.unique_doc_id(const.DIRECTORY, '_hex_id', directory.absolute_path.encode('hex'))
+        if search.unique_doc_exists(DIRECTORY, HEXID, directory.absolute_path.encode('hex'), except_on_multiples=True):
+            directory.esid = search.unique_doc_id(DIRECTORY, HEXID, directory.absolute_path.encode('hex'))
             # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
             index_asset(directory, directory.to_dictionary())
@@ -157,7 +157,7 @@ def doc_exists_for_path(doc_type, path):
     if esid is not None: return True
 
     # esid not found in cache or db, search es
-    return search.unique_doc_exists(doc_type, '_hex_id', path.encode('hex'), except_on_multiples=True)
+    return search.unique_doc_exists(doc_type, HEXID, path.encode('hex'), except_on_multiples=True)
 
 
 def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
@@ -201,7 +201,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
 #         return latest_operation
 
 def _sub_index_asset(asset, data):
-    data['_hex_id'] = asset.absolute_path.encode('hex')
+    data[HEXID] = asset.absolute_path.encode('hex')
     res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
     if res['_shards']['successful'] == 1:
         esid = res['_id']
@@ -318,15 +318,15 @@ def retrieve_esid(document_type, absolute_path):
     # rows = sql.run_query("select index_name, doc_type, absolute_path")
     if len(rows) == 0: return None
     if len(rows) == 1: return rows[0][3]
-    elif len(rows) >1: raise MultipleDocsException(document_type, 'absolute_path', absolute_path)
+    elif len(rows) >1: raise ElasticDataIntegrityException(document_type, 'absolute_path', absolute_path)
     # AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
 
 def update_asset(asset, data):
     hex_id = asset.absolute_path.encode('hex')
     try:
-        if search.unique_doc_exists(asset.document_type, '_hex_id', hex_id, except_on_multiples=True):
-            esid = search.unique_doc_id(asset.document_type, '_hex_id', hex_id)
+        if search.unique_doc_exists(asset.document_type, HEXID, hex_id, except_on_multiples=True):
+            esid = search.unique_doc_id(asset.document_type, HEXID, hex_id)
             old_doc = search.get_doc(asset.document_type, esid)
             old_data = old_doc['_source']['properties']
 
@@ -345,7 +345,7 @@ def update_asset(asset, data):
                 print err.message
         else:
             index_asset(asset, data)
-    except MultipleDocsException, err:
+    except ElasticDataIntegrityException, err:
         handle_asset_exception(err, asset.absolute_path)
         update_asset(asset, data)
         
@@ -358,18 +358,18 @@ def cache_matches(path):
         doc_id = row[0]
         match_doc_id = row[1]
         matcher_name = row[2]
-        key = cache2.get_key('match', matcher_name, doc_id)
+        key = cache2.get_key(MATCH, matcher_name, doc_id)
         cache2.add_item2(key, match_doc_id)
 
 
 def get_matches(matcher_name, esid):
-    key = cache2.get_key('match', matcher_name, esid)
+    key = cache2.get_key(MATCH, matcher_name, esid)
     result = cache2.get_items2(key)
     return result
 
 
 def clear_matches(matcher_name, esid):
-    key = cache2.get_key('match', matcher_name, esid)
+    key = cache2.get_key(MATCH, matcher_name, esid)
     cache2.clear_items2(key)
     cache2.delete_key(key)
 
@@ -409,7 +409,7 @@ def path_in_db(document_type, path):
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later
 
 def handle_asset_exception(error, path):
-    if isinstance(error, MultipleDocsException):
+    if isinstance(error, ElasticDataIntegrityException):
         docs = search.find_docs(error.doc_type, error.attribute, error.data)
         keepdoc = docs[0]
         for doc in docs:
