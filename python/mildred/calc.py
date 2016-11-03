@@ -61,6 +61,10 @@ def path_expands(path, context):
 
 
 def calc(context, cycle_context=False):
+    sql.execute_query("delete from matched where 1=1")
+    sql.execute_query("delete from op_record where operation_name = 'calc'")
+    sql.execute_query("delete from op_record where operation_name = 'match'")
+
     # MAX_RECORDS = ...
     matchers = get_matchers()
     opcount = 0
@@ -74,6 +78,8 @@ def calc(context, cycle_context=False):
         if path_expands(location, context): 
             print 'expanding %s' % location
             continue
+
+        assert(location != None, 'location is NONE!')
 
         if ops.operation_completed(location, HLSCAN):
         

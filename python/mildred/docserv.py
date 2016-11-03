@@ -55,7 +55,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to evalmode
         self.selector.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
-            self.reqmode)
+            self.startmode, self.reqmode)
 
         # paths to scanmode
         self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \

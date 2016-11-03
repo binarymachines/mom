@@ -124,7 +124,7 @@ def prep_work_dir(workdir):
     mildir = os.path.abspath(os.path.join(coredir, os.pardir))
     pydir = os.path.abspath(os.path.join(mildir, os.pardir))
 
-    var.sqldir = os.path.join(pydir, 'sql')
+    var.sqldir = os.path.join(mildir, 'sql')
     
     jsondir = os.path.join(pydir, 'jsondocs')
     var.outqueuedir = os.path.join(jsondir, 'outqueue')
