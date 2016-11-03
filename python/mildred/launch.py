@@ -17,7 +17,7 @@ import ops
 import pathutil
 import start
 
-from core.context import CachedDirectoryContext
+from core.context import DirectoryContext, CachedDirectoryContext
 from core.serv import Service
 from core import util
 
@@ -52,7 +52,7 @@ def launch(args, run=True):
                 path_args = start.get_paths(args)
                 paths = pathutil.get_locations() if path_args == [] else path_args
 
-                context = CachedDirectoryContext('path context', paths)
+                context = DirectoryContext('path context', paths)
                 context.peep_fifo = True
                 if args['--expand-all']:
                     context.set_param('all', 'expand_all', True)

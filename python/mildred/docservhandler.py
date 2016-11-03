@@ -55,8 +55,9 @@ class DocumentServiceProcessHandler():
             if self.context.has_next(SCAN):
                 return config.scan
 
-        if possible is self.owner.matchmode and self.context.has_next(MATCH):
-            return config.match
+        if possible is self.owner.matchmode: 
+            if self.context.has_next(MATCH):
+                return config.match
 
     # start
 

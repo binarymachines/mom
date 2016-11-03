@@ -26,7 +26,7 @@ class MediaMatcher(object):
         self.comparison_fields = []
         self.document_type = doc_type
         self.name = name
-        self.minimum_score 
+        self.minimum_score = None
         
     def match(self, media):
         raise BaseClassException(MediaMatcher)
