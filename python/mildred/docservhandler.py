@@ -7,6 +7,7 @@ import config
 import const
 from core import log
 import scan
+import ops
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -34,8 +35,10 @@ class DocumentServiceProcessHandler():
     def after(self):
         mode = self.selector.active
         LOG.debug("%s after '%s'" % (self.name, mode.name))
+        ops.check_status()
         
     def before(self):
+        ops.check_status()
         mode = self.selector.next
         LOG.debug("%s before '%s'" % (self.name, mode.name))
         if mode.active_rule is not None:
@@ -43,6 +46,7 @@ class DocumentServiceProcessHandler():
                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
     def mode_is_available(self, selector, active, possible):
+        ops.check_status()
 
         if possible in [self.owner.fixmode, self.owner.cleanmode, self.owner.reportmode, self.owner.evalmode, self.owner.reqmode, self.owner.endmode]:
              return True
@@ -85,9 +89,13 @@ class DocumentServiceProcessHandler():
 
     # clean
 
-    def after_clean(self): LOG.debug('%s done cleanining' % self.name)
+    def after_clean(self): 
+        LOG.debug('%s done cleanining' % self.name)
+        self.after()
 
-    def before_clean(self): LOG.debug('%s preparing to clean'  % self.name)
+    def before_clean(self):
+        self.before() 
+        LOG.debug('%s preparing to clean'  % self.name)
 
     def do_clean(self): 
         LOG.debug('%s clean' % self.name)
@@ -144,10 +152,10 @@ class DocumentServiceProcessHandler():
             self.context.set_param('scan', const.HLSCAN, False)
 
     def after_scan(self):
-        self.after()
         LOG.debug('%s done scanning, updating op records...' % self.name)
         # clean.clean(self.context)
         self.context.reset('scan')        
+        self.after()
 
     def do_scan(self):
         try:
