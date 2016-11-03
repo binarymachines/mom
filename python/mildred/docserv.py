@@ -32,10 +32,10 @@ class DocumentServiceProcess(ServiceProcess):
 
         self.startmode = Mode("STARTUP", self.handler.start, 0)
         self.evalmode = Mode("EVAL", self.handler.do_eval, 1)
-        self.scanmode = Mode("SCAN", self.handler.do_scan, 2)
+        self.scanmode = Mode("SCAN", self.handler.do_scan, 4)
         # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
-        self.cleanmode = Mode("CLEAN", self.handler.do_clean, 3) # bring ElasticSearch into line with MariaDB
-        self.matchmode = Mode("MATCH", self.handler.do_match, 2)
+        self.cleanmode = Mode("CLEAN", self.handler.do_clean, 2) # bring ElasticSearch into line with MariaDB
+        self.matchmode = Mode("MATCH", self.handler.do_match, 3)
         self.fixmode = Mode("FIX", self.handler.do_fix, 1)
         self.reportmode = Mode("REPORT", self.handler.do_report, 1)
         self.reqmode = Mode("REQUESTS", self.handler.do_reqs, 1)
@@ -56,7 +56,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to fixmode
         self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
-            self.reportmode, self.reqmode)
+            self.cleanmode, self.reportmode, self.reqmode)
 
         # paths to cleanmode
         self.selector.add_rules(self.cleanmode, self.handler.mode_is_available, self.handler.before_clean, self.handler.after_clean, \
