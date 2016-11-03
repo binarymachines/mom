@@ -12,7 +12,7 @@ import os
 import docopt
 
 import config
-import const
+from const import DOCUMENT, HLSCAN, CALC
 import library
 import ops
 import search
@@ -26,7 +26,6 @@ from match import ElasticSearchMatcher
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
-CALC = 'match'
 
 def all_matchers_have_run(matchers, asset):
     skip_entirely = True
@@ -48,7 +47,7 @@ def cache_match_ops(matchers, path):
 def path_expands(path, context):
     expanded = []
 
-    rows = sql.run_query_template('calc_op_path', const.HLSCAN, 'COMPLETE', path, os.path.sep)
+    rows = sql.run_query_template('calc_op_path', HLSCAN, 'COMPLETE', path, os.path.sep)
     if len(rows) > 0:
         for row in rows:
             if row[0] not in expanded:
@@ -76,7 +75,7 @@ def calc(context, cycle_context=False):
             print 'expanding %s' % location
             continue
 
-        if ops.operation_completed(location, const.HLSCAN):
+        if ops.operation_completed(location, HLSCAN):
         
             # try:
             LOG.debug('calc: matching files in %s' % (location))
@@ -84,11 +83,11 @@ def calc(context, cycle_context=False):
             # this should never be true, but a test
             if location[-1] != os.path.sep: location += os.path.sep
 
-            library.cache_docs(const.DOCUMENT, location)
+            library.cache_docs(DOCUMENT, location)
             ops.cache_ops(location, CALC, apply_lifespan=True)
             library.cache_matches(location)
 
-            for key in library.get_doc_keys(const.DOCUMENT):
+            for key in library.get_doc_keys(DOCUMENT):
                 opcount += 1
                 ops.check_status(opcount)
 
@@ -106,7 +105,7 @@ def calc(context, cycle_context=False):
             # except Exception, err:
             #     ERR.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
             # finally:
-            library.clear_docs(const.DOCUMENT, location)
+            library.clear_docs(DOCUMENT, location)
                 # cache.write_paths()
 
 
@@ -140,7 +139,7 @@ def do_match_op(esid, absolute_path):
 
 
 def get_matchers():
-    keygroup = 'calc'
+    keygroup = CALC
     identifier = 'matchers'
     if not cache2.key_exists(keygroup, identifier):
         rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
@@ -152,7 +151,7 @@ def get_matchers():
 
     matchers = []
     for item in matcherdata:
-        matcher = ElasticSearchMatcher(item['name'], const.DOCUMENT)
+        matcher = ElasticSearchMatcher(item['name'], DOCUMENT)
         matcher.query_type = item['query_type']
         matcher.minimum_score = float(item['minimum_score'])
         LOG.debug('matcher %s configured' % (item['name']))

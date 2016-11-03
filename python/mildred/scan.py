@@ -22,11 +22,11 @@ from const import SCANNER, SCAN, HLSCAN, READ
 from core import cache2
 from core import log
 from core.context import DirectoryContext
-from errors import MultipleDocsException
+from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
 
-LOG = log.get_log(__name__, logging.INFO)
+LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
 
@@ -59,7 +59,7 @@ class Scanner(Walker):
             if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
                 try:
                     library.set_active(root)
-                except MultipleDocsException, err:
+                except ElasticDataIntegrityException, err:
                     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                     library.handle_asset_exception(err, root)
                     self.context.rpush_fifo(SCAN, root)
@@ -148,7 +148,7 @@ class Scanner(Walker):
         library.cache_docs(const.DOCUMENT, path)
 
         # if self.deep_scan == False:
-        if self.context.get_param('scan', HLSCAN):
+        if self.context.get_param(SCAN, HLSCAN):
             ops.record_op_begin(HLSCAN, SCANNER, path)
 
     def _post_scan(self, path, update_ops):
@@ -164,30 +164,31 @@ class Scanner(Walker):
         # if os.access(path, os.R_OK):
 
         # if self.deep_scan == False:        
-        if self.context.get_param('scan', HLSCAN):
+        if self.context.get_param(SCAN, HLSCAN):
             ops.record_op_complete(HLSCAN, SCANNER, path)
             ops.write_ops_data(path, HLSCAN, SCANNER)
 
     # TODO: individual paths in the directory context should have their own scan configuration
     def scan(self):
-        # if self.context.get_param('scan', HLSCAN):
-        #     ops.cache_ops(os.path.sep, HLSCAN, SCANNER)
-        
+
+        # while self.context.has_active(SCAN) or self.context.has_next(SCAN, True):
         while self.context.has_next(SCAN, True):
             ops.check_status()
+            # path = self.context.get_next(SCAN, True) if self.context.get_active(SCAN) is None else self.context.get_active(SCAN)
             path = self.context.get_next(SCAN, True)
 
             if os.path.isfile(path):
                 path = os.path.join(path, os.pardir)
  
-            if self.context.get_param('scan', HLSCAN):
+            if self.context.get_param(SCAN, HLSCAN):
                 ops.cache_ops(path, HLSCAN, SCANNER)
 
             # update context params based on path
             if self.deep_scan is False:
-                if self.context.get_param('scan', HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
+                if self.context.get_param(SCAN, HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
                     LOG.debug('skipping %s...' % path)
                     ops.update_listeners('skipping high level scan', SCANNER, path)
+                    # self.context.clear_active(SCAN)
                     continue
 
             if os.path.isdir(path) and os.access(path, os.R_OK):
@@ -195,20 +196,21 @@ class Scanner(Walker):
                 if self.path_expands(path): 
                     LOG.debug('expanded %s...' % path)
                     ops.update_listeners('expanded', SCANNER, path)
+                    # self.context.clear_active(SCAN)
                     continue
                 
                 try:
                     self._pre_scan(path)
 
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
-                    # print("scanning %s..." % path)s
+                    print("scanning %s..." % path)
                     ops.update_listeners('scanning', SCANNER, path)
                     self.walk(path)
                     end_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
 
                     self._post_scan(path, start_read_cache_size != end_read_cache_size)
                 except Exception, err:
-                    if self.context.get_param('scan', HLSCAN):
+                    if self.context.get_param(SCAN, HLSCAN):
                         ops.record_op_complete(HLSCAN, SCANNER, path, op_failed=True)
 
                     LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)

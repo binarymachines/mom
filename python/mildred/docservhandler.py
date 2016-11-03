@@ -4,7 +4,7 @@ import random
 import clean
 import calc
 import config
-import const
+from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN
 from core import log
 import scan
 import ops
@@ -52,10 +52,10 @@ class DocumentServiceProcessHandler():
              return True
 
         if possible is self.owner.scanmode: 
-            if self.context.has_next('scan'):
+            if self.context.has_next(SCAN):
                 return config.scan
 
-        if possible is self.owner.matchmode and self.context.has_next('match'):
+        if possible is self.owner.matchmode and self.context.has_next(MATCH):
             return config.match
 
     # start
@@ -114,19 +114,19 @@ class DocumentServiceProcessHandler():
 
     def before_match(self):
         self.before()
-        dir = self.context.get_next('match')
+        dir = self.context.get_next(MATCH)
         LOG.debug('%s preparing for matching, caching data for %s' % (self.name, dir))
 
 
     def after_match(self):
         self.after()
-        dir = self.context.get_active ('match')
+        dir = self.context.get_active (MATCH)
         LOG.debug('%s done matching in %s, clearing cache...' % (self.name, dir))
         # self.reportmode.priority += 1
 
 
     def do_match(self):
-        # dir = self.context.get_active ('match')
+        # dir = self.context.get_active (MATCH)
         # LOG.debug('%s matching in %s...' % (self.name, dir))
         try:
             calc.calc(self.context)
@@ -145,16 +145,16 @@ class DocumentServiceProcessHandler():
         self.before()
 
         # if self.context.get_param('all', 'expand_all') == False:
-        self.context.reset('scan')
+        # self.context.reset(SCAN)
         if self.owner.scanmode.on_first_activation():
-            self.context.set_param('scan', const.HLSCAN, True)
+            self.context.set_param(SCAN, HLSCAN, True)
         else:
-            self.context.set_param('scan', const.HLSCAN, False)
+            self.context.set_param(SCAN, HLSCAN, False)
 
     def after_scan(self):
         LOG.debug('%s done scanning, updating op records...' % self.name)
         # clean.clean(self.context)
-        self.context.reset('scan')        
+        self.context.reset(SCAN)        
         self.after()
 
     def do_scan(self):
