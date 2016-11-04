@@ -4,6 +4,7 @@ import logging
 import os
 import pprint
 
+import alchemy
 import config
 import const
 from core import log
@@ -26,7 +27,7 @@ class MediaMatcher(object):
         self.comparison_fields = []
         self.document_type = doc_type
         self.name = name
-        self.minimum_score = None
+        self.max_score_percentage = None
         
     def match(self, media):
         raise BaseClassException(MediaMatcher)
@@ -52,13 +53,13 @@ class MediaMatcher(object):
     def match_extensions_match(self, orig, match):
         return 1 if orig['_source']['file_ext'] == match['_source']['file_ext'] else 0
 
-    def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
+    def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, percentage_of_max_score, comparison_result, same_ext_flag):
         if self.match_recorded(media_id, match_id) is False and self.match_recorded(match_id, media_id):
             LOG.info('match record for  %s ::: %s already exists.' % (media_id, match_id))
         else:
             LOG.info('recording match: %s ::: %s' % (media_id, match_id))
-            sql.insert_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
-                              [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
+            sql.insert_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'percentage_of_max_score', 'comparison_result', 'same_ext_flag'],
+                              [media_id, match_id, matcher_name, index_name, str(matched_fields), str(percentage_of_max_score), comparison_result, same_ext_flag])
 
 
 class ElasticSearchMatcher(MediaMatcher):
@@ -93,13 +94,6 @@ class ElasticSearchMatcher(MediaMatcher):
         qb = Builder(config.es_host, config.es_port)
         return qb.get_query(self.query_type, self.match_fields, values)
 
-    def print_match_query_debug_header(self, media, query):
-        print 'matching: %s' % (media.absolute_path)
-        print '\n---------------------------------------------------------------\n[%s (%s, %f)]:::%s.'  % (self.name, self.query_type, self.minimum_score, media.absolute_path)
-        pp.pprint(query)
-        print '\n'
-        query_printed = True
-
 
     def print_match_query_debug_footer(self, media, query, match):
 
@@ -112,10 +106,6 @@ class ElasticSearchMatcher(MediaMatcher):
                 if field in match['_source']:
                     matchrecord[field] = match['_source'][field]
 
-        pp.pprint(matchrecord)
-        print '\n'
-
-    # TODO: use res['hits']['max_score'] and percentage of max score to determine best matches
     def match(self, media):
         ops.record_op_begin('match', self.name, media.absolute_path, media.esid)
 
@@ -123,13 +113,10 @@ class ElasticSearchMatcher(MediaMatcher):
         previous_matches = library.get_matches(self.name, media.esid)
 
         query = self.get_query(media)
-        # query_printed = False
-        # if config.matcher_debug:
-        #     self.print_match_query_debug_header(media, query)
-        #     query_printed = True
 
         matches = False
         res = config.es.search(index=config.es_index, doc_type=const.DOCUMENT, body=query)
+        max_score = res['hits']['max_score']
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches:
                 continue
@@ -141,7 +128,9 @@ class ElasticSearchMatcher(MediaMatcher):
                 continue
 
             match_score = float(match['_score'])
-            if match_score < self.minimum_score:
+            minimum_match_score = self.max_score_percentage * max_score * 0.01
+            
+            if match_score < minimum_match_score:
                 LOG.info('eliminating: \t%s' % (match['_source']['absolute_path']))
                 continue
 
@@ -150,17 +139,12 @@ class ElasticSearchMatcher(MediaMatcher):
                     if field in match['_source'] and field in media.doc['_source']:
                         matched_fields += [field]
 
-            self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
+            match_percentage = match_score / max_score * 100
+
+            self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match_percentage,
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
-            # scratch.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
-            # try:
-            #     thread.start_new_thread(scratch.ensure, (self.document_type, match['_id'], match['_source']['absolute_path'],))
-            # except Exception, err:
-            #     ERR.error(err.message, exc_info=True)
-
-            # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
-
+         
         ops.record_op_complete('match', self.name, media.absolute_path, media.esid)
 
 

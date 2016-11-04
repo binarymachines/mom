@@ -28,7 +28,7 @@ CREATE TABLE `matcher` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
   `query_type` varchar(64) NOT NULL,
-  `minimum_score` float NOT NULL DEFAULT '0',
+  `max_score_percentage` float NOT NULL DEFAULT '0',
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
   PRIMARY KEY (`id`)
