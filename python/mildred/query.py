@@ -15,40 +15,11 @@ class Builder:
         self.es_port = es_port
 
     def execute_query(self, name, values):
-
-        print 'query\n----------------------\n'
-        query = self.get_query(name, values)
-        pp.pprint(query)
-
         es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
         res = es.search(index=config.es_index, doc_type=const.DOCUMENT, body=query)
 
-        print 'results\n----------------------\n'
-        for doc in res['hits']['hits']:
-            # if doc['_score'] > 2:
-            pp.pprint(doc)
-            print '\n'
-
-    # def execute_query(self, name, values):
-    #
-    #     print 'query\n----------------------\n'
-    #     query = self.get_query(name, values)
-    #     pp.pprint(query)
-    #
-    #     es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
-    #     res = es.search(index=config.es_index, doc_type=config.DOCUMENT, body=query)
-    #
-    #     print 'results\n----------------------\n'
-    #     for doc in res['hits']['hits']:
-    #         # if doc['_score'] > 2:
-    #         pp.pprint(doc)
-    #         print '\n'
-
 
     def get_query(self, query_type, match_fields, values):
-
-        # query_type = sql.retrieve_values('matcher', ['name', 'query_type'], [name])[0][1]
-        # match_fields = sql.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
 
         if len(match_fields) == 1:
             if match_fields[0][1] is not None:

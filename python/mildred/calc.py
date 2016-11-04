@@ -64,19 +64,19 @@ def calc(context, cycle_context=False):
     sql.execute_query("delete from matched where 1=1")
     sql.execute_query("delete from op_record where operation_name = 'calc'")
     sql.execute_query("delete from op_record where operation_name = 'match'")
+    sql.execute_query("commit");
 
     # MAX_RECORDS = ...
     matchers = get_matchers()
     opcount = 0
 
-    while context.has_next(CALC, True):
+    while context.has_next(CALC, use_fifo=True):
         ops.check_status()
-        location = context.get_next(CALC, True)
+        location = context.get_next(CALC, use_fifo=True)
 
         # if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, CALC):
         
         if path_expands(location, context): 
-            print 'expanding %s' % location
             continue
 
         assert(location != None, 'location is NONE!')
@@ -148,10 +148,9 @@ def get_matchers():
     keygroup = CALC
     identifier = 'matchers'
     if not cache2.key_exists(keygroup, identifier):
-        rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'minimum_score'], [str(1)])
+        rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'max_score_percentage'], [str(1)])
         for row in rows:
-            # key = cache2.create_key(keygroup, identifier, row[1], row[2])
-            cache2.set_hash(keygroup, identifier, {'name': row[1], 'query_type': row[2], 'minimum_score': row[3]})
+            cache2.set_hash(keygroup, identifier, {'name': row[1], 'query_type': row[2], 'max_score_percentage': row[3]})
 
     matcherdata = cache2.get_hashes(keygroup, identifier)
 
@@ -159,7 +158,7 @@ def get_matchers():
     for item in matcherdata:
         matcher = ElasticSearchMatcher(item['name'], DOCUMENT)
         matcher.query_type = item['query_type']
-        matcher.minimum_score = float(item['minimum_score'])
+        matcher.max_score_percentage = float(item['max_score_percentage'])
         LOG.debug('matcher %s configured' % (item['name']))
         matchers += [matcher]
 
