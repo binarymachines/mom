@@ -1,10 +1,8 @@
-CREATE DATABASE  IF NOT EXISTS `media` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `media`;
--- MySQL dump 10.15  Distrib 10.0.27-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.14  Distrib 5.5.52-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: 52.201.232.244    Database: media
+-- Host: localhost    Database: media
 -- ------------------------------------------------------
--- Server version	5.7.14
+-- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -18,29 +16,31 @@ USE `media`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `match_weight`
+-- Table structure for table `matcher`
 --
 
-DROP TABLE IF EXISTS `match_weight`;
+DROP TABLE IF EXISTS `matcher`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `match_weight` (
+CREATE TABLE `matcher` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pattern` varchar(64) NOT NULL,
-  `target` varchar(64) NOT NULL,
-  `value` int(3) NOT NULL DEFAULT '0',
+  `name` varchar(128) NOT NULL,
+  `query_type` varchar(64) NOT NULL,
+  `max_score_percentage` float NOT NULL DEFAULT '0',
+  `active` tinyint(1) NOT NULL DEFAULT '0',
+  `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `match_weight`
+-- Dumping data for table `matcher`
 --
 
-LOCK TABLES `match_weight` WRITE;
-/*!40000 ALTER TABLE `match_weight` DISABLE KEYS */;
-INSERT INTO `match_weight` VALUES (1,'intro','media_file',-1),(2,'outro','media_file',-1),(3,'untitled','media_file',-1),(4,'piste','media_file',-1),(5,'remix','media_file',-1),(6,'version','media_file',-1),(7,'edit','media_file',-1),(8,'instrumental','media_file',-1),(9,'rmx','media_file',-1),(16,'/unsorted','media_',1),(17,'/random','media_',1),(18,'/temp','media_',1),(19,'/incoming','media_',1),(20,'live','media_',-1),(21,'/live recordings','media_file',-1);
-/*!40000 ALTER TABLE `match_weight` ENABLE KEYS */;
+LOCK TABLES `matcher` WRITE;
+/*!40000 ALTER TABLE `matcher` DISABLE KEYS */;
+INSERT INTO `matcher` VALUES (1,'filename_match_matcher','match',75,1,'*'),(2,'tag_term_matcher_artist_album_song','term',0,0,'*'),(3,'filesize_term_matcher','term',0,0,'flac'),(4,'artist_matcher','term',0,0,'*'),(5,'match_artist_album_song','match',75,1,'*');
+/*!40000 ALTER TABLE `matcher` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -52,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-23  2:24:55
+-- Dump completed on 2016-11-04  0:11:52

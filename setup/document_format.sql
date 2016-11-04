@@ -1,10 +1,8 @@
-CREATE DATABASE  IF NOT EXISTS `media` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `media`;
--- MySQL dump 10.15  Distrib 10.0.27-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.14  Distrib 5.5.52-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: 52.201.232.244    Database: media
+-- Host: localhost    Database: media
 -- ------------------------------------------------------
--- Server version	5.7.14
+-- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -18,27 +16,32 @@ USE `media`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `media_type`
+-- Table structure for table `document_format`
 --
 
-DROP TABLE IF EXISTS `media_type`;
+DROP TABLE IF EXISTS `document_format`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `media_type` (
+CREATE TABLE `document_format` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(25) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+  `media_type_id` int(11) unsigned NOT NULL,
+  `ext` varchar(5) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `active_flag` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `fk_media_type_id` (`media_type_id`),
+  CONSTRAINT `fk_document_format_media_type` FOREIGN KEY (`media_type_id`) REFERENCES `document_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `media_type`
+-- Dumping data for table `document_format`
 --
 
-LOCK TABLES `media_type` WRITE;
-/*!40000 ALTER TABLE `media_type` DISABLE KEYS */;
-INSERT INTO `media_type` VALUES (1,'Audio'),(2,'Graphic'),(3,'Video');
-/*!40000 ALTER TABLE `media_type` ENABLE KEYS */;
+LOCK TABLES `document_format` WRITE;
+/*!40000 ALTER TABLE `document_format` DISABLE KEYS */;
+INSERT INTO `document_format` VALUES (1,1,'ape','ape',1),(2,1,'mp3','mp3',1),(3,1,'flac','FLAC',1),(4,1,'ogg','Ogg-Vorbis',1),(5,1,'wave','Wave',1),(6,1,'mpc','mpc',1),(7,2,'jpg','jpeg',0),(8,2,'jpeg','jpeg',0),(9,2,'png','png',0),(10,3,'mp4','mp4',0),(11,3,'flv','flv',0);
+/*!40000 ALTER TABLE `document_format` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -50,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-23  2:24:57
+-- Dump completed on 2016-11-04  0:12:39

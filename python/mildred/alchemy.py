@@ -107,9 +107,11 @@ def insert_match_record(doc_id, match_doc_id, matcher_name, percentage_of_max_sc
     try:
         session.add(match_rec)
         session.commit()
-    except Exception, err:
+    except IntegrityError, err:
+        print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        raise err
+        
+        session.rollback()
     
 # def list_matches():
 #     for instance in session.query(SQLMatchRecord).order_by(SQLMatchRecord.doc_id):

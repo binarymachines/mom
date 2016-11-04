@@ -1,10 +1,8 @@
-CREATE DATABASE  IF NOT EXISTS `media` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `media`;
--- MySQL dump 10.15  Distrib 10.0.27-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.14  Distrib 5.5.52-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: 52.201.232.244    Database: media
+-- Host: localhost    Database: media
 -- ------------------------------------------------------
--- Server version	5.7.14
+-- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -18,28 +16,28 @@ USE `media`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `media_location_extended_`
+-- Table structure for table `directory_constant`
 --
 
-DROP TABLE IF EXISTS `media_location_extended_`;
+DROP TABLE IF EXISTS `directory_constant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `media_location_extended_` (
+CREATE TABLE `directory_constant` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `path` varchar(1024) NOT NULL,
-  `file_type` varchar(8) DEFAULT NULL,
+  `pattern` varchar(256) NOT NULL,
+  `location_type` varchar(64) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `media_location_extended_`
+-- Dumping data for table `directory_constant`
 --
 
-LOCK TABLES `media_location_extended_` WRITE;
-/*!40000 ALTER TABLE `media_location_extended_` DISABLE KEYS */;
-INSERT INTO `media_location_extended_` VALUES (1,'/media/removable/SEAGATE 932/Media/Music/incoming/complete','*'),(2,'/media/removable/SEAGATE 932/Media/Music/incoming/mp3','mp3'),(3,'/media/removable/SEAGATE 932/Media/Music/shared','*'),(4,'/media/removable/SEAGATE 932/Media/radio','*'),(5,'/media/removable/Audio/incoming','*');
-/*!40000 ALTER TABLE `media_location_extended_` ENABLE KEYS */;
+LOCK TABLES `directory_constant` WRITE;
+/*!40000 ALTER TABLE `directory_constant` DISABLE KEYS */;
+INSERT INTO `directory_constant` VALUES (1,'/compilations','compilation'),(2,'compilations/','compilation'),(3,'/various','compilation'),(4,'/bak/','ignore'),(5,'/webcasts and custom mixes','extended'),(6,'/downloading','incomplete'),(7,'/live','live_recording'),(8,'/slsk/','new'),(9,'/incoming/','new'),(10,'/random','random'),(11,'/recently','recent'),(12,'/unsorted','unsorted'),(13,'[...]','side_projects');
+/*!40000 ALTER TABLE `directory_constant` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -51,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-23  2:24:40
+-- Dump completed on 2016-11-04  0:12:04

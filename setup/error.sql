@@ -1,10 +1,8 @@
-CREATE DATABASE  IF NOT EXISTS `media` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `media`;
--- MySQL dump 10.15  Distrib 10.0.27-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.14  Distrib 5.5.52-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: 52.201.232.244    Database: media
+-- Host: localhost    Database: media
 -- ------------------------------------------------------
--- Server version	5.7.14
+-- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -18,29 +16,30 @@ USE `media`;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `match_discount`
+-- Table structure for table `error`
 --
 
-DROP TABLE IF EXISTS `match_discount`;
+DROP TABLE IF EXISTS `error`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `match_discount` (
+CREATE TABLE `error` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `method` varchar(128) NOT NULL,
-  `target` varchar(64) NOT NULL,
-  `value` int(3) NOT NULL DEFAULT '0',
+  `source_type_id` int(11) NOT NULL,
+  `source_id` int(11) NOT NULL,
+  `source_attribute` varchar(64) NOT NULL,
+  `source_operation` varchar(64) NOT NULL,
+  `error_class` varchar(64) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `match_discount`
+-- Dumping data for table `error`
 --
 
-LOCK TABLES `match_discount` WRITE;
-/*!40000 ALTER TABLE `match_discount` DISABLE KEYS */;
-INSERT INTO `match_discount` VALUES (1,'ignore','media_file',1),(2,'is_expunged','media_file',1),(3,'is_filed','media_file',-2),(4,'is_filed_as_compilation','media_file',-2),(5,'is_filed_as_live','media_file',-2),(6,'is_new','media_file',1),(7,'is_noscan','media_file',-1),(8,'is_random','media_file',2),(9,'is_recent','media_file',0),(10,'is_unsorted','media_file',2),(11,'is_webcast','media_file',0);
-/*!40000 ALTER TABLE `match_discount` ENABLE KEYS */;
+LOCK TABLES `error` WRITE;
+/*!40000 ALTER TABLE `error` DISABLE KEYS */;
+/*!40000 ALTER TABLE `error` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -52,4 +51,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-09-23  2:24:53
+-- Dump completed on 2016-11-04  0:37:26
