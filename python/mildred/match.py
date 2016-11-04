@@ -138,8 +138,7 @@ class ElasticSearchMatcher(MediaMatcher):
             extflag = str(self.match_extensions_match(media.doc, match))
 
             alchemy.insert_match_record(media.esid,  match['_id'], self.name, match_percentage, compresult, extflag)
-            print '\a'
-            
+
         ops.record_op_complete('match', self.name, media.absolute_path, media.esid)
 
 

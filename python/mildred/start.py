@@ -176,7 +176,7 @@ def reset():
 
 
 def show_logo():
-    with open('logo.txt', 'r') as f:
+    with open(os.path.join(os.getcwd(), 'txt','logo.txt'), 'r') as f:
         print f.read()
         f.close()
 
