@@ -94,16 +94,15 @@ class SQLMatchRecord(Base):
     match_doc_id = Column('match_doc_id', String(64), primary_key=True, nullable=False)
     index_name = Column('index_name', String(128), nullable=False)
     matcher_name = Column('matcher_name', String(64), nullable=False)
-    matched_fields = Column('matched_fields', String(1024), nullable=False)
-    match_score = Column('match_score', Float, nullable=False)
+    percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
     comparison_result = Column('comparison_result', String(1), nullable=True)
     same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
     
     
-def insert_match_record(doc_id, match_doc_id, matcher_name, matched_fields, match_score, comparison_result, same_ext_flag):
+def insert_match_record(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
     # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
     match_rec = SQLMatchRecord(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
-        matcher_name=matcher_name, matched_fields=matched_fields, match_score=match_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
+        matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
 
     try:
         session.add(match_rec)

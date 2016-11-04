@@ -1,10 +1,10 @@
-import os, logging
+import logging
+import os
 
-import python.mildred.pathutil
-from python.mildred.walk import Walker
-from python.mildred.core.errors import BaseClassException
-
-from python.mildred.core import log
+import python
+from python import BaseClassException
+from python import Walker
+from python import log
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
