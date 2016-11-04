@@ -61,11 +61,6 @@ def path_expands(path, context):
 
 
 def calc(context, cycle_context=False):
-    sql.execute_query("delete from matched where 1=1")
-    sql.execute_query("delete from op_record where operation_name = 'calc'")
-    sql.execute_query("delete from op_record where operation_name = 'match'")
-    sql.execute_query("commit");
-
     # MAX_RECORDS = ...
     matchers = get_matchers()
     opcount = 0
@@ -167,6 +162,11 @@ def get_matchers():
 
 def main(args):
     import redis
+
+    # sql.execute_query("delete from matched where 1=1")
+    # sql.execute_query("delete from op_record where operation_name = 'calc'")
+    # sql.execute_query("delete from op_record where operation_name = 'match'")
+    # sql.execute_query("commit");
 
     config.es = search.connect()
     cache2.redis = redis.Redis('localhost')
