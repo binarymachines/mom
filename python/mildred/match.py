@@ -53,13 +53,13 @@ class MediaMatcher(object):
     def match_extensions_match(self, orig, match):
         return 1 if orig['_source']['file_ext'] == match['_source']['file_ext'] else 0
 
-    def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, percentage_of_max_score, comparison_result, same_ext_flag):
-        if self.match_recorded(media_id, match_id) is False and self.match_recorded(match_id, media_id):
-            LOG.info('match record for  %s ::: %s already exists.' % (media_id, match_id))
-        else:
-            LOG.info('recording match: %s ::: %s' % (media_id, match_id))
-            sql.insert_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'percentage_of_max_score', 'comparison_result', 'same_ext_flag'],
-                              [media_id, match_id, matcher_name, index_name, str(matched_fields), str(percentage_of_max_score), comparison_result, same_ext_flag])
+    # def record_match(self, media_id, match_id, matcher_name, index_name, percentage_of_max_score, comparison_result, same_ext_flag):
+    #     if self.match_recorded(media_id, match_id) is False and self.match_recorded(match_id, media_id):
+    #         LOG.info('match record for  %s ::: %s already exists.' % (media_id, match_id))
+    #     else:
+    #         LOG.info('recording match: %s ::: %s' % (media_id, match_id))
+    #         sql.insert_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'percentage_of_max_score', 'comparison_result', 'same_ext_flag'],
+    #                           [media_id, match_id, matcher_name, index_name, str(percentage_of_max_score), comparison_result, same_ext_flag])
 
 
 class ElasticSearchMatcher(MediaMatcher):
@@ -114,7 +114,6 @@ class ElasticSearchMatcher(MediaMatcher):
 
         query = self.get_query(media)
 
-        matches = False
         res = config.es.search(index=config.es_index, doc_type=const.DOCUMENT, body=query)
         max_score = res['hits']['max_score']
         for match in res['hits']['hits']:
@@ -131,20 +130,13 @@ class ElasticSearchMatcher(MediaMatcher):
             minimum_match_score = self.max_score_percentage * max_score * 0.01
             
             if match_score < minimum_match_score:
-                LOG.info('eliminating: \t%s' % (match['_source']['absolute_path']))
+                LOG.debug('eliminating: \t%s' % (match['_source']['absolute_path']))
                 continue
 
-            matched_fields = []
-            for field in self.comparison_fields:
-                    if field in match['_source'] and field in media.doc['_source']:
-                        matched_fields += [field]
-
             match_percentage = match_score / max_score * 100
-
-            self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match_percentage,
-                    self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
-
-         
+            alchemy.insert_match_record((media.esid,  match['_id'], self.name, match_percentage, self.match_comparison_result(media.doc, match), \
+                str(self.match_extensions_match(media.doc, match))))
+            
         ops.record_op_complete('match', self.name, media.absolute_path, media.esid)
 
 
