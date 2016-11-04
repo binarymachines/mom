@@ -48,8 +48,8 @@ class DocumentServiceProcessHandler():
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
 
-        if possible in [self.owner.fixmode, self.owner.cleanmode, self.owner.reportmode, self.owner.evalmode, self.owner.reqmode, self.owner.endmode]:
-             return True
+        # if possible in [self.owner.fixmode, self.owner.cleanmode, self.owner.reportmode, self.owner.evalmode, self.owner.reqmode, self.owner.endmode]:
+        #      return True
 
         if possible is self.owner.scanmode: 
             if self.context.has_next(SCAN):
@@ -58,6 +58,8 @@ class DocumentServiceProcessHandler():
         if possible is self.owner.matchmode: 
             if self.context.has_next(MATCH):
                 return config.match
+
+        return True
 
     # start
 
