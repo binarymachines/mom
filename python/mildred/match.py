@@ -123,7 +123,7 @@ class ElasticSearchMatcher(MediaMatcher):
             orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
             match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
 
-            if match_parent == orig_parent:
+            if str(match_parent) == str(orig_parent):
                 continue
 
             match_score = float(match['_score'])

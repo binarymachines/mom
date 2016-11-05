@@ -12,14 +12,16 @@ import os
 import docopt
 
 import config
-from const import DOCUMENT, HLSCAN, CALC
+from const import DOCUMENT, HLSCAN, MATCH
 import library
 import ops
 import search
 import sql
 from core import log
 from core import cache2
-from core.context import DirectoryContext
+from core.context import Context
+from core.trans import State, StateContext
+
 from errors import AssetException
 from match import ElasticSearchMatcher
 
@@ -30,7 +32,7 @@ ERR = log.get_log('errors', logging.WARNING)
 def all_matchers_have_run(matchers, asset):
     skip_entirely = True
     for matcher in matchers:
-        if not ops.operation_in_cache(asset.absolute_path, CALC, matcher.name):
+        if not ops.operation_in_cache(asset.absolute_path, MATCH, matcher.name):
             skip_entirely = False
             break
 
@@ -40,7 +42,7 @@ def all_matchers_have_run(matchers, asset):
 def cache_match_ops(matchers, path):
     LOG.debug('caching match ops for %s...' % path)
     for matcher in matchers:
-        ops.cache_ops(path, CALC, apply_lifespan=True)
+        ops.cache_ops(path, MATCH, matcher, apply_lifespan=True)
 
 
 # use paths expanded by scan ops to segment dataset for matching operations
@@ -55,26 +57,30 @@ def path_expands(path, context):
 
     for ex_path in expanded:
         # TODO: count(expath pathsep) == count (path pathsep) + 1
-        context.rpush_fifo(CALC, ex_path)
+        context.rpush_fifo(MATCH, ex_path)
 
     return len(expanded) > 0
 
 
 def calc(context, cycle_context=False):
+
+    sql.execute_query("delete from matched where 1=1")
+    sql.execute_query("delete from op_record where operation_name = 'calc'")
+    sql.execute_query("delete from op_record where operation_name = 'match'")
+    sql.execute_query("commit");
+
     # MAX_RECORDS = ...
     matchers = get_matchers()
     opcount = 0
 
-    while context.has_next(CALC, use_fifo=True):
+    while context.has_next(MATCH, use_fifo=True):
         ops.check_status()
-        location = context.get_next(CALC, use_fifo=True)
+        location = context.get_next(MATCH, use_fifo=True)
 
-        # if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, CALC):
+        # if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, MATCH):
         
         if path_expands(location, context): 
             continue
-
-        assert(location != None, 'location is NONE!')
 
         if ops.operation_completed(location, HLSCAN):
         
@@ -85,7 +91,7 @@ def calc(context, cycle_context=False):
             if location[-1] != os.path.sep: location += os.path.sep
 
             library.cache_docs(DOCUMENT, location)
-            ops.cache_ops(location, CALC, apply_lifespan=True)
+            ops.cache_ops(location, MATCH, apply_lifespan=True)
             library.cache_matches(location)
 
             for key in library.get_doc_keys(DOCUMENT):
@@ -100,7 +106,7 @@ def calc(context, cycle_context=False):
                 do_match_op(values['esid'], values['absolute_path'])
 
             for matcher in matchers:
-                ops.write_ops_data(location, CALC, matcher.name)
+                ops.write_ops_data(location, MATCH, matcher.name)
                 library.clear_matches(matcher.name, location)
 
             # except Exception, err:
@@ -123,12 +129,12 @@ def do_match_op(esid, absolute_path):
         try:
             # if library.doc_exists_for_path(asset.document_type, asset.absolute_path):
             for matcher in matchers:
-                if ops.operation_in_cache(asset.absolute_path, CALC, matcher.name):
+                if ops.operation_in_cache(asset.absolute_path, MATCH, matcher.name):
                     LOG.debug('calc: skipping %s operation on %s' % (matcher.name, asset.absolute_path))
                 else:
                     LOG.debug('calc: %s seeking matches for %s' % (matcher.name, asset.absolute_path))
                     matcher.match(asset)
-                    # ops.write_ops_data(asset.absolute_path, CALC, matcher.name)
+                    # ops.write_ops_data(asset.absolute_path, MATCH, matcher.name)
 
         except AssetException, err:
             ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -140,7 +146,7 @@ def do_match_op(esid, absolute_path):
 
 
 def get_matchers():
-    keygroup = CALC
+    keygroup = MATCH
     identifier = 'matchers'
     if not cache2.key_exists(keygroup, identifier):
         rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'max_score_percentage'], [str(1)])
@@ -160,22 +166,22 @@ def get_matchers():
     return matchers
 
 
-def main(args):
-    import redis
-
-    # sql.execute_query("delete from matched where 1=1")
-    # sql.execute_query("delete from op_record where operation_name = 'calc'")
-    # sql.execute_query("delete from op_record where operation_name = 'match'")
-    # sql.execute_query("commit");
-
-    config.es = search.connect()
-    cache2.redis = redis.Redis('localhost')
-    log.start_logging()
-    paths = None if not args['--path'] else args['<path>']
-    context = DirectoryContext('_path_context_', paths)
-    calc(context)
-
-
-if __name__ == '__main__':
-    args = docopt.docopt(__doc__)
-    main(args)
+# def main(args):
+#     import redis
+#
+#     # sql.execute_query("delete from matched where 1=1")
+#     # sql.execute_query("delete from op_record where operation_name = 'calc'")
+#     # sql.execute_query("delete from op_record where operation_name = 'match'")
+#     # sql.execute_query("commit");
+#
+#     config.es = search.connect()
+#     cache2.redis = redis.Redis('localhost')
+#     log.start_logging()
+#     paths = None if not args['--path'] else args['<path>']
+#     context = DirectoryContext('_path_context_', paths)
+#     calc(context)
+#
+#
+# if __name__ == '__main__':
+#     args = docopt.docopt(__doc__)
+#     main(args)

@@ -2,6 +2,7 @@
 import sys, os, logging, traceback, datetime
 
 from errors import ModeDestinationException
+from trans import State, StateContext
 
 import log
 
@@ -37,6 +38,10 @@ class Mode(object):
         # self.error_handler = None
         self.suspended = False
 
+    def do_action(self):
+        if self.effect:
+            self.effect()
+
     def has_reached_complete_count(self):
         if self.times_to_complete == 0:
             return self.times_completed > 0
@@ -51,6 +56,21 @@ class Mode(object):
         if reset_error_count: self.error_count = 0
 
 
+class ConditionalMode(Mode):
+    def __init__(self, name, initial_state, priority=0, dec_priority_amount=1):
+        self.state = initial_state
+        super(ConditionalMode, self).__init__(name, effect=initial_state.effect, priority=priority, dec_priority_amount=dec_priority_amount)
+
+    def get_state(self):
+        return self.state
+
+    def set_state(self, state):
+        self.state = state
+        self.effect = state.effect
+
+    def do_action(self):
+        if self.state.effect:
+            self.state.effect()
 
 # versus Suspension
 # class RecoveryMode(Mode):
@@ -266,7 +286,7 @@ class Selector:
             mode.times_activated += 1
             self.complete = True if mode == self.end else False
 
-            self._call_mode_func(mode, mode.effect)
+            self._call_mode_func(mode, mode.do_action())
 
             # call after() for what was be the current mode
             if mode.active_rule:
