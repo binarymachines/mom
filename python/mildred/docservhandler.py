@@ -48,9 +48,6 @@ class DocumentServiceProcessHandler():
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
 
-        # if possible in [self.owner.fixmode, self.owner.cleanmode, self.owner.reportmode, self.owner.evalmode, self.owner.reqmode, self.owner.endmode]:
-        #      return True
-
         if possible is self.owner.scanmode: 
             if self.context.has_next(SCAN):
                 return config.scan
@@ -179,3 +176,58 @@ class DocumentServiceProcessHandler():
         for mode in self.selector.modes:
              if bool(random.getrandbits(1)): count += 1
         return count > 3
+
+
+
+class ScanModeHandler(object):
+    def __init__(self, owner, name, selector, context):
+        self.context = context
+        self.owner = owner
+        self.name = name
+        self.selector = selector
+
+    def before_scan(self):
+        LOG.debug('%s preparing to scan, caching data' % self.name)
+        self.before()
+
+        # if self.context.get_param('all', 'expand_all') == False:
+        # self.context.reset(SCAN)
+        if self.owner.scanmode.on_first_activation():
+            self.context.set_param(SCAN, HLSCAN, True)
+        else:
+            self.context.set_param(SCAN, HLSCAN, False)
+
+    def after_scan(self):
+        LOG.debug('%s done scanning, updating op records...' % self.name)
+        # clean.clean(self.context)
+        self.context.reset(SCAN)        
+        self.after()
+
+    def do_scan(self):
+        try:
+            scan.scan(self.context)
+        except Exception, err:
+            LOG.debug(err.message)
+
+    def eval_context(self):
+        return True
+
+    def update_context(self):
+        pass
+
+    def restore_state(self):
+        pass
+
+    def save_state(self):
+        pass
+
+
+
+
+
+
+
+
+
+
+
