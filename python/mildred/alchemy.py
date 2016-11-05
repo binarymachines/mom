@@ -64,15 +64,6 @@ def insert_asset(index_name, doc_type, id, absolute_path):
         session.rollback()
 
         raise SQLIntegrityError(err, err.message)
-    # except Exception, err:
-    #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-    #     print err.__class__.__name__
-    #     for param in err.params:
-    #         print param
-    #     for arg in err.args:
-    #         print arg
-    #
-    #     raise err
 
 def retrieve_assets(doc_type, absolute_path):
     # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path
@@ -173,11 +164,7 @@ def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op
     return result
 
 class SQLModeStateRecord(Base):
-    __tablename__ = 'mode_state'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    mode_name = Column('mode_name', String(128), nullable=False)
-    last_activated = Column('last_activated', DateTime, nullable=True)
+    clast_activated = Column('last_activated', DateTime, nullable=True)
     last_completed = Column('last_completed', DateTime, nullable=True)
     priority = Column('priority', Integer, nullable=False)
     times_activated = Column('times_activated', Integer, nullable=False)
@@ -189,9 +176,18 @@ class SQLModeStateRecord(Base):
     error_tolerance = Column('error_tolerance', Integer, nullable=False)
     cum_error_count = Column('cum_error_count', Integer, nullable=False)
     cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
-    # cause_of_defect - this is where snapshots happen
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+class SQLModeStateTransitionErrorRecord(Base):
+    __tablename__ = 'mode_state'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    effective_rule = Column('effective_rule', String(128), nullable=False)
+    error_dt = Column('error_dt', DateTime, nullable=False)
+    error_class = Column('error_class', DateTime, nullable=False)
+
+    # cause_of_defect - this is where snapshots happen
 
 def main():
     path = '/'
@@ -203,89 +199,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-# else:
-
-# if apply_lifespan:
-#     start = datetime.date.today() + datetime.timedelta(0 - config.op_life)
-#     if operator is None:
-#         return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start, path)
-#     else:
-#         return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start, path)
-# else:
-#     if operator is None:
-#         return sql.run_query_template('ops_retrieve_complete_ops', operation, path)
-#     else:
-#         return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
-
-
-
-# class SQLInterruptedOperationRecord(Base):
-#     __tablename__ = 'op_record'
-#     id = Column('id', Integer, primary_key=True, autoincrement=True)
-#     index_name = Column('index_name', String(128), nullable=False)
-#     pid = Column('pid', String(32), nullable=False)
-#     operator_name = Column('operator_name', String(64), nullable=False)
-#     operation_name = Column('operation_name', String(64), nullable=False)
-#     target_esid = Column('target_esid', String(64), nullable=False)
-#     target_path = Column('target_path', String(1024), nullable=False)
-#     status = Column('status', String(64), nullable=False)
-#     start_time = Column('start_time', DateTime, nullable=False)
-#     effective_dt = Column('effective_dt', DateTime, nullable=False)
-
-# def insert_interupted_operation_record(operation_name, operator_name, target_esid, target_path, start_time, status):
-#     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time,status))
-#     op_rec = SQLInterruptedOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
-#         target_esid=target_esid, target_path=target_path, start_time=start_time, status=status, effective_dt=datetime.datetime.now())
-
-#     session.add(op_rec)
-#     session.commit()
-
-# class ExecRec(Base):
-#     __tablename__ = 'exec_record'
-#     id = Column(String(256), primary_key=True)
-#     pid = Column(String(256), nullable=False)
-#     start_time
-
-
-# class OpReq(base):
-#     __tablename__ = 'op_request'
-
-# ProblemDocRec, ProblemPathRec
-
-# TODO: write code
-# def add_artist_and_album_to_db(self, data):
-
-#     if 'TPE1' in data and 'TALB' in data:
-#         try:
-#             artist = data['TPE1'].lower()
-#             rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
-#             if len(rows) == 0:
-#                 try:
-#                     print 'adding %s to MariaDB...' % (artist)
-#                     thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
-#                 except Exception, err:
-#                    ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-
-#             # sql.insert_values('artist', ['name'], [artist])
-#             #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
-#             #
-#             # artistid = rows[0][1]
-#             #
-#             # if 'TALB' in data:
-#             #     album = data['TALB'].lower()
-#             #     rows2 = sql.retrieve_values('album', ['name', 'artist_id', 'id'], [album, artistid])
-#             #     if len(rows2) == 0:
-#             #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
-
-#         except Exception, err:
-#             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-
-
-
-
-
-
-
-

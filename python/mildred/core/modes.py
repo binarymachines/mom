@@ -10,10 +10,10 @@ ERR = log.get_log('errors', logging.WARNING)
 
 # TODO: use times_to_complete to enforce a minimum run count (ex: scan has multiple submodes, each needs to complete for scan to be complete)
 class Mode(object):
-    HIGHEST = 100;
+    HIGHEST = 999;
     LOWEST = 0
 
-    def __init__(self, name, effect=None, priority=0):
+    def __init__(self, name, effect=None, priority=0, dec_priority_amount=1):
         self.name = name
         self.effect = effect
 
@@ -26,7 +26,7 @@ class Mode(object):
         #priorities
         self.priority = priority
         self.dec_priority = False
-        self.dec_priority_amount = 1
+        self.dec_priority_amount = 0
         self.inc_priority = False
         self.inc_priority_amount = 0
 
@@ -70,8 +70,6 @@ class Rule:
         self.before = before
         self.after = after
 
-        self.simuluate = False
-        
     def applies(self, selector, active, possible):
         try:
             func = _parse_func_info(self.condition)
