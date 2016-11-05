@@ -172,6 +172,26 @@ def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op
 
     return result
 
+class SQLModeStateRecord(Base):
+    __tablename__ = 'mode_state'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    mode_name = Column('mode_name', String(128), nullable=False)
+    last_activated = Column('last_activated', DateTime, nullable=True)
+    last_completed = Column('last_completed', DateTime, nullable=True)
+    priority = Column('priority', Integer, nullable=False)
+    times_activated = Column('times_activated', Integer, nullable=False)
+    times_completed = Column('prtimes_completediority', Integer, nullable=False)
+    times_to_complete = Column('times_to_complete', Integer, nullable=False)
+    dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
+    inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
+    error_count = Column('error_count', Integer, nullable=False)
+    error_tolerance = Column('error_tolerance', Integer, nullable=False)
+    cum_error_count = Column('cum_error_count', Integer, nullable=False)
+    cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
+    # cause_of_defect - this is where snapshots happen
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 def main():
     path = '/'

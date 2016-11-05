@@ -70,6 +70,8 @@ class Rule:
         self.before = before
         self.after = after
 
+        self.simuluate = False
+        
     def applies(self, selector, active, possible):
         try:
             func = _parse_func_info(self.condition)
