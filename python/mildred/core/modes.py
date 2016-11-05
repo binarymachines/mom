@@ -8,24 +8,6 @@ import log
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
-# class State(object):
-#     def do_action(self):
-#         pass
-        
-# class StateContext 
-# 	public void setState(State state) {
-# 		this.tvState=state;
-# 	}
-
-# 	public State getState() {
-# 		return this.tvState;
-# 	}
-
-# 	@Override
-# 	public void doAction() {
-# 		this.tvState.doAction();
-# 	}
-
 # TODO: use times_to_complete to enforce a minimum run count (ex: scan has multiple submodes, each needs to complete for scan to be complete)
 class Mode(object):
     HIGHEST = 999;

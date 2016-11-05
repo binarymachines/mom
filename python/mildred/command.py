@@ -1,5 +1,5 @@
 '''
-   Usage: command.py [--stop] [--reconfig] ([--inc_path_cache_size])
+   Usage: command.py [--stop] [--reconfig] [--start] ([--inc_path_cache_size])
 
 '''
 import os
@@ -18,7 +18,7 @@ def _connect_to_redis():
     return redis.Redis('localhost')
 
 
-def _set_field_value(pid, field, value):
+def _set_field_value(pid, field, value, check_status=False):
 
     import ops
     from core import cache2
@@ -30,6 +30,17 @@ def _set_field_value(pid, field, value):
     values[field] = value
     cache2.set_hash2(key, values)
 
+    if check_status:
+        ops.check_status()
+
+def request_start():
+    print 'submitting start request...'
+
+    import ops
+
+    _set_field_value(ops.NO_PID, 'start_requested', True)
+    _set_field_value(ops.NO_PID, 'pid', ops.NO_PID)
+    ops.evaluate(no_pid=True)
 
 def request_stop(pid):
     print 'submitting stop request for %s...' % (pid)
@@ -57,6 +68,7 @@ def main(args):
         var.workdir = os.path.abspath(os.path.join('pid', os.pardir))
         if args['--reconfig']: request_reconfig(pid)
         if args['--stop']: request_stop(pid)
+        if args['--start']: request_start()
         # if args['--inc_path_cache_size']: inc_cache_size(pid, 'path')
 
 # main
