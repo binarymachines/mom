@@ -178,6 +178,8 @@ class DocumentServiceProcessHandler():
         return count > 3
 
 
+# Scan mode  has a series of states: High Level Scan, Scan and Deep Scan
+# this will be implementd by applying state transition rules
 
 class ScanModeHandler(object):
     def __init__(self, owner, name, selector, context):

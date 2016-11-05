@@ -109,7 +109,7 @@ class ServiceProcess(object):
 class Service(object):
     def __init__(self, name=None):
         self.name = SERVICE_NAME if name is None else name
-        print '%s starting...' % self.name
+        LOG.info('%s starting...' % self.name)
         self.active = []
         self.inactive = []
 

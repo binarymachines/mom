@@ -233,7 +233,7 @@ def get_exec_record_value(field):
 
 # TODO: use execution record to select redis db
 def record_exec():
-    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False }
+    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False, 'commands': []  }
     cache2.set_hash2(get_exec_key(), values)
 
 
@@ -245,9 +245,18 @@ def set_exec_record_value(field, value):
 
 # external commands
 
+def append_command(command, **kwargs):
+    commands = get_exec_record_value('commands')
+    commands.append(command, **kwargs)
+    set_exec_record_value(command, **kwargs)
+
 def check_status(opcount=None):
 
     if opcount is not None and opcount % config.status_check_freq!= 0: return
+
+    commands = get_exec_record_value('commands')
+    if len(commands) > 0:
+        eval_commands()
 
     if reconfig_requested():
         start.execute()
@@ -261,6 +270,15 @@ def check_status(opcount=None):
         LOG.debug('Run complete')
         sys.exit(0)
 
+
+def eval_commands():
+    commands = get_exec_record_value('commands')
+    if 'listen' in commands:
+        pass
+
+    if 'execute' in commands:
+        pass
+        
 
 def clear_reconfig_request():
     set_exec_record_value('reconfig_requested', False)
