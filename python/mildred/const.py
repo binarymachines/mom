@@ -28,3 +28,6 @@ METADATA = 'document_metadata'
 
 # other constants
 HEXID = '_hex_id'
+
+# states
+INIT_SCAN_STATE = "initial scan state"

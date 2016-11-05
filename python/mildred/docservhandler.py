@@ -4,16 +4,26 @@ import random
 import clean
 import calc
 import config
-from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN
+from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN, INIT_SCAN_STATE
 from core import log
 import scan
 import ops
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
+class DecisionHandler(object):
+    # decisions and guesses
 
-class DocumentServiceProcessHandler():
+    def definitely(self, selector, active, possible): return True
+
+    def maybe(self, selector, active, possible):
+        result = bool(random.getrandbits(1))
+        return result
+
+
+class DocumentServiceProcessHandler(DecisionHandler):
     def __init__(self, owner, name, selector, context):
+        super(DocumentServiceProcessHandler, self).__init__()
         self.context = context
         self.owner = owner
         self.name = name
@@ -138,44 +148,34 @@ class DocumentServiceProcessHandler():
 
     def do_reqs(self): LOG.debug('%s handling requests...' % self.name)
 
-    # scan
-
-    def before_scan(self):
-        LOG.debug('%s preparing to scan, caching data' % self.name)
-        self.before()
-
-        # if self.context.get_param('all', 'expand_all') == False:
-        # self.context.reset(SCAN)
-        if self.owner.scanmode.on_first_activation():
-            self.context.set_param(SCAN, HLSCAN, True)
-        else:
-            self.context.set_param(SCAN, HLSCAN, False)
-
-    def after_scan(self):
-        LOG.debug('%s done scanning, updating op records...' % self.name)
-        # clean.clean(self.context)
-        self.context.reset(SCAN)        
-        self.after()
-
-    def do_scan(self):
-        try:
-            scan.scan(self.context)
-        except Exception, err:
-            LOG.debug(err.message)
-
-    # decisions and guesses
-
-    def definitely(self, selector, active, possible): return True
-
-    def maybe(self, selector, active, possible):
-        result = bool(random.getrandbits(1))
-        return result
 
     def possibly(self, selector, active, possible):
         count = 0
         for mode in self.selector.modes:
              if bool(random.getrandbits(1)): count += 1
         return count > 3
+
+
+    # scan
+
+    def before_scan(self):
+        # LOG.debug('%s preparing to scan, caching data' % self.name)
+        self.before()
+        # if self.context.get_param('all', 'expand_all') == False:
+        # self.context.reset(SCAN)
+
+    def after_scan(self):
+        # LOG.debug('%s done scanning, updating op records...' % self.name)
+        # clean.clean(self.context)
+        self.context.reset(SCAN)
+        self.after()
+
+    def do_scan(self):
+        if self.selector.active:
+            if self.selector.active.state.name == INIT_SCAN_STATE:
+                self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
+
+        scan.scan(self.context)
 
 
 # Scan mode  has a series of states: High Level Scan, Scan and Deep Scan
@@ -187,29 +187,6 @@ class ScanModeHandler(object):
         self.owner = owner
         self.name = name
         self.selector = selector
-
-    def before_scan(self):
-        LOG.debug('%s preparing to scan, caching data' % self.name)
-        self.before()
-
-        # if self.context.get_param('all', 'expand_all') == False:
-        # self.context.reset(SCAN)
-        if self.owner.scanmode.on_first_activation():
-            self.context.set_param(SCAN, HLSCAN, True)
-        else:
-            self.context.set_param(SCAN, HLSCAN, False)
-
-    def after_scan(self):
-        LOG.debug('%s done scanning, updating op records...' % self.name)
-        # clean.clean(self.context)
-        self.context.reset(SCAN)        
-        self.after()
-
-    def do_scan(self):
-        try:
-            scan.scan(self.context)
-        except Exception, err:
-            LOG.debug(err.message)
 
     def eval_context(self):
         return True

@@ -11,7 +11,8 @@
 
 # insight recognizes changes at the level of introspection
 
+# in a process, a mode has an associated state context
 
 import cache2
 
-
+# modes express conditional polymorphism by applying the condition associated with its state when asked by selector

@@ -21,7 +21,7 @@ import search
 from const import SCANNER, SCAN, HLSCAN, READ
 from core import cache2
 from core import log
-from core.context import DirectoryContext
+from core.context import Context
 from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
@@ -226,14 +226,14 @@ def scan(context):
     context.data[SCANNER].scan()
 
 
-def main(args):
-    log.start_console_logging()
-    config.es = search.connect()
-    # reset()
-    paths = None if not args['--path'] else args['<path>']
-    context = DirectoryContext('_directory_context_', paths)
-    scan(context)
-
-if __name__ == '__main__':
-    args = docopt(__doc__)
-    main(args)
+# def main(args):
+#     log.start_console_logging()
+#     config.es = search.connect()
+#     # reset()
+#     paths = None if not args['--path'] else args['<path>']
+#     context = DirectoryContext('_directory_context_', paths)
+#     scan(context)
+#
+# if __name__ == '__main__':
+#     args = docopt(__doc__)
+#     main(args)

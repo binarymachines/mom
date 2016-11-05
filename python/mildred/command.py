@@ -33,6 +33,7 @@ def _set_field_value(pid, field, value, check_status=False):
     if check_status:
         ops.check_status()
 
+
 def request_start():
     print 'submitting start request...'
 
@@ -41,6 +42,7 @@ def request_start():
     _set_field_value(ops.NO_PID, 'start_requested', True)
     _set_field_value(ops.NO_PID, 'pid', ops.NO_PID)
     ops.evaluate(no_pid=True)
+
 
 def request_stop(pid):
     print 'submitting stop request for %s...' % (pid)

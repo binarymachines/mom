@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import sys
+import subprocess
 
 import alchemy
 import config
@@ -179,10 +180,10 @@ def update_ops_data():
 
 
 def write_ops_data(path, operation=None, operator=None, this_pid_only=False, resuming=False):
-    update_listeners(OPS, get_exec_key(), + 'terminating')
+    # update_listeners(OPS, get_exec_key(), + 'terminating')
 
     LOG.debug('writing op records...')
-    update_listeners(OPS, get_exec_key(), + 'writing ops records')
+    # update_listeners(OPS, get_exec_key(), + 'writing ops records')
 
     table_name = 'op_record'
     operator = '*' if operator is None else operator
@@ -229,7 +230,7 @@ def get_exec_key(no_pid=False):
     if no_pid:
         return cache2.get_key(NO_PID, OPS, EXEC)
     else:
-        return cache2.get_key(config.pid, OPS, EXEC)
+        return cache2.get_key(str(config.pid), OPS, EXEC)
 
 def get_exec_record_value(field):
     values = cache2.get_hash2(get_exec_key())
@@ -238,9 +239,10 @@ def get_exec_record_value(field):
 
 # TODO: use execution record to select redis db
 def record_exec():
-    values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False, 'commands': []  }
-    cache2.set_hash2(get_exec_key(), values)
-    update_listeners(OPS, get_exec_key(), + 'starting')
+    values = { 'pid': str(config.pid), 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False, 'commands': []  }
+    exec_key = get_exec_key()
+    cache2.set_hash2(exec_key, values)
+    update_listeners(OPS, exec_key, 'starting')
 
 def get_exec_record(no_pid=False):
     return cache2.get_hash2(get_exec_key(no_pid=no_pid))
@@ -265,9 +267,6 @@ def check_status(opcount=None):
     if opcount is not None and opcount % config.status_check_freq!= 0: return
 
     update_listeners(OPS, get_exec_key(), 'checking status')
-    commands = get_exec_record_value('commands')
-    if commands is not None and len(commands) > 0:
-        eval_commands()
 
     if reconfig_requested():
         update_listeners(OPS, get_exec_key(), 'reconfiguring')
@@ -287,9 +286,16 @@ def check_status(opcount=None):
 
 def evaluate(no_pid=False):
     exec_rec = get_exec_record(no_pid=no_pid)
-    if start_requested():
-        print 'start requested...'
 
+    if start_requested():
+        cache2.set_hash2(get_exec_key(no_pid=True), {'pid': NO_PID,'start_requested': False,  'stop_requested':False, 'reconfig_requested': False})
+        subprocess.call(["/home/mpippins/dev/m2/run.sh"], shell=True)
+
+    commands = get_exec_record_value('commands')
+    if commands is not None and len(commands) > 0:
+        eval_commands()
+
+    check_status()
 
 def eval_commands():
     commands = get_exec_record_value('commands')
@@ -307,16 +313,19 @@ def clear_reconfig_request():
 
 def reconfig_requested():
     values = cache2.get_hash2(get_exec_key())
-    return values['pid'] == config.pid and values['reconfig_requested'] == 'True'
+    if len(values) > 0:
+        return values['pid'] == config.pid and values['reconfig_requested'] == 'True'
 
 
 def stop_requested():
     values = cache2.get_hash2(get_exec_key())
-    return values['pid'] == config.pid and values['stop_requested'] == 'True'
+    if len(values) > 0:
+        return values['pid'] == config.pid and values['stop_requested'] == 'True'
 
 def start_requested():
     values = cache2.get_hash2(get_exec_key(no_pid=True))
-    return values['pid'] == NO_PID and values['start_requested'] == 'True'
+    if len(values) > 0:
+        return values['pid'] == NO_PID and values['start_requested'] == 'True'
 
 # redis pub/sub
 

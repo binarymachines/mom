@@ -3,9 +3,10 @@ import logging
 import config
 from core import log
 import search
-from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS
+from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INIT_SCAN_STATE
 from core.context import DirectoryContext
-from core.modes import Mode
+from core.modes import Mode, ConditionalMode
+from core.trans import State, StateContext
 from core.serv import ServiceProcess
 from docservhandler import DocumentServiceProcessHandler
 
@@ -29,9 +30,15 @@ class DocumentServiceProcess(ServiceProcess):
 
         self.handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
+
         self.startmode = Mode(STARTUP, self.handler.start, 0)
         self.evalmode = Mode(EVAL, self.handler.do_eval, 1)
-        self.scanmode = Mode(SCAN, self.handler.do_scan, 3)
+
+
+        ini_scanstate = State(INIT_SCAN_STATE, self.handler.do_scan())
+        self.scanmode = ConditionalMode(SCAN, ini_scanstate, priority=3)
+
+
         # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down unntil a command is issued
         self.cleanmode = Mode(CLEAN, self.handler.do_clean, 2) # bring ElasticSearch into line with MariaDB
