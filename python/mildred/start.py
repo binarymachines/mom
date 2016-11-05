@@ -22,8 +22,6 @@ ERR = log.get_log('errors', logging.WARNING)
 
 def execute(args):
     show_logo()
-    print 'Mildred starting...'
-    
     log.start_logging()
     
     if os.path.isfile(os.path.join(os.getcwd(), config.filename)):

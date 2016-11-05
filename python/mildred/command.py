@@ -9,6 +9,10 @@ import redis
 
 from core import var
 
+# commands will ultimately be a redis api for realtime system usage
+# a sleep mode will be among the default distribution of modes and its job will be shutting down the system and
+# responding to commands by restarting it
+# an alternative implementation could involve implementing sleep at the selector level
 
 def _connect_to_redis():
     return redis.Redis('localhost')

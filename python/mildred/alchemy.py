@@ -1,9 +1,5 @@
-import os
-import sys
 import datetime
 import logging
-
-import MySQLdb as mdb
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float, Boolean, and_, or_
 from sqlalchemy.ext.declarative import declarative_base
@@ -163,8 +159,19 @@ def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op
 
     return result
 
+
+class SQLModeRecord(Base):
+    __tablename__ = 'mode'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    mode_name = Column('mode_name', String(128), nullable=False)
+
+
 class SQLModeStateRecord(Base):
-    clast_activated = Column('last_activated', DateTime, nullable=True)
+    __tablename__ = 'mode_state'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    last_activated = Column('last_activated', DateTime, nullable=True)
     last_completed = Column('last_completed', DateTime, nullable=True)
     priority = Column('priority', Integer, nullable=False)
     times_activated = Column('times_activated', Integer, nullable=False)
@@ -178,16 +185,35 @@ class SQLModeStateRecord(Base):
     cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+    # active_flag
 
 class SQLModeStateTransitionErrorRecord(Base):
-    __tablename__ = 'mode_state'
+    __tablename__ = 'mode_state_trans_error'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)
     effective_rule = Column('effective_rule', String(128), nullable=False)
     error_dt = Column('error_dt', DateTime, nullable=False)
-    error_class = Column('error_class', DateTime, nullable=False)
+    exception_class = Column('exception_class', String(128), nullable=False)
+# stacktrace
+# calling method
 
-    # cause_of_defect - this is where snapshots happen
+# cause_of_defect - for error snapshot
+class CauseOfDefectRecord(Base):
+    __tablename__ = 'cause_of_defect'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    index_name = Column('name', String(128), nullable=False)
+    exception_class = Column('exception_class', String(128), nullable=False)
+
+
+class EngineRecord(Base):
+    __tablename__ = 'engine'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    index_name = Column('name', String(128), nullable=False)
+    effective_rule = Column('effective_rule', String(128), nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+    # self.stop_on_errors = stop_on_errors
 
 def main():
     path = '/'
