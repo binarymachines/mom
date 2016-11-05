@@ -33,6 +33,7 @@ class DocumentServiceProcess(ServiceProcess):
         self.evalmode = Mode(EVAL, self.handler.do_eval, 1)
         self.scanmode = Mode(SCAN, self.handler.do_scan, 3)
         # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
+        # self.sleep mode -> state is persisted, system shuts down unntil a command is issued
         self.cleanmode = Mode(CLEAN, self.handler.do_clean, 2) # bring ElasticSearch into line with MariaDB
         self.matchmode = Mode(MATCH, self.handler.do_match, 3)
         self.fixmode = Mode(FIX, self.handler.do_fix, 1)
