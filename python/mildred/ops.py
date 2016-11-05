@@ -23,11 +23,11 @@ OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted'
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
-    LOG.debug('%s retrieving %s operations (%s)...' % (operator, operation, op_status))    
+    LOG.debug('%s retrieving %s operations (%s)...' % (operator, operation, op_status))
     update_listeners('retrieving %s operations (%s)...' % (operation, op_status), operator, path)
 
     rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
-    
+
     count = len(rows)
     cached_count = 0
 
@@ -143,7 +143,7 @@ def record_op_complete(operation, operator, path, esid=None, op_failed=False):
 
     key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(key)
-    
+
     if len(values) > 0:
         values['status'] = "FAIL" if op_failed else 'COMPLETE'
         values['end_time'] = datetime.datetime.now().isoformat()
@@ -170,7 +170,7 @@ def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
 def update_ops_data():
     # pass
     LOG.debug('updating operation records')
-    # update_listeners('caching %i %s' % (len(rows), operation, operator, path))
+    update_listeners(OPS, get_exec_key(), + 'updating ops records')
     # TODO: add params to this query (index_name, date range, etc)
     try:
         sql.execute_query_template('ops_update_op_record')
@@ -179,8 +179,10 @@ def update_ops_data():
 
 
 def write_ops_data(path, operation=None, operator=None, this_pid_only=False, resuming=False):
+    update_listeners(OPS, get_exec_key(), + 'terminating')
 
     LOG.debug('writing op records...')
+    update_listeners(OPS, get_exec_key(), + 'writing ops records')
 
     table_name = 'op_record'
     operator = '*' if operator is None else operator
@@ -223,8 +225,11 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 
 # execution record
 
-def get_exec_key():
-    return cache2.get_key(config.pid, OPS, EXEC)
+def get_exec_key(no_pid=False):
+    if no_pid:
+        return cache2.get_key(NO_PID, OPS, EXEC)
+    else:
+        return cache2.get_key(config.pid, OPS, EXEC)
 
 def get_exec_record_value(field):
     values = cache2.get_hash2(get_exec_key())
@@ -235,13 +240,18 @@ def get_exec_record_value(field):
 def record_exec():
     values = { 'pid': config.pid, 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False, 'commands': []  }
     cache2.set_hash2(get_exec_key(), values)
+    update_listeners(OPS, get_exec_key(), + 'starting')
 
+def get_exec_record(no_pid=False):
+    return cache2.get_hash2(get_exec_key(no_pid=no_pid))
 
 def set_exec_record_value(field, value):
     values = cache2.get_hash2(get_exec_key())
     values[field] = value
     cache2.set_hash2(get_exec_key(), values)
+    update_listeners(OPS, get_exec_key(), ' setting %s to %s' % (str(field), str(value)))
 
+NO_PID = 'NOPID'
 
 # external commands
 
@@ -254,31 +264,42 @@ def check_status(opcount=None):
 
     if opcount is not None and opcount % config.status_check_freq!= 0: return
 
+    update_listeners(OPS, get_exec_key(), 'checking status')
     commands = get_exec_record_value('commands')
-    if len(commands) > 0:
+    if commands is not None and len(commands) > 0:
         eval_commands()
 
     if reconfig_requested():
+        update_listeners(OPS, get_exec_key(), 'reconfiguring')
         start.execute()
         clear_reconfig_request()
 
     if stop_requested():
         print 'stop requested, terminating...'
         LOG.debug('stop requested, terminating...')
+        update_listeners(OPS, get_exec_key(), 'terminating')
         flush_cache()
         # cache.flush_cache()
         LOG.debug('Run complete')
         sys.exit(0)
 
 
+
+def evaluate(no_pid=False):
+    exec_rec = get_exec_record(no_pid=no_pid)
+    if start_requested():
+        print 'start requested...'
+
+
 def eval_commands():
     commands = get_exec_record_value('commands')
-    if 'listen' in commands:
-        pass
+    if commands is not None:
+        if 'listen' in commands:
+            pass
 
-    if 'execute' in commands:
-        pass
-        
+        if 'execute' in commands:
+            pass
+
 
 def clear_reconfig_request():
     set_exec_record_value('reconfig_requested', False)
@@ -293,13 +314,17 @@ def stop_requested():
     values = cache2.get_hash2(get_exec_key())
     return values['pid'] == config.pid and values['stop_requested'] == 'True'
 
+def start_requested():
+    values = cache2.get_hash2(get_exec_key(no_pid=True))
+    return values['pid'] == NO_PID and values['start_requested'] == 'True'
+
 # redis pub/sub
 
-def update_listeners(operation, operator, path):
+def update_listeners(operation, operator, target):
     operator = 'ops' if operator is None else operator
-    
+
     name = 'OPS'
     channel = 'OPS'
-    message = '%s|%s|%s' % (operation, operator, path)
+    message = '%s|%s|%s' % (operation, operator, target)
     # print 'Welcome to {channel}'.format(**locals())
     cache2.redis.publish(channel, message)
