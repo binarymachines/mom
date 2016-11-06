@@ -5,6 +5,7 @@ import os
 from core import cache2
 
 filename = "config.ini"
+yaml = "mildred.conf"
 launched = False
 start_time = None
 username = None
