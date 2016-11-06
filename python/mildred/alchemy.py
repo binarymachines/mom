@@ -23,10 +23,11 @@ Base = declarative_base()
 engines = []
 sessions = []
 dbconf1 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db)
-dbconf2 = 'mysql://%s:%s@%s:%i/%s' % ('root', 'steel', config.mysql_host, config.mysql_port, 'mildred_introspection')
-dbconf3 = 'mysql://%s:%s@%s:%i/%s' % ('root', 'steel', config.mysql_host, config.mysql_port, 'mildred_admin')
+dbconf2 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection')
+dbconf3 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin')
+dbconf4 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'media')
 
-databases =  dbconf1, dbconf2, dbconf3
+databases =  dbconf1, dbconf2, dbconf3, dbconf4
 
 for dbconf in databases:
     engine = create_engine(dbconf)
