@@ -220,6 +220,33 @@ class SQLModeStateRecord(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # active_flag
 
+# CREATE TABLE `mode_state` (
+#   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+#   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+#   `pid` varchar(32) NOT NULL,
+#   `mode_id` int(11) unsigned NOT NULL,
+#   `priority` int(3) unsigned NOT NULL  DEFAULT 0,
+#   `times_activated` int(11) unsigned NOT NULL DEFAULT 0,
+#   `times_completed` int(11) unsigned NOT NULL DEFAULT 0,
+#   `times_to_complete` int(3) unsigned NOT NULL DEFAULT 0,
+#   `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT 0,
+#   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT 0,
+#   `error_count` int(3) unsigned NOT NULL DEFAULT 0,
+#   `error_tolerance` int(3) unsigned NOT NULL DEFAULT 0,
+#   `cum_error_count` int(11) unsigned NOT NULL DEFAULT 0,
+#   `cum_error_tolerance` int(11) unsigned NOT NULL DEFAULT 0,
+#   `state_id` int(11) unsigned NOT NULL DEFAULT 0,
+#   `status` varchar(64) NOT NULL,
+#   `target_path` varchar(1024) NOT NULL,
+#   `status` varchar(64) NOT NULL,
+#   `last_activated` datetime NOT NULL,
+#   `last_completed` datetime DEFAULT NULL,
+#   `effective_dt` datetime DEFAULT NULL,
+#   `expiration_dt` datetime DEFAULT NULL,
+#   PRIMARY KEY (`id`)
+# )
+
+
 class SQLModeStateTransitionErrorRecord(Base):
     __tablename__ = 'mode_state_trans_error'
     id = Column('id', Integer, primary_key=True, autoincrement=True)

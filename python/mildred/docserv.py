@@ -60,7 +60,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to evalmode
         self.selector.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
-            self.startmode, self.reqmode)
+            self.startmode, self.scanmode, self.matchmode)
 
         # paths to scanmode
         self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
@@ -68,27 +68,27 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to matchmode
         self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
-           self.evalmode, self.scanmode)
+           self.startmode, self.evalmode, self.scanmode)
 
-        # paths to fixmode
-        self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
-            self.reqmode)
+        # # paths to fixmode
+        # self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
+        #     self.reqmode)
 
-        # paths to cleanmode
-        self.selector.add_rules(self.cleanmode, self.handler.mode_is_available, self.handler.before_clean, self.handler.after_clean, \
-            self.reqmode)
+        # # paths to cleanmode
+        # self.selector.add_rules(self.cleanmode, self.handler.mode_is_available, self.handler.before_clean, self.handler.after_clean, \
+        #     self.reqmode)
 
-        # paths to reqmode
-        self.selector.add_rules(self.reqmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
-            self.matchmode, self.scanmode)
+        # # paths to reqmode
+        # self.selector.add_rules(self.reqmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
+        #     self.matchmode, self.scanmode)
 
-        # paths to reportmode
-        self.selector.add_rules(self.reportmode, self.handler.maybe, self.handler.before, self.handler.after, \
-            self.cleanmode, self.reqmode, self.evalmode)
+        # # paths to reportmode
+        # self.selector.add_rules(self.reportmode, self.handler.maybe, self.handler.before, self.handler.after, \
+        #     self.cleanmode, self.reqmode, self.evalmode)
 
         # paths to endmode
         self.selector.add_rules(self.endmode, self.handler.maybe, self.handler.ending, self.handler.ended, \
-            self.fixmode)
+            self.matchmode)
 
 
 def create_service_process(identifier, context, owner, before=None, after=None, alternative=None):
