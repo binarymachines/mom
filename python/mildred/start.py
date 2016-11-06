@@ -115,6 +115,41 @@ def configure2(options):
     if os.path.isfile(os.path.join(os.getcwd(), config.yaml)):
         yaml_config  = common.read_config_file(config.yaml)
         print yaml_config['globals']['create_proc']
+
+        # # elasticsearch
+        # config.es_host = yaml_config['globals']['create_proc']  read(parser, "Elasticsearch")['host']
+        # config.es_port = yaml_config['globals']['create_proc']  int(read(parser, "Elasticsearch")['port'])
+        # config.es_index = yaml_config['globals']['create_proc'] read(parser, "Elasticsearch")['index']
+
+        # # mysql
+        # config.mysql_host = read(parser, "MySQL")['host']
+        # config.mysql_db = read(parser, "MySQL")['schema']
+        # config.mysql_user = read(parser, "MySQL")['user']
+        # config.mysql_pass = read(parser, "MySQL")['pass']
+
+        # # status
+        # config.status_check_freq= int(read(parser, "Status")['check_frequency'])
+
+        # # action
+        # config.deep = read(parser, "Action")['deep_scan'].lower() == 'true'
+        # # if 'no_scan' in options:
+        # #     config.scan = False
+        # # else:
+        # config.scan = read(parser, "Action")['scan'].lower() == 'true' or 'scan' in options
+
+        # # if 'no_match' in options:
+        # #     config.match = False
+        # # else: 
+        # config.match = read(parser, "Action")['match'].lower() == 'true' or 'match' in options
+
+        # # cache
+        # config.path_cache_size = int(read(parser, "Cache")['path_cache_size'])
+        # config.op_life = int(read(parser, "Cache")['op_life'])
+
+        # # redis
+        # config.redis_host = read(parser, "Redis")['host']
+
+
     pass
 
 def configure(options):
