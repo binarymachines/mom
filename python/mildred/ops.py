@@ -1,16 +1,15 @@
 import datetime
 import logging
 import os
-import sys
 import subprocess
+import sys
 
 import alchemy
 import config
 import core.cache2
-from core import log
-import start
-from core import cache2
 import sql
+import start
+from core import cache2, log
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -226,26 +225,48 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 
 # execution record
 
+NEW_RECORD = { 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
+    'effective_dt': datetime.datetime.now(), 'expiration_dt': None, \
+    'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
+
 def get_exec_key(no_pid=False):
-    if no_pid:
-        return cache2.get_key(NO_PID, OPS, EXEC)
-    else:
-        return cache2.get_key(str(config.pid), OPS, EXEC)
+    result =  cache2.get_key(NO_PID, OPS, EXEC) if no_pid else cache2.get_key(str(config.pid), OPS, EXEC)
+    return result
+
 
 def get_exec_record_value(field):
     values = cache2.get_hash2(get_exec_key())
     if field in values:
         return  values[field]
 
+def insert_exec_record():
+    values = cache2.get_hash2(get_exec_key())
+    try:
+        alchemy.insert_exec_record(values)
+    except Exception, err:
+        print err.message
+
+def insert_exec_complete_record():
+    values = cache2.get_hash2(get_exec_key())
+    values['end_time'] = datetime.datetime.now()
+    try:
+        alchemy.insert_exec_record(values)
+    except Exception, err:
+        print err.message
+
 # TODO: use execution record to select redis db
 def record_exec():
-    values = { 'pid': str(config.pid), 'start_time': config.start_time, 'stop_requested':False, 'reconfig_requested': False, 'commands': []  }
+    values = NEW_RECORD 
+    values['start_time'] = config.start_time
     exec_key = get_exec_key()
     cache2.set_hash2(exec_key, values)
+    insert_exec_record()
     update_listeners(OPS, exec_key, 'starting')
+
 
 def get_exec_record(no_pid=False):
     return cache2.get_hash2(get_exec_key(no_pid=no_pid))
+
 
 def set_exec_record_value(field, value):
     values = cache2.get_hash2(get_exec_key())
@@ -261,6 +282,7 @@ def append_command(command, **kwargs):
     commands = get_exec_record_value('commands')
     commands.append(command, **kwargs)
     set_exec_record_value(command, **kwargs)
+
 
 def check_status(opcount=None):
 

@@ -66,7 +66,7 @@ def get_pid():
 def main(args):
 
     pid = get_pid()
-    if pid is not None:
+    if pid:
         var.workdir = os.path.abspath(os.path.join('pid', os.pardir))
         if args['--reconfig']: request_reconfig(pid)
         if args['--stop']: request_stop(pid)

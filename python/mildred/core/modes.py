@@ -9,6 +9,18 @@ import log
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
+
+def mode_function(function):
+    def wrapper(*args, **kwargs):
+        try:
+            return function(*args, **kwargs)
+        except Exception, err:
+            ERR.error(err.message, exc_info=True)
+            raise err
+
+    return wrapper
+    
+
 # TODO: use times_to_complete to enforce a minimum run count (ex: scan has multiple submodes, each needs to complete for scan to be complete)
 class Mode(object):
     HIGHEST = 999;
@@ -38,6 +50,7 @@ class Mode(object):
         # self.error_handler = None
         self.suspended = False
 
+    @mode_function
     def do_action(self):
         if self.effect:
             self.effect()
@@ -67,7 +80,9 @@ class ConditionalMode(Mode):
     def set_state(self, state):
         self.state = state
         self.effect = state.effect
-
+        self.do_action()
+    
+    @mode_function
     def do_action(self):
         if self.state.effect:
             self.state.effect()
@@ -94,12 +109,14 @@ class Rule:
         self.before = before
         self.after = after
 
+    @mode_function
     def applies(self, selector, active, possible):
         try:
             func = _parse_func_info(self.condition)
             return self.condition(selector, active, possible)
         except Exception, err:
             ERR.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name), exc_info=True)
+            raise err
 
 
 class Selector:
@@ -160,7 +177,7 @@ class Selector:
     def get_rules(self, mode):
         results = []
         for rule in self.rules:
-            if rule.start == mode:
+            if rule.start is mode:
                 results.append(rule)
 
         return results
@@ -218,6 +235,7 @@ class Selector:
 
         return results
 
+    @mode_function
     def select(self):
         applicable = self._peep()
         if len(applicable) == 1:
@@ -237,18 +255,20 @@ class Selector:
         elif len(applicable) == 0:
             raise ModeDestinationException("%s: No valid destination from %s" % (self.name, self.active.name))
 
+
     def _call_mode_func(self, mode, func):
         try:
             if func is not None: func()
         except Exception, err:
             try:
-                func_name = self._parse_func_info(func)
+                func_name = _parse_func_info(func)
                 activemode = self.active.name  if self.active is not None else 'NO ACTIVE MODE'
                 ERR.error('%s while applying %s -> %s from %s' % (err.message, mode.name, func_name, activemode))
             except Exception, logging_error:
                 ERR.warning(logging_error.message)
                 ERR.error(err.message)
             raise err
+
 
     def _call_switch_bracket_func(self, mode, func):
         try:
@@ -257,11 +277,12 @@ class Selector:
             try:
                 activemode = self.active.name  if self.active is not None else 'NO ACTIVE MODE'
                 previousmode = self.previous.name  if self.previous is not None else 'NO PREVIOUS MODE'
-                func_name = self._parse_func_info(func)
+                func_name = _parse_func_info(func)
                 ERR.error('%s while applying %s -> %s from %s in %s.switch()' %  (err.message, previousmode, func_name, activemode, self.name))
             except Exception, logging_error:
                 ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             raise err
+
 
     def _set_mode_funcs(self, mode):
         if mode.active_rule == None:
@@ -271,8 +292,8 @@ class Selector:
                     mode.active_rule = rule
                     break
 
+    @mode_function
     def switch(self, mode, rewind=False):
-        try:
             self.next = mode
 
             self._set_mode_funcs(mode)
@@ -300,9 +321,7 @@ class Selector:
 
             self.previous = mode
             self.rule_chain.append(mode.active_rule)
-        except Exception, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            raise err
+
 
     def run(self):
         self.complete = False
@@ -416,7 +435,7 @@ class Engine:
                 break
         self.running = running
 
-
+@mode_function
 def _parse_func_info(func):
     if func is None: return "NONE"
     try:

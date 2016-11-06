@@ -57,13 +57,10 @@ def launch(args, run=True):
                 if args['--expand-all']:
                     context.set_param('all', 'expand_all', True)
 
-                process = create_func('Document Server', context)
-                process.after = after
-                process.before = before
-
                 ops.record_exec()
-    
-                service.queue(process)
+
+                process = create_func('service creation function', context, service, before=before, after=after)    
+                service.queue([process])
                 # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
                 service.handle_processes()
 
@@ -75,11 +72,12 @@ def launch(args, run=True):
         traceback.print_exc()
 
 def after (process):
+    # ops.insert_exec_complete_record()
     print '%s after completion' % process.name
 
 
 def before(process):
-    print '%s before start' % process.name
+    print '%s before creation' % process.name
 
 
 def main(args):

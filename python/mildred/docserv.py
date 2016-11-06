@@ -13,9 +13,9 @@ from docservhandler import DocumentServiceProcessHandler
 LOG = log.get_log(__name__, logging.DEBUG)
 
 class DocumentServiceProcess(ServiceProcess):
-    def __init__(self, name, context, stop_on_errors=True):
+    def __init__(self, name, context, stop_on_errors=True, before=None, after=None):
         # super must be called before accessing selector instance
-        super(DocumentServiceProcess, self).__init__(name, context, stop_on_errors)
+        super(DocumentServiceProcess, self).__init__(name, context, stop_on_errors, before, after)
 
     # selector callbacks
     def after_switch(self, selector, mode):
@@ -30,14 +30,11 @@ class DocumentServiceProcess(ServiceProcess):
 
         self.handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
-
         self.startmode = Mode(STARTUP, self.handler.start, 0)
         self.evalmode = Mode(EVAL, self.handler.do_eval, 1)
 
-
-        ini_scanstate = State(INIT_SCAN_STATE, self.handler.do_scan())
+        ini_scanstate = State(INIT_SCAN_STATE, self.handler.do_scan)
         self.scanmode = ConditionalMode(SCAN, ini_scanstate, priority=3)
-
 
         # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down unntil a command is issued
@@ -94,9 +91,11 @@ class DocumentServiceProcess(ServiceProcess):
             self.fixmode)
 
 
-def create_service_process(identifier, context, alternative=None):
+def create_service_process(identifier, context, owner, before=None, after=None, alternative=None):
     if alternative is None:
-        return DocumentServiceProcess(identifier, context)
+        process = DocumentServiceProcess(identifier, context, owner, before=before, after=after)
+        return process
+
     return alternative(identifier, context)
 
 

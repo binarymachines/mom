@@ -10,14 +10,14 @@ ERR = log.get_log('errors', logging.WARNING)
 SERVICE_NAME = '::\`]'
 
 class ServiceProcess(object):
-    def __init__(self, name, context, owner, stop_on_errors=True):
+    def __init__(self, name, context, owner, stop_on_errors=True, before=None, after=None):
         self.context = context
         self.name = name
         self.owner = owner
         self.threaded = False
 
-        self.before = None
-        self.after = None
+        self.before = before
+        self.after = after
 
         self.error_count = 0
         self.restart_on_fail = False
@@ -113,8 +113,8 @@ class Service(object):
         self.active = []
         self.inactive = []
 
-    def create_record(self, process, before=None, after=None):
-        return { 'process': process, 'before': before, 'after': after }
+    def create_record(self, process):
+        return { 'process': process, 'before': process.before, 'after': process.after }
 
     def get_record(self, process):
         for rec in self.active:
@@ -159,4 +159,4 @@ class Service(object):
 
     def queue(self, *process):
         for process in process:
-            self.active.append(self.create_record(process))
+            self.active.append(self.create_record(*process))
