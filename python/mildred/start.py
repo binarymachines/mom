@@ -2,6 +2,7 @@ import ConfigParser
 import logging
 import os
 import sys
+import yaml
 
 import redis
 
@@ -13,6 +14,8 @@ from core import log
 import ops
 import search
 import sql
+
+from snap import common
 
 GET_PATHS = 'start_get_paths'
 
@@ -28,6 +31,7 @@ def execute(args):
 
         options = make_options(args)
         configure(options)
+        configure2(options)
 
         try:
             # TODO: connect to an explicit redis database. Check for execution record. Change database if required.
@@ -107,6 +111,11 @@ def read(parser, section):
             result[option] = None
     return result
 
+def configure2(options):
+    if os.path.isfile(os.path.join(os.getcwd(), config.yaml)):
+        yaml_config  = common.read_config_file(config.yaml)
+        print yaml_config['globals']['create_proc']
+    pass
 
 def configure(options):
 
