@@ -104,6 +104,29 @@ def insert_match_record(doc_id, match_doc_id, matcher_name, percentage_of_max_sc
 #     for instance in session.query(SQLMatchRecord).order_by(SQLMatchRecord.doc_id):
 # 	print(instance.doc_id, instance.match_doc_id)
 
+class SQLExecutionRecord(Base):
+    __tablename__ = 'execution'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    pid = Column('pid', String(32), nullable=False)
+    status = Column('status', String(64), nullable=False)
+    start_time = Column('start_dt', DateTime, nullable=False)
+    end_time = Column('end_dt', DateTime, nullable=True)
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+def insert_exec_record(kwargs):
+    rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_time=config.start_time, \
+        effective_dt=datetime.datetime.now(), expiration_dt=kwargs['expiration_dt'], status=kwargs['status'])
+
+    try:
+        session.add(rec_exec)
+        session.commit()
+    except IntegrityError, err:
+        print '\a'
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        
+        session.rollback()
 
 class SQLOperationRecord(Base):
     __tablename__ = 'op_record'

@@ -64,10 +64,10 @@ def path_expands(path, context):
 
 def calc(context, cycle_context=False):
 
-    sql.execute_query("delete from matched where 1=1")
-    sql.execute_query("delete from op_record where operation_name = 'calc'")
-    sql.execute_query("delete from op_record where operation_name = 'match'")
-    sql.execute_query("commit");
+    # sql.execute_query("delete from matched where 1=1")
+    # sql.execute_query("delete from op_record where operation_name = 'calc'")
+    # sql.execute_query("delete from op_record where operation_name = 'match'")
+    # sql.execute_query("commit");
 
     # MAX_RECORDS = ...
     matchers = get_matchers()
@@ -126,24 +126,33 @@ def do_match_op(esid, absolute_path):
         return
 
     elif asset.doc:
-        try:
-            # if library.doc_exists_for_path(asset.document_type, asset.absolute_path):
-            for matcher in matchers:
-                if ops.operation_in_cache(asset.absolute_path, MATCH, matcher.name):
-                    LOG.debug('calc: skipping %s operation on %s' % (matcher.name, asset.absolute_path))
-                else:
-                    LOG.debug('calc: %s seeking matches for %s' % (matcher.name, asset.absolute_path))
-                    matcher.match(asset)
-                    # ops.write_ops_data(asset.absolute_path, MATCH, matcher.name)
+        # if library.doc_exists_for_path(asset.document_type, asset.absolute_path):
+        for matcher in matchers:
+            message = str('calc: skipping %s operation on %s' % (matcher.name, asset.absolute_path)) \
+                if  ops.operation_in_cache(asset.absolute_path, MATCH, matcher.name)  \
+                else str('calc: %s seeking matches for %s' % (matcher.name, asset.absolute_path))
+            
+            LOG.info(message)
+            
+            try:
+                matcher.match(asset)
+                # ops.write_ops_data(asset.absolute_path, MATCH, matcher.name)
 
-        except AssetException, err:
-            ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            library.handle_asset_exception(err, asset.absolute_path)
+            except AssetException, err:
+                ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                library.handle_asset_exception(err, asset.absolute_path)
 
-        except UnicodeDecodeError, u:
-            library.record_error(u)
-            ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
+            except UnicodeDecodeError, u:
+                library.record_error(u)
+                ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
 
+            except UnicodeEncodeError, u:
+                library.record_error(u)
+                ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
+
+            except Exception, err:
+                library.record_error(err)
+                ERR.warning(': '.join([err.__class__.__name__, err.message, asset.absolute_path]), exc_info=True)
 
 def get_matchers():
     keygroup = MATCH
