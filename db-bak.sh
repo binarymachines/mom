@@ -2,10 +2,10 @@ pushd $m2
 
 rm bak/sql/*.sql
 
-# mysqldump mildred > $m2/bak/sql/backup-mildred.sql
-# mysqldump mildred_admin > $m2/bak/sql/backup-mildred_admin.sql
-# mysqldump mildred_introspection > $m2/bak/sql/backup-mildred_introspection.sql
-# mysqldump media > $m2/bak/sql/backup-media.sql
+mysqldump mildred > $m2/bak/sql/backup-mildred.sql
+mysqldump mildred_admin > $m2/bak/sql/backup-mildred_admin.sql
+mysqldump mildred_introspection > $m2/bak/sql/backup-mildred_introspection.sql
+mysqldump media > $m2/bak/sql/backup-media.sql
 
 mysqldump --routines scratch > $m2/bak/sql/scratch.sql
 
