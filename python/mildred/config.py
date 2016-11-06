@@ -26,9 +26,9 @@ es_index = 'media'
 
 mysql_host = 'localhost'
 mysql_port = 3306
-mysql_db = 'media'
-mysql_user = 'mildred'
-mysql_pass = 'changeme'
+mysql_db = 'mildred'
+mysql_user = 'root'
+mysql_pass = 'steel'
 
 scan = True
 match = True

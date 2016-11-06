@@ -73,9 +73,10 @@ def get_paths(args):
 
 
 def load_user_info():
-    rows = sql.retrieve_values('member', ['id', 'username'], ['1'])
-    if len(rows) == 1:
-        config.username = rows[0][1]
+    config.username = 'Codex'
+    # rows = sql.retrieve_values('member', ['id', 'username'], ['1'])
+    # if len(rows) == 1:
+    #     config.username = rows[0][1]
 
 
 def make_options(args):
@@ -114,7 +115,7 @@ def read(parser, section):
 def configure2(options):
     if os.path.isfile(os.path.join(os.getcwd(), config.yaml)):
         yaml_config  = common.read_config_file(config.yaml)
-        print yaml_config['globals']['create_proc']
+        # print yaml_config['globals']['create_proc']
 
         # # elasticsearch
         # config.es_host = yaml_config['globals']['create_proc']  read(parser, "Elasticsearch")['host']
@@ -212,8 +213,8 @@ def reset():
         if not config.es.indices.exists(config.es_index):
             search.create_index(config.es_index)
 
-        for table in ['document', 'op_record', 'problem_esid', 'problem_path', 'matched']:
-            query = 'delete from %s where 1 = 1' % (table)
+        for table in ['document', 'op_record', 'matched']:
+            query = 'delete from %s where index_name = %s' % (table, config.es_index)
             sql.execute_query(query)
 
 

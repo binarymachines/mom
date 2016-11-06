@@ -20,11 +20,20 @@ ERR = log.get_log('errors', logging.WARNING)
 
 Base = declarative_base()
 
-engine = create_engine('mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db))
-Base.metadata.bind = engine
+engines = []
+sessions = []
+dbconf1 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db)
+dbconf2 = 'mysql://%s:%s@%s:%i/%s' % ('root', 'steel', config.mysql_host, config.mysql_port, 'mildred_introspection')
+dbconf3 = 'mysql://%s:%s@%s:%i/%s' % ('root', 'steel', config.mysql_host, config.mysql_port, 'mildred_admin')
 
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+databases =  dbconf1, dbconf2, dbconf3
+
+for dbconf in databases:
+    engine = create_engine(dbconf)
+    engines.append(engine)
+    sessions.append(sessionmaker(bind=engine)())
+
+
 
 class SQLAsset(Base):
     __tablename__ = 'document'
@@ -45,8 +54,8 @@ def insert_asset(index_name, doc_type, id, absolute_path):
         effective_dt=datetime.datetime.now())
 
     try:
-        session.add(asset)
-        session.commit()
+        sessions[0].add(asset)
+        sessions[0].commit()
     # except RuntimeWarning, warn:
     #     ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
     except IntegrityError, err:
@@ -57,7 +66,7 @@ def insert_asset(index_name, doc_type, id, absolute_path):
         for arg in err.args:
             print arg
 
-        session.rollback()
+        sessions[0].rollback()
 
         raise SQLIntegrityError(err, err.message)
 
@@ -66,7 +75,7 @@ def retrieve_assets(doc_type, absolute_path):
     path = '%s%s' % (absolute_path, '%')
 
     result = ()
-    for instance in session.query(SQLAsset).\
+    for instance in sessions[0].query(SQLAsset).\
         filter(SQLAsset.index_name == config.es_index).\
         filter(SQLAsset.doc_type == doc_type).\
         filter(SQLAsset.absolute_path.like(path)):
@@ -92,13 +101,13 @@ def insert_match_record(doc_id, match_doc_id, matcher_name, percentage_of_max_sc
         matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
 
     try:
-        session.add(match_rec)
-        session.commit()
+        sessions[0].add(match_rec)
+        sessions[0].commit()
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         
-        session.rollback()
+        sessions[0].rollback()
     
 # def list_matches():
 #     for instance in session.query(SQLMatchRecord).order_by(SQLMatchRecord.doc_id):
@@ -120,13 +129,13 @@ def insert_exec_record(kwargs):
         effective_dt=datetime.datetime.now(), expiration_dt=kwargs['expiration_dt'], status=kwargs['status'])
 
     try:
-        session.add(rec_exec)
-        session.commit()
+        sessions[1].add(rec_exec)
+        sessions[1].commit()
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         
-        session.rollback()
+        sessions[1].rollback()
 
 class SQLOperationRecord(Base):
     __tablename__ = 'op_record'
@@ -152,8 +161,8 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
 
     try:
         # assert isinstance(session, object)
-        session.add(op_rec)
-        session.commit()
+        sessions[1].add(op_rec)
+        sessions[1].commit()
     except RuntimeWarning, warn:
         ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
     except Exception, err:
@@ -167,13 +176,13 @@ def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op
 
     result = ()
     if operator is None:
-        for instance in session.query(SQLOperationRecord).\
+        for instance in sessions[1].query(SQLOperationRecord).\
             filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
             filter(SQLOperationRecord.operation_name == operation).\
             filter(SQLOperationRecord.status == op_status):
                 result += (instance,)
     else:
-        for instance in session.query(SQLOperationRecord).\
+        for instance in sessions[1].query(SQLOperationRecord).\
             filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
             filter(SQLOperationRecord.operation_name == operation).\
             filter(SQLOperationRecord.operator_name == operator).\

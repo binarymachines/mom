@@ -25,6 +25,9 @@ from core.trans import State, StateContext
 from errors import AssetException
 from match import ElasticSearchMatcher
 
+import alchemy
+
+
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
@@ -48,12 +51,12 @@ def cache_match_ops(matchers, path):
 # use paths expanded by scan ops to segment dataset for matching operations
 def path_expands(path, context):
     expanded = []
-
-    rows = sql.run_query_template('calc_op_path', HLSCAN, 'COMPLETE', path, os.path.sep)
-    if len(rows) > 0:
-        for row in rows:
-            if row[0] not in expanded:
-                expanded.append(row[0])
+    # rows = sql.run_query_template('calc_op_path', HLSCAN, 'COMPLETE', path, os.path.sep)
+    op_records = alchemy.retrieve_op_records(path, HLSCAN)
+    if len(op_records) > 0:
+        for op_record in op_records:
+            if op_record.target_path not in expanded:
+                expanded.append(op_record.target_path)
 
     for ex_path in expanded:
         # TODO: count(expath pathsep) == count (path pathsep) + 1
@@ -77,49 +80,43 @@ def calc(context, cycle_context=False):
         ops.check_status()
         location = context.get_next(MATCH, use_fifo=True)
 
-        # if library.path_in_db(config.DOCUMENT, location) or context.path_in_fifo(location, MATCH):
-        
+        # this should never be true, but a test
+        if location[-1] != os.path.sep: location += os.path.sep
+
         if path_expands(location, context): 
             continue
 
-        if ops.operation_completed(location, HLSCAN):
-        
-            # try:
-            LOG.debug('calc: matching files in %s' % (location))
+        LOG.debug('calc: matching files in %s' % (location))
+        library.cache_docs(DOCUMENT, location)
+        ops.cache_ops(location, MATCH, apply_lifespan=True)
+        library.cache_matches(location)
 
-            # this should never be true, but a test
-            if location[-1] != os.path.sep: location += os.path.sep
+        for key in library.get_doc_keys(DOCUMENT):
+            opcount += 1
+            ops.check_status(opcount)
 
-            library.cache_docs(DOCUMENT, location)
-            ops.cache_ops(location, MATCH, apply_lifespan=True)
-            library.cache_matches(location)
+            values = cache2.get_hash2(key)
+            if 'esid' not in values:
+                LOG.debug('match calculator skipping %s' % (key))
+                continue
+                
+            try:
+                do_match_op(values['esid'], values['absolute_path'], matchers)
+            except Exception, err:
+                print err.message
 
-            for key in library.get_doc_keys(DOCUMENT):
-                opcount += 1
-                ops.check_status(opcount)
-
-                values = cache2.get_hash2(key)
-                if 'esid' not in values:
-                    LOG.debug('match calculator skipping %s' % (key))
-                    continue
-
-                do_match_op(values['esid'], values['absolute_path'])
-
-            for matcher in matchers:
-                ops.write_ops_data(location, MATCH, matcher.name)
-                library.clear_matches(matcher.name, location)
-
-            # except Exception, err:
-            #     ERR.error(': '.join([err.__class__.__name__, err.message, location]), exc_info=True)
-            # finally:
-            library.clear_docs(DOCUMENT, location)
-                # cache.write_paths()
+        library.clear_docs(DOCUMENT, location)
+        for matcher in matchers:
+            ops.write_ops_data(location, MATCH, matcher.name)
+            library.clear_matches(matcher.name, location)
+ 
 
 
-def do_match_op(esid, absolute_path):
+
+
+def do_match_op(esid, absolute_path, matchers):
 
     asset = library.get_document_asset(absolute_path, esid=esid, attach_doc=True)
-    matchers = get_matchers()
 
     if asset.doc and all_matchers_have_run(matchers, asset):
         LOG.debug('calc: skipping all match operations on %s, %s' % (asset.esid, asset.absolute_path))

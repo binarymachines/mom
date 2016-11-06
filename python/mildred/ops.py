@@ -288,7 +288,7 @@ def check_status(opcount=None):
 
     if opcount is not None and opcount % config.status_check_freq!= 0: return
 
-    update_listeners(OPS, get_exec_key(), 'checking status')
+    # update_listeners(OPS, get_exec_key(), 'checking status')
 
     if reconfig_requested():
         update_listeners(OPS, get_exec_key(), 'reconfiguring')
