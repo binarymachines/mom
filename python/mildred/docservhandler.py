@@ -9,7 +9,7 @@ from core import log
 import scan
 import ops
 
-from core.modes import StatefulMode
+from core.modestate import StatefulMode
 
 
 LOG = log.get_log(__name__, logging.DEBUG)

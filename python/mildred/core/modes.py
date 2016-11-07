@@ -28,7 +28,7 @@ class Mode(object):
 
     def __init__(self, name, effect=None, priority=0, dec_priority_amount=0, inc_priority_amount=0, error_tolerance=0, times_to_complete=0):
         self.name = name
-        self.effect = effect
+        self._effect = effect
 
         self.active_rule = None
         self.times_activated = 0
@@ -52,8 +52,8 @@ class Mode(object):
 
     @mode_function
     def do_action(self):
-        if self.effect:
-            self.effect()
+        if self._effect:
+            self._effect()
 
     def has_reached_complete_count(self):
         return self.times_completed > 0 if self.times_to_complete == 0 else self.times_completed > self.times_to_complete
@@ -77,29 +77,6 @@ class Mode(object):
         self.error_state = False
         if reset_error_count: self.error_count = 0
 
-
-class StatefulMode(Mode):
-    def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False):
-        super(StatefulMode, self).__init__(name, priority=priority, dec_priority_amount=dec_priority_amount)
-        self.do_action_on_change = do_action_on_change
-        self._state = state
-        if do_action_on_change:
-            self.do_action()
-
-    def get_state(self):
-        return self._state
-
-    def set_state(self, state):
-        self._state = state
-        if state:
-            self.effect = state.effect
-            if self.do_action_on_change:
-                self.do_action()
-    
-    @mode_function
-    def do_action(self):
-        if self._state and self._state.effect:
-            self._state.effect()
 
 # versus Suspension
 # class RecoveryMode(Mode):

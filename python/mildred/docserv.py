@@ -6,7 +6,8 @@ import search
 from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INIT_SCAN_STATE
 from core.context import DirectoryContext
 
-from core.modes import Mode, StatefulMode
+from core.modes import Mode
+from core.modestate import StatefulMode, ModeStateHandler
 
 from core.trans import State, StateContext
 from core.serv import ServiceProcess
@@ -17,7 +18,7 @@ import alchemy
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-class ModeStateLoader():
+class AlchemyModeStateHandler():
     def __init__(self, mode_rec=None):
         self.mode_rec = {} if mode_rec is None else mode_rec
 
@@ -46,7 +47,7 @@ class ModeStateLoader():
 class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         # super must be called before accessing selector instance
-        self.loader = ModeStateLoader()
+        self.loader = AlchemyModeStateHandler()
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks

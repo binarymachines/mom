@@ -1,13 +1,13 @@
 """States and Transitions"""
 
 class State(object):
-    def __init__(self, name, effect):
+    def __init__(self, name, action):
         self.name = name
-        self.effect = effect
+        self.action = action
 
     def do_action(self):
-        if self.effect:
-            self.effect()
+        if self.action:
+            self.action()
 
 class StateContext(object):
     def __init__(self, state):
