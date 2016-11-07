@@ -1,4 +1,4 @@
-#pushd $m2
+pushd $m2
 
 clear
 
@@ -58,4 +58,4 @@ echo '------------------------------------------------'
 echo
 git status
 
-#popd
+popd
