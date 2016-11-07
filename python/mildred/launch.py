@@ -69,7 +69,6 @@ def launch(args, run=True):
         print err.message
         traceback.print_exc()
 
-
 def after(process):
     print('%s has ended.' % process.name)
     
@@ -77,6 +76,7 @@ def after(process):
 def before(process):
     print('%s starting...' % process.name)
     ops.record_exec()
+    
 
 def main(args):
     os.chdir(util.get_working_directory())

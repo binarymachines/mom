@@ -205,6 +205,7 @@ class Selector:
         if self.remove_at_error_tolerance and self.active.error_count >= self.active.error_tolerance:
             ERR.warning("%s error tolerance level limit reached for %s due to %i errors" % (self.name, self.active.name, self.active.error_count))
             self.active._suspended = True
+
             # if self.recovery_possible(error):
             #     print 'recovery possible'
             #     suspension = Suspension(self.active)

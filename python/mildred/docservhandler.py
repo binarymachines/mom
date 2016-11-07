@@ -11,7 +11,8 @@ import ops
 
 from core.modes import StatefulMode
 
-LOG = log.get_log(__name__, logging.DEBUG)
+
+sLOG = log.get_log(__name__, logging.DEBUG)
 
 class DecisionHandler(object):
     # decisions and guesses

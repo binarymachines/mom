@@ -115,6 +115,7 @@ def read(parser, section):
 def configure2(options):
     if os.path.isfile(os.path.join(os.getcwd(), config.yaml)):
         yaml_config  = common.read_config_file(config.yaml)
+
         # print yaml_config['globals']['create_proc']
 
         # # elasticsearch
@@ -215,6 +216,7 @@ def reset():
 
         for table in ['document', 'op_record', 'matched']:
             query = 'delete from %s where index_name = %s' % (table, config.es_index)
+
             sql.execute_query(query)
 
 

@@ -27,7 +27,6 @@ from match import ElasticSearchMatcher
 
 import alchemy
 
-
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
@@ -51,6 +50,7 @@ def cache_match_ops(matchers, path):
 # use paths expanded by scan ops to segment dataset for matching operations
 def path_expands(path, context):
     expanded = []
+
     # rows = sql.run_query_template('calc_op_path', HLSCAN, 'COMPLETE', path, os.path.sep)
     op_records = alchemy.retrieve_op_records(path, HLSCAN)
     if len(op_records) > 0:
@@ -110,9 +110,6 @@ def calc(context, cycle_context=False):
             ops.write_ops_data(location, MATCH, matcher.name)
             library.clear_matches(matcher.name, location)
  
-
-
-
 
 def do_match_op(esid, absolute_path, matchers):
 

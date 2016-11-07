@@ -242,6 +242,7 @@ def get_exec_record_value(field):
 def insert_exec_record():
     values = cache2.get_hash2(get_exec_key())
     try:
+
         return alchemy.insert_exec_record(values)
     except Exception, err:
         print err.message
@@ -257,7 +258,7 @@ def insert_exec_complete_record():
 # TODO: use execution record to select redis db
 def record_exec():
     values = NEW_RECORD 
-    values['start_time'] = config.start_time
+
     values['status'] = 'initializing'
     exec_key = get_exec_key()
 
@@ -293,6 +294,7 @@ def check_status(opcount=None):
 
     if opcount is not None and opcount % config.status_check_freq!= 0: return
 
+
     # update_listeners(OPS, get_exec_key(), 'checking status')
 
     if reconfig_requested():
@@ -307,7 +309,9 @@ def check_status(opcount=None):
         flush_cache()
         # cache.flush_cache()
         LOG.debug('Run complete')
+
         insert_exec_complete_record()
+
         sys.exit(0)
 
 

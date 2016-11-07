@@ -31,3 +31,4 @@ HEXID = '_hex_id'
 
 # states
 INIT_SCAN_STATE = "discover"
+

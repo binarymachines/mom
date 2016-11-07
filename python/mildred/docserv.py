@@ -5,7 +5,9 @@ from core import log
 import search
 from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INIT_SCAN_STATE
 from core.context import DirectoryContext
+
 from core.modes import Mode, StatefulMode
+
 from core.trans import State, StateContext
 from core.serv import ServiceProcess
 from docservhandler import DocumentServiceProcessHandler
@@ -93,6 +95,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to evalmode
         self.selector.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
+
             self.startmode, self.scanmode, self.matchmode)
 
         # paths to scanmode

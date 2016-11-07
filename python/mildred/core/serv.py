@@ -10,6 +10,7 @@ ERR = log.get_log('errors', logging.WARNING)
 SERVICE_NAME = '::\`]'
 
 class ServiceProcess(object):
+
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         self.context = context
         self.name = name
