@@ -326,7 +326,8 @@ class SQLModeStateRecord(Base):
 #   `effective_dt` datetime DEFAULT NULL,
 #   `expiration_dt` datetime DEFAULT NULL,
 #   PRIMARY KEY (`id`)
-# )
+# )ll
+
 
 
 class SQLModeStateTransitionErrorRecord(Base):
