@@ -242,7 +242,7 @@ def get_exec_record_value(field):
 def insert_exec_record():
     values = cache2.get_hash2(get_exec_key())
     try:
-        alchemy.insert_exec_record(values)
+        return alchemy.insert_exec_record(values)
     except Exception, err:
         print err.message
 
@@ -250,7 +250,7 @@ def insert_exec_complete_record():
     values = cache2.get_hash2(get_exec_key())
     values['end_time'] = datetime.datetime.now()
     try:
-        alchemy.insert_exec_record(values)
+        return alchemy.update_exec_record(values)
     except Exception, err:
         print err.message
 
@@ -258,9 +258,14 @@ def insert_exec_complete_record():
 def record_exec():
     values = NEW_RECORD 
     values['start_time'] = config.start_time
+    values['status'] = 'initializing'
     exec_key = get_exec_key()
+
     cache2.set_hash2(exec_key, values)
-    insert_exec_record()
+    exec_rec = insert_exec_record()
+    values['id'] = exec_rec.id
+    cache2.set_hash2(exec_key, values)
+
     update_listeners(OPS, exec_key, 'starting')
 
 
@@ -302,6 +307,7 @@ def check_status(opcount=None):
         flush_cache()
         # cache.flush_cache()
         LOG.debug('Run complete')
+        insert_exec_complete_record()
         sys.exit(0)
 
 

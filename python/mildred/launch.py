@@ -57,9 +57,7 @@ def launch(args, run=True):
                 if args['--expand-all']:
                     context.set_param('all', 'expand_all', True)
 
-                ops.record_exec()
-
-                process = create_func('service creation function', context, service, before=before, after=after)    
+                process = create_func('service process', context, service, before=before, after=after)    
                 service.queue([process])
                 # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
                 service.handle_processes()
@@ -71,14 +69,14 @@ def launch(args, run=True):
         print err.message
         traceback.print_exc()
 
-def after (process):
-    # ops.insert_exec_complete_record()
-    print '%s after completion' % process.name
 
+def after(process):
+    print('%s has ended.' % process.name)
+    
 
 def before(process):
-    print '%s before creation' % process.name
-
+    print('%s starting...' % process.name)
+    ops.record_exec()
 
 def main(args):
     os.chdir(util.get_working_directory())

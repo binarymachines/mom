@@ -131,11 +131,25 @@ def insert_exec_record(kwargs):
     try:
         sessions[1].add(rec_exec)
         sessions[1].commit()
+        return rec_exec
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         
         sessions[1].rollback()
+
+def update_exec_record(kwargs):
+    
+    try:
+        pass
+        # sessions[1].add(rec_exec)
+        # sessions[1].commit()
+        # return rec_exec
+    except IntegrityError, err:
+        print '\a'
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+    
+    sessions[1].rollback()
 
 class SQLOperationRecord(Base):
     __tablename__ = 'op_record'
@@ -206,6 +220,7 @@ def insert_mode_record(name):
     try:
         sessions[1].add(mode_rec)
         sessions[1].commit()
+        return mode_rec.id
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -252,6 +267,20 @@ class SQLModeStateDefault(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 SQLMode.default_states = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="mode")
+
+
+class SQLModeStateDefaultParam(Base):
+    __tablename__ = 'mode_state_default_param'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    
+    mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
+    mode_state_default = relationship("SQLModeStateDefault", back_populates="default_params")
+
+    param_name = Column('param_name', String(128), nullable=False)
+    param_value = Column('param_value', String(1024), nullable=False)
+
+SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", order_by=SQLModeStateDefaultParam.id, back_populates="mode_state_default")
+
 
 class SQLModeStateRecord(Base):
     __tablename__ = 'mode_state'

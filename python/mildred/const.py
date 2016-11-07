@@ -30,4 +30,4 @@ METADATA = 'document_metadata'
 HEXID = '_hex_id'
 
 # states
-INIT_SCAN_STATE = "initial scan state"
+INIT_SCAN_STATE = "discover"

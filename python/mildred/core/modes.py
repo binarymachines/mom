@@ -82,13 +82,15 @@ class StatefulMode(Mode):
     def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False):
         super(StatefulMode, self).__init__(name, priority=priority, dec_priority_amount=dec_priority_amount)
         self.do_action_on_change = do_action_on_change
-        self.set_state(state)
+        self._state = state
+        if do_action_on_change:
+            self.do_action()
 
     def get_state(self):
-        return self.state
+        return self._state
 
     def set_state(self, state):
-        self.state = state
+        self._state = state
         if state:
             self.effect = state.effect
             if self.do_action_on_change:
@@ -96,8 +98,8 @@ class StatefulMode(Mode):
     
     @mode_function
     def do_action(self):
-        if self.state and self.state.effect:
-            self.state.effect()
+        if self._state and self._state.effect:
+            self._state.effect()
 
 # versus Suspension
 # class RecoveryMode(Mode):

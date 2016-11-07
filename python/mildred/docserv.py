@@ -15,38 +15,36 @@ import alchemy
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-class ModeLoader():
+class ModeStateLoader():
     def __init__(self, mode_rec=None):
         self.mode_rec = {} if mode_rec is None else mode_rec
+
+    def get_default_params(self, mode):
+        if mode in self.mode_rec:
+            sqlmode = self.mode_rec[mode]
+            for default in sqlmode.default_states:
+                if mode.state.name == default.status: 
+                    return default.default_params
 
     def load_in_default_state(self, name, state):
         mode = StatefulMode(name, state=state)
         sqlmode  = alchemy.retrieve_mode(name)
-        if sqlmode and len(sqlmode.default_states) == 1:
-            state = sqlmode.default_states[0]
-            mode.priority = state.priority
-            mode.times_to_complete = state.times_to_complete
-            mode.dec_priority_amount = state.dec_priority_amount
-            mode.inc_priority_amount = state.inc_priority_amount
-            
+        if sqlmode:
+            self.mode_rec[mode] = sqlmode
+            for default in sqlmode.default_states:
+                if state.name == default.status: 
+                    mode.priority = default.priority
+                    mode.times_to_complete = default.times_to_complete
+                    mode.dec_priority_amount = default.dec_priority_amount
+                    mode.inc_priority_amount = default.inc_priority_amount
+
         return mode
 
-    def update_state(self, mode):
-        sqlmode  = alchemy.retrieve_mode(mode.name)
-        # if sqlmode and len(sqlmode.default_states) == 1:
-        #     state = sqlmode.default_states[0]
-        #     mode.priority = state.priority
-        #     mode.times_to_complete = state.times_to_complete
-        #     mode.dec_priority_amount = state.dec_priority_amount
-        #     mode.inc_priority_amount = state.inc_priority_amount
-        return mode
-
-    # def load_state()
 
 class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         # super must be called before accessing selector instance
-        self.loader = ModeLoader()
+        self.loader = ModeStateLoader()
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks
@@ -97,13 +95,13 @@ class DocumentServiceProcess(ServiceProcess):
         self.selector.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
             self.startmode, self.scanmode, self.matchmode)
 
-        # # paths to scanmode
-        # self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
-        #     self.startmode, self.evalmode)
+        # paths to scanmode
+        self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
+            self.startmode, self.evalmode)
 
-        # # paths to matchmode
-        # self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
-        #    self.startmode, self.evalmode, self.scanmode)
+        # paths to matchmode
+        self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
+           self.startmode, self.evalmode, self.scanmode)
 
         # # paths to fixmode
         # self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
@@ -123,7 +121,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to endmode
         self.selector.add_rules(self.endmode, self.handler.maybe, self.handler.ending, self.handler.ended, \
-            self.evalmode, self.matchmode)
+            self.matchmode)
 
 
 def create_service_process(identifier, context, owner=None, before=None, after=None, alternative=None):
@@ -138,11 +136,11 @@ def create_service_process(identifier, context, owner=None, before=None, after=N
 
 
 def after(process):
-    LOG.info('process %s has completed.' % process.name)
+    LOG.info('%s has ended.' % process.name)
 
 
 def before(process):
-    LOG.info('launching process: %s.' % process.name)
+    LOG.info('%s starting...' % process.name)
 
 
 # def main():
