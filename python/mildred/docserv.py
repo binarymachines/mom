@@ -5,17 +5,49 @@ from core import log
 import search
 from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INIT_SCAN_STATE
 from core.context import DirectoryContext
-from core.modes import Mode, ConditionalMode
+from core.modes import Mode, StatefulMode
 from core.trans import State, StateContext
 from core.serv import ServiceProcess
 from docservhandler import DocumentServiceProcessHandler
 
+import alchemy
+
+
 LOG = log.get_log(__name__, logging.DEBUG)
 
+class ModeLoader():
+    def __init__(self, mode_rec=None):
+        self.mode_rec = {} if mode_rec is None else mode_rec
+
+    def load_in_default_state(self, name, state):
+        mode = StatefulMode(name, state=state)
+        sqlmode  = alchemy.retrieve_mode(name)
+        if sqlmode and len(sqlmode.default_states) == 1:
+            state = sqlmode.default_states[0]
+            mode.priority = state.priority
+            mode.times_to_complete = state.times_to_complete
+            mode.dec_priority_amount = state.dec_priority_amount
+            mode.inc_priority_amount = state.inc_priority_amount
+            
+        return mode
+
+    def update_state(self, mode):
+        sqlmode  = alchemy.retrieve_mode(mode.name)
+        # if sqlmode and len(sqlmode.default_states) == 1:
+        #     state = sqlmode.default_states[0]
+        #     mode.priority = state.priority
+        #     mode.times_to_complete = state.times_to_complete
+        #     mode.dec_priority_amount = state.dec_priority_amount
+        #     mode.inc_priority_amount = state.inc_priority_amount
+        return mode
+
+    # def load_state()
+
 class DocumentServiceProcess(ServiceProcess):
-    def __init__(self, name, context, stop_on_errors=True, before=None, after=None):
+    def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         # super must be called before accessing selector instance
-        super(DocumentServiceProcess, self).__init__(name, context, stop_on_errors, before, after)
+        self.loader = ModeLoader()
+        super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks
     def after_switch(self, selector, mode):
@@ -33,8 +65,11 @@ class DocumentServiceProcess(ServiceProcess):
         self.startmode = Mode(STARTUP, self.handler.start, 0)
         self.evalmode = Mode(EVAL, self.handler.do_eval, 1)
 
-        ini_scanstate = State(INIT_SCAN_STATE, self.handler.do_scan)
-        self.scanmode = ConditionalMode(SCAN, ini_scanstate, priority=3)
+        # initial_scanstate = State(INIT_SCAN_STATE, self.handler.do_scan)
+        # self.scanmode = StatefulMode(SCAN, initial_scanstate, priority=3)
+        
+        self.scanmode = self.loader.load_in_default_state(SCAN, State(INIT_SCAN_STATE, self.handler.do_scan))
+        # self.scanmode.priority = 3
 
         # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down unntil a command is issued
@@ -62,13 +97,13 @@ class DocumentServiceProcess(ServiceProcess):
         self.selector.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
             self.startmode, self.scanmode, self.matchmode)
 
-        # paths to scanmode
-        self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
-            self.startmode, self.evalmode)
+        # # paths to scanmode
+        # self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
+        #     self.startmode, self.evalmode)
 
-        # paths to matchmode
-        self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
-           self.startmode, self.evalmode, self.scanmode)
+        # # paths to matchmode
+        # self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
+        #    self.startmode, self.evalmode, self.scanmode)
 
         # # paths to fixmode
         # self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
@@ -88,12 +123,12 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to endmode
         self.selector.add_rules(self.endmode, self.handler.maybe, self.handler.ending, self.handler.ended, \
-            self.matchmode)
+            self.evalmode, self.matchmode)
 
 
-def create_service_process(identifier, context, owner, before=None, after=None, alternative=None):
+def create_service_process(identifier, context, owner=None, before=None, after=None, alternative=None):
     if alternative is None:
-        process = DocumentServiceProcess(identifier, context, owner, before=before, after=after)
+        process = DocumentServiceProcess(identifier, context, owner=owner, before=before, after=after)
         return process
 
     return alternative(identifier, context)
@@ -110,12 +145,12 @@ def before(process):
     LOG.info('launching process: %s.' % process.name)
 
 
-def main():
-    log.start_console_logging()
-    context = DirectoryContext('music', ['/media/removable/Audio/music/albums/industrial'], ['mp3'])
-    process = DocumentServiceProcess('_Media Hound_', context, True)
-    process.restart_on_fail = False
-    process.run(before, after)
+# def main():
+#     log.start_console_logging()
+#     context = DirectoryContext('music', ['/media/removable/Audio/music/albums/industrial'], ['mp3'])
+#     process = DocumentServiceProcess('_Media Hound_', context, True)
+#     process.restart_on_fail = False
+#     process.run(before, after)
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

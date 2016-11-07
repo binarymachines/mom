@@ -6,7 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from sqlalchemy.exc import IntegrityError
 
 from errors import SQLIntegrityError
@@ -50,9 +49,9 @@ class SQLAsset(Base):
         return "<SQLAsset(index_name='%s', doc_type='%s', absolute_path='%s')>" % (
                                 self.index_name, self.doc_type, self.absolute_path)
 
-def insert_asset(index_name, doc_type, id, absolute_path):
+def insert_asset(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
     asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
-        effective_dt=datetime.datetime.now())
+        effective_dt=effective_dt, expiration_dt=expiration_dt)
 
     try:
         sessions[0].add(asset)
@@ -127,7 +126,7 @@ class SQLExecutionRecord(Base):
 
 def insert_exec_record(kwargs):
     rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_time=config.start_time, \
-        effective_dt=datetime.datetime.now(), expiration_dt=kwargs['expiration_dt'], status=kwargs['status'])
+         effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, status=kwargs['status'])
 
     try:
         sessions[1].add(rec_exec)
@@ -158,7 +157,7 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
     op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
         target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now(), \
-        target_hexadecimal_key=target_path.encode('hex'))
+        expiration_dt=datetime.datetime.max, target_hexadecimal_key=target_path.encode('hex'))
 
     try:
         # assert isinstance(session, object)
@@ -193,12 +192,66 @@ def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op
     return result
 
 
-class SQLModeRecord(Base):
+class SQLMode(Base):
     __tablename__ = 'mode'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)
-    mode_name = Column('mode_name', String(128), nullable=False)
+    name = Column('name', String(128), nullable=False)
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
+
+def insert_mode_record(name):
+    mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
+    try:
+        sessions[1].add(mode_rec)
+        sessions[1].commit()
+    except IntegrityError, err:
+        print '\a'
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        
+        sessions[1].rollback()
+
+
+def retrieve_modes():
+    result = ()
+    for instance in sessions[1].query(SQLMode).\
+        filter(SQLMode.index_name == config.es_index):
+            result += (instance,)
+
+    return result
+
+
+def retrieve_mode(name):
+    result = ()
+    for instance in sessions[1].query(SQLMode).\
+        filter(SQLMode.index_name == config.es_index). \
+        filter(SQLMode.effective_dt < datetime.datetime.now()). \
+        filter(SQLMode.expiration_dt > datetime.datetime.now()). \
+        filter(SQLMode.name == name):
+            result += (instance,)
+
+    return result[0] if len(result) == 1 else None
+        
+
+class SQLModeStateDefault(Base):
+    __tablename__ = 'mode_state_default'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    
+    mode_id = Column(Integer, ForeignKey('mode.id'))
+    mode = relationship("SQLMode", back_populates="default_states")
+    
+    # index_name = Column('index_name', String(128), nullable=False)
+    priority = Column('priority', Integer, nullable=False)
+    times_to_complete = Column('times_to_complete', Integer, nullable=False)
+    dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
+    inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
+    # error_tolerance = Column('error_tolerance', Integer, nullable=False)
+    status = Column('status', String(128), nullable=False)
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+SQLMode.default_states = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="mode")
 
 class SQLModeStateRecord(Base):
     __tablename__ = 'mode_state'

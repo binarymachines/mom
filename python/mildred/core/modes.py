@@ -26,29 +26,29 @@ class Mode(object):
     HIGHEST = 999;
     LOWEST = 0
 
-    def __init__(self, name, effect=None, priority=0, dec_priority_amount=1):
+    def __init__(self, name, effect=None, priority=0, dec_priority_amount=0, inc_priority_amount=0, error_tolerance=0, times_to_complete=0):
         self.name = name
         self.effect = effect
 
         self.active_rule = None
         self.times_activated = 0
         self.times_completed = 0
-        self.times_to_complete = 0
+        self.times_to_complete = times_to_complete
         self.last_active = None
         
         #priorities
         self.priority = priority
-        self.dec_priority = False
-        self.dec_priority_amount = 0
-        self.inc_priority = False
-        self.inc_priority_amount = 0
+        self.dec_priority = dec_priority_amount > 0
+        self.dec_priority_amount = dec_priority_amount
+        self.inc_priority = inc_priority_amount > 0
+        self.inc_priority_amount = inc_priority_amount
 
         #error management
         self.error_state = False
         self.error_count = 0
-        self.error_tolerance = 0
+        self.error_tolerance = error_tolerance
         # self.error_handler = None
-        self.suspended = False
+        self._suspended = False
 
     @mode_function
     def do_action(self):
@@ -56,35 +56,47 @@ class Mode(object):
             self.effect()
 
     def has_reached_complete_count(self):
-        if self.times_to_complete == 0:
-            return self.times_completed > 0
-        else: 
-            return self.times_completed > self.times_to_complete
+        return self.times_completed > 0 if self.times_to_complete == 0 else self.times_completed > self.times_to_complete
 
+    def is_suspended(self):
+        return self._suspended
+        
     def on_first_activation(self):
         return self.times_activated == 0
+
+    def has_higher_priority(self, mode):
+        return self.priority > mode.priority
+
+    def has_lower_priority(self, mode):
+        return self.priority < mode.priority
+
+    def has_same_priority(self, mode):
+        return self.priority == mode.priority
 
     def reset(self, reset_error_count=False):
         self.error_state = False
         if reset_error_count: self.error_count = 0
 
 
-class ConditionalMode(Mode):
-    def __init__(self, name, initial_state, priority=0, dec_priority_amount=1):
-        self.state = initial_state
-        super(ConditionalMode, self).__init__(name, effect=initial_state.effect, priority=priority, dec_priority_amount=dec_priority_amount)
+class StatefulMode(Mode):
+    def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False):
+        super(StatefulMode, self).__init__(name, priority=priority, dec_priority_amount=dec_priority_amount)
+        self.do_action_on_change = do_action_on_change
+        self.set_state(state)
 
     def get_state(self):
         return self.state
 
     def set_state(self, state):
         self.state = state
-        self.effect = state.effect
-        self.do_action()
+        if state:
+            self.effect = state.effect
+            if self.do_action_on_change:
+                self.do_action()
     
     @mode_function
     def do_action(self):
-        if self.state.effect:
+        if self.state and self.state.effect:
             self.state.effect()
 
 # versus Suspension
@@ -190,7 +202,7 @@ class Selector:
 
         if self.remove_at_error_tolerance and self.active.error_count >= self.active.error_tolerance:
             ERR.warning("%s error tolerance level limit reached for %s due to %i errors" % (self.name, self.active.name, self.active.error_count))
-            self.active.suspended = True
+            self.active._suspended = True
             # if self.recovery_possible(error):
             #     print 'recovery possible'
             #     suspension = Suspension(self.active)
@@ -223,7 +235,7 @@ class Selector:
         results = []
         for rule in self.get_rules(self.active):
             if self.remove_at_error_tolerance and rule.end.error_count > rule.end.error_tolerance \
-                or rule.end.suspended: continue
+                or rule.end._suspended: continue
 
             try:
                 self.possible = rule.end
