@@ -6,7 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from sqlalchemy.exc import IntegrityError
 
 from errors import SQLIntegrityError
@@ -20,11 +19,21 @@ ERR = log.get_log('errors', logging.WARNING)
 
 Base = declarative_base()
 
-engine = create_engine('mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db))
-Base.metadata.bind = engine
+engines = []
+sessions = []
+dbconf1 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db)
+dbconf2 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection')
+dbconf3 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin')
+dbconf4 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'media')
 
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+databases =  dbconf1, dbconf2, dbconf3, dbconf4
+
+for dbconf in databases:
+    engine = create_engine(dbconf)
+    engines.append(engine)
+    sessions.append(sessionmaker(bind=engine)())
+
+
 
 class SQLAsset(Base):
     __tablename__ = 'document'
@@ -40,13 +49,13 @@ class SQLAsset(Base):
         return "<SQLAsset(index_name='%s', doc_type='%s', absolute_path='%s')>" % (
                                 self.index_name, self.doc_type, self.absolute_path)
 
-def insert_asset(index_name, doc_type, id, absolute_path):
+def insert_asset(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
     asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
-        effective_dt=datetime.datetime.now())
+        effective_dt=effective_dt, expiration_dt=expiration_dt)
 
     try:
-        session.add(asset)
-        session.commit()
+        sessions[0].add(asset)
+        sessions[0].commit()
     # except RuntimeWarning, warn:
     #     ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
     except IntegrityError, err:
@@ -57,7 +66,7 @@ def insert_asset(index_name, doc_type, id, absolute_path):
         for arg in err.args:
             print arg
 
-        session.rollback()
+        sessions[0].rollback()
 
         raise SQLIntegrityError(err, err.message)
 
@@ -66,7 +75,7 @@ def retrieve_assets(doc_type, absolute_path):
     path = '%s%s' % (absolute_path, '%')
 
     result = ()
-    for instance in session.query(SQLAsset).\
+    for instance in sessions[0].query(SQLAsset).\
         filter(SQLAsset.index_name == config.es_index).\
         filter(SQLAsset.doc_type == doc_type).\
         filter(SQLAsset.absolute_path.like(path)):
@@ -92,13 +101,13 @@ def insert_match_record(doc_id, match_doc_id, matcher_name, percentage_of_max_sc
         matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
 
     try:
-        session.add(match_rec)
-        session.commit()
+        sessions[0].add(match_rec)
+        sessions[0].commit()
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         
-        session.rollback()
+        sessions[0].rollback()
     
 # def list_matches():
 #     for instance in session.query(SQLMatchRecord).order_by(SQLMatchRecord.doc_id):
@@ -117,16 +126,30 @@ class SQLExecutionRecord(Base):
 
 def insert_exec_record(kwargs):
     rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_time=config.start_time, \
-        effective_dt=datetime.datetime.now(), expiration_dt=kwargs['expiration_dt'], status=kwargs['status'])
+         effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, status=kwargs['status'])
 
     try:
-        session.add(rec_exec)
-        session.commit()
+        sessions[1].add(rec_exec)
+        sessions[1].commit()
+        return rec_exec
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         
-        session.rollback()
+        sessions[1].rollback()
+
+def update_exec_record(kwargs):
+    
+    try:
+        pass
+        # sessions[1].add(rec_exec)
+        # sessions[1].commit()
+        # return rec_exec
+    except IntegrityError, err:
+        print '\a'
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+    
+    sessions[1].rollback()
 
 class SQLOperationRecord(Base):
     __tablename__ = 'op_record'
@@ -148,12 +171,12 @@ def insert_operation_record(operation_name, operator_name, target_esid, target_p
     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
     op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
         target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now(), \
-        target_hexadecimal_key=target_path.encode('hex'))
+        expiration_dt=datetime.datetime.max, target_hexadecimal_key=target_path.encode('hex'))
 
     try:
         # assert isinstance(session, object)
-        session.add(op_rec)
-        session.commit()
+        sessions[1].add(op_rec)
+        sessions[1].commit()
     except RuntimeWarning, warn:
         ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
     except Exception, err:
@@ -167,13 +190,13 @@ def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op
 
     result = ()
     if operator is None:
-        for instance in session.query(SQLOperationRecord).\
+        for instance in sessions[1].query(SQLOperationRecord).\
             filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
             filter(SQLOperationRecord.operation_name == operation).\
             filter(SQLOperationRecord.status == op_status):
                 result += (instance,)
     else:
-        for instance in session.query(SQLOperationRecord).\
+        for instance in sessions[1].query(SQLOperationRecord).\
             filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
             filter(SQLOperationRecord.operation_name == operation).\
             filter(SQLOperationRecord.operator_name == operator).\
@@ -183,11 +206,80 @@ def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op
     return result
 
 
-class SQLModeRecord(Base):
+class SQLMode(Base):
     __tablename__ = 'mode'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)
-    mode_name = Column('mode_name', String(128), nullable=False)
+    name = Column('name', String(128), nullable=False)
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+
+def insert_mode_record(name):
+    mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
+    try:
+        sessions[1].add(mode_rec)
+        sessions[1].commit()
+        return mode_rec.id
+    except IntegrityError, err:
+        print '\a'
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        
+        sessions[1].rollback()
+
+
+def retrieve_modes():
+    result = ()
+    for instance in sessions[1].query(SQLMode).\
+        filter(SQLMode.index_name == config.es_index):
+            result += (instance,)
+
+    return result
+
+
+def retrieve_mode(name):
+    result = ()
+    for instance in sessions[1].query(SQLMode).\
+        filter(SQLMode.index_name == config.es_index). \
+        filter(SQLMode.effective_dt < datetime.datetime.now()). \
+        filter(SQLMode.expiration_dt > datetime.datetime.now()). \
+        filter(SQLMode.name == name):
+            result += (instance,)
+
+    return result[0] if len(result) == 1 else None
+        
+
+class SQLModeStateDefault(Base):
+    __tablename__ = 'mode_state_default'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    
+    mode_id = Column(Integer, ForeignKey('mode.id'))
+    mode = relationship("SQLMode", back_populates="default_states")
+    
+    # index_name = Column('index_name', String(128), nullable=False)
+    priority = Column('priority', Integer, nullable=False)
+    times_to_complete = Column('times_to_complete', Integer, nullable=False)
+    dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
+    inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
+    # error_tolerance = Column('error_tolerance', Integer, nullable=False)
+    status = Column('status', String(128), nullable=False)
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+SQLMode.default_states = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="mode")
+
+
+class SQLModeStateDefaultParam(Base):
+    __tablename__ = 'mode_state_default_param'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    
+    mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
+    mode_state_default = relationship("SQLModeStateDefault", back_populates="default_params")
+
+    param_name = Column('param_name', String(128), nullable=False)
+    param_value = Column('param_value', String(1024), nullable=False)
+
+SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", order_by=SQLModeStateDefaultParam.id, back_populates="mode_state_default")
 
 
 class SQLModeStateRecord(Base):
@@ -209,6 +301,34 @@ class SQLModeStateRecord(Base):
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # active_flag
+
+# CREATE TABLE `mode_state` (
+#   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+#   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+#   `pid` varchar(32) NOT NULL,
+#   `mode_id` int(11) unsigned NOT NULL,
+#   `priority` int(3) unsigned NOT NULL  DEFAULT 0,
+#   `times_activated` int(11) unsigned NOT NULL DEFAULT 0,
+#   `times_completed` int(11) unsigned NOT NULL DEFAULT 0,
+#   `times_to_complete` int(3) unsigned NOT NULL DEFAULT 0,
+#   `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT 0,
+#   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT 0,
+#   `error_count` int(3) unsigned NOT NULL DEFAULT 0,
+#   `error_tolerance` int(3) unsigned NOT NULL DEFAULT 0,
+#   `cum_error_count` int(11) unsigned NOT NULL DEFAULT 0,
+#   `cum_error_tolerance` int(11) unsigned NOT NULL DEFAULT 0,
+#   `state_id` int(11) unsigned NOT NULL DEFAULT 0,
+#   `status` varchar(64) NOT NULL,
+#   `target_path` varchar(1024) NOT NULL,
+#   `status` varchar(64) NOT NULL,
+#   `last_activated` datetime NOT NULL,
+#   `last_completed` datetime DEFAULT NULL,
+#   `effective_dt` datetime DEFAULT NULL,
+#   `expiration_dt` datetime DEFAULT NULL,
+#   PRIMARY KEY (`id`)
+# )
+
+
 
 class SQLModeStateTransitionErrorRecord(Base):
     __tablename__ = 'mode_state_trans_error'
