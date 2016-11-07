@@ -18,20 +18,19 @@ import alchemy
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-class AlchemyModeStateHandler():
+class AlchemyModeStateHandler(ModeStateHandler):
     def __init__(self, mode_rec=None):
-        self.mode_rec = {} if mode_rec is None else mode_rec
+        super(AlchemyModeStateHandler, self).__init__()
 
-    def get_default_params(self, mode):
+    def get_state_params(self, mode):
         if mode in self.mode_rec:
             sqlmode = self.mode_rec[mode]
             for default in sqlmode.default_states:
                 if mode.state.name == default.status: 
                     return default.default_params
 
-    def load_in_default_state(self, name, state):
-        mode = StatefulMode(name, state=state)
-        sqlmode  = alchemy.retrieve_mode(name)
+    def load_state(self, mode, state):
+        sqlmode  = alchemy.retrieve_mode(mode.name)
         if sqlmode:
             self.mode_rec[mode] = sqlmode
             for default in sqlmode.default_states:
@@ -47,7 +46,7 @@ class AlchemyModeStateHandler():
 class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         # super must be called before accessing selector instance
-        self.loader = AlchemyModeStateHandler()
+        self.mode_state_handler = AlchemyModeStateHandler()
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks
@@ -69,7 +68,9 @@ class DocumentServiceProcess(ServiceProcess):
         # initial_scanstate = State(INIT_SCAN_STATE, self.handler.do_scan)
         # self.scanmode = StatefulMode(SCAN, initial_scanstate, priority=3)
         
-        self.scanmode = self.loader.load_in_default_state(SCAN, State(INIT_SCAN_STATE, self.handler.do_scan))
+        self.scanmode = StatefulMode(SCAN, state= State(INIT_SCAN_STATE, self.handler.do_scan), state_handler=self.mode_state_handler)
+        
+        # self.mode_state_handler.load_state(SCAN, State(INIT_SCAN_STATE, self.handler.do_scan))
         # self.scanmode.priority = 3
 
         # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
