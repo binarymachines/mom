@@ -1,6 +1,17 @@
 pushd $m2
 
+clear
+
+echo '------------------------------------------------'
+echo 'Backing up  Mildred Database'
+echo '------------------------------------------------'
+echo
+
+echo "removing exiting backups..."
 rm bak/sql/*.sql
+rm setup/sql/*.sql
+
+echo "copying lookup tables..."
 
 ./copy-table-data.sh mildred directory
 ./copy-table-data.sh mildred directory_amelioration
@@ -20,23 +31,33 @@ rm bak/sql/*.sql
 ./copy-table-data.sh media artist_alias
 ./copy-table-data.sh media artist_amelioration
 
+echo "adding lookup tables to git."
 git add bak/sql/*.sql
 
-mysqldump mildred > $m2/bak/sql/backup-mildred.sql
-mysqldump mildred_admin > $m2/bak/sql/backup-mildred_admin.sql
-mysqldump mildred_introspection > $m2/bak/sql/backup-mildred_introspection.sql
-mysqldump media > $m2/bak/sql/backup-media.sql
+echo "copying data tables..."
 
-mysqldump --routines scratch > $m2/bak/sql/scratch.sql
+mysqldump mildred > bak/sql/dump/backup-mildred.sql
+mysqldump mildred_admin > bak/sql/dump/backup-mildred_admin.sql
+mysqldump mildred_introspection > bak/sql/dump/backup-mildred_introspection.sql
+mysqldump media > bak/sql/dump/backup-media.sql
 
-rm setup/sql/*.sql
+mysqldump --routines scratch > bak/sql/scratch.sql
 
-mysqldump --no-data mildred > $m2/setup/sql/setup-mildred.sql
-mysqldump --no-data mildred_admin > $m2/setup/sql/setup-mildred_admin.sql
-mysqldump --no-data mildred_introspection > $m2/setup/sql/setup-mildred_introspection.sql
-mysqldump --no-data media > $m2/setup/sql/setup-media.sql
+echo "copying setup tables..."
+mysqldump --no-data mildred > setup/sql/setup-mildred.sql
+mysqldump --no-data mildred_admin > setup/sql/setup-mildred_admin.sql
+mysqldump --no-data mildred_introspection > setup/sql/setup-mildred_introspection.sql
+mysqldump --no-data media > setup/sql/setup-media.sql
 
+echo "adding setup tables to git."
 git add setup/sql/*.sql
+
+echo '------------------------------------------------'
+echo 'Backup Complete'
+echo '------------------------------------------------'
+echo
 git status
+git commit -m 'db snapshot'
+git push
 
 popd

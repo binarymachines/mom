@@ -9,6 +9,8 @@ from core import log
 import scan
 import ops
 
+from core.modes import StatefulMode
+
 LOG = log.get_log(__name__, logging.DEBUG)
 
 class DecisionHandler(object):
@@ -172,8 +174,9 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def do_scan(self):
         if self.selector.active:
-            if self.selector.active.state.name == INIT_SCAN_STATE:
-                self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
+            if isinstance(self.selector.active, StatefulMode):
+                if self.selector.active.get_state().name == INIT_SCAN_STATE:
+                    self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
 
         scan.scan(self.context)
 
