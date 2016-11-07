@@ -36,10 +36,10 @@ git add bak/sql/*.sql
 
 echo "copying data tables..."
 
-mysqldump mildred > bak/sql/backup-mildred.sql
-mysqldump mildred_admin > bak/sql/backup-mildred_admin.sql
-mysqldump mildred_introspection > bak/sql/backup-mildred_introspection.sql
-mysqldump media > bak/sql/backup-media.sql
+mysqldump mildred > bak/sql/dump/backup-mildred.sql
+mysqldump mildred_admin > bak/sql/dump/backup-mildred_admin.sql
+mysqldump mildred_introspection > bak/sql/dump/backup-mildred_introspection.sql
+mysqldump media > bak/sql/dump/backup-media.sql
 
 mysqldump --routines scratch > bak/sql/scratch.sql
 
