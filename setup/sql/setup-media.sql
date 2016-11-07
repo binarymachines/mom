@@ -16,6 +16,21 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `artist_alias`
+--
+
+DROP TABLE IF EXISTS `artist_alias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `artist_alias` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `artist` varchar(128) NOT NULL,
+  `alias` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `artist_amelioration`
 --
 
@@ -29,16 +44,6 @@ CREATE TABLE `artist_amelioration` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `artist_amelioration`
---
-
-LOCK TABLES `artist_amelioration` WRITE;
-/*!40000 ALTER TABLE `artist_amelioration` DISABLE KEYS */;
-INSERT INTO `artist_amelioration` VALUES (1,'cure, the','the cure'),(2,'ant, adam','adam ant'),(3,'various','various artists'),(4,'va','various artists'),(5,'v.a.','various artists'),(6,'varios','various artists'),(7,'v/a','various artists'),(8,'a.a.v..v','various artists');
-/*!40000 ALTER TABLE `artist_amelioration` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -49,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-07 13:41:22
+-- Dump completed on 2016-11-07 13:41:28
