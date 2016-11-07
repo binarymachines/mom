@@ -21,7 +21,6 @@ rm bak/sql/*.sql
 ./copy-table-data.sh media artist_amelioration
 
 git add bak/sql/*.sql
-git status
 
 mysqldump mildred > $m2/bak/sql/backup-mildred.sql
 mysqldump mildred_admin > $m2/bak/sql/backup-mildred_admin.sql

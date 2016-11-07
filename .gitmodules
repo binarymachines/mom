@@ -1,3 +1,0 @@
-[submodule "python/mildred/snap"]
-	path = python/mildred/snap
-	url = https://github.com/binarymachines/snap.git
