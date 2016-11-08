@@ -7,7 +7,7 @@ echo 'Backing up  Mildred Database'
 echo '------------------------------------------------'
 echo
 
-echo "removing exiting backups..."
+echo "removing existing backups..."
 rm bak/sql/*.sql
 rm setup/sql/*.sql
 

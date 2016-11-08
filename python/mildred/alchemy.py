@@ -21,12 +21,13 @@ Base = declarative_base()
 
 engines = []
 sessions = []
-dbconf1 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db)
-dbconf2 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection')
-dbconf3 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin')
-dbconf4 = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'media')
 
-databases =  dbconf1, dbconf2, dbconf3, dbconf4
+primary = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db)
+introspection = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection')
+admin = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin')
+media = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'media')
+
+databases =  primary, introspection, admin, media
 
 for dbconf in databases:
     engine = create_engine(dbconf)
@@ -311,7 +312,7 @@ SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", or
 
 
 class SQLModeStateRecord(Base):
-    __tablename__ = 'mode_status'
+    __tablename__ = 'mode_state'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     # index_name = Column('index_name', String(128), nullable=False)
 
