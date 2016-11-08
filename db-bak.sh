@@ -28,6 +28,19 @@ echo "copying lookup tables..."
 ./copy-table-data.sh mildred matcher
 ./copy-table-data.sh mildred matcher_field
 
+./copy-table-data.sh mildred_admin org
+./copy-table-data.sh mildred_admin member
+
+./copy-table-data.sh mildred_introspection mode
+./copy-table-data.sh mildred_introspection state
+./copy-table-data.sh mildred_introspection mode_state_default
+./copy-table-data.sh mildred_introspection mode_state_default_param
+./copy-table-data.sh mildred_introspection error
+./copy-table-data.sh mildred_introspection error_attribute
+
+
+
+
 ./copy-table-data.sh media artist_alias
 ./copy-table-data.sh media artist_amelioration
 
