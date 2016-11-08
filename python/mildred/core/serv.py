@@ -2,6 +2,7 @@ import sys, os, logging, traceback, thread
 
 from modes import Mode, Rule, Selector, Engine
 from errors import BaseClassException
+
 import log
 
 LOG = log.get_log(__name__, logging.DEBUG)

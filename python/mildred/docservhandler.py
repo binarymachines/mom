@@ -10,6 +10,8 @@ import scan
 import ops
 
 from core.modestate import StatefulMode
+from core.errors import BaseClassException
+
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -27,7 +29,6 @@ class DecisionHandler(object):
         for mode in selector.modes:
              if bool(random.getrandbits(1)): count += 1
         return count > 3
-
 
 class DocumentServiceProcessHandler(DecisionHandler):
     def __init__(self, owner, name, selector, context):

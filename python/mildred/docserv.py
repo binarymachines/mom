@@ -7,51 +7,40 @@ from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT
 from core.context import DirectoryContext
 
 from core.modes import Mode
-from core.modestate import StatefulMode, ModeStateHandler
+from core.modestate import StatefulMode, ModeStateHandler, ModeStateChangeHandler
 
 from core.trans import State, StateContext
 from core.serv import ServiceProcess
 from docservhandler import DocumentServiceProcessHandler
 
 import alchemy
+from alchemy_modestate import AlchemyModeStateHandler
 
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-class AlchemyModeStateHandler(ModeStateHandler):
-    def __init__(self, mode_rec=None):
-        super(AlchemyModeStateHandler, self).__init__()
-
-    def get_state_params(self, mode):
-        if mode in self.mode_rec:
-            alchemy_mode = self.mode_rec[mode]
-            for default in alchemy_mode.default_states:
-                if mode.state.name == default.status: 
-                    return default.default_params
-
-    def load_state(self, mode, state):
-        alchemy_mode  = alchemy.retrieve_mode(mode.name)
-        if alchemy_mode:
-            self.mode_rec[mode] = alchemy_mode
-            for default in alchemy_mode.default_states:
-                if state.name == default.status: 
-                    mode.priority = default.priority
-                    mode.times_to_complete = default.times_to_complete
-                    mode.dec_priority_amount = default.dec_priority_amount
-                    mode.inc_priority_amount = default.inc_priority_amount
-
-        return mode
-
+# TODO: change mode switch rule based on mode state
+class DocumentServerModeStateChangeHandler(ModeStateChangeHandler):
+    def __init__(self):
+        super(DocumentServerModeStateChangeHandler, self).__init__()
+    
+    def go_next(self, mode, context):
+        return True
 
 class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         # super must be called before accessing selector instance
-        self.mode_state_handler = AlchemyModeStateHandler()
+        self.state_change_handler = DocumentServerModeStateChangeHandler()
+        self.mode_state_handler = AlchemyModeStateHandler(self.state_change_handler.go_next)
+
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks
     def after_switch(self, selector, mode):
         self.handler.after_switch(selector, mode)
+        if isinstance(mode, StatefulMode):
+            if mode.go_next(self.context):
+                print "time to change mode state"
 
     def before_switch(self, selector, mode):
         self.handler.before_switch(selector, mode)
@@ -62,6 +51,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         self.handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
+
         self.startmode = Mode(STARTUP, self.handler.start, 0)
         self.evalmode = Mode(EVAL, self.handler.do_eval, 1)
 
@@ -69,9 +59,7 @@ class DocumentServiceProcess(ServiceProcess):
         # self.scanmode = StatefulMode(SCAN, initial_scanstate, priority=3)
         
         self.scanmode = StatefulMode(SCAN, state= State(INIT_SCAN_STATE, self.handler.do_scan), state_handler=self.mode_state_handler)
-        
-        # self.mode_state_handler.load_state(SCAN, State(INIT_SCAN_STATE, self.handler.do_scan))
-        # self.scanmode.priority = 3
+
 
         # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down unntil a command is issued

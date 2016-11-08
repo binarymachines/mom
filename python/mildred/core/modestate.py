@@ -1,7 +1,10 @@
+import logging
+
 from errors import BaseClassException
 
 from modes import Mode, mode_function
 
+import core.log
 
 class StatefulMode(Mode):
     def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False, state_handler=None):
@@ -14,6 +17,10 @@ class StatefulMode(Mode):
             self._state_handler.load_state(self, state)
         if do_action_on_change:
             self.do_action()
+    
+    def go_next(self, context):
+        if self._state and self._state_handler:
+            return self._state_handler.go_next(self, context)
 
     def get_state(self):
         return self._state
@@ -33,8 +40,9 @@ class StatefulMode(Mode):
 
 # load mode state, save mode state, instantiate mode.state.action
 class ModeStateHandler(object):
-    def __init__(self, mode_rec=None):
+    def __init__(self, mode_rec=None, next_func=None):
         self.mode_rec = {} if mode_rec is None else mode_rec
+        self.next_func = next_func
 
     def get_mode_rec(mode):
         if mode in self.mode_rec:
@@ -46,6 +54,15 @@ class ModeStateHandler(object):
     def load_state(self, name, state):
         raise BaseClassException(ModeStateHandler)
 
+    @mode_function
+    def go_next(self, mode, context):
+        if self.next_func:
+            return self.next_func(mode, context)
+                
+
+class ModeStateChangeHandler(object):
+    def go_next(self, mode, context):
+        raise BaseClassException(ModeStateChangeHandler)
 
 
 class StatefulRule:
