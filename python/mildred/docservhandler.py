@@ -22,6 +22,12 @@ class DecisionHandler(object):
         result = bool(random.getrandbits(1))
         return result
 
+    def possibly(self, selector, active, possible):
+        count = 0
+        for mode in selector.modes:
+             if bool(random.getrandbits(1)): count += 1
+        return count > 3
+
 
 class DocumentServiceProcessHandler(DecisionHandler):
     def __init__(self, owner, name, selector, context):
@@ -70,28 +76,34 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
         return True
 
-    # start
+    # start mode
 
-    def started(self): LOG.debug("%s process has started" % self.name)
+    def started(self): 
+        LOG.debug("%s process has started" % self.name)
 
-    def starting(self): LOG.debug("%s process will start" % self.name)
+    def starting(self): 
+        LOG.debug("%s process will start" % self.name)
 
-    def start(self): LOG.debug("%s process is starting" % self.name)
+    def start(self): 
+        LOG.debug("%s process is starting" % self.name)
 
-    # end
+    # end mode
 
-    def ended(self): LOG.debug("%s process has ended" % self.name)
+    def ended(self): 
+        LOG.debug("%s process has ended" % self.name)
 
-    def ending(self): LOG.debug("%s process will end" % self.name)
+    def ending(self): 
+        LOG.debug("%s process will end" % self.name)
 
-    def end(self): LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.name)
+    def end(self): 
+        LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.name)
 
-    # eval
+    # eval mode
 
     def do_eval(self): LOG.debug('%s evaluating' % self.name)
         # self.owner.fixmode.priority += 1
 
-    # fix
+    # fix mode
 
     def after_fix(self): LOG.debug('%s done fixing' % self.name)
 
@@ -99,7 +111,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def do_fix(self): LOG.debug('%s fixing' % self.name)
 
-    # clean
+    # clean mode
 
     def after_clean(self): 
         LOG.debug('%s done cleanining' % self.name)
@@ -113,7 +125,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
         LOG.debug('%s clean' % self.name)
         clean.clean(self.context)
 
-    # report
+    # report mode
     
     def do_report(self):
         LOG.debug('%s generating report' % self.name)
@@ -122,7 +134,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
             if mode not in (self.owner.startmode, self.owner.endmode):
                 LOG.debug('%s: times activated = %i, priority = %i, error count = %i' % (mode.name, mode.times_activated, mode.priority, mode.error_count))
 
-    # match
+    # match mode
 
     def before_match(self):
         self.before()
@@ -146,19 +158,11 @@ class DocumentServiceProcessHandler(DecisionHandler):
             self.selector.handle_error(err)
             LOG.debug(err.message)
 
-    # requests
+    # requests mode
 
     def do_reqs(self): LOG.debug('%s handling requests...' % self.name)
 
-
-    def possibly(self, selector, active, possible):
-        count = 0
-        for mode in self.selector.modes:
-             if bool(random.getrandbits(1)): count += 1
-        return count > 3
-
-
-    # scan
+    # scan mode
 
     def before_scan(self):
         # LOG.debug('%s preparing to scan, caching data' % self.name)
