@@ -38,9 +38,6 @@ echo "copying lookup tables..."
 ./copy-table-data.sh mildred_introspection error
 ./copy-table-data.sh mildred_introspection error_attribute
 
-
-
-
 ./copy-table-data.sh media artist_alias
 ./copy-table-data.sh media artist_amelioration
 
@@ -54,7 +51,7 @@ mysqldump mildred_admin > bak/sql/dump/backup-mildred_admin.sql
 mysqldump mildred_introspection > bak/sql/dump/backup-mildred_introspection.sql
 mysqldump media > bak/sql/dump/backup-media.sql
 
-mysqldump --routines scratch > bak/sql/scratch.sql
+# mysqldump --routines scratch > bak/sql/scratch.sql
 
 echo "copying setup tables..."
 mysqldump --no-data mildred > setup/sql/setup-mildred.sql
