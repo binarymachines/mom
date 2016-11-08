@@ -40,17 +40,25 @@ class DocumentServiceProcess(ServiceProcess):
         self.handler.after_switch(selector, mode)
 
         if isinstance(mode, StatefulMode):
-            # self.mode_state_handler.save_state
+            alchemy.update_mode_state_record(mode)
             if mode.go_next(self.context):
+                mode.mode_state_id = alchemy.insert_mode_state_record(mode)
+            
             # self.mode_state_handler.save_state
-                print "time to change mode state"
+            # self.mode_state_handler.save_state
 
     def before_switch(self, selector, mode):
         if isinstance(mode, StatefulMode):
             if mode.go_next(self.context):
+                mode.mode_state_id = alchemy.insert_mode_state_record(mode)
+
+                # if mode.mode_state_id is None:
+                # else:
+                #     alchemy.update_mode_state_record(mode)
+                    
+                # self.mode_state_handler.save_state(mode)
                 # self.mode_state_handler.save_state
-                # self.mode_state_handler.load_state
-                print "time to load mode state"
+                # self.mode_state_handler.load_default_state
 
         self.handler.before_switch(selector, mode)
 

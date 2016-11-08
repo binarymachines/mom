@@ -248,6 +248,34 @@ def retrieve_mode(name):
 
     return result[0] if len(result) == 1 else None
         
+class SQLState(Base):
+    __tablename__ = 'state'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    name = Column('name', String(128), nullable=False)
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+def retrieve_states():
+    result = ()
+    for instance in sessions[1].query(SQLState).\
+        filter(SQLState.index_name == config.es_index):
+            result += (instance,)
+
+    return result
+
+
+def retrieve_state(name):
+    result = ()
+    for instance in sessions[1].query(SQLState).\
+        filter(SQLState.index_name == config.es_index). \
+        filter(SQLState.effective_dt < datetime.datetime.now()). \
+        filter(SQLState.expiration_dt > datetime.datetime.now()). \
+        filter(SQLState.name == name):
+            result += (instance,)
+
+    return result[0] if len(result) == 1 else None
+
 
 class SQLModeStateDefault(Base):
     __tablename__ = 'mode_state_default'
@@ -283,24 +311,81 @@ SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", or
 
 
 class SQLModeStateRecord(Base):
-    __tablename__ = 'mode_state'
+    __tablename__ = 'mode_status'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
+    # index_name = Column('index_name', String(128), nullable=False)
+
+    pid = Column('pid', String(32), nullable=False)
+    mode_id = Column(Integer, ForeignKey('mode.id'))
+    state_id = Column(Integer, ForeignKey('state.id'))
+    # mode = relationship("SQLMode", back_populates="state_records")
+
     last_activated = Column('last_activated', DateTime, nullable=True)
     last_completed = Column('last_completed', DateTime, nullable=True)
     priority = Column('priority', Integer, nullable=False)
     times_activated = Column('times_activated', Integer, nullable=False)
-    times_completed = Column('prtimes_completediority', Integer, nullable=False)
+    times_completed = Column('times_completed', Integer, nullable=False)
     times_to_complete = Column('times_to_complete', Integer, nullable=False)
     dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
     inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
     error_count = Column('error_count', Integer, nullable=False)
     error_tolerance = Column('error_tolerance', Integer, nullable=False)
-    cum_error_count = Column('cum_error_count', Integer, nullable=False)
-    cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
+    # cum_error_count = Column('cum_error_count', Integer, nullable=False)
+    # cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # active_flag
+
+def retrieve_mode_state_record(id):
+    result = ()
+    for instance in sessions[1].query(SQLModeStateRecord).\
+        filter(SQLModeStateRecord.id == id):
+            result += (instance,)
+
+    return result[0] if len(result) == 1 else None
+
+def insert_mode_state_record(mode):
+    sqlmode = retrieve_mode(mode.name)
+    sqlstate = retrieve_state(mode.get_state().name)
+    # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count, 
+    mode_state_rec = SQLModeStateRecord(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
+        times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete, 
+        dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count, 
+        error_tolerance=mode.error_tolerance, 
+        effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
+
+    try:
+        sessions[1].add(mode_state_rec)
+        sessions[1].commit()
+        return mode_state_rec.id
+    except IntegrityError, err:
+        print '\a'
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        
+        sessions[1].rollback()    
+
+def update_mode_state_record(mode):
+    # sqlmode = retrieve_mode(mode.name)
+    # sqlstate = retrieve_state(mode.get_state().name)
+    # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
+    mode_state_rec = retrieve_mode_state_record(mode.mode_state_id) 
+    mode_state_rec.expiration_dt = datetime.datetime.now()
+    
+    # mode_state_rec = SQLModeStateRecord(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
+        # times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete, 
+        # dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count, 
+        # error_tolerance=mode.error_tolerance, 
+        # effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
+
+    try:
+        # sessions[1].add(mode_state_rec)
+        sessions[1].commit()
+        return mode_state_rec.id
+    except IntegrityError, err:
+        print '\a'
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        
+        sessions[1].rollback()
 
 # CREATE TABLE `mode_state` (
 #   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

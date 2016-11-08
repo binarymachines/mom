@@ -20,15 +20,20 @@ class AlchemyModeStateHandler(ModeStateHandler):
                 if mode.state.name == default.status: 
                     return default.default_params
 
-    def load_state(self, mode, state):
+    def load_default_state(self, mode, state):
         alchemy_mode  = alchemy.retrieve_mode(mode.name)
         if alchemy_mode:
             self.mode_rec[mode] = alchemy_mode
             for default in alchemy_mode.default_states:
                 if state.name == default.status: 
+                    mode.state_id = default.id
+                    
                     mode.priority = default.priority
                     mode.times_to_complete = default.times_to_complete
                     mode.dec_priority_amount = default.dec_priority_amount
                     mode.inc_priority_amount = default.inc_priority_amount
 
         return mode
+
+    # def save_state(self, mode):
+        # alchemy.insert_mode_state_record(mode)

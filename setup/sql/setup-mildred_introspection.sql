@@ -84,7 +84,7 @@ CREATE TABLE `execution` (
   `effective_dt` datetime NOT NULL,
   `expiration_dt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,6 +102,39 @@ CREATE TABLE `mode` (
   `expiration_dt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `mode_state`
+--
+
+DROP TABLE IF EXISTS `mode_state`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mode_state` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `pid` varchar(32) NOT NULL,
+  `mode_id` int(11) unsigned NOT NULL,
+  `state_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `priority` int(3) unsigned NOT NULL DEFAULT '0',
+  `times_activated` int(11) unsigned NOT NULL DEFAULT '0',
+  `times_completed` int(11) unsigned NOT NULL DEFAULT '0',
+  `times_to_complete` int(3) unsigned NOT NULL DEFAULT '0',
+  `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
+  `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
+  `error_count` int(3) unsigned NOT NULL DEFAULT '0',
+  `error_tolerance` int(3) unsigned NOT NULL DEFAULT '0',
+  `status` varchar(64) NOT NULL,
+  `last_activated` datetime DEFAULT NULL,
+  `last_completed` datetime DEFAULT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_mode_status_mode` (`mode_id`),
+  KEY `fk_mode_status_state` (`state_id`),
+  CONSTRAINT `fk_mode_status_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
+  CONSTRAINT `fk_mode_status_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,39 +184,6 @@ CREATE TABLE `mode_state_default_param` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `mode_status`
---
-
-DROP TABLE IF EXISTS `mode_status`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `mode_status` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pid` varchar(32) NOT NULL,
-  `mode_id` int(11) unsigned NOT NULL,
-  `state_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `priority` int(3) unsigned NOT NULL DEFAULT '0',
-  `times_activated` int(11) unsigned NOT NULL DEFAULT '0',
-  `times_completed` int(11) unsigned NOT NULL DEFAULT '0',
-  `times_to_complete` int(3) unsigned NOT NULL DEFAULT '0',
-  `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
-  `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
-  `error_count` int(3) unsigned NOT NULL DEFAULT '0',
-  `error_tolerance` int(3) unsigned NOT NULL DEFAULT '0',
-  `status` varchar(64) NOT NULL,
-  `last_activated` datetime NOT NULL,
-  `last_completed` datetime DEFAULT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_mode_status_mode` (`mode_id`),
-  KEY `fk_mode_status_state` (`state_id`),
-  CONSTRAINT `fk_mode_status_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
-  CONSTRAINT `fk_mode_status_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `op_record`
 --
 
@@ -205,7 +205,7 @@ CREATE TABLE `op_record` (
   `expiration_dt` datetime DEFAULT NULL,
   `target_hexadecimal_key` varchar(640) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=604771 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=605253 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -248,4 +248,4 @@ CREATE TABLE `state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-07 20:22:53
+-- Dump completed on 2016-11-08  4:37:50

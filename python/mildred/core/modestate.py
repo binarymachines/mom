@@ -14,12 +14,16 @@ class StatefulMode(Mode):
         self._state = state
         self._state_handler = state_handler
     
+        self.mode_id = None
+        self.state_id = None
+        self.mode_state_id = None
+        
     def go_next(self, context):
         if self._state and self._state_handler:
             result = self._state_handler.go_next(self, context)
             if result:
-                self._state_handler.load_state(self, self._state)
-
+                self._state_handler.load_default_state(self, self._state)
+                
             return result
 
     def get_state(self):
@@ -51,7 +55,7 @@ class ModeStateHandler(object):
     def get_state_params(self, mode):
         raise BaseClassException(ModeStateHandler)
 
-    def load_state(self, name, state):
+    def load_default_state(self, name, state):
         raise BaseClassException(ModeStateHandler)
 
     @mode_function
