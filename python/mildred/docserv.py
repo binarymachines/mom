@@ -38,11 +38,20 @@ class DocumentServiceProcess(ServiceProcess):
     # selector callbacks
     def after_switch(self, selector, mode):
         self.handler.after_switch(selector, mode)
+
         if isinstance(mode, StatefulMode):
+            # self.mode_state_handler.save_state
             if mode.go_next(self.context):
+            # self.mode_state_handler.save_state
                 print "time to change mode state"
 
     def before_switch(self, selector, mode):
+        if isinstance(mode, StatefulMode):
+            if mode.go_next(self.context):
+                # self.mode_state_handler.save_state
+                # self.mode_state_handler.load_state
+                print "time to load mode state"
+
         self.handler.before_switch(selector, mode)
 
     # process logic

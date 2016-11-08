@@ -15,8 +15,8 @@ from core.errors import BaseClassException
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
+# decisions and guesses
 class DecisionHandler(object):
-    # decisions and guesses
 
     def definitely(self, selector, active, possible): return True
 
@@ -183,7 +183,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
                 if self.selector.active.get_state().name == INIT_SCAN_STATE:
                     self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
 
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
 # Scan mode  has a series of states: High Level Scan, Scan and Deep Scan

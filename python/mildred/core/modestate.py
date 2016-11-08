@@ -13,14 +13,14 @@ class StatefulMode(Mode):
         self.do_action_on_change = do_action_on_change
         self._state = state
         self._state_handler = state_handler
-        if state and state_handler:
-            self._state_handler.load_state(self, state)
-        if do_action_on_change:
-            self.do_action()
     
     def go_next(self, context):
         if self._state and self._state_handler:
-            return self._state_handler.go_next(self, context)
+            result = self._state_handler.go_next(self, context)
+            if result:
+                self._state_handler.load_state(self, self._state)
+
+            return result
 
     def get_state(self):
         return self._state
