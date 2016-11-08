@@ -1,6 +1,6 @@
 -- MySQL dump 10.14  Distrib 5.5.52-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: mildred_admin
+-- Host: localhost    Database: mildred
 -- ------------------------------------------------------
 -- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
 
@@ -16,35 +16,30 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `member`
+-- Table structure for table `directory_constant`
 --
 
-DROP TABLE IF EXISTS `member`;
+DROP TABLE IF EXISTS `directory_constant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `member` (
+CREATE TABLE `directory_constant` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `org_id` int(11) unsigned NOT NULL,
-  `username` varchar(64) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_member_org` (`org_id`),
-  CONSTRAINT `fk_member_org` FOREIGN KEY (`org_id`) REFERENCES `org` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `org`
---
-
-DROP TABLE IF EXISTS `org`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `org` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(256) NOT NULL,
+  `pattern` varchar(256) NOT NULL,
+  `location_type` varchar(64) NOT NULL,
+  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `directory_constant`
+--
+
+LOCK TABLES `directory_constant` WRITE;
+/*!40000 ALTER TABLE `directory_constant` DISABLE KEYS */;
+INSERT INTO `directory_constant` VALUES (1,'/compilations','compilation','media'),(2,'compilations/','compilation','media'),(3,'/various','compilation','media'),(4,'/bak/','ignore','media'),(5,'/webcasts and custom mixes','extended','media'),(6,'/downloading','incomplete','media'),(7,'/live','live_recording','media'),(8,'/slsk/','new','media'),(9,'/incoming/','new','media'),(10,'/random','random','media'),(11,'/recently','recent','media'),(12,'/unsorted','unsorted','media'),(13,'[...]','side_projects','media');
+/*!40000 ALTER TABLE `directory_constant` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -55,4 +50,4 @@ CREATE TABLE `org` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-07 20:22:52
+-- Dump completed on 2016-11-07 20:21:23
