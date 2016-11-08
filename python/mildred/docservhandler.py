@@ -36,11 +36,11 @@ class DocumentServiceProcessHandler(DecisionHandler):
     # selector callbacks
 
     def after_switch(self, selector, mode):
-        pass
+        print 'finished %s mode' % mode.name
 
 
     def before_switch(self, selector, mode):
-        pass
+        print 'switching into %s mode' % mode.name
 
     # generic rule callbacks
 

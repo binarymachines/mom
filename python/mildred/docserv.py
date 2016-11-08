@@ -24,16 +24,16 @@ class AlchemyModeStateHandler(ModeStateHandler):
 
     def get_state_params(self, mode):
         if mode in self.mode_rec:
-            sqlmode = self.mode_rec[mode]
-            for default in sqlmode.default_states:
+            alchemy_mode = self.mode_rec[mode]
+            for default in alchemy_mode.default_states:
                 if mode.state.name == default.status: 
                     return default.default_params
 
     def load_state(self, mode, state):
-        sqlmode  = alchemy.retrieve_mode(mode.name)
-        if sqlmode:
-            self.mode_rec[mode] = sqlmode
-            for default in sqlmode.default_states:
+        alchemy_mode  = alchemy.retrieve_mode(mode.name)
+        if alchemy_mode:
+            self.mode_rec[mode] = alchemy_mode
+            for default in alchemy_mode.default_states:
                 if state.name == default.status: 
                     mode.priority = default.priority
                     mode.times_to_complete = default.times_to_complete
@@ -97,7 +97,6 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to evalmode
         self.selector.add_rules(self.evalmode, self.handler.mode_is_available, self.handler.before, self.handler.after, \
-
             self.startmode, self.scanmode, self.matchmode)
 
         # paths to scanmode

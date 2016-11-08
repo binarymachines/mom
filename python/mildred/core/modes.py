@@ -85,9 +85,8 @@ class Mode(object):
 #         self.test_func = test_func
 
 
-
 # TODO: implement back-chaining by finding rules to move to previous modes
-class Rule:
+class Rule(object):
     def __init__(self, name, start, end, condition, before=None, after=None):
         self.name = name
 
