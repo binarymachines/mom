@@ -104,7 +104,8 @@ class ModeStateChangeHandler(object):
     def add_transition(self, start, end, condition):
         rule = TransitionRule(start, end, condition)
         self.transitions.append(rule)
-
+        return self
+        
     def can_go_next(self, mode, context):
         active = context.get_param(mode, 'state')
         if active is None:

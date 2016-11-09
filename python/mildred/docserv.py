@@ -83,7 +83,6 @@ class DocumentServiceProcess(ServiceProcess):
         startup_handler = StartupHandler(self)
         shutdown_handler = ShutdownHandler(self)
 
-
         self.startmode = Mode(STARTUP, startup_handler.start, 0)
         self.evalmode = Mode(EVAL, self.process_handler.do_eval, 1)
 
@@ -98,12 +97,12 @@ class DocumentServiceProcess(ServiceProcess):
             add_state(scan_update). \
             add_state(scan_monitor)
 
-        self.state_change_handler.add_transition(scan_init, scan_discover, self.process_handler.definitely)
-        self.state_change_handler.add_transition(scan_discover, scan_update, self.process_handler.definitely)
-        self.state_change_handler.add_transition(scan_update, scan_monitor, self.process_handler.definitely)
+        self.state_change_handler.add_transition(scan_init, scan_discover, self.process_handler.definitely). \
+            add_transition(scan_discover, scan_update, self.process_handler.definitely). \        
+            add_transition(scan_update, scan_monitor, self.process_handler.definitely)
 
         # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
-        # self.sleep mode -> state is persisted, system shuts down unntil a command is issued
+        # self.sleep mode -> state is persisted, system shuts down until a command is issued
         self.cleanmode = Mode(CLEAN, self.process_handler.do_clean, 2) # bring ElasticSearch into line with MariaDB
         self.matchmode = Mode(MATCH, self.process_handler.do_match, 3)
         self.fixmode = Mode(FIX, self.process_handler.do_fix, 1)
@@ -136,25 +135,25 @@ class DocumentServiceProcess(ServiceProcess):
         self.selector.add_rules(self.matchmode, self.process_handler.mode_is_available, self.process_handler.before_match, self.process_handler.after_match, \
            self.startmode, self.evalmode, self.scanmode)
 
-        # # paths to fixmode
+        # paths to reqmode
+        self.selector.add_rules(self.reqmode, self.process_handler.mode_is_available, self.process_handler.before, self.process_handler.after, \
+            self.matchmode, self.scanmode, self.evalmode)
+
+        # paths to reportmode
+        self.selector.add_rules(self.reportmode, self.process_handler.maybe, self.process_handler.before, self.process_handler.after, \
+            self.fixmode, self.reqmode)
+
+        # paths to fixmode
         self.selector.add_rules(self.fixmode, self.process_handler.mode_is_available, self.process_handler.before_fix, self.process_handler.after_fix, \
-            self.evalmode)
+            self.reportmode)
 
         # # paths to cleanmode
         # self.selector.add_rules(self.cleanmode, self.process_handler.mode_is_available, self.process_handler.before_clean, self.process_handler.after_clean, \
         #     self.reqmode)
 
-        # # paths to reqmode
-        # self.selector.add_rules(self.reqmode, self.process_handler.mode_is_available, self.process_handler.before, self.process_handler.after, \
-        #     self.matchmode, self.scanmode)
-
-        # # paths to reportmode
-        # self.selector.add_rules(self.reportmode, self.process_handler.maybe, self.process_handler.before, self.process_handler.after, \
-        #     self.cleanmode, self.reqmode, self.evalmode)
-
         # paths to endmode
         self.selector.add_rules(self.endmode, self.process_handler.maybe, shutdown_handler.ending, shutdown_handler.ended, \
-            self.fixmode)
+            self.reportmode, self.fixmode)
 
 
 def create_service_process(identifier, context, owner=None, before=None, after=None, alternative=None):
@@ -167,13 +166,12 @@ def create_service_process(identifier, context, owner=None, before=None, after=N
 
 # process callbacks
 
+# def after(process):
+#     LOG.info('%s has ended.' % process.name)
 
-def after(process):
-    LOG.info('%s has ended.' % process.name)
 
-
-def before(process):
-    LOG.info('%s starting...' % process.name)
+# def before(process):
+#     LOG.info('%s starting...' % process.name)
 
 
 # def main():
