@@ -8,12 +8,55 @@ from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN, SCAN_INIT
 from core import log
 import scan
 import ops
+import search
+import sql
 
 from core.modestate import StatefulMode
 from core.errors import BaseClassException
 
 
 LOG = log.get_log(__name__, logging.DEBUG)
+
+
+# start mode
+class StartupHandler(object):
+    def __init__(self, owner):
+        self.owner = owner
+
+    def started(self): 
+        if self.owner: 
+            LOG.debug("%s process has started" % self.owner.name)
+
+    def starting(self):
+        if self.owner: 
+            LOG.debug("%s process will start" % self.owner.name)
+
+        sql.execute_query('truncate mode_state', schema='mildred_introspection')
+
+    def start(self): 
+        if self.owner: 
+            LOG.debug("%s process is starting" % self.owner.name)
+
+        config.es = search.connect()
+
+
+# shutdown mode
+class ShutdownHandler(object):
+    def __init__(self, owner):
+        self.owner = owner
+
+    def ended(self): 
+        if self.owner: 
+            LOG.debug("%s process has ended" % self.owner.name)
+
+    def ending(self): 
+        if self.owner: 
+            LOG.debug("%s process will end" % self.owner.name)
+
+    def end(self): 
+        if self.owner: 
+            LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.owner.name)
+
 
 # decisions and guesses
 class DecisionHandler(object):
@@ -67,7 +110,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
         scan_incomplete = True if self.owner.scanmode.can_go_next(self.context) else False
-        
+
         if possible is self.owner.scanmode: 
             if self.context.has_next(SCAN):
                 if config.scan:
@@ -78,28 +121,6 @@ class DocumentServiceProcessHandler(DecisionHandler):
                 return config.match
 
         return scan_incomplete == False
-
-    # start mode
-
-    def started(self): 
-        LOG.debug("%s process has started" % self.name)
-
-    def starting(self): 
-        LOG.debug("%s process will start" % self.name)
-
-    def start(self): 
-        LOG.debug("%s process is starting" % self.name)
-
-    # end mode
-
-    def ended(self): 
-        LOG.debug("%s process has ended" % self.name)
-
-    def ending(self): 
-        LOG.debug("%s process will end" % self.name)
-
-    def end(self): 
-        LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.name)
 
     # eval mode
 
