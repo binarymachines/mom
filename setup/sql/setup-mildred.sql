@@ -95,7 +95,7 @@ CREATE TABLE `document` (
   `absolute_path` varchar(1024) NOT NULL,
   `hexadecimal_key` varchar(640) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_document` (`index_name`,`hexadecimal_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -281,4 +281,4 @@ CREATE TABLE `matcher_field` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-08 21:53:45
+-- Dump completed on 2016-11-09  2:20:32

@@ -32,7 +32,7 @@ CREATE TABLE `mode_state_default` (
   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
   `status` varchar(64) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
@@ -60,4 +60,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-08 21:51:55
+-- Dump completed on 2016-11-09  2:18:30

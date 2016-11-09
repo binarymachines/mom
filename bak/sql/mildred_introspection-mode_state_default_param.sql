@@ -28,7 +28,7 @@ CREATE TABLE `mode_state_default_param` (
   `name` varchar(128) NOT NULL,
   `value` varchar(1024) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_default_context_param` (`mode_state_default_id`),
   CONSTRAINT `fk_mode_state_default_context_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
@@ -54,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-08 21:51:55
+-- Dump completed on 2016-11-09  2:18:30

@@ -27,7 +27,7 @@ CREATE TABLE `mode` (
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(128) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -51,4 +51,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-08 21:51:55
+-- Dump completed on 2016-11-09  2:18:30

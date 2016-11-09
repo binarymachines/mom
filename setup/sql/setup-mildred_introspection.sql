@@ -82,9 +82,9 @@ CREATE TABLE `execution` (
   `start_dt` datetime NOT NULL,
   `end_dt` datetime DEFAULT NULL,
   `effective_dt` datetime NOT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -99,7 +99,7 @@ CREATE TABLE `mode` (
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(128) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -128,13 +128,13 @@ CREATE TABLE `mode_state` (
   `last_activated` datetime DEFAULT NULL,
   `last_completed` datetime DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_status_mode` (`mode_id`),
   KEY `fk_mode_status_state` (`state_id`),
   CONSTRAINT `fk_mode_status_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_status_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -154,7 +154,7 @@ CREATE TABLE `mode_state_default` (
   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
   `status` varchar(64) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
@@ -176,7 +176,7 @@ CREATE TABLE `mode_state_default_param` (
   `name` varchar(128) NOT NULL,
   `value` varchar(1024) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_default_context_param` (`mode_state_default_id`),
   CONSTRAINT `fk_mode_state_default_context_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
@@ -261,4 +261,4 @@ CREATE TABLE `state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-08 21:53:46
+-- Dump completed on 2016-11-09  2:20:33
