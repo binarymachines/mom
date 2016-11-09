@@ -131,6 +131,7 @@ class ModeStateChangeHandler(object):
                 return state
 
         else:
+            context.clear_params(mode)
             for rule in self.transitions:
                 if rule.start.name == active.name:
                     if rule.condition():

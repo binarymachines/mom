@@ -89,6 +89,9 @@ class Context(object):
             self.params[consumer] = {}
         self.params[consumer][param] = value
 
+    def clear_params(self, consumer):
+        if consumer in self.params:
+            del self.params[consumer]
 
 class DirectoryContext(Context):
     def __init__(self, name, paths, cycle=False):

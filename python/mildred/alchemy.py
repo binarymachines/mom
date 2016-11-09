@@ -362,7 +362,7 @@ def insert_mode_state_record(mode):
         return mode_state_rec.id
     except IntegrityError, err:
         print '\a'
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        Ec
         
         sessions[1].rollback()    
 

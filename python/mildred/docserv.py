@@ -98,7 +98,7 @@ class DocumentServiceProcess(ServiceProcess):
             add_state(scan_monitor)
 
         self.state_change_handler.add_transition(scan_init, scan_discover, self.process_handler.definitely). \
-            add_transition(scan_discover, scan_update, self.process_handler.definitely). \        
+            add_transition(scan_discover, scan_update, self.process_handler.definitely). \
             add_transition(scan_update, scan_monitor, self.process_handler.definitely)
 
         # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
