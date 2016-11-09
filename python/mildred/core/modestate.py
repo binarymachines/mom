@@ -45,7 +45,7 @@ class StatefulMode(Mode):
     
     def can_go_next(self, context):
         if self._state_change_handler:
-            return self._state_change_handler.can_go_next()
+            return self._state_change_handler.can_go_next(self, context)
 
     def get_state_defaults(self):
         return self._state_defaults
@@ -112,7 +112,8 @@ class ModeStateChangeHandler(object):
 
         for rule in self.transitions:
             if rule.start.name == active.name:
-                return rule.condition():
+                if rule.condition:
+                    return rule.condition()
 
 
     @mode_function

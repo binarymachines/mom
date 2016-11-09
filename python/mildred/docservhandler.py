@@ -66,16 +66,18 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
-
+        scan_incomplete = True if self.owner.scanmode.can_go_next(self.context) else False
+        
         if possible is self.owner.scanmode: 
             if self.context.has_next(SCAN):
-                return config.scan
+                if config.scan:
+                    return scan_incomplete
 
         if possible is self.owner.matchmode: 
             if self.context.has_next(MATCH):
                 return config.match
 
-        return True
+        return scan_incomplete == False
 
     # start mode
 
@@ -177,13 +179,30 @@ class DocumentServiceProcessHandler(DecisionHandler):
         self.context.reset(SCAN)
         self.after()
 
+    def do_scan_discover(self):
+        # if self.selector.active:
+        #     if isinstance(self.selector.active, StatefulMode):
+        #         if self.selector.active.get_state().name == SCAN_INIT:
+        #             self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
+
+        print  "discover scan starting..."
+
+    def do_scan_monitor(self):
+        # if self.selector.active:
+        #     if isinstance(self.selector.active, StatefulMode):
+        #         if self.selector.active.get_state().name == SCAN_INIT:
+        #             self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
+
+        print  "monitor scan starting..."
+
     def do_scan(self):
-        if self.selector.active:
-            if isinstance(self.selector.active, StatefulMode):
-                if self.selector.active.get_state().name == SCAN_INIT:
-                    self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
+        # if self.selector.active:
+        #     if isinstance(self.selector.active, StatefulMode):
+        #         if self.selector.active.get_state().name == SCAN_INIT:
+        #             self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
 
         # scan.scan(self.context)
+        print  "scan starting..."
 
 
 # Scan mode  has a series of states: High Level Scan, Scan and Deep Scan

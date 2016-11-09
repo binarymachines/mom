@@ -219,7 +219,8 @@ class Selector:
             try:
                 self.possible = rule.end
                 if rule.applies(self, self.active, self.possible):
-                    if rule not in results: results.append(rule)
+                    if rule not in results: 
+                        results.append(rule)
             except Exception, err:
                 ERR.error('%s while trying to apply rule %s' % (err.message, rule.name))
                 raise err

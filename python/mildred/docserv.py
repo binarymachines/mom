@@ -87,9 +87,9 @@ class DocumentServiceProcess(ServiceProcess):
         self.evalmode = Mode(EVAL, self.handler.do_eval, 1)
 
         scan_init = State(SCAN_INIT)
-        scan_discover = State(SCAN_DISCOVER, self.handler.do_scan)
+        scan_discover = State(SCAN_DISCOVER, self.handler.do_scan_discover)
         scan_update = State(SCAN_UPDATE, self.handler.do_scan)
-        scan_monitor = State(SCAN_MONITOR, self.handler.do_scan)
+        scan_monitor = State(SCAN_MONITOR, self.handler.do_scan_monitor)
 
         self.scanmode = StatefulMode(SCAN, state_reader=self.mode_state_reader, state_change_handler=self.state_change_handler)
         self.scanmode.add_state(scan_init). \
@@ -129,15 +129,15 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to scanmode
         self.selector.add_rules(self.scanmode, self.handler.mode_is_available, self.handler.before_scan, self.handler.after_scan, \
-            self.startmode, self.evalmode)
+            self.startmode, self.evalmode, self.scanmode)
 
         # paths to matchmode
         self.selector.add_rules(self.matchmode, self.handler.mode_is_available, self.handler.before_match, self.handler.after_match, \
            self.startmode, self.evalmode, self.scanmode)
 
         # # paths to fixmode
-        # self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
-        #     self.reqmode)
+        self.selector.add_rules(self.fixmode, self.handler.mode_is_available, self.handler.before_fix, self.handler.after_fix, \
+            self.evalmode)
 
         # # paths to cleanmode
         # self.selector.add_rules(self.cleanmode, self.handler.mode_is_available, self.handler.before_clean, self.handler.after_clean, \
@@ -153,7 +153,7 @@ class DocumentServiceProcess(ServiceProcess):
 
         # paths to endmode
         self.selector.add_rules(self.endmode, self.handler.maybe, self.handler.ending, self.handler.ended, \
-            self.matchmode)
+            self.fixmode)
 
 
 def create_service_process(identifier, context, owner=None, before=None, after=None, alternative=None):
