@@ -7,14 +7,14 @@ from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT
 from core.context import DirectoryContext
 
 from core.modes import Mode
-from core.modestate import StatefulMode, ModeStateHandler, ModeStateChangeHandler
+from core.modestate import StatefulMode, ModeStateReader, ModeStateChangeHandler
 
 from core.states import State, StateContext
 from core.serv import ServiceProcess
 from docservhandler import DocumentServiceProcessHandler
 
 import alchemy
-from alchemy_modestate import AlchemyModeStateHandler
+from alchemy_modestate import AlchemyModeStateReader
 
 
 LOG = log.get_log(__name__, logging.DEBUG)
@@ -34,11 +34,7 @@ class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         # super must be called before accessing selector instance
         self.state_change_handler = DocumentServerModeStateChangeHandler()
-        self.mode_state_handler = AlchemyModeStateHandler(self.state_change_handler.go_next)
-
-
-
-
+        self.mode_state_reader = AlchemyModeStateReader()
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks
@@ -50,8 +46,8 @@ class DocumentServiceProcess(ServiceProcess):
             # if mode.go_next(self.context):
             #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
             
-            # self.mode_state_handler.save_state
-            # self.mode_state_handler.save_state
+            # self.mode_state_reader.save_state
+            # self.mode_state_reader.save_state
 
     def before_switch(self, selector, mode):
         if isinstance(mode, StatefulMode):
@@ -75,9 +71,9 @@ class DocumentServiceProcess(ServiceProcess):
                 # else:
                 #     alchemy.update_mode_state_record(mode)
                     
-                # self.mode_state_handler.save_state(mode)
-                # self.mode_state_handler.save_state
-                # self.mode_state_handler.load_default_state
+                # self.mode_state_reader.save_state(mode)
+                # self.mode_state_reader.save_state
+                # self.mode_state_reader.load_state_defaults
 
         self.handler.before_switch(selector, mode)
 
@@ -87,19 +83,15 @@ class DocumentServiceProcess(ServiceProcess):
 
         self.handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
-
         self.startmode = Mode(STARTUP, self.handler.start, 0)
         self.evalmode = Mode(EVAL, self.handler.do_eval, 1)
-
-        # self.scanmode = StatefulMode(SCAN, initial_scanstate, priority=3)
-        # self.scanmode = StatefulMode(SCAN, state= State(INIT_SCAN_STATE, self.handler.do_scan), state_handler=self.mode_state_handler)
 
         scan_init = State(SCAN_INIT)
         scan_discover = State(SCAN_DISCOVER, self.handler.do_scan)
         scan_update = State(SCAN_UPDATE, self.handler.do_scan)
         scan_monitor = State(SCAN_MONITOR, self.handler.do_scan)
 
-        self.scanmode = StatefulMode(SCAN, state_handler=self.mode_state_handler)
+        self.scanmode = StatefulMode(SCAN, state_reader=self.mode_state_reader, state_change_handler=self.state_change_handler)
         self.scanmode.add_state(scan_init). \
             add_state(scan_discover). \
             add_state(scan_update). \

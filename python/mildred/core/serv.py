@@ -97,7 +97,7 @@ class ServiceProcess(object):
             try:
                 after()
             except Exception, err:
-                # ERR.error('%s while applying [%s].before() from [%s]' % (err.message, mode.name, self.active.name))
+                # ERR.error('%s while applying [%s].after() from [%s]' % (err.message, mode.name, self.active.name))
                 raise err
 
     # mode priority adjustment

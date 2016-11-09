@@ -3,17 +3,17 @@ import os, sys, logging
 import alchemy
 
 from core import log
-from core.modestate import StatefulMode, ModeStateHandler
+from core.modestate import StatefulMode, ModeStateReader
 from core.states import State
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
 
-class AlchemyModeStateHandler(ModeStateHandler):
+class AlchemyModeStateReader(ModeStateReader):
     def __init__(self, next_func=None, mode_rec=None):
-        super(AlchemyModeStateHandler, self).__init__(next_func=next_func)
+        super(AlchemyModeStateReader, self).__init__()
 
-    def get_state_params(self, mode):
+    def get_default_state_params(self, mode):
         if mode in self.mode_rec:
             alchemy_mode = self.mode_rec[mode]
             for default in alchemy_mode.default_states:
@@ -36,7 +36,7 @@ class AlchemyModeStateHandler(ModeStateHandler):
 
                 mode.add_state_default(state)
  
-    def load_default_state(self, mode, state):
+    def load_state_defaults(self, mode, state):
         alchemy_mode  = alchemy.retrieve_mode(mode.name)
         if alchemy_mode:
             self.mode_rec[mode] = alchemy_mode

@@ -8,26 +8,24 @@ from states import State
 import log
 
 class StatefulMode(Mode):
-    # def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False, state_handler=None, status=None):
-    def __init__(self, name, priority=0, dec_priority_amount=1, do_action_on_change=False, state_handler=None):
+    # def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False, state_reader=None, status=None):
+    def __init__(self, name, priority=0, dec_priority_amount=1, do_action_on_change=False, state_reader=None, state_change_handler=None):
         super(StatefulMode, self).__init__(name, priority=priority, dec_priority_amount=dec_priority_amount)
 
         self.do_action_on_change = do_action_on_change
-        # self._state = state
         self._state = None
-        self._state_handler = state_handler
         self._states = {}
         self._state_defaults = []
-        # self.status = status
+
+        self._state_reader = state_reader
+        self._state_change_handler = state_change_handler
     
         self.mode_id = None
         self.state_id = None
         self.mode_state_id = None
 
-        # self.default_effect = super(StatefulMode, self).effect
-
-        if self._state_handler:
-            self._state_handler.load_states(self)
+        if self._state_reader:
+            self._state_reader.load_states(self)
 
     def add_state(self, state):
         # self._states[state.name] = state
@@ -45,23 +43,18 @@ class StatefulMode(Mode):
         # self._states[state.name] = state
         self._state_defaults.append(state)
     
+    def can_go_next(self, context):
+        if self._state_change_handler:
+            return self._state_change_handler.can_go_next()
+
     def get_state_defaults(self):
         return self._state_defaults
 
     def go_next(self, context):
-        if self._state_handler:
-            result = self._state_handler.go_next(self, context)
-            if result:
-                self.set_state(result)
-                # self._state_handler.load_default_state(self, self._state)
-                # for param in default.default_params:
-                #     value = param.value
-                #     if value.lower() == 'true': value = True
-                #     if value.lower() == 'false': value = False
-                #
-                #     context.set_param(mode, param.name, value)
-
-            return result
+        if self._state_change_handler:
+            state = self._state_change_handler.go_next(self, context)
+            self.set_state(state)
+            return state
 
     def get_state(self):
         return self._state
@@ -70,7 +63,7 @@ class StatefulMode(Mode):
         self._state = state
         if state:
             self.effect = state.action
-            self._state_handler.load_default_state(self, self._state)
+            self._state_reader.load_state_defaults(self, self._state)
 
             if self.do_action_on_change:
                 self.do_action()
@@ -82,26 +75,22 @@ class StatefulMode(Mode):
 
 
 # load mode state, save mode state, instantiate mode.state.action
-class ModeStateHandler(object):
-    def __init__(self, mode_rec=None, next_func=None):
+class ModeStateReader(object):
+    def __init__(self, mode_rec=None):
         self.mode_rec = {} if mode_rec is None else mode_rec
-        self.next_func = next_func
 
     def get_mode_rec(self, mode):
         if mode in self.mode_rec:
             return self.mode_rec[mode]
 
-    def get_state_params(self, mode):
-        raise BaseClassException(ModeStateHandler)
+    def get_default_state_params(self, mode):
+        raise BaseClassException(ModeStateReader)
 
-    def load_default_state(self, name, state):
-        raise BaseClassException(ModeStateHandler)
+    def load_state_defaults(self, name, state):
+        raise BaseClassException(ModeStateReader)
 
-    @mode_function
-    def go_next(self, mode, context):
-        if self.next_func:
-            return self.next_func(mode, context)
-                
+# class ModeStateWriter(object):
+
 class TransitionRule(object):
     def __init__(self, start, end, condition):
         self.condition = condition
@@ -116,6 +105,17 @@ class ModeStateChangeHandler(object):
         rule = TransitionRule(start, end, condition)
         self.transitions.append(rule)
 
+    def can_go_next(self, mode, context):
+        active = context.get_param(mode, 'state')
+        if active is None:
+            return len(mode.get_state_defaults()) > 0
+
+        for rule in self.transitions:
+            if rule.start.name == active.name:
+                return rule.condition():
+
+
+    @mode_function
     def go_next(self, mode, context):
         active = context.get_param(mode, 'state')
         if active is None:
@@ -140,13 +140,12 @@ class ModeStateChangeHandler(object):
                         return rule.end
 
 
-
-class StatefulRule:
-    def __init__(self, name, start, end, condition, before=None, after=None, state=None):
-        super(StatefulRule, self).__init__(name, start, end, condition, before=before, after=after)
-        self.state = state
-        if state is None and start.state:
-            self.state = start.state
+# class StatefulRule:
+#     def __init__(self, name, start, end, condition, before=None, after=None, state=None):
+#         super(StatefulRule, self).__init__(name, start, end, condition, before=before, after=after)
+#         self.state = state
+#         if state is None and start.state:
+#             self.state = start.state
 
 
 # a stateful selector determines  if a mode switch is allowed by the rules associated with the current state 
