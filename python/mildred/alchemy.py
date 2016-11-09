@@ -305,8 +305,8 @@ class SQLModeStateDefaultParam(Base):
     mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
     mode_state_default = relationship("SQLModeStateDefault", back_populates="default_params")
 
-    param_name = Column('param_name', String(128), nullable=False)
-    param_value = Column('param_value', String(1024), nullable=False)
+    name = Column('name', String(128), nullable=False)
+    value = Column('value', String(1024), nullable=False)
 
 SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", order_by=SQLModeStateDefaultParam.id, back_populates="mode_state_default")
 
@@ -321,6 +321,7 @@ class SQLModeStateRecord(Base):
     state_id = Column(Integer, ForeignKey('state.id'))
     # mode = relationship("SQLMode", back_populates="state_records")
 
+    status = Column('status', String(128), nullable=False)
     last_activated = Column('last_activated', DateTime, nullable=True)
     last_completed = Column('last_completed', DateTime, nullable=True)
     priority = Column('priority', Integer, nullable=False)
@@ -352,7 +353,7 @@ def insert_mode_state_record(mode):
     mode_state_rec = SQLModeStateRecord(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
         times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete, 
         dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count, 
-        error_tolerance=mode.error_tolerance, 
+        error_tolerance=mode.error_tolerance, status=mode.get_state().name,
         effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
 
     try:
@@ -370,6 +371,8 @@ def update_mode_state_record(mode):
     # sqlstate = retrieve_state(mode.get_state().name)
     # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
     mode_state_rec = retrieve_mode_state_record(mode.mode_state_id) 
+    mode_state_rec.times_activated = mode.times_activated
+    mode_state_rec.times_completed = mode.times_completed
     mode_state_rec.expiration_dt = datetime.datetime.now()
     
     # mode_state_rec = SQLModeStateRecord(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
@@ -427,7 +430,7 @@ class SQLModeStateTransitionErrorRecord(Base):
 # calling method
 
 # cause_of_defect - for error snapshot
-class CauseOfDefectRecord(Base):
+class SQLCauseOfDefectRecord(Base):
     __tablename__ = 'cause_of_defect'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)
@@ -435,7 +438,7 @@ class CauseOfDefectRecord(Base):
     exception_class = Column('exception_class', String(128), nullable=False)
 
 
-class EngineRecord(Base):
+class SQLEngineRecord(Base):
     __tablename__ = 'engine'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)

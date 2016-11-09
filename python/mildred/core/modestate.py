@@ -3,27 +3,64 @@ import logging
 from errors import BaseClassException
 
 from modes import Mode, mode_function
+from states import State
 
-import core.log
+import log
 
 class StatefulMode(Mode):
-    def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False, state_handler=None):
+    # def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False, state_handler=None, status=None):
+    def __init__(self, name, priority=0, dec_priority_amount=1, do_action_on_change=False, state_handler=None):
         super(StatefulMode, self).__init__(name, priority=priority, dec_priority_amount=dec_priority_amount)
 
         self.do_action_on_change = do_action_on_change
-        self._state = state
+        # self._state = state
+        self._state = None
         self._state_handler = state_handler
+        self._states = {}
+        self._state_defaults = []
+        # self.status = status
     
         self.mode_id = None
         self.state_id = None
         self.mode_state_id = None
-        
+
+        # self.default_effect = super(StatefulMode, self).effect
+
+        if self._state_handler:
+            self._state_handler.load_states(self)
+
+    def add_state(self, state):
+        # self._states[state.name] = state
+        for default in self._state_defaults:
+            if state.name == default.name:
+                self._states[state.name] = state
+                break
+
+        if state.name not in self._states:
+            raise Exception('unregistered state error')
+
+        return self
+
+    def add_state_default(self, state):
+        # self._states[state.name] = state
+        self._state_defaults.append(state)
+    
+    def get_state_defaults(self):
+        return self._state_defaults
+
     def go_next(self, context):
-        if self._state and self._state_handler:
+        if self._state_handler:
             result = self._state_handler.go_next(self, context)
             if result:
-                self._state_handler.load_default_state(self, self._state)
-                
+                self.set_state(result)
+                # self._state_handler.load_default_state(self, self._state)
+                # for param in default.default_params:
+                #     value = param.value
+                #     if value.lower() == 'true': value = True
+                #     if value.lower() == 'false': value = False
+                #
+                #     context.set_param(mode, param.name, value)
+
             return result
 
     def get_state(self):
@@ -33,6 +70,8 @@ class StatefulMode(Mode):
         self._state = state
         if state:
             self.effect = state.action
+            self._state_handler.load_default_state(self, self._state)
+
             if self.do_action_on_change:
                 self.do_action()
     
@@ -48,7 +87,7 @@ class ModeStateHandler(object):
         self.mode_rec = {} if mode_rec is None else mode_rec
         self.next_func = next_func
 
-    def get_mode_rec(mode):
+    def get_mode_rec(self, mode):
         if mode in self.mode_rec:
             return self.mode_rec[mode]
 
@@ -63,10 +102,43 @@ class ModeStateHandler(object):
         if self.next_func:
             return self.next_func(mode, context)
                 
+class TransitionRule(object):
+    def __init__(self, start, end, condition):
+        self.condition = condition
+        self.start = start
+        self.end = end
 
 class ModeStateChangeHandler(object):
+    def __init__(self):
+        self.transitions = []
+
+    def add_transition(self, start, end, condition):
+        rule = TransitionRule(start, end, condition)
+        self.transitions.append(rule)
+
     def go_next(self, mode, context):
-        raise BaseClassException(ModeStateChangeHandler)
+        active = context.get_param(mode, 'state')
+        if active is None:
+            if len(mode.get_state_defaults()) > 0:
+                state = mode.get_state_defaults()[0]
+                mode.set_state(state)
+                context.set_param(mode, 'state', state)
+                for param in state.params:
+                    context.set_param(mode, param[0], param[1])
+
+                return state
+
+        else:
+            for rule in self.transitions:
+                if rule.start.name == active.name:
+                    if rule.condition():
+                        mode.set_state(rule.end)
+                        context.set_param(mode, 'state', rule.end)
+                        for param in rule.end.params:
+                            context.set_param(mode, param[0], param[1])
+
+                        return rule.end
+
 
 
 class StatefulRule:

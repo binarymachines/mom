@@ -3,13 +3,13 @@ import logging
 import config
 from core import log
 import search
-from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INIT_SCAN_STATE
+from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, SCAN_INIT, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR
 from core.context import DirectoryContext
 
 from core.modes import Mode
 from core.modestate import StatefulMode, ModeStateHandler, ModeStateChangeHandler
 
-from core.trans import State, StateContext
+from core.states import State, StateContext
 from core.serv import ServiceProcess
 from docservhandler import DocumentServiceProcessHandler
 
@@ -25,13 +25,19 @@ class DocumentServerModeStateChangeHandler(ModeStateChangeHandler):
         super(DocumentServerModeStateChangeHandler, self).__init__()
     
     def go_next(self, mode, context):
-        return True
+        result = super(DocumentServerModeStateChangeHandler, self).go_next(mode, context) 
+        
+        
+        return result
 
 class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         # super must be called before accessing selector instance
         self.state_change_handler = DocumentServerModeStateChangeHandler()
         self.mode_state_handler = AlchemyModeStateHandler(self.state_change_handler.go_next)
+
+
+
 
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
@@ -41,17 +47,30 @@ class DocumentServiceProcess(ServiceProcess):
 
         if isinstance(mode, StatefulMode):
             alchemy.update_mode_state_record(mode)
-            if mode.go_next(self.context):
-                mode.mode_state_id = alchemy.insert_mode_state_record(mode)
+            # if mode.go_next(self.context):
+            #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
             
             # self.mode_state_handler.save_state
             # self.mode_state_handler.save_state
 
     def before_switch(self, selector, mode):
         if isinstance(mode, StatefulMode):
+
+            ################### This block works like it reads
+            # # insert record for initial state
+            # if mode.mode_state_id is None:
+            #     mode.status = "initial"
+            #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
+            #     alchemy.update_mode_state_record(mode)
+
+            # mode.status = mode.get_state().name
+            # mode.mode_state_id = alchemy.insert_mode_state_record(mode)
+            ###################
+
             if mode.go_next(self.context):
                 mode.mode_state_id = alchemy.insert_mode_state_record(mode)
-
+                
+            
                 # if mode.mode_state_id is None:
                 # else:
                 #     alchemy.update_mode_state_record(mode)
@@ -72,13 +91,25 @@ class DocumentServiceProcess(ServiceProcess):
         self.startmode = Mode(STARTUP, self.handler.start, 0)
         self.evalmode = Mode(EVAL, self.handler.do_eval, 1)
 
-        # initial_scanstate = State(INIT_SCAN_STATE, self.handler.do_scan)
         # self.scanmode = StatefulMode(SCAN, initial_scanstate, priority=3)
-        
-        self.scanmode = StatefulMode(SCAN, state= State(INIT_SCAN_STATE, self.handler.do_scan), state_handler=self.mode_state_handler)
+        # self.scanmode = StatefulMode(SCAN, state= State(INIT_SCAN_STATE, self.handler.do_scan), state_handler=self.mode_state_handler)
 
+        scan_init = State(SCAN_INIT)
+        scan_discover = State(SCAN_DISCOVER, self.handler.do_scan)
+        scan_update = State(SCAN_UPDATE, self.handler.do_scan)
+        scan_monitor = State(SCAN_MONITOR, self.handler.do_scan)
 
-        # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
+        self.scanmode = StatefulMode(SCAN, state_handler=self.mode_state_handler)
+        self.scanmode.add_state(scan_init). \
+            add_state(scan_discover). \
+            add_state(scan_update). \
+            add_state(scan_monitor)
+
+        self.state_change_handler.add_transition(scan_init, scan_discover, self.handler.definitely)
+        self.state_change_handler.add_transition(scan_discover, scan_update, self.handler.definitely)
+        self.state_change_handler.add_transition(scan_update, scan_monitor, self.handler.definitely)
+
+         # self.syncmode = Mode("SYNC", self.handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down unntil a command is issued
         self.cleanmode = Mode(CLEAN, self.handler.do_clean, 2) # bring ElasticSearch into line with MariaDB
         self.matchmode = Mode(MATCH, self.handler.do_match, 3)

@@ -1,10 +1,10 @@
-import logging
+import os, sys, logging
 
 import alchemy
 
 from core import log
 from core.modestate import StatefulMode, ModeStateHandler
-
+from core.states import State
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -20,6 +20,22 @@ class AlchemyModeStateHandler(ModeStateHandler):
                 if mode.state.name == default.status: 
                     return default.default_params
 
+    def load_states(self, mode):
+        alchemy_mode  = alchemy.retrieve_mode(mode.name)
+        if alchemy_mode:
+            self.mode_rec[mode] = alchemy_mode
+            for default in alchemy_mode.default_states:
+                state = State(default.status, data=default)
+                state.params = ()
+                for param in default.default_params:
+                    value = param.value
+                    if str(value).lower() == 'true': value = True
+                    elif str(value).lower() == 'false': value = False
+
+                    state.params += ([param.name, value],)
+
+                mode.add_state_default(state)
+ 
     def load_default_state(self, mode, state):
         alchemy_mode  = alchemy.retrieve_mode(mode.name)
         if alchemy_mode:

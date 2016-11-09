@@ -20,7 +20,7 @@ import sql
 from core import log
 from core import cache2
 from core.context import Context
-from core.trans import State, StateContext
+from core.states import State, StateContext
 
 from errors import AssetException
 from match import ElasticSearchMatcher

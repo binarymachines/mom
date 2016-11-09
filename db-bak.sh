@@ -2,9 +2,9 @@ pushd $m2
 
 clear
 
-echo '------------------------------------------------'
-echo 'Backing up  Mildred Database'
-echo '------------------------------------------------'
+echo '----------------------------'
+echo 'Backing up Mildred Databases'
+echo '----------------------------'
 echo
 
 echo "removing existing backups..."
@@ -62,9 +62,9 @@ mysqldump --no-data media > setup/sql/setup-media.sql
 echo "adding setup tables to git."
 git add setup/sql/*.sql
 
-echo '------------------------------------------------'
-echo 'Backup Complete'
-echo '------------------------------------------------'
+echo '----------------------------'
+echo 'Database backup is complete!'
+echo '----------------------------'
 echo
 git status
 git commit -m 'db snapshot'

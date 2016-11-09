@@ -1,9 +1,13 @@
 """States and Transitions"""
 
 class State(object):
-    def __init__(self, name, action):
+    def __init__(self, name, action=None, data=None, is_initial_state=False, is_terminal_state=False):
         self.name = name
         self.action = action
+        self.data = data
+        self.is_initial_state = is_initial_state
+        self.is_terminal_state = is_terminal_state
+        self.params = ()
 
     def do_action(self):
         if self.action:

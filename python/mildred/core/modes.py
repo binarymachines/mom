@@ -2,7 +2,7 @@
 import sys, os, logging, traceback, datetime
 
 from errors import ModeDestinationException
-from trans import State, StateContext
+from states import State, StateContext
 
 import log
 
@@ -304,11 +304,11 @@ class Selector:
             if mode.active_rule:
                 self._call_mode_func(mode, mode.active_rule.after)
 
+            mode.times_completed += 1
             if mode.dec_priority:
                 mode.priority -= mode.dec_priority_amount
 
             self._call_switch_bracket_func(mode, self.after_switch)
-            mode.times_completed += 1
 
             self.previous = mode
             self.rule_chain.append(mode.active_rule)

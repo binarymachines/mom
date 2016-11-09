@@ -4,7 +4,7 @@ import random
 import clean
 import calc
 import config
-from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN, INIT_SCAN_STATE
+from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN, SCAN_INIT 
 from core import log
 import scan
 import ops
@@ -18,7 +18,7 @@ LOG = log.get_log(__name__, logging.DEBUG)
 # decisions and guesses
 class DecisionHandler(object):
 
-    def definitely(self, selector, active, possible): return True
+    def definitely(self, selector=None, active=None, possible=None): return True
 
     def maybe(self, selector, active, possible):
         result = bool(random.getrandbits(1))
@@ -180,10 +180,10 @@ class DocumentServiceProcessHandler(DecisionHandler):
     def do_scan(self):
         if self.selector.active:
             if isinstance(self.selector.active, StatefulMode):
-                if self.selector.active.get_state().name == INIT_SCAN_STATE:
+                if self.selector.active.get_state().name == SCAN_INIT:
                     self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
 
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
 # Scan mode  has a series of states: High Level Scan, Scan and Deep Scan
