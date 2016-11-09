@@ -84,7 +84,7 @@ CREATE TABLE `execution` (
   `effective_dt` datetime NOT NULL,
   `expiration_dt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,7 +134,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_status_state` (`state_id`),
   CONSTRAINT `fk_mode_status_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_status_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -160,7 +160,7 @@ CREATE TABLE `mode_state_default` (
   KEY `fk_mode_state_default_state` (`state_id`),
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -173,14 +173,27 @@ DROP TABLE IF EXISTS `mode_state_default_param`;
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `mode_state_default_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `param_name` varchar(128) NOT NULL,
-  `param_value` varchar(1024) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `value` varchar(1024) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_default_context_param` (`mode_state_default_id`),
   CONSTRAINT `fk_mode_state_default_context_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `mode_state_param`
+--
+
+DROP TABLE IF EXISTS `mode_state_param`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mode_state_param` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -202,7 +215,7 @@ CREATE TABLE `op_record` (
   `start_time` datetime NOT NULL,
   `end_time` datetime DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   `target_hexadecimal_key` varchar(640) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=605253 DEFAULT CHARSET=latin1;
@@ -234,9 +247,9 @@ CREATE TABLE `state` (
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(128) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -248,4 +261,4 @@ CREATE TABLE `state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-08  4:44:24
+-- Dump completed on 2016-11-08 21:53:46

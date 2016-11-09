@@ -25,8 +25,8 @@ DROP TABLE IF EXISTS `mode_state_default_param`;
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `mode_state_default_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `param_name` varchar(128) NOT NULL,
-  `param_value` varchar(1024) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `value` varchar(1024) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -41,7 +41,7 @@ CREATE TABLE `mode_state_default_param` (
 
 LOCK TABLES `mode_state_default_param` WRITE;
 /*!40000 ALTER TABLE `mode_state_default_param` DISABLE KEYS */;
-INSERT INTO `mode_state_default_param` VALUES (1,1,'HLSCAN','true','2016-11-07 00:04:02','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default_param` VALUES (1,2,'HLSCAN','true','2016-11-07 00:04:02','9999-12-31 23:59:59');
 /*!40000 ALTER TABLE `mode_state_default_param` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -54,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-08  4:42:11
+-- Dump completed on 2016-11-08 21:51:55

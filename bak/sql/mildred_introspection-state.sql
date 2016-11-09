@@ -27,9 +27,9 @@ CREATE TABLE `state` (
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(128) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,7 +38,7 @@ CREATE TABLE `state` (
 
 LOCK TABLES `state` WRITE;
 /*!40000 ALTER TABLE `state` DISABLE KEYS */;
-INSERT INTO `state` VALUES (1,'media','initial','2016-11-06 18:08:59','9999-12-31 23:59:59'),(2,'media','discover','2016-11-06 23:56:37','9999-12-31 23:59:59'),(3,'media','update','2016-11-06 23:56:56','9999-12-31 23:59:59'),(4,'media','monitor','2016-11-06 23:57:24','9999-12-31 23:59:59');
+INSERT INTO `state` VALUES (1,'media','initial','2016-11-06 18:08:59','9999-12-31 23:59:59'),(2,'media','discover','2016-11-06 23:56:37','9999-12-31 23:59:59'),(3,'media','update','2016-11-06 23:56:56','9999-12-31 23:59:59'),(4,'media','monitor','2016-11-06 23:57:24','9999-12-31 23:59:59'),(5,'media','final','2016-11-08 14:06:49','9999-12-31 23:59:59');
 /*!40000 ALTER TABLE `state` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -51,4 +51,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-08  4:42:11
+-- Dump completed on 2016-11-08 21:51:55
