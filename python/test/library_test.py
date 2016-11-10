@@ -55,3 +55,6 @@ class TestLibrary(unittest.TestCase):
 
         esid = library.get_cached_esid(document_type, path)
         self.assertEquals(esid, '0123456789')
+
+    if __name__ == '__main__':
+        unittest.main()
