@@ -85,10 +85,11 @@ class Context(object):
                 return self.params[consumer][param]
 
     def set_param(self, consumer, param, value):
+        print "setting param %s to %s" % (param, str(value) )
         if consumer not in self.params:
             self.params[consumer] = {}
         self.params[consumer][param] = value
-
+        
     def clear_params(self, consumer):
         if consumer in self.params:
             del self.params[consumer]

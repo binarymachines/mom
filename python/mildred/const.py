@@ -30,7 +30,9 @@ METADATA = 'document_metadata'
 HEXID = '_hex_id'
 
 # states
-SCAN_INIT = "initial"
+INITIAL = "initial"
+TERMINAL = 'terminal'
+
 SCAN_DISCOVER = "discover"
 SCAN_UPDATE = 'update'
 SCAN_MONITOR = 'monitor'

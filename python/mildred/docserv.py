@@ -1,37 +1,24 @@
 import logging
 
-import config
 from core import log
-import search
-from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, SCAN_INIT, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR
-from core.context import DirectoryContext
+from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INITIAL, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR
 
 from core.modes import Mode
-from core.modestate import StatefulMode, ModeStateReader, ModeStateChangeHandler
+from core.modestate import StatefulMode, ModeStateChangeHandler
 
-from core.states import State, StateContext
+from core.states import State
 from core.serv import ServiceProcess
-from docservhandler import DocumentServiceProcessHandler, StartupHandler, ShutdownHandler
+from docservhandler import DocumentServiceProcessHandler, StartupHandler, ShutdownHandler, ScanModeHandler
 
-import alchemy
 from alchemy_modestate import AlchemyModeStateReader
 
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-# TODO: change mode switch rule based on mode state
-# class DocumentServerModeStateChangeHandler(ModeStateChangeHandler):
-#     def __init__(self):
-#         super(DocumentServerModeStateChangeHandler, self).__init__()
-# 
-#     def go_next(self, mode, context):
-#         result = super(DocumentServerModeStateChangeHandler, self).go_next(mode, context)         
-#
-#         return result
 
 class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
-        # super must be called before accessing selector instance
+        # super().__init__() must be called before accessing selector instance
         self.state_change_handler = ModeStateChangeHandler()
         self.mode_state_reader = AlchemyModeStateReader()
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
@@ -40,40 +27,7 @@ class DocumentServiceProcess(ServiceProcess):
     def after_switch(self, selector, mode):
         self.process_handler.after_switch(selector, mode)
 
-        if isinstance(mode, StatefulMode):
-            alchemy.update_mode_state_record(mode)
-            # if mode.go_next(self.context):
-            #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
-            
-            # self.mode_state_reader.save_state
-            # self.mode_state_reader.save_state
-
     def before_switch(self, selector, mode):
-        if isinstance(mode, StatefulMode):
-
-            ################### This block works like it reads
-            # # insert record for initial state
-            # if mode.mode_state_id is None:
-            #     mode.status = "initial"
-            #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
-            #     alchemy.update_mode_state_record(mode)
-
-            # mode.status = mode.get_state().name
-            # mode.mode_state_id = alchemy.insert_mode_state_record(mode)
-            ###################
-
-            if mode.go_next(self.context):
-                mode.mode_state_id = alchemy.insert_mode_state_record(mode)
-                
-            
-                # if mode.mode_state_id is None:
-                # else:
-                #     alchemy.update_mode_state_record(mode)
-                    
-                # self.mode_state_reader.save_state(mode)
-                # self.mode_state_reader.save_state
-                # self.mode_state_reader.load_state_defaults
-
         self.process_handler.before_switch(selector, mode)
 
     # process logic
@@ -82,16 +36,29 @@ class DocumentServiceProcess(ServiceProcess):
 
         startup_handler = StartupHandler(self)
         shutdown_handler = ShutdownHandler(self)
+        scan_handler = ScanModeHandler(self)
 
-        self.startmode = Mode(STARTUP, startup_handler.start, 0)
+        # startup
+
+        self.startmode = StatefulMode(STARTUP, state_reader=self.mode_state_reader, state_change_handler=self.state_change_handler)
+        startup = State(INITIAL, action=startup_handler.start)
+        self.startmode.add_state(startup)
+
+
+        # eval
+
         self.evalmode = Mode(EVAL, self.process_handler.do_eval, 1)
 
-        scan_init = State(SCAN_INIT)
-        scan_discover = State(SCAN_DISCOVER, self.process_handler.do_scan_discover)
-        scan_update = State(SCAN_UPDATE, self.process_handler.do_scan)
-        scan_monitor = State(SCAN_MONITOR, self.process_handler.do_scan_monitor)
+
+        # scan
 
         self.scanmode = StatefulMode(SCAN, state_reader=self.mode_state_reader, state_change_handler=self.state_change_handler)
+
+        scan_init = State(INITIAL)
+        scan_discover = State(SCAN_DISCOVER, scan_handler.do_scan_discover)
+        scan_update = State(SCAN_UPDATE, scan_handler.do_scan)
+        scan_monitor = State(SCAN_MONITOR, scan_handler.do_scan_monitor)
+
         self.scanmode.add_state(scan_init). \
             add_state(scan_discover). \
             add_state(scan_update). \
@@ -100,6 +67,7 @@ class DocumentServiceProcess(ServiceProcess):
         self.state_change_handler.add_transition(scan_init, scan_discover, self.process_handler.definitely). \
             add_transition(scan_discover, scan_update, self.process_handler.definitely). \
             add_transition(scan_update, scan_monitor, self.process_handler.definitely)
+
 
         # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down until a command is issued
@@ -128,7 +96,7 @@ class DocumentServiceProcess(ServiceProcess):
             self.startmode, self.scanmode, self.matchmode)
 
         # paths to scanmode
-        self.selector.add_rules(self.scanmode, self.process_handler.mode_is_available, self.process_handler.before_scan, self.process_handler.after_scan, \
+        self.selector.add_rules(self.scanmode, self.process_handler.mode_is_available, scan_handler.before_scan, scan_handler.after_scan, \
             self.startmode, self.evalmode, self.scanmode)
 
         # paths to matchmode
@@ -163,23 +131,3 @@ def create_service_process(identifier, context, owner=None, before=None, after=N
 
     return alternative(identifier, context)
 
-
-# process callbacks
-
-# def after(process):
-#     LOG.info('%s has ended.' % process.name)
-
-
-# def before(process):
-#     LOG.info('%s starting...' % process.name)
-
-
-# def main():
-#     log.start_console_logging()
-#     context = DirectoryContext('music', ['/media/removable/Audio/music/albums/industrial'], ['mp3'])
-#     process = DocumentServiceProcess('_Media Hound_', context, True)
-#     process.restart_on_fail = False
-#     process.run(before, after)
-
-# if __name__ == '__main__':
-#     main()

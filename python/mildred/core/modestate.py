@@ -27,6 +27,16 @@ class StatefulMode(Mode):
         if self._state_reader:
             self._state_reader.load_states(self)
 
+    def can_go_next(self, context):
+        if self._state_change_handler:
+            return self._state_change_handler.can_go_next(self, context)
+
+    def go_next(self, context):
+        if self._state_change_handler:
+            state = self._state_change_handler.go_next(self, context)
+            self.set_state(state)
+            return state
+
     def add_state(self, state):
         # self._states[state.name] = state
         for default in self._state_defaults:
@@ -34,8 +44,8 @@ class StatefulMode(Mode):
                 self._states[state.name] = state
                 break
 
-        if state.name not in self._states:
-            raise Exception('unregistered state error')
+        # if state.name not in self._states:
+        #     raise Exception('unregistered state error')
 
         return self
 
@@ -43,18 +53,8 @@ class StatefulMode(Mode):
         # self._states[state.name] = state
         self._state_defaults.append(state)
     
-    def can_go_next(self, context):
-        if self._state_change_handler:
-            return self._state_change_handler.can_go_next(self, context)
-
     def get_state_defaults(self):
         return self._state_defaults
-
-    def go_next(self, context):
-        if self._state_change_handler:
-            state = self._state_change_handler.go_next(self, context)
-            self.set_state(state)
-            return state
 
     def get_state(self):
         return self._state
@@ -122,13 +122,14 @@ class ModeStateChangeHandler(object):
         active = context.get_param(mode, 'state')
         if active is None:
             if len(mode.get_state_defaults()) > 0:
-                state = mode.get_state_defaults()[0]
-                mode.set_state(state)
-                context.set_param(mode, 'state', state)
-                for param in state.params:
-                    context.set_param(mode, param[0], param[1])
+                for state in mode.get_state_defaults():
+                    if state.is_initial_state:
+                        mode.set_state(state)
+                        context.set_param(mode, 'state', state)
+                        for param in state.params:
+                            context.set_param(mode, param[0], param[1])
 
-                return state
+                        return state
 
         else:
             context.clear_params(mode)

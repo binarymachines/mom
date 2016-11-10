@@ -216,8 +216,8 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
         # TODO: if esids were cached after document has been indexed, they COULD be inserted HERE instead of using update_ops_data() post-ipso
         update_listeners('writing %s' % record['operation_name'], record['operator_name'], record['target_path'])
 
-        alchemy.insert_operation_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
-            target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
+        alchemy.insert_op_record(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
+                                 target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
 
     # update_ops_data()
     LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))

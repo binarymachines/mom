@@ -4,58 +4,20 @@ import random
 import clean
 import calc
 import config
-from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN, SCAN_INIT 
+from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN, INITIAL
 from core import log
 import scan
 import ops
 import search
 import sql
-
+from core.modes import Mode
 from core.modestate import StatefulMode
 from core.errors import BaseClassException
 
+import alchemy
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-
-# start mode
-class StartupHandler(object):
-    def __init__(self, owner):
-        self.owner = owner
-
-    def started(self): 
-        if self.owner: 
-            LOG.debug("%s process has started" % self.owner.name)
-
-    def starting(self):
-        if self.owner: 
-            LOG.debug("%s process will start" % self.owner.name)
-
-        sql.execute_query('truncate mode_state', schema='mildred_introspection')
-
-    def start(self): 
-        if self.owner: 
-            LOG.debug("%s process is starting" % self.owner.name)
-
-        config.es = search.connect()
-
-
-# shutdown mode
-class ShutdownHandler(object):
-    def __init__(self, owner):
-        self.owner = owner
-
-    def ended(self): 
-        if self.owner: 
-            LOG.debug("%s process has ended" % self.owner.name)
-
-    def ending(self): 
-        if self.owner: 
-            LOG.debug("%s process will end" % self.owner.name)
-
-    def end(self): 
-        if self.owner: 
-            LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.owner.name)
 
 
 # decisions and guesses
@@ -86,11 +48,46 @@ class DocumentServiceProcessHandler(DecisionHandler):
     # selector callbacks
 
     def after_switch(self, selector, mode):
+        if isinstance(mode, StatefulMode):
+            alchemy.update_mode_state(mode)
+
+        # if mode.go_next(self.context):
+        #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
+
+        # self.mode_state_reader.save_state
+        # self.mode_state_reader.save_state
+
         print 'finished %s mode' % mode.name
 
 
     def before_switch(self, selector, mode):
         print 'switching into %s mode' % mode.name
+
+        if isinstance(mode, StatefulMode):
+
+            ################### This block works like it reads
+            # # insert record for initial state
+            # if mode.mode_state_id is None:
+            #     mode.status = "initial"
+            #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
+            #     alchemy.update_mode_state_record(mode)
+
+            # mode.status = mode.get_state().name
+            # mode.mode_state_id = alchemy.insert_mode_state_record(mode)
+            ###################
+
+            if mode.go_next(self.context):
+                mode.mode_state_id = alchemy.insert_mode_state(mode)
+
+
+            # if mode.mode_state_id is None:
+            # else:
+            #     alchemy.update_mode_state_record(mode)
+
+            # self.mode_state_reader.save_state(mode)
+            # self.mode_state_reader.save_state
+            # self.mode_state_reader.load_state_defaults
+
 
     # generic rule callbacks
 
@@ -186,11 +183,75 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def do_reqs(self): LOG.debug('%s handling requests...' % self.name)
 
-    # scan mode
+
+
+
+class DefaultModeHandler(object):
+    def __init__(self, owner):
+        self.owner = owner
+        self.context = owner.context
+
+#    def eval_context(self):
+#         return True
+
+#     def update_context(self):
+#         pass
+
+#     def restore_state(self):
+#         pass
+
+#     def save_state(self):
+#         pass
+
+
+# start mode
+class StartupHandler(DefaultModeHandler):
+    def __init__(self, owner):
+        super(StartupHandler, self).__init__(owner)
+
+    def started(self): 
+        if self.owner: 
+            LOG.debug("%s process has started" % self.owner.name)
+
+    def starting(self):
+        if self.owner: 
+            LOG.debug("%s process will start" % self.owner.name)
+
+        # sql.execute_query('truncate mode_state', schema='mildred_introspection')
+
+    def start(self): 
+        if self.owner: 
+            LOG.debug("%s process is starting" % self.owner.name)
+
+        config.es = search.connect()
+
+
+# shutdown mode
+class ShutdownHandler(DefaultModeHandler):
+    def __init__(self, owner):
+        super(ShutdownHandler, self).__init__(owner)
+
+    def ended(self): 
+        if self.owner: 
+            LOG.debug("%s process has ended" % self.owner.name)
+
+    def ending(self): 
+        if self.owner: 
+            LOG.debug("%s process will end" % self.owner.name)
+
+    def end(self): 
+        if self.owner: 
+            LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.owner.name)
+
+
+# scan mode
+class ScanModeHandler(DefaultModeHandler):
+    def __init__(self, owner):
+        super(ScanModeHandler, self).__init__(owner)
 
     def before_scan(self):
         # LOG.debug('%s preparing to scan, caching data' % self.name)
-        self.before()
+        self.owner.before(self.owner)
         # if self.context.get_param('all', 'expand_all') == False:
         # self.context.reset(SCAN)
 
@@ -198,7 +259,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
         # LOG.debug('%s done scanning, updating op records...' % self.name)
         # clean.clean(self.context)
         self.context.reset(SCAN)
-        self.after()
+        self.owner.after(self.owner)
 
     def do_scan_discover(self):
         # if self.selector.active:
@@ -226,35 +287,18 @@ class DocumentServiceProcessHandler(DecisionHandler):
         print  "scan starting..."
 
 
-# Scan mode  has a series of states: High Level Scan, Scan and Deep Scan
-# this will be implementd by applying state transition rules
-
-class ScanModeHandler(object):
-    def __init__(self, owner, name, selector, context):
-        self.context = context
-        self.owner = owner
-        self.name = name
-        self.selector = selector
-
-    def eval_context(self):
-        return True
-
-    def update_context(self):
-        pass
-
-    def restore_state(self):
-        pass
-
-    def save_state(self):
-        pass
 
 
 
-
-
-
-
-
+# TODO: change mode switch rule based on mode state
+# class DocumentServerModeStateChangeHandler(ModeStateChangeHandler):
+#     def __init__(self):
+#         super(DocumentServerModeStateChangeHandler, self).__init__()
+#
+#     def go_next(self, mode, context):
+#         result = super(DocumentServerModeStateChangeHandler, self).go_next(mode, context)
+#
+#         return result
 
 
 
