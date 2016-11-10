@@ -10,7 +10,7 @@ from core.states import State
 from core.serv import ServiceProcess
 from docservhandler import DocumentServiceProcessHandler, StartupHandler, ShutdownHandler, ScanModeHandler
 
-from alchemy_modestate import AlchemyModeStateReader
+from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
 
 
 LOG = log.get_log(__name__, logging.DEBUG)
@@ -19,8 +19,7 @@ LOG = log.get_log(__name__, logging.DEBUG)
 class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
         # super().__init__() must be called before accessing selector instance
-        self.state_change_handler = ModeStateChangeHandler()
-        self.mode_state_reader = AlchemyModeStateReader()
+
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks
@@ -34,13 +33,19 @@ class DocumentServiceProcess(ServiceProcess):
     def setup(self):
         self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
+        state_change_handler = ModeStateChangeHandler()
+        mode_state_reader = AlchemyModeStateReader()
+        mode_state_writer = AlchemyModeStateWriter()
+
         startup_handler = StartupHandler(self)
         shutdown_handler = ShutdownHandler(self)
         scan_handler = ScanModeHandler(self)
 
+
         # startup
 
-        self.startmode = StatefulMode(STARTUP, state_reader=self.mode_state_reader, state_change_handler=self.state_change_handler)
+        self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
+
         startup = State(INITIAL, action=startup_handler.start)
         self.startmode.add_state(startup)
 
@@ -52,20 +57,17 @@ class DocumentServiceProcess(ServiceProcess):
 
         # scan
 
-        self.scanmode = StatefulMode(SCAN, state_reader=self.mode_state_reader, state_change_handler=self.state_change_handler)
+        self.scanmode = StatefulMode(SCAN, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
 
-        scan_init = State(INITIAL)
         scan_discover = State(SCAN_DISCOVER, scan_handler.do_scan_discover)
         scan_update = State(SCAN_UPDATE, scan_handler.do_scan)
         scan_monitor = State(SCAN_MONITOR, scan_handler.do_scan_monitor)
 
-        self.scanmode.add_state(scan_init). \
-            add_state(scan_discover). \
+        self.scanmode.add_state(scan_discover). \
             add_state(scan_update). \
             add_state(scan_monitor)
 
-        self.state_change_handler.add_transition(scan_init, scan_discover, self.process_handler.definitely). \
-            add_transition(scan_discover, scan_update, self.process_handler.definitely). \
+        state_change_handler.add_transition(scan_discover, scan_update, self.process_handler.definitely). \
             add_transition(scan_update, scan_monitor, self.process_handler.definitely)
 
 

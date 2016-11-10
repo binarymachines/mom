@@ -11,6 +11,10 @@ class BaseClassException(MildredException):
 
 # modes, rules, selectors and engines
 
+class ModeConfigException(MildredException):
+    def __init__(self, message):
+        super(ModeConfigException, self).__init__(message)
+
 class ModeDestinationException(MildredException):
     def __init__(self, message):
         super(ModeDestinationException, self).__init__(message)

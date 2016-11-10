@@ -19,8 +19,8 @@ import alchemy
 LOG = log.get_log(__name__, logging.DEBUG)
 
 
-
 # decisions and guesses
+
 class DecisionHandler(object):
 
     def definitely(self, selector=None, active=None, possible=None): return True
@@ -34,6 +34,7 @@ class DecisionHandler(object):
         for mode in selector.modes:
              if bool(random.getrandbits(1)): count += 1
         return count > 3
+
 
 class DocumentServiceProcessHandler(DecisionHandler):
     def __init__(self, owner, name, selector, context):
@@ -283,7 +284,7 @@ class ScanModeHandler(DefaultModeHandler):
         #         if self.selector.active.get_state().name == SCAN_INIT:
         #             self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
 
-        # scan.scan(self.context)
+        scan.scan(self.context)
         print  "scan starting..."
 
 

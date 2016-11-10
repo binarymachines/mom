@@ -38,10 +38,21 @@ class TestAlchemy(unittest.TestCase):
         else: raise Exception('invalid data for test')
 
     def test_load_state_params(self):
-        scan_mode_data = sql.run_query("select name from mode where name = 'scan'", schema='mildred_introspection')
+        scan_mode_data = sql.run_query("select id, name from mode where name = 'scan'", schema='mildred_introspection')
         if len(scan_mode_data) == 1:
-            sqlmode = alchemy.retrieve_mode(scan_mode_data[0][0])
+            sqlmode = alchemy.retrieve_mode(scan_mode_data[0][1])
 
+            state_data = sql.run_query(
+                "select status from mode_state_default where mode_id = '%s'" % (scan_mode_data[0][0]),
+                schema='mildred_introspection')
+
+
+            # state_param_data = sql.run_query(
+            #     "select name, initial_state_flag, terminal_state_flag from state where name = 'initial'",
+            #     schema='mildred_introspection')
+
+
+            pass
         else: raise Exception('invalid data for test')
 
 

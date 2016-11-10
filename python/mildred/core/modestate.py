@@ -1,6 +1,6 @@
 import logging
 
-from errors import BaseClassException
+from errors import BaseClassException, ModeConfigException
 
 from modes import Mode, mode_function
 from states import State
@@ -8,8 +8,8 @@ from states import State
 import log
 
 class StatefulMode(Mode):
-    # def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False, state_reader=None, status=None):
-    def __init__(self, name, priority=0, dec_priority_amount=1, do_action_on_change=False, state_reader=None, state_change_handler=None):
+    # def __init__(self, name, state=None, priority=0, dec_priority_amount=1, do_action_on_change=False, reader=None, status=None):
+    def __init__(self, name, priority=0, dec_priority_amount=1, do_action_on_change=False, reader=None, writer=None, state_change_handler=None):
         super(StatefulMode, self).__init__(name, priority=priority, dec_priority_amount=dec_priority_amount)
 
         self.do_action_on_change = do_action_on_change
@@ -17,15 +17,16 @@ class StatefulMode(Mode):
         self._states = {}
         self._state_defaults = []
 
-        self._state_reader = state_reader
+        self._reader = reader
+        self._writer = writer
         self._state_change_handler = state_change_handler
-    
+
         self.mode_id = None
         self.state_id = None
         self.mode_state_id = None
 
-        if self._state_reader:
-            self._state_reader.load_states(self)
+        if self._reader:
+            self._reader.load_states(self)
 
     def can_go_next(self, context):
         if self._state_change_handler:
@@ -33,9 +34,9 @@ class StatefulMode(Mode):
 
     def go_next(self, context):
         if self._state_change_handler:
-            state = self._state_change_handler.go_next(self, context)
-            self.set_state(state)
-            return state
+            return self._state_change_handler.go_next(self, context)
+            # self.set_state(state)
+            # return state
 
     def add_state(self, state):
         # self._states[state.name] = state
@@ -44,8 +45,8 @@ class StatefulMode(Mode):
                 self._states[state.name] = state
                 break
 
-        # if state.name not in self._states:
-        #     raise Exception('unregistered state error')
+        if state.name not in self._states:
+            raise ModeConfigException('unregistered state error')
 
         return self
 
@@ -60,10 +61,15 @@ class StatefulMode(Mode):
         return self._state
 
     def set_state(self, state):
+        if self._state and self._writer:
+            print 'write old state now'
+        #     self._writer.save_state(self)
+
         self._state = state
-        if state:
+
+        if state and self._reader:
             self.effect = state.action
-            self._state_reader.load_state_defaults(self, self._state)
+            # self._reader.load_state_defaults(self, self._state)
 
             if self.do_action_on_change:
                 self.do_action()
@@ -86,10 +92,37 @@ class ModeStateReader(object):
     def get_default_state_params(self, mode):
         raise BaseClassException(ModeStateReader)
 
+    def load_states(self, mode):
+        raise BaseClassException(ModeStateReader)
+
+    def load_state(self, mode, state):
+        raise BaseClassException(ModeStateReader)
+
     def load_state_defaults(self, name, state):
         raise BaseClassException(ModeStateReader)
 
+
 # class ModeStateWriter(object):
+
+class ModeStateWriter(object):
+    def __init__(self, mode_rec=None):
+        self.mode_rec = {} if mode_rec is None else mode_rec
+
+    def get_mode_rec(self, mode):
+        if mode in self.mode_rec:
+            return self.mode_rec[mode]
+
+    def set_default_state_params(self, mode):
+        raise BaseClassException(ModeStateReader)
+
+    def save_state(self, mode):
+        raise BaseClassException(ModeStateReader)
+
+    def save_state_defaults(self, name, state):
+        raise BaseClassException(ModeStateReader)
+
+
+# Transition Rule
 
 class TransitionRule(object):
     def __init__(self, start, end, condition):
@@ -123,6 +156,7 @@ class ModeStateChangeHandler(object):
         if active is None:
             if len(mode.get_state_defaults()) > 0:
                 for state in mode.get_state_defaults():
+
                     if state.is_initial_state:
                         mode.set_state(state)
                         context.set_param(mode, 'state', state)

@@ -3,14 +3,18 @@ import os, sys, logging
 import alchemy
 
 from core import log
-from core.modestate import StatefulMode, ModeStateReader
+from core.modestate import StatefulMode, ModeStateReader, ModeStateWriter
 from core.states import State
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
+class AlchemyModeStateWriter(ModeStateWriter):
+    def __init__(self, mode_rec=None):
+        super(AlchemyModeStateWriter, self).__init__()
+
 
 class AlchemyModeStateReader(ModeStateReader):
-    def __init__(self, next_func=None, mode_rec=None):
+    def __init__(self, mode_rec=None):
         super(AlchemyModeStateReader, self).__init__()
 
     def get_default_state_params(self, mode):
@@ -20,17 +24,33 @@ class AlchemyModeStateReader(ModeStateReader):
                 if mode.state.name == default.status: 
                     return default.default_params
 
+    def load_state(self, mode, state):
+        alchemy_mode  = alchemy.retrieve_mode(mode.name)
+        if alchemy_mode:
+            self.mode_rec[mode] = alchemy_mode
+
+        sqlstate = alchemy.retrieve_state(state.name)
+
+        state.is_initial_state = sqlstate.is_initial_state
+        state.is_terminal_state = sqlstate.is_terminal_state
+
     def load_states(self, mode):
         alchemy_mode  = alchemy.retrieve_mode(mode.name)
         if alchemy_mode:
             self.mode_rec[mode] = alchemy_mode
             for default in alchemy_mode.default_states:
                 state = State(default.status, data=default)
+
+                self.load_state(mode, state)
+                self.load_state_defaults(mode, state)
+
                 state.params = ()
                 for param in default.default_params:
                     value = param.value
-                    if str(value).lower() == 'true': value = True
-                    elif str(value).lower() == 'false': value = False
+                    if str(value).lower() == 'true':
+                        value = True
+                    elif str(value).lower() == 'false':
+                        value = False
 
                     state.params += ([param.name, value],)
 
