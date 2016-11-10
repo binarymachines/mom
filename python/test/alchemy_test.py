@@ -7,7 +7,8 @@ class TestAlchemy(unittest.TestCase):
     def setUp(self):
         self.state_data = sql.run_query('select name, initial_state_flag, terminal_state_flag from state', schema='mildred_introspection')
         self.mode_data = sql.run_query('select name from mode', schema='mildred_introspection')
-        self.init_state = sql.run_query("select name, initial_state_flag, terminal_state_flag from state where name = 'initial'", schema='mildred_introspection')
+        self.init_state_data = sql.run_query("select name, initial_state_flag, terminal_state_flag from state where name = 'initial'", schema='mildred_introspection')
+        self.scan_mode_data = sql.run_query("select name from mode where name = 'scan'", schema='mildred_introspection')
 
     def test_load_states(self):
         for row in self.state_data:
@@ -22,12 +23,13 @@ class TestAlchemy(unittest.TestCase):
             self.assertEquals(sqlmode.name, mode_name)
 
     #
-    # def test_load_state_defaults(self):
-    #
-    #         sqlstate = alchemy.retrieve_state(self.scan_state.name)
-    #         pass
-    #         # self.assertEquals(sqlstate.name, state_name)
+    def test_load_state_defaults(self):
+            sqlstate = alchemy.retrieve_state(self.init_state_data[0][0])
+            self.assertEquals(sqlstate.is_initial_state, self.init_state_data[0][1])
 
+    def test_load_state_params(self):
+        sqlmode = alchemy.retrieve_mode(self.scan_mode_data[0][0])
+        pass
 
 if __name__ == '__main__':
     unittest.main()

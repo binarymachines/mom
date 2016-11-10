@@ -2,11 +2,11 @@ import unittest
 
 import redis
 
-import config
-import const
-import library
-import sql
-from core import cache2
+from mildred import config
+from mildred import const
+from mildred import library
+from mildred import sql
+from mildred.core import cache2
 
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'
