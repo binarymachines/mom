@@ -9,6 +9,10 @@ class State(object):
         self.is_terminal_state = is_terminal_state
         self.params = ()
 
+    def add_param(self, param,  value):
+        self.params += ([param, value],)
+
+
     def do_action(self):
         if self.action:
             self.action()

@@ -24,10 +24,15 @@ class DocumentServiceProcess(ServiceProcess):
 
     # selector callbacks
     def after_switch(self, selector, mode):
-        self.process_handler.after_switch(selector, mode)
+       pass
 
     def before_switch(self, selector, mode):
-        self.process_handler.before_switch(selector, mode)
+        if isinstance(mode, StatefulMode):
+            mode.go_next(self.context)
+            # if mode.get_state():
+            #     mode.expire_state()
+            # if mode.go_next(self.context):
+            #     mode.save_state()
 
     # process logic
     def setup(self):
@@ -44,15 +49,15 @@ class DocumentServiceProcess(ServiceProcess):
 
         # startup
 
-        self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
-
-        startup = State(INITIAL, action=startup_handler.start)
-        self.startmode.add_state(startup)
+        self.startmode = Mode(STARTUP, startup_handler.start) 
+        # self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
+        # startup = State(INITIAL, action=startup_handler.start)
+        # self.startmode.add_state(startup)
 
 
         # eval
 
-        self.evalmode = Mode(EVAL, self.process_handler.do_eval, 1)
+        self.evalmode = Mode(EVAL, self.process_handler.do_eval, priority=1)
 
 
         # scan
@@ -71,14 +76,14 @@ class DocumentServiceProcess(ServiceProcess):
             add_transition(scan_update, scan_monitor, self.process_handler.definitely)
 
 
-        # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 25) # bring MariaDB into line with ElasticSearch
+        # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 2) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down until a command is issued
-        self.cleanmode = Mode(CLEAN, self.process_handler.do_clean, 2) # bring ElasticSearch into line with MariaDB
-        self.matchmode = Mode(MATCH, self.process_handler.do_match, 3)
-        self.fixmode = Mode(FIX, self.process_handler.do_fix, 1)
-        self.reportmode = Mode(REPORT, self.process_handler.do_report, 1)
-        self.reqmode = Mode(REQUESTS, self.process_handler.do_reqs, 1)
-        self.endmode = Mode(SHUTDOWN, shutdown_handler.end, 0)
+        self.cleanmode = Mode(CLEAN, self.process_handler.do_clean, priority=2) # bring ElasticSearch into line with MariaDB
+        self.matchmode = Mode(MATCH, self.process_handler.do_match, priority=3)
+        self.fixmode = Mode(FIX, self.process_handler.do_fix, priority=1)
+        self.reportmode = Mode(REPORT, self.process_handler.do_report, priority=1)
+        self.reqmode = Mode(REQUESTS, self.process_handler.do_reqs, priority=1)
+        self.endmode = Mode(SHUTDOWN, shutdown_handler.end)
 
         self.selector.remove_at_error_tolerance = True
         self.matchmode.error_tolerance = 5

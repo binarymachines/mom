@@ -230,6 +230,7 @@ def insert_asset(index_name, doc_type, id, absolute_path, effective_dt=datetime.
 
         raise SQLIntegrityError(err, err.message)
 
+
 def retrieve_assets(doc_type, absolute_path):
     # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path
     path = '%s%s' % (absolute_path, '%')
@@ -242,6 +243,7 @@ def retrieve_assets(doc_type, absolute_path):
             result += (instance,)
 
     return result
+
 
 # SQLMatchRecord
 
@@ -276,13 +278,27 @@ def insert_exec_record(kwargs):
         
         sessions[1].rollback()
 
+
+def retrieve_exec_record(pid=None):
+    pid = config.pid if pid is None else pid
+
+    result = ()
+    for instance in sessions[0].query(SQLAsset).\
+        filter(SQLExecutionRecord.pid == pid):
+            result += (instance,)
+
+    if len(result) == 1:
+        return result[0]
+
+
 def update_exec_record(kwargs):
     
     try:
-        pass
+        exec_rec=retrieve_exec_record()
+        exec_rec.expiration_date = datetime.datetime.now()
         # sessions[1].add(rec_exec)
-        # sessions[1].commit()
-        # return rec_exec
+        sessions[1].commit()
+        return exec_rec
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -307,6 +323,7 @@ def insert_op_record(operation_name, operator_name, target_esid, target_path, st
     except Exception, err:
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         raise err
+
 
 def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op_status=None):
     # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else 
@@ -338,6 +355,26 @@ def insert_mode(name):
         sessions[1].add(mode_rec)
         sessions[1].commit()
         return mode_rec.id
+    except IntegrityError, err:
+        print '\a'
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        sessions[1].rollback()
+
+
+def insert_mode_state(mode):
+    sqlmode = retrieve_mode(mode.name)
+    sqlstate = retrieve_state(mode.get_state().name)
+    # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
+    mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
+                                  times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete,
+                                  dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count,
+                                  error_tolerance=mode.error_tolerance, status=mode.get_state().name,
+                                  effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
+
+    try:
+        sessions[1].add(mode_state_rec)
+        sessions[1].commit()
+        return mode_state_rec.id
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -398,24 +435,18 @@ def retrieve_mode_state_record(id):
     return result[0] if len(result) == 1 else None
 
 
-def insert_mode_state(mode):
-    sqlmode = retrieve_mode(mode.name)
-    sqlstate = retrieve_state(mode.get_state().name)
-    # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
-    mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
-                                  times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete,
-                                  dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count,
-                                  error_tolerance=mode.error_tolerance, status=mode.get_state().name,
-                                  effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
+def retrieve_previous_mode_state_record(name):
+    result = ()
+    for instance in sessions[1].query(SQLState).\
+        filter(SQLState.index_name == config.es_index). \
+        filter(SQLState.effective_dt < datetime.datetime.now()). \
+        filter(SQLState.expiration_dt > datetime.datetime.now()). \
+        filter(SQLState.name == name):
+            result += (instance,)
 
-    try:
-        sessions[1].add(mode_state_rec)
-        sessions[1].commit()
-        return mode_state_rec.id
-    except IntegrityError, err:
-        print '\a'
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        sessions[1].rollback()
+    return result[0] if len(result) == 1 else None
+
+
 
 
 def update_mode_state(mode, expire=False):
@@ -426,12 +457,11 @@ def update_mode_state(mode, expire=False):
 
         mode_state_rec = retrieve_mode_state_record(mode.mode_state_id)
 
+        mode_state_rec.times_activated = mode.times_activated
+        mode_state_rec.times_completed = mode.times_completed
+
         if expire:
             mode_state_rec.expiration_dt = datetime.datetime.now()
-
-        else:
-            mode_state_rec.times_activated = mode.times_activated
-            mode_state_rec.times_completed = mode.times_completed
 
     else:
         raise Exception('no mode state to save!')

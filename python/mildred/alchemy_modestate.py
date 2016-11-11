@@ -31,6 +31,12 @@ class AlchemyModeStateReader(ModeStateReader):
         super(AlchemyModeStateReader, self).__init__()
 
 
+
+    def initialize_context_params(self, state):
+
+        # raise BaseClassException(ModeStateReader)
+        pass
+
     def initialize_state(self, mode, state):
 
         self.initialize_state_with_defaults(mode, state)
@@ -59,10 +65,17 @@ class AlchemyModeStateReader(ModeStateReader):
                     mode.dec_priority_amount = default.dec_priority_amount
                     mode.inc_priority_amount = default.inc_priority_amount
 
+                    for param in default.default_params:
+                        value = param.value
+                        if str(value).lower() == 'true':
+                            value = True
+                        elif str(value).lower() == 'false':
+                            value = False
+                        state.add_param(param.name, value)
         return mode
 
 
-    def load_states(self, mode):
+    def load_state_defaults(self, mode):
         alchemy_mode = alchemy.retrieve_mode(mode.name)
         if alchemy_mode:
             self.mode_rec[mode] = alchemy_mode
@@ -79,7 +92,7 @@ class AlchemyModeStateReader(ModeStateReader):
                     elif str(value).lower() == 'false':
                         value = False
 
-                    state.params += ([param.name, value],)
-
+                    state.add_param(param.name, value)
+             
                 mode.add_state_default(state)
 

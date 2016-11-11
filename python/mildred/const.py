@@ -19,6 +19,10 @@ SHUTDOWN = 'shutdown'
 STARTUP = 'startup'
 SYNC = 'sync'
 CALC = 'calc'
+SYNC = 'sync'
+SLEEP = 'SLEEP'
+
+COMMAND = 'COMMAND'
 
 # reader constants
 

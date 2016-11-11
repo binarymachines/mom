@@ -46,50 +46,6 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
         random.seed()
 
-    # selector callbacks
-
-    def after_switch(self, selector, mode):
-        if isinstance(mode, StatefulMode):
-            # alchemy.update_mode_state(mode)
-            mode.expire_state()
-        # if mode.go_next(self.context):
-        #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
-
-        # self.mode_state_reader.save_state
-        # self.mode_state_reader.save_state
-
-
-
-    def before_switch(self, selector, mode):
-        print 'switching into %s mode' % mode.name
-
-        if isinstance(mode, StatefulMode):
-
-            ################### This block works like it reads
-            # # insert record for initial state
-            # if mode.mode_state_id is None:
-            #     mode.status = "initial"
-            #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
-            #     alchemy.update_mode_state_record(mode)
-
-            # mode.status = mode.get_state().name
-            # mode.mode_state_id = alchemy.insert_mode_state_record(mode)
-            ###################
-            if mode.get_state():
-                mode.expire_state()
-            if mode.go_next(self.context):
-                mode.save_state()
-
-
-            # if mode.mode_state_id is None:
-            # else:
-            #     alchemy.update_mode_state_record(mode)
-
-            # self.mode_state_reader.save_state(mode)
-            # self.mode_state_reader.save_state
-            # self.mode_state_reader.load_state_defaults
-
-
     # generic rule callbacks
 
     def after(self):
@@ -252,40 +208,43 @@ class ScanModeHandler(DefaultModeHandler):
 
     def before_scan(self):
         # LOG.debug('%s preparing to scan, caching data' % self.name)
-        self.owner.before(self.owner)
+        # self.owner.before(self.owner)
         # if self.context.get_param('all', 'expand_all') == False:
         # self.context.reset(SCAN)
+
+        pass
 
     def after_scan(self):
         # LOG.debug('%s done scanning, updating op records...' % self.name)
         # clean.clean(self.context)
-        self.context.reset(SCAN)
-        self.owner.after(self.owner)
+        # self.context.reset(SCAN)
+        # self.owner.after(self.owner)
+        pass
 
     def do_scan_discover(self):
-        # if self.selector.active:
-        #     if isinstance(self.selector.active, StatefulMode):
-        #         if self.selector.active.get_state().name == SCAN_INIT:
-        #             self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
-
         print  "discover scan starting..."
+        param = self.context.get_param(SCAN, HLSCAN)
+        if param == True: 
+            print "High level scan commencing..."
+
 
     def do_scan_monitor(self):
-        # if self.selector.active:
-        #     if isinstance(self.selector.active, StatefulMode):
-        #         if self.selector.active.get_state().name == SCAN_INIT:
-        #             self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
-
         print  "monitor scan starting..."
+        if self.context.get_param(SCAN, HLSCAN):
+            print "High level scan commencing..."
+
 
     def do_scan(self):
+        print  "scan starting..."
+        if self.context.get_param(SCAN, HLSCAN):
+            print "High level scan commencing..."
+        # scan.scan(self.context)
+
         # if self.selector.active:
         #     if isinstance(self.selector.active, StatefulMode):
         #         if self.selector.active.get_state().name == SCAN_INIT:
         #             self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
 
-        scan.scan(self.context)
-        print  "scan starting..."
 
 
 

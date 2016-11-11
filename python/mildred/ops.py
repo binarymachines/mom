@@ -225,7 +225,7 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 
 # execution record
 
-NEW_RECORD = { 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
+NEW_RECORD = { 'id': None, 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
     'effective_dt': datetime.datetime.now(), 'expiration_dt': None, \
     'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
 

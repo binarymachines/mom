@@ -77,19 +77,27 @@ class Context(object):
             self.stacks[consumer] = []
         self.stacks[consumer].append(value)
 
+
     # params
 
     def get_param(self, consumer, param):
         if consumer in self.params:
-            if param in self.params[consumer]:
-                return self.params[consumer][param]
+            # if param in self.params[consumer]:
+            params = self.params[consumer]
+            if param in params:
+                return params[param]
+
+    def get_params(self):
+        for consumer in self.params:
+            print self.params[consumer]
 
     def set_param(self, consumer, param, value):
-        print "setting param %s to %s" % (param, str(value) )
+        print "setting %s[%s] to %s" % (str(consumer), param, str(value) )
         if consumer not in self.params:
             self.params[consumer] = {}
         self.params[consumer][param] = value
         
+
     def clear_params(self, consumer):
         if consumer in self.params:
             del self.params[consumer]
