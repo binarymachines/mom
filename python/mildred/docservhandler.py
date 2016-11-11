@@ -50,15 +50,14 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def after_switch(self, selector, mode):
         if isinstance(mode, StatefulMode):
-            alchemy.update_mode_state(mode)
-
+            # alchemy.update_mode_state(mode)
+            mode.expire_state()
         # if mode.go_next(self.context):
         #     mode.mode_state_id = alchemy.insert_mode_state_record(mode)
 
         # self.mode_state_reader.save_state
         # self.mode_state_reader.save_state
 
-        print 'finished %s mode' % mode.name
 
 
     def before_switch(self, selector, mode):
@@ -76,9 +75,10 @@ class DocumentServiceProcessHandler(DecisionHandler):
             # mode.status = mode.get_state().name
             # mode.mode_state_id = alchemy.insert_mode_state_record(mode)
             ###################
-
+            if mode.get_state():
+                mode.expire_state()
             if mode.go_next(self.context):
-                mode.mode_state_id = alchemy.insert_mode_state(mode)
+                mode.save_state()
 
 
             # if mode.mode_state_id is None:

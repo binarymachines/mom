@@ -28,15 +28,18 @@ class StatefulMode(Mode):
         if self._reader:
             self._reader.load_states(self)
 
+
     def can_go_next(self, context):
         if self._state_change_handler:
             return self._state_change_handler.can_go_next(self, context)
+
 
     def go_next(self, context):
         if self._state_change_handler:
             return self._state_change_handler.go_next(self, context)
             # self.set_state(state)
             # return state
+
 
     def add_state(self, state):
         # self._states[state.name] = state
@@ -50,15 +53,18 @@ class StatefulMode(Mode):
 
         return self
 
+
     def add_state_default(self, state):
-        # self._states[state.name] = state
         self._state_defaults.append(state)
-    
+
+
     def get_state_defaults(self):
         return self._state_defaults
 
+
     def get_state(self):
         return self._state
+
 
     def set_state(self, state):
         if self._state and self._writer:
@@ -73,7 +79,20 @@ class StatefulMode(Mode):
 
             if self.do_action_on_change:
                 self.do_action()
-    
+
+
+    def save_state(self):
+        if self._writer:
+            self._writer.save_state(self)
+
+
+
+    def expire_state(self):
+        if self._writer:
+            self._writer.expire_state(self)
+
+
+
     @mode_function
     def do_action(self):
         if self._state and self._state.action:
@@ -89,16 +108,16 @@ class ModeStateReader(object):
         if mode in self.mode_rec:
             return self.mode_rec[mode]
 
-    def get_default_state_params(self, mode):
-        raise BaseClassException(ModeStateReader)
+    # def get_default_state_params(self, mode):
+    #     raise BaseClassException(ModeStateReader)
 
     def load_states(self, mode):
         raise BaseClassException(ModeStateReader)
 
-    def load_state(self, mode, state):
+    def initialize_state(self, mode, state):
         raise BaseClassException(ModeStateReader)
 
-    def load_state_defaults(self, name, state):
+    def initialize_state_with_defaults(self, name, state):
         raise BaseClassException(ModeStateReader)
 
 
@@ -112,14 +131,17 @@ class ModeStateWriter(object):
         if mode in self.mode_rec:
             return self.mode_rec[mode]
 
-    def set_default_state_params(self, mode):
+    # def set_default_state_params(self, mode):
+    #     raise BaseClassException(ModeStateReader)
+
+    def expire_state(self, mode):
         raise BaseClassException(ModeStateReader)
 
     def save_state(self, mode):
         raise BaseClassException(ModeStateReader)
 
-    def save_state_defaults(self, name, state):
-        raise BaseClassException(ModeStateReader)
+    # def save_state_defaults(self, name, state):
+    #     raise BaseClassException(ModeStateReader)
 
 
 # Transition Rule
@@ -134,11 +156,13 @@ class ModeStateChangeHandler(object):
     def __init__(self):
         self.transitions = []
 
+
     def add_transition(self, start, end, condition):
         rule = TransitionRule(start, end, condition)
         self.transitions.append(rule)
         return self
-        
+
+
     def can_go_next(self, mode, context):
         active = context.get_param(mode, 'state')
         if active is None:
@@ -152,28 +176,27 @@ class ModeStateChangeHandler(object):
 
     @mode_function
     def go_next(self, mode, context):
-        active = context.get_param(mode, 'state')
+        active = context.get_param(mode.name, 'state')
         if active is None:
             if len(mode.get_state_defaults()) > 0:
                 for state in mode.get_state_defaults():
-
                     if state.is_initial_state:
                         mode.set_state(state)
-                        context.set_param(mode, 'state', state)
+                        context.set_param(mode.name, 'state', state)
                         for param in state.params:
-                            context.set_param(mode, param[0], param[1])
+                            context.set_param(mode.name, param[0], param[1])
 
                         return state
 
         else:
-            context.clear_params(mode)
+            context.clear_params(mode.name)
             for rule in self.transitions:
                 if rule.start.name == active.name:
                     if rule.condition():
                         mode.set_state(rule.end)
                         context.set_param(mode, 'state', rule.end)
                         for param in rule.end.params:
-                            context.set_param(mode, param[0], param[1])
+                            context.set_param(mode.name, param[0], param[1])
 
                         return rule.end
 

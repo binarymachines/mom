@@ -401,7 +401,7 @@ def retrieve_mode_state_record(id):
 def insert_mode_state(mode):
     sqlmode = retrieve_mode(mode.name)
     sqlstate = retrieve_state(mode.get_state().name)
-    # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count, 
+    # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
     mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
                                   times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete,
                                   dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count,
@@ -415,18 +415,23 @@ def insert_mode_state(mode):
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        sessions[1].rollback()    
+        sessions[1].rollback()
 
 
-def update_mode_state(mode):
+def update_mode_state(mode, expire=False):
     # sqlmode = retrieve_mode(mode.name)
     # sqlstate = retrieve_state(mode.get_state().name)
     # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
     if mode.mode_state_id:
-        mode_state_rec = retrieve_mode_state_record(mode.mode_state_id) 
-        mode_state_rec.times_activated = mode.times_activated
-        mode_state_rec.times_completed = mode.times_completed
-        mode_state_rec.expiration_dt = datetime.datetime.now()
+
+        mode_state_rec = retrieve_mode_state_record(mode.mode_state_id)
+
+        if expire:
+            mode_state_rec.expiration_dt = datetime.datetime.now()
+
+        else:
+            mode_state_rec.times_activated = mode.times_activated
+            mode_state_rec.times_completed = mode.times_completed
 
     else:
         raise Exception('no mode state to save!')
