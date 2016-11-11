@@ -87,10 +87,10 @@ class Context(object):
             if param in params:
                 return params[param]
 
-    def get_params(self):
-        for consumer in self.params:
-            print self.params[consumer]
-
+    def get_params(self, consumer):
+        if consumer in self.params:
+            return self.params(consumer)
+            
     def set_param(self, consumer, param, value):
         print "setting %s[%s] to %s" % (str(consumer), param, str(value) )
         if consumer not in self.params:

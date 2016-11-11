@@ -68,6 +68,6 @@ echo '----------------------------'
 echo
 git status
 git commit -m 'db snapshot'
-git push
+#git push
 
 popd

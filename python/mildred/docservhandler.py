@@ -208,17 +208,10 @@ class ScanModeHandler(DefaultModeHandler):
 
     def before_scan(self):
         # LOG.debug('%s preparing to scan, caching data' % self.name)
-        # self.owner.before(self.owner)
-        # if self.context.get_param('all', 'expand_all') == False:
-        # self.context.reset(SCAN)
-
         pass
 
     def after_scan(self):
         # LOG.debug('%s done scanning, updating op records...' % self.name)
-        # clean.clean(self.context)
-        # self.context.reset(SCAN)
-        # self.owner.after(self.owner)
         pass
 
     def do_scan_discover(self):
@@ -226,39 +219,20 @@ class ScanModeHandler(DefaultModeHandler):
         param = self.context.get_param(SCAN, HLSCAN)
         if param == True: 
             print "High level scan commencing..."
+        scan.scan(self.context)
 
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
         if self.context.get_param(SCAN, HLSCAN):
             print "High level scan commencing..."
+        scan.scan(self.context)
 
 
     def do_scan(self):
         print  "scan starting..."
         if self.context.get_param(SCAN, HLSCAN):
             print "High level scan commencing..."
-        # scan.scan(self.context)
-
-        # if self.selector.active:
-        #     if isinstance(self.selector.active, StatefulMode):
-        #         if self.selector.active.get_state().name == SCAN_INIT:
-        #             self.context.set_param(SCAN, HLSCAN, True) # self.owner.scanmode.on_first_activation()
-
-
-
-
-
-
-# TODO: change mode switch rule based on mode state
-# class DocumentServerModeStateChangeHandler(ModeStateChangeHandler):
-#     def __init__(self):
-#         super(DocumentServerModeStateChangeHandler, self).__init__()
-#
-#     def go_next(self, mode, context):
-#         result = super(DocumentServerModeStateChangeHandler, self).go_next(mode, context)
-#
-#         return result
-
+        scan.scan(self.context)
 
 
