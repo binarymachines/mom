@@ -47,7 +47,7 @@ CREATE TABLE `mode_state_default` (
 
 LOCK TABLES `mode_state_default` WRITE;
 /*!40000 ALTER TABLE `mode_state_default` DISABLE KEYS */;
-INSERT INTO `mode_state_default` VALUES (1,1,1,3,1,1,0,'initial','2016-11-06 18:10:21','9999-12-31 23:59:59'),(2,1,1,2,0,1,0,'discover','2016-11-06 23:55:05','9999-12-31 23:59:59'),(3,1,1,1,0,1,0,'update','2016-11-06 23:55:37','9999-12-31 23:59:59'),(4,1,1,3,0,1,0,'monitor','2016-11-08 12:31:55','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` VALUES (1,1,1,3,1,1,0,'initial','2016-11-06 18:10:21','9999-12-31 23:59:59'),(2,2,1,2,0,1,0,'discover','2016-11-06 23:55:05','9999-12-31 23:59:59'),(3,2,1,1,0,1,0,'update','2016-11-06 23:55:37','9999-12-31 23:59:59'),(4,2,1,3,0,1,0,'monitor','2016-11-08 12:31:55','9999-12-31 23:59:59');
 /*!40000 ALTER TABLE `mode_state_default` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -60,4 +60,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-09  2:18:30
+-- Dump completed on 2016-11-11  7:04:49

@@ -32,7 +32,7 @@ CREATE TABLE `mode_state_default_param` (
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_default_context_param` (`mode_state_default_id`),
   CONSTRAINT `fk_mode_state_default_context_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +41,7 @@ CREATE TABLE `mode_state_default_param` (
 
 LOCK TABLES `mode_state_default_param` WRITE;
 /*!40000 ALTER TABLE `mode_state_default_param` DISABLE KEYS */;
-INSERT INTO `mode_state_default_param` VALUES (1,2,'HLSCAN','true','2016-11-07 00:04:02','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default_param` VALUES (1,1,'MAP_PATHS','true','2016-11-07 00:04:02','9999-12-31 23:59:59'),(2,2,'HLSCAN','true','2016-11-09 07:01:13','9999-12-31 23:59:59');
 /*!40000 ALTER TABLE `mode_state_default_param` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -54,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-09  2:18:30
+-- Dump completed on 2016-11-11  7:04:49
