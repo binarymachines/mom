@@ -22,6 +22,7 @@ class StatefulMode(Mode):
         self._state_change_handler = state_change_handler
 
         self.mode_state_id = None
+        self.just_restored = False
 
         if self._reader:
             self._reader.initialize_mode(self)
@@ -216,18 +217,28 @@ class ModeStateChangeHandler(object):
 
         else:
             context.clear_params(mode.name)
-            for rule in self.transitions:
-                if rule.start == active:
-                # if rule.end and rule.start == active:
-                    if rule.condition():
-                        mode.set_state(rule.end)
-                        context.set_param(mode.name, 'state', rule.end)
-                        for param in rule.end.params:
-                            context.set_param(mode.name, param[0], param[1])
 
-                        # if mode._reader:
-                        #     mode._reader.initialize_state_from_previous_session(mode, rule.end)
-                        return rule.end
+            if mode.just_restored:
+                context.set_param(mode.name, 'state', mode.get_state())
+                for param in mode.get_state().params:
+                    context.set_param(mode.name, param[0], param[1])
+                mode.just_restored = False
+
+                return mode.get_state()
+
+            else:
+                for rule in self.transitions:
+                    if rule.start == active:
+                    # if rule.end and rule.start == active:
+                        if rule.condition():
+                            mode.set_state(rule.end)
+                            context.set_param(mode.name, 'state', rule.end)
+                            for param in rule.end.params:
+                                context.set_param(mode.name, param[0], param[1])
+
+                            # if mode._reader:
+                            #     mode._reader.initialize_state_from_previous_session(mode, rule.end)
+                            return rule.end
 
 
 # class StatefulRule:

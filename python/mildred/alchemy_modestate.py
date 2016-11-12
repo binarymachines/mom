@@ -72,6 +72,8 @@ class AlchemyModeStateReader(ModeStateReader):
             for state in mode.get_states():
                 if state.id == mode_state.state_id:
                     mode.set_state(state)
+                    mode.just_restored = True
+
                     break
 
 
