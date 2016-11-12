@@ -27,8 +27,9 @@ primary = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, conf
 introspection = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection')
 admin = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin')
 media = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'media')
+scratch = 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'scratch')
 
-databases =  primary, introspection, admin, media
+databases =  primary, introspection, admin, media, scratch
 
 for dbconf in databases:
     engine = create_engine(dbconf)

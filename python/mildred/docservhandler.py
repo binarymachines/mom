@@ -64,7 +64,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
-        scan_incomplete = True if self.owner.scanmode.can_go_next(self.context) else False
+        scan_incomplete = True if self.context.has_next(SCAN) and self.owner.scanmode.can_go_next(self.context) else False
 
         if possible is self.owner.scanmode: 
             if self.context.has_next(SCAN):
@@ -214,7 +214,7 @@ class ScanModeHandler(DefaultModeHandler):
 
     def after_scan(self):
         # LOG.debug('%s done scanning, updating op records...' % self.name)
-        pass
+        self.context.reset(SCAN, use_fifo=True)
 
     def do_scan_discover(self):
         print  "discover scan starting..."

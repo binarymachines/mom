@@ -52,7 +52,7 @@ def launch(args, run=True):
                 path_args = start.get_paths(args)
                 paths = pathutil.get_locations() if path_args == [] else path_args
 
-                context = DirectoryContext('path context', paths)
+                context = CachedDirectoryContext('path context', paths)
                 context.peep_fifo = True
                 if args['--expand-all']:
                     context.set_param('all', 'expand_all', True)

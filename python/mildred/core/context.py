@@ -195,6 +195,7 @@ class CachedDirectoryContext(DirectoryContext):
     def __init__(self, name, paths, cycle=False):
         super(CachedDirectoryContext, self).__init__(name, paths, cycle)
         self.consumer_key = cache2.create_key(CDC, 'consumers')
+        # self.referenced = False
 
   # FIFO
 
@@ -224,6 +225,18 @@ class CachedDirectoryContext(DirectoryContext):
         key = cache2.get_key(CDC, consumer)
         cache2.rpush(key, value)
 
+    # Params
+    # def get_param(self, consumer, param):
+    #     if consumer in self.params:
+    #         # if param in self.params[consumer]:
+    #         params = self.params[consumer]
+    #         if param in params:
+    #             return params[param]
+
+    # def get_params(self, consumer):
+    #     if consumer in self.params:
+    #         return self.params(consumer)
+
     # Path
     def clear_active(self, consumer):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
@@ -243,6 +256,10 @@ class CachedDirectoryContext(DirectoryContext):
 
     def get_next(self, consumer, use_fifo=False):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+        # if self.referenced == False and consumer in cached_consumer_paths:
+        #     self.referenced = True
+        #     return cached_consumer_paths[consumer] 
+
 
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return self.pop_fifo(consumer)
@@ -253,6 +270,7 @@ class CachedDirectoryContext(DirectoryContext):
 
         if consumer in cached_consumer_paths:
             index = self.paths.index(cached_consumer_paths[consumer]) + 1
+                
             if len(self.paths) > index:
                 result = self.paths[index]
                 cached_consumer_paths[consumer] = result
@@ -264,6 +282,7 @@ class CachedDirectoryContext(DirectoryContext):
             cached_consumer_paths[consumer] = result
 
         cache2.set_hash2(self.consumer_key, cached_consumer_paths)
+        
         return result
 
     def has_active(self, consumer):
@@ -279,7 +298,8 @@ class CachedDirectoryContext(DirectoryContext):
         if len(self.paths) == 0: return False
 
         result = False
-        if consumer in self.consumer_paths:
+
+        if consumer in cached_consumer_paths:
             index = self.paths.index(cached_consumer_paths[consumer]) + 1
             if len(self.paths) > index or self.cycle: result = True
         else: result = True

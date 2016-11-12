@@ -306,7 +306,7 @@ def check_status(opcount=None):
         print 'stop requested, terminating...'
         LOG.debug('stop requested, terminating...')
         update_listeners(OPS, get_exec_key(), 'terminating')
-        flush_cache()
+        # flush_cache()
         # cache.flush_cache()
         LOG.debug('Run complete')
 

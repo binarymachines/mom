@@ -115,6 +115,7 @@ class Scanner(Walker):
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
+
     # utility
 
     def path_expands(self, path):
@@ -140,7 +141,10 @@ class Scanner(Walker):
 
         return expanded
 
+
     def _pre_scan(self, path):
+        self.context.set_param(SCAN, 'active.scan.path', path)
+
         LOG.debug('caching data for %s...' % path)
         ops.cache_ops(path, SCAN)
         ops.cache_ops(path, READ)
@@ -150,6 +154,7 @@ class Scanner(Walker):
         # if self.deep_scan == False:
         if self.context.get_param(SCAN, HLSCAN):
             ops.record_op_begin(HLSCAN, SCANNER, path)
+
 
     def _post_scan(self, path, update_ops):
         LOG.debug('clearing cache...')
@@ -168,17 +173,23 @@ class Scanner(Walker):
             ops.record_op_complete(HLSCAN, SCANNER, path)
             ops.write_ops_data(path, HLSCAN, SCANNER)
 
+        self.context.set_param(SCAN, 'active.scan.path', None)
+
+
     # TODO: individual paths in the directory context should have their own scan configuration
     def scan(self):
+
+        path = self.context.get_param(SCAN, 'active.scan.path')
+        path_restored = path is not None
 
         # while self.context.has_active(SCAN) or self.context.has_next(SCAN, True):
         while self.context.has_next(SCAN, True):
             ops.check_status()
-            # path = self.context.get_next(SCAN, True) if self.context.get_active(SCAN) is None else self.context.get_active(SCAN)
-            path = self.context.get_next(SCAN, True)
 
-            if os.path.isfile(path):
-                path = os.path.join(path, os.pardir)
+            path = path if path_restored else self.context.get_next(SCAN, True)           
+            path_restored = False 
+            if path is None or os.path.isfile(path): 
+                continue
  
             if self.context.get_param(SCAN, HLSCAN):
                 ops.cache_ops(path, HLSCAN, SCANNER)
@@ -200,11 +211,10 @@ class Scanner(Walker):
                     continue
                 
                 try:
-                    self.context.set_param(SCAN, 'active.scan.path', path)
                     self._pre_scan(path)
 
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
-                    print("scanning %s..." % path)
+                    LOG.debug("scanning %s..." % path)
                     ops.update_listeners('scanning', SCANNER, path)
                     self.walk(path)
                     end_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
