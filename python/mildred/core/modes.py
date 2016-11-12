@@ -288,6 +288,7 @@ class Selector:
     def switch(self, mode, rewind=False):
             self.next = mode
 
+            mode.times_activated += 1
             self._set_mode_funcs(mode)
             self._call_switch_bracket_func(mode, self.before_switch)
 
@@ -296,7 +297,6 @@ class Selector:
                 self._call_mode_func(mode, mode.active_rule.before)
 
             self.active = mode
-            mode.times_activated += 1
             self.complete = True if mode == self.end else False
 
             self._call_mode_func(mode, mode.do_action())

@@ -92,7 +92,7 @@ class Context(object):
             return self.params(consumer)
             
     def set_param(self, consumer, param, value):
-        print "setting %s[%s] to %s" % (str(consumer), param, str(value) )
+        # print "setting %s[%s] to %s" % (str(consumer), param, str(value) )
         if consumer not in self.params:
             self.params[consumer] = {}
         self.params[consumer][param] = value

@@ -200,6 +200,7 @@ class Scanner(Walker):
                     continue
                 
                 try:
+                    self.context.set_param(SCAN, 'active.scan.path', path)
                     self._pre_scan(path)
 
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))

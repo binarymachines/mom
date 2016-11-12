@@ -37,19 +37,15 @@ class StatefulMode(Mode):
     def go_next(self, context):
         if self._state_change_handler:
             return self._state_change_handler.go_next(self, context)
-            # self.set_state(state)
-            # return state
 
 
     def add_state(self, state):
-        # self._states[state.name] = state
         for default in self._state_defaults:
             if state.name == default.name:
                 self._states[state.name] = state
 
                 if self._reader:
                     self._reader.initialize_state(self, state)
-
                 break
 
 
@@ -71,6 +67,7 @@ class StatefulMode(Mode):
     def get_state(self):
         return self._state
 
+
     def get_states(self):
 
         result = []
@@ -78,6 +75,7 @@ class StatefulMode(Mode):
             result.append(self._states[key])
 
         return result
+
 
     def set_state(self, state):
         if self._state:
@@ -104,6 +102,11 @@ class StatefulMode(Mode):
     def expire_state(self):
         if self._writer:
             self._writer.expire_state(self)
+
+
+    def update_state(self):
+        if self._writer:
+            self._writer.update_state(self)
 
 
     @mode_function
@@ -133,11 +136,11 @@ class ModeStateReader(object):
         raise BaseClassException(ModeStateReader)
 
 
-    def initialize_state_with_defaults(self, name, state):
+    def initialize_state_with_defaults(self, state):
         raise BaseClassException(ModeStateReader)
 
 
-    def initialize_state_with_current_snapshot(self, name, state):
+    def initialize_state_with_current_snapshot(self, mode):
         raise BaseClassException(ModeStateReader)
 
 
@@ -158,6 +161,9 @@ class ModeStateWriter(object):
         raise BaseClassException(ModeStateReader)
 
     def save_state(self, mode):
+        raise BaseClassException(ModeStateReader)
+
+    def update_state(self, mode):
         raise BaseClassException(ModeStateReader)
 
     # def save_state_defaults(self, name, state):
@@ -198,6 +204,7 @@ class ModeStateChangeHandler(object):
 
     @mode_function
     def go_next(self, mode, context):
+
         active = context.get_param(mode.name, 'state')
         if active is None:
             if len(mode.get_states()) > 0:
@@ -209,7 +216,10 @@ class ModeStateChangeHandler(object):
                         for param in state.params:
                             context.set_param(mode.name, param[0], param[1])
 
+                        # if mode._reader:
+                        #     mode._reader.initialize_state_with_current_snapshot(mode, state)
                         return state
+
 
         else:
             context.clear_params(mode.name)
@@ -222,6 +232,8 @@ class ModeStateChangeHandler(object):
                         for param in rule.end.params:
                             context.set_param(mode.name, param[0], param[1])
 
+                        # if mode._reader:
+                        #     mode._reader.initialize_state_with_current_snapshot(mode, rule.end)
                         return rule.end
 
 

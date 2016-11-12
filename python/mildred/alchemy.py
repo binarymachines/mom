@@ -162,6 +162,20 @@ class SQLModeState(Base):
     # active_flag
 
 
+class SQLModeStateParam(Base):
+    __tablename__ = 'mode_state_param'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+
+    mode_state_id = Column(Integer, ForeignKey('mode_state.id'))
+    mode_state = relationship("SQLModeState", back_populates="params")
+
+    name = Column('name', String(128), nullable=False)
+    value = Column('value', String(1024), nullable=False)
+
+SQLModeState.params = relationship("SQLModeStateParam", order_by=SQLModeStateParam.id,
+                                                  back_populates="mode_state")
+
+
 # class SQLModeStateTransitionRecord(Base):
 #     __tablename__ = 'mode_state_trans_error'
 #     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -208,10 +222,39 @@ class SQLState(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 
+def alchemy_operation(function):
+    def wrapper(*args, **kwargs):
+        try:
+            return function(*args, **kwargs)
+
+        except RuntimeWarning, warn:
+
+            ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+
+        except IntegrityError, err:
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            print err.__class__.__name__
+            for param in err.params:
+                print param
+            for arg in err.args:
+                print arg
+
+            sessions[0].rollback()
+
+            raise SQLIntegrityError(err, err.message)
+
+        except Exception, err:
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            raise err
+
+    return wrapper
+
 # SQLAsset
 
+
 def insert_asset(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
-    asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), effective_dt=datetime.datetime.now())
+    asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
+        effective_dt=datetime.datetime.now())
 
     try:
         sessions[0].add(asset)
@@ -258,7 +301,7 @@ def insert_match(doc_id, match_doc_id, matcher_name, percentage_of_max_score, co
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        
+
         sessions[0].rollback()
 
 
@@ -275,7 +318,7 @@ def insert_exec_record(kwargs):
     except IntegrityError, err:
         print '\a'
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        
+
         sessions[1].rollback()
 
 
@@ -315,7 +358,6 @@ def insert_op_record(operation_name, operator_name, target_esid, target_path, st
                                 expiration_dt=datetime.datetime.max, target_hexadecimal_key=target_path.encode('hex'))
 
     try:
-        # assert isinstance(session, object)
         sessions[1].add(op_rec)
         sessions[1].commit()
     except RuntimeWarning, warn:
@@ -435,19 +477,28 @@ def retrieve_mode_state_record(id):
     return result[0] if len(result) == 1 else None
 
 
-def retrieve_previous_mode_state_record(name):
+def retrieve_previous_mode_state_record(mode_name):
     result = ()
-    for instance in sessions[1].query(SQLState).\
-        filter(SQLState.index_name == config.es_index). \
-        filter(SQLState.effective_dt < datetime.datetime.now()). \
-        filter(SQLState.expiration_dt > datetime.datetime.now()). \
-        filter(SQLState.name == name):
+
+    sqlmode = retrieve_mode(mode_name)
+    for instance in sessions[1].query(SQLModeState). \
+        filter(SQLModeState.effective_dt < datetime.datetime.now()). \
+        filter(SQLModeState.expiration_dt > datetime.datetime.now()). \
+        filter(SQLModeState.mode_id == sqlmode.id):
             result += (instance,)
 
+    if len(result) == 0: return None
+    if len(result) == 0: return result[0]
+
+    output = result[0]
+    for record in result:
+        if record.effective_dt > output.effective_dt:
+            output = record
+
+    return output
+
+
     return result[0] if len(result) == 1 else None
-
-
-
 
 def update_mode_state(mode, expire=False):
     # sqlmode = retrieve_mode(mode.name)

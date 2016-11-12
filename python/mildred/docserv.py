@@ -24,15 +24,12 @@ class DocumentServiceProcess(ServiceProcess):
 
     # selector callbacks
     def after_switch(self, selector, mode):
-       pass
+       # mode.e
+        pass
 
     def before_switch(self, selector, mode):
         if isinstance(mode, StatefulMode):
             mode.go_next(self.context)
-            # if mode.get_state():
-            #     mode.expire_state()
-            # if mode.go_next(self.context):
-            #     mode.save_state()
 
     # process logic
     def setup(self):
@@ -74,6 +71,8 @@ class DocumentServiceProcess(ServiceProcess):
 
         state_change_handler.add_transition(scan_discover, scan_update, self.process_handler.definitely). \
             add_transition(scan_update, scan_monitor, self.process_handler.definitely)
+
+        mode_state_reader.initialize_state_with_current_snapshot(self.scanmode)
 
 
         # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 2) # bring MariaDB into line with ElasticSearch

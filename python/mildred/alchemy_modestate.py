@@ -50,6 +50,14 @@ class AlchemyModeStateReader(ModeStateReader):
         state.is_initial_state = sqlstate.is_initial_state
         state.is_terminal_state = sqlstate.is_terminal_state
 
+    def initialize_state_with_current_snapshot(self, mode):
+        alchemy_mode_state = alchemy.retrieve_previous_mode_state_record(mode.name)
+        if alchemy_mode_state:
+            for mode_state in mode.get_states():
+                if mode_state.name == alchemy_mode_state.status:
+                    # if mode.get_state() != state:
+                    mode.set_state(mode_state)
+                    break
 
 
     def initialize_state_with_defaults(self, mode, state):
@@ -71,6 +79,7 @@ class AlchemyModeStateReader(ModeStateReader):
                             value = True
                         elif str(value).lower() == 'false':
                             value = False
+                        
                         state.add_param(param.name, value)
         return mode
 
