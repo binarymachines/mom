@@ -26,7 +26,8 @@ class Mode(object):
     HIGHEST = 999;
     LOWEST = 0
 
-    def __init__(self, name, effect=None, priority=0, dec_priority_amount=0, inc_priority_amount=0, error_tolerance=0, times_to_complete=0):
+    def __init__(self, name, effect=None, priority=0, dec_priority_amount=0, inc_priority_amount=0, error_tolerance=0, times_to_complete=0, id=None):
+        self.id = None
         self.name = name
         self._effect = effect
 

@@ -225,6 +225,6 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan(self):
         print  "scan starting..."
-        scan.scan(self.context)
+        #scan.scan(self.context)
 
 

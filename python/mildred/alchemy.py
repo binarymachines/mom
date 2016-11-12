@@ -326,7 +326,7 @@ def retrieve_exec_record(pid=None):
     pid = config.pid if pid is None else pid
 
     result = ()
-    for instance in sessions[0].query(SQLAsset).\
+    for instance in sessions[1].query(SQLExecutionRecord).\
         filter(SQLExecutionRecord.pid == pid):
             result += (instance,)
 
@@ -338,7 +338,8 @@ def update_exec_record(kwargs):
     
     try:
         exec_rec=retrieve_exec_record()
-        exec_rec.expiration_date = datetime.datetime.now()
+        exec_rec.status = 'terminated'
+        exec_rec.expiration_dt = datetime.datetime.now()
         # sessions[1].add(rec_exec)
         sessions[1].commit()
         return exec_rec
@@ -404,14 +405,18 @@ def insert_mode(name):
 
 
 def insert_mode_state(mode):
-    sqlmode = retrieve_mode(mode.name)
-    sqlstate = retrieve_state(mode.get_state().name)
+    sqlmode = retrieve_mode(mode)
+    sqlstate = retrieve_state(mode.get_state())
     # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
     mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
                                   times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete,
                                   dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count,
                                   error_tolerance=mode.error_tolerance, status=mode.get_state().name,
                                   effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
+
+    # for param in mode.get_state().params:
+    #     sqlparam = SQLModeStateParam(mode_state_id=mode.mode_state_id, mode_state=mode_state_rec, name=param.name, value=param.value) 
+    #     sqlstate.params.add(sqlparam)
 
     try:
         sessions[1].add(mode_state_rec)
@@ -432,7 +437,16 @@ def retrieve_modes():
     return result
 
 
-def retrieve_mode(name):
+def retrieve_mode(mode):
+    result = ()
+    for instance in sessions[1].query(SQLMode).\
+        filter(SQLMode.id == mode.id):
+            result += (instance,)
+
+    return result[0] if len(result) == 1 else None
+
+
+def retrieve_mode_by_name(name):
     result = ()
     for instance in sessions[1].query(SQLMode).\
         filter(SQLMode.index_name == config.es_index). \
@@ -454,7 +468,16 @@ def retrieve_states():
     return result
 
 
-def retrieve_state(name):
+def retrieve_state(state):
+    result = ()
+    for instance in sessions[1].query(SQLState). \
+            filter(SQLState.id == state.id):
+        result += (instance,)
+
+    return result[0] if len(result) == 1 else None
+
+
+def retrieve_state_by_name(name):
     result = ()
     for instance in sessions[1].query(SQLState).\
         filter(SQLState.index_name == config.es_index). \
@@ -468,19 +491,38 @@ def retrieve_state(name):
 
 # SQLModeState
 
-def retrieve_mode_state_record(id):
+def retrieve_mode_state_record(mode):
     result = ()
     for instance in sessions[1].query(SQLModeState).\
-        filter(SQLModeState.id == id):
+        filter(SQLModeState.id == mode.mode_state_id):
             result += (instance,)
 
     return result[0] if len(result) == 1 else None
 
 
-def retrieve_previous_mode_state_record(mode_name):
+def retrieve_previous_mode_state_record(mode):
     result = ()
 
-    sqlmode = retrieve_mode(mode_name)
+    sqlmode = retrieve_mode(mode)
+    for instance in sessions[1].query(SQLModeState). \
+        filter(SQLModeState.mode_id == sqlmode.id):
+            result += (instance,)
+
+    if len(result) == 0: return None
+    if len(result) == 1: return result[0]
+
+    output = result[0]
+    for record in result:
+        if record.effective_dt > output.effective_dt:
+            output = record
+
+    return output
+
+
+def retrieve_previous_mode_state_record_by_name(mode_name):
+    result = ()
+
+    sqlmode = retrieve_mode_by_name(mode_name)
     for instance in sessions[1].query(SQLModeState). \
         filter(SQLModeState.effective_dt < datetime.datetime.now()). \
         filter(SQLModeState.expiration_dt > datetime.datetime.now()). \
@@ -488,7 +530,7 @@ def retrieve_previous_mode_state_record(mode_name):
             result += (instance,)
 
     if len(result) == 0: return None
-    if len(result) == 0: return result[0]
+    if len(result) == 1: return result[0]
 
     output = result[0]
     for record in result:
@@ -506,7 +548,7 @@ def update_mode_state(mode, expire=False):
     # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
     if mode.mode_state_id:
 
-        mode_state_rec = retrieve_mode_state_record(mode.mode_state_id)
+        mode_state_rec = retrieve_mode_state_record(mode)
 
         mode_state_rec.times_activated = mode.times_activated
         mode_state_rec.times_completed = mode.times_completed

@@ -1,7 +1,8 @@
 """States and Transitions"""
 
 class State(object):
-    def __init__(self, name, action=None, data=None, is_initial_state=False, is_terminal_state=False):
+    def __init__(self, name, action=None, data=None, is_initial_state=False, is_terminal_state=False, id=None):
+        self.id = id
         self.name = name
         self.action = action
         self.data = data

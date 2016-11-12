@@ -14,7 +14,7 @@ class AlchemyModeStateWriter(ModeStateWriter):
 
 
     def expire_state(self, mode):
-        alchemy.update_mode_state(mode, expire=True)
+        mode.mode_state_id = alchemy.update_mode_state(mode, expire=True)
 
 
     def save_state(self, mode):
@@ -22,7 +22,7 @@ class AlchemyModeStateWriter(ModeStateWriter):
 
 
     def update_state(self, mode):
-        alchemy.update_mode_state(mode)
+        mode.mode_state_id = alchemy.update_mode_state(mode)
 
 
 
@@ -31,69 +31,68 @@ class AlchemyModeStateReader(ModeStateReader):
         super(AlchemyModeStateReader, self).__init__()
 
 
-
-    def initialize_context_params(self, state):
+    def initialize_context_params(self, state, context):
 
         # raise BaseClassException(ModeStateReader)
         pass
 
-    def initialize_state(self, mode, state):
 
-        self.initialize_state_with_defaults(mode, state)
+    def initialize_default_states(self, mode):
+        alchemy_mode = alchemy.retrieve_mode(mode)
+        for default in alchemy_mode.default_states:
+            state = State(default.status, data=default)
 
-        alchemy_mode  = alchemy.retrieve_mode(mode.name)
-        if alchemy_mode:
-            self.mode_rec[mode] = alchemy_mode
+            self.initialize_mode_state(mode, state)
 
-        sqlstate = alchemy.retrieve_state(state.name)
+            state.params = ()
+            for param in default.default_params:
+                value = param.value
+                if str(value).lower() == 'true':
+                    value = True
+                elif str(value).lower() == 'false':
+                    value = False
+
+                state.add_param(param.name, value)
+
+            mode.add_state_default(state)
+
+
+    def initialize_mode_state(self, mode, state):
+
+        self.initialize_mode_state_from_defaults(mode, state)
+        sqlstate = alchemy.retrieve_state(state)
 
         state.is_initial_state = sqlstate.is_initial_state
         state.is_terminal_state = sqlstate.is_terminal_state
 
-    def initialize_state_with_current_snapshot(self, mode):
-        alchemy_mode_state = alchemy.retrieve_previous_mode_state_record(mode.name)
-        if alchemy_mode_state:
-            for mode_state in mode.get_states():
-                if mode_state.name == alchemy_mode_state.status:
-                    # if mode.get_state() != state:
-                    mode.set_state(mode_state)
+
+    def initialize_state_from_previous_session(self, mode, context):
+        mode_state = alchemy.retrieve_previous_mode_state_record(mode)
+        if mode_state:
+            for state in mode.get_states():
+                if state.id == mode_state.state_id:
+                    mode.set_state(state)
                     break
 
 
-    def initialize_state_with_defaults(self, mode, state):
-        alchemy_mode  = alchemy.retrieve_mode(mode.name)
+    def initialize_mode(self, mode):
+        alchemy_mode  = alchemy.retrieve_mode_by_name(mode.name)
         if alchemy_mode:
-            self.mode_rec[mode] = alchemy_mode
-            for default in alchemy_mode.default_states:
-                if state.name == default.status: 
-                    mode.state_id = default.id
-                    
-                    mode.priority = default.priority
-                    mode.times_to_complete = default.times_to_complete
-                    mode.dec_priority_amount = default.dec_priority_amount
-                    mode.inc_priority_amount = default.inc_priority_amount
-
-                    for param in default.default_params:
-                        value = param.value
-                        if str(value).lower() == 'true':
-                            value = True
-                        elif str(value).lower() == 'false':
-                            value = False
-                        
-                        state.add_param(param.name, value)
-        return mode
+            mode.id = alchemy_mode.id
 
 
-    def load_state_defaults(self, mode):
-        alchemy_mode = alchemy.retrieve_mode(mode.name)
-        if alchemy_mode:
-            self.mode_rec[mode] = alchemy_mode
-            for default in alchemy_mode.default_states:
-                state = State(default.status, data=default)
+    def initialize_mode_state_from_defaults(self, mode, state):
+        alchemy_mode  = alchemy.retrieve_mode(mode)
 
-                self.initialize_state(mode, state)
+        for default in alchemy_mode.default_states:
+            if state.name == default.status:
+                state.id = default.id
 
-                state.params = ()
+                mode.priority = default.priority
+                mode.times_to_complete = default.times_to_complete
+                mode.dec_priority_amount = default.dec_priority_amount
+                mode.inc_priority_amount = default.inc_priority_amount
+
                 for param in default.default_params:
                     value = param.value
                     if str(value).lower() == 'true':
@@ -102,6 +101,5 @@ class AlchemyModeStateReader(ModeStateReader):
                         value = False
 
                     state.add_param(param.name, value)
-             
-                mode.add_state_default(state)
+
 

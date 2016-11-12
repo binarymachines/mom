@@ -21,12 +21,11 @@ class StatefulMode(Mode):
         self._writer = writer
         self._state_change_handler = state_change_handler
 
-        self.mode_id = None
-        self.state_id = None
         self.mode_state_id = None
 
         if self._reader:
-            self._reader.load_state_defaults(self)
+            self._reader.initialize_mode(self)
+            self._reader.initialize_default_states(self)
 
 
     def can_go_next(self, context):
@@ -45,7 +44,7 @@ class StatefulMode(Mode):
                 self._states[state.name] = state
 
                 if self._reader:
-                    self._reader.initialize_state(self, state)
+                    self._reader.initialize_mode_state(self, state)
                 break
 
 
@@ -82,15 +81,13 @@ class StatefulMode(Mode):
             self.expire_state()            
 
         self._state = state
-
         self.effect = None
         if state:
             self.effect = state.action
-
             self.save_state()
-          
-            if self.do_action_on_change:
-                self.do_action()
+
+        if self.do_action_on_change:
+            self.do_action()
 
 
     def save_state(self):
@@ -128,7 +125,7 @@ class ModeStateReader(object):
         raise BaseClassException(ModeStateReader)
 
 
-    def initialize_context_params(self, state):
+    def initialize_context_params(self, state, context):
         raise BaseClassException(ModeStateReader)
 
 
@@ -136,11 +133,11 @@ class ModeStateReader(object):
         raise BaseClassException(ModeStateReader)
 
 
-    def initialize_state_with_defaults(self, state):
+    def initialize_state_from_defaults(self, state):
         raise BaseClassException(ModeStateReader)
 
 
-    def initialize_state_with_current_snapshot(self, mode):
+    def initialize_state_from_previous_session(self, mode, context):
         raise BaseClassException(ModeStateReader)
 
 
@@ -217,7 +214,7 @@ class ModeStateChangeHandler(object):
                             context.set_param(mode.name, param[0], param[1])
 
                         # if mode._reader:
-                        #     mode._reader.initialize_state_with_current_snapshot(mode, state)
+                        #     mode._reader.initialize_state_from_previous_session(mode, state)
                         return state
 
 
@@ -233,7 +230,7 @@ class ModeStateChangeHandler(object):
                             context.set_param(mode.name, param[0], param[1])
 
                         # if mode._reader:
-                        #     mode._reader.initialize_state_with_current_snapshot(mode, rule.end)
+                        #     mode._reader.initialize_state_from_previous_session(mode, rule.end)
                         return rule.end
 
 

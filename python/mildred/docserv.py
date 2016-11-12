@@ -72,8 +72,7 @@ class DocumentServiceProcess(ServiceProcess):
         state_change_handler.add_transition(scan_discover, scan_update, self.process_handler.definitely). \
             add_transition(scan_update, scan_monitor, self.process_handler.definitely)
 
-        mode_state_reader.initialize_state_with_current_snapshot(self.scanmode)
-
+        mode_state_reader.initialize_state_from_previous_session(self.scanmode, self.context)
 
         # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 2) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down until a command is issued
