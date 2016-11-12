@@ -199,46 +199,40 @@ class ModeStateChangeHandler(object):
                     return rule.condition()
  
 
+    def initialize_context_params(self, mode, context):
+        context.clear_params(mode.name)
+        context.set_param(mode.name, 'state', mode.get_state())
+        for param in mode.get_state().params:
+            context.set_param(mode.name, param[0], param[1])
 
     @mode_function
     def go_next(self, mode, context):
-
-        active = context.get_param(mode.name, 'state') if mode.get_state() is None else mode.get_state()
-        if active is None:
+        # active = context.get_param(mode.name, 'state') if mode.get_state() is None else mode.get_state()
+        context.clear_params(mode.name)
+        active_state = mode.get_state()
+        if active_state is None:
             if len(mode.get_states()) > 0:
                 for state in mode.get_states():
-                # for state in mode.get_state_defaults():
                     if state.is_initial_state:
                         mode.set_state(state)
-                        context.set_param(mode.name, 'state', state)
-                        for param in state.params:
-                            context.set_param(mode.name, param[0], param[1])
+                        self.initialize_context_params(mode, context)
 
+                        return state
 
-        else:
-            context.clear_params(mode.name)
+        elif mode.just_restored:
+            self.initialize_context_params(mode, context)
+            mode.just_restored = False
 
-            if mode.just_restored:
-                context.set_param(mode.name, 'state', mode.get_state())
-                for param in mode.get_state().params:
-                    context.set_param(mode.name, param[0], param[1])
-                mode.just_restored = False
+            return mode.get_state()
 
-                return mode.get_state()
+        elif active_state:
+            for rule in self.transitions:
+                if rule.start == active_state:
+                    if rule.condition():
+                        mode.set_state(rule.end)
+                        self.initialize_context_params(mode, context)
 
-            else:
-                for rule in self.transitions:
-                    if rule.start == active:
-                    # if rule.end and rule.start == active:
-                        if rule.condition():
-                            mode.set_state(rule.end)
-                            context.set_param(mode.name, 'state', rule.end)
-                            for param in rule.end.params:
-                                context.set_param(mode.name, param[0], param[1])
-
-                            # if mode._reader:
-                            #     mode._reader.initialize_state_from_previous_session(mode, rule.end)
-                            return rule.end
+                        return rule.end
 
 
 # class StatefulRule:

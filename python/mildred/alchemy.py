@@ -1,3 +1,4 @@
+import sys
 import datetime
 import logging
 
@@ -513,8 +514,10 @@ def retrieve_previous_mode_state_record(mode):
 
     output = result[0]
     for record in result:
-        if record.expiration_dt > output.expiration_dt:
+        if record.effective_dt > output.effective_dt and record.expiration_dt >= output.expiration_dt:
             output = record
+
+    print "returning %s" % output.status
 
     return output
 
