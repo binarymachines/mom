@@ -9,7 +9,17 @@ echo
 
 echo "removing existing backups..."
 rm bak/sql/*.sql
+rm bak/sql/dump/*.sql
 rm setup/sql/*.sql
+
+echo "copying data tables..."
+
+mysqldump mildred > bak/sql/dump/backup-mildred.sql
+mysqldump mildred_admin > bak/sql/dump/backup-mildred_admin.sql
+mysqldump mildred_introspection > bak/sql/dump/backup-mildred_introspection.sql
+mysqldump media > bak/sql/dump/backup-media.sql
+mysqldump scratch > bak/sql/dump/backup-scratch.sql
+mysqldump --no-data scratch > bak/sql/backup-media-no-data.sql
 
 echo "copying lookup tables..."
 
@@ -44,13 +54,6 @@ echo "copying lookup tables..."
 echo "adding lookup tables to git."
 git add bak/sql/*.sql
 
-echo "copying data tables..."
-
-mysqldump mildred > bak/sql/dump/backup-mildred.sql
-mysqldump mildred_admin > bak/sql/dump/backup-mildred_admin.sql
-mysqldump mildred_introspection > bak/sql/dump/backup-mildred_introspection.sql
-mysqldump media > bak/sql/dump/backup-media.sql
-
 # mysqldump --routines scratch > bak/sql/scratch.sql
 
 echo "copying setup tables..."
@@ -68,6 +71,7 @@ echo '----------------------------'
 echo
 git status
 git commit -m 'db snapshot'
-#git push
+
+#### git push
 
 popd
