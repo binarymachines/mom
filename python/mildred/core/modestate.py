@@ -137,7 +137,7 @@ class ModeStateReader(object):
         raise BaseClassException(ModeStateReader)
 
 
-    def initialize_state_from_previous_session(self, mode, context):
+    def initialize_mode_state_from_previous_session(self, mode, context):
         raise BaseClassException(ModeStateReader)
 
 
@@ -202,7 +202,7 @@ class ModeStateChangeHandler(object):
     @mode_function
     def go_next(self, mode, context):
 
-        active = context.get_param(mode.name, 'state')
+        active = context.get_param(mode.name, 'state') if mode.get_state() is None else mode.get_state()
         if active is None:
             if len(mode.get_states()) > 0:
                 for state in mode.get_states():
@@ -212,10 +212,6 @@ class ModeStateChangeHandler(object):
                         context.set_param(mode.name, 'state', state)
                         for param in state.params:
                             context.set_param(mode.name, param[0], param[1])
-
-                        # if mode._reader:
-                        #     mode._reader.initialize_state_from_previous_session(mode, state)
-                        return state
 
 
         else:

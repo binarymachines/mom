@@ -66,7 +66,7 @@ class AlchemyModeStateReader(ModeStateReader):
         state.is_terminal_state = sqlstate.is_terminal_state
 
 
-    def initialize_state_from_previous_session(self, mode, context):
+    def initialize_mode_state_from_previous_session(self, mode, context):
         mode_state = alchemy.retrieve_previous_mode_state_record(mode)
         if mode_state:
             for state in mode.get_states():

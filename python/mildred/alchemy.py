@@ -513,7 +513,7 @@ def retrieve_previous_mode_state_record(mode):
 
     output = result[0]
     for record in result:
-        if record.effective_dt > output.effective_dt:
+        if record.expiration_dt > output.expiration_dt:
             output = record
 
     return output
