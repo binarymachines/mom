@@ -107,13 +107,15 @@ class SQLModeStateDefault(Base):
     id = Column('id', Integer, primary_key=True, autoincrement=True)
 
     mode_id = Column(Integer, ForeignKey('mode.id'))
+    # state_id Column(Integer,  ForeignKey('state.id'))
+    
     mode = relationship("SQLMode", back_populates="default_states")
 
     # index_name = Column('index_name', String(128), nullable=False)
     priority = Column('priority', Integer, nullable=False)
-    times_to_complete = Column('times_to_complete', Integer, nullable=False)
     dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
     inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
+    times_to_complete = Column('times_to_complete', Integer, nullable=False)
     # error_tolerance = Column('error_tolerance', Integer, nullable=False)
     status = Column('status', String(128), nullable=False)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
@@ -149,14 +151,15 @@ class SQLModeState(Base):
     status = Column('status', String(128), nullable=False)
     last_activated = Column('last_activated', DateTime, nullable=True)
     last_completed = Column('last_completed', DateTime, nullable=True)
-    priority = Column('priority', Integer, nullable=False)
+    # priority = Column('priority', Integer, nullable=False)
     times_activated = Column('times_activated', Integer, nullable=False)
     times_completed = Column('times_completed', Integer, nullable=False)
-    times_to_complete = Column('times_to_complete', Integer, nullable=False)
-    dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
-    inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
+    # times_to_complete = Column('times_to_complete', Integer, nullable=False)
+    # dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
+    # inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
     error_count = Column('error_count', Integer, nullable=False)
-    error_tolerance = Column('error_tolerance', Integer, nullable=False)
+    cum_error_count = Column('cum_error_count', Integer, nullable=False)
+    # error_tolerance = Column('error_tolerance', Integer, nullable=False)
     # cum_error_count = Column('cum_error_count', Integer, nullable=False)
     # cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
@@ -164,18 +167,18 @@ class SQLModeState(Base):
     # active_flag
 
 
-class SQLModeStateParam(Base):
-    __tablename__ = 'mode_state_param'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
+# class SQLModeStateParam(Base):
+#     __tablename__ = 'mode_state_param'
+#     id = Column('id', Integer, primary_key=True, autoincrement=True)
 
-    mode_state_id = Column(Integer, ForeignKey('mode_state.id'))
-    mode_state = relationship("SQLModeState", back_populates="params")
+#     mode_state_id = Column(Integer, ForeignKey('mode_state.id'))
+#     mode_state = relationship("SQLModeState", back_populates="params")
 
-    name = Column('name', String(128), nullable=False)
-    value = Column('value', String(1024), nullable=False)
+#     name = Column('name', String(128), nullable=False)
+#     value = Column('value', String(1024), nullable=False)
 
-SQLModeState.params = relationship("SQLModeStateParam", order_by=SQLModeStateParam.id,
-                                                  back_populates="mode_state")
+# SQLModeState.params = relationship("SQLModeStateParam", order_by=SQLModeStateParam.id,
+#                                                   back_populates="mode_state")
 
 
 # class SQLModeStateTransitionRecord(Base):
@@ -256,7 +259,7 @@ def alchemy_operation(function):
 
 def insert_asset(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
     asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
-        effective_dt=datetime.datetime.now())
+        effective_dt=datetime.datetime.now(), expiration_dt=expiration_dt)
 
     try:
         sessions[0].add(asset)
@@ -406,19 +409,16 @@ def insert_mode(name):
         sessions[1].rollback()
 
 
+# SQLModeState
+
 def insert_mode_state(mode):
     sqlmode = retrieve_mode(mode)
     sqlstate = retrieve_state(mode.get_state())
+    # times_to_complete=mode.times_to_complete, dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount,
     # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
-    mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
-                                  times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete,
-                                  dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count,
-                                  error_tolerance=mode.error_tolerance, status=mode.get_state().name,
-                                  effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
-
-    # for param in mode.get_state().params:
-    #     sqlparam = SQLModeStateParam(mode_state_id=mode.mode_state_id, mode_state=mode_state_rec, name=param.name, value=param.value) 
-    #     sqlstate.params.add(sqlparam)
+    mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, times_activated=mode.times_activated, \
+        times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, \
+        status=mode.get_state().name, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
 
     try:
         sessions[1].add(mode_state_rec)
