@@ -79,6 +79,8 @@ def calc(context, cycle_context=False):
     while context.has_next(MATCH, use_fifo=True):
         ops.check_status()
         location = context.get_next(MATCH, use_fifo=True)
+        
+        if location is None: continue
 
         # this should never be true, but a test
         if location[-1] != os.path.sep: location += os.path.sep

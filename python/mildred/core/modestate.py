@@ -189,19 +189,19 @@ class ModeStateChangeHandler(object):
 
 
     def can_go_next(self, mode, context):
-        active = context.get_param(mode.name, 'state')
-        if active is None:
+        active_state_name = context.get_param(mode.name, 'state')
+        if active_state_name is None:
             return len(mode.get_state_defaults()) > 0
 
         for rule in self.transitions:
-            if rule.start.name == active.name:
+            if rule.start.name == active_state_name:
                 if rule.condition:
                     return rule.condition()
  
 
     def initialize_context_params(self, mode, context):
         context.clear_params(mode.name)
-        context.set_param(mode.name, 'state', mode.get_state())
+        context.set_param(mode.name, 'state', mode.get_state().name)
         for param in mode.get_state().params:
             context.set_param(mode.name, param[0], param[1])
 
@@ -233,6 +233,25 @@ class ModeStateChangeHandler(object):
                         self.initialize_context_params(mode, context)
 
                         return rule.end
+
+
+
+class DefaultModeHandler(object):
+    def __init__(self, owner, context):
+        self.owner = owner
+        self.context = context
+
+#    def eval_context(self):
+#         return True
+
+#     def update_context(self):
+#         pass
+
+#     def restore_state(self):
+#         pass
+
+#     def save_state(self):
+#         pass
 
 
 # class StatefulRule:

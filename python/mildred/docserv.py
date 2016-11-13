@@ -8,7 +8,8 @@ from core.modestate import StatefulMode, ModeStateChangeHandler
 
 from core.states import State
 from core.serv import ServiceProcess
-from docservhandler import DocumentServiceProcessHandler, StartupHandler, ShutdownHandler, ScanModeHandler
+from docservhandler import DocumentServiceProcessHandler, StartupHandler, ShutdownHandler, ScanModeHandler, MatchModeHandler, EvalModeHandler, \
+    FixModeHandler, CleaningModeHandler, ReportModeHandler, RequestsModeHandler
 
 from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
 
@@ -39,13 +40,9 @@ class DocumentServiceProcess(ServiceProcess):
         mode_state_reader = AlchemyModeStateReader()
         mode_state_writer = AlchemyModeStateWriter()
 
-        startup_handler = StartupHandler(self)
-        shutdown_handler = ShutdownHandler(self)
-        scan_handler = ScanModeHandler(self)
-
-
         # startup
 
+        startup_handler = StartupHandler(self, self.context)
         self.startmode = Mode(STARTUP, startup_handler.start) 
         # self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
         # startup = State(INITIAL, action=startup_handler.start)
@@ -54,11 +51,12 @@ class DocumentServiceProcess(ServiceProcess):
 
         # eval
 
-        self.evalmode = Mode(EVAL, self.process_handler.do_eval, priority=1)
-
+        eval_handler = EvalModeHandler(self, self.context)
+        self.evalmode = Mode(EVAL, eval_handler.do_eval, priority=1)
 
         # scan
 
+        scan_handler = ScanModeHandler(self, self.context)
         self.scanmode = StatefulMode(SCAN, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
 
         scan_discover = State(SCAN_DISCOVER, scan_handler.do_scan_discover)
@@ -74,21 +72,47 @@ class DocumentServiceProcess(ServiceProcess):
 
         mode_state_reader.initialize_mode_state_from_previous_session(self.scanmode, self.context)
 
+        # clean
+
+        # cleaning_handler = CleaningModeHandler(self, self.context)
+        # self.cleanmode = Mode(CLEAN, cleaning_handler.do_clean, priority=2) # bring ElasticSearch into line with MariaDB
+
+        # match
+
+        match_handler = MatchModeHandler(self, self.context)
+        self.matchmode = Mode(MATCH, match_handler.do_match, priority=3)
+
+        # fix
+
+        fix_handler = FixModeHandler(self, self.context)
+        self.fixmode = Mode(FIX, fix_handler.do_fix, priority=1)
+
+        # report
+
+        report_handler = ReportModeHandler(self, self.context)
+        self.reportmode = Mode(REPORT, report_handler.do_report, priority=1)
+
+        # requests
+
+        requests_handler = RequestsModeHandler(self, self.context)
+        self.reqmode = Mode(REQUESTS, requests_handler.do_reqs, priority=1)
+
+        # shutdown
+        shutdown_handler = ShutdownHandler(self, self.context)
+        self.endmode = Mode(SHUTDOWN, shutdown_handler.end)
+
+
+
         # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 2) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down until a command is issued
-        self.cleanmode = Mode(CLEAN, self.process_handler.do_clean, priority=2) # bring ElasticSearch into line with MariaDB
-        self.matchmode = Mode(MATCH, self.process_handler.do_match, priority=3)
-        self.fixmode = Mode(FIX, self.process_handler.do_fix, priority=1)
-        self.reportmode = Mode(REPORT, self.process_handler.do_report, priority=1)
-        self.reqmode = Mode(REQUESTS, self.process_handler.do_reqs, priority=1)
-        self.endmode = Mode(SHUTDOWN, shutdown_handler.end)
+
 
         self.selector.remove_at_error_tolerance = True
         self.matchmode.error_tolerance = 5
 
         # startmode must appear first in this list and endmode most appear last
         # selector should figure which modes are start and end and validate rules before executing
-        self.selector.modes = [self.startmode, self.cleanmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
+        self.selector.modes = [self.startmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
             self.reportmode, self.reqmode, self.endmode]
 
         for mode in self.selector.modes: mode.dec_priority = True
@@ -105,7 +129,7 @@ class DocumentServiceProcess(ServiceProcess):
             self.startmode, self.evalmode, self.scanmode)
 
         # paths to matchmode
-        self.selector.add_rules(self.matchmode, self.process_handler.mode_is_available, self.process_handler.before_match, self.process_handler.after_match, \
+        self.selector.add_rules(self.matchmode, self.process_handler.mode_is_available, match_handler.before_match, match_handler.after_match, \
            self.startmode, self.evalmode, self.scanmode)
 
         # paths to reqmode
@@ -117,11 +141,11 @@ class DocumentServiceProcess(ServiceProcess):
             self.fixmode, self.reqmode)
 
         # paths to fixmode
-        self.selector.add_rules(self.fixmode, self.process_handler.mode_is_available, self.process_handler.before_fix, self.process_handler.after_fix, \
+        self.selector.add_rules(self.fixmode, self.process_handler.mode_is_available, fix_handler.before_fix, fix_handler.after_fix, \
             self.reportmode)
 
         # # paths to cleanmode
-        # self.selector.add_rules(self.cleanmode, self.process_handler.mode_is_available, self.process_handler.before_clean, self.process_handler.after_clean, \
+        # self.selector.add_rules(self.cleanmode, self.process_handler.mode_is_available, cleaning_handler.before_clean, cleaning_handler.after_clean, \
         #     self.reqmode)
 
         # paths to endmode

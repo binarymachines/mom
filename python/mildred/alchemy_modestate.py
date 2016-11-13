@@ -12,14 +12,11 @@ class AlchemyModeStateWriter(ModeStateWriter):
     def __init__(self, mode_rec=None):
         super(AlchemyModeStateWriter, self).__init__()
 
-
     def expire_state(self, mode):
         mode.mode_state_id = alchemy.update_mode_state(mode, expire=True)
 
-
     def save_state(self, mode):
         mode.mode_state_id = alchemy.insert_mode_state(mode)
-
 
     def update_state(self, mode):
         mode.mode_state_id = alchemy.update_mode_state(mode)

@@ -226,18 +226,31 @@ class CachedDirectoryContext(DirectoryContext):
         cache2.rpush(key, value)
 
     # Params
-    # def get_param(self, consumer, param):
-    #     if consumer in self.params:
-    #         # if param in self.params[consumer]:
-    #         params = self.params[consumer]
-    #         if param in params:
-    #             return params[param]
 
-    # def get_params(self, consumer):
-    #     if consumer in self.params:
-    #         return self.params(consumer)
+    def clear_params(self, consumer):
+        key = cache2.get_key(CDC, consumer)
+        cache2.delete_hash2(key)
+
+    def get_param(self, consumer, param):
+        key = cache2.get_key(CDC, consumer)
+        values = cache2.get_hash2(key)
+        if param in values:
+            return values[param]
+
+    def get_params(self, consumer):
+        key = cache2.get_key(CDC, consumer)
+        values = cache2.get_hash2(key)
+        return values
+
+    def set_param(self, consumer, param, value):
+        key = cache2.get_key(CDC, consumer)
+        values = cache2.get_hash2(key)
+        values[param] = value
+        cache2.set_hash2(key, values)
+        
 
     # Path
+
     def clear_active(self, consumer):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
 

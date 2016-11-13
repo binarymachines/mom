@@ -55,6 +55,9 @@ class Scanner(Walker):
             ops.update_listeners('skipping scan', SCANNER, root)
             return
 
+        if self.scan_should_skip(root):
+            return
+
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
                 try:
@@ -143,7 +146,7 @@ class Scanner(Walker):
 
 
     def _pre_scan(self, path):
-        self.context.set_param(SCAN, 'active.scan.path', path)
+        self.context.set_param('scan.persist', 'active.scan.path', path)
 
         LOG.debug('caching data for %s...' % path)
         ops.cache_ops(path, SCAN)
@@ -152,8 +155,8 @@ class Scanner(Walker):
         library.cache_docs(const.DOCUMENT, path)
 
         # if self.deep_scan == False:
-        if self.context.get_param(SCAN, HLSCAN):
-            ops.record_op_begin(HLSCAN, SCANNER, path)
+        # if self.context.get_param(SCAN, HLSCAN):
+        #     ops.record_op_begin(HLSCAN, SCANNER, path)
 
 
     def _post_scan(self, path, update_ops):
@@ -173,42 +176,48 @@ class Scanner(Walker):
             ops.record_op_complete(HLSCAN, SCANNER, path)
             ops.write_ops_data(path, HLSCAN, SCANNER)
 
-        self.context.set_param(SCAN, 'active.scan.path', None)
+        self.context.set_param('scan.persist', 'active.scan.path', None)
+    
+    
+    def scan_should_skip(self, path):
+        # update context params based on path
+        if self.deep_scan is False:
+            if self.context.get_param(SCAN, HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
+                LOG.debug('skipping %s...' % path)
+                ops.update_listeners('skipping high level scan', SCANNER, path)
+                # self.context.clear_active(SCAN)
+                return True
+
+        # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
+        if self.path_expands(path): 
+            LOG.debug('expanded %s...' % path)
+            ops.update_listeners('expanded', SCANNER, path)
+            # self.context.clear_active(SCAN)
+            return True
 
 
     # TODO: individual paths in the directory context should have their own scan configuration
     def scan(self):
 
-        path = self.context.get_param(SCAN, 'active.scan.path')
+        path = self.context.get_param('scan.persist', 'active.scan.path')
         path_restored = path is not None
 
         # while self.context.has_active(SCAN) or self.context.has_next(SCAN, True):
-        while self.context.has_next(SCAN, True):
+        while self.context.has_next(SCAN, use_fifo=True):
             ops.check_status()
 
             path = path if path_restored else self.context.get_next(SCAN, True)           
-            path_restored = False 
-            if path is None or os.path.isfile(path): 
-                continue
- 
-            if self.context.get_param(SCAN, HLSCAN):
-                ops.cache_ops(path, HLSCAN, SCANNER)
+            path_restored = False
+            self.context.set_param('scan.persist', 'active.scan.path', path)
 
-            # update context params based on path
-            if self.deep_scan is False:
-                if self.context.get_param(SCAN, HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
-                    LOG.debug('skipping %s...' % path)
-                    ops.update_listeners('skipping high level scan', SCANNER, path)
-                    # self.context.clear_active(SCAN)
-                    continue
+            if path is None or os.path.isfile(path): 
+                continue 
 
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
-                if self.path_expands(path): 
-                    LOG.debug('expanded %s...' % path)
-                    ops.update_listeners('expanded', SCANNER, path)
-                    # self.context.clear_active(SCAN)
-                    continue
+                if self.context.get_param(SCAN, HLSCAN):
+                    ops.cache_ops(path, HLSCAN, SCANNER)
+
+                if self.scan_should_skip(path): continue
                 
                 try:
                     self._pre_scan(path)
