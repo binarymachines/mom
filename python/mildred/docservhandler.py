@@ -5,7 +5,7 @@ import random
 import clean
 import calc
 import config
-from const import HLSCAN, SCAN, MATCH, EVAL, CLEAN, INITIAL
+from const import HSCAN, SCAN, MATCH, EVAL, CLEAN, INITIAL, DEEP, USCAN
 from core import log
 import scan
 import ops
@@ -75,16 +75,10 @@ class DocumentServiceProcessHandler(DecisionHandler):
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
 
-        if possible is self.owner.scanmode: 
-            if self.context.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.context):
-                return config.scan 
-            return False
-
         if possible is self.owner.matchmode: 
             if self.context.has_next(MATCH):
-                # return config.match
-                return False
-
+                return config.match
+                
         return True
 
 
@@ -208,10 +202,18 @@ class ScanModeHandler(DefaultModeHandler):
     def __init__(self, owner, context):
         super(ScanModeHandler, self).__init__(owner, context)
 
+
     def before_scan(self):
         # LOG.debug('%s preparing to scan, caching data' % self.name)
-        if self.context.get_param(SCAN, HLSCAN):
-            print "High level scan parameter found in context"
+        if self.context.get_param(SCAN, HSCAN):
+            print "high level scan parameter found in context"
+        
+        elif self.context.get_param(SCAN, DEEP):
+            print "deep scan parameter found in context"
+
+        elif self.context.get_param(SCAN, USCAN):
+            print "update scan parameter found in context"
+
 
     def after_scan(self):
         # LOG.debug('%s done scanning, updating op records...' % self.name)
@@ -219,18 +221,35 @@ class ScanModeHandler(DefaultModeHandler):
         self.context.set_param('scan.persist', 'active.scan.path', None)
         self.owner.scanmode.go_next(self.context)
 
+
+    def can_scan(self, selector, active, possible):
+        ops.check_status()
+        if possible is self.owner.scanmode: 
+            if self.context.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.context):
+                return config.scan 
+
+
     def do_scan_discover(self):
         print  "discover scan starting..."
-        # scan.scan(self.context)
+        scan.scan(self.context)
+
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
         scan.scan(self.context)
 
+
     def do_scan(self):
         print  "update scan starting..."
         scan.scan(self.context)
 
+
+    def should_monitor(self, selector=None, active=None, possible=None): 
+        return True
+
+
+    def should_update(self, selector=None, active=None, possible=None): 
+        return True
 
 # match mode
 

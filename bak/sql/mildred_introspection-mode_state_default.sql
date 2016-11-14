@@ -24,21 +24,23 @@ DROP TABLE IF EXISTS `mode_state_default`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode_state_default` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
   `mode_id` int(11) unsigned NOT NULL,
   `state_id` int(11) unsigned NOT NULL DEFAULT '0',
   `priority` int(3) unsigned NOT NULL DEFAULT '0',
-  `times_to_complete` int(3) unsigned NOT NULL DEFAULT '0',
-  `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
+  `times_to_complete` int(3) unsigned NOT NULL DEFAULT '1',
+  `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT '1',
   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
   `status` varchar(64) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `mode_state_default_status` (`index_name`,`status`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,7 +49,7 @@ CREATE TABLE `mode_state_default` (
 
 LOCK TABLES `mode_state_default` WRITE;
 /*!40000 ALTER TABLE `mode_state_default` DISABLE KEYS */;
-INSERT INTO `mode_state_default` VALUES (1,1,1,3,1,1,0,'initial','2016-11-06 18:10:21','9999-12-31 23:59:59'),(2,2,1,2,0,1,0,'discover','2016-11-06 23:55:05','9999-12-31 23:59:59'),(3,2,1,1,0,1,0,'update','2016-11-06 23:55:37','9999-12-31 23:59:59'),(4,2,1,3,0,1,0,'monitor','2016-11-08 12:31:55','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` VALUES (1,'media',2,2,5,1,1,0,'discover','2016-11-13 20:43:43','9999-12-31 23:59:59'),(2,'media',2,3,4,1,1,0,'update','2016-11-13 20:43:43','9999-12-31 23:59:59'),(3,'media',2,4,3,1,1,0,'monitor','2016-11-13 20:43:43','9999-12-31 23:59:59');
 /*!40000 ALTER TABLE `mode_state_default` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -60,4 +62,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-12 14:32:55
+-- Dump completed on 2016-11-13 21:32:01

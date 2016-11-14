@@ -28,7 +28,8 @@ CREATE TABLE `mode` (
   `name` varchar(128) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -38,7 +39,7 @@ CREATE TABLE `mode` (
 
 LOCK TABLES `mode` WRITE;
 /*!40000 ALTER TABLE `mode` DISABLE KEYS */;
-INSERT INTO `mode` VALUES (1,'media','startup','2016-11-06 18:05:44','9999-12-31 23:59:59'),(2,'media','scan','2016-11-09 22:58:59','9999-12-31 23:59:59');
+INSERT INTO `mode` VALUES (1,'media','startup','2016-11-13 20:43:43','9999-12-31 23:59:59'),(2,'media','scan','2016-11-13 20:43:43','9999-12-31 23:59:59');
 /*!40000 ALTER TABLE `mode` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -51,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-12 14:32:55
+-- Dump completed on 2016-11-13 21:32:00

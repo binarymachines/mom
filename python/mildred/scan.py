@@ -18,7 +18,7 @@ import library
 import ops
 import pathutil
 import search
-from const import SCANNER, SCAN, HLSCAN, READ
+from const import SCANNER, SCAN, HSCAN, READ, USCAN, DEEP
 from core import cache2
 from core import log
 from core.context import Context
@@ -35,7 +35,8 @@ class Scanner(Walker):
         super(Scanner, self).__init__()
         self.context = context
         self.document_type = const.DOCUMENT
-        self.deep_scan = config.deep
+        self.deep_scan = config.deep or self.context.get_param(SCAN, DEEP)
+        self.high_scan = self.context.get_param(SCAN, HSCAN)
         self.reader = Reader()
         
     # Walker methods
@@ -102,7 +103,7 @@ class Scanner(Walker):
                     file_was_read = True
 
                     existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
-                    if self.deep_scan or existing_esid:
+                    if existing_esid:
                         if len(data['properties']) > 0:
                             library.update_asset(asset, data)
                     else:
@@ -155,8 +156,8 @@ class Scanner(Walker):
         library.cache_docs(const.DOCUMENT, path)
 
         # if self.deep_scan == False:
-        # if self.context.get_param(SCAN, HLSCAN):
-        #     ops.record_op_begin(HLSCAN, SCANNER, path)
+        # if self.high_scan:
+        #     ops.record_op_begin(HSCAN, SCANNER, path)
 
 
     def _post_scan(self, path, update_ops):
@@ -172,21 +173,20 @@ class Scanner(Walker):
         # if os.access(path, os.R_OK):
 
         # if self.deep_scan == False:        
-        if self.context.get_param(SCAN, HLSCAN):
-            ops.record_op_complete(HLSCAN, SCANNER, path)
-            ops.write_ops_data(path, HLSCAN, SCANNER)
+        if self.high_scan:
+            ops.record_op_complete(HSCAN, SCANNER, path)
+            ops.write_ops_data(path, HSCAN, SCANNER)
 
         self.context.set_param('scan.persist', 'active.scan.path', None)
     
     
     def scan_should_skip(self, path):
         # update context params based on path
-        if self.deep_scan is False:
-            if self.context.get_param(SCAN, HLSCAN) and ops.operation_in_cache(path, HLSCAN, SCANNER):
-                LOG.debug('skipping %s...' % path)
-                ops.update_listeners('skipping high level scan', SCANNER, path)
-                # self.context.clear_active(SCAN)
-                return True
+        if self.high_scan and ops.operation_in_cache(path, HSCAN, SCANNER):
+            LOG.debug('skipping %s...' % path)
+            ops.update_listeners('skipping high level scan', SCANNER, path)
+            # self.context.clear_active(SCAN)
+            return True
 
         # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
         if self.path_expands(path): 
@@ -198,11 +198,12 @@ class Scanner(Walker):
 
     # TODO: individual paths in the directory context should have their own scan configuration
     def scan(self):
+        self.deep_scan = config.deep or self.context.get_param(SCAN, DEEP)
+        self.high_scan = self.context.get_param(SCAN, HSCAN)
 
         path = self.context.get_param('scan.persist', 'active.scan.path')
         path_restored = path is not None
 
-        # while self.context.has_active(SCAN) or self.context.has_next(SCAN, True):
         while self.context.has_next(SCAN, use_fifo=True):
             ops.check_status()            
             
@@ -213,12 +214,13 @@ class Scanner(Walker):
             if path is None or os.path.isfile(path): 
                 continue 
 
-            ops.update_listeners('scanning', SCANNER, path)
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                if self.context.get_param(SCAN, HLSCAN):
-                    ops.cache_ops(path, HLSCAN, SCANNER)
+                if self.high_scan:
+                    ops.cache_ops(path, HSCAN, SCANNER)
 
                 if self.scan_should_skip(path): continue
+    
+                ops.update_listeners('scanning', SCANNER, path)
                 
                 try:
                     self._pre_scan(path)
@@ -231,14 +233,16 @@ class Scanner(Walker):
 
                     self._post_scan(path, start_read_cache_size != end_read_cache_size)
                 except Exception, err:
-                    if self.context.get_param(SCAN, HLSCAN):
-                        ops.record_op_complete(HLSCAN, SCANNER, path, op_failed=True)
+                    if self.high_scan:
+                        ops.record_op_complete(HSCAN, SCANNER, path, op_failed=True)
 
                     LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
             elif not os.access(path, os.R_OK):
                 #TODO: parrot behavior for IOError as seen in read.py 
                 ERR.warning("%s isn't currently available." % (path))
+                print("%s isn't currently available." % (path))
+                
 
 
 def scan(context):

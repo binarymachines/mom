@@ -7,7 +7,10 @@ SCANNER = 'scanner'
 
 # operations
 SCAN = 'scan'
-HLSCAN = 'high.level.scan'
+HSCAN = 'high.level.scan'
+DEEP = 'deep.scan'
+USCAN = 'update.scan'
+
 CLEAN = 'clean'
 READ = 'read'
 MATCH = 'match'

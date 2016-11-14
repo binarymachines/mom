@@ -112,3 +112,9 @@ CREATE TABLE `mode_state_default_param` (
 insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values ((select id from mode_state_default where status = 'discover'), 
     'high.level.scan', 'true', now());
 
+insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values ((select id from mode_state_default where status = 'update'), 
+    'update.scan', 'true', now());
+    
+insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values ((select id from mode_state_default where status = 'monitor'), 
+    'deep.scan', 'true', now());
+

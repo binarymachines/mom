@@ -24,13 +24,14 @@ DROP TABLE IF EXISTS `state`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `state` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   `terminal_state_flag` tinyint(1) NOT NULL DEFAULT '0',
   `initial_state_flag` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_state_name` (`index_name`,`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -40,7 +41,7 @@ CREATE TABLE `state` (
 
 LOCK TABLES `state` WRITE;
 /*!40000 ALTER TABLE `state` DISABLE KEYS */;
-INSERT INTO `state` VALUES (1,'media','initial','2016-11-06 18:08:59','9999-12-31 23:59:59',0,1),(2,'media','discover','2016-11-06 23:56:37','9999-12-31 23:59:59',0,1),(3,'media','update','2016-11-06 23:56:56','9999-12-31 23:59:59',0,0),(4,'media','monitor','2016-11-06 23:57:24','9999-12-31 23:59:59',1,0),(5,'media','final','2016-11-08 14:06:49','9999-12-31 23:59:59',1,0);
+INSERT INTO `state` VALUES (1,'media','initial',0,1,'2016-11-13 20:43:43','9999-12-31 23:59:59'),(2,'media','discover',0,0,'2016-11-13 20:43:43','9999-12-31 23:59:59'),(3,'media','update',0,0,'2016-11-13 20:43:43','9999-12-31 23:59:59'),(4,'media','monitor',0,0,'2016-11-13 20:43:43','9999-12-31 23:59:59'),(5,'media','terminal',0,2,'2016-11-13 20:43:43','9999-12-31 23:59:59');
 /*!40000 ALTER TABLE `state` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -53,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-12 14:32:55
+-- Dump completed on 2016-11-13 21:32:01

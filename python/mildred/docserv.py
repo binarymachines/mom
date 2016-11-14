@@ -29,9 +29,9 @@ class DocumentServiceProcess(ServiceProcess):
         self.process_handler.after_switch(selector, mode)
 
     def before_switch(self, selector, mode):
-        if isinstance(mode, StatefulMode):
-            if mode.get_state() == None:
-                mode.go_next(self.context)
+        # if isinstance(mode, StatefulMode):
+        #     if mode.get_state() == None:
+        #         mode.go_next(self.context)
 
         self.process_handler.before_switch(selector, mode)
 
@@ -71,8 +71,8 @@ class DocumentServiceProcess(ServiceProcess):
             add_state(scan_update). \
             add_state(scan_monitor)
 
-        state_change_handler.add_transition(scan_discover, scan_update, self.process_handler.definitely). \
-            add_transition(scan_update, scan_monitor, self.process_handler.definitely)
+        state_change_handler.add_transition(scan_discover, scan_update, scan_handler.should_update). \
+            add_transition(scan_update, scan_monitor, scan_handler.should_monitor)
 
         mode_state_reader.initialize_mode_state_from_previous_session(self.scanmode, self.context)
 
@@ -105,8 +105,6 @@ class DocumentServiceProcess(ServiceProcess):
         shutdown_handler = ShutdownHandler(self, self.context)
         self.endmode = Mode(SHUTDOWN, shutdown_handler.end)
 
-
-
         # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 2) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down until a command is issued
 
@@ -129,7 +127,7 @@ class DocumentServiceProcess(ServiceProcess):
             self.startmode, self.scanmode, self.matchmode)
 
         # paths to scanmode
-        self.selector.add_rules(self.scanmode, self.process_handler.mode_is_available, scan_handler.before_scan, scan_handler.after_scan, \
+        self.selector.add_rules(self.scanmode, scan_handler.can_scan, scan_handler.before_scan, scan_handler.after_scan, \
             self.startmode, self.evalmode, self.scanmode)
 
         # paths to matchmode

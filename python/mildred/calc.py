@@ -12,7 +12,7 @@ import os
 import docopt
 
 import config
-from const import DOCUMENT, HLSCAN, MATCH
+from const import DOCUMENT, HSCAN, MATCH
 import library
 import ops
 import search
@@ -51,8 +51,8 @@ def cache_match_ops(matchers, path):
 def path_expands(path, context):
     expanded = []
 
-    # rows = sql.run_query_template('calc_op_path', HLSCAN, 'COMPLETE', path, os.path.sep)
-    op_records = alchemy.retrieve_op_records(path, HLSCAN)
+    # rows = sql.run_query_template('calc_op_path', HSCAN, 'COMPLETE', path, os.path.sep)
+    op_records = alchemy.retrieve_op_records(path, HSCAN)
     if len(op_records) > 0:
         for op_record in op_records:
             if op_record.target_path not in expanded:
