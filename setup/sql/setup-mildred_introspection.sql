@@ -84,7 +84,7 @@ CREATE TABLE `execution` (
   `effective_dt` datetime NOT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=173 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=210 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +100,8 @@ CREATE TABLE `mode` (
   `name` varchar(128) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -113,6 +114,7 @@ DROP TABLE IF EXISTS `mode_state`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode_state` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
   `pid` varchar(32) NOT NULL,
   `mode_id` int(11) unsigned NOT NULL,
   `state_id` int(11) unsigned NOT NULL DEFAULT '0',
@@ -130,7 +132,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -142,6 +144,7 @@ DROP TABLE IF EXISTS `mode_state_default`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode_state_default` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
   `mode_id` int(11) unsigned NOT NULL,
   `state_id` int(11) unsigned NOT NULL DEFAULT '0',
   `priority` int(3) unsigned NOT NULL DEFAULT '0',
@@ -152,6 +155,7 @@ CREATE TABLE `mode_state_default` (
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `mode_state_default_status` (`index_name`,`status`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
@@ -168,6 +172,7 @@ DROP TABLE IF EXISTS `mode_state_default_param`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
   `mode_state_default_id` int(11) unsigned NOT NULL DEFAULT '0',
   `name` varchar(128) NOT NULL,
   `value` varchar(1024) NOT NULL,
@@ -201,7 +206,7 @@ CREATE TABLE `op_record` (
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   `target_hexadecimal_key` varchar(640) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=605694 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=605695 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -227,14 +232,15 @@ DROP TABLE IF EXISTS `state`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `state` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `terminal_state_flag` tinyint(1) NOT NULL DEFAULT '0',
   `initial_state_flag` tinyint(1) NOT NULL DEFAULT '0',
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_state_name` (`index_name`,`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -246,4 +252,4 @@ CREATE TABLE `state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-13 13:58:22
+-- Dump completed on 2016-11-13 21:32:04
