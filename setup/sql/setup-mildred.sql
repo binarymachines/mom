@@ -268,6 +268,7 @@ CREATE TABLE `matcher_field` (
   `analyzer` varchar(64) DEFAULT NULL,
   `query_section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
   `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
+  `matcher_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -281,4 +282,4 @@ CREATE TABLE `matcher_field` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-13 21:32:04
+-- Dump completed

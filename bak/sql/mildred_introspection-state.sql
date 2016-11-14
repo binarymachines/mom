@@ -3,11 +3,6 @@
 -- Host: localhost    Database: mildred_introspection
 -- ------------------------------------------------------
 -- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -19,11 +14,10 @@
 -- Table structure for table `state`
 --
 
-DROP TABLE IF EXISTS `state`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `state` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `terminal_state_flag` tinyint(1) NOT NULL DEFAULT '0',
@@ -32,26 +26,23 @@ CREATE TABLE `state` (
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_state_name` (`index_name`,`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `state`
 --
 
-LOCK TABLES `state` WRITE;
-/*!40000 ALTER TABLE `state` DISABLE KEYS */;
-INSERT INTO `state` VALUES (1,'media','initial',0,1,'2016-11-13 20:43:43','9999-12-31 23:59:59'),(2,'media','discover',0,0,'2016-11-13 20:43:43','9999-12-31 23:59:59'),(3,'media','update',0,0,'2016-11-13 20:43:43','9999-12-31 23:59:59'),(4,'media','monitor',0,0,'2016-11-13 20:43:43','9999-12-31 23:59:59'),(5,'media','terminal',0,2,'2016-11-13 20:43:43','9999-12-31 23:59:59');
-/*!40000 ALTER TABLE `state` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (1,'media','initial',0,1,'2016-11-13 22:32:40','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (2,'media','discover',0,0,'2016-11-13 22:32:40','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (3,'media','update',0,0,'2016-11-13 22:32:40','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (4,'media','monitor',0,0,'2016-11-13 22:32:40','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','terminal',0,2,'2016-11-13 22:32:40','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-11-13 21:32:01
+-- Dump completed
