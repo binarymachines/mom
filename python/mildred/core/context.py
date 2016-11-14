@@ -205,7 +205,7 @@ class CachedDirectoryContext(DirectoryContext):
 
     def peek_fifo(self, consumer):
         key = cache2.get_key(CDC, consumer)
-        value = cache2.rpeek2(key)
+        value = cache2.lpeek2(key)
         if value == 'None':
             return None
         return value
@@ -249,7 +249,9 @@ class CachedDirectoryContext(DirectoryContext):
         cache2.set_hash2(key, values)
         
 
+
     # Path
+
 
     def clear_active(self, consumer):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
@@ -259,6 +261,7 @@ class CachedDirectoryContext(DirectoryContext):
 
         cache2.set_hash2(self.consumer_key, cached_consumer_paths)
 
+
     def get_active(self, consumer):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
 
@@ -267,13 +270,10 @@ class CachedDirectoryContext(DirectoryContext):
         else:
             return self.get_next(consumer)
 
+
     def get_next(self, consumer, use_fifo=False):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
-        # if self.referenced == False and consumer in cached_consumer_paths:
-        #     self.referenced = True
-        #     return cached_consumer_paths[consumer] 
-
-
+        
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return self.pop_fifo(consumer)
 
@@ -298,9 +298,11 @@ class CachedDirectoryContext(DirectoryContext):
         
         return result
 
+
     def has_active(self, consumer):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
         return consumer in cached_consumer_paths
+
 
     def has_next(self, consumer, use_fifo=False):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
@@ -319,9 +321,11 @@ class CachedDirectoryContext(DirectoryContext):
 
         return result
 
+
     # def path_in_fifo(self, path, consumer):
     #     if consumer in self.fifos:
     #         return path in self.fifos[consumer]
+
 
     def peek_next(self, consumer, use_fifo=False):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
@@ -331,19 +335,20 @@ class CachedDirectoryContext(DirectoryContext):
 
         if len(self.paths) == 0: return None
 
-        if consumer in self.consumer_paths:
+        if consumer in cached_consumer_paths:
             index = self.paths.index(cached_consumer_paths[consumer]) + 1
             if len(self.paths) > index:
                 return self.paths[index]
         # elif cycle:
         else: return self.paths[0]
 
+
     def reset(self, consumer, use_fifo=False):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             self.clear_fifo(consumer)
         
-        if consumer in self.consumer_paths:
+        if consumer in cached_consumer_paths:
             del(cached_consumer_paths[consumer])
 
         cache2.set_hash2(self.consumer_key, cached_consumer_paths)

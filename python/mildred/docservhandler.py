@@ -47,6 +47,14 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
         random.seed()
 
+    # selector callbacks 
+
+    def after_switch(self, selector, mode):
+        pass
+        
+    def before_switch(self, selector, mode):
+        pass
+        
     # generic rule callbacks
 
     def after(self):
@@ -68,14 +76,14 @@ class DocumentServiceProcessHandler(DecisionHandler):
         ops.check_status()
 
         if possible is self.owner.scanmode: 
-            scan_incomplete = self.context.has_next(SCAN) or self.owner.scanmode.can_go_next(self.context) 
-            if scan_incomplete:
+            if self.context.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.context):
                 return config.scan 
-            return scan_incomplete
+            return False
 
         if possible is self.owner.matchmode: 
             if self.context.has_next(MATCH):
-                return config.match
+                # return config.match
+                return False
 
         return True
 
@@ -87,6 +95,7 @@ class EvalModeHandler(DefaultModeHandler):
         super(EvalModeHandler, self).__init__(owner, context)
 
     def do_eval(self): 
+        print  "entering evalation mode..."
         LOG.debug('%s evaluating' % self.owner.name)
         # self.context.reset(SCAN, use_fifo=True)
 
@@ -119,6 +128,7 @@ class CleaningModeHandler(DefaultModeHandler):
         LOG.debug('%s preparing to clean'  % self.owner.name)
 
     def do_clean(self): 
+        print  "clean mode starting..."
         LOG.debug('%s clean' % self.owner.name)
         clean.clean(self.context)
 
@@ -129,7 +139,9 @@ class RequestsModeHandler(DefaultModeHandler):
     def __init__(self, owner, context):
         super(RequestsModeHandler, self).__init__(owner, context)
 
-    def do_reqs(self): LOG.debug('%s handling requests...' % self.owner.name)
+    def do_reqs(self): 
+        print  "handling requests..."
+        LOG.debug('%s handling requests...' % self.owner.name)
 
 
 # report mode
@@ -139,6 +151,7 @@ class ReportModeHandler(DefaultModeHandler):
         super(ReportModeHandler, self).__init__(owner, context)
 
     def do_report(self):
+        print  "reporting..."
         LOG.debug('%s generating report' % self.owner.name)
         LOG.debug('%s took %i steps.' % (self.owner.selector.name, self.owner.selector.step_count))
         for mode in self.owner.selector.modes:
@@ -180,6 +193,7 @@ class ShutdownHandler(DefaultModeHandler):
             LOG.debug("%s process has ended" % self.owner.name)
 
     def ending(self): 
+        print  "shutting down..."
         if self.owner: 
             LOG.debug("%s process will end" % self.owner.name)
 
@@ -202,10 +216,12 @@ class ScanModeHandler(DefaultModeHandler):
     def after_scan(self):
         # LOG.debug('%s done scanning, updating op records...' % self.name)
         self.context.reset(SCAN, use_fifo=True)
+        self.context.set_param('scan.persist', 'active.scan.path', None)
+        self.owner.scanmode.go_next(self.context)
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
@@ -237,6 +253,7 @@ class MatchModeHandler(DefaultModeHandler):
 
 
     def do_match(self):
+        print  "match mode starting..."
         # dir = self.context.get_active (MATCH)
         # LOG.debug('%s matching in %s...' % (self.name, dir))
         try:

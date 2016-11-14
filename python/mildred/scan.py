@@ -26,7 +26,7 @@ from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
 
@@ -139,7 +139,7 @@ class Scanner(Walker):
             for dir in dirs:
                 sub_path = os.path.join(path, dir)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
-                    self.context.rpush_fifo(SCAN, sub_path)
+                    self.context.push_fifo(SCAN, sub_path)
                     expanded = True
 
         return expanded
@@ -204,8 +204,8 @@ class Scanner(Walker):
 
         # while self.context.has_active(SCAN) or self.context.has_next(SCAN, True):
         while self.context.has_next(SCAN, use_fifo=True):
-            ops.check_status()
-
+            ops.check_status()            
+            
             path = path if path_restored else self.context.get_next(SCAN, True)           
             path_restored = False
             self.context.set_param('scan.persist', 'active.scan.path', path)
@@ -213,6 +213,7 @@ class Scanner(Walker):
             if path is None or os.path.isfile(path): 
                 continue 
 
+            ops.update_listeners('scanning', SCANNER, path)
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 if self.context.get_param(SCAN, HLSCAN):
                     ops.cache_ops(path, HLSCAN, SCANNER)

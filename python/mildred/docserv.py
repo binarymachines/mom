@@ -24,13 +24,17 @@ class DocumentServiceProcess(ServiceProcess):
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks
+    
     def after_switch(self, selector, mode):
-       # mode.e
-        pass
+        self.process_handler.after_switch(selector, mode)
 
     def before_switch(self, selector, mode):
         if isinstance(mode, StatefulMode):
-            mode.go_next(self.context)
+            if mode.get_state() == None:
+                mode.go_next(self.context)
+
+        self.process_handler.before_switch(selector, mode)
+
 
     # process logic
     def setup(self):

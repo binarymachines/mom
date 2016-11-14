@@ -105,7 +105,7 @@ class SQLMode(Base):
 class SQLModeStateDefault(Base):
     __tablename__ = 'mode_state_default'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
-
+    index_name = Column('index_name', String(128), nullable=False)
     mode_id = Column(Integer, ForeignKey('mode.id'))
     # state_id Column(Integer,  ForeignKey('state.id'))
     
@@ -127,7 +127,7 @@ SQLMode.default_states = relationship("SQLModeStateDefault", order_by=SQLModeSta
 class SQLModeStateDefaultParam(Base):
     __tablename__ = 'mode_state_default_param'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
-
+    index_name = Column('index_name', String(128), nullable=False)
     mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
     mode_state_default = relationship("SQLModeStateDefault", back_populates="default_params")
 
@@ -528,6 +528,7 @@ def retrieve_previous_mode_state_record_by_name(mode_name):
 
     sqlmode = retrieve_mode_by_name(mode_name)
     for instance in sessions[1].query(SQLModeState). \
+        filter(SQLModeState.index_name == config.es_index). \
         filter(SQLModeState.effective_dt < datetime.datetime.now()). \
         filter(SQLModeState.expiration_dt > datetime.datetime.now()). \
         filter(SQLModeState.mode_id == sqlmode.id):
