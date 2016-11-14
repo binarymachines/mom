@@ -12,7 +12,7 @@ class TestAlchemy(unittest.TestCase):
 
         for row in state_data:
             state_name = row[0]
-            sqlstate = alchemy.retrieve_state(state_name)
+            sqlstate = alchemy.retrieve_state_by_name(state_name)
             self.assertEquals(sqlstate.name, state_name)
 
     def test_load_modes(self):
@@ -22,7 +22,7 @@ class TestAlchemy(unittest.TestCase):
 
         for row in mode_data:
             mode_name = row[0]
-            sqlmode = alchemy.retrieve_mode(mode_name)
+            sqlmode = alchemy.retrieve_mode_by_name(mode_name)
             self.assertEquals(sqlmode.name, mode_name)
 
     #
@@ -32,15 +32,17 @@ class TestAlchemy(unittest.TestCase):
             schema='mildred_introspection')
 
         if len(init_state_data) == 1:
-            sqlstate = alchemy.retrieve_state(init_state_data[0][0])
-            self.assertEquals(sqlstate.is_initial_state, init_state_data[0][1])
+            state_name = init_state_data[0][0]
+            is_initial_state = init_state_data[0][1]
+            sqlstate = alchemy.retrieve_state_by_name(state_name)
+            self.assertEquals(sqlstate.is_initial_state, is_initial_state)
 
         else: raise Exception('invalid data for test')
 
     def test_load_state_params(self):
         scan_mode_data = sql.run_query("select id, name from mode where name = 'scan'", schema='mildred_introspection')
         if len(scan_mode_data) == 1:
-            sqlmode = alchemy.retrieve_mode(scan_mode_data[0][1])
+            sqlmode = alchemy.retrieve_mode_by_name(scan_mode_data[0][1])
 
             state_data = sql.run_query(
                 "select status from mode_state_default where mode_id = '%s'" % (scan_mode_data[0][0]),

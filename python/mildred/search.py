@@ -60,33 +60,12 @@ def create_index(index):
     res = config.es.indices.create(index, request_body)
     LOG.debug("response: '%s'" % res)
 
+
 def delete_doc(doc):
     doc_id = doc['_id']
     doc_type = doc['_type']
     if backup_doc(doc, target_folder=var.outqueuedir):
         config.es.delete(config.es_index, doc_type, doc_id)
-
-    # doc_id = doc['_id']
-    #
-    # backupfolder = os.path.join(var.outqueuedir, doc_id)
-    # if not os.path.isdir(backupfolder):
-    #     os.makedirs(backupfolder)
-    #
-    # doc_name = '.'.join([str(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]).replace(' ', '_'), 'json'])
-    #
-    # backup = os.path.join(backupfolder, doc_name)
-    #
-    # doc_type = doc['_type']
-    # with open(backup, 'w') as file:
-    #     try:
-    #         data = json.dumps(doc, ensure_ascii=True, indent=4, sort_keys=True)
-    #         file.write(data)
-    #         file.flush()
-    #         file.close()
-    #         if os.path.isfile(backup):
-    #             config.es.delete(config.es_index, doc_type, doc_id)
-    #     except Exception, err:
-    #         raise err
 
 
 def delete_docs(doc_type, attribute, value):

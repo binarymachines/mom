@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 pushd $m2
 
 clear
@@ -14,12 +15,11 @@ rm setup/sql/*.sql
 
 echo "copying data tables..."
 
-mysqldump mildred > bak/sql/dump/backup-mildred.sql
-mysqldump mildred_admin > bak/sql/dump/backup-mildred_admin.sql
-mysqldump mildred_introspection > bak/sql/dump/backup-mildred_introspection.sql
-mysqldump media > bak/sql/dump/backup-media.sql
-mysqldump scratch > bak/sql/dump/backup-scratch.sql
-mysqldump --no-data scratch > bak/sql/backup-media-no-data.sql
+mysqldump --skip-dump-date  mildred > bak/sql/dump/backup-mildred.sql
+mysqldump --skip-dump-date  mildred_admin > bak/sql/dump/backup-mildred_admin.sql
+mysqldump --skip-dump-date  mildred_introspection > bak/sql/dump/backup-mildred_introspection.sql
+mysqldump --skip-dump-date  media > bak/sql/dump/backup-media.sql
+mysqldump --skip-dump-date  scratch > bak/sql/dump/backup-scratch.sql
 
 echo "copying lookup tables..."
 
@@ -57,10 +57,11 @@ git add bak/sql/*.sql
 # mysqldump --routines scratch > bak/sql/scratch.sql
 
 echo "copying setup tables..."
-mysqldump --no-data mildred > setup/sql/setup-mildred.sql
-mysqldump --no-data mildred_admin > setup/sql/setup-mildred_admin.sql
-mysqldump --no-data mildred_introspection > setup/sql/setup-mildred_introspection.sql
-mysqldump --no-data media > setup/sql/setup-media.sql
+mysqldump --no-data --skip-dump-date mildred > setup/sql/setup-mildred.sql
+mysqldump --no-data --skip-dump-date mildred_admin > setup/sql/setup-mildred_admin.sql
+mysqldump --no-data --skip-dump-date mildred_introspection > setup/sql/setup-mildred_introspection.sql
+mysqldump --no-data --skip-dump-date media > setup/sql/setup-media.sql
+mysqldump --no-data --skip-dump-date scratch > setup/sql/backup-media-no-data.sql
 
 echo "adding setup tables to git."
 git add setup/sql/*.sql

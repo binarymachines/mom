@@ -239,6 +239,7 @@ def get_exec_record_value(field):
     if field in values:
         return  values[field]
 
+
 def insert_exec_record():
     values = cache2.get_hash2(get_exec_key())
     try:
@@ -247,6 +248,7 @@ def insert_exec_record():
     except Exception, err:
         print err.message
 
+
 def insert_exec_complete_record():
     values = cache2.get_hash2(get_exec_key())
     values['end_time'] = datetime.datetime.now()
@@ -254,6 +256,7 @@ def insert_exec_complete_record():
         return alchemy.update_exec_record(values)
     except Exception, err:
         print err.message
+
 
 # TODO: use execution record to select redis db
 def record_exec():
@@ -346,18 +349,28 @@ def clear_reconfig_request():
 def reconfig_requested():
     values = cache2.get_hash2(get_exec_key())
     if len(values) > 0:
-        return values['pid'] == config.pid and values['reconfig_requested'] == 'True'
-
+        try:
+            return values['pid'] == config.pid and values['reconfig_requested'] == 'True'
+        except KeyError, ke:
+            ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
 
 def stop_requested():
     values = cache2.get_hash2(get_exec_key())
-    if len(values) > 0:
-        return values['pid'] == config.pid and values['stop_requested'] == 'True'
+    try:
+        if len(values) > 0:
+            return values['pid'] == config.pid and values['stop_requested'] == 'True'
+    except KeyError, ke:
+        ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
+
 
 def start_requested():
-    values = cache2.get_hash2(get_exec_key(no_pid=True))
-    if len(values) > 0:
-        return values['pid'] == NO_PID and values['start_requested'] == 'True'
+    try:
+        values = cache2.get_hash2(get_exec_key(no_pid=True))
+        if len(values) > 0:
+            return values['pid'] == NO_PID and values['start_requested'] == 'True'
+    except KeyError, ke:
+        ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
+
 
 # redis pub/sub
 

@@ -111,7 +111,6 @@ class SQLModeStateDefault(Base):
     
     mode = relationship("SQLMode", back_populates="default_states")
 
-    # index_name = Column('index_name', String(128), nullable=False)
     priority = Column('priority', Integer, nullable=False)
     dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
     inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
@@ -141,7 +140,7 @@ SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", or
 class SQLModeState(Base):
     __tablename__ = 'mode_state'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # index_name = Column('index_name', String(128), nullable=False)
+    index_name = Column('index_name', String(128), nullable=False)
 
     pid = Column('pid', String(32), nullable=False)
     mode_id = Column(Integer, ForeignKey('mode.id'))
@@ -381,12 +380,14 @@ def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op
     result = ()
     if operator is None:
         for instance in sessions[1].query(SQLOperationRecord).\
+            filter(SQLOperationRecord.index_name == config.es_index).\
             filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
             filter(SQLOperationRecord.operation_name == operation).\
             filter(SQLOperationRecord.status == op_status):
                 result += (instance,)
     else:
         for instance in sessions[1].query(SQLOperationRecord).\
+            filter(SQLOperationRecord.index_name == config.es_index).\
             filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
             filter(SQLOperationRecord.operation_name == operation).\
             filter(SQLOperationRecord.operator_name == operator).\
@@ -479,16 +480,16 @@ def retrieve_state(state):
     return result[0] if len(result) == 1 else None
 
 
-def retrieve_state_by_name(name):
-    result = ()
-    for instance in sessions[1].query(SQLState).\
-        filter(SQLState.index_name == config.es_index). \
-        filter(SQLState.effective_dt < datetime.datetime.now()). \
-        filter(SQLState.expiration_dt > datetime.datetime.now()). \
-        filter(SQLState.name == name):
-            result += (instance,)
-
-    return result[0] if len(result) == 1 else None
+# def retrieve_state_by_name(name):
+#     result = ()
+#     for instance in sessions[1].query(SQLState).\
+#         filter(SQLState.index_name == config.es_index). \
+#         filter(SQLState.effective_dt < datetime.datetime.now()). \
+#         filter(SQLState.expiration_dt > datetime.datetime.now()). \
+#         filter(SQLState.name == name):
+#             result += (instance,)
+#
+#     return result[0] if len(result) == 1 else None
 
 
 # SQLModeState
@@ -515,7 +516,7 @@ def retrieve_previous_mode_state_record(mode):
 
     output = result[0]
     for record in result:
-        if record.effective_dt > output.effective_dt and record.expiration_dt >= output.expiration_dt:
+        if record.effective_dt > output.effective_dt: #and record.expiration_dt >= output.expiration_dt
             output = record
 
     print "%s mode will resume in %s state" % (mode.name, output.status)
@@ -523,34 +524,8 @@ def retrieve_previous_mode_state_record(mode):
     return output
 
 
-def retrieve_previous_mode_state_record_by_name(mode_name):
-    result = ()
-
-    sqlmode = retrieve_mode_by_name(mode_name)
-    for instance in sessions[1].query(SQLModeState). \
-        filter(SQLModeState.index_name == config.es_index). \
-        filter(SQLModeState.effective_dt < datetime.datetime.now()). \
-        filter(SQLModeState.expiration_dt > datetime.datetime.now()). \
-        filter(SQLModeState.mode_id == sqlmode.id):
-            result += (instance,)
-
-    if len(result) == 0: return None
-    if len(result) == 1: return result[0]
-
-    output = result[0]
-    for record in result:
-        if record.effective_dt > output.effective_dt:
-            output = record
-
-    return output
-
-
-    return result[0] if len(result) == 1 else None
-
 def update_mode_state(mode, expire=False):
-    # sqlmode = retrieve_mode(mode.name)
-    # sqlstate = retrieve_state(mode.get_state().name)
-    # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
+
     if mode.mode_state_id:
 
         mode_state_rec = retrieve_mode_state_record(mode)
@@ -561,47 +536,14 @@ def update_mode_state(mode, expire=False):
         if expire:
             mode_state_rec.expiration_dt = datetime.datetime.now()
 
+        try:
+            sessions[1].commit()
+            return mode_state_rec.id
+        except IntegrityError, err:
+            print '\a'
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            sessions[1].rollback()
+
     else:
         raise Exception('no mode state to save!')
-
-    # mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, priority=mode.priority, \
-        # times_activated=mode.times_activated, times_completed=mode.times_completed, times_to_complete=mode.times_to_complete, 
-        # dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount, error_count=mode.error_count, 
-        # error_tolerance=mode.error_tolerance, 
-        # effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
-
-    try:
-        # sessions[1].add(mode_state_rec)
-        sessions[1].commit()
-        return mode_state_rec.id
-    except IntegrityError, err:
-        print '\a'
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        sessions[1].rollback()
-
-# CREATE TABLE `mode_state` (
-#   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-#   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-#   `pid` varchar(32) NOT NULL,
-#   `mode_id` int(11) unsigned NOT NULL,
-#   `priority` int(3) unsigned NOT NULL  DEFAULT 0,
-#   `times_activated` int(11) unsigned NOT NULL DEFAULT 0,
-#   `times_completed` int(11) unsigned NOT NULL DEFAULT 0,
-#   `times_to_complete` int(3) unsigned NOT NULL DEFAULT 0,
-#   `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT 0,
-#   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT 0,
-#   `error_count` int(3) unsigned NOT NULL DEFAULT 0,
-#   `error_tolerance` int(3) unsigned NOT NULL DEFAULT 0,
-#   `cum_error_count` int(11) unsigned NOT NULL DEFAULT 0,
-#   `cum_error_tolerance` int(11) unsigned NOT NULL DEFAULT 0,
-#   `state_id` int(11) unsigned NOT NULL DEFAULT 0,
-#   `status` varchar(64) NOT NULL,
-#   `target_path` varchar(1024) NOT NULL,
-#   `status` varchar(64) NOT NULL,
-#   `last_activated` datetime NOT NULL,
-#   `last_completed` datetime DEFAULT NULL,
-#   `effective_dt` datetime DEFAULT NULL,
-#   `expiration_dt` datetime DEFAULT NULL,
-#   PRIMARY KEY (`id`)
-# )
 

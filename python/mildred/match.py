@@ -23,12 +23,12 @@ def clean_str(string):
     return string.lower().replace(', ', ' ').replace('_', ' ').replace(':', ' ').replace(' ', '')
 
 class MediaMatcher(object):
-    def __init__(self, name, doc_type):
+    def __init__(self, name, doc_type, id=None):
         self.comparison_fields = []
         self.document_type = doc_type
         self.name = name
-        self.max_score_percentage = None
-        
+        self.id = id
+
     def match(self, media):
         raise BaseClassException(MediaMatcher)
 
@@ -53,33 +53,26 @@ class MediaMatcher(object):
     def match_extensions_match(self, orig, match):
         return 1 if orig['_source']['file_ext'] == match['_source']['file_ext'] else 0
 
-    # def record_match(self, media_id, match_id, matcher_name, index_name, percentage_of_max_score, comparison_result, same_ext_flag):
-    #     if self.match_recorded(media_id, match_id) is False and self.match_recorded(match_id, media_id):
-    #         LOG.info('match record for  %s ::: %s already exists.' % (media_id, match_id))
-    #     else:
-    #         LOG.info('recording match: %s ::: %s' % (media_id, match_id))
-    #         sql.insert_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'percentage_of_max_score', 'comparison_result', 'same_ext_flag'],
-    #                           [media_id, match_id, matcher_name, index_name, str(percentage_of_max_score), comparison_result, same_ext_flag])
-
 
 class ElasticSearchMatcher(MediaMatcher):
-    def __init__(self, name, doc_type):
-        super(ElasticSearchMatcher, self).__init__(name, doc_type)
-        self.query_type = None
+    def __init__(self, name, doc_type=None, query_type=None, id=None, max_score_percentage=None):
+        super(ElasticSearchMatcher, self).__init__(name, doc_type=doc_type, id=id)
+        self.query_type = query_type
+        self.max_score_percentage = max_score_percentage
 
-        if self.name is not None:
-            row = sql.retrieve_values('matcher', ['name', 'query_type'], [self.name])
+        if self.id is not None:
+            row = sql.retrieve_values('matcher', ['id', 'name', 'query_type'], [self.id])
             if len(row) == 0:
                 error_message = "There is no configuation data for %s matcher." % (self.name)
                 raise Exception(error_message)
 
-            rows = sql.retrieve_values('matcher_field', ['matcher_name', 'field_name'], [self.name])
+            rows = sql.retrieve_values('matcher_field', ['matcher_id', 'field_name'], [self.id])
             for r in rows:
                 self.comparison_fields.append(r[1])
 
             # TODO: this is a kludge. This module uses self.comparison_fields, which is a single-dimensional array
             # 'Builder' in query.py uses 'match_fields', which is a tuple. This module should be updated to use the tuple
-            self.match_fields = sql.retrieve_values('matcher_field', ['matcher_name', 'field_name', 'boost'], [name])
+            self.match_fields = sql.retrieve_values('matcher_field', ['matcher_id', 'field_name', 'boost'], [self.id])
 
         if len(self.comparison_fields) > 0 and self.query_type is not None:
             LOG.info('%s %s matcher configured.' % (self.name, self.query_type))

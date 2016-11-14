@@ -51,16 +51,14 @@ def cache_match_ops(matchers, path):
 def path_expands(path, context):
     expanded = []
 
-    # rows = sql.run_query_template('calc_op_path', HSCAN, 'COMPLETE', path, os.path.sep)
     op_records = alchemy.retrieve_op_records(path, HSCAN)
-    if len(op_records) > 0:
-        for op_record in op_records:
-            if op_record.target_path not in expanded:
-                expanded.append(op_record.target_path)
+    for op_record in op_records:
+        if op_record.target_path not in expanded:
+            expanded.append(op_record.target_path)
 
     for ex_path in expanded:
         # TODO: count(expath pathsep) == count (path pathsep) + 1
-        context.rpush_fifo(MATCH, ex_path)
+        context.push_fifo(MATCH, ex_path)
 
     return len(expanded) > 0
 
@@ -154,16 +152,16 @@ def get_matchers():
     keygroup = MATCH
     identifier = 'matchers'
     if not cache2.key_exists(keygroup, identifier):
-        rows = sql.retrieve_values('matcher', ['active', 'name', 'query_type', 'max_score_percentage'], [str(1)])
+        rows = sql.retrieve_values('matcher', ['active', 'id', 'name', 'query_type', 'max_score_percentage'], [str(1)])
         for row in rows:
-            cache2.set_hash(keygroup, identifier, {'name': row[1], 'query_type': row[2], 'max_score_percentage': row[3]})
+            cache2.set_hash(keygroup, identifier, {'id': row[1], 'name': row[2], 'query_type': row[3], 'max_score_percentage': row[4]})
 
     matcherdata = cache2.get_hashes(keygroup, identifier)
 
     matchers = []
     for item in matcherdata:
-        matcher = ElasticSearchMatcher(item['name'], DOCUMENT)
-        matcher.query_type = item['query_type']
+        matcher = ElasticSearchMatcher(item['name'], doc_type=DOCUMENT, id=item['id'], query_type=item['query_type'])
+
         matcher.max_score_percentage = float(item['max_score_percentage'])
         LOG.debug('matcher %s configured' % (item['name']))
         matchers += [matcher]
