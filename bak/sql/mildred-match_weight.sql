@@ -14,6 +14,7 @@
 -- Table structure for table `match_weight`
 --
 
+DROP TABLE IF EXISTS `match_weight`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `match_weight` (

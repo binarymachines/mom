@@ -25,7 +25,6 @@ class TestAlchemy(unittest.TestCase):
             sqlmode = alchemy.retrieve_mode_by_name(mode_name)
             self.assertEquals(sqlmode.name, mode_name)
 
-    #
     def test_load_state_defaults(self):
         init_state_data = sql.run_query(
             "select name, initial_state_flag, terminal_state_flag from state where name = 'initial'",

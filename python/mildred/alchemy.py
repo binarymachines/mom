@@ -52,6 +52,7 @@ class SQLAsset(Base):
                                 self.index_name, self.doc_type, self.absolute_path)
 
 
+
 class SQLCauseOfDefect(Base):
     __tablename__ = 'cause_of_defect'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -82,11 +83,22 @@ class SQLExecutionRecord(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 
+class SQLMatcher(Base):
+    __tablename__ = 'matcher'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    name = Column('name', String(64), nullable=False)
+    # percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
+    # comparison_result = Column('comparison_result', String(1), nullable=True)
+    # same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
+
+
 class SQLMatchRecord(Base):
     __tablename__ = 'matched'
     doc_id = Column('doc_id', String(64), primary_key=True, nullable=False)
     match_doc_id = Column('match_doc_id', String(64), primary_key=True, nullable=False)
     index_name = Column('index_name', String(128), nullable=False)
+    # matcher_id = Column('matcher_id', String(64), primary_key=True, nullable=False)
     matcher_name = Column('matcher_name', String(64), nullable=False)
     percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
     comparison_result = Column('comparison_result', String(1), nullable=True)
@@ -417,9 +429,9 @@ def insert_mode_state(mode):
     sqlstate = retrieve_state(mode.get_state())
     # times_to_complete=mode.times_to_complete, dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount,
     # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
-    mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, times_activated=mode.times_activated, \
-        times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, \
-        status=mode.get_state().name, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
+    mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, index_name=config.es_index, times_activated=mode.times_activated, \
+        times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, status=mode.get_state().name, \
+        effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
 
     try:
         sessions[1].add(mode_state_rec)

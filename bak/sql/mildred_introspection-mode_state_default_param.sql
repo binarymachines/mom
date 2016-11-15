@@ -14,6 +14,7 @@
 -- Table structure for table `mode_state_default_param`
 --
 
+DROP TABLE IF EXISTS `mode_state_default_param`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode_state_default_param` (

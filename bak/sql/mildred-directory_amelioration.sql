@@ -14,6 +14,7 @@
 -- Table structure for table `directory_amelioration`
 --
 
+DROP TABLE IF EXISTS `directory_amelioration`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory_amelioration` (
