@@ -21,6 +21,7 @@ CREATE TABLE `matcher_field` (
   `id` int(11) unsigned NOT NULL,
   `index_name` varchar(128) NOT NULL,
   `document_type` varchar(64) NOT NULL DEFAULT 'media_file',
+  `matcher_id` int(11) unsigned NOT NULL,
   `field_name` varchar(128) NOT NULL,
   `boost` float NOT NULL DEFAULT '0',
   `bool` varchar(16) DEFAULT NULL,
@@ -29,8 +30,11 @@ CREATE TABLE `matcher_field` (
   `analyzer` varchar(64) DEFAULT NULL,
   `query_section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
   `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
-  `matcher_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  KEY `fk_matcher_field_matcher` (`matcher_id`),
+  CONSTRAINT `fk_matcher_field_matcher` FOREIGN KEY (`matcher_id`) REFERENCES `matcher` (`id`)
 );
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -38,19 +42,19 @@ CREATE TABLE `matcher_field` (
 -- Dumping data for table `matcher_field`
 --
 
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (1,'media','media_file','TPE1',5,NULL,NULL,0,NULL,'should',NULL,2);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (2,'media','media_file','TIT2',7,NULL,NULL,0,NULL,'should',NULL,2);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (3,'media','media_file','TALB',3,NULL,NULL,0,NULL,'should',NULL,2);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (4,'media','media_file','file_name',0,NULL,NULL,0,NULL,'should',NULL,1);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (5,'media','media_file','deleted',0,NULL,NULL,0,NULL,'should',NULL,2);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (6,'media','media_file','file_size',3,NULL,NULL,0,NULL,'should',NULL,3);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (7,'media','media_file','TPE1',3,NULL,NULL,0,NULL,'should',NULL,4);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (8,'media','media_file','TPE1',0,NULL,NULL,0,NULL,'must',NULL,5);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (9,'media','media_file','TIT2',5,NULL,NULL,0,NULL,'should',NULL,5);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (10,'media','media_file','TALB',0,NULL,NULL,0,NULL,'should',NULL,5);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (11,'media','media_file','deleted',0,NULL,NULL,0,NULL,'must_not','true',5);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (12,'media','media_file','TRCK',0,NULL,NULL,0,NULL,'should','',5);
-INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (13,'media','media_file','TPE2',0,NULL,NULL,0,NULL,'','should',5);
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (1,'media','media_file',2,'TPE1',5,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (2,'media','media_file',2,'TIT2',7,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (3,'media','media_file',2,'TALB',3,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (4,'media','media_file',1,'file_name',0,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (5,'media','media_file',2,'deleted',0,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (6,'media','media_file',3,'file_size',3,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (7,'media','media_file',4,'TPE1',3,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (8,'media','media_file',5,'TPE1',0,NULL,NULL,0,NULL,'must',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (9,'media','media_file',5,'TIT2',5,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (10,'media','media_file',5,'TALB',0,NULL,NULL,0,NULL,'should',NULL,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (11,'media','media_file',5,'deleted',0,NULL,NULL,0,NULL,'must_not','true',NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (12,'media','media_file',5,'TRCK',0,NULL,NULL,0,NULL,'should','',NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher_field` (`id`, `index_name`, `document_type`, `matcher_id`, `field_name`, `boost`, `bool`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `effective_dt`, `expiration_dt`) VALUES (13,'media','media_file',5,'TPE2',0,NULL,NULL,0,NULL,'','should',NULL,'9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

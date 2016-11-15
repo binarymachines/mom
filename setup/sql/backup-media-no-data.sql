@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `context`;
 CREATE TABLE `context` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -90,10 +90,12 @@ DROP TABLE IF EXISTS `param_value_boolean`;
 CREATE TABLE `param_value_boolean` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `value` tinyint(1) NOT NULL,
+  `boolean_value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_boolean_param_value` (`param_value_id`),
-  CONSTRAINT `fk_param_value_boolean_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
+  KEY `fk_param_value_boolean_value_float` (`boolean_value_id`),
+  CONSTRAINT `fk_param_value_boolean_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
+  CONSTRAINT `fk_param_value_boolean_value_float` FOREIGN KEY (`boolean_value_id`) REFERENCES `value_boolean` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -117,6 +119,44 @@ CREATE TABLE `param_value_float` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `param_value_int_11`
+--
+
+DROP TABLE IF EXISTS `param_value_int_11`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `param_value_int_11` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `param_value_id` int(11) unsigned NOT NULL,
+  `int_11_value_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_param_value_int_11_param_value` (`param_value_id`),
+  KEY `fk_param_value_int_11_value_float` (`int_11_value_id`),
+  CONSTRAINT `fk_param_value_int_11_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
+  CONSTRAINT `fk_param_value_int_11_value_float` FOREIGN KEY (`int_11_value_id`) REFERENCES `value_int_11` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `param_value_int_3`
+--
+
+DROP TABLE IF EXISTS `param_value_int_3`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `param_value_int_3` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `param_value_id` int(11) unsigned NOT NULL,
+  `int_3_value_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_param_value_int_3_param_value` (`param_value_id`),
+  KEY `fk_param_value_int_3_value_float` (`int_3_value_id`),
+  CONSTRAINT `fk_param_value_int_3_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
+  CONSTRAINT `fk_param_value_int_3_value_float` FOREIGN KEY (`int_3_value_id`) REFERENCES `value_int_3` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `param_value_varchar_1024`
 --
 
@@ -126,10 +166,12 @@ DROP TABLE IF EXISTS `param_value_varchar_1024`;
 CREATE TABLE `param_value_varchar_1024` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `value` varchar(1024) NOT NULL,
+  `varchar_1024_value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_varchar_1024_param_value` (`param_value_id`),
-  CONSTRAINT `fk_param_value_varchar_1024_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
+  KEY `fk_param_value_varchar_1024_value_float` (`varchar_1024_value_id`),
+  CONSTRAINT `fk_param_value_varchar_1024_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
+  CONSTRAINT `fk_param_value_varchar_1024_value_float` FOREIGN KEY (`varchar_1024_value_id`) REFERENCES `value_varchar_1024` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -143,10 +185,26 @@ DROP TABLE IF EXISTS `param_value_varchar_128`;
 CREATE TABLE `param_value_varchar_128` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `value` varchar(128) NOT NULL,
+  `varchar_128_value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_varchar_128_param_value` (`param_value_id`),
-  CONSTRAINT `fk_param_value_varchar_128_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
+  KEY `fk_param_value_varchar_128_value_float` (`varchar_128_value_id`),
+  CONSTRAINT `fk_param_value_varchar_128_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
+  CONSTRAINT `fk_param_value_varchar_128_value_float` FOREIGN KEY (`varchar_128_value_id`) REFERENCES `value_varchar_128` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `value_boolean`
+--
+
+DROP TABLE IF EXISTS `value_boolean`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `value_boolean` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `value` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -160,6 +218,62 @@ DROP TABLE IF EXISTS `value_float`;
 CREATE TABLE `value_float` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `value` float NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `value_int_11`
+--
+
+DROP TABLE IF EXISTS `value_int_11`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `value_int_11` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `value` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `value_int_3`
+--
+
+DROP TABLE IF EXISTS `value_int_3`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `value_int_3` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `value` int(3) unsigned NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `value_varchar_1024`
+--
+
+DROP TABLE IF EXISTS `value_varchar_1024`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `value_varchar_1024` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `value` varchar(1024) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `value_varchar_128`
+--
+
+DROP TABLE IF EXISTS `value_varchar_128`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `value_varchar_128` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `value` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -37,6 +37,8 @@ class DecisionHandler(object):
         return count > 3
 
 
+# service process handler
+
 class DocumentServiceProcessHandler(DecisionHandler):
     def __init__(self, owner, name, selector, context):
         super(DocumentServiceProcessHandler, self).__init__()
@@ -47,6 +49,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
         random.seed()
 
+
     # selector callbacks 
 
     def after_switch(self, selector, mode):
@@ -55,6 +58,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
     def before_switch(self, selector, mode):
         pass
         
+
     # generic rule callbacks
 
     def after(self):

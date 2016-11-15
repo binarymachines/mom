@@ -239,14 +239,17 @@ DROP TABLE IF EXISTS `matcher`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `matcher` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
+  `index_name` varchar(128) NOT NULL,
   `name` varchar(128) NOT NULL,
   `query_type` varchar(64) NOT NULL,
   `max_score_percentage` float NOT NULL DEFAULT '0',
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -257,9 +260,10 @@ DROP TABLE IF EXISTS `matcher_field`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `matcher_field` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
   `index_name` varchar(128) NOT NULL,
   `document_type` varchar(64) NOT NULL DEFAULT 'media_file',
+  `matcher_id` int(11) unsigned NOT NULL,
   `field_name` varchar(128) NOT NULL,
   `boost` float NOT NULL DEFAULT '0',
   `bool` varchar(16) DEFAULT NULL,
@@ -268,9 +272,12 @@ CREATE TABLE `matcher_field` (
   `analyzer` varchar(64) DEFAULT NULL,
   `query_section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
   `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
-  `matcher_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  KEY `fk_matcher_field_matcher` (`matcher_id`),
+  CONSTRAINT `fk_matcher_field_matcher` FOREIGN KEY (`matcher_id`) REFERENCES `matcher` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

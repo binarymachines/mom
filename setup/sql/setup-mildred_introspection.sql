@@ -84,7 +84,7 @@ CREATE TABLE `execution` (
   `effective_dt` datetime NOT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=216 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=217 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,7 +132,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -161,6 +161,28 @@ CREATE TABLE `mode_state_default` (
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `mode_state_default_operation`
+--
+
+DROP TABLE IF EXISTS `mode_state_default_operation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mode_state_default_operation` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
+  `mode_state_default_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `operation_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  KEY `fk_mode_state_default_operation_mode_state_default` (`mode_state_default_id`),
+  KEY `fk_mode_state_default_operation_operation` (`operation_id`),
+  CONSTRAINT `fk_mode_state_default_operation_mode_state_default` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`),
+  CONSTRAINT `fk_mode_state_default_operation_operation` FOREIGN KEY (`operation_id`) REFERENCES `operation` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -206,7 +228,7 @@ CREATE TABLE `op_record` (
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   `target_hexadecimal_key` varchar(640) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=621576 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=622057 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -218,9 +240,32 @@ DROP TABLE IF EXISTS `operation`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `operation` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `operator_id` int(11) unsigned NOT NULL,
   `name` varchar(128) NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  KEY `fk_operation_operator` (`operator_id`),
+  CONSTRAINT `fk_operation_operator` FOREIGN KEY (`operator_id`) REFERENCES `operator` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `operator`
+--
+
+DROP TABLE IF EXISTS `operator`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `operator` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
