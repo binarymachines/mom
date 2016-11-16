@@ -4,7 +4,19 @@ import os
 import sql
 from core import cache2, log
 
+from walk import Walker
+
 LOG = log.get_log(__name__, logging.DEBUG)
+
+
+class PathHierarchyScanner(Walker):
+    def __init__(self, context):
+        super(Scanner, self).__init__()
+        self.context = context
+        self.document_type = const.DOCUMENT
+
+    def handle_root(self, root):
+        pass
 
 
 def get_directory_constants(identifier):

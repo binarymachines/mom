@@ -44,6 +44,7 @@ class Scanner(Walker):
     def after_handle_root(self, root):
         library.set_active(None)
 
+
     #TODO: parrot behavior for IOError as seen in read.py 
     def before_handle_root(self, root):
         # MAX_RETRIES = 10
@@ -81,6 +82,7 @@ class Scanner(Walker):
             # raise Exception("%s isn't currently available." % (root))
             print "%s isn't currently available." % (root)
             
+
     #TODO: parrot behavior for IOError as seen in read.py 
     def handle_root(self, root):
         ops.check_status()
@@ -114,6 +116,7 @@ class Scanner(Walker):
 
         ops.record_op_complete(SCAN, SCANNER, directory.absolute_path, directory.esid)
         LOG.debug('done scanning : %s' % (root))
+
 
     def handle_root_error(self, err, root):
         library.set_active(None)
@@ -242,7 +245,7 @@ class Scanner(Walker):
                 #TODO: parrot behavior for IOError as seen in read.py 
                 ERR.warning("%s isn't currently available." % (path))
                 print("%s isn't currently available." % (path))
-                
+
 
 
 def scan(context):

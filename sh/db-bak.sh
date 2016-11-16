@@ -13,13 +13,13 @@ rm bak/sql/*.sql
 rm bak/sql/dump/*.sql
 rm setup/sql/*.sql
 
-echo "dumping schemas..."
+# echo "dumping schemas..."
 
-./sh/backup-schema.sh mildred bak/sql/dump/backup-mildred.sql
-./sh/backup-schema.sh mildred_admin bak/sql/dump/backup-mildred_admin.sql
-./sh/backup-schema.sh mildred_introspection bak/sql/dump/backup-mildred_introspection.sql
-./sh/backup-schema.sh media bak/sql/dump/backup-media.sql
-./sh/backup-schema.sh scratch bak/sql/dump/backup-scratch.sql
+# ./sh/backup-schema.sh mildred bak/sql/dump/backup-mildred.sql
+# ./sh/backup-schema.sh mildred_admin bak/sql/dump/backup-mildred_admin.sql
+# ./sh/backup-schema.sh mildred_introspection bak/sql/dump/backup-mildred_introspection.sql
+# ./sh/backup-schema.sh media bak/sql/dump/backup-media.sql
+# ./sh/backup-schema.sh scratch bak/sql/dump/backup-scratch.sql
 
 echo "copying lookup tables..."
 
@@ -54,7 +54,7 @@ echo "copying lookup tables..."
 echo "adding lookup tables to git."
 git add bak/sql/*.sql
 
-# mysqldump --routines scratch > bak/sql/scratch.sql
+mysqldump --routines scratch > bak/sql/scratch.sql
 
 echo "copying setup tables..."
 ./sh/copy-table-ddl.sh mildred setup/sql/setup-mildred.sql

@@ -152,7 +152,7 @@ def get_matchers():
     keygroup = MATCH
     identifier = 'matchers'
     if not cache2.key_exists(keygroup, identifier):
-        rows = sql.retrieve_values('matcher', ['active', 'id', 'name', 'query_type', 'max_score_percentage'], [str(1)])
+        rows = sql.retrieve_values('matcher', ['active_flag', 'id', 'name', 'query_type', 'max_score_percentage'], [str(1)])
         for row in rows:
             cache2.set_hash(keygroup, identifier, {'id': row[1], 'name': row[2], 'query_type': row[3], 'max_score_percentage': row[4]})
 
