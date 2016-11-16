@@ -255,8 +255,8 @@ CREATE TABLE `matcher` (
   `name` varchar(128) NOT NULL,
   `query_type` varchar(64) NOT NULL,
   `max_score_percentage` float NOT NULL DEFAULT '0',
-  `active` tinyint(1) NOT NULL DEFAULT '0',
   `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
+  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
@@ -288,6 +288,27 @@ CREATE TABLE `matcher_field` (
   PRIMARY KEY (`id`),
   KEY `fk_matcher_field_matcher` (`matcher_id`),
   CONSTRAINT `fk_matcher_field_matcher` FOREIGN KEY (`matcher_id`) REFERENCES `matcher` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `path_hierarchy`
+--
+
+DROP TABLE IF EXISTS `path_hierarchy`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `path_hierarchy` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) unsigned DEFAULT NULL,
+  `path` varchar(256) NOT NULL,
+  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `hexadecimal_key` varchar(640) DEFAULT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  KEY `fk_path_hierarchy_parent` (`parent_id`),
+  CONSTRAINT `fk_path_hierarchy_parent` FOREIGN KEY (`parent_id`) REFERENCES `path_hierarchy` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
