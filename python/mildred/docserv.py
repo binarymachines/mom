@@ -398,6 +398,9 @@ class ScanModeHandler(DefaultModeHandler):
 
     def before_scan(self):
         # LOG.debug('%s preparing to scan, caching data' % self.name)
+        if self.owner.scanmode.just_restored():
+            self.owner.scanmode.set_restored(False)
+
         if self.context.get_param(SCAN, HSCAN):
             print "high level scan parameter found in context"
 
@@ -424,7 +427,7 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
     def do_scan_monitor(self):

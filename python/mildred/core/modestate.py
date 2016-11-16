@@ -16,10 +16,10 @@ class StatefulMode(Mode):
     def __init__(self, name, id=None, effect=None, priority=0, dec_priority_amount=1, inc_priority_amount=0, \
                  times_activated=0, times_completed=0, times_to_complete=0, last_active=None, error_tolerance=0, error_count=0, \
                  error_state=False, suspended=False, active_rule=None, reader=None, writer=None, state_change_handler=None, \
-                 restored=False, state=None, mode_state_id=None):
+                 last_completed=None, restored=False, state=None, mode_state_id=None):
                  
         super(StatefulMode, self).__init__(name, id=id, effect=effect, priority=priority, dec_priority_amount=dec_priority_amount, inc_priority_amount=inc_priority_amount, \
-                times_activated=times_activated, times_completed=times_completed, times_to_complete=times_to_complete, last_active=last_active, \
+                times_activated=times_activated, times_completed=times_completed, times_to_complete=times_to_complete, last_active=last_active, last_completed=last_completed, \
                 error_count=error_count, error_state=error_state, error_tolerance=error_tolerance, active_rule=active_rule, suspended=suspended)
 
 

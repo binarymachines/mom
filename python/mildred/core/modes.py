@@ -17,7 +17,7 @@ class Mode(object):
     LOWEST = 0
 
     def __init__(self, name, id=None, effect=None, priority=0, dec_priority_amount=0, inc_priority_amount=0, times_to_complete=0, \
-                 times_activated=0, times_completed=0, last_active=None, error_tolerance=0, error_count=0, error_state=False, \
+                 times_activated=0, times_completed=0, last_completed=None, last_active=None, error_tolerance=0, error_count=0, error_state=False, \
                  suspended=False, active_rule=None):
 
         self.id = id
@@ -28,6 +28,8 @@ class Mode(object):
         self.times_activated = times_activated
         self.times_completed = times_completed
         self.times_to_complete = times_to_complete
+
+        self.last_completed = last_completed
         self.last_active = last_active
         
         #priorities
