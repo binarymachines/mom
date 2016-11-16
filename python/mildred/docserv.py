@@ -34,21 +34,21 @@ class DocumentServiceProcess(ServiceProcess):
 
     def before_switch(self, selector, mode):
         self.process_handler.before_switch(selector, mode)
-
+        # self.mode_state_reader.initialize_context_params(mode.get_state(), self.context)
 
     # process logic
     def setup(self):
         self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
         state_change_handler = ModeStateChangeHandler()
-        mode_state_reader = AlchemyModeStateReader()
-        mode_state_writer = AlchemyModeStateWriter()
+        self.mode_state_reader = AlchemyModeStateReader()
+        self.mode_state_writer = AlchemyModeStateWriter()
 
         # startup
 
         startup_handler = StartupHandler(self, self.context)
         self.startmode = Mode(STARTUP, startup_handler.start) 
-        # self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
+        # self.startmode = StatefulMode(STARTUP, reader=self.mode_state_reader, writer=self.mode_state_writer, state_change_handler=state_change_handler)
         # startup = State(INITIAL, action=startup_handler.start)
         # self.startmode.add_state(startup)
 
@@ -61,7 +61,7 @@ class DocumentServiceProcess(ServiceProcess):
         # scan
 
         scan_handler = ScanModeHandler(self, self.context)
-        self.scanmode = StatefulMode(SCAN, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
+        self.scanmode = StatefulMode(SCAN, reader=self.mode_state_reader, writer=self.mode_state_writer, state_change_handler=state_change_handler)
 
         scan_discover = State(SCAN_DISCOVER, scan_handler.do_scan_discover)
         scan_update = State(SCAN_UPDATE, scan_handler.do_scan)
@@ -74,7 +74,9 @@ class DocumentServiceProcess(ServiceProcess):
         state_change_handler.add_transition(scan_discover, scan_update, scan_handler.should_update). \
             add_transition(scan_update, scan_monitor, scan_handler.should_monitor)
 
-        mode_state_reader.initialize_mode_state_from_previous_session(self.scanmode, self.context)
+        self.mode_state_reader.restore(self.scanmode, self.context)
+        if self.scanmode.get_state() is None:
+            self.scanmode.set_state(scan_discover)
 
         # clean
 
@@ -373,17 +375,17 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
     def do_scan(self):
         print  "update scan starting..."
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
     def should_monitor(self, selector=None, active=None, possible=None):

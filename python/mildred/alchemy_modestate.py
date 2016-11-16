@@ -28,12 +28,6 @@ class AlchemyModeStateReader(ModeStateReader):
         super(AlchemyModeStateReader, self).__init__()
 
 
-    def initialize_context_params(self, state, context):
-
-        # raise BaseClassException(ModeStateReader)
-        pass
-
-
     def initialize_default_states(self, mode):
         alchemy_mode = alchemy.retrieve_mode(mode)
         for default in alchemy_mode.default_states:
@@ -63,14 +57,14 @@ class AlchemyModeStateReader(ModeStateReader):
         state.is_terminal_state = sqlstate.is_terminal_state
 
 
-    def initialize_mode_state_from_previous_session(self, mode, context):
+    def restore(self, mode, context):
         mode_state = alchemy.retrieve_previous_mode_state_record(mode)
         if mode_state:
             for state in mode.get_states():
                 if state.id == mode_state.state_id:
                     mode.set_state(state)
-                    mode.just_restored = True
-
+                    mode.initialize_context_params(context)
+                    mode.set_restored(True)
                     break
 
 

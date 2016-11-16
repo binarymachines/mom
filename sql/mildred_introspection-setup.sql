@@ -140,9 +140,9 @@ CREATE TABLE `mode_state_default` (
 insert into mode_state_default(mode_id, state_id, status, effective_dt, priority) values ((select id from mode where name = 'scan'), 
     (select id from state where name = 'discover'), 'discover', now(), 5);
 insert into mode_state_default(mode_id, state_id, status, effective_dt, priority) values ((select id from mode where name = 'scan'), 
-    (select id from state where name = 'update'), 'update', now(), 4);
+    (select id from state where name = 'update'), 'update', now(), 5);
 insert into mode_state_default(mode_id, state_id, status, effective_dt, priority) values ((select id from mode where name = 'scan'), 
-    (select id from state where name = 'monitor'), 'monitor', now(), 3);
+    (select id from state where name = 'monitor'), 'monitor', now(), 5);
 
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

@@ -3,6 +3,7 @@ class MildredException(Exception):
         super(MildredException, self).__init__(message)
         print '\a'
         print message
+
 # api
 
 class BaseClassException(MildredException):

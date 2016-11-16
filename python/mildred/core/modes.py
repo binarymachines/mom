@@ -1,41 +1,34 @@
 #! /usr/bin/python
-import sys, os, logging, traceback, datetime
+import datetime
+import logging
 
-from errors import ModeDestinationException
-from states import State, StateContext
+from decorators import mode_function
 
 import log
+from errors import ModeDestinationException
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
-
-def mode_function(function):
-    def wrapper(*args, **kwargs):
-        try:
-            return function(*args, **kwargs)
-        except Exception, err:
-            ERR.error(err.message, exc_info=True)
-            raise err
-
-    return wrapper
-    
 
 # TODO: use times_to_complete to enforce a minimum run count (ex: scan has multiple submodes, each needs to complete for scan to be complete)
 class Mode(object):
     HIGHEST = 999;
     LOWEST = 0
 
-    def __init__(self, name, effect=None, priority=0, dec_priority_amount=0, inc_priority_amount=0, error_tolerance=0, times_to_complete=0, id=None):
-        self.id = None
+    def __init__(self, name, id=None, effect=None, priority=0, dec_priority_amount=0, inc_priority_amount=0, times_to_complete=0, \
+                 times_activated=0, times_completed=0, last_active=None, error_tolerance=0, error_count=0, error_state=False, \
+                 suspended=False, active_rule=None):
+
+        self.id = id
         self.name = name
         self._effect = effect
 
-        self.active_rule = None
-        self.times_activated = 0
-        self.times_completed = 0
+        self.active_rule = active_rule
+        self.times_activated = times_activated
+        self.times_completed = times_completed
         self.times_to_complete = times_to_complete
-        self.last_active = None
+        self.last_active = last_active
         
         #priorities
         self.priority = priority
@@ -45,11 +38,11 @@ class Mode(object):
         self.inc_priority_amount = inc_priority_amount
 
         #error management
-        self.error_state = False
-        self.error_count = 0
+        self.error_state = error_state
+        self.error_count = error_count
         self.error_tolerance = error_tolerance
         # self.error_handler = None
-        self._suspended = False
+        self._suspended = suspended
 
     @mode_function
     def do_action(self):
