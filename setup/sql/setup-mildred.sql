@@ -159,6 +159,7 @@ CREATE TABLE `document_metadata` (
   `document_format` varchar(32) NOT NULL,
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5125 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
