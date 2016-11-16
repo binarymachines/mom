@@ -90,8 +90,14 @@ class StatefulMode(Mode):
         return self._state_defaults
 
 
-    def get_state(self):
-        return self._state
+    def get_state(self, name=None):
+        if name is None:
+            return self._state
+
+        if name in self._states:
+            return self._states[name]
+
+        raise Exception('mode "%s" has not been configured with a "%s" state' % (self.name, name))
 
 
     def get_states(self):

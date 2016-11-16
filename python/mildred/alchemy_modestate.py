@@ -60,6 +60,13 @@ class AlchemyModeStateReader(ModeStateReader):
     def restore(self, mode, context):
         mode_state = alchemy.retrieve_previous_mode_state_record(mode)
         if mode_state:
+            # mode.error_count = mode_state.error_count
+            mode.cum_error_count = mode_state.cum_error_count
+            mode.times_activated = mode_state.times_activated
+            mode.times_completed = mode_state.times_completed
+            mode.last_activated = mode_state.last_activated
+            mode.last_completed = mode_state.last_completed
+
             for state in mode.get_states():
                 if state.id == mode_state.state_id:
                     mode.set_state(state)

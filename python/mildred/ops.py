@@ -27,7 +27,11 @@ EXEC_RECORD = { 'id': None, 'pid': str(config.pid), 'index_name': config.es_inde
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
-    LOG.debug('%s retrieving %s operations (%s)...' % (operator, operation, op_status))
+    if operator is None:
+        LOG.debug('%s retrieving %s operations (%s)...' % (OPS, operation, op_status))
+    else:
+        LOG.debug('%s retrieving %s operations (%s)...' % (operator, operation, op_status))
+
     update_listeners('retrieving %s operations (%s)...' % (operation, op_status), operator, path)
 
     rows = alchemy.retrieve_op_records(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)

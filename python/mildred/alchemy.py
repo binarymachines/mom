@@ -61,6 +61,7 @@ class SQLCauseOfDefect(Base):
     exception_class = Column('exception_class', String(128), nullable=False)
 
 
+
 class SQLEngine(Base):
     __tablename__ = 'engine'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -69,6 +70,7 @@ class SQLEngine(Base):
     effective_rule = Column('effective_rule', String(128), nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # self.stop_on_errors = stop_on_errors
+
 
 
 class SQLExecutionRecord(Base):
@@ -83,6 +85,7 @@ class SQLExecutionRecord(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 
+
 class SQLMatcher(Base):
     __tablename__ = 'matcher'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -91,6 +94,7 @@ class SQLMatcher(Base):
     # percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
     # comparison_result = Column('comparison_result', String(1), nullable=True)
     # same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
+
 
 
 class SQLMatchRecord(Base):
@@ -105,6 +109,7 @@ class SQLMatchRecord(Base):
     same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
 
 
+
 class SQLMode(Base):
     __tablename__ = 'mode'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -112,6 +117,7 @@ class SQLMode(Base):
     name = Column('name', String(128), nullable=False)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
 
 
 class SQLModeStateDefault(Base):
@@ -135,6 +141,7 @@ class SQLModeStateDefault(Base):
 SQLMode.default_states = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="mode")
 
 
+
 class SQLModeStateDefaultParam(Base):
     __tablename__ = 'mode_state_default_param'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -147,6 +154,7 @@ class SQLModeStateDefaultParam(Base):
 
 SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", order_by=SQLModeStateDefaultParam.id,
                                                   back_populates="mode_state_default")
+
 
 
 class SQLModeState(Base):
@@ -171,25 +179,10 @@ class SQLModeState(Base):
     error_count = Column('error_count', Integer, nullable=False)
     cum_error_count = Column('cum_error_count', Integer, nullable=False)
     # error_tolerance = Column('error_tolerance', Integer, nullable=False)
-    # cum_error_count = Column('cum_error_count', Integer, nullable=False)
     # cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # active_flag
-
-
-# class SQLModeStateParam(Base):
-#     __tablename__ = 'mode_state_param'
-#     id = Column('id', Integer, primary_key=True, autoincrement=True)
-
-#     mode_state_id = Column(Integer, ForeignKey('mode_state.id'))
-#     mode_state = relationship("SQLModeState", back_populates="params")
-
-#     name = Column('name', String(128), nullable=False)
-#     value = Column('value', String(1024), nullable=False)
-
-# SQLModeState.params = relationship("SQLModeStateParam", order_by=SQLModeStateParam.id,
-#                                                   back_populates="mode_state")
 
 
 # class SQLModeStateTransitionRecord(Base):
@@ -544,8 +537,12 @@ def update_mode_state(mode, expire=False):
 
         mode_state_rec.times_activated = mode.times_activated
         mode_state_rec.times_completed = mode.times_completed
+        mode_state_rec.last_activated = mode.last_activated
+        mode_state_rec.last_completed = mode.last_completed
+        mode_state_rec.error_count = mode.error_count
 
         if expire:
+            mode_state_rec.cum_error_count += mode.error_count
             mode_state_rec.expiration_dt = datetime.datetime.now()
 
         try:

@@ -21,6 +21,7 @@ DROP TABLE IF EXISTS `directory_attribute`;
 DROP TABLE IF EXISTS `directory_constant`;
 DROP TABLE IF EXISTS `document_category`;
 DROP TABLE IF EXISTS `path_hierarchy`;
+DROP TABLE IF EXISTS `exclude_directory`;
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -28,9 +29,9 @@ DROP TABLE IF EXISTS `path_hierarchy`;
 
 CREATE TABLE `path_hierarchy` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `parent_id` int(11) unsigned,
-  `path` varchar(256) NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `path` varchar(767) NOT NULL,
   `hexadecimal_key` varchar(640) DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
@@ -43,14 +44,25 @@ CREATE TABLE `path_hierarchy` (
 CREATE TRIGGER `path_hierarchy_effective_dt` BEFORE INSERT ON  `path_hierarchy` 
 FOR EACH ROW SET NEW.effective_dt = IFNULL(NEW.effective_dt, NOW());
 
+CREATE TABLE `exclude_directory` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(767) NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`), 
+  UNIQUE KEY `uk_exclude_directory_name` (`index_name`,`name`)
+);
+
 CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
-  `name` varchar(256) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(767) NOT NULL,
   `file_type` varchar(8) DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`), 
+  UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
 );
 
 INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES (118,'media','/media/removable/Audio/music/live recordings [wav]','wav','2016-11-16 07:23:58','9999-12-31 23:59:59');
@@ -92,7 +104,7 @@ INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`
 CREATE TABLE `directory_amelioration` (
   `id` int(11) unsigned NOT NULL,
   `name` varchar(128) NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `use_tag_flag` tinyint(1) DEFAULT '0',
   `replacement_tag` varchar(32) DEFAULT NULL,
   `use_parent_folder_flag` tinyint(1) DEFAULT '1',
@@ -203,7 +215,7 @@ INSERT INTO `directory_amelioration` (`id`, `name`, `index_name`, `use_tag_flag`
 
 CREATE TABLE `directory_attribute` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `directory_id` int(11) NOT NULL,
   `attribute_name` varchar(256) NOT NULL,
   `attribute_value` varchar(512) DEFAULT NULL,
@@ -214,7 +226,7 @@ CREATE TABLE `directory_attribute` (
 
 CREATE TABLE `directory_constant` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `pattern` varchar(256) NOT NULL,
   `location_type` varchar(64) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
@@ -238,7 +250,7 @@ INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`
 
 CREATE TABLE `document_category` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(256) NOT NULL,
   `doc_type` varchar(128) CHARACTER SET utf8 NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
@@ -454,7 +466,7 @@ INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_perc
 
 CREATE TABLE `matcher_field` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `document_type` varchar(64) NOT NULL DEFAULT 'media_file',
   `matcher_id` int(11) unsigned NOT NULL,
   `field_name` varchar(128) NOT NULL,

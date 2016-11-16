@@ -283,6 +283,8 @@ class Selector:
             self.next = mode
 
             mode.times_activated += 1
+            mode.last_activated = datetime.datetime.now()
+
             self._set_mode_funcs(mode)
             self._call_switch_bracket_func(mode, self.before_switch)
 
@@ -300,6 +302,8 @@ class Selector:
                 self._call_mode_func(mode, mode.active_rule.after)
 
             mode.times_completed += 1
+            mode.last_completed = datetime.datetime.now()
+
             if mode.dec_priority:
                 mode.priority -= mode.dec_priority_amount
 

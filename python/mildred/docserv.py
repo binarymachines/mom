@@ -23,8 +23,8 @@ LOG = log.get_log(__name__, logging.DEBUG)
 
 class DocumentServiceProcess(ServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
-        # super().__init__() must be called before accessing selector instance
 
+        # super().__init__() must be called before accessing selector instance
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
     # selector callbacks
@@ -34,21 +34,21 @@ class DocumentServiceProcess(ServiceProcess):
 
     def before_switch(self, selector, mode):
         self.process_handler.before_switch(selector, mode)
-        # self.mode_state_reader.initialize_context_params(mode.get_state(), self.context)
 
     # process logic
     def setup(self):
+        self.selector.remove_at_error_tolerance = True
         self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
         state_change_handler = ModeStateChangeHandler()
-        self.mode_state_reader = AlchemyModeStateReader()
-        self.mode_state_writer = AlchemyModeStateWriter()
+        mode_state_reader = AlchemyModeStateReader()
+        mode_state_writer = AlchemyModeStateWriter()
 
         # startup
 
         startup_handler = StartupHandler(self, self.context)
-        self.startmode = Mode(STARTUP, startup_handler.start) 
-        # self.startmode = StatefulMode(STARTUP, reader=self.mode_state_reader, writer=self.mode_state_writer, state_change_handler=state_change_handler)
+        self.startmode = Mode(STARTUP, startup_handler.start)
+        # self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
         # startup = State(INITIAL, action=startup_handler.start)
         # self.startmode.add_state(startup)
 
@@ -58,10 +58,11 @@ class DocumentServiceProcess(ServiceProcess):
         eval_handler = EvalModeHandler(self, self.context)
         self.evalmode = Mode(EVAL, eval_handler.do_eval, priority=1)
 
+
         # scan
 
         scan_handler = ScanModeHandler(self, self.context)
-        self.scanmode = StatefulMode(SCAN, reader=self.mode_state_reader, writer=self.mode_state_writer, state_change_handler=state_change_handler)
+        self.scanmode = StatefulMode(SCAN, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
 
         scan_discover = State(SCAN_DISCOVER, scan_handler.do_scan_discover)
         scan_update = State(SCAN_UPDATE, scan_handler.do_scan)
@@ -74,46 +75,55 @@ class DocumentServiceProcess(ServiceProcess):
         state_change_handler.add_transition(scan_discover, scan_update, scan_handler.should_update). \
             add_transition(scan_update, scan_monitor, scan_handler.should_monitor)
 
-        self.mode_state_reader.restore(self.scanmode, self.context)
+        mode_state_reader.restore(self.scanmode, self.context)
         if self.scanmode.get_state() is None:
             self.scanmode.set_state(scan_discover)
             self.scanmode.initialize_context_params(self.context)
+
 
         # clean
 
         # cleaning_handler = CleaningModeHandler(self, self.context)
         # self.cleanmode = Mode(CLEAN, cleaning_handler.do_clean, priority=2) # bring ElasticSearch into line with MariaDB
 
+
         # match
 
         match_handler = MatchModeHandler(self, self.context)
-        self.matchmode = Mode(MATCH, match_handler.do_match, priority=3)
+        self.matchmode = Mode(MATCH, match_handler.do_match, priority=3, error_tolerance=5)
+
 
         # fix
 
         fix_handler = FixModeHandler(self, self.context)
         self.fixmode = Mode(FIX, fix_handler.do_fix, priority=1)
 
+
         # report
 
         report_handler = ReportModeHandler(self, self.context)
         self.reportmode = Mode(REPORT, report_handler.do_report, priority=1)
+
 
         # requests
 
         requests_handler = RequestsModeHandler(self, self.context)
         self.reqmode = Mode(REQUESTS, requests_handler.do_reqs, priority=1)
 
+
         # shutdown
+
         shutdown_handler = ShutdownHandler(self, self.context)
         self.endmode = Mode(SHUTDOWN, shutdown_handler.end)
+
+
+        # sync
 
         # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 2) # bring MariaDB into line with ElasticSearch
         # self.sleep mode -> state is persisted, system shuts down until a command is issued
 
 
-        self.selector.remove_at_error_tolerance = True
-        self.matchmode.error_tolerance = 5
+
 
         # startmode must appear first in this list and endmode most appear last
         # selector should figure which modes are start and end and validate rules before executing
@@ -221,82 +231,14 @@ class DocumentServiceProcessHandler(DecisionHandler):
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
 
-        if possible is self.owner.matchmode:
-            if self.context.has_next(MATCH):
-                return config.match
+        initial_and_update_scan_complete = self.owner.scanmode.get_state() is self.owner.scanmode.get_state(SCAN_MONITOR)
 
-        return True
+        if initial_and_update_scan_complete:
+            if possible is self.owner.matchmode:
+                if self.context.has_next(MATCH):
+                    return config.match
 
-
-# eval mode
-
-class EvalModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(EvalModeHandler, self).__init__(owner, context)
-
-    def do_eval(self):
-        print  "entering evalation mode..."
-        LOG.debug('%s evaluating' % self.owner.name)
-        # self.context.reset(SCAN, use_fifo=True)
-
-
-# fix mode
-
-class FixModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(FixModeHandler, self).__init__(owner, context)
-
-    def after_fix(self): LOG.debug('%s done fixing' % self.owner.name)
-
-    def before_fix(self): LOG.debug('%s preparing to fix'  % self.owner.name)
-
-    def do_fix(self): LOG.debug('%s fixing' % self.owner.name)
-
-
-# cleaning mode
-
-class CleaningModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(CleaningModeHandler, self).__init__(owner, context)
-
-    def after_clean(self):
-        LOG.debug('%s done cleanining' % self.owner.name)
-        self.after()
-
-    def before_clean(self):
-        self.before()
-        LOG.debug('%s preparing to clean'  % self.owner.name)
-
-    def do_clean(self):
-        print  "clean mode starting..."
-        LOG.debug('%s clean' % self.owner.name)
-        clean.clean(self.context)
-
-
-#requests mode
-
-class RequestsModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(RequestsModeHandler, self).__init__(owner, context)
-
-    def do_reqs(self):
-        print  "handling requests..."
-        LOG.debug('%s handling requests...' % self.owner.name)
-
-
-# report mode
-
-class ReportModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(ReportModeHandler, self).__init__(owner, context)
-
-    def do_report(self):
-        print  "reporting..."
-        LOG.debug('%s generating report' % self.owner.name)
-        LOG.debug('%s took %i steps.' % (self.owner.selector.name, self.owner.selector.step_count))
-        for mode in self.owner.selector.modes:
-            if mode not in (self.owner.startmode, self.owner.endmode):
-                LOG.debug('%s: times activated = %i, priority = %i, error count = %i' % (mode.name, mode.times_activated, mode.priority, mode.error_count))
+        return initial_and_update_scan_complete
 
 
 #startup mode
@@ -340,6 +282,111 @@ class ShutdownHandler(DefaultModeHandler):
     def end(self):
         if self.owner:
             LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.owner.name)
+            
+            
+# cleaning mode
+
+class CleaningModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(CleaningModeHandler, self).__init__(owner, context)
+
+    def after_clean(self):
+        LOG.debug('%s done cleanining' % self.owner.name)
+        self.after()
+
+    def before_clean(self):
+        self.before()
+        LOG.debug('%s preparing to clean'  % self.owner.name)
+
+    def do_clean(self):
+        print  "clean mode starting..."
+        LOG.debug('%s clean' % self.owner.name)
+        clean.clean(self.context)
+
+
+# eval mode
+
+class EvalModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(EvalModeHandler, self).__init__(owner, context)
+
+    def do_eval(self):
+        print  "entering evalation mode..."
+        LOG.debug('%s evaluating' % self.owner.name)
+        # self.context.reset(SCAN, use_fifo=True)
+
+
+# fix mode
+
+class FixModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(FixModeHandler, self).__init__(owner, context)
+
+    def after_fix(self): 
+        LOG.debug('%s done fixing' % self.owner.name)
+
+    def before_fix(self): 
+        LOG.debug('%s preparing to fix'  % self.owner.name)
+
+    def do_fix(self): 
+        LOG.debug('%s fixing' % self.owner.name)
+
+
+# match mode
+
+class MatchModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(MatchModeHandler, self).__init__(owner, context)
+
+
+    def before_match(self):
+        # self.owner.before()
+        dir = self.context.get_next(MATCH)
+        LOG.debug('%s preparing for matching, caching data for %s' % (self.owner.name, dir))
+
+
+    def after_match(self):
+        # self.owner.after()
+        dir = self.context.get_active (MATCH)
+        LOG.debug('%s done matching in %s, clearing cache...' % (self.owner.name, dir))
+        # self.reportmode.priority += 1
+
+
+    def do_match(self):
+        print  "match mode starting..."
+        # dir = self.context.get_active (MATCH)
+        # LOG.debug('%s matching in %s...' % (self.name, dir))
+        try:
+            calc.calc(self.context)
+        except Exception, err:
+            self.selector.handle_error(err)
+            LOG.debug(err.message)
+            
+            
+# report mode
+
+class ReportModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(ReportModeHandler, self).__init__(owner, context)
+
+    def do_report(self):
+        print  "reporting..."
+        LOG.debug('%s generating report' % self.owner.name)
+        LOG.debug('%s took %i steps.' % (self.owner.selector.name, self.owner.selector.step_count))
+        for mode in self.owner.selector.modes:
+            if mode not in (self.owner.startmode, self.owner.endmode):
+                LOG.debug('%s: times activated = %i, priority = %i, error count = %i' % (mode.name, mode.times_activated, mode.priority, mode.error_count))                
+                
+                
+#requests mode
+
+class RequestsModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(RequestsModeHandler, self).__init__(owner, context)
+
+    def do_reqs(self):
+        print  "handling requests..."
+        LOG.debug('%s handling requests...' % self.owner.name)
 
 
 # scan mode
@@ -377,17 +424,17 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        # scan.scan(self.context)
+        scan.scan(self.context)
 
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
-        # scan.scan(self.context)
+        scan.scan(self.context)
 
 
     def do_scan(self):
         print  "update scan starting..."
-        # scan.scan(self.context)
+        scan.scan(self.context)
 
 
     def should_monitor(self, selector=None, active=None, possible=None):
@@ -396,34 +443,3 @@ class ScanModeHandler(DefaultModeHandler):
 
     def should_update(self, selector=None, active=None, possible=None):
         return True
-
-
-# match mode
-
-class MatchModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(MatchModeHandler, self).__init__(owner, context)
-
-
-    def before_match(self):
-        # self.owner.before()
-        dir = self.context.get_next(MATCH)
-        LOG.debug('%s preparing for matching, caching data for %s' % (self.owner.name, dir))
-
-
-    def after_match(self):
-        # self.owner.after()
-        dir = self.context.get_active (MATCH)
-        LOG.debug('%s done matching in %s, clearing cache...' % (self.owner.name, dir))
-        # self.reportmode.priority += 1
-
-
-    def do_match(self):
-        print  "match mode starting..."
-        # dir = self.context.get_active (MATCH)
-        # LOG.debug('%s matching in %s...' % (self.name, dir))
-        try:
-            calc.calc(self.context)
-        except Exception, err:
-            self.selector.handle_error(err)
-            LOG.debug(err.message)

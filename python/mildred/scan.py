@@ -139,7 +139,7 @@ class Scanner(Walker):
         if do_expand:
             # or pathutil.is_curated(path):
             dirs = os.listdir(path)
-            dirs.sort()
+            dirs.sort(reverse=True)
             for dir in dirs:
                 sub_path = os.path.join(path, dir)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
@@ -191,13 +191,6 @@ class Scanner(Walker):
             # self.context.clear_active(SCAN)
             return True
 
-        # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
-        if self.path_expands(path): 
-            LOG.debug('expanded %s...' % path)
-            ops.update_listeners('expanded', SCANNER, path)
-            # self.context.clear_active(SCAN)
-            return True
-
 
     # TODO: individual paths in the directory context should have their own scan configuration
     def scan(self):
@@ -206,6 +199,7 @@ class Scanner(Walker):
 
         path = self.context.get_param('scan.persist', 'active.scan.path')
         path_restored = path is not None
+        last_expanded_path = None
 
         while self.context.has_next(SCAN, use_fifo=True):
             ops.check_status()            
@@ -215,14 +209,33 @@ class Scanner(Walker):
             self.context.set_param('scan.persist', 'active.scan.path', path)
 
             if path is None or os.path.isfile(path): 
-                continue 
+                continue
+
+            ops.update_listeners('evaluating', SCANNER, path)
 
             if os.path.isdir(path) and os.access(path, os.R_OK):
+                # if self.high_scan and self.context.path_in_fifo(path, SCAN) == False:
+
+                should_cache = last_expanded_path is None
                 if self.high_scan:
-                    ops.cache_ops(path, HSCAN, SCANNER)
+                    if last_expanded_path:
+                        if not path.startswith(last_expanded_path):
+                            last_expanded_path = None
+                            should_cache = True
+
+                    if should_cache:
+                        ops.cache_ops(path, HSCAN, SCANNER)
+
+                # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
+                if self.path_expands(path):
+                    LOG.debug('expanded %s...' % path)
+                    ops.update_listeners('expanded', SCANNER, path)
+                    # self.context.clear_active(SCAN)
+                    last_expanded_path = path
+                    continue
 
                 if self.scan_should_skip(path): continue
-    
+
                 ops.update_listeners('scanning', SCANNER, path)
                 
                 try:

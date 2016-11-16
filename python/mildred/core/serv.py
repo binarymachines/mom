@@ -29,14 +29,6 @@ class ServiceProcess(object):
 
         self.initialize()
 
-    # def apply_directives(self, selector, mode, is_before):
-    #     raise BaseClassException(ServiceProcess)s
-
-    # def after_switch(self, selector, mode):
-    #     self.apply_directives(selector, mode, False)
-
-    # def before_switch(self, selector, mode):
-    #     self.apply_directives(selector, mode, True)
 
     def run(self, before=None, after=None):
         if self.selector.start is None: raise Exception('Invalid Start State')
@@ -57,12 +49,15 @@ class ServiceProcess(object):
                 self.run(before, after)
             else: raise err
 
+
     def halt(self):
         self.halted = True
         self.handle_halt_process()
 
+
     def handle_halt_process(self):
         raise BaseClassException(ServiceProcess)
+
 
     def initialize(self):
         self.halted = False
@@ -78,8 +73,10 @@ class ServiceProcess(object):
             self.selector.end = self.selector.modes[-1]
         self.engine.add_selector(self.selector)
 
+
     def setup(self):
         raise BaseClassException(ServiceProcess)
+
 
     # selector management
     def step(self, before=None, after=None):
@@ -104,6 +101,7 @@ class ServiceProcess(object):
     def dec_mode_priority(self, mode, inc_amount=None):
         mode.priority -= mode.dec_priority_amount if inc_amount is None else inc_amount
 
+
     def dec_mode_priority(self, mode, dec_amount=None):
         mode.priority -= mode.dec_priority_amount if dec_amount is None else dec_amount
 
@@ -116,13 +114,13 @@ class Service(object):
         self.inactive = []
 
     def create_record(self, process):
-        return { 'process': process, 'before': process.before, 'after': process.after }
+        return { self.name: process, 'before': process.before, 'after': process.after }
 
     def get_record(self, process):
         for rec in self.active:
-            if rec['process'] == process: return rec
+            if rec[self.name] == process: return rec
         for rec in self.inactive:
-            if rec['process'] == process: return rec
+            if rec[self.name] == process: return rec
 
     # this is entirely sketchy
     def run(self, process, cycle=True, before=None, after=None):
@@ -138,26 +136,27 @@ class Service(object):
         except Exception, err:
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
+
     def handle_processes(self):
         while len(self.active) > 0:
             for rec in self.active:
-                if rec['process'].selector.complete or rec['process'].selector.error_state:
+                if rec[self.name].selector.complete or rec[self.name].selector.error_state:
                     self.inactive.append(rec)
 
-                elif not rec['process'].selector.complete and not rec['process'].threaded:
-                    if rec['process'].started == False and rec['process'].before is not None:
-                        rec['process'].before(rec['process'])
-                        rec['process'].started = True
+                elif not rec[self.name].selector.complete and not rec[self.name].threaded:
+                    if rec[self.name].started == False and rec[self.name].before is not None:
+                        rec[self.name].before(rec[self.name])
+                        rec[self.name].started = True
 
-                    rec['process'].step()
+                    rec[self.name].step()
 
             for rec in self.inactive:
                 if rec in self.active: 
                     self.active.remove(rec)
-                    if rec['process'].after is not None:
-                        rec['process'].after(rec['process'])
+                    if rec[self.name].after is not None:
+                        rec[self.name].after(rec[self.name])
 
-                    rec['process'].completed = True
+                    rec[self.name].completed = True
 
     def queue(self, *process):
         for process in process:

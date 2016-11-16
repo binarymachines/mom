@@ -16,6 +16,7 @@ CREATE TABLE `operator` (
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
+
 insert into operator (index_name, name, effective_dt) values ('media', 'scan', now());
 insert into operator (index_name, name, effective_dt) values ('media', 'calc', now());
 insert into operator (index_name, name, effective_dt) values ('media', 'clean', now());

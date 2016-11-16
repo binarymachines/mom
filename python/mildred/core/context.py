@@ -323,6 +323,9 @@ class CachedDirectoryContext(DirectoryContext):
 
 
     # def path_in_fifo(self, path, consumer):
+    #     cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+    #     if consumer in cached_consumer_paths:
+    #         buffer = self.
     #     if consumer in self.fifos:
     #         return path in self.fifos[consumer]
 
