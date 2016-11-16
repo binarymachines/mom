@@ -35,6 +35,7 @@ CREATE TABLE `path_hierarchy` (
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_path_hierarchy` (`index_name`,`hexadecimal_key`),
   KEY `fk_path_hierarchy_parent` (`parent_id`),
   CONSTRAINT `fk_path_hierarchy_parent` FOREIGN KEY (`parent_id`) REFERENCES `path_hierarchy` (`id`)
 );

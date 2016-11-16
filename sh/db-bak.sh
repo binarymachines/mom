@@ -13,14 +13,6 @@ rm bak/sql/*.sql
 rm bak/sql/dump/*.sql
 rm setup/sql/*.sql
 
-# echo "dumping schemas..."
-
-# ./sh/backup-schema.sh mildred bak/sql/dump/backup-mildred.sql
-# ./sh/backup-schema.sh mildred_admin bak/sql/dump/backup-mildred_admin.sql
-# ./sh/backup-schema.sh mildred_introspection bak/sql/dump/backup-mildred_introspection.sql
-# ./sh/backup-schema.sh media bak/sql/dump/backup-media.sql
-# ./sh/backup-schema.sh scratch bak/sql/dump/backup-scratch.sql
-
 echo "copying lookup tables..."
 
 ./sh/copy-table-data.sh mildred directory
@@ -66,13 +58,21 @@ echo "copying setup tables..."
 echo "adding setup tables to git."
 git add setup/sql/*.sql
 
+echo "dumping schemas..."
+
+./sh/backup-schema.sh mildred
+./sh/backup-schema.sh mildred_admin
+./sh/backup-schema.sh mildred_introspection
+./sh/backup-schema.sh media
+./sh/backup-schema.sh scratch
+
 echo '----------------------------'
 echo 'Database backup is complete!'
 echo '----------------------------'
 echo
+
 git status
 git commit -m 'db snapshot'
-
-# git push
+git push
 
 popd
