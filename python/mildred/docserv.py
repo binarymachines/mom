@@ -77,6 +77,7 @@ class DocumentServiceProcess(ServiceProcess):
         self.mode_state_reader.restore(self.scanmode, self.context)
         if self.scanmode.get_state() is None:
             self.scanmode.set_state(scan_discover)
+            self.scanmode.initialize_context_params(self.context)
 
         # clean
 
@@ -366,6 +367,7 @@ class ScanModeHandler(DefaultModeHandler):
         self.context.set_param('scan.persist', 'active.scan.path', None)
         self.owner.scanmode.go_next(self.context)
 
+        self.owner.scanmode.update_state(expire=True)
 
     def can_scan(self, selector, active, possible):
         ops.check_status()

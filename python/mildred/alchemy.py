@@ -550,7 +550,7 @@ def update_mode_state(mode, expire=False):
 
         try:
             sessions[1].commit()
-            return mode_state_rec.id
+            return insert_mode_state(mode)
         except IntegrityError, err:
             print '\a'
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)

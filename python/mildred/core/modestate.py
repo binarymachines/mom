@@ -127,10 +127,10 @@ class StatefulMode(Mode):
             self._writer.expire_state(self)
 
 
-    def update_state(self):
+    def update_state(self, expire=False):
         if self._writer:
             LOG.info('%s => update _state(%s)' % (self.name, "None" if self.get_state() is None else self.get_state().name))
-            self._writer.update_state(self)
+            self._writer.update_state(self, expire)
 
 
     # restore funcs
@@ -192,10 +192,10 @@ class ModeStateWriter(object):
     def expire_state(self, mode):
         raise BaseClassException(ModeStateReader)
 
-    def save_state(self, mode):
+    def save_state(self, mode, expire=False):
         raise BaseClassException(ModeStateReader)
 
-    def update_state(self, mode):
+    def update_state(self, mode, expire=False):
         raise BaseClassException(ModeStateReader)
 
     # def save_state_defaults(self, name, state):

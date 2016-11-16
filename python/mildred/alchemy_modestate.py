@@ -18,8 +18,8 @@ class AlchemyModeStateWriter(ModeStateWriter):
     def save_state(self, mode):
         mode.mode_state_id = alchemy.insert_mode_state(mode)
 
-    def update_state(self, mode):
-        mode.mode_state_id = alchemy.update_mode_state(mode)
+    def update_state(self, mode, expire=False):
+        mode.mode_state_id = alchemy.update_mode_state(mode, expire=expire)
 
 
 
