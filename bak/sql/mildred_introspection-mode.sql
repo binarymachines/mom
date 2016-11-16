@@ -32,8 +32,8 @@ CREATE TABLE `mode` (
 -- Dumping data for table `mode`
 --
 
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (1,'media','startup','2016-11-15 13:19:52','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (2,'media','scan','2016-11-15 13:19:52','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (1,'media','startup','2016-11-15 20:59:01','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (2,'media','scan','2016-11-15 20:59:02','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -42,9 +42,9 @@ CREATE TABLE `mode_state_default` (
 -- Dumping data for table `mode_state_default`
 --
 
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `status`, `effective_dt`, `expiration_dt`) VALUES (1,'media',2,2,5,1,1,0,'discover','2016-11-15 13:19:52','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `status`, `effective_dt`, `expiration_dt`) VALUES (2,'media',2,3,4,1,1,0,'update','2016-11-15 13:19:52','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `status`, `effective_dt`, `expiration_dt`) VALUES (3,'media',2,4,3,1,1,0,'monitor','2016-11-15 13:19:52','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `status`, `effective_dt`, `expiration_dt`) VALUES (1,'media',2,2,5,1,1,0,'discover','2016-11-15 20:59:02','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `status`, `effective_dt`, `expiration_dt`) VALUES (2,'media',2,3,5,1,1,0,'update','2016-11-15 20:59:02','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `status`, `effective_dt`, `expiration_dt`) VALUES (3,'media',2,4,5,1,1,0,'monitor','2016-11-15 20:59:02','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -84,7 +84,7 @@ CREATE TABLE `execution` (
   `effective_dt` datetime NOT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=217 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=228 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -228,7 +228,7 @@ CREATE TABLE `op_record` (
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   `target_hexadecimal_key` varchar(640) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=622057 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=622080 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
