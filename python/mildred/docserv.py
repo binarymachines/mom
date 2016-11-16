@@ -427,7 +427,7 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        # scan.scan(self.context)
+        scan.scan(self.context)
 
 
     def do_scan_monitor(self):
