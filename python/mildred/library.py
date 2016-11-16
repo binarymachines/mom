@@ -112,6 +112,7 @@ def cache_docs(document_type, path, flush=True):
     cached_count = 0
 
     for sql_asset in rows:
+        ops.check_status()
         ops.update_listeners('caching %i %s records...' % (count - cached_count, document_type), 'library', path)
         key = cache2.create_key(KEY_GROUP, sql_asset.doc_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
         keyvalue = {'absolute_path': sql_asset.absolute_path, 'esid': sql_asset.id}
@@ -355,6 +356,7 @@ def cache_matches(path):
     LOG.debug('caching matches for %s...' % path)
     rows = sql.run_query_template(CACHE_MATCHES, path, path)
     for row in rows:
+        ops.check_status()
         doc_id = row[0]
         match_doc_id = row[1]
         matcher_name = row[2]

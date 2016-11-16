@@ -20,6 +20,10 @@ EXEC = 'exec'
 OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted', 'start_time', 'end_time', 'status', \
     'target_esid', 'target_path']
 
+EXEC_RECORD = { 'id': None, 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
+    'effective_dt': datetime.datetime.now(), 'expiration_dt': None, \
+    'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
+
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
@@ -33,6 +37,7 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
 
     LOG.debug('%s caching %i %s operations (%s)...' % (operator, count, operation, op_status))
     for op_record in rows:
+        check_status()
         update_listeners('caching %i %s operations  (%s)...' % (count - cached_count, operation, op_status), operator, path)
         key = cache2.create_key(config.pid, OPS, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
         cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
@@ -225,10 +230,6 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 
 # execution record
 
-NEW_RECORD = { 'id': None, 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
-    'effective_dt': datetime.datetime.now(), 'expiration_dt': None, \
-    'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
-
 def get_exec_key(no_pid=False):
     result =  cache2.get_key(NO_PID, OPS, EXEC) if no_pid else cache2.get_key(str(config.pid), OPS, EXEC)
     return result
@@ -260,7 +261,7 @@ def insert_exec_complete_record():
 
 # TODO: use execution record to select redis db
 def record_exec():
-    values = NEW_RECORD 
+    values = EXEC_RECORD 
 
     values['status'] = 'initializing'
     exec_key = get_exec_key()

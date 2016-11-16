@@ -1,18 +1,22 @@
 import logging
+import random
+
+import config
+import ops
+import search
+import scan, calc, clean, report
 
 from core import log
-from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INITIAL, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR
+from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INITIAL, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR, HSCAN, DEEP, USCAN
+
 
 from core.modes import Mode
-from core.modestate import StatefulMode, ModeStateChangeHandler
+from core.modestate import StatefulMode, ModeStateChangeHandler, DefaultModeHandler
 
 from core.states import State
 from core.serv import ServiceProcess
-from docservhandler import DocumentServiceProcessHandler, StartupHandler, ShutdownHandler, ScanModeHandler, MatchModeHandler, EvalModeHandler, \
-    FixModeHandler, CleaningModeHandler, ReportModeHandler, RequestsModeHandler
 
 from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
-
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -29,10 +33,6 @@ class DocumentServiceProcess(ServiceProcess):
         self.process_handler.after_switch(selector, mode)
 
     def before_switch(self, selector, mode):
-        # if isinstance(mode, StatefulMode):
-        #     if mode.get_state() == None:
-        #         mode.go_next(self.context)
-
         self.process_handler.before_switch(selector, mode)
 
 
@@ -162,3 +162,264 @@ def create_service_process(identifier, context, owner=None, before=None, after=N
 
     return alternative(identifier, context)
 
+
+class DecisionHandler(object):
+
+    def definitely(self, selector=None, active=None, possible=None): return True
+
+    def maybe(self, selector, active, possible):
+        result = bool(random.getrandbits(1))
+        return result
+
+    def possibly(self, selector, active, possible):
+        count = 0
+        for mode in selector.modes:
+             if bool(random.getrandbits(1)): count += 1
+        return count > 3
+
+
+class DocumentServiceProcessHandler(DecisionHandler):
+    def __init__(self, owner, name, selector, context):
+        super(DocumentServiceProcessHandler, self).__init__()
+        self.context = context
+        self.owner = owner
+        self.name = name
+        self.selector = selector
+
+        random.seed()
+
+
+    # selector callbacks
+
+    def after_switch(self, selector, mode):
+        pass
+
+    def before_switch(self, selector, mode):
+        pass
+
+
+    # generic rule callbacks
+
+    def after(self):
+        mode = self.selector.active
+        LOG.debug("%s after '%s'" % (self.name, mode.name))
+        ops.check_status()
+
+
+    def before(self):
+        ops.check_status()
+        mode = self.selector.next
+        LOG.debug("%s before '%s'" % (self.name, mode.name))
+        if mode.active_rule is not None:
+            LOG.debug("%s: %s follows '%s', because of '%s'" % \
+                (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
+
+
+    def mode_is_available(self, selector, active, possible):
+        ops.check_status()
+
+        if possible is self.owner.matchmode:
+            if self.context.has_next(MATCH):
+                return config.match
+
+        return True
+
+
+# eval mode
+
+class EvalModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(EvalModeHandler, self).__init__(owner, context)
+
+    def do_eval(self):
+        print  "entering evalation mode..."
+        LOG.debug('%s evaluating' % self.owner.name)
+        # self.context.reset(SCAN, use_fifo=True)
+
+
+# fix mode
+
+class FixModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(FixModeHandler, self).__init__(owner, context)
+
+    def after_fix(self): LOG.debug('%s done fixing' % self.owner.name)
+
+    def before_fix(self): LOG.debug('%s preparing to fix'  % self.owner.name)
+
+    def do_fix(self): LOG.debug('%s fixing' % self.owner.name)
+
+
+# cleaning mode
+
+class CleaningModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(CleaningModeHandler, self).__init__(owner, context)
+
+    def after_clean(self):
+        LOG.debug('%s done cleanining' % self.owner.name)
+        self.after()
+
+    def before_clean(self):
+        self.before()
+        LOG.debug('%s preparing to clean'  % self.owner.name)
+
+    def do_clean(self):
+        print  "clean mode starting..."
+        LOG.debug('%s clean' % self.owner.name)
+        clean.clean(self.context)
+
+
+#requests mode
+
+class RequestsModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(RequestsModeHandler, self).__init__(owner, context)
+
+    def do_reqs(self):
+        print  "handling requests..."
+        LOG.debug('%s handling requests...' % self.owner.name)
+
+
+# report mode
+
+class ReportModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(ReportModeHandler, self).__init__(owner, context)
+
+    def do_report(self):
+        print  "reporting..."
+        LOG.debug('%s generating report' % self.owner.name)
+        LOG.debug('%s took %i steps.' % (self.owner.selector.name, self.owner.selector.step_count))
+        for mode in self.owner.selector.modes:
+            if mode not in (self.owner.startmode, self.owner.endmode):
+                LOG.debug('%s: times activated = %i, priority = %i, error count = %i' % (mode.name, mode.times_activated, mode.priority, mode.error_count))
+
+
+#startup mode
+
+class StartupHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(StartupHandler, self).__init__(owner, context)
+
+    def started(self):
+        if self.owner:
+            LOG.debug("%s process has started" % self.owner.name)
+
+    def starting(self):
+        if self.owner:
+            LOG.debug("%s process will start" % self.owner.name)
+
+        # sql.execute_query('truncate mode_state', schema='mildred_introspection')
+
+    def start(self):
+        if self.owner:
+            LOG.debug("%s process is starting" % self.owner.name)
+
+        config.es = search.connect()
+
+
+# shutdown mode
+
+class ShutdownHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(ShutdownHandler, self).__init__(owner, context)
+
+    def ended(self):
+        if self.owner:
+            LOG.debug("%s process has ended" % self.owner.name)
+
+    def ending(self):
+        print  "shutting down..."
+        if self.owner:
+            LOG.debug("%s process will end" % self.owner.name)
+
+    def end(self):
+        if self.owner:
+            LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.owner.name)
+
+
+# scan mode
+
+class ScanModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(ScanModeHandler, self).__init__(owner, context)
+
+
+    def before_scan(self):
+        # LOG.debug('%s preparing to scan, caching data' % self.name)
+        if self.context.get_param(SCAN, HSCAN):
+            print "high level scan parameter found in context"
+
+        elif self.context.get_param(SCAN, DEEP):
+            print "deep scan parameter found in context"
+
+        elif self.context.get_param(SCAN, USCAN):
+            print "update scan parameter found in context"
+
+
+    def after_scan(self):
+        # LOG.debug('%s done scanning, updating op records...' % self.name)
+        self.context.reset(SCAN, use_fifo=True)
+        self.context.set_param('scan.persist', 'active.scan.path', None)
+        self.owner.scanmode.go_next(self.context)
+
+
+    def can_scan(self, selector, active, possible):
+        ops.check_status()
+        if self.context.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.context):
+            return config.scan
+
+
+    def do_scan_discover(self):
+        print  "discover scan starting..."
+        scan.scan(self.context)
+
+
+    def do_scan_monitor(self):
+        print  "monitor scan starting..."
+        scan.scan(self.context)
+
+
+    def do_scan(self):
+        print  "update scan starting..."
+        scan.scan(self.context)
+
+
+    def should_monitor(self, selector=None, active=None, possible=None):
+        return True
+
+
+    def should_update(self, selector=None, active=None, possible=None):
+        return True
+
+
+# match mode
+
+class MatchModeHandler(DefaultModeHandler):
+    def __init__(self, owner, context):
+        super(MatchModeHandler, self).__init__(owner, context)
+
+
+    def before_match(self):
+        # self.owner.before()
+        dir = self.context.get_next(MATCH)
+        LOG.debug('%s preparing for matching, caching data for %s' % (self.owner.name, dir))
+
+
+    def after_match(self):
+        # self.owner.after()
+        dir = self.context.get_active (MATCH)
+        LOG.debug('%s done matching in %s, clearing cache...' % (self.owner.name, dir))
+        # self.reportmode.priority += 1
+
+
+    def do_match(self):
+        print  "match mode starting..."
+        # dir = self.context.get_active (MATCH)
+        # LOG.debug('%s matching in %s...' % (self.name, dir))
+        try:
+            calc.calc(self.context)
+        except Exception, err:
+            self.selector.handle_error(err)
+            LOG.debug(err.message)
