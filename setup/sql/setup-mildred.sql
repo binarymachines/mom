@@ -23,12 +23,14 @@ DROP TABLE IF EXISTS `directory`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
+  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
   `name` varchar(256) NOT NULL,
   `file_type` varchar(8) DEFAULT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -39,14 +41,16 @@ DROP TABLE IF EXISTS `directory_amelioration`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory_amelioration` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
   `name` varchar(128) NOT NULL,
-  `replace_with_tag` tinyint(1) DEFAULT '0',
-  `replacement_tag` varchar(32) DEFAULT NULL,
-  `replace_with_parent_folder` tinyint(1) DEFAULT '1',
   `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `use_tag_flag` tinyint(1) DEFAULT '0',
+  `replacement_tag` varchar(32) DEFAULT NULL,
+  `use_parent_folder_flag` tinyint(1) DEFAULT '1',
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -57,12 +61,15 @@ DROP TABLE IF EXISTS `directory_attribute`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory_attribute` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
+  `index_name` varchar(128) NOT NULL,
   `directory_id` int(11) NOT NULL,
   `attribute_name` varchar(256) NOT NULL,
   `attribute_value` varchar(512) DEFAULT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -73,12 +80,14 @@ DROP TABLE IF EXISTS `directory_constant`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory_constant` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int(11) unsigned NOT NULL,
+  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
   `pattern` varchar(256) NOT NULL,
   `location_type` varchar(64) NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -109,12 +118,14 @@ DROP TABLE IF EXISTS `document_category`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `document_category` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(256) NOT NULL,
+  `id` int(11) unsigned NOT NULL,
   `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(256) NOT NULL,
   `doc_type` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=186 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

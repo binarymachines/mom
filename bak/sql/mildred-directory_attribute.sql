@@ -19,9 +19,12 @@ DROP TABLE IF EXISTS `directory_attribute`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory_attribute` (
   `id` int(11) unsigned NOT NULL,
+  `index_name` varchar(128) NOT NULL,
   `directory_id` int(11) NOT NULL,
   `attribute_name` varchar(256) NOT NULL,
   `attribute_value` varchar(512) DEFAULT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
 /*!40101 SET character_set_client = @saved_cs_client */;
