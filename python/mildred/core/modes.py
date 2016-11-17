@@ -5,7 +5,7 @@ import logging
 from decorators import mode_function
 
 import log
-from errors import ModeDestinationException
+from errors import ModeDestinationException, ModeConfigException
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -46,6 +46,7 @@ class Mode(object):
         # self.error_handler = None
         self._suspended = suspended
 
+
     @mode_function
     def do_action(self):
         if self._effect:
@@ -54,20 +55,26 @@ class Mode(object):
     def has_reached_complete_count(self):
         return self.times_completed > 0 if self.times_to_complete == 0 else self.times_completed > self.times_to_complete
 
+
     def is_suspended(self):
         return self._suspended
-        
+
+
     def on_first_activation(self):
         return self.times_activated == 0
+
 
     def has_higher_priority(self, mode):
         return self.priority > mode.priority
 
+
     def has_lower_priority(self, mode):
         return self.priority < mode.priority
 
+
     def has_same_priority(self, mode):
         return self.priority == mode.priority
+
 
     def reset(self, reset_error_count=False):
         self.error_state = False
@@ -94,6 +101,7 @@ class Rule(object):
         self.condition = condition
         self.before = before
         self.after = after
+
 
     @mode_function
     def applies(self, selector, active, possible):
@@ -148,10 +156,12 @@ class Selector:
         rule = Rule(name, origin, endpoint, condition, before, after)
         self.rules.append(rule)
 
+
     def add_rules(self, endpoint, condition, before, after, *origins):
         for mode in origins:
             rule = Rule("%s ::: %s" % (mode.name, endpoint.name), mode, endpoint, condition, before, after)
             self.rules.append(rule)
+
 
     def get_mode(self, name):
         for mode in self.modes:
@@ -160,6 +170,7 @@ class Selector:
 
         return None
 
+
     def get_rules(self, mode):
         results = []
         for rule in self.rules:
@@ -167,6 +178,7 @@ class Selector:
                 results.append(rule)
 
         return results
+
 
     def handle_error(self, error):
         ERR.error("%s Handling %s in mode %s" % (self.name, error.message, self.active.name))
@@ -185,6 +197,7 @@ class Selector:
         # if self.active.error_handler is not None:
         #     self.active.error_handler(self, error)
 
+
     def has_path(self, mode, destination):
         result = False
         for rule in self.get_rules(mode):
@@ -195,6 +208,7 @@ class Selector:
                 result = self.has_path(rule.end, destination)
         return result
 
+
     def has_priority(self, mode, level):
         compval = mode.priority
         higher = True
@@ -204,6 +218,32 @@ class Selector:
         for other in self.active:
             if level == Mode.HIGHEST and other.priority > mode.priority: return False
             if level == Mode.LOWEST and other.priority < mode.priority: return False
+
+
+    def initialize(self):
+
+        startpoints = []
+
+        for rule in self.rules:
+            if rule.start is not None and rule.start not in self.modes:
+                self.modes.append(rule.start)
+
+                if not rule.start in startpoints:
+                    startpoints.append(rule.start)
+
+            elif rule.start is None and rule.end is not None:
+                self.start = rule.end
+
+            if rule.end not in self.modes and rule.end is not None:
+                self.modes.append(rule.end)
+
+        # for mode in self.modes:
+        #     if mode not in startpoints and mode is not self.start:
+        #         self.end = mode
+        #         break
+
+        # if self.start is None or self.end is None:
+        #     raise ModeConfigException('start and end modes not configured properly.')
 
     def _peep(self):
 
@@ -222,6 +262,7 @@ class Selector:
                 raise err
 
         return results
+
 
     @mode_function
     def select(self):
@@ -279,6 +320,7 @@ class Selector:
                 if rule.start == self.active and rule.end == mode:
                     mode.active_rule = rule
                     break
+
 
     @mode_function
     def switch(self, mode, rewind=False):

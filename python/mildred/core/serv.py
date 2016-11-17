@@ -31,6 +31,9 @@ class ServiceProcess(object):
 
 
     def run(self, before=None, after=None):
+
+        self.selector.initialize()
+
         if self.selector.start is None: raise Exception('Invalid Start State')
         if self.selector.end is None: raise Exception('Invalid Destination State')
         if self.selector.end == self.selector.start: raise Exception('Invalid Rules Configuration')
@@ -71,6 +74,7 @@ class ServiceProcess(object):
         if len(self.selector.modes) > 1:
             self.selector.start = self.selector.modes[0]
             self.selector.end = self.selector.modes[-1]
+
         self.engine.add_selector(self.selector)
 
 
