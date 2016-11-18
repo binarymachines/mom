@@ -420,8 +420,6 @@ def insert_mode(name):
 def insert_mode_state(mode):
     sqlmode = retrieve_mode(mode)
     sqlstate = retrieve_state(mode.get_state())
-    # times_to_complete=mode.times_to_complete, dec_priority_amount=mode.dec_priority_amount, inc_priority_amount=mode.inc_priority_amount,
-    # last_activated=mode.last_activated, last_completed=mode.last_completed, cum_error_count=mode.cum_error_count + mode.error_count,
     mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, index_name=config.es_index, times_activated=mode.times_activated, \
         times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, status=mode.get_state().name, \
         effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
@@ -511,8 +509,11 @@ def retrieve_mode_state_record(mode):
 def retrieve_previous_mode_state_record(mode):
     result = ()
 
+    if config.old_pid is None: return None
+
     sqlmode = retrieve_mode(mode)
     for instance in sessions[1].query(SQLModeState). \
+        filter(SQLModeState.pid == config.old_pid).\
         filter(SQLModeState.mode_id == sqlmode.id):
             result += (instance,)
 

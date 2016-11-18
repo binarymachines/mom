@@ -9,6 +9,8 @@ import traceback
 
 import datetime
 import os
+import sys
+
 from docopt import docopt
 
 import config
@@ -66,8 +68,8 @@ def launch(args, run=True):
 
         else: raise Exception('unable to initialize with current configuration in %s.' % config.filename)
     except Exception, err:
-        print err.message
         traceback.print_exc()
+        sys.exit(err.message)
 
 def after(process):
     print('%s has ended.' % process.name)

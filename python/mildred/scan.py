@@ -80,7 +80,8 @@ class Scanner(Walker):
         elif os.access(root, os.R_OK) == False:
             # self.context.push_fifo(SCAN, root)
             # raise Exception("%s isn't currently available." % (root))
-            print "%s isn't currently available." % (root)
+            if root is not None:
+                print "%s isn't currently available." % (root)
             
 
     #TODO: parrot behavior for IOError as seen in read.py 

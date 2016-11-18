@@ -1,7 +1,7 @@
-import sys, os, logging, traceback, thread
+import sys, logging, thread
 
-from modes import Mode, Rule, Selector, Engine
-from errors import BaseClassException
+from modes import Selector, Engine
+from errors import BaseClassException, ModeConfigException
 
 import log
 
@@ -11,18 +11,23 @@ ERR = log.get_log('errors', logging.WARNING)
 SERVICE_NAME = '::\`]'
 
 class ServiceProcess(object):
-
-    def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
-        self.context = context
+    def __init__(self, name, owner=None):
         self.name = name
         self.owner = owner
-        self.threaded = False
+
+
+class SingleSelectorServiceProcess(ServiceProcess):
+
+    def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None, restart_on_fail=False, threaded=False):
+        super(SingleSelectorServiceProcess, self).__init__(name, owner=owner)
+        self.context = context
+        self.threaded = threaded
 
         self.before = before
         self.after = after
 
         self.error_count = 0
-        self.restart_on_fail = False
+        self.restart_on_fail = restart_on_fail
         self.stop_on_errors = stop_on_errors
         self.started = False
         self.completed = False
@@ -31,12 +36,6 @@ class ServiceProcess(object):
 
 
     def run(self, before=None, after=None):
-
-        self.selector.initialize()
-
-        if self.selector.start is None: raise Exception('Invalid Start State')
-        if self.selector.end is None: raise Exception('Invalid Destination State')
-        if self.selector.end == self.selector.start: raise Exception('Invalid Rules Configuration')
 
         try:
             if before is not None:
@@ -59,27 +58,23 @@ class ServiceProcess(object):
 
 
     def handle_halt_process(self):
-        raise BaseClassException(ServiceProcess)
+        raise BaseClassException(SingleSelectorServiceProcess)
 
 
     def initialize(self):
         self.halted = False
         self.engine = Engine("_engine_", self.stop_on_errors);
-        self.selector = Selector("_selector_")
-        self.selector.before_switch = self.before_switch
-        self.selector.after_switch = self.after_switch
+        self.selector = Selector("_selector_", before_switch=self.before_switch, after_switch=self.after_switch)
 
-        self.setup()
-
-        if len(self.selector.modes) > 1:
-            self.selector.start = self.selector.modes[0]
-            self.selector.end = self.selector.modes[-1]
-
-        self.engine.add_selector(self.selector)
-
+        try:
+            self.setup()
+            self.selector.initialize()
+            self.engine.add_selector(self.selector)
+        except ModeConfigException, err:
+            sys.exit(err.message)
 
     def setup(self):
-        raise BaseClassException(ServiceProcess)
+        raise BaseClassException(SingleSelectorServiceProcess)
 
 
     # selector management

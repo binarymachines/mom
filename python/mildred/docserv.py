@@ -14,14 +14,14 @@ from core.modes import Mode
 from core.modestate import StatefulMode, ModeStateChangeHandler, DefaultModeHandler
 
 from core.states import State
-from core.serv import ServiceProcess
+from core.serv import SingleSelectorServiceProcess
 
 from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
 
-class DocumentServiceProcess(ServiceProcess):
+class DocumentServiceProcess(SingleSelectorServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
 
         # super().__init__() must be called before accessing selector instance
@@ -38,6 +38,7 @@ class DocumentServiceProcess(ServiceProcess):
     # process logic
     def setup(self):
         self.selector.remove_at_error_tolerance = True
+
         self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
         state_change_handler = ModeStateChangeHandler()
@@ -47,7 +48,7 @@ class DocumentServiceProcess(ServiceProcess):
         # startup
 
         startup_handler = StartupHandler(self, self.context)
-        self.startmode = Mode(STARTUP, startup_handler.start)
+        self.startmode = Mode(STARTUP, startup_handler.start, dec_priority_amount=1)
         # self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
         # startup = State(INITIAL, action=startup_handler.start)
         # self.startmode.add_state(startup)
@@ -56,13 +57,13 @@ class DocumentServiceProcess(ServiceProcess):
         # eval
 
         eval_handler = EvalModeHandler(self, self.context)
-        self.evalmode = Mode(EVAL, eval_handler.do_eval, priority=1)
+        self.evalmode = Mode(EVAL, eval_handler.do_eval, priority=1, dec_priority_amount=1)
 
 
         # scan
 
         scan_handler = ScanModeHandler(self, self.context)
-        self.scanmode = StatefulMode(SCAN, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
+        self.scanmode = StatefulMode(SCAN, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler, dec_priority_amount=1)
 
         scan_discover = State(SCAN_DISCOVER, scan_handler.do_scan_discover)
         scan_update = State(SCAN_UPDATE, scan_handler.do_scan)
@@ -84,53 +85,48 @@ class DocumentServiceProcess(ServiceProcess):
         # clean
 
         # cleaning_handler = CleaningModeHandler(self, self.context)
-        # self.cleanmode = Mode(CLEAN, cleaning_handler.do_clean, priority=2) # bring ElasticSearch into line with MariaDB
+        # self.cleanmode = Mode(CLEAN, cleaning_handler.do_clean, priority=2, dec_priority_amount=1) # bring ElasticSearch into line with MariaDB
 
 
         # match
 
         match_handler = MatchModeHandler(self, self.context)
-        self.matchmode = Mode(MATCH, match_handler.do_match, priority=3, error_tolerance=5)
+        self.matchmode = Mode(MATCH, match_handler.do_match, priority=3, error_tolerance=5, dec_priority_amount=1)
 
 
         # fix
 
         fix_handler = FixModeHandler(self, self.context)
-        self.fixmode = Mode(FIX, fix_handler.do_fix, priority=1)
+        self.fixmode = Mode(FIX, fix_handler.do_fix, priority=1, dec_priority_amount=1)
 
 
         # report
 
         report_handler = ReportModeHandler(self, self.context)
-        self.reportmode = Mode(REPORT, report_handler.do_report, priority=1)
+        self.reportmode = Mode(REPORT, report_handler.do_report, priority=1, dec_priority_amount=1)
 
 
         # requests
 
         requests_handler = RequestsModeHandler(self, self.context)
-        self.reqmode = Mode(REQUESTS, requests_handler.do_reqs, priority=1)
+        self.reqmode = Mode(REQUESTS, requests_handler.do_reqs, priority=1, dec_priority_amount=1)
 
 
         # shutdown
 
         shutdown_handler = ShutdownHandler(self, self.context)
-        self.endmode = Mode(SHUTDOWN, shutdown_handler.end)
+        self.endmode = Mode(SHUTDOWN, shutdown_handler.end, dec_priority_amount=1)
 
 
         # sync
 
-        # self.syncmode = Mode("SYNC", self.process_handler.do_sync, 2) # bring MariaDB into line with ElasticSearch
+        # self.syncmode = Mode("SYNC", self.process_handler.do_sync, priority=2, dec_priority_amount=1) # bring MariaDB into line with ElasticSearch
+
+
+        # sleep
+
         # self.sleep mode -> state is persisted, system shuts down until a command is issued
 
-
-
-
-        # startmode must appear first in this list and endmode most appear last
-        # selector should figure which modes are start and end and validate rules before executing
-        self.selector.modes = [self.startmode, self.evalmode, self.scanmode, self.matchmode,self.fixmode, \
-            self.reportmode, self.reqmode, self.endmode]
-
-        for mode in self.selector.modes: mode.dec_priority = True
 
         # startmode rule must have None as its origin
         self.selector.add_rule('start', None, self.startmode, self.process_handler.definitely, startup_handler.starting, startup_handler.started)
@@ -170,8 +166,7 @@ class DocumentServiceProcess(ServiceProcess):
 
 def create_service_process(identifier, context, owner=None, before=None, after=None, alternative=None):
     if alternative is None:
-        process = DocumentServiceProcess(identifier, context, owner=owner, before=before, after=after)
-        return process
+        return DocumentServiceProcess(identifier, context, owner=owner, before=before, after=after)
 
     return alternative(identifier, context)
 

@@ -114,7 +114,7 @@ class Rule(object):
 
 
 class Selector:
-    def __init__(self, name, before_switch=None, after_switch=None):
+    def __init__(self, name, before_switch=None, after_switch=None, rewind_on_no_destination=True):
         self.name = name
         self.active = None
         self.previous = None
@@ -135,7 +135,7 @@ class Selector:
         self.suspension_handlers = {}
 
         # use with directives for process mode switch
-        self.selection_mode = None
+        # self.selection_mode = None
 
         # internal stats
         self.step_count = 0
@@ -144,7 +144,7 @@ class Selector:
         self.rule_chain = []
 
         # changes need to be made in switch() before this can be used safely
-        self.rewind_on_no_destination = True
+        self.rewind_on_no_destination = rewind_on_no_destination
         # self.suspend_mode_on_no_destination = True
 
     # def add_suspension_handler(handler):
@@ -222,28 +222,28 @@ class Selector:
 
     def initialize(self):
 
-        startpoints = []
-
+        starts = []
         for rule in self.rules:
             if rule.start is not None and rule.start not in self.modes:
                 self.modes.append(rule.start)
 
-                if not rule.start in startpoints:
-                    startpoints.append(rule.start)
-
-            elif rule.start is None and rule.end is not None:
-                self.start = rule.end
-
             if rule.end not in self.modes and rule.end is not None:
                 self.modes.append(rule.end)
 
-        # for mode in self.modes:
-        #     if mode not in startpoints and mode is not self.start:
-        #         self.end = mode
-        #         break
+            if rule.start is None and rule.end is not None:
+                self.start = rule.end
 
-        # if self.start is None or self.end is None:
-        #     raise ModeConfigException('start and end modes not configured properly.')
+            if rule.start is not None and not rule.start in starts:
+                starts.append(rule.start)
+
+        for mode in self.modes:
+            if mode not in starts and mode is not self.start:
+                self.end = mode
+
+        if self.start is None: raise ModeConfigException('Invalid Start State')
+        if self.end is None: raise ModeConfigException('Invalid Destination State')
+        if self.end is self.start: raise ModeConfigException('Invalid Rules Configuration')
+
 
     def _peep(self):
 
