@@ -24,12 +24,13 @@ DROP TABLE IF EXISTS `directory`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
-  `name` varchar(256) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(767) NOT NULL,
   `file_type` varchar(8) DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -43,7 +44,7 @@ DROP TABLE IF EXISTS `directory_amelioration`;
 CREATE TABLE `directory_amelioration` (
   `id` int(11) unsigned NOT NULL,
   `name` varchar(128) NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `use_tag_flag` tinyint(1) DEFAULT '0',
   `replacement_tag` varchar(32) DEFAULT NULL,
   `use_parent_folder_flag` tinyint(1) DEFAULT '1',
@@ -62,7 +63,7 @@ DROP TABLE IF EXISTS `directory_attribute`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory_attribute` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `directory_id` int(11) NOT NULL,
   `attribute_name` varchar(256) NOT NULL,
   `attribute_value` varchar(512) DEFAULT NULL,
@@ -81,7 +82,7 @@ DROP TABLE IF EXISTS `directory_constant`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory_constant` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `pattern` varchar(256) NOT NULL,
   `location_type` varchar(64) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
@@ -119,7 +120,7 @@ DROP TABLE IF EXISTS `document_category`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `document_category` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(256) NOT NULL,
   `doc_type` varchar(128) CHARACTER SET utf8 NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
@@ -187,9 +188,13 @@ DROP TABLE IF EXISTS `exclude_directory`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `exclude_directory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(1024) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(767) NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_exclude_directory_name` (`index_name`,`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -273,7 +278,7 @@ DROP TABLE IF EXISTS `matcher_field`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `matcher_field` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `document_type` varchar(64) NOT NULL DEFAULT 'media_file',
   `matcher_id` int(11) unsigned NOT NULL,
   `field_name` varchar(128) NOT NULL,
@@ -301,13 +306,14 @@ DROP TABLE IF EXISTS `path_hierarchy`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `path_hierarchy` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `parent_id` int(11) unsigned DEFAULT NULL,
-  `path` varchar(256) NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `path` varchar(767) NOT NULL,
   `hexadecimal_key` varchar(640) DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_path_hierarchy` (`index_name`,`hexadecimal_key`),
   KEY `fk_path_hierarchy_parent` (`parent_id`),
   CONSTRAINT `fk_path_hierarchy_parent` FOREIGN KEY (`parent_id`) REFERENCES `path_hierarchy` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -323,39 +329,6 @@ CREATE TABLE `path_hierarchy` (
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `path_hierarchy_effective_dt` BEFORE INSERT ON  `path_hierarchy` 
 FOR EACH ROW SET NEW.effective_dt = IFNULL(NEW.effective_dt, NOW()) */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-
---
--- Table structure for table `simple`
---
-
-DROP TABLE IF EXISTS `simple`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `simple` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `simple_effective_dt` BEFORE INSERT ON  `simple` 
-FOR EACH ROW 
-SET NEW.effective_dt = IFNULL(NEW.effective_dt, NOW()) */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;

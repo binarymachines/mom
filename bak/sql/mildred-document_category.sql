@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS `document_category`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `document_category` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(256) NOT NULL,
   `doc_type` varchar(128) CHARACTER SET utf8 NOT NULL,
   `effective_dt` datetime DEFAULT NULL,

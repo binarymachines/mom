@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS `matcher_field`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `matcher_field` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `document_type` varchar(64) NOT NULL DEFAULT 'media_file',
   `matcher_id` int(11) unsigned NOT NULL,
   `field_name` varchar(128) NOT NULL,

@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS `directory_attribute`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory_attribute` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `directory_id` int(11) NOT NULL,
   `attribute_name` varchar(256) NOT NULL,
   `attribute_value` varchar(512) DEFAULT NULL,

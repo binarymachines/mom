@@ -19,12 +19,13 @@ DROP TABLE IF EXISTS `directory`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
-  `name` varchar(256) NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(767) NOT NULL,
   `file_type` varchar(8) DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
 );
 /*!40101 SET character_set_client = @saved_cs_client */;
 

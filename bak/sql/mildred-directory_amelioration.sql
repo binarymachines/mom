@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS `directory_amelioration`;
 CREATE TABLE `directory_amelioration` (
   `id` int(11) unsigned NOT NULL,
   `name` varchar(128) NOT NULL,
-  `index_name` varchar(1024) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `use_tag_flag` tinyint(1) DEFAULT '0',
   `replacement_tag` varchar(32) DEFAULT NULL,
   `use_parent_folder_flag` tinyint(1) DEFAULT '1',
