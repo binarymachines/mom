@@ -9,6 +9,7 @@ from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 
+
 class CacheMonitor(App):
     def __init__(self, **kwargs):
         super(CacheMonitor, self).__init__(**kwargs)

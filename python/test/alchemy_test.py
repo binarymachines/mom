@@ -5,15 +5,15 @@ from mildred import alchemy, sql
 
 class TestAlchemy(unittest.TestCase):
     def test_load_states(self):
-        state_data = sql.run_query('select name, initial_state_flag, terminal_state_flag from state',
+        state_data = sql.run_query('select id, name, initial_state_flag, terminal_state_flag from state',
                                    schema='mildred_introspection')
         if len(state_data) == 0:
             raise Exception('invalid data for test')
 
         for row in state_data:
-            state_name = row[0]
-            sqlstate = alchemy.retrieve_state_by_name(state_name)
-            self.assertEquals(sqlstate.name, state_name)
+            state_id = row[0]
+            sqlstate = alchemy.retrieve_state_by_id(state_id)
+            self.assertEquals(sqlstate.id, state_id)
 
     def test_load_modes(self):
         mode_data = sql.run_query('select name from mode', schema='mildred_introspection')
@@ -27,13 +27,13 @@ class TestAlchemy(unittest.TestCase):
 
     def test_load_state_defaults(self):
         init_state_data = sql.run_query(
-            "select name, initial_state_flag, terminal_state_flag from state where name = 'initial'",
+            "select id, name, initial_state_flag, terminal_state_flag from state where name = 'initial'",
             schema='mildred_introspection')
 
         if len(init_state_data) == 1:
-            state_name = init_state_data[0][0]
+            state_id = init_state_data[0][0]
             is_initial_state = init_state_data[0][1]
-            sqlstate = alchemy.retrieve_state_by_name(state_name)
+            sqlstate = alchemy.retrieve_state_by_id(state_id)
             self.assertEquals(sqlstate.is_initial_state, is_initial_state)
 
         else: raise Exception('invalid data for test')

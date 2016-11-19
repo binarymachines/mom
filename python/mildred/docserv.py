@@ -412,7 +412,7 @@ class ScanModeHandler(DefaultModeHandler):
         self.context.set_param('scan.persist', 'active.scan.path', None)
         self.owner.scanmode.go_next(self.context)
 
-        self.owner.scanmode.update_state(expire=True)
+        # self.owner.scanmode.update_state(expire=True)
 
     def can_scan(self, selector, active, possible):
         ops.check_status()
@@ -422,17 +422,17 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
     def do_scan(self):
         print  "update scan starting..."
-        scan.scan(self.context)
+        # scan.scan(self.context)
 
 
     def should_monitor(self, selector=None, active=None, possible=None):

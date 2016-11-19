@@ -53,13 +53,13 @@
             ]
         },
         {
-            "name": "kivy window",
+            "name": "dmon",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/desktop/kivy-window.py",
+            "program": "${workspaceRoot}/python/mildred/desktop/dmon.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",

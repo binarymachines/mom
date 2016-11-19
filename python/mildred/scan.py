@@ -29,6 +29,9 @@ from walk import Walker
 LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
+PERSIST = 'scan.persist'
+ACTIVE = 'active.scan.path'
+
 
 class Scanner(Walker):
     def __init__(self, context):
@@ -37,6 +40,8 @@ class Scanner(Walker):
         self.document_type = const.DOCUMENT
         self.deep_scan = config.deep or self.context.get_param(SCAN, DEEP)
         self.high_scan = self.context.get_param(SCAN, HSCAN)
+        self.update_scan = self.context.get_param(SCAN, USCAN)
+        
         self.reader = Reader()
         
     # Walker methods
@@ -151,13 +156,15 @@ class Scanner(Walker):
 
 
     def _pre_scan(self, path):
-        self.context.set_param('scan.persist', 'active.scan.path', path)
+        self.context.set_param(PERSIST, ACTIVE, path)
 
         LOG.debug('caching data for %s...' % path)
-        ops.cache_ops(path, SCAN)
-        ops.cache_ops(path, READ)
-        ops.cache_ops(path, READ, op_status='FAIL')
         library.cache_docs(const.DOCUMENT, path)
+        if self.update_scan:
+            ops.cache_ops(path, SCAN)
+            ops.cache_ops(path, READ)
+            ops.cache_ops(path, READ, op_status='FAIL')
+        
 
         # if self.deep_scan == False:
         # if self.high_scan:
@@ -165,23 +172,21 @@ class Scanner(Walker):
 
 
     def _post_scan(self, path, update_ops):
-        LOG.debug('clearing cache...')
-        ops.write_ops_data(path, SCAN)
-        ops.write_ops_data(path, READ)
 
-        LOG.debug('updating MariaDB...')
-        if update_ops:
-            ops.update_ops_data()
+        if self.update_scan:
+            ops.write_ops_data(path, SCAN)
+            ops.write_ops_data(path, READ)
 
-        library.clear_docs(const.DOCUMENT, path)
-        # if os.access(path, os.R_OK):
 
-        # if self.deep_scan == False:        
         if self.high_scan:
             ops.record_op_complete(HSCAN, SCANNER, path)
             ops.write_ops_data(path, HSCAN, SCANNER)
 
-        self.context.set_param('scan.persist', 'active.scan.path', None)
+        if update_ops: ops.update_ops_data()
+
+        library.clear_docs(const.DOCUMENT, path)
+
+        self.context.set_param(PERSIST, ACTIVE, None)
     
     
     def scan_should_skip(self, path):
@@ -189,7 +194,6 @@ class Scanner(Walker):
         if self.high_scan and ops.operation_in_cache(path, HSCAN, SCANNER):
             LOG.debug('skipping %s...' % path)
             ops.update_listeners('skipping high level scan', SCANNER, path)
-            # self.context.clear_active(SCAN)
             return True
 
 
@@ -197,8 +201,9 @@ class Scanner(Walker):
     def scan(self):
         self.deep_scan = config.deep or self.context.get_param(SCAN, DEEP)
         self.high_scan = self.context.get_param(SCAN, HSCAN)
+        self.update_scan = self.context.get_param(SCAN, USCAN)
 
-        path = self.context.get_param('scan.persist', 'active.scan.path')
+        path = self.context.get_param(PERSIST, ACTIVE)
         path_restored = path is not None
         last_expanded_path = None
 
@@ -207,7 +212,7 @@ class Scanner(Walker):
             
             path = path if path_restored else self.context.get_next(SCAN, True)           
             path_restored = False
-            self.context.set_param('scan.persist', 'active.scan.path', path)
+            self.context.set_param(PERSIST, ACTIVE, path)
 
             if path is None or os.path.isfile(path): 
                 continue
@@ -266,16 +271,3 @@ def scan(context):
     if SCANNER not in context.data:
         context.data[SCANNER] = Scanner(context)
     context.data[SCANNER].scan()
-
-
-# def main(args):
-#     log.start_console_logging()
-#     config.es = search.connect()
-#     # reset()
-#     paths = None if not args['--path'] else args['<path>']
-#     context = DirectoryContext('_directory_context_', paths)
-#     scan(context)
-#
-# if __name__ == '__main__':
-#     args = docopt(__doc__)
-#     main(args)

@@ -5,6 +5,8 @@ import logging
 from decorators import mode_function
 
 import log
+from spec import Specification
+
 from errors import ModeDestinationException, ModeConfigException
 
 LOG = log.get_log(__name__, logging.DEBUG)
@@ -341,12 +343,12 @@ class Selector:
 
             self._call_mode_func(mode, mode.do_action())
 
-            # call after() for what was be the current mode
-            if mode.active_rule:
-                self._call_mode_func(mode, mode.active_rule.after)
-
             mode.times_completed += 1
             mode.last_completed = datetime.datetime.now()
+
+            # call after() for what was the current mode
+            if mode.active_rule:
+                self._call_mode_func(mode, mode.active_rule.after)
 
             if mode.dec_priority:
                 mode.priority -= mode.dec_priority_amount
@@ -449,13 +451,9 @@ class Engine:
             LOG.debug('%s: times activated = %i, times completed = %i, priority = %i, error count = %i, error state = %s ' % \
                 (mode.name, mode.times_activated, mode.times_completed, mode.priority, mode.error_count, str(mode.error_state)))
 
-    def start(self):
-        """this method probably shouldn't exist"""
-        self.execute(False)
-
     def step(self):
         if self.running is False:
-            self.execute(False)
+            self.execute(cycle=False)
             return
 
         self._sub_execute()
@@ -480,3 +478,26 @@ def _parse_func_info(func):
     except Exception, err:
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         return str(func)
+
+
+# TODO: remove setup methods from selector and initialize selectors from ModeSpecification  
+
+class ModeSpecification(Specification):
+    def __init__(self, name):
+        super(ModeSpecification, self).__init__(name)
+        self.start = None
+        self.end = None
+        self.modes = []
+        self.rules = []
+
+    def add_rule(self, name, origin, endpoint, condition, before=None, after=None):
+        rule = Rule(name, origin, endpoint, condition, before, after)
+        self.rules.append(rule)
+
+    def add_rules(self, endpoint, condition, before, after, *origins):
+        for mode in origins:
+            rule = Rule("%s ::: %s" % (mode.name, endpoint.name), mode, endpoint, condition, before, after)
+            self.rules.append(rule)
+
+    def validate(self):
+        pass

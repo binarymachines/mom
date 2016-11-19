@@ -483,16 +483,16 @@ def retrieve_state(state):
     return result[0] if len(result) == 1 else None
 
 
-# def retrieve_state_by_name(name):
-#     result = ()
-#     for instance in sessions[1].query(SQLState).\
-#         filter(SQLState.index_name == config.es_index). \
-#         filter(SQLState.effective_dt < datetime.datetime.now()). \
-#         filter(SQLState.expiration_dt > datetime.datetime.now()). \
-#         filter(SQLState.name == name):
-#             result += (instance,)
-#
-#     return result[0] if len(result) == 1 else None
+def retrieve_state_by_id(id):
+    result = ()
+    for instance in sessions[1].query(SQLState).\
+        filter(SQLState.index_name == config.es_index). \
+        filter(SQLState.effective_dt < datetime.datetime.now()). \
+        filter(SQLState.expiration_dt > datetime.datetime.now()). \
+        filter(SQLState.id == id):
+            result += (instance,)
+
+    return result[0] if len(result) == 1 else None
 
 
 # SQLModeState
