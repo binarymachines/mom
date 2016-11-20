@@ -29,8 +29,8 @@ def get_fields(doc_format):
     keygroup = 'fields'
     if not cache2.key_exists(keygroup, doc_format):
         key = cache2.get_key(keygroup, doc_format)
-        rows = sql.retrieve_values('document_metadata', ['active_flag', 'document_format', 'attribute_name'], ['1', doc_format.upper()])
-        cache2.add_items(keygroup, doc_format, [row[2] for row in rows])
+        rows = sql.retrieve_values2('document_metadata', ['active_flag', 'document_format', 'attribute_name'], ['1', doc_format.upper()])
+        cache2.add_items(keygroup, doc_format, [row.attribute_name for row in rows])
 
     result = cache2.get_items(keygroup, doc_format)
     # LOG.debug('get_fields(doc_format=%s) returns: %s' % (doc_format, str(result)))
@@ -41,8 +41,8 @@ def get_known_fields(doc_format):
     """retrieve all attributes, including unused ones, from document_metadata for the specified document_type"""
     if not cache2.key_exists(KNOWN, doc_format):
         key = cache2.create_key(KNOWN, doc_format)
-        rows = sql.retrieve_values('document_metadata', ['document_format', 'attribute_name'], [doc_format.upper()])
-        cache2.add_items(KNOWN, doc_format, [row[1] for row in rows])
+        rows = sql.retrieve_values2('document_metadata', ['document_format', 'attribute_name'], [doc_format.upper()])
+        cache2.add_items(KNOWN, doc_format, [row.attribute_name for row in rows])
 
     result = cache2.get_items(KNOWN, doc_format)
     # LOG.debug('get_known_fields(doc_format=%s) returns: %s' % (doc_format, str(result)))

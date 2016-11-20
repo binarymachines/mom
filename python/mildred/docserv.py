@@ -310,7 +310,7 @@ class EvalModeHandler(DefaultModeHandler):
         return True
 
     def do_eval(self):
-        print  "entering evalation mode..."
+        print  "entering evaluation mode..."
         LOG.debug('%s evaluating' % self.owner.name)
         eval.eval(self.context)
         # self.context.reset(SCAN, use_fifo=True)

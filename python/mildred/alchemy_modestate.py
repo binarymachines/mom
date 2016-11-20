@@ -5,6 +5,7 @@ import alchemy
 from core import log
 from core.modestate import StatefulMode, ModeStateReader, ModeStateWriter
 from core.states import State
+from core.errors import ModeConfigException
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -31,7 +32,7 @@ class AlchemyModeStateReader(ModeStateReader):
     def initialize_default_states(self, mode):
         alchemy_mode = alchemy.retrieve_mode(mode)
         for default in alchemy_mode.default_states:
-            state = State(default.status, data=default)
+            state = State(default.status, data=default, id=default.state_id)
 
             self.initialize_mode_state(mode, state)
 
@@ -51,7 +52,16 @@ class AlchemyModeStateReader(ModeStateReader):
     def initialize_mode_state(self, mode, state):
 
         self.initialize_mode_state_from_defaults(mode, state)
-        sqlstate = alchemy.retrieve_state(state)
+        
+        if state.id is None:
+            sqlstate = alchemy.retrieve_state_by_name(state.name)
+            if sqlstate is None:
+                raise ModeConfigException("unknown state: '%s'")
+            # (else)
+            state.id = sqlstate.id
+
+        else: sqlstate = alchemy.retrieve_state(state)
+        
 
         state.is_initial_state = sqlstate.is_initial_state
         state.is_terminal_state = sqlstate.is_terminal_state
@@ -85,8 +95,7 @@ class AlchemyModeStateReader(ModeStateReader):
         alchemy_mode  = alchemy.retrieve_mode(mode)
 
         for default in alchemy_mode.default_states:
-            if state.name == default.status:
-                state.id = default.id
+            if default.state_id == state.id:
 
                 mode.priority = default.priority
                 mode.times_to_complete = default.times_to_complete

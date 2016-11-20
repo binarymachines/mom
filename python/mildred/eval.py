@@ -10,4 +10,4 @@ LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
 def eval(context):
-    print 'eval'
+    pass

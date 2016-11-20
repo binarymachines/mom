@@ -258,7 +258,6 @@ class StartupHandler(DefaultModeHandler):
             LOG.debug("%s process is starting" % self.owner.name)
 
         config.es = search.connect()
-        library.backup_assets()
 
 # shutdown mode
 
@@ -297,7 +296,7 @@ class CleaningModeHandler(DefaultModeHandler):
     def do_clean(self):
         print  "clean mode starting..."
         LOG.debug('%s clean' % self.owner.name)
-        time.sleep(10)
+        time.sleep(5)
 
 
 # eval mode
@@ -310,9 +309,9 @@ class EvalModeHandler(DefaultModeHandler):
         return True
 
     def do_eval(self):
-        print  "entering evalation mode..."
+        print  "entering evaluation mode..."
         LOG.debug('%s evaluating' % self.owner.name)
-        time.sleep(10)
+        time.sleep(5)
 
 
 # fix mode
@@ -330,7 +329,7 @@ class FixModeHandler(DefaultModeHandler):
     def do_fix(self): 
         print  "fix mode starting..."
         LOG.debug('%s fixing' % self.owner.name)
-        time.sleep(10)
+        time.sleep(5)
 
 
 # match mode
@@ -341,21 +340,16 @@ class MatchModeHandler(DefaultModeHandler):
 
 
     def before_match(self):
-        # self.owner.before()
-        dir = self.context.get_next(MATCH)
-        LOG.debug('%s preparing for matching, caching data for %s' % (self.owner.name, dir))
+        pass
 
 
     def after_match(self):
-        # self.owner.after()
-        dir = self.context.get_active (MATCH)
-        LOG.debug('%s done matching in %s, clearing cache...' % (self.owner.name, dir))
+        pass
 
 
     def do_match(self):
         print  "match mode starting..."
-        LOG.debug('%s matching in %s...' % (self.name, dir))
-        time.sleep(10)
+        time.sleep(5)
             
             
 # report mode
@@ -382,7 +376,7 @@ class RequestsModeHandler(DefaultModeHandler):
     def do_reqs(self):
         print  "handling requests..."
         LOG.debug('%s handling requests...' % self.owner.name)
-        time.sleep(10)
+        time.sleep(5)
 
 
 # scan mode
@@ -396,17 +390,16 @@ class ScanModeHandler(DefaultModeHandler):
         if self.owner.scanmode.just_restored():
             self.owner.scanmode.set_restored(False)
 
-        if self.context.get_param(SCAN, HSCAN):
-            print "high level scan parameter found in context"
-
-        elif self.context.get_param(SCAN, DEEP):
-            print "deep scan parameter found in context"
-
-        elif self.context.get_param(SCAN, USCAN):
-            print "update scan parameter found in context"
+        self.owner.scanmode.save_state()
+        
+        params = self.context.get_params(SCAN)
+        for key in params:
+            value = str(params[key])
+            print '[%s = %s parameter found in context]' % (key.replace('.', ' '), value)
 
 
     def after_scan(self):
+        self.owner.scanmode.expire_state()
         self.context.reset(SCAN, use_fifo=True)
         self.context.set_param('scan.persist', 'active.scan.path', None)
         self.owner.scanmode.go_next(self.context)
@@ -420,17 +413,17 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        time.sleep(10)
+        time.sleep(5)
 
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
-        time.sleep(10)
+        time.sleep(5)
 
 
     def do_scan(self):
         print  "update scan starting..."
-        time.sleep(10)
+        time.sleep(5)
 
     def should_monitor(self, selector=None, active=None, possible=None):
         return True

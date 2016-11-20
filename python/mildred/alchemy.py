@@ -125,7 +125,7 @@ class SQLModeStateDefault(Base):
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)
     mode_id = Column(Integer, ForeignKey('mode.id'))
-    # state_id Column(Integer,  ForeignKey('state.id'))
+    state_id = Column(Integer,  ForeignKey('state.id'))
     
     mode = relationship("SQLMode", back_populates="default_states")
 
@@ -495,6 +495,17 @@ def retrieve_state_by_id(id):
     return result[0] if len(result) == 1 else None
 
 
+def retrieve_state_by_name(name):
+    result = ()
+    for instance in sessions[1].query(SQLState).\
+        filter(SQLState.index_name == config.es_index). \
+        filter(SQLState.effective_dt < datetime.datetime.now()). \
+        filter(SQLState.expiration_dt > datetime.datetime.now()). \
+        filter(SQLState.name == name):
+            result += (instance,)
+
+    return result[0] if len(result) == 1 else None
+
 # SQLModeState
 
 def retrieve_mode_state_record(mode):
@@ -548,7 +559,7 @@ def update_mode_state(mode, expire=False):
 
         try:
             sessions[1].commit()
-            return insert_mode_state(mode)
+            return None
         except IntegrityError, err:
             print '\a'
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)

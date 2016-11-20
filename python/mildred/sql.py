@@ -62,8 +62,7 @@ def retrieve_values(table_name, field_names, field_values, order_by=None):
 
 def retrieve_values2(table_name, field_names, field_values, order_by=None):
     rows = retrieve_values(table_name, field_names, field_values, order_by=order_by)
-    resultset = []
-    index = 0
+    resultset = ()
     count = 0
     for row in rows:
         result = Result(rownum=count)
@@ -71,7 +70,7 @@ def retrieve_values2(table_name, field_names, field_values, order_by=None):
             index = field_names.index(name)
             result.set_value(name, row[index]) 
             
-        resultset.append(result)
+        resultset += result,
         count += 1
 
     return resultset    

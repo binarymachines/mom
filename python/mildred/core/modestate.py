@@ -15,12 +15,12 @@ ERR = log.get_log('errors', logging.WARNING)
 
 class StatefulMode(Mode):
     def __init__(self, name, id=None, effect=None, priority=0, dec_priority_amount=1, inc_priority_amount=0, \
-                 times_activated=0, times_completed=0, times_to_complete=0, last_active=None, error_tolerance=0, error_count=0, \
+                 times_activated=0, times_completed=0, times_to_complete=0, last_activated=None, error_tolerance=0, error_count=0, \
                  error_state=False, suspended=False, active_rule=None, reader=None, writer=None, state_change_handler=None, \
                  last_completed=None, restored=False, state=None, mode_state_id=None):
                  
         super(StatefulMode, self).__init__(name, id=id, effect=effect, priority=priority, dec_priority_amount=dec_priority_amount, inc_priority_amount=inc_priority_amount, \
-                times_activated=times_activated, times_completed=times_completed, times_to_complete=times_to_complete, last_active=last_active, last_completed=last_completed, \
+                times_activated=times_activated, times_completed=times_completed, times_to_complete=times_to_complete, last_activated=last_activated, last_completed=last_completed, \
                 error_count=error_count, error_state=error_state, error_tolerance=error_tolerance, active_rule=active_rule, suspended=suspended)
 
 
@@ -65,9 +65,11 @@ class StatefulMode(Mode):
         for param in self.get_state().params:
             context.set_param(self.name, param[0], param[1])
 
+
     def _initialize_mode_state(self, state):
         if self._reader:
             self._reader.initialize_mode_state(self, state)
+
 
     def add_state(self, state):
         for default in self._state_defaults:
@@ -75,6 +77,7 @@ class StatefulMode(Mode):
                 self._states[state.name] = state
                 self._initialize_mode_state(state)
                 break
+
 
         if state.name not in self._states:
             raise ModeConfigException("state '%s' not found in defaults" % state.name)
@@ -112,14 +115,14 @@ class StatefulMode(Mode):
 
     def set_state(self, state):
         LOG.info('%s => setState_next(%s)' % (self.name, "None" if state is None else state.name ))
-        if self._state:
-            self.expire_state()            
+        # if self._state:
+        #     self.expire_state()            
 
         self._state = state
         self.effect = None
         if state:
             self.effect = state.action
-            self.save_state()
+            # self.save_state()
 
 
     def save_state(self):
@@ -145,8 +148,10 @@ class StatefulMode(Mode):
     def set_restored(self, restored):
         self._restored = restored
 
+
     def just_restored(self):
         return self._restored
+
 
     @mode_function
     def do_action(self):
@@ -159,9 +164,11 @@ class ModeStateReader(object):
     def __init__(self, mode_rec=None):
         self.mode_rec = {} if mode_rec is None else mode_rec
 
+
     def get_mode_rec(self, mode):
         if mode in self.mode_rec:
             return self.mode_rec[mode]
+
 
     def load_state_defaults(self, mode):
         raise BaseClassException(ModeStateReader)
@@ -189,21 +196,27 @@ class ModeStateWriter(object):
     def __init__(self, mode_rec=None):
         self.mode_rec = {} if mode_rec is None else mode_rec
 
+
     def get_mode_rec(self, mode):
         if mode in self.mode_rec:
             return self.mode_rec[mode]
 
+
     # def set_default_state_params(self, mode):
     #     raise BaseClassException(ModeStateReader)
+
 
     def expire_state(self, mode):
         raise BaseClassException(ModeStateReader)
 
+
     def save_state(self, mode, expire=False):
         raise BaseClassException(ModeStateReader)
 
+
     def update_state(self, mode, expire=False):
         raise BaseClassException(ModeStateReader)
+
 
     # def save_state_defaults(self, name, state):
     #     raise BaseClassException(ModeStateReader)
