@@ -339,8 +339,6 @@ class Selector:
                 self._call_mode_func(mode, mode.active_rule.before)
 
             self.active = mode
-            self.complete = True if mode == self.end else False
-
             self._call_mode_func(mode, mode.do_action())
 
             mode.times_completed += 1
@@ -357,6 +355,7 @@ class Selector:
 
             self.previous = mode
             self.rule_chain.append(mode.active_rule)
+            self.complete = True if mode == self.end else False
 
 
     def run(self):

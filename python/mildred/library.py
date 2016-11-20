@@ -429,3 +429,30 @@ def handle_asset_exception(error, path):
 
 
 
+def backup_assets():
+    ops.update_listeners('querying...', 'library', '')
+    docs = sql.retrieve_values2('document', ['id', 'doc_type', 'absolute_path'], []) 
+    count = len(docs)
+    for doc in docs:
+        ops.check_status()
+        try:
+            es_doc = search.get_doc(doc.doc_type, doc.id)
+            if search.backup_exists(es_doc):
+                ops.update_listeners('backup exists, skipping file %i/%i' % (doc.rownum, count), 'library', doc.absolute_path)
+                continue
+            ops.update_listeners('copying file %i/%i to backup folder' % (doc.rownum, count), 'library', doc.absolute_path)
+            search.backup_doc(es_doc)
+        except ElasticDataIntegrityException, err:
+            LOG.info('Duplicate documents found for %s' % doc.absolute_path)
+            handle_asset_exception(err, doc.absolute_path)
+        except Exception, err:
+            ERR.error(err.message, exc_info=True)
+
+    ssys.exit('backup complete')
+
+def main(args):
+    backup_assets()
+
+
+if __name__ == '__main__':
+    main(args)

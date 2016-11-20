@@ -11,7 +11,6 @@ ERR = log.get_log('errors', logging.WARNING)
 def clean(context):
     clear_dupes_from_es(context)
 
-
 def clear_dupes_from_es(context):
     while context.has_next(CLEAN, True):
         try:

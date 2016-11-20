@@ -14,6 +14,12 @@ ERR = log.get_log('errors', logging.WARNING)
 
 WILD = '%'
 
+class Result:
+    def __init__(self, **kwargs):
+        self.__dict__ = kwargs
+
+    def set_value(self, name, value):
+        self.__dict__[name]  = value
 
 def quote_if_string(value):
     if isinstance(value, basestring):
@@ -27,7 +33,6 @@ def get_all_rows(table, *columns):
     result  = []
     rows = retrieve_values(table, columns, [])
     return rows
-
 
 # compose queries from parameters
 # TODO: add handling for boolean values
@@ -55,6 +60,23 @@ def retrieve_values(table_name, field_names, field_values, order_by=None):
     return run_query(query)
 
 
+def retrieve_values2(table_name, field_names, field_values, order_by=None):
+    rows = retrieve_values(table_name, field_names, field_values, order_by=order_by)
+    resultset = []
+    index = 0
+    count = 0
+    for row in rows:
+        result = Result(rownum=count)
+        for name in field_names:
+            index = field_names.index(name)
+            result.set_value(name, row[index]) 
+            
+        resultset.append(result)
+        count += 1
+
+    return resultset    
+
+ 
 def retrieve_like_values(table_name, field_names, field_values):
     formatted_values = [quote_if_string(value) for value in field_values]
     query = ' '.join(['SELECT', ', '.join(field_names), 'FROM', table_name,'WHERE '])

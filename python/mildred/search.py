@@ -36,6 +36,12 @@ def backup_doc(doc, target_folder=var.snapshotdir):
     return os.path.isfile(backup)
 
 
+def backup_exists(doc,target_folder=var.snapshotdir):
+    doc_id = doc['_id']
+    backupfolder = os.path.join(target_folder, doc_id)
+    if os.path.isdir(backupfolder):
+        return True
+
 def clear_index(index):
     if config.es.indices.exists(index):
         LOG.debug("deleting '%s' index..." % index)

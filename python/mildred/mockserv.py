@@ -1,10 +1,10 @@
 import logging
 import random
-
+import time
 import config
 import ops
 import search
-import scan, calc, clean, report, eval
+
 import sql
 import library 
 
@@ -258,7 +258,7 @@ class StartupHandler(DefaultModeHandler):
             LOG.debug("%s process is starting" % self.owner.name)
 
         config.es = search.connect()
-        # library.backup_assets()
+        library.backup_assets()
 
 # shutdown mode
 
@@ -297,7 +297,7 @@ class CleaningModeHandler(DefaultModeHandler):
     def do_clean(self):
         print  "clean mode starting..."
         LOG.debug('%s clean' % self.owner.name)
-        clean.clean(self.context)
+        time.sleep(10)
 
 
 # eval mode
@@ -312,8 +312,7 @@ class EvalModeHandler(DefaultModeHandler):
     def do_eval(self):
         print  "entering evalation mode..."
         LOG.debug('%s evaluating' % self.owner.name)
-        eval.eval(self.context)
-        # self.context.reset(SCAN, use_fifo=True)
+        time.sleep(10)
 
 
 # fix mode
@@ -331,6 +330,7 @@ class FixModeHandler(DefaultModeHandler):
     def do_fix(self): 
         print  "fix mode starting..."
         LOG.debug('%s fixing' % self.owner.name)
+        time.sleep(10)
 
 
 # match mode
@@ -350,19 +350,12 @@ class MatchModeHandler(DefaultModeHandler):
         # self.owner.after()
         dir = self.context.get_active (MATCH)
         LOG.debug('%s done matching in %s, clearing cache...' % (self.owner.name, dir))
-        # self.reportmode.priority += 1
 
 
     def do_match(self):
         print  "match mode starting..."
-        # dir = self.context.get_active (MATCH)
-        # LOG.debug('%s matching in %s...' % (self.name, dir))
-        try:
-            pass
-            # calc.calc(self.context)
-        except Exception, err:
-            self.selector.handle_error(err)
-            LOG.debug(err.message)
+        LOG.debug('%s matching in %s...' % (self.name, dir))
+        time.sleep(10)
             
             
 # report mode
@@ -389,6 +382,7 @@ class RequestsModeHandler(DefaultModeHandler):
     def do_reqs(self):
         print  "handling requests..."
         LOG.debug('%s handling requests...' % self.owner.name)
+        time.sleep(10)
 
 
 # scan mode
@@ -399,7 +393,6 @@ class ScanModeHandler(DefaultModeHandler):
 
 
     def before_scan(self):
-        # LOG.debug('%s preparing to scan, caching data' % self.name)
         if self.owner.scanmode.just_restored():
             self.owner.scanmode.set_restored(False)
 
@@ -414,12 +407,10 @@ class ScanModeHandler(DefaultModeHandler):
 
 
     def after_scan(self):
-        # LOG.debug('%s done scanning, updating op records...' % self.name)
         self.context.reset(SCAN, use_fifo=True)
         self.context.set_param('scan.persist', 'active.scan.path', None)
         self.owner.scanmode.go_next(self.context)
 
-        # self.owner.scanmode.update_state(expire=True)
 
     def can_scan(self, selector, active, possible):
         ops.check_status()
@@ -429,22 +420,20 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        # scan.scan(self.context)
+        time.sleep(10)
 
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
-        # scan.scan(self.context)
+        time.sleep(10)
 
 
     def do_scan(self):
         print  "update scan starting..."
-        # scan.scan(self.context)
-
+        time.sleep(10)
 
     def should_monitor(self, selector=None, active=None, possible=None):
         return True
-
 
     def should_update(self, selector=None, active=None, possible=None):
         return True
