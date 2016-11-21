@@ -119,42 +119,15 @@ class SQLMode(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 
-
-class SQLModeStateDefault(Base):
-    __tablename__ = 'mode_state_default'
+class SQLState(Base):
+    __tablename__ = 'state'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)
-    mode_id = Column(Integer, ForeignKey('mode.id'))
-    state_id = Column(Integer,  ForeignKey('state.id'))
-    
-    mode = relationship("SQLMode", back_populates="default_states")
-
-    priority = Column('priority', Integer, nullable=False)
-    dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
-    inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
-    times_to_complete = Column('times_to_complete', Integer, nullable=False)
-    # error_tolerance = Column('error_tolerance', Integer, nullable=False)
-    status = Column('status', String(128), nullable=False)
+    name = Column('name', String(128), nullable=False)
+    is_initial_state = Column('initial_state_flag', Boolean, nullable=True)
+    is_terminal_state = Column('terminal_state_flag', Boolean, nullable=True)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
-
-SQLMode.default_states = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="mode")
-
-
-
-class SQLModeStateDefaultParam(Base):
-    __tablename__ = 'mode_state_default_param'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
-    mode_state_default = relationship("SQLModeStateDefault", back_populates="default_params")
-
-    name = Column('name', String(128), nullable=False)
-    value = Column('value', String(1024), nullable=False)
-
-SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", order_by=SQLModeStateDefaultParam.id,
-                                                  back_populates="mode_state_default")
-
 
 
 class SQLModeState(Base):
@@ -183,6 +156,44 @@ class SQLModeState(Base):
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # active_flag
+
+
+class SQLModeStateDefault(Base):
+    __tablename__ = 'mode_state_default'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    mode_id = Column(Integer, ForeignKey('mode.id'))
+    state_id = Column(Integer,  ForeignKey('state.id'))
+    
+    mode = relationship("SQLMode", back_populates="mode_defaults")
+    state = relationship("SQLState", back_populates="state_defaults")
+
+    priority = Column('priority', Integer, nullable=False)
+    dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
+    inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
+    times_to_complete = Column('times_to_complete', Integer, nullable=False)
+    error_tolerance = Column('error_tolerance', Integer, nullable=False)
+    # status = Column('status', String(128), nullable=False)
+    effective_dt = Column('effective_dt', DateTime, nullable=False)
+    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+SQLMode.mode_defaults = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="mode")
+SQLState.state_defaults = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="state")
+
+
+
+class SQLModeStateDefaultParam(Base):
+    __tablename__ = 'mode_state_default_param'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
+    mode_state_default = relationship("SQLModeStateDefault", back_populates="default_params")
+
+    name = Column('name', String(128), nullable=False)
+    value = Column('value', String(1024), nullable=False)
+
+SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", order_by=SQLModeStateDefaultParam.id,
+                                                  back_populates="mode_state_default")
 
 
 # class SQLModeStateTransitionRecord(Base):
@@ -220,15 +231,6 @@ class SQLOperationRecord(Base):
     target_hexadecimal_key = Column(String(640), nullable=False)
 
 
-class SQLState(Base):
-    __tablename__ = 'state'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    name = Column('name', String(128), nullable=False)
-    is_initial_state = Column('initial_state_flag', Boolean, nullable=True)
-    is_terminal_state = Column('terminal_state_flag', Boolean, nullable=True)
-    effective_dt = Column('effective_dt', DateTime, nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 
 def alchemy_operation(function):

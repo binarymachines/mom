@@ -19,7 +19,7 @@ class Mode(object):
     LOWEST = 0
 
     def __init__(self, name, id=None, effect=None, priority=0, dec_priority_amount=0, inc_priority_amount=0, times_to_complete=0, \
-                 times_activated=0, times_completed=0, last_completed=None, last_activated=None, error_tolerance=0, error_count=0, error_state=False, \
+                 times_activated=0, times_completed=0, last_completed=None, last_activated=None, error_tolerance=0, error_count=0, \
                  suspended=False, active_rule=None):
 
         self.id = id
@@ -42,7 +42,6 @@ class Mode(object):
         self.inc_priority_amount = inc_priority_amount
 
         #error management
-        self.error_state = error_state
         self.error_count = error_count
         self.error_tolerance = error_tolerance
         # self.error_handler = None
@@ -79,7 +78,6 @@ class Mode(object):
 
 
     def reset(self, reset_error_count=False):
-        self.error_state = False
         if reset_error_count: self.error_count = 0
 
 

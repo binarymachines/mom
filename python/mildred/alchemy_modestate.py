@@ -31,8 +31,8 @@ class AlchemyModeStateReader(ModeStateReader):
 
     def initialize_default_states(self, mode):
         alchemy_mode = alchemy.retrieve_mode(mode)
-        for default in alchemy_mode.default_states:
-            state = State(default.status, data=default, id=default.state_id)
+        for default in alchemy_mode.mode_defaults:
+            state = State(default.state.name, data=default, id=default.state_id)
 
             self.initialize_mode_state(mode, state)
 
@@ -70,7 +70,6 @@ class AlchemyModeStateReader(ModeStateReader):
     def restore(self, mode, context):
         mode_state = alchemy.retrieve_previous_mode_state_record(mode)
         if mode_state:
-            # mode.error_count = mode_state.error_count
             mode.cum_error_count = mode_state.cum_error_count
             mode.times_activated = mode_state.times_activated
             mode.times_completed = mode_state.times_completed
@@ -94,20 +93,19 @@ class AlchemyModeStateReader(ModeStateReader):
     def initialize_mode_state_from_defaults(self, mode, state):
         alchemy_mode  = alchemy.retrieve_mode(mode)
 
-        for default in alchemy_mode.default_states:
+        for default in alchemy_mode.mode_defaults:
             if default.state_id == state.id:
 
                 mode.priority = default.priority
                 mode.times_to_complete = default.times_to_complete
                 mode.dec_priority_amount = default.dec_priority_amount
                 mode.inc_priority_amount = default.inc_priority_amount
+                mode.error_tolerance = default.error_tolerance
 
                 for param in default.default_params:
                     value = param.value
-                    if str(value).lower() == 'true':
-                        value = True
-                    elif str(value).lower() == 'false':
-                        value = False
+                    if str(value).lower() in ('true', 'false'):
+                        value = True if str(value).lower() == 'true' else False
 
                     state.add_param(param.name, value)
 

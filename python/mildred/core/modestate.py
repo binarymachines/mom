@@ -21,8 +21,7 @@ class StatefulMode(Mode):
                  
         super(StatefulMode, self).__init__(name, id=id, effect=effect, priority=priority, dec_priority_amount=dec_priority_amount, inc_priority_amount=inc_priority_amount, \
                 times_activated=times_activated, times_completed=times_completed, times_to_complete=times_to_complete, last_activated=last_activated, last_completed=last_completed, \
-                error_count=error_count, error_state=error_state, error_tolerance=error_tolerance, active_rule=active_rule, suspended=suspended)
-
+                error_count=error_count, error_tolerance=error_tolerance, active_rule=active_rule, suspended=suspended)
 
         self._reader = reader
         self._writer = writer

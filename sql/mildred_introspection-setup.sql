@@ -125,11 +125,12 @@ CREATE TABLE `mode_state_default` (
   `times_to_complete` int(3) unsigned NOT NULL DEFAULT '1',
   `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT '1',
   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
-  `status` varchar(64) NOT NULL,
+  `error_tolerance` int(3) unsigned NOT NULL DEFAULT '0',
+  -- `status` varchar(64) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `mode_state_default_status` (`index_name`,`status`),
+  -- UNIQUE KEY `mode_state_default_status` (`index_name`,`status`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
@@ -138,12 +139,12 @@ CREATE TABLE `mode_state_default` (
 
 -- insert into mode_state_default(mode_id, state_id, status, effective_dt) values ((select id from mode where name = 'startup'), 
 --     (select id from state where name = 'initial'), 'initial', now());
-insert into mode_state_default(mode_id, state_id, status, effective_dt, priority) values ((select id from mode where name = 'scan'), 
-    (select id from state where name = 'discover'), 'discover', now(), 5);
-insert into mode_state_default(mode_id, state_id, status, effective_dt, priority) values ((select id from mode where name = 'scan'), 
-    (select id from state where name = 'update'), 'update', now(), 5);
-insert into mode_state_default(mode_id, state_id, status, effective_dt, priority) values ((select id from mode where name = 'scan'), 
-    (select id from state where name = 'monitor'), 'monitor', now(), 5);
+insert into mode_state_default(mode_id, state_id, effective_dt, priority) values ((select id from mode where name = 'scan'), 
+    (select id from state where name = 'discover'), now(), 5);
+insert into mode_state_default(mode_id, state_id, effective_dt, priority) values ((select id from mode where name = 'scan'), 
+    (select id from state where name = 'update'), now(), 5);
+insert into mode_state_default(mode_id, state_id, effective_dt, priority) values ((select id from mode where name = 'scan'), 
+    (select id from state where name = 'monitor'), now(), 5);
 
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -158,14 +159,14 @@ CREATE TABLE `mode_state_default_param` (
   CONSTRAINT `fk_mode_state_default_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
 );
 
-insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values ((select id from mode_state_default where status = 'discover'), 
-    'high.level.scan', 'true', now());
+insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values 
+  ((select id from mode_state_default where state_id = (select id from state where name = 'discover')), 'high.level.scan', 'true', now());
 
-insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values ((select id from mode_state_default where status = 'update'), 
-    'update.scan', 'true', now());
+insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values 
+  ((select id from mode_state_default where state_id = (select id from state where name = 'update')), 'update.scan', 'true', now());
     
-insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values ((select id from mode_state_default where status = 'monitor'), 
-    'deep.scan', 'true', now());
+insert into mode_state_default_param(mode_state_default_id, name, value, effective_dt) values 
+  ((select id from mode_state_default where state_id = (select id from state where name = 'monitor')), 'deep.scan', 'true', now());
 
 
 CREATE TABLE `mode_state_default_operation` (
@@ -181,3 +182,27 @@ CREATE TABLE `mode_state_default_operation` (
   KEY `fk_mode_state_default_operation_operation` (`operation_id`),
   CONSTRAINT `fk_mode_state_default_operation_operation` FOREIGN KEY (`operation_id`) REFERENCES `operation` (`id`)
 );
+
+
+DROP VIEW IF EXISTS `v_mode_state_default`;
+
+CREATE VIEW `v_mode_state_default` AS 
+  SELECT m.name mode_name, s.name state_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance, 
+    ms.effective_dt, ms.expiration_dt
+  FROM mode m, state s, mode_state_default ms
+  WHERE ms.state_id = s.id
+    AND ms.mode_id = m.id
+    AND ms.index_name = 'media' 
+  ORDER BY m.name, s.id;
+
+
+DROP VIEW IF EXISTS `v_mode_state`;
+
+CREATE VIEW `v_mode_state` AS 
+  SELECT m.name mode_name, s.name state_name, ms.status, ms.pid, ms.times_activated, ms.times_completed, ms.last_activated, ms.last_completed, 
+    ms.error_count, ms.cum_error_count, ms.effective_dt, ms.expiration_dt
+  FROM mode m, state s, mode_state ms
+  WHERE ms.state_id = s.id
+    AND ms.mode_id = m.id
+    AND ms.index_name = 'media' 
+  ORDER BY ms.effective_dt;
