@@ -29,7 +29,7 @@ class StatefulMode(Mode):
 
         self._state = state
         self._states = {}
-        self._state_defaults = []
+        self._default_states = []
 
         self.mode_state_id = mode_state_id
         self._restored = restored
@@ -73,7 +73,7 @@ class StatefulMode(Mode):
 
 
     def add_state(self, state):
-        for default in self._state_defaults:
+        for default in self._default_states:
             if state.name == default.name:
                 state.id = default.id
                 self._states[state.name] = state
@@ -88,12 +88,12 @@ class StatefulMode(Mode):
 
 
     def add_state_default(self, state):
-        self._state_defaults.append(state)
+        self._default_states.append(state)
         return self
 
 
-    def get_state_defaults(self):
-        return self._state_defaults
+    def get_default_states(self):
+        return self._default_states
 
 
     def get_state(self, name=None):
@@ -124,11 +124,8 @@ class StatefulMode(Mode):
         self.effect = None
         if state:
             self.effect = state.action
-            # self.save_state()
-
-        if self._reader:
-            self._reader.initialize_mode_from_defaults(self)
-
+            if self._reader:
+                self._reader.initialize_mode_from_defaults(self)
 
     def save_state(self):
         if self._writer:
@@ -175,7 +172,7 @@ class ModeStateReader(object):
             return self.mode_rec[mode]
 
 
-    def load_state_defaults(self, mode):
+    def load_default_states(self, mode):
         raise BaseClassException(ModeStateReader)
 
 
@@ -223,7 +220,7 @@ class ModeStateWriter(object):
         raise BaseClassException(ModeStateReader)
 
 
-    # def save_state_defaults(self, name, state):
+    # def save_default_states(self, name, state):
     #     raise BaseClassException(ModeStateReader)
 
 
@@ -250,7 +247,7 @@ class ModeStateChangeHandler(object):
     def can_go_next(self, mode, context):
         active_state_name = context.get_param(mode.name, 'state')
         if active_state_name is None:
-            return len(mode.get_state_defaults()) > 0
+            return len(mode.get_states()) > 0
 
         for rule in self.transitions:
             if rule.start.name == active_state_name:
@@ -315,10 +312,10 @@ class ModeStateSpecification(Specification):
     def __init__(self):
         super(ModeStateSpecification, self).__init__()
         self._states = {}
-        self._state_defaults = []
+        self._default_states = []
         
     def add_state(self, state):
-        for default in self._state_defaults:
+        for default in self._default_states:
             if state.name == default.name:
                 self._states[state.name] = state
                 # self._initialize_mode_state(state)
