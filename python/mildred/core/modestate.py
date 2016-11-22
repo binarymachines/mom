@@ -75,6 +75,7 @@ class StatefulMode(Mode):
     def add_state(self, state):
         for default in self._state_defaults:
             if state.name == default.name:
+                state.id = default.id
                 self._states[state.name] = state
                 self._initialize_mode_state(state)
                 break
@@ -124,6 +125,9 @@ class StatefulMode(Mode):
         if state:
             self.effect = state.action
             # self.save_state()
+
+        if self._reader:
+            self._reader.initialize_mode_from_defaults(self)
 
 
     def save_state(self):
