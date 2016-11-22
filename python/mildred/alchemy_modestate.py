@@ -66,7 +66,7 @@ class AlchemyModeStateReader(ModeStateReader):
         state.is_initial_state = sqlstate.is_initial_state
         state.is_terminal_state = sqlstate.is_terminal_state
 
-
+    # NOTE: the requirement is a little more subtle than the data model seems to be at the moment, as it refers to completion for the mode *in the restored state*                    
     def restore(self, mode, context):
         mode_state = alchemy.retrieve_previous_mode_state_record(mode)
         if mode_state:
@@ -75,12 +75,14 @@ class AlchemyModeStateReader(ModeStateReader):
             mode.times_completed = mode_state.times_completed
             mode.last_activated = mode_state.last_activated
             mode.last_completed = mode_state.last_completed
+            
 
             for state in mode.get_states():
                 if state.id == mode_state.state_id:
                     mode.set_state(state)
                     mode.initialize_context_params(context)
                     mode.set_restored(True)
+                    # mode.action_complete = mode_state.last_completed is not None
                     break
 
 

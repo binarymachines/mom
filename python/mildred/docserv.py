@@ -396,35 +396,32 @@ class RequestsModeHandler(DefaultModeHandler):
 class ScanModeHandler(DefaultModeHandler):
     def __init__(self, owner, context):
         super(ScanModeHandler, self).__init__(owner, context)
-
+        self.scan_complete = False
 
     def before_scan(self):
-        # LOG.debug('%s preparing to scan, caching data' % self.name)
         if self.owner.scanmode.just_restored():
             self.owner.scanmode.set_restored(False)
 
-        if self.context.get_param(SCAN, HSCAN):
-            print "high level scan parameter found in context"
-
-        elif self.context.get_param(SCAN, DEEP):
-            print "deep scan parameter found in context"
-
-        elif self.context.get_param(SCAN, USCAN):
-            print "update scan parameter found in context"
+        self.owner.scanmode.save_state()
+        # self.owner.scanmode.initialize_context_params(self.context)
+        params = self.context.get_params(SCAN)
+        for key in params:
+            value = str(params[key])
+            print '[%s = %s parameter found in context]' % (key.replace('.', ' '), value)
 
 
     def after_scan(self):
-        # LOG.debug('%s done scanning, updating op records...' % self.name)
+        self.scan_complete = self.owner.scanmode.get_state() is self.owner.scanmode.get_state(SCAN_MONITOR)
+        self.owner.scanmode.expire_state()
         self.context.reset(SCAN, use_fifo=True)
         self.context.set_param('scan.persist', 'active.scan.path', None)
         self.owner.scanmode.go_next(self.context)
 
-        # self.owner.scanmode.update_state(expire=True)
 
     def can_scan(self, selector, active, possible):
         ops.check_status()
         if self.context.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.context):
-            return config.scan
+            return self.scan_complete == False and config.scan
 
 
     def do_scan_discover(self):

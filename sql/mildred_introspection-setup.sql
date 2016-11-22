@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS `mode_state_default_param`;
 DROP TABLE IF EXISTS `mode_state_default_operation`;
 DROP TABLE IF EXISTS `mode_state_default`;
+DROP TABLE IF EXISTS `mode_default`;
 DROP TABLE IF EXISTS `mode_state_param`;
 DROP TABLE IF EXISTS `mode_state`;
 DROP TABLE IF EXISTS `state`;
@@ -116,6 +117,22 @@ CREATE TABLE `mode_state` (
 );
 
 
+CREATE TABLE `mode_default` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
+  `mode_id` int(11) unsigned NOT NULL,
+  `priority` int(3) unsigned NOT NULL DEFAULT '0',
+  `times_to_complete` int(3) unsigned NOT NULL DEFAULT '1',
+  `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT '1',
+  `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
+  `error_tolerance` int(3) unsigned NOT NULL DEFAULT '0',
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  KEY `fk_mode_default_mode` (`mode_id`),
+  CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`));
+
+
 CREATE TABLE `mode_state_default` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
@@ -195,6 +212,17 @@ CREATE VIEW `v_mode_state_default` AS
     AND ms.index_name = 'media' 
   ORDER BY m.name, s.id;
 
+
+DROP VIEW IF EXISTS `v_mode_state_default_param`;
+
+CREATE VIEW `v_mode_state_default_param` AS 
+  SELECT m.name mode_name, s.name state_name, msp.name, msp.value, msp.effective_dt, msp.expiration_dt
+    FROM mode m, state s, mode_state_default ms, mode_state_default_param msp
+    WHERE ms.state_id = s.id
+      AND ms.mode_id = m.id
+      AND msp.mode_state_default_id = ms.id
+      AND ms.index_name = 'media' 
+    ORDER BY m.name, s.id;
 
 DROP VIEW IF EXISTS `v_mode_state`;
 

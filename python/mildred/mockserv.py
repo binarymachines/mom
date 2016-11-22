@@ -384,14 +384,14 @@ class RequestsModeHandler(DefaultModeHandler):
 class ScanModeHandler(DefaultModeHandler):
     def __init__(self, owner, context):
         super(ScanModeHandler, self).__init__(owner, context)
-
+        self.scan_complete = False
 
     def before_scan(self):
         if self.owner.scanmode.just_restored():
             self.owner.scanmode.set_restored(False)
 
         self.owner.scanmode.save_state()
-        
+        self.owner.scanmode.initialize_context_params(self.context)
         params = self.context.get_params(SCAN)
         for key in params:
             value = str(params[key])
@@ -399,6 +399,7 @@ class ScanModeHandler(DefaultModeHandler):
 
 
     def after_scan(self):
+        self.scan_complete = self.owner.scanmode.get_state() is self.owner.scanmode.get_state(SCAN_MONITOR)
         self.owner.scanmode.expire_state()
         self.context.reset(SCAN, use_fifo=True)
         self.context.set_param('scan.persist', 'active.scan.path', None)
@@ -408,7 +409,7 @@ class ScanModeHandler(DefaultModeHandler):
     def can_scan(self, selector, active, possible):
         ops.check_status()
         if self.context.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.context):
-            return config.scan
+            return self.scan_complete == False and config.scan
 
 
     def do_scan_discover(self):
