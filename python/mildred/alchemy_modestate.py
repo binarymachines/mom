@@ -29,47 +29,6 @@ class AlchemyModeStateReader(ModeStateReader):
         super(AlchemyModeStateReader, self).__init__()
 
 
-    def initialize_default_states(self, mode):
-        LOG.info('initializing default states for %s' % mode.name)
-        alchemy_mode = alchemy.retrieve_mode(mode)
-        for default in alchemy_mode.mode_defaults:
-            state = State(default.state.name, data=default, id=default.state_id)
-
-            self.initialize_mode_state(mode, state)
-
-            state.params = ()
-            for param in default.default_params:
-                value = param.value
-                if str(value).lower() == 'true':
-                    value = True
-                elif str(value).lower() == 'false':
-                    value = False
-    
-                LOG.info('adding context param [%s] to  default state [%s]' % (param.name, state.name))
-                state.add_param(param.name, value)
-
-            mode.add_state_default(state)
-
-
-    def initialize_mode_state(self, mode, state):
-        LOG.info('initializing [%s] state for [%s] mode' % (state.name, mode.name))
-
-        self.initialize_mode_state_from_defaults(mode, state)        
-        if state.id is None:
-            sqlstate = alchemy.retrieve_state_by_name(state.name)
-            if sqlstate is None:
-                raise ModeConfigException("unknown state: [%s]")
-            # (else)
-            state.id = sqlstate.id
-
-        else: 
-            sqlstate = alchemy.retrieve_state(state)
-        
-
-        state.is_initial_state = sqlstate.is_initial_state
-        state.is_terminal_state = sqlstate.is_terminal_state
-
-
     # NOTE: the requirement is a little more subtle than the data model seems to be at the moment, as it refers to completion for the mode *in the restored state*                    
     def restore(self, mode, context):
         LOG.info('restoring [%s] mode from data' % (mode.name))
@@ -96,6 +55,27 @@ class AlchemyModeStateReader(ModeStateReader):
         alchemy_mode  = alchemy.retrieve_mode_by_name(mode.name)
         if alchemy_mode:
             mode.id = alchemy_mode.id
+            LOG.info('initializing states for %s' % mode.name)
+            for default in alchemy_mode.mode_defaults:
+                state = State(default.state.name, data=default, id=default.state_id)
+                state.is_initial_state = default.state.is_initial_state
+                state.is_terminal_state = default.state.is_terminal_state
+
+                # self.initialize_mode_state(mode, state)
+
+                state.params = ()
+                for param in default.default_params:
+                    value = param.value
+                    if str(value).lower() == 'true':
+                        value = True
+                    elif str(value).lower() == 'false':
+                        value = False
+        
+                    LOG.info('adding context param [%s] to state [%s]' % (param.name, state.name))
+                    state.add_param(param.name, value)
+
+                mode.add_state(state)
+
 
     def initialize_mode_from_defaults(self, mode):
         LOG.info("initializing [%s] mode from defaults" % (mode.name))
@@ -112,20 +92,4 @@ class AlchemyModeStateReader(ModeStateReader):
                 mode.inc_priority_amount = default.inc_priority_amount
                 mode.error_tolerance = default.error_tolerance
                 break
-
-
-    def initialize_mode_state_from_defaults(self, mode, state):
-        LOG.info("initializing [%s] mode's [%s] state from defaults" % (mode.name, state.name))
-
-        alchemy_mode  = alchemy.retrieve_mode(mode)
-        for default in alchemy_mode.mode_defaults:
-            if default.state_id == state.id:
-                for param in default.default_params:
-                    value = param.value
-                    if str(value).lower() in ('true', 'false'):
-                        value = True if str(value).lower() == 'true' else False
-
-                    LOG.info('adding context param [%s] to [%s] state' % (param.name, state.name))
-                    state.add_param(param.name, value)
-
 

@@ -29,7 +29,6 @@ class StatefulMode(Mode):
 
         self._state = state
         self._states = {}
-        self._default_states = []
 
         self.data = data
         self.mode_state_id = mode_state_id
@@ -58,44 +57,19 @@ class StatefulMode(Mode):
         LOG.info('initializing [%s] mode' % (self.name))
         if self._reader:
             self._reader.initialize_mode(self)
-            self._reader.initialize_default_states(self)
 
 
     def initialize_context_params(self, context):
+        LOG.info('initializing context params')
         context.clear_params(self.name)
         context.set_param(self.name, 'state', self.get_state().name)
         for param in self.get_state().params:
             context.set_param(self.name, param[0], param[1])
 
 
-    def _initialize_mode_state(self, state):
-        if self._reader:
-            self._reader.initialize_mode_state(self, state)
-
-
     def add_state(self, state):
-        for default in self._default_states:
-            if state.name == default.name:
-                state.id = default.id
-                self._states[state.name] = state
-                self._initialize_mode_state(state)
-                break
-
-
-        if state.name not in self._states:
-            raise ModeConfigException("state '%s' not found in defaults" % state.name)
-
+        self._states[state.name] = state
         return self
-
-
-    def add_state_default(self, state):
-        self._default_states.append(state)
-        return self
-
-
-    def get_default_states(self):
-        return self._default_states
-
 
     def get_state(self, name=None):
         if name is None:
@@ -117,7 +91,7 @@ class StatefulMode(Mode):
 
 
     def set_state(self, state):
-        LOG.info('%s => setState_next(%s)' % (self.name, "None" if state is None else state.name ))
+        LOG.info('%s => set_state(%s)' % (self.name, "None" if state is None else state.name ))
 
         self._state = state
         self.effect = None
@@ -175,10 +149,6 @@ class ModeStateReader(object):
         raise BaseClassException(ModeStateReader)
 
 
-    # def initialize_context_params(self, state, context):
-    #     raise BaseClassException(ModeStateReader)
-
-
     def initialize_state(self, mode, state):
         raise BaseClassException(ModeStateReader)
 
@@ -203,10 +173,6 @@ class ModeStateWriter(object):
             return self.mode_rec[mode]
 
 
-    # def set_default_state_params(self, mode):
-    #     raise BaseClassException(ModeStateReader)
-
-
     def expire_state(self, mode):
         raise BaseClassException(ModeStateReader)
 
@@ -217,10 +183,6 @@ class ModeStateWriter(object):
 
     def update_state(self, mode, expire=False):
         raise BaseClassException(ModeStateReader)
-
-
-    # def save_default_states(self, name, state):
-    #     raise BaseClassException(ModeStateReader)
 
 
 # Transition Rule
@@ -293,17 +255,6 @@ class DefaultModeHandler(object):
         self.owner = owner
         self.context = context
 
-#    def eval_context(self):
-#         return True
-
-#     def update_context(self):
-#         pass
-
-#     def restore_state(self):
-#         pass
-
-#     def save_state(self):
-#         pass
 
 # TODO: eliminate config methods from StatefulMode and initialize from ModeStateSpecification
 
@@ -311,18 +262,9 @@ class ModeStateSpecification(Specification):
     def __init__(self):
         super(ModeStateSpecification, self).__init__()
         self._states = {}
-        self._default_states = []
         
     def add_state(self, state):
-        for default in self._default_states:
-            if state.name == default.name:
-                self._states[state.name] = state
-                # self._initialize_mode_state(state)
-                break
-
-        if state.name not in self._states:
-            raise ModeConfigException("state '%s' not found in defaults" % state.name)
-
+        self._states[state.name] = state
         return self
 
     def validate(self):

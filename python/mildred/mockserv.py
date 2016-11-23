@@ -67,14 +67,15 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
         scan_handler = ScanModeHandler(self, self.context)
         self.scanmode = StatefulMode(SCAN, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler, dec_priority_amount=1)
+        
+        scan_discover = self.scanmode.get_state(SCAN_DISCOVER)
+        scan_discover.action = scan_handler.do_scan_discover
 
-        scan_discover = State(SCAN_DISCOVER, scan_handler.do_scan_discover)
-        scan_update = State(SCAN_UPDATE, scan_handler.do_scan)
-        scan_monitor = State(SCAN_MONITOR, scan_handler.do_scan_monitor)
+        scan_update = self.scanmode.get_state(SCAN_UPDATE)
+        scan_update.action = scan_handler.do_scan
 
-        self.scanmode.add_state(scan_discover). \
-            add_state(scan_update). \
-            add_state(scan_monitor)
+        scan_monitor = self.scanmode.get_state(SCAN_MONITOR)
+        scan_monitor.action = scan_handler.do_scan_monitor
 
         state_change_handler.add_transition(scan_discover, scan_update, scan_handler.should_update). \
             add_transition(scan_update, scan_monitor, scan_handler.should_monitor)
