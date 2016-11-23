@@ -17,7 +17,7 @@ class StatefulMode(Mode):
     def __init__(self, name, id=None, effect=None, priority=0, dec_priority_amount=1, inc_priority_amount=0, \
                  times_activated=0, times_completed=0, times_to_complete=0, last_activated=None, error_tolerance=0, error_count=0, \
                  error_state=False, suspended=False, active_rule=None, reader=None, writer=None, state_change_handler=None, \
-                 last_completed=None, restored=False, state=None, mode_state_id=None, action_complete=False):
+                 last_completed=None, restored=False, state=None, mode_state_id=None, action_complete=False, data=None):
                  
         super(StatefulMode, self).__init__(name, id=id, effect=effect, priority=priority, dec_priority_amount=dec_priority_amount, inc_priority_amount=inc_priority_amount, \
                 times_activated=times_activated, times_completed=times_completed, times_to_complete=times_to_complete, last_activated=last_activated, last_completed=last_completed, \
@@ -31,6 +31,7 @@ class StatefulMode(Mode):
         self._states = {}
         self._default_states = []
 
+        self.data = data
         self.mode_state_id = mode_state_id
         self._restored = restored
         
@@ -43,18 +44,18 @@ class StatefulMode(Mode):
         result = False
         if self._state_change_handler:
             result = self._state_change_handler.can_go_next(self, context)
-        LOG.info('%s => can_go_next() returning %s' % (self.name, str(result)))
+        LOG.info('[%s] => can_go_next() returning %s' % (self.name, str(result)))
         return result
 
 
     def go_next(self, context):
         if self._state_change_handler:
-            LOG.info('%s => go_next()' % (self.name))
+            LOG.info('[%s] => go_next()' % (self.name))
             return self._state_change_handler.go_next(self, context)
 
 
     def initialize(self):
-        LOG.info('%s => initialize()' % (self.name))
+        LOG.info('initializing [%s] mode' % (self.name))
         if self._reader:
             self._reader.initialize_mode(self)
             self._reader.initialize_default_states(self)
@@ -117,8 +118,6 @@ class StatefulMode(Mode):
 
     def set_state(self, state):
         LOG.info('%s => setState_next(%s)' % (self.name, "None" if state is None else state.name ))
-        # if self._state:
-        #     self.expire_state()            
 
         self._state = state
         self.effect = None
@@ -306,7 +305,7 @@ class DefaultModeHandler(object):
 #     def save_state(self):
 #         pass
 
-#TODO: eliminate config methods from StatefulMode and initialize from ModeStateSpecification
+# TODO: eliminate config methods from StatefulMode and initialize from ModeStateSpecification
 
 class ModeStateSpecification(Specification):
     def __init__(self):

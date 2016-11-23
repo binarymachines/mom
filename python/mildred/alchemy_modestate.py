@@ -52,7 +52,6 @@ class AlchemyModeStateReader(ModeStateReader):
 
 
     def initialize_mode_state(self, mode, state):
-
         LOG.info('initializing [%s] state for [%s] mode' % (state.name, mode.name))
 
         self.initialize_mode_state_from_defaults(mode, state)        
@@ -63,7 +62,8 @@ class AlchemyModeStateReader(ModeStateReader):
             # (else)
             state.id = sqlstate.id
 
-        else: sqlstate = alchemy.retrieve_state(state)
+        else: 
+            sqlstate = alchemy.retrieve_state(state)
         
 
         state.is_initial_state = sqlstate.is_initial_state
@@ -98,10 +98,10 @@ class AlchemyModeStateReader(ModeStateReader):
             mode.id = alchemy_mode.id
 
     def initialize_mode_from_defaults(self, mode):
+        LOG.info("initializing [%s] mode from defaults" % (mode.name))
         # initialize mode from default data
 
         alchemy_mode  = alchemy.retrieve_mode(mode)
-
         if mode.get_state() is None: return
         for default in alchemy_mode.mode_defaults:
             if mode.get_state().id == default.state_id:
@@ -115,21 +115,11 @@ class AlchemyModeStateReader(ModeStateReader):
 
 
     def initialize_mode_state_from_defaults(self, mode, state):
-        alchemy_mode  = alchemy.retrieve_mode(mode)
-
         LOG.info("initializing [%s] mode's [%s] state from defaults" % (mode.name, state.name))
 
+        alchemy_mode  = alchemy.retrieve_mode(mode)
         for default in alchemy_mode.mode_defaults:
             if default.state_id == state.id:
-
-                # if mode.get_state() == state:
-                #     LOG.info("[%s] mode is in [%s] state, initializing mode settings from default" % (mode.name, state.name))
-                #     mode.priority = default.priority
-                #     mode.times_to_complete = default.times_to_complete
-                #     mode.dec_priority_amount = default.dec_priority_amount
-                #     mode.inc_priority_amount = default.inc_priority_amount
-                #     mode.error_tolerance = default.error_tolerance
-
                 for param in default.default_params:
                     value = param.value
                     if str(value).lower() in ('true', 'false'):
