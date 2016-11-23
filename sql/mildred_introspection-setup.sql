@@ -254,9 +254,11 @@ CREATE TABLE `dispatch` (
 insert into dispatch (identifier, module, func_name) values ('service_create_proc', 'mockserv', 'create_service_process');
 
 # file handlers
+insert into dispatch (identifier, category, module, class_name) values ('mutagen-aac', 'FileHandler', 'pathogen', 'MutagenAAC');
 insert into dispatch (identifier, category, module, class_name) values ('mutagen-apev2', 'FileHandler', 'pathogen', 'MutagenAPEv2');
 insert into dispatch (identifier, category, module, class_name) values ('mutagen-flac', 'FileHandler', 'pathogen', 'MutagenFLAC');
 insert into dispatch (identifier, category, module, class_name) values ('mutagen-id3', 'FileHandler', 'pathogen', 'MutagenID3');
+insert into dispatch (identifier, category, module, class_name) values ('mutagen-mp4', 'FileHandler', 'pathogen', 'MutagenMP4');
 insert into dispatch (identifier, category, module, class_name) values ('mutagen-oggflac', 'FileHandler', 'pathogen', 'MutagenOggFlac');
 insert into dispatch (identifier, category, module, class_name) values ('mutagen-oggvorbis', 'FileHandler', 'pathogen', 'MutagenOggVorbis');
 
@@ -270,11 +272,16 @@ CREATE TABLE `dispatch_target` (
   CONSTRAINT `fk_dispatch_target_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `dispatch` (`id`)
 );
 
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-aac'), 'aac');
 insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-apev2'), 'ape');
 insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-apev2'), 'mpc');
 insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-flac'), 'flac');
 insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-id3'), 'id3v2');
 insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-id3'), 'flac');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-mp4'), 'mp4');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-mp4'), 'm4a');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-oggflac'), 'ogg');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-oggflac'), 'flac');
 insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-oggvorbis'), 'ogg');
 insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-oggvorbis'), 'oga');
 
