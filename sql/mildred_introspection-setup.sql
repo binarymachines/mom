@@ -234,3 +234,54 @@ CREATE VIEW `v_mode_state` AS
     AND ms.mode_id = m.id
     AND ms.index_name = 'media' 
   ORDER BY ms.effective_dt;
+
+
+DROP TABLE IF EXISTS `dispatch_target`;
+DROP TABLE IF EXISTS `dispatch`;
+
+CREATE TABLE `dispatch` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(128) DEFAULT NULL,
+  `category` varchar(128) DEFAULT NULL,
+  `relative_path` varchar(1024) DEFAULT NULL,
+  `module` varchar(128) NOT NULL,
+  `class_name` varchar(128) DEFAULT NULL,
+  `func_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+# service process
+insert into dispatch (identifier, module, func_name) values ('service_create_proc', 'mockserv', 'create_service_process');
+
+# file handlers
+insert into dispatch (identifier, category, module, class_name) values ('mutagen-apev2', 'FileHandler', 'pathogen', 'MutagenAPEv2');
+insert into dispatch (identifier, category, module, class_name) values ('mutagen-flac', 'FileHandler', 'pathogen', 'MutagenFLAC');
+insert into dispatch (identifier, category, module, class_name) values ('mutagen-id3', 'FileHandler', 'pathogen', 'MutagenID3');
+insert into dispatch (identifier, category, module, class_name) values ('mutagen-oggflac', 'FileHandler', 'pathogen', 'MutagenOggFlac');
+insert into dispatch (identifier, category, module, class_name) values ('mutagen-oggvorbis', 'FileHandler', 'pathogen', 'MutagenOggVorbis');
+
+
+CREATE TABLE `dispatch_target` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `dispatch_id` int(11) unsigned NOT NULL,
+  `target` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_dispatch_target_dispatch` (`dispatch_id`),
+  CONSTRAINT `fk_dispatch_target_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `dispatch` (`id`)
+);
+
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-apev2'), 'ape');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-apev2'), 'mpc');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-flac'), 'flac');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-id3'), 'id3v2');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-id3'), 'flac');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-oggvorbis'), 'ogg');
+insert into dispatch_target (dispatch_id, target) values ((select id from dispatch where identifier = 'mutagen-oggvorbis'), 'oga');
+
+drop view if exists `v_dispatch_target`;
+
+create view `v_dispatch_target` as
+  select d.identifier, d.relative_path, d.module, d.class_name, d.func_name, dt.target
+  from dispatch d, dispatch_target dt
+  where dt.dispatch_id = d.id
+  order by d.identifier;

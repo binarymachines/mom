@@ -155,7 +155,6 @@ class SQLModeState(Base):
     # cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
-    # active_flag
 
 
 class SQLModeStateDefault(Base):
@@ -229,8 +228,6 @@ class SQLOperationRecord(Base):
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     target_hexadecimal_key = Column(String(640), nullable=False)
-
-
 
 
 def alchemy_operation(function):
@@ -510,10 +507,11 @@ def retrieve_state_by_name(name):
 
 # SQLModeState
 
-def retrieve_mode_state_record(mode):
+def retrieve_active_mode_state_record(mode):
     result = ()
     for instance in sessions[1].query(SQLModeState).\
-        filter(SQLModeState.id == mode.mode_state_id):
+        filter(SQLModeState.id == mode.mode_state_id).\
+        filter(SQLModeState.pid == config.pid):
             result += (instance,)
 
     return result[0] if len(result) == 1 else None
@@ -547,7 +545,7 @@ def update_mode_state(mode, expire=False):
 
     if mode.mode_state_id:
 
-        mode_state_rec = retrieve_mode_state_record(mode)
+        mode_state_rec = retrieve_active_mode_state_record(mode)
 
         mode_state_rec.times_activated = mode.times_activated
         mode_state_rec.times_completed = mode.times_completed

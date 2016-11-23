@@ -4,6 +4,7 @@ import time
 import config
 import ops
 import search
+import eval
 
 import sql
 import library 
@@ -45,6 +46,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         state_change_handler = ModeStateChangeHandler()
         mode_state_reader = AlchemyModeStateReader()
         mode_state_writer = AlchemyModeStateWriter()
+
 
         # startup
 
@@ -311,6 +313,7 @@ class EvalModeHandler(DefaultModeHandler):
     def do_eval(self):
         print  "entering evaluation mode..."
         LOG.debug('%s evaluating' % self.owner.name)
+        eval.eval(self.context)
         time.sleep(5)
 
 

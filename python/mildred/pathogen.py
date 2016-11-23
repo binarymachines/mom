@@ -150,7 +150,7 @@ class MutagenMP4(Mutagen):
 
 class MutagenOggFlac(Mutagen):
     def __init__(self):
-        super(MutagenOggFlac, self).__init__('mutagen-mp4', 'm4a', 'mp4')
+        super(MutagenOggFlac, self).__init__('mutagen-oggflac', 'ogg', 'flac')
 
 class MutagenAPEv2(Mutagen):
     def __init__(self):

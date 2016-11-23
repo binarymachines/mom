@@ -1,4 +1,5 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "python.pythonPath": "/home/mpippins/dev/_virtual_env/mom/bin/python"
+    "python.pythonPath": "/home/mpippins/dev/_virtual_env/mom/bin/python",
+    "env.PYTHONPATH": "/home/mpippins/dev/m2/python/mildred"
 }
