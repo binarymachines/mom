@@ -61,8 +61,6 @@ class AlchemyModeStateReader(ModeStateReader):
                 state.is_initial_state = default.state.is_initial_state
                 state.is_terminal_state = default.state.is_terminal_state
 
-                # self.initialize_mode_state(mode, state)
-
                 state.params = ()
                 for param in default.default_params:
                     value = param.value
