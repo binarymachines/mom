@@ -96,7 +96,7 @@ CREATE TABLE `mode_default` (
   KEY `fk_mode_default_mode` (`mode_id`),
   CONSTRAINT `fk_mode_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -349,7 +349,12 @@ SET character_set_client = utf8;
   `package` tinyint NOT NULL,
   `module` tinyint NOT NULL,
   `class_name` tinyint NOT NULL,
-  `func_name` tinyint NOT NULL
+  `func_name` tinyint NOT NULL,
+  `priority` tinyint NOT NULL,
+  `dec_priority_amount` tinyint NOT NULL,
+  `inc_priority_amount` tinyint NOT NULL,
+  `times_to_complete` tinyint NOT NULL,
+  `error_tolerance` tinyint NOT NULL
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
@@ -478,7 +483,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = latin1_swedish_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_mode_default_dispatch` AS select `m`.`name` AS `name`,`d`.`package` AS `package`,`d`.`module` AS `module`,`d`.`class_name` AS `class_name`,`d`.`func_name` AS `func_name` from ((`mode` `m` join `mode_default` `md`) join `dispatch` `d`) where ((`md`.`mode_id` = `m`.`id`) and (`md`.`effect_dispatch_id` = `d`.`id`)) order by `m`.`name` */;
+/*!50001 VIEW `v_mode_default_dispatch` AS select `m`.`name` AS `name`,`d`.`package` AS `package`,`d`.`module` AS `module`,`d`.`class_name` AS `class_name`,`d`.`func_name` AS `func_name`,`md`.`priority` AS `priority`,`md`.`dec_priority_amount` AS `dec_priority_amount`,`md`.`inc_priority_amount` AS `inc_priority_amount`,`md`.`times_to_complete` AS `times_to_complete`,`md`.`error_tolerance` AS `error_tolerance` from ((`mode` `m` join `mode_default` `md`) join `dispatch` `d`) where ((`md`.`mode_id` = `m`.`id`) and (`md`.`effect_dispatch_id` = `d`.`id`)) order by `m`.`name` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
