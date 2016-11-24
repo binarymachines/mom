@@ -272,8 +272,17 @@ CREATE TABLE `mode_default` (
   KEY `fk_mode_default_mode` (`mode_id`),
   CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`));
 
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'startup'), (select id from dispatch where identifier = 'startup'),now(), 0);
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'eval'), (select id from dispatch where identifier = 'eval'),now(), 3);
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'match'), (select id from dispatch where identifier = 'match'),now(), 5);
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'fix'), (select id from dispatch where identifier = 'fix'),now(), 1);
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'clean'), (select id from dispatch where identifier = 'clean'),now(), 1);
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'requests'), (select id from dispatch where identifier = 'requests'),now(), 2);
+-- insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'report'), (select id from dispatch where identifier = 'report'),now(), 2);
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'shutdown'), (select id from dispatch where identifier = 'shutdown'),now(), 0);
+
 create view `v_mode_default_dispatch` as
-  select m.name, d.package, d.module, d.class_name, d.func_name 
+  select m.name, d.package, d.module, d.class_name, d.func_name, md.priority, md.dec_priority_amount, md.inc_priority_amount, md.times_to_complete, md.error_tolerance 
   from mode m, mode_default md, dispatch d
   where md.mode_id = m.id and md.effect_dispatch_id = d.id 
   order by m.name;
