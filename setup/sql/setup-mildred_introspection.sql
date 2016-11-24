@@ -26,29 +26,12 @@ CREATE TABLE `dispatch` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `identifier` varchar(128) DEFAULT NULL,
   `category` varchar(128) DEFAULT NULL,
-  `relative_path` varchar(1024) DEFAULT NULL,
+  `package` varchar(128) DEFAULT NULL,
   `module` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
   `func_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `dispatch_target`
---
-
-DROP TABLE IF EXISTS `dispatch_target`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `dispatch_target` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `dispatch_id` int(11) unsigned NOT NULL,
-  `target` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_dispatch_target_dispatch` (`dispatch_id`),
-  CONSTRAINT `fk_dispatch_target_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `dispatch` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,7 +51,7 @@ CREATE TABLE `exec_rec` (
   `effective_dt` datetime NOT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -82,11 +65,14 @@ CREATE TABLE `mode` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(128) NOT NULL,
+  `effect_dispatch_id` int(11) unsigned NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+  UNIQUE KEY `uk_mode_name` (`index_name`,`name`),
+  KEY `fk_mode_dispatch` (`effect_dispatch_id`),
+  CONSTRAINT `fk_mode_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `dispatch` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,7 +126,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -296,20 +282,77 @@ CREATE TABLE `state` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Temporary table structure for view `v_dispatch_target`
+-- Table structure for table `switch_rule`
 --
 
-DROP TABLE IF EXISTS `v_dispatch_target`;
-/*!50001 DROP VIEW IF EXISTS `v_dispatch_target`*/;
+DROP TABLE IF EXISTS `switch_rule`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `switch_rule` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `begin_mode_id` int(11) unsigned NOT NULL,
+  `end_mode_id` int(11) unsigned NOT NULL,
+  `before_dispatch_id` int(11) unsigned NOT NULL,
+  `action_dispatch_id` int(11) unsigned NOT NULL,
+  `after_dispatch_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_switch_rule_begin_mode` (`begin_mode_id`),
+  KEY `fk_switch_rule_end_mode` (`end_mode_id`),
+  KEY `fk_switch_rule_before_dispatch` (`before_dispatch_id`),
+  KEY `fk_switch_rule_action_dispatch` (`action_dispatch_id`),
+  KEY `fk_switch_rule_after_dispatch` (`after_dispatch_id`),
+  CONSTRAINT `fk_switch_rule_begin_mode` FOREIGN KEY (`begin_mode_id`) REFERENCES `mode` (`id`),
+  CONSTRAINT `fk_switch_rule_end_mode` FOREIGN KEY (`end_mode_id`) REFERENCES `mode` (`id`),
+  CONSTRAINT `fk_switch_rule_before_dispatch` FOREIGN KEY (`before_dispatch_id`) REFERENCES `dispatch` (`id`),
+  CONSTRAINT `fk_switch_rule_action_dispatch` FOREIGN KEY (`action_dispatch_id`) REFERENCES `dispatch` (`id`),
+  CONSTRAINT `fk_switch_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `dispatch` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `transition_rule`
+--
+
+DROP TABLE IF EXISTS `transition_rule`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `transition_rule` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `begin_state_id` int(11) unsigned NOT NULL,
+  `end_state_id` int(11) unsigned NOT NULL,
+  `before_dispatch_id` int(11) unsigned NOT NULL,
+  `action_dispatch_id` int(11) unsigned NOT NULL,
+  `after_dispatch_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_transition_rule_begin_state` (`begin_state_id`),
+  KEY `fk_transition_rule_end_state` (`end_state_id`),
+  KEY `fk_transition_rule_before_dispatch` (`before_dispatch_id`),
+  KEY `fk_transition_rule_action_dispatch` (`action_dispatch_id`),
+  KEY `fk_transition_rule_after_dispatch` (`after_dispatch_id`),
+  CONSTRAINT `fk_transition_rule_begin_state` FOREIGN KEY (`begin_state_id`) REFERENCES `state` (`id`),
+  CONSTRAINT `fk_transition_rule_end_state` FOREIGN KEY (`end_state_id`) REFERENCES `state` (`id`),
+  CONSTRAINT `fk_transition_rule_before_dispatch` FOREIGN KEY (`before_dispatch_id`) REFERENCES `dispatch` (`id`),
+  CONSTRAINT `fk_transition_rule_action_dispatch` FOREIGN KEY (`action_dispatch_id`) REFERENCES `dispatch` (`id`),
+  CONSTRAINT `fk_transition_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `dispatch` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary table structure for view `v_mode_dispatch`
+--
+
+DROP TABLE IF EXISTS `v_mode_dispatch`;
+/*!50001 DROP VIEW IF EXISTS `v_mode_dispatch`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_dispatch_target` (
-  `identifier` tinyint NOT NULL,
-  `relative_path` tinyint NOT NULL,
+/*!50001 CREATE TABLE `v_mode_dispatch` (
+  `name` tinyint NOT NULL,
+  `package` tinyint NOT NULL,
   `module` tinyint NOT NULL,
   `class_name` tinyint NOT NULL,
-  `func_name` tinyint NOT NULL,
-  `target` tinyint NOT NULL
+  `func_name` tinyint NOT NULL
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
@@ -377,11 +420,39 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
--- Final view structure for view `v_dispatch_target`
+-- Temporary table structure for view `v_mode_state_transition_rule`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_dispatch_target`*/;
-/*!50001 DROP VIEW IF EXISTS `v_dispatch_target`*/;
+DROP TABLE IF EXISTS `v_mode_state_transition_rule`;
+/*!50001 DROP VIEW IF EXISTS `v_mode_state_transition_rule`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `v_mode_state_transition_rule` (
+  `name` tinyint NOT NULL,
+  `mode` tinyint NOT NULL,
+  `begin_state` tinyint NOT NULL,
+  `end_state` tinyint NOT NULL,
+  `before_package` tinyint NOT NULL,
+  `before_module` tinyint NOT NULL,
+  `before_class` tinyint NOT NULL,
+  `before_func` tinyint NOT NULL,
+  `action_package` tinyint NOT NULL,
+  `action_module` tinyint NOT NULL,
+  `action_class` tinyint NOT NULL,
+  `action_func` tinyint NOT NULL,
+  `after_package` tinyint NOT NULL,
+  `after_module` tinyint NOT NULL,
+  `after_class` tinyint NOT NULL,
+  `after_func` tinyint NOT NULL
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `v_mode_dispatch`
+--
+
+/*!50001 DROP TABLE IF EXISTS `v_mode_dispatch`*/;
+/*!50001 DROP VIEW IF EXISTS `v_mode_dispatch`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
@@ -390,7 +461,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = latin1_swedish_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_dispatch_target` AS select `d`.`identifier` AS `identifier`,`d`.`relative_path` AS `relative_path`,`d`.`module` AS `module`,`d`.`class_name` AS `class_name`,`d`.`func_name` AS `func_name`,`dt`.`target` AS `target` from (`dispatch` `d` join `dispatch_target` `dt`) where (`dt`.`dispatch_id` = `d`.`id`) order by `d`.`identifier` */;
+/*!50001 VIEW `v_mode_dispatch` AS select `m`.`name` AS `name`,`d`.`package` AS `package`,`d`.`module` AS `module`,`d`.`class_name` AS `class_name`,`d`.`func_name` AS `func_name` from (`mode` `m` join `dispatch` `d`) where (`m`.`effect_dispatch_id` = `d`.`id`) order by `m`.`name` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -448,6 +519,25 @@ SET character_set_client = @saved_cs_client;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `v_mode_state_default_param` AS select `m`.`name` AS `mode_name`,`s`.`name` AS `state_name`,`msp`.`name` AS `name`,`msp`.`value` AS `value`,`msp`.`effective_dt` AS `effective_dt`,`msp`.`expiration_dt` AS `expiration_dt` from (((`mode` `m` join `state` `s`) join `mode_state_default` `ms`) join `mode_state_default_param` `msp`) where ((`ms`.`state_id` = `s`.`id`) and (`ms`.`mode_id` = `m`.`id`) and (`msp`.`mode_state_default_id` = `ms`.`id`) and (`ms`.`index_name` = 'media')) order by `m`.`name`,`s`.`id` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_mode_state_transition_rule`
+--
+
+/*!50001 DROP TABLE IF EXISTS `v_mode_state_transition_rule`*/;
+/*!50001 DROP VIEW IF EXISTS `v_mode_state_transition_rule`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_mode_state_transition_rule` AS select `tr`.`name` AS `name`,`m`.`name` AS `mode`,`s1`.`name` AS `begin_state`,`s2`.`name` AS `end_state`,`d1`.`package` AS `before_package`,`d1`.`module` AS `before_module`,`d1`.`class_name` AS `before_class`,`d1`.`func_name` AS `before_func`,`d2`.`package` AS `action_package`,`d2`.`module` AS `action_module`,`d2`.`class_name` AS `action_class`,`d2`.`func_name` AS `action_func`,`d3`.`package` AS `after_package`,`d3`.`module` AS `after_module`,`d3`.`class_name` AS `after_class`,`d3`.`func_name` AS `after_func` from (((((((`mode` `m` join `mode_state_default` `md`) join `transition_rule` `tr`) join `state` `s1`) join `state` `s2`) join `dispatch` `d1`) join `dispatch` `d2`) join `dispatch` `d3`) where ((`m`.`id` = `md`.`mode_id`) and (`md`.`state_id` = `s1`.`id`) and (`tr`.`begin_state_id` = `s1`.`id`) and (`tr`.`end_state_id` = `s2`.`id`) and (`tr`.`before_dispatch_id` = `d1`.`id`) and (`tr`.`action_dispatch_id` = `d2`.`id`) and (`tr`.`after_dispatch_id` = `d3`.`id`)) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;

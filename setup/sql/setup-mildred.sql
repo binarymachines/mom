@@ -206,11 +206,11 @@ DROP TABLE IF EXISTS `file_handler`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `file_handler` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `package` varchar(1024) DEFAULT NULL,
+  `package` varchar(128) DEFAULT NULL,
   `module` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -227,7 +227,7 @@ CREATE TABLE `file_handler_type` (
   PRIMARY KEY (`id`),
   KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
   CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -367,6 +367,41 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Temporary table structure for view `v_file_handler`
+--
+
+DROP TABLE IF EXISTS `v_file_handler`;
+/*!50001 DROP VIEW IF EXISTS `v_file_handler`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `v_file_handler` (
+  `package` tinyint NOT NULL,
+  `module` tinyint NOT NULL,
+  `class_name` tinyint NOT NULL,
+  `file_type` tinyint NOT NULL
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `v_file_handler`
+--
+
+/*!50001 DROP TABLE IF EXISTS `v_file_handler`*/;
+/*!50001 DROP VIEW IF EXISTS `v_file_handler`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_file_handler` AS select `fh`.`package` AS `package`,`fh`.`module` AS `module`,`fh`.`class_name` AS `class_name`,`ft`.`file_type` AS `file_type` from (`file_handler` `fh` join `file_handler_type` `ft`) where (`ft`.`file_handler_id` = `fh`.`id`) order by `fh`.`package`,`fh`.`module`,`fh`.`class_name` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
