@@ -21,13 +21,10 @@ CREATE TABLE `mode` (
   `id` int(11) unsigned NOT NULL,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(128) NOT NULL,
-  `effect_dispatch_id` int(11) unsigned NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_mode_name` (`index_name`,`name`),
-  KEY `fk_mode_dispatch` (`effect_dispatch_id`),
-  CONSTRAINT `fk_mode_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `dispatch` (`id`)
+  UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
 );
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -35,13 +32,16 @@ CREATE TABLE `mode` (
 -- Dumping data for table `mode`
 --
 
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effect_dispatch_id`, `effective_dt`, `expiration_dt`) VALUES (1,'media','startup',2,'2016-11-23 23:58:48','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effect_dispatch_id`, `effective_dt`, `expiration_dt`) VALUES (2,'media','scan',5,'2016-11-23 23:58:48','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effect_dispatch_id`, `effective_dt`, `expiration_dt`) VALUES (3,'media','match',7,'2016-11-23 23:58:48','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effect_dispatch_id`, `effective_dt`, `expiration_dt`) VALUES (4,'media','eval',3,'2016-11-23 23:58:48','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effect_dispatch_id`, `effective_dt`, `expiration_dt`) VALUES (5,'media','fix',8,'2016-11-23 23:58:48','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effect_dispatch_id`, `effective_dt`, `expiration_dt`) VALUES (6,'media','requests',10,'2016-11-23 23:58:48','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effect_dispatch_id`, `effective_dt`, `expiration_dt`) VALUES (7,'media','shutdown',11,'2016-11-23 23:58:48','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (1,'media','startup','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (2,'media','scan','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (3,'media','match','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (4,'media','eval','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (5,'media','fix','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (6,'media','clean','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (7,'media','sync','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (8,'media','requests','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (9,'media','sleep','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (10,'media','shutdown','2016-11-24 01:41:42','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -23,6 +23,7 @@ CREATE TABLE `mode_state_default` (
   `mode_id` int(11) unsigned NOT NULL,
   `state_id` int(11) unsigned NOT NULL DEFAULT '0',
   `priority` int(3) unsigned NOT NULL DEFAULT '0',
+  `effect_dispatch_id` int(11) unsigned DEFAULT NULL,
   `times_to_complete` int(3) unsigned NOT NULL DEFAULT '1',
   `dec_priority_amount` int(3) unsigned NOT NULL DEFAULT '1',
   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
@@ -30,8 +31,10 @@ CREATE TABLE `mode_state_default` (
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
+  KEY `fk_mode_state_default_dispatch` (`effect_dispatch_id`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
+  CONSTRAINT `fk_mode_state_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
 );
@@ -41,9 +44,9 @@ CREATE TABLE `mode_state_default` (
 -- Dumping data for table `mode_state_default`
 --
 
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (1,'media',2,2,5,1,1,0,0,'2016-11-23 23:58:48','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (2,'media',2,3,5,1,1,0,0,'2016-11-23 23:58:48','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (3,'media',2,4,5,1,1,0,0,'2016-11-23 23:58:48','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (1,'media',2,2,5,5,1,1,0,0,'2016-11-24 01:41:43','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (2,'media',2,3,5,6,1,1,0,0,'2016-11-24 01:41:43','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (3,'media',2,4,5,7,1,1,0,0,'2016-11-24 01:41:43','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
