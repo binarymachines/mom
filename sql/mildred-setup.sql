@@ -512,7 +512,7 @@ DROP TABLE IF EXISTS `file_handler`;
 
 CREATE TABLE `file_handler` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `package` varchar(1024) DEFAULT NULL,
+  `package` varchar(128) DEFAULT NULL,
   `module` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
