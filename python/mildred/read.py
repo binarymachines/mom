@@ -57,6 +57,7 @@ class Reader:
 
         return self.extensions
 
+
     def has_handler_for(self, filename):
         if filename.lower().startswith('incomplete~') or filename.lower().startswith('~incomplete'):
             return False
@@ -66,10 +67,12 @@ class Reader:
                 if filename.lower().endswith(extension):
                     return True
 
+
     def invalidate_read_ops(self, asset):
         for file_handler in self.get_file_handlers():
            if ops.operation_in_cache(asset.absolute_path, const.READ, file_handler.name):
                ops.mark_operation_invalid(asset.absolute_path, const.READ, file_handler.name)
+
 
     def read(self, asset, data, file_handler_name=None, force_read=False):
         for file_handler in self.get_file_handlers():
@@ -79,6 +82,7 @@ class Reader:
                         continue
                     elif file_handler.handle_file(asset, data):
                         library.record_file_read(file_handler.name, asset)
+
 
     def get_file_handlers(self):
         return self.file_handlers

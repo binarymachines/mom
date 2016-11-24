@@ -72,7 +72,6 @@ class SQLEngine(Base):
     # self.stop_on_errors = stop_on_errors
 
 
-
 class SQLExecutionRecord(Base):
     __tablename__ = 'exec_rec'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -98,9 +97,9 @@ class SQLFileHandlerType(Base):
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     file_handler_id = Column(Integer, ForeignKey('file_handler.id'))
     name = Column('file_type', String(8), nullable=False)
-    reader = relationship("SQLFileHandler", back_populates="file_types")
+    file_handler = relationship("SQLFileHandler", back_populates="file_types")
 
-SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileHandlerType.id, back_populates="reader")
+SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileHandlerType.id, back_populates="file_handler")
 
 def retrieve_file_handlers():
     result = ()
@@ -117,7 +116,6 @@ class SQLMatcher(Base):
     # percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
     # comparison_result = Column('comparison_result', String(1), nullable=True)
     # same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
-
 
 
 class SQLMatchRecord(Base):
