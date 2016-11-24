@@ -12,9 +12,13 @@ DROP TABLE IF EXISTS `operation`;
 DROP TABLE IF EXISTS `operator`;
 DROP TABLE IF EXISTS `dispatch_target`;
 DROP TABLE IF EXISTS `dispatch`;
+DROP TABLE IF EXISTS `exec_rec`;
 
 drop view if exists `v_mode_default_dispatch`;
 drop view if exists `v_mode_dispatch`;
+DROP VIEW IF EXISTS `v_mode_state_default`;
+DROP VIEW IF EXISTS `v_mode_state_default_transition_rule`;
+drop view if exists `v_mode_switch_rule_dispatch`;
 
 CREATE TABLE `dispatch` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -28,17 +32,19 @@ CREATE TABLE `dispatch` (
 );
 
 # service process
-insert into dispatch (identifier, module, func_name) values ('service_create_proc', 'mockserv', 'create_service_process');
+insert into dispatch (identifier, category, module, func_name) values ('service_create_proc', 'service', 'mockserv', 'create_service_process');
 
 # modes
 insert into dispatch (identifier, category, module, class_name, func_name) values ('startup', 'effect', 'mockserv', 'StartupHandler', 'start'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('eval', 'effect', 'mockserv', 'EvalModeHandler', 'do_eval'); 
--- insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.should_update', 'effect', 'mockserv', 'ScanModeHandler', 'should_update');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.update.condition', 'condition', 'mockserv', 'ScanModeHandler', 'should_update');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.monitor.condition', 'condition', 'mockserv', 'ScanModeHandler', 'should_monitor');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan', 'effect', 'mockserv', 'ScanModeHandler', 'do_scan');
-insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.discover', 'effect', 'mockserv', 'ScanModeHandler', 'do_scan_discover');
-insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.update', 'effect', 'mockserv', 'ScanModeHandler', 'do_scan');
-insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.monitor', 'effect', 'mockserv', 'ScanModeHandler', 'do_scan_monitor');
--- insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.after', 'effect', 'mockserv', 'ScanModeHandler', 'after_scan'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.discover', 'action', 'mockserv', 'ScanModeHandler', 'do_scan_discover');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.update', 'action', 'mockserv', 'ScanModeHandler', 'do_scan');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.monitor', 'action', 'mockserv', 'ScanModeHandler', 'do_scan_monitor');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('startup.scan.switch.before', 'switch', 'mockserv', 'ScanModeHandler', 'before_scan'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('startup.scan.switch.after', 'switch', 'mockserv', 'ScanModeHandler', 'after_scan'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('match', 'effect', 'mockserv', 'MatchModeHandler', 'do_match'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('fix', 'effect', 'mockserv', 'FixModeHandler', 'do_fix'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('report', 'effect', 'mockserv', 'ReportModeHandler', 'do_report'); 
@@ -180,7 +186,7 @@ CREATE TABLE `switch_rule` (
   `begin_mode_id` int(11) unsigned NOT NULL,
   `end_mode_id` int(11) unsigned NOT NULL,
   `before_dispatch_id` int(11) unsigned NOT NULL,
-  `action_dispatch_id` int(11) unsigned NOT NULL,
+  -- `action_dispatch_id` int(11) unsigned NOT NULL,
   `after_dispatch_id` int(11) unsigned NOT NULL,
   -- `effective_dt` datetime DEFAULT NULL,
   -- `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
@@ -191,15 +197,40 @@ CREATE TABLE `switch_rule` (
   CONSTRAINT `fk_switch_rule_end_mode` FOREIGN KEY (`end_mode_id`) REFERENCES `mode` (`id`),
   KEY `fk_switch_rule_before_dispatch` (`before_dispatch_id`),
   CONSTRAINT `fk_switch_rule_before_dispatch` FOREIGN KEY (`before_dispatch_id`) REFERENCES `dispatch` (`id`),
-  KEY `fk_switch_rule_action_dispatch` (`action_dispatch_id`),
-  CONSTRAINT `fk_switch_rule_action_dispatch` FOREIGN KEY (`action_dispatch_id`) REFERENCES `dispatch` (`id`),
+  -- KEY `fk_switch_rule_action_dispatch` (`action_dispatch_id`),
+  -- CONSTRAINT `fk_switch_rule_action_dispatch` FOREIGN KEY (`action_dispatch_id`) REFERENCES `dispatch` (`id`),
   KEY `fk_switch_rule_after_dispatch` (`after_dispatch_id`),
   CONSTRAINT `fk_switch_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `dispatch` (`id`)
   -- UNIQUE KEY `uk_switch_rule_name` (`index_name`,`name`)
 );
 
+create view `v_mode_switch_rule_dispatch` as
+select sr.name, m1.name begin_mode, m2.name end_mode, 
+    d1.package before_package, d1.module before_module, d1.class_name before_class, d1.func_name before_func, 
+    d2.package after_package, d2.module after_module, d2.class_name after_class, d2.func_name after_func
+ from mode m1, mode m2, switch_rule sr, dispatch d1, dispatch d2
+where sr.begin_mode_id = m1.id and 
+    sr.end_mode_id = m2.id and 
+    sr.before_dispatch_id = d1.id and
+    sr.after_dispatch_id = d2.id;
 
 
+insert into transition_rule(name, mode_id, begin_state_id, end_state_id, condition_dispatch_id)
+    values('scan.discover::update',
+        (select id from mode where name = 'scan'),
+        (select id from state where name = 'discover'),
+        (select id from state where name = 'update'),
+        (select id from dispatch where identifier = 'scan.update.condition')
+    );
+    
+insert into transition_rule(name, mode_id, begin_state_id, end_state_id, condition_dispatch_id)
+    values('scan.update::monitor',
+        (select id from mode where name = 'scan'),
+        (select id from state where name = 'update'),
+        (select id from state where name = 'monitor'),
+        (select id from dispatch where identifier = 'scan.monitor.condition')
+    );
+    
 CREATE TABLE `mode_state` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
@@ -275,6 +306,15 @@ insert into mode_state_default(mode_id, state_id, effect_dispatch_id, effective_
 insert into mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'scan'), (select id from state where name = 'update'), (select id from dispatch where identifier = 'scan.update'),now(), 5);
 insert into mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'scan'), (select id from state where name = 'monitor'), (select id from dispatch where identifier = 'scan.monitor'),now(), 5);
 
+create view `v_mode_state_default_transition_rule` as
+select tr.name, m.name mode, s1.name begin_state, s2.name end_state, 
+    d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
+ from mode m, mode_state_default md, transition_rule tr, state s1, state s2, dispatch d1
+where m.id = md.mode_id and md.state_id = s1.id and
+    tr.begin_state_id = s1.id and 
+    tr.end_state_id = s2.id and 
+    tr.condition_dispatch_id = d1.id;
+
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
@@ -313,8 +353,6 @@ CREATE TABLE `mode_state_default_operation` (
 );
 
 
-DROP VIEW IF EXISTS `v_mode_state_default`;
-
 CREATE VIEW `v_mode_state_default` AS 
   SELECT m.name mode_name, s.name state_name, d.identifier, d.package, d.module, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance, 
     ms.effective_dt, ms.expiration_dt
@@ -349,7 +387,6 @@ CREATE VIEW `v_mode_state` AS
   ORDER BY ms.effective_dt;
 
 
-DROP TABLE IF EXISTS `exec_rec`;
 
 CREATE TABLE `exec_rec` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
