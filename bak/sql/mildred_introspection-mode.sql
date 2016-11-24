@@ -32,16 +32,16 @@ CREATE TABLE `mode` (
 -- Dumping data for table `mode`
 --
 
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (1,'media','startup','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (2,'media','scan','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (3,'media','match','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (4,'media','eval','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (5,'media','fix','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (6,'media','clean','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (7,'media','sync','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (8,'media','requests','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (9,'media','sleep','2016-11-24 01:41:42','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (10,'media','shutdown','2016-11-24 01:41:42','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (1,'media','startup','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (2,'media','scan','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (3,'media','match','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (4,'media','eval','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (5,'media','fix','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (6,'media','clean','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (7,'media','sync','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (8,'media','requests','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (9,'media','sleep','2016-11-24 11:09:47','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `effective_dt`, `expiration_dt`) VALUES (10,'media','shutdown','2016-11-24 11:09:47','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
