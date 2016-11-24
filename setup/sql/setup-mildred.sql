@@ -198,6 +198,39 @@ CREATE TABLE `exclude_directory` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `file_handler`
+--
+
+DROP TABLE IF EXISTS `file_handler`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `file_handler` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `package` varchar(1024) DEFAULT NULL,
+  `module` varchar(128) NOT NULL,
+  `class_name` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `file_handler_type`
+--
+
+DROP TABLE IF EXISTS `file_handler_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `file_handler_type` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `file_handler_id` int(11) unsigned NOT NULL,
+  `file_type` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
+  CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `match_discount`
 --
 

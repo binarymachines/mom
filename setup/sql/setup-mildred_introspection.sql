@@ -16,65 +16,49 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `error`
+-- Table structure for table `dispatch`
 --
 
-DROP TABLE IF EXISTS `error`;
+DROP TABLE IF EXISTS `dispatch`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `error` (
+CREATE TABLE `dispatch` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) NOT NULL,
+  `identifier` varchar(128) DEFAULT NULL,
+  `category` varchar(128) DEFAULT NULL,
+  `relative_path` varchar(1024) DEFAULT NULL,
+  `module` varchar(128) NOT NULL,
+  `class_name` varchar(128) DEFAULT NULL,
+  `func_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `error_attribute`
+-- Table structure for table `dispatch_target`
 --
 
-DROP TABLE IF EXISTS `error_attribute`;
+DROP TABLE IF EXISTS `dispatch_target`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `error_attribute` (
+CREATE TABLE `dispatch_target` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `error_id` int(11) unsigned NOT NULL,
-  `parent_attribute_id` int(11) DEFAULT NULL,
-  `name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `dispatch_id` int(11) unsigned NOT NULL,
+  `target` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_error_attribute_error` (`error_id`),
-  CONSTRAINT `fk_error_attribute_error` FOREIGN KEY (`error_id`) REFERENCES `error` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  KEY `fk_dispatch_target_dispatch` (`dispatch_id`),
+  CONSTRAINT `fk_dispatch_target_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `dispatch` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `error_attribute_value`
+-- Table structure for table `exec_rec`
 --
 
-DROP TABLE IF EXISTS `error_attribute_value`;
+DROP TABLE IF EXISTS `exec_rec`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `error_attribute_value` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `error_id` int(11) unsigned NOT NULL,
-  `error_attribute_id` int(11) unsigned NOT NULL,
-  `attribute_value` varchar(256) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_eav_e` (`error_id`),
-  KEY `fk_eav_ea` (`error_attribute_id`),
-  CONSTRAINT `fk_eav_e` FOREIGN KEY (`error_id`) REFERENCES `error` (`id`),
-  CONSTRAINT `fk_eav_ea` FOREIGN KEY (`error_attribute_id`) REFERENCES `error_attribute` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `execution`
---
-
-DROP TABLE IF EXISTS `execution`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `execution` (
+CREATE TABLE `exec_rec` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `pid` varchar(32) NOT NULL,
   `index_name` varchar(1024) NOT NULL,
@@ -84,7 +68,7 @@ CREATE TABLE `execution` (
   `effective_dt` datetime NOT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=356 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,7 +86,7 @@ CREATE TABLE `mode` (
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -156,7 +140,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -312,6 +296,24 @@ CREATE TABLE `state` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Temporary table structure for view `v_dispatch_target`
+--
+
+DROP TABLE IF EXISTS `v_dispatch_target`;
+/*!50001 DROP VIEW IF EXISTS `v_dispatch_target`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `v_dispatch_target` (
+  `identifier` tinyint NOT NULL,
+  `relative_path` tinyint NOT NULL,
+  `module` tinyint NOT NULL,
+  `class_name` tinyint NOT NULL,
+  `func_name` tinyint NOT NULL,
+  `target` tinyint NOT NULL
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Temporary table structure for view `v_mode_state`
 --
 
@@ -373,6 +375,25 @@ SET character_set_client = utf8;
   `expiration_dt` tinyint NOT NULL
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `v_dispatch_target`
+--
+
+/*!50001 DROP TABLE IF EXISTS `v_dispatch_target`*/;
+/*!50001 DROP VIEW IF EXISTS `v_dispatch_target`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = latin1 */;
+/*!50001 SET character_set_results     = latin1 */;
+/*!50001 SET collation_connection      = latin1_swedish_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_dispatch_target` AS select `d`.`identifier` AS `identifier`,`d`.`relative_path` AS `relative_path`,`d`.`module` AS `module`,`d`.`class_name` AS `class_name`,`d`.`func_name` AS `func_name`,`dt`.`target` AS `target` from (`dispatch` `d` join `dispatch_target` `dt`) where (`dt`.`dispatch_id` = `d`.`id`) order by `d`.`identifier` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
 -- Final view structure for view `v_mode_state`
