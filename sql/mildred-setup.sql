@@ -549,3 +549,12 @@ insert into file_handler_type (file_handler_id, file_type) values ((select id fr
 insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'flac');
 insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'ogg');
 insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'oga');
+
+
+drop view if exists `v_file_handler`;
+
+create view `v_file_handler` as
+  select fh.package, fh.module, fh.class_name, ft.file_type 
+  from file_handler fh, file_handler_type ft
+  where ft.file_handler_id = fh.id
+  order by fh.package, fh.module, fh.class_name;
