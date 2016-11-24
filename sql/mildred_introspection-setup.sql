@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS `exec_rec`;
 drop view if exists `v_mode_default_dispatch`;
 drop view if exists `v_mode_dispatch`;
 DROP VIEW IF EXISTS `v_mode_state_default`;
-DROP VIEW IF EXISTS `v_mode_state_default_transition_rule`;
+DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
 drop view if exists `v_mode_switch_rule_dispatch`;
 
 CREATE TABLE `dispatch` (
@@ -37,17 +37,27 @@ insert into dispatch (identifier, category, module, func_name) values ('service_
 # modes
 insert into dispatch (identifier, category, module, class_name, func_name) values ('startup', 'effect', 'mockserv', 'StartupHandler', 'start'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('eval', 'effect', 'mockserv', 'EvalModeHandler', 'do_eval'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('eval.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('eval.switch.before', 'switch', 'mockserv', 'EvalModeHandler', 'before_eval'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('eval.switch.after', 'switch', 'mockserv', 'EvalModeHandler', 'after_eval'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.update.condition', 'condition', 'mockserv', 'ScanModeHandler', 'should_update');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.monitor.condition', 'condition', 'mockserv', 'ScanModeHandler', 'should_monitor');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.switch.condition', 'condition', 'mockserv', 'ScanModeHandler', 'can_scan');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan', 'effect', 'mockserv', 'ScanModeHandler', 'do_scan');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.discover', 'action', 'mockserv', 'ScanModeHandler', 'do_scan_discover');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.update', 'action', 'mockserv', 'ScanModeHandler', 'do_scan');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.monitor', 'action', 'mockserv', 'ScanModeHandler', 'do_scan_monitor');
-insert into dispatch (identifier, category, module, class_name, func_name) values ('startup.scan.switch.before', 'switch', 'mockserv', 'ScanModeHandler', 'before_scan'); 
-insert into dispatch (identifier, category, module, class_name, func_name) values ('startup.scan.switch.after', 'switch', 'mockserv', 'ScanModeHandler', 'after_scan'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.switch.before', 'switch', 'mockserv', 'ScanModeHandler', 'before_scan'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.switch.after', 'switch', 'mockserv', 'ScanModeHandler', 'after_scan'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('match', 'effect', 'mockserv', 'MatchModeHandler', 'do_match'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('match.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('match.switch.before', 'switch', 'mockserv', 'MatchModeHandler', 'before_match'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('match.switch.after', 'switch', 'mockserv', 'MatchModeHandler', 'after_match'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('fix.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('fix', 'effect', 'mockserv', 'FixModeHandler', 'do_fix'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('report.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('report', 'effect', 'mockserv', 'ReportModeHandler', 'do_report'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('requests', 'effect', 'mockserv', 'RequestsModeHandler', 'do_do_reqs'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('shutdown', 'effect', 'mockserv', 'ShutdownHandler', 'end'); 
 
@@ -134,6 +144,7 @@ insert into mode (index_name, name, effective_dt) values ('media', 'fix', now())
 insert into mode (index_name, name, effective_dt) values ('media', 'clean', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'sync', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'requests', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'report', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'sleep', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'shutdown', now());
 
@@ -185,8 +196,8 @@ CREATE TABLE `switch_rule` (
   `name` varchar(128) NOT NULL,
   `begin_mode_id` int(11) unsigned NOT NULL,
   `end_mode_id` int(11) unsigned NOT NULL,
+  `condition_dispatch_id` int(11) unsigned,
   `before_dispatch_id` int(11) unsigned NOT NULL,
-  -- `action_dispatch_id` int(11) unsigned NOT NULL,
   `after_dispatch_id` int(11) unsigned NOT NULL,
   -- `effective_dt` datetime DEFAULT NULL,
   -- `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
@@ -197,8 +208,8 @@ CREATE TABLE `switch_rule` (
   CONSTRAINT `fk_switch_rule_end_mode` FOREIGN KEY (`end_mode_id`) REFERENCES `mode` (`id`),
   KEY `fk_switch_rule_before_dispatch` (`before_dispatch_id`),
   CONSTRAINT `fk_switch_rule_before_dispatch` FOREIGN KEY (`before_dispatch_id`) REFERENCES `dispatch` (`id`),
-  -- KEY `fk_switch_rule_action_dispatch` (`action_dispatch_id`),
-  -- CONSTRAINT `fk_switch_rule_action_dispatch` FOREIGN KEY (`action_dispatch_id`) REFERENCES `dispatch` (`id`),
+  KEY `fk_switch_rule_condition_dispatch` (`condition_dispatch_id`),
+  CONSTRAINT `fk_switch_rule_condition_dispatch` FOREIGN KEY (`condition_dispatch_id`) REFERENCES `dispatch` (`id`),
   KEY `fk_switch_rule_after_dispatch` (`after_dispatch_id`),
   CONSTRAINT `fk_switch_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `dispatch` (`id`)
   -- UNIQUE KEY `uk_switch_rule_name` (`index_name`,`name`)
@@ -206,13 +217,15 @@ CREATE TABLE `switch_rule` (
 
 create view `v_mode_switch_rule_dispatch` as
 select sr.name, m1.name begin_mode, m2.name end_mode, 
-    d1.package before_package, d1.module before_module, d1.class_name before_class, d1.func_name before_func, 
-    d2.package after_package, d2.module after_module, d2.class_name after_class, d2.func_name after_func
- from mode m1, mode m2, switch_rule sr, dispatch d1, dispatch d2
+    d1.package condtion_package, d1.module condtion_module, d1.class_name condtion_class, d1.func_name condtion_func, 
+    d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
+    d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
+ from mode m1, mode m2, switch_rule sr, dispatch d1, dispatch d2, dispatch d3
 where sr.begin_mode_id = m1.id and 
     sr.end_mode_id = m2.id and 
-    sr.before_dispatch_id = d1.id and
-    sr.after_dispatch_id = d2.id;
+    sr.condition_dispatch_id = d1.id and
+    sr.before_dispatch_id = d2.id and
+    sr.after_dispatch_id = d3.id;
 
 
 insert into transition_rule(name, mode_id, begin_state_id, end_state_id, condition_dispatch_id)
@@ -278,7 +291,7 @@ insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) va
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'fix'), (select id from dispatch where identifier = 'fix'),now(), 1);
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'clean'), (select id from dispatch where identifier = 'clean'),now(), 1);
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'requests'), (select id from dispatch where identifier = 'requests'),now(), 2);
--- insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'report'), (select id from dispatch where identifier = 'report'),now(), 2);
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'report'), (select id from dispatch where identifier = 'report'),now(), 2);
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'shutdown'), (select id from dispatch where identifier = 'shutdown'),now(), 0);
 
 create view `v_mode_default_dispatch` as
@@ -315,7 +328,7 @@ insert into mode_state_default(mode_id, state_id, effect_dispatch_id, effective_
 insert into mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'scan'), (select id from state where name = 'update'), (select id from dispatch where identifier = 'scan.update'),now(), 5);
 insert into mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'scan'), (select id from state where name = 'monitor'), (select id from dispatch where identifier = 'scan.monitor'),now(), 5);
 
-create view `v_mode_state_default_transition_rule` as
+create view `v_mode_state_default_transition_rule_dispatch` as
 select tr.name, m.name mode, s1.name begin_state, s2.name end_state, 
     d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
  from mode m, mode_state_default md, transition_rule tr, state s1, state s2, dispatch d1
@@ -323,6 +336,51 @@ where m.id = md.mode_id and md.state_id = s1.id and
     tr.begin_state_id = s1.id and 
     tr.end_state_id = s2.id and 
     tr.condition_dispatch_id = d1.id;
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('startup.scan',
+        (select id from mode where name = 'startup'),
+        (select id from mode where name = 'scan'),
+        (select id from dispatch where identifier = 'scan.switch.condition'),
+        (select id from dispatch where identifier = 'scan.switch.before'),
+        (select id from dispatch where identifier = 'scan.switch.after')
+    );
+    
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('startup.match',
+        (select id from mode where name = 'startup'),
+        (select id from mode where name = 'match'),
+        (select id from dispatch where identifier = 'match.switch.condition'),
+        (select id from dispatch where identifier = 'match.switch.before'),
+        (select id from dispatch where identifier = 'match.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('startup.eval',
+        (select id from mode where name = 'startup'),
+        (select id from mode where name = 'eval'),
+        (select id from dispatch where identifier = 'eval.switch.condition'),
+        (select id from dispatch where identifier = 'eval.switch.before'),
+        (select id from dispatch where identifier = 'eval.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('eval.match',
+        (select id from mode where name = 'eval'),
+        (select id from mode where name = 'match'),
+        (select id from dispatch where identifier = 'match.switch.condition'),
+        (select id from dispatch where identifier = 'match.switch.before'),
+        (select id from dispatch where identifier = 'match.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('eval.scan',
+        (select id from mode where name = 'eval'),
+        (select id from mode where name = 'scan'),
+        (select id from dispatch where identifier = 'scan.switch.condition'),
+        (select id from dispatch where identifier = 'scan.switch.before'),
+        (select id from dispatch where identifier = 'scan.switch.after')
+    );
 
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

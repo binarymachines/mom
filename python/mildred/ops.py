@@ -248,7 +248,6 @@ def get_exec_record_value(field):
 def insert_exec_record():
     values = cache2.get_hash2(get_exec_key())
     try:
-
         return alchemy.insert_exec_record(values)
     except Exception, err:
         print err.message

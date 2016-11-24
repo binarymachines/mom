@@ -36,11 +36,7 @@ def get_process_create_func():
 
 def launch(args, run=True):
     try:
-        # TODO: set vars.workdir BEFORE any calls to log.start_logging() are made 
-        # vars.workdir = util.get_working_directory() if not args['--workdir'] else args['<directory>']
-
-        # NOTE: final changes to config happen here
-        
+        # NOTE: final changes to config here 
         config.filename = config.filename if not args['--config'] else args['<filename>']
         config.start_time = datetime.datetime.now().isoformat()
         start.execute(args)
