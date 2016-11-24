@@ -67,14 +67,14 @@ CREATE TABLE `mode` (
 
 insert into mode (index_name, name, effective_dt) values ('media', 'startup', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'scan', now());
--- insert into mode (index_name, name, effective_dt) values ('media', 'match', now());
--- insert into mode (index_name, name, effective_dt) values ('media', 'eval', now());
--- insert into mode (index_name, name, effective_dt) values ('media', 'fix', now());
--- insert into mode (index_name, name, effective_dt) values ('media', 'clean', now());
--- insert into mode (index_name, name, effective_dt) values ('media', 'sync', now());
--- insert into mode (index_name, name, effective_dt) values ('media', 'requests', now());
--- insert into mode (index_name, name, effective_dt) values ('media', 'shutdown', now());
--- insert into mode (index_name, name, effective_dt) values ('media', 'sleep', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'match', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'eval', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'fix', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'clean', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'sync', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'requests', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'sleep', now());
+insert into mode (index_name, name, effective_dt) values ('media', 'shutdown', now());
 
 CREATE TABLE `state` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -292,3 +292,51 @@ create view `v_dispatch_target` as
   from dispatch d, dispatch_target dt
   where dt.dispatch_id = d.id
   order by d.identifier;
+
+
+DROP TABLE IF EXISTS `exec_rec`;
+
+CREATE TABLE `exec_rec` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `pid` varchar(32) NOT NULL,
+  `index_name` varchar(1024) NOT NULL,
+  `status` varchar(128) NOT NULL,
+  `start_dt` datetime NOT NULL,
+  `end_dt` datetime DEFAULT NULL,
+  `effective_dt` datetime NOT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`)
+);
+
+
+-- DROP TABLE IF EXISTS `error_attribute_value`;
+-- DROP TABLE IF EXISTS `error_attribute`;
+-- DROP TABLE IF EXISTS `error`;
+
+-- CREATE TABLE `error` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   `name` varchar(128) NOT NULL,
+--   PRIMARY KEY (`id`)
+-- );
+
+-- CREATE TABLE `error_attribute` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   `error_id` int(11) unsigned NOT NULL,
+--   `parent_attribute_id` int(11) DEFAULT NULL,
+--   `name` varchar(128) CHARACTER SET utf8 NOT NULL,
+--   PRIMARY KEY (`id`),
+--   KEY `fk_error_attribute_error` (`error_id`),
+--   CONSTRAINT `fk_error_attribute_error` FOREIGN KEY (`error_id`) REFERENCES `error` (`id`)
+-- );
+
+-- CREATE TABLE `error_attribute_value` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   `error_id` int(11) unsigned NOT NULL,
+--   `error_attribute_id` int(11) unsigned NOT NULL,
+--   `attribute_value` varchar(256) NOT NULL,
+--   PRIMARY KEY (`id`),
+--   KEY `fk_eav_e` (`error_id`),
+--   KEY `fk_eav_ea` (`error_attribute_id`),
+--   CONSTRAINT `fk_eav_e` FOREIGN KEY (`error_id`) REFERENCES `error` (`id`),
+--   CONSTRAINT `fk_eav_ea` FOREIGN KEY (`error_attribute_id`) REFERENCES `error_attribute` (`id`)
+-- );

@@ -23,8 +23,8 @@ ERR = log.get_log('errors', logging.WARNING)
 
 
 class Mutagen(FileHandler):
-    def __init__(self, name, *extensions):
-        super(Mutagen, self).__init__(name, *extensions)
+    def __init__(self, name):
+        super(Mutagen, self).__init__(name)
 
 
     def handle_file(self, asset, data):
@@ -108,17 +108,17 @@ class Mutagen(FileHandler):
 
 class MutagenAAC(Mutagen):
     def __init__(self):
-        super(MutagenAAC, self).__init__('mutagen-aac', 'aac')
+        super(MutagenAAC, self).__init__('mutagen-aac')
 
 
 class MutagenM4A(Mutagen):
     def __init__(self):
-        super(MutagenM4A, self).__init__('mutagen-m4a', 'm4a')
+        super(MutagenM4A, self).__init__('mutagen-m4a')
 
 
 class MutagenMP4(Mutagen):
     def __init__(self):
-        super(MutagenMP4, self).__init__('mutagen-mp4', 'mp4', 'm4a')
+        super(MutagenMP4, self).__init__('mutagen-mp4')
 
     def read_tags(self, asset, data):
         mp4_data = {}
@@ -150,11 +150,12 @@ class MutagenMP4(Mutagen):
 
 class MutagenOggFlac(Mutagen):
     def __init__(self):
-        super(MutagenOggFlac, self).__init__('mutagen-oggflac', 'ogg', 'flac')
+        super(MutagenOggFlac, self).__init__('mutagen-oggflac')
+
 
 class MutagenAPEv2(Mutagen):
     def __init__(self):
-        super(MutagenAPEv2, self).__init__('mutagen-apev2', 'ape', 'mpc')
+        super(MutagenAPEv2, self).__init__('mutagen-apev2')
 
     def read_tags(self, asset, data):
         ape_data = {}
@@ -181,7 +182,7 @@ class MutagenAPEv2(Mutagen):
 
 class MutagenFLAC(Mutagen):
     def __init__(self):
-        super(MutagenFLAC, self).__init__('mutagen-flac', 'flac')
+        super(MutagenFLAC, self).__init__('mutagen-flac')
 
     def read_tags(self, asset, data):
         flac_data = {}
@@ -220,7 +221,7 @@ class MutagenFLAC(Mutagen):
 
 class MutagenID3(Mutagen):
     def __init__(self):
-        super(MutagenID3, self).__init__('mutagen-id3', 'mp3', 'flac')
+        super(MutagenID3, self).__init__('mutagen-id3')
 
     def read_tags(self, asset, data):
         document = ID3(asset.absolute_path)
@@ -266,7 +267,7 @@ class MutagenID3(Mutagen):
 
 class MutagenOggVorbis(Mutagen):
     def __init__(self):
-        super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis', 'ogg', 'oga')
+        super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis')
 
     def read_tags(self, asset, data):
         ogg_data = {}
@@ -289,5 +290,3 @@ class MutagenOggVorbis(Mutagen):
             ogg_data['_reader'] = self.name
             ogg_data['_read_date'] = datetime.datetime.now().isoformat()
             data['properties'].append(ogg_data)
-
-

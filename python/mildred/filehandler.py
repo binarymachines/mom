@@ -56,9 +56,9 @@ def report_invalid_field(path, key, value):
 
 
 class FileHandler(object):
-    def __init__(self, name, *extensions):
+    def __init__(self, name):
         self.name = name
-        self.extensions = extensions
+        self.extensions = ()
 
     def handle_exception(self, exception, asset, data):
 

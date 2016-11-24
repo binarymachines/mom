@@ -1,15 +1,16 @@
 #! /usr/bin/python
 
+import sys
 import logging
+from pydoc import locate
 
 import config
 import const
 import library
 import ops
+import alchemy
 
 from core import log
-
-from pathogen import MutagenID3, MutagenFLAC, MutagenAPEv2, MutagenOggVorbis, MutagenMP4
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -19,6 +20,33 @@ class Reader:
     def __init__(self):
         self.document_type = const.DOCUMENT
         self.extensions = ()
+        self.file_handlers = ()
+
+        self.initialize_file_handlers()
+
+
+    def initialize_file_handlers(self):
+        handlers = alchemy.retrieve_file_handlers()
+        for handler in handlers:
+            qualified = []
+            if handler.package: 
+                qualified.append(handler.package)            
+            qualified.append(handler.module)            
+            qualified.append(handler.class_name)            
+
+            qname = '.'.join(qualified)
+            clazz = locate(qname)
+            if clazz is None:
+                print "%s not found." % qname
+                continue
+
+            instance = clazz()
+
+            for file_type in handler.file_types:
+                instance.extensions += file_type.name.lower(),
+            
+            self.file_handlers += instance,
+
 
     def get_supported_extensions(self):
         if len(self.extensions) == 0:
@@ -53,5 +81,5 @@ class Reader:
                         library.record_file_read(file_handler.name, asset)
 
     def get_file_handlers(self):
-        return MutagenID3(), MutagenFLAC(), MutagenAPEv2(), MutagenOggVorbis(), MutagenMP4()
+        return self.file_handlers
 

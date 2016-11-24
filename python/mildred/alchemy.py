@@ -74,7 +74,7 @@ class SQLEngine(Base):
 
 
 class SQLExecutionRecord(Base):
-    __tablename__ = 'execution'
+    __tablename__ = 'exec_rec'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)
     pid = Column('pid', String(32), nullable=False)
@@ -85,6 +85,29 @@ class SQLExecutionRecord(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 
+class SQLFileHandler(Base):
+    __tablename__ = 'file_handler'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    module = Column('module', String(128), nullable=False)
+    package = Column('package', String(1024), nullable=False)
+    class_name = Column('class_name', String(128), nullable=False)
+
+
+class SQLFileHandlerType(Base): 
+    __tablename__ = 'file_handler_type'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    file_handler_id = Column(Integer, ForeignKey('file_handler.id'))
+    name = Column('file_type', String(8), nullable=False)
+    reader = relationship("SQLFileHandler", back_populates="file_types")
+
+SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileHandlerType.id, back_populates="reader")
+
+def retrieve_file_handlers():
+    result = ()
+    for instance in sessions[0].query(SQLFileHandler):
+        result += (instance,)
+
+    return result
 
 class SQLMatcher(Base):
     __tablename__ = 'matcher'
