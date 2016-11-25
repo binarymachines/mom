@@ -31,7 +31,7 @@ CREATE TABLE `dispatch` (
   `class_name` varchar(128) DEFAULT NULL,
   `func_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +69,7 @@ CREATE TABLE `mode` (
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,7 +96,7 @@ CREATE TABLE `mode_default` (
   KEY `fk_mode_default_mode` (`mode_id`),
   CONSTRAINT `fk_mode_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -296,18 +296,21 @@ CREATE TABLE `switch_rule` (
   `name` varchar(128) NOT NULL,
   `begin_mode_id` int(11) unsigned NOT NULL,
   `end_mode_id` int(11) unsigned NOT NULL,
+  `condition_dispatch_id` int(11) unsigned DEFAULT NULL,
   `before_dispatch_id` int(11) unsigned NOT NULL,
   `after_dispatch_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_switch_rule_begin_mode` (`begin_mode_id`),
   KEY `fk_switch_rule_end_mode` (`end_mode_id`),
   KEY `fk_switch_rule_before_dispatch` (`before_dispatch_id`),
+  KEY `fk_switch_rule_condition_dispatch` (`condition_dispatch_id`),
   KEY `fk_switch_rule_after_dispatch` (`after_dispatch_id`),
   CONSTRAINT `fk_switch_rule_begin_mode` FOREIGN KEY (`begin_mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_switch_rule_end_mode` FOREIGN KEY (`end_mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_switch_rule_before_dispatch` FOREIGN KEY (`before_dispatch_id`) REFERENCES `dispatch` (`id`),
+  CONSTRAINT `fk_switch_rule_condition_dispatch` FOREIGN KEY (`condition_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_switch_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `dispatch` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -427,14 +430,14 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_state_default_transition_rule`
+-- Temporary table structure for view `v_mode_state_default_transition_rule_dispatch`
 --
 
-DROP TABLE IF EXISTS `v_mode_state_default_transition_rule`;
-/*!50001 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule`*/;
+DROP TABLE IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
+/*!50001 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_state_default_transition_rule` (
+/*!50001 CREATE TABLE `v_mode_state_default_transition_rule_dispatch` (
   `name` tinyint NOT NULL,
   `mode` tinyint NOT NULL,
   `begin_state` tinyint NOT NULL,
@@ -458,6 +461,10 @@ SET character_set_client = utf8;
   `name` tinyint NOT NULL,
   `begin_mode` tinyint NOT NULL,
   `end_mode` tinyint NOT NULL,
+  `condtion_package` tinyint NOT NULL,
+  `condtion_module` tinyint NOT NULL,
+  `condtion_class` tinyint NOT NULL,
+  `condtion_func` tinyint NOT NULL,
   `before_package` tinyint NOT NULL,
   `before_module` tinyint NOT NULL,
   `before_class` tinyint NOT NULL,
@@ -546,11 +553,11 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
--- Final view structure for view `v_mode_state_default_transition_rule`
+-- Final view structure for view `v_mode_state_default_transition_rule_dispatch`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_state_default_transition_rule`*/;
-/*!50001 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule`*/;
+/*!50001 DROP TABLE IF EXISTS `v_mode_state_default_transition_rule_dispatch`*/;
+/*!50001 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
@@ -559,7 +566,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = latin1_swedish_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_mode_state_default_transition_rule` AS select `tr`.`name` AS `name`,`m`.`name` AS `mode`,`s1`.`name` AS `begin_state`,`s2`.`name` AS `end_state`,`d1`.`package` AS `condition_package`,`d1`.`module` AS `condition_module`,`d1`.`class_name` AS `condition_class`,`d1`.`func_name` AS `condition_func` from (((((`mode` `m` join `mode_state_default` `md`) join `transition_rule` `tr`) join `state` `s1`) join `state` `s2`) join `dispatch` `d1`) where ((`m`.`id` = `md`.`mode_id`) and (`md`.`state_id` = `s1`.`id`) and (`tr`.`begin_state_id` = `s1`.`id`) and (`tr`.`end_state_id` = `s2`.`id`) and (`tr`.`condition_dispatch_id` = `d1`.`id`)) */;
+/*!50001 VIEW `v_mode_state_default_transition_rule_dispatch` AS select `tr`.`name` AS `name`,`m`.`name` AS `mode`,`s1`.`name` AS `begin_state`,`s2`.`name` AS `end_state`,`d1`.`package` AS `condition_package`,`d1`.`module` AS `condition_module`,`d1`.`class_name` AS `condition_class`,`d1`.`func_name` AS `condition_func` from (((((`mode` `m` join `mode_state_default` `md`) join `transition_rule` `tr`) join `state` `s1`) join `state` `s2`) join `dispatch` `d1`) where ((`m`.`id` = `md`.`mode_id`) and (`md`.`state_id` = `s1`.`id`) and (`tr`.`begin_state_id` = `s1`.`id`) and (`tr`.`end_state_id` = `s2`.`id`) and (`tr`.`condition_dispatch_id` = `d1`.`id`)) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -578,7 +585,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = latin1_swedish_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_mode_switch_rule_dispatch` AS select `sr`.`name` AS `name`,`m1`.`name` AS `begin_mode`,`m2`.`name` AS `end_mode`,`d1`.`package` AS `before_package`,`d1`.`module` AS `before_module`,`d1`.`class_name` AS `before_class`,`d1`.`func_name` AS `before_func`,`d2`.`package` AS `after_package`,`d2`.`module` AS `after_module`,`d2`.`class_name` AS `after_class`,`d2`.`func_name` AS `after_func` from ((((`mode` `m1` join `mode` `m2`) join `switch_rule` `sr`) join `dispatch` `d1`) join `dispatch` `d2`) where ((`sr`.`begin_mode_id` = `m1`.`id`) and (`sr`.`end_mode_id` = `m2`.`id`) and (`sr`.`before_dispatch_id` = `d1`.`id`) and (`sr`.`after_dispatch_id` = `d2`.`id`)) */;
+/*!50001 VIEW `v_mode_switch_rule_dispatch` AS select `sr`.`name` AS `name`,`m1`.`name` AS `begin_mode`,`m2`.`name` AS `end_mode`,`d1`.`package` AS `condtion_package`,`d1`.`module` AS `condtion_module`,`d1`.`class_name` AS `condtion_class`,`d1`.`func_name` AS `condtion_func`,`d2`.`package` AS `before_package`,`d2`.`module` AS `before_module`,`d2`.`class_name` AS `before_class`,`d2`.`func_name` AS `before_func`,`d3`.`package` AS `after_package`,`d3`.`module` AS `after_module`,`d3`.`class_name` AS `after_class`,`d3`.`func_name` AS `after_func` from (((((`mode` `m1` join `mode` `m2`) join `switch_rule` `sr`) join `dispatch` `d1`) join `dispatch` `d2`) join `dispatch` `d3`) where ((`sr`.`begin_mode_id` = `m1`.`id`) and (`sr`.`end_mode_id` = `m2`.`id`) and (`sr`.`condition_dispatch_id` = `d1`.`id`) and (`sr`.`before_dispatch_id` = `d2`.`id`) and (`sr`.`after_dispatch_id` = `d3`.`id`)) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
