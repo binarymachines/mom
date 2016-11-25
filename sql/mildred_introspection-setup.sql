@@ -60,6 +60,7 @@ insert into dispatch (identifier, category, module, class_name, func_name) value
 insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('requests', 'effect', 'mockserv', 'RequestsModeHandler', 'do_do_reqs'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('shutdown', 'effect', 'mockserv', 'ShutdownHandler', 'end'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('shutdown.switch.condition', 'condition', 'mockserv', 'ShutdownHandler', 'end'); 
 
 # mode states
 

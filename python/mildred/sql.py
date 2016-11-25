@@ -90,6 +90,8 @@ def retrieve_like_values(table_name, field_names, field_values):
 
     return run_query(query)
 
+def rows2resultset(rows, fieldnames):
+    pass
 
 def update_values(table_name, update_field_names, update_field_values, where_field_names, where_field_values):
     # formatted_update_values = [quote_if_string(value) for value in update_field_values]
