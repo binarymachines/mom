@@ -36,10 +36,15 @@ insert into dispatch (identifier, category, module, func_name) values ('service_
 
 # modes
 insert into dispatch (identifier, category, module, class_name, func_name) values ('startup', 'effect', 'mockserv', 'StartupHandler', 'start'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('startup.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'definitely');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('startup.switch.before', 'switch', 'mockserv', 'StartupHandler', 'starting'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('startup.switch.after', 'switch', 'mockserv', 'StartupHandler', 'started'); 
+
 insert into dispatch (identifier, category, module, class_name, func_name) values ('eval', 'effect', 'mockserv', 'EvalModeHandler', 'do_eval'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('eval.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('eval.switch.before', 'switch', 'mockserv', 'EvalModeHandler', 'before_eval'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('eval.switch.after', 'switch', 'mockserv', 'EvalModeHandler', 'after_eval'); 
+
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.update.condition', 'condition', 'mockserv', 'ScanModeHandler', 'should_update');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.monitor.condition', 'condition', 'mockserv', 'ScanModeHandler', 'should_monitor');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.switch.condition', 'condition', 'mockserv', 'ScanModeHandler', 'can_scan');
@@ -49,18 +54,31 @@ insert into dispatch (identifier, category, module, class_name, func_name) value
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.monitor', 'action', 'mockserv', 'ScanModeHandler', 'do_scan_monitor');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.switch.before', 'switch', 'mockserv', 'ScanModeHandler', 'before_scan'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('scan.switch.after', 'switch', 'mockserv', 'ScanModeHandler', 'after_scan'); 
+
 insert into dispatch (identifier, category, module, class_name, func_name) values ('match', 'effect', 'mockserv', 'MatchModeHandler', 'do_match'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('match.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('match.switch.before', 'switch', 'mockserv', 'MatchModeHandler', 'before_match'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('match.switch.after', 'switch', 'mockserv', 'MatchModeHandler', 'after_match'); 
+
 insert into dispatch (identifier, category, module, class_name, func_name) values ('fix.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('fix', 'effect', 'mockserv', 'FixModeHandler', 'do_fix'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('fix.switch.before', 'switch', 'mockserv', 'FixModeHandler', 'before_fix'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('fix.switch.after', 'switch', 'mockserv', 'FixModeHandler', 'after_fix'); 
+
 insert into dispatch (identifier, category, module, class_name, func_name) values ('report.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('report', 'effect', 'mockserv', 'ReportModeHandler', 'do_report'); 
-insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('report.switch.before', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'before'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('report.switch.after', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'after'); 
+
 insert into dispatch (identifier, category, module, class_name, func_name) values ('requests', 'effect', 'mockserv', 'RequestsModeHandler', 'do_do_reqs'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.before', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'before'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.after', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'after'); 
+
 insert into dispatch (identifier, category, module, class_name, func_name) values ('shutdown', 'effect', 'mockserv', 'ShutdownHandler', 'end'); 
-insert into dispatch (identifier, category, module, class_name, func_name) values ('shutdown.switch.condition', 'condition', 'mockserv', 'ShutdownHandler', 'end'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('shutdown.switch.before', 'switch', 'mockserv', 'ShutdownHandler', 'ending'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('shutdown.switch.after', 'switch', 'mockserv', 'ShutdownHandler', 'ended'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('shutdown.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'maybe'); 
 
 # mode states
 
@@ -137,6 +155,9 @@ CREATE TABLE `mode` (
   UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
 );
 
+SET @NONE = 'none';
+
+insert into mode (index_name, name, effective_dt) values ('media', @NONE, now());
 insert into mode (index_name, name, effective_dt) values ('media', 'startup', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'scan', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'match', now());
@@ -339,6 +360,15 @@ where m.id = md.mode_id and md.state_id = s1.id and
     tr.condition_dispatch_id = d1.id;
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('startup',
+        (select id from mode where name = @NONE),
+        (select id from mode where name = 'startup'),
+        (select id from dispatch where identifier = 'startup.switch.condition'),
+        (select id from dispatch where identifier = 'startup.switch.before'),
+        (select id from dispatch where identifier = 'startup.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     values('startup.scan',
         (select id from mode where name = 'startup'),
         (select id from mode where name = 'scan'),
@@ -381,6 +411,51 @@ insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
         (select id from dispatch where identifier = 'scan.switch.condition'),
         (select id from dispatch where identifier = 'scan.switch.before'),
         (select id from dispatch where identifier = 'scan.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('scan.match',
+        (select id from mode where name = 'scan'),
+        (select id from mode where name = 'match'),
+        (select id from dispatch where identifier = 'match.switch.condition'),
+        (select id from dispatch where identifier = 'match.switch.before'),
+        (select id from dispatch where identifier = 'match.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('scan.report',
+        (select id from mode where name = 'scan'),
+        (select id from mode where name = 'report'),
+        (select id from dispatch where identifier = 'report.switch.condition'),
+        (select id from dispatch where identifier = 'report.switch.before'),
+        (select id from dispatch where identifier = 'report.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('scan.requests',
+        (select id from mode where name = 'scan'),
+        (select id from mode where name = 'requests'),
+        (select id from dispatch where identifier = 'requests.switch.condition'),
+        (select id from dispatch where identifier = 'requests.switch.before'),
+        (select id from dispatch where identifier = 'requests.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('requests.fix',
+        (select id from mode where name = 'requests'),
+        (select id from mode where name = 'fix'),
+        (select id from dispatch where identifier = 'fix.switch.condition'),
+        (select id from dispatch where identifier = 'fix.switch.before'),
+        (select id from dispatch where identifier = 'fix.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('fix.shutdown',
+        (select id from mode where name = 'fix'),
+        (select id from mode where name = 'shutdown'),
+        (select id from dispatch where identifier = 'shutdown.switch.condition'),
+        (select id from dispatch where identifier = 'shutdown.switch.before'),
+        (select id from dispatch where identifier = 'shutdown.switch.after')
     );
 
 CREATE TABLE `mode_state_default_param` (
