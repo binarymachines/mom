@@ -32,7 +32,10 @@ CREATE TABLE `dispatch` (
 );
 
 # service process
-insert into dispatch (identifier, category, module, func_name) values ('service_create_proc', 'service', 'mockserv', 'create_service_process');
+insert into dispatch (identifier, category, module, func_name) values ('service', 'process', 'mockserv', 'create_service_process');
+insert into dispatch (identifier, category, module, class_name) values ('service', 'process.handler', 'mockserv', 'DocumentServiceProcessHandler');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('service', 'process.before', 'mockserv', 'DocumentServiceProcessHandler', 'before_switch');
+insert into dispatch (identifier, category, module, class_name, func_name) values ('service', 'process.after', 'mockserv', 'DocumentServiceProcessHandler', 'after_switch');
 
 # modes
 insert into dispatch (identifier, category, module, class_name, func_name) values ('startup', 'effect', 'mockserv', 'StartupHandler', 'start'); 
