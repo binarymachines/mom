@@ -152,17 +152,18 @@ CREATE TABLE `mode` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(128) NOT NULL,
+  `stateful_flag` boolean NOT NULL DEFAULT False,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
 );
 
-SET @NONE = 'none';
-
+SET @NONE = 'None';
 insert into mode (index_name, name, effective_dt) values ('media', @NONE, now());
+
 insert into mode (index_name, name, effective_dt) values ('media', 'startup', now());
-insert into mode (index_name, name, effective_dt) values ('media', 'scan', now());
+insert into mode (index_name, name, stateful_flag, effective_dt) values ('media', 'scan', True, now());
 insert into mode (index_name, name, effective_dt) values ('media', 'match', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'eval', now());
 insert into mode (index_name, name, effective_dt) values ('media', 'fix', now());
@@ -371,23 +372,8 @@ insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
         (select id from dispatch where identifier = 'startup.switch.after')
     );
 
-insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
-    values('startup.scan',
-        (select id from mode where name = 'startup'),
-        (select id from mode where name = 'scan'),
-        (select id from dispatch where identifier = 'scan.switch.condition'),
-        (select id from dispatch where identifier = 'scan.switch.before'),
-        (select id from dispatch where identifier = 'scan.switch.after')
-    );
-    
-insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
-    values('startup.match',
-        (select id from mode where name = 'startup'),
-        (select id from mode where name = 'match'),
-        (select id from dispatch where identifier = 'match.switch.condition'),
-        (select id from dispatch where identifier = 'match.switch.before'),
-        (select id from dispatch where identifier = 'match.switch.after')
-    );
+
+# paths to eval
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     values('startup.eval',
@@ -399,14 +385,70 @@ insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     );
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
-    values('eval.match',
+    values('scan.eval',
+        (select id from mode where name = 'scan'),
         (select id from mode where name = 'eval'),
-        (select id from mode where name = 'match'),
-        (select id from dispatch where identifier = 'match.switch.condition'),
-        (select id from dispatch where identifier = 'match.switch.before'),
-        (select id from dispatch where identifier = 'match.switch.after')
+        (select id from dispatch where identifier = 'eval.switch.condition'),
+        (select id from dispatch where identifier = 'eval.switch.before'),
+        (select id from dispatch where identifier = 'eval.switch.after')
     );
 
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('match.eval',
+        (select id from mode where name = 'match'),
+        (select id from mode where name = 'eval'),
+        (select id from dispatch where identifier = 'eval.switch.condition'),
+        (select id from dispatch where identifier = 'eval.switch.before'),
+        (select id from dispatch where identifier = 'eval.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('requests.eval',
+        (select id from mode where name = 'requests'),
+        (select id from mode where name = 'eval'),
+        (select id from dispatch where identifier = 'eval.switch.condition'),
+        (select id from dispatch where identifier = 'eval.switch.before'),
+        (select id from dispatch where identifier = 'eval.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('report.eval',
+        (select id from mode where name = 'report'),
+        (select id from mode where name = 'eval'),
+        (select id from dispatch where identifier = 'eval.switch.condition'),
+        (select id from dispatch where identifier = 'eval.switch.before'),
+        (select id from dispatch where identifier = 'eval.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('fix.eval',
+        (select id from mode where name = 'fix'),
+        (select id from mode where name = 'eval'),
+        (select id from dispatch where identifier = 'eval.switch.condition'),
+        (select id from dispatch where identifier = 'eval.switch.before'),
+        (select id from dispatch where identifier = 'eval.switch.after')
+    );
+
+# paths to scan
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('startup.scan',
+        (select id from mode where name = 'startup'),
+        (select id from mode where name = 'scan'),
+        (select id from dispatch where identifier = 'scan.switch.condition'),
+        (select id from dispatch where identifier = 'scan.switch.before'),
+        (select id from dispatch where identifier = 'scan.switch.after')
+    );
+    
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('startup.scan',
+        (select id from mode where name = 'startup'),
+        (select id from mode where name = 'scan'),
+        (select id from dispatch where identifier = 'scan.switch.condition'),
+        (select id from dispatch where identifier = 'scan.switch.before'),
+        (select id from dispatch where identifier = 'scan.switch.after')
+    );
+    
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     values('eval.scan',
         (select id from mode where name = 'eval'),
@@ -415,6 +457,36 @@ insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
         (select id from dispatch where identifier = 'scan.switch.before'),
         (select id from dispatch where identifier = 'scan.switch.after')
     );
+    
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('scan.scan',
+        (select id from mode where name = 'scan'),
+        (select id from mode where name = 'scan'),
+        (select id from dispatch where identifier = 'scan.switch.condition'),
+        (select id from dispatch where identifier = 'scan.switch.before'),
+        (select id from dispatch where identifier = 'scan.switch.after')
+    );
+    
+# paths to match
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('startup.match',
+        (select id from mode where name = 'startup'),
+        (select id from mode where name = 'match'),
+        (select id from dispatch where identifier = 'match.switch.condition'),
+        (select id from dispatch where identifier = 'match.switch.before'),
+        (select id from dispatch where identifier = 'match.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('eval.match',
+        (select id from mode where name = 'eval'),
+        (select id from mode where name = 'match'),
+        (select id from dispatch where identifier = 'match.switch.condition'),
+        (select id from dispatch where identifier = 'match.switch.before'),
+        (select id from dispatch where identifier = 'match.switch.after')
+    );
+
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     values('scan.match',
@@ -425,14 +497,27 @@ insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
         (select id from dispatch where identifier = 'match.switch.after')
     );
 
+# paths to report
+
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
-    values('scan.report',
-        (select id from mode where name = 'scan'),
+    values('fix.report',
+        (select id from mode where name = 'fix'),
         (select id from mode where name = 'report'),
         (select id from dispatch where identifier = 'report.switch.condition'),
         (select id from dispatch where identifier = 'report.switch.before'),
         (select id from dispatch where identifier = 'report.switch.after')
     );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('requests.report',
+        (select id from mode where name = 'requests'),
+        (select id from mode where name = 'report'),
+        (select id from dispatch where identifier = 'report.switch.condition'),
+        (select id from dispatch where identifier = 'report.switch.before'),
+        (select id from dispatch where identifier = 'report.switch.after')
+    );
+
+# paths to requests
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     values('scan.requests',
@@ -444,6 +529,26 @@ insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     );
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('match.requests',
+        (select id from mode where name = 'match'),
+        (select id from mode where name = 'requests'),
+        (select id from dispatch where identifier = 'requests.switch.condition'),
+        (select id from dispatch where identifier = 'requests.switch.before'),
+        (select id from dispatch where identifier = 'requests.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('eval.requests',
+        (select id from mode where name = 'eval'),
+        (select id from mode where name = 'requests'),
+        (select id from dispatch where identifier = 'requests.switch.condition'),
+        (select id from dispatch where identifier = 'requests.switch.before'),
+        (select id from dispatch where identifier = 'requests.switch.after')
+    );
+
+# paths to fix
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     values('requests.fix',
         (select id from mode where name = 'requests'),
         (select id from mode where name = 'fix'),
@@ -453,8 +558,28 @@ insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     );
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('report.fix',
+        (select id from mode where name = 'report'),
+        (select id from mode where name = 'fix'),
+        (select id from dispatch where identifier = 'fix.switch.condition'),
+        (select id from dispatch where identifier = 'fix.switch.before'),
+        (select id from dispatch where identifier = 'fix.switch.after')
+    );
+
+# paths to shutdown
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     values('fix.shutdown',
         (select id from mode where name = 'fix'),
+        (select id from mode where name = 'shutdown'),
+        (select id from dispatch where identifier = 'shutdown.switch.condition'),
+        (select id from dispatch where identifier = 'shutdown.switch.before'),
+        (select id from dispatch where identifier = 'shutdown.switch.after')
+    );
+
+insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
+    values('report.shutdown',
+        (select id from mode where name = 'report'),
         (select id from mode where name = 'shutdown'),
         (select id from dispatch where identifier = 'shutdown.switch.condition'),
         (select id from dispatch where identifier = 'shutdown.switch.before'),
