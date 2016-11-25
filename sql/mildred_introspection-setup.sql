@@ -251,7 +251,8 @@ where sr.begin_mode_id = m1.id and
     sr.end_mode_id = m2.id and 
     sr.condition_dispatch_id = d1.id and
     sr.before_dispatch_id = d2.id and
-    sr.after_dispatch_id = d3.id;
+    sr.after_dispatch_id = d3.id
+order by m1.id;
 
 
 insert into transition_rule(name, mode_id, begin_state_id, end_state_id, condition_dispatch_id)
@@ -362,6 +363,7 @@ where m.id = md.mode_id and md.state_id = s1.id and
     tr.begin_state_id = s1.id and 
     tr.end_state_id = s2.id and 
     tr.condition_dispatch_id = d1.id;
+-- order by m.id;
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     values('startup',
