@@ -42,7 +42,7 @@ def insert_values(table_name, field_names, field_values):
     execute_query(query)
 
 
-def retrieve_values(table_name, field_names, field_values, order_by=None):
+def retrieve_values(table_name, field_names, field_values, order_by=None, schema=config.mysql_db):
     formatted_values = [quote_if_string(value) for value in field_values]
     query = ' '.join(['SELECT', ', '.join(field_names), 'FROM', table_name])
 
@@ -57,11 +57,11 @@ def retrieve_values(table_name, field_names, field_values, order_by=None):
                 query += ' AND '
             else: break
     # if order_by is not None: query += " ORDER BY " + str(order_by).replace('[', '').replace(']', '')
-    return run_query(query)
+    return run_query(query, schema=schema)
 
 
-def retrieve_values2(table_name, field_names, field_values, order_by=None):
-    rows = retrieve_values(table_name, field_names, field_values, order_by=order_by)
+def retrieve_values2(table_name, field_names, field_values, order_by=None, schema=config.mysql_db):
+    rows = retrieve_values(table_name, field_names, field_values, order_by=order_by, schema=schema)
     resultset = ()
     count = 0
     for row in rows:

@@ -19,6 +19,7 @@ drop view if exists `v_mode_dispatch`;
 DROP VIEW IF EXISTS `v_mode_state_default`;
 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
 drop view if exists `v_mode_switch_rule_dispatch`;
+drop view if exists `v_mode_switch_rule_dispatch_w_id`;
 
 CREATE TABLE `dispatch` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -243,7 +244,7 @@ CREATE TABLE `switch_rule` (
 
 create view `v_mode_switch_rule_dispatch` as
 select sr.name, m1.name begin_mode, m2.name end_mode, 
-    d1.package condtion_package, d1.module condtion_module, d1.class_name condtion_class, d1.func_name condtion_func, 
+    d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func, 
     d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
     d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
  from mode m1, mode m2, switch_rule sr, dispatch d1, dispatch d2, dispatch d3
@@ -254,6 +255,18 @@ where sr.begin_mode_id = m1.id and
     sr.after_dispatch_id = d3.id
 order by m1.id;
 
+create view `v_mode_switch_rule_dispatch_w_id` as
+select sr.name, m1.id begin_mode_id, m1.name begin_mode, m2.id end_mode_id, m2.name end_mode, 
+    d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func, 
+    d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
+    d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
+ from mode m1, mode m2, switch_rule sr, dispatch d1, dispatch d2, dispatch d3
+where sr.begin_mode_id = m1.id and 
+    sr.end_mode_id = m2.id and 
+    sr.condition_dispatch_id = d1.id and
+    sr.before_dispatch_id = d2.id and
+    sr.after_dispatch_id = d3.id
+order by m1.id;
 
 insert into transition_rule(name, mode_id, begin_state_id, end_state_id, condition_dispatch_id)
     values('scan.discover::update',

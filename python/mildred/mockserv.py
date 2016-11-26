@@ -1,6 +1,9 @@
 import logging
 import random
 import time
+from pydoc import locate
+
+
 import config
 import ops
 import search
@@ -25,6 +28,7 @@ LOG = log.get_log(__name__, logging.DEBUG)
 
 class DocumentServiceProcess(SingleSelectorServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
+        self.handlers = { self.__class__.__name__: self }
 
         # super().__init__() must be called before accessing selector instance
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
@@ -37,6 +41,41 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
     def before_switch(self, selector, mode):
         self.process_handler.before_switch(selector, mode)
 
+    def _get_qualified_name(self, *nameparts):
+        result = []
+        for part in nameparts:
+            if part is not None:
+                result.append(part)
+
+        return '.'.join(result)
+
+    def _register_handler(self, qname):
+        if qname not in self.handlers:
+            clazz = locate(qname)
+            if clazz is None:
+                print "%s not found." % qname
+                return
+
+            self.handlers[qname] = clazz(self, self.context)
+
+    def build_instance_registry(self, switchrules):
+
+        test = self._get_qualified_name(__package__, __module__, self.__class__.__name__)
+
+
+        for rule in switchrules:
+            qname = self._get_qualified_name(rule.condition_package, rule.condition_module, rule.condition_class)
+            if not qname.endswith(self.process_handler.__class__.__name__):
+                self._register_handler(qname)
+
+            qname = self._get_qualified_name(rule.before_package, rule.before_module, rule.before_class)
+            if not qname.endswith(self.process_handler.__class__.__name__):
+                self._register_handler(qname)
+
+            qname = self._get_qualified_name(rule.after_package, rule.after_module, rule.after_class)
+            if not qname.endswith(self.process_handler.__class__.__name__):
+                self._register_handler(qname)
+
     # process logic
     def setup(self):
         self.selector.remove_at_error_tolerance = True
@@ -47,6 +86,12 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         mode_state_reader = AlchemyModeStateReader()
         mode_state_writer = AlchemyModeStateWriter()
 
+        switchrules = sql.retrieve_values2('v_mode_switch_rule_dispatch', ['name', 'begin_mode', 'end_mode', \
+            'condition_package', 'condition_module', 'condition_class', 'condition_func', \
+            'before_package', 'before_module', 'before_class', 'before_func', \
+            'after_package', 'after_module', 'after_class', 'after_func'], [], schema='mildred_introspection');
+
+        self.build_instance_registry(switchrules)
 
         # startup
 
