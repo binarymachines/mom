@@ -329,6 +329,7 @@ CREATE TABLE `mode_default` (
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'startup'), (select id from dispatch where identifier = 'startup'),now(), 0);
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'eval'), (select id from dispatch where identifier = 'eval'),now(), 3);
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'match'), (select id from dispatch where identifier = 'match'),now(), 5);
+insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'scan'), (select id from dispatch where identifier = 'scan'),now(), 5);
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'fix'), (select id from dispatch where identifier = 'fix'),now(), 1);
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'clean'), (select id from dispatch where identifier = 'clean'),now(), 1);
 insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) values ((select id from mode where name = 'requests'), (select id from dispatch where identifier = 'requests'),now(), 2);

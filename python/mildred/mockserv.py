@@ -28,18 +28,22 @@ LOG = log.get_log(__name__, logging.DEBUG)
 
 class DocumentServiceProcess(SingleSelectorServiceProcess):
     def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
-        self.handlers = { self.__class__.__name__: self }
-
+        self.handlers = {'.'.join([__name__, self.__class__.__name__]): self}
+        self.modes = {}
+        
         # super().__init__() must be called before accessing selector instance
         super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
+
 
     # selector callbacks
     
     def after_switch(self, selector, mode):
         self.process_handler.after_switch(selector, mode)
 
+
     def before_switch(self, selector, mode):
         self.process_handler.before_switch(selector, mode)
+
 
     def _get_qualified_name(self, *nameparts):
         result = []
@@ -48,6 +52,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
                 result.append(part)
 
         return '.'.join(result)
+
 
     def _register_handler(self, qname):
         if qname not in self.handlers:
@@ -58,11 +63,16 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
             self.handlers[qname] = clazz(self, self.context)
 
-    def build_instance_registry(self, switchrules, moderecords):
+
+    def _build_instance_registry(self):
 
         # test = self._get_qualified_name(__package__, __module__, self.__class__.__name__)
+        self.switchrules = sql.retrieve_values2('v_mode_switch_rule_dispatch_w_id', ['name', 'begin_mode_id', 'begin_mode', 'end_mode_id', 'end_mode', \
+            'condition_package', 'condition_module', 'condition_class', 'condition_func', \
+            'before_package', 'before_module', 'before_class', 'before_func', \
+            'after_package', 'after_module', 'after_class', 'after_func'], [], schema='mildred_introspection');
 
-        for rule in switchrules:
+        for rule in self.switchrules:
             qname = self._get_qualified_name(rule.condition_package, rule.condition_module, rule.condition_class)
             if not qname.endswith(self.process_handler.__class__.__name__):
                 self._register_handler(qname)
@@ -75,32 +85,79 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
             if not qname.endswith(self.process_handler.__class__.__name__):
                 self._register_handler(qname)
 
-        for record in moderecords:
+        self.moderecords = sql.retrieve_values2('v_mode_default_dispatch_w_id', ['mode_id', 'mode_name', 'stateful_flag', 'handler_package', 'handler_module', 'handler_class', 'handler_func', \
+            'priority', 'dec_priority_amount', 'inc_priority_amount', 'times_to_complete', 'error_tolerance'], [], schema='mildred_introspection')
+
+        for record in self.moderecords:
             qname = self._get_qualified_name(record.handler_package, record.handler_module, record.handler_class)
             if not qname.endswith(self.process_handler.__class__.__name__):
                 self._register_handler(qname)    
     
-    def create_mode(self, mode_name):
+
+    def _create_mode(self, mode_name):
         result = None
         effect = None
         handler = None
 
         for moderec in self.moderecords:
             if moderec.mode_name == mode_name:
+                qname = self._get_qualified_name(moderec.handler_package, moderec.handler_module, moderec.handler_class)
+                if qname and qname in self.handlers:
+                    handler = self.handlers[qname]
+                    effect = getattr(handler, moderec.handler_func, None)
+
                 if moderec.stateful_flag == 1:
-                    pass
+                    result = StatefulMode(moderec.mode_name, id=moderec.mode_id, effect=effect, priority=moderec.priority, dec_priority_amount=moderec.dec_priority_amount, \
+                        inc_priority_amount=moderec.inc_priority_amount, error_tolerance=moderec.error_tolerance, reader=self.mode_state_reader, writer=self.mode_state_writer, \
+                        state_change_handler=self.state_change_handler)
 
                 else:
-                    qname = self._get_qualified_name(moderec.handler_package, moderec.handler_module, moderec.handler_class)
-                    if qname in self.handlers:
-                        handler = self.handlers[qname]
-                        effect = getattr(handler, moderec.handler_func, None)
-
                     result = Mode(moderec.mode_name, id=moderec.mode_id, effect=effect, priority=moderec.priority, dec_priority_amount=moderec.dec_priority_amount, \
                         inc_priority_amount=moderec.inc_priority_amount, error_tolerance=moderec.error_tolerance)
+                
+                self.modes[mode_name] = result
                 break
 
         return result
+
+
+    def _create_switch_rules(self):
+        
+        for rule in self.switchrules:
+            condition = None
+            before = None
+            after = None
+            begin = None
+            end = None
+            
+            if rule.begin_mode in self.modes:
+                begin = self.modes[rule.begin]
+
+            if rule.end_mode in self.modes:
+                end = self.modes[rule.end_mode]
+            
+            qname = self._get_qualified_name(rule.condition_package, rule.condition_module, rule.condition_class)
+            if qname and qname in self.handlers:
+                handler = self.handlers[qname]
+                condition = getattr(handler, rule.condition_func, None)
+
+            qname = self._get_qualified_name(rule.before_package, rule.before_module, rule.before_class)
+            if qname and qname in self.handlers:
+                handler = self.handlers[qname]
+                before = getattr(handler, rule.before_func, None)
+            
+            qname = self._get_qualified_name(rule.after_package, rule.after_module, rule.after_class)
+            if qname and qname in self.handlers:
+                handler = self.handlers[qname]
+                after = getattr(handler, rule.after_func, None)
+
+            if begin is None:
+                name = 'start'
+            else:
+                name = "%s ::: %s" % (rule.name, end.name)
+
+            self.selector.add_rule(name, begin, end, condition, before, after)
+
 
     # process logic
 
@@ -108,44 +165,27 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         self.selector.remove_at_error_tolerance = True
 
         self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
+        self.handlers['.'.join([__name__, self.process_handler.__class__.__name__])] = self.process_handler
 
         self.state_change_handler = ModeStateChangeHandler()
         self.mode_state_reader = AlchemyModeStateReader()
         self.mode_state_writer = AlchemyModeStateWriter()
 
-        self.switchrules = sql.retrieve_values2('v_mode_switch_rule_dispatch_w_id', ['name', 'begin_mode_id', 'begin_mode', 'end_mode_id', 'end_mode', \
-            'condition_package', 'condition_module', 'condition_class', 'condition_func', \
-            'before_package', 'before_module', 'before_class', 'before_func', \
-            'after_package', 'after_module', 'after_class', 'after_func'], [], schema='mildred_introspection');
+        self._build_instance_registry()
 
-        self.moderecords = sql.retrieve_values2('v_mode_default_dispatch_w_id', ['mode_id', 'mode_name', 'stateful_flag', 'handler_package', 'handler_module', 'handler_class', 'handler_func', \
-            'priority', 'dec_priority_amount', 'inc_priority_amount', 'times_to_complete', 'error_tolerance'], [], schema='mildred_introspection')
-
-        self.build_instance_registry(self.switchrules, self.moderecords)
-
-
-        self.startmode = self.create_mode(STARTUP)
-
-        # startup
-
-        # startup_handler = StartupHandler(self, self.context)
-        # self.startmode = Mode(STARTUP, effect=startup_handler.start, dec_priority_amount=1)
-        # self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
-        # startup = State(INITIAL, action=startup_handler.start)
-        # self.startmode.add_state(startup)
-
-
-        # eval
-
-        self.evalmode = self.create_mode(EVAL)
-        # eval_handler = EvalModeHandler(self, self.context)
-        # self.evalmode = Mode(EVAL, effect=eval_handler.do_eval, priority=5, dec_priority_amount=1)
-
+        self.startmode = self._create_mode(STARTUP)
+        self.evalmode = self._create_mode(EVAL)
+        self.matchmode = self._create_mode(MATCH)
+        self.fixmode = self._create_mode(FIX)
+        self.reportmode = self._create_mode(REPORT)
+        self.reqmode = self._create_mode(REQUESTS)
+        self.endmode = self._create_mode(SHUTDOWN)
 
         # scan
+        self.scanmode = self._create_mode(SCAN)
 
-        scan_handler = ScanModeHandler(self, self.context)
-        self.scanmode = StatefulMode(SCAN, reader=self.mode_state_reader, writer=self.mode_state_writer, state_change_handler=self.state_change_handler, dec_priority_amount=1)
+
+        self._create_switch_rules()
         
         scan_discover = self.scanmode.get_state(SCAN_DISCOVER)
         scan_discover.action = scan_handler.do_scan_discover
@@ -165,91 +205,40 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
             self.scanmode.initialize_context_params(self.context)
 
 
-        # clean
+        # # startmode rule must have None as its origin
+        # self.selector.add_rule('start', None, self.startmode, self.process_handler.definitely, startup_handler.starting, startup_handler.started)
 
-        # cleaning_handler = CleaningModeHandler(self, self.context)
-        # self.cleanmode = Mode(CLEAN, cleaning_handler.do_clean, priority=2, dec_priority_amount=1) # bring ElasticSearch into line with MariaDB
+        # # paths to evalmode
+        # self.selector.add_rules(self.evalmode, eval_handler.can_eval, self.process_handler.before, self.process_handler.after, \
+        #     self.startmode, self.scanmode, self.matchmode, self.fixmode, self.reportmode, self.reqmode)
 
+        # # paths to scanmode
+        # self.selector.add_rules(self.scanmode, scan_handler.can_scan, scan_handler.before_scan, scan_handler.after_scan, \
+        #     self.startmode, self.evalmode, self.scanmode)
 
-        # match
+        # # paths to matchmode
+        # self.selector.add_rules(self.matchmode, self.process_handler.mode_is_available, match_handler.before_match, match_handler.after_match, \
+        #    self.startmode, self.evalmode, self.scanmode)
 
-        self.matchmode = self.create_mode(MATCH)
-        # match_handler = MatchModeHandler(self, self.context)
-        # self.matchmode = Mode(MATCH, effect=match_handler.do_match, priority=3, error_tolerance=5, dec_priority_amount=1)
+        # # paths to reqmode
+        # self.selector.add_rules(self.reqmode, self.process_handler.mode_is_available, self.process_handler.before, self.process_handler.after, \
+        #     self.matchmode, self.scanmode, self.evalmode)
 
+        # # paths to reportmode
+        # self.selector.add_rules(self.reportmode, self.process_handler.maybe, self.process_handler.before, self.process_handler.after, \
+        #     self.fixmode, self.reqmode)
 
-        # fix
+        # # paths to fixmode
+        # self.selector.add_rules(self.fixmode, self.process_handler.mode_is_available, fix_handler.before_fix, fix_handler.after_fix, \
+        #     self.reportmode)
 
-        self.fixmode = self.create_mode(FIX)
-        # fix_handler = FixModeHandler(self, self.context)
-        # self.fixmode = Mode(FIX, effect=fix_handler.do_fix, priority=1, dec_priority_amount=1)
+        # # # paths to cleanmode
+        # # self.selector.add_rules(self.cleanmode, self.process_handler.mode_is_available, cleaning_handler.before_clean, cleaning_handler.after_clean, \
+        # #     self.reqmode)
 
-
-        # report
-
-        self.reportmode = self.create_mode(REPORT)
-        # report_handler = ReportModeHandler(self, self.context)
-        # self.reportmode = Mode(REPORT, effect=report_handler.do_report, priority=1, dec_priority_amount=1)
-
-
-        # requests
-
-        self.reqmode = self.create_mode(REQUESTS)
-        # requests_handler = RequestsModeHandler(self, self.context)
-        # self.reqmode = Mode(REQUESTS, effect=requests_handler.do_reqs, priority=1, dec_priority_amount=1)
-
-
-        # shutdown
-
-        self.endmode = self.create_mode(SHUTDOWN)
-        # shutdown_handler = ShutdownHandler(self, self.context)
-        # self.endmode = Mode(SHUTDOWN, effect=shutdown_handler.end, dec_priority_amount=1)
-
-
-        # sync
-
-        # self.syncmode = Mode("SYNC", self.process_handler.do_sync, priority=2, dec_priority_amount=1) # bring MariaDB into line with ElasticSearch
-
-
-        # sleep
-
-        # self.sleep mode >>>> state is persisted, system shuts down until a command is issued
-
-
-        # startmode rule must have None as its origin
-        self.selector.add_rule('start', None, self.startmode, self.process_handler.definitely, startup_handler.starting, startup_handler.started)
-
-        # paths to evalmode
-        self.selector.add_rules(self.evalmode, eval_handler.can_eval, self.process_handler.before, self.process_handler.after, \
-            self.startmode, self.scanmode, self.matchmode, self.fixmode, self.reportmode, self.reqmode)
-
-        # paths to scanmode
-        self.selector.add_rules(self.scanmode, scan_handler.can_scan, scan_handler.before_scan, scan_handler.after_scan, \
-            self.startmode, self.evalmode, self.scanmode)
-
-        # paths to matchmode
-        self.selector.add_rules(self.matchmode, self.process_handler.mode_is_available, match_handler.before_match, match_handler.after_match, \
-           self.startmode, self.evalmode, self.scanmode)
-
-        # paths to reqmode
-        self.selector.add_rules(self.reqmode, self.process_handler.mode_is_available, self.process_handler.before, self.process_handler.after, \
-            self.matchmode, self.scanmode, self.evalmode)
-
-        # paths to reportmode
-        self.selector.add_rules(self.reportmode, self.process_handler.maybe, self.process_handler.before, self.process_handler.after, \
-            self.fixmode, self.reqmode)
-
-        # paths to fixmode
-        self.selector.add_rules(self.fixmode, self.process_handler.mode_is_available, fix_handler.before_fix, fix_handler.after_fix, \
-            self.reportmode)
-
-        # # paths to cleanmode
-        # self.selector.add_rules(self.cleanmode, self.process_handler.mode_is_available, cleaning_handler.before_clean, cleaning_handler.after_clean, \
-        #     self.reqmode)
-
-        # paths to endmode
-        self.selector.add_rules(self.endmode, self.process_handler.maybe, shutdown_handler.ending, shutdown_handler.ended, \
-            self.reportmode, self.fixmode)
+        # # paths to endmode
+        # self.selector.add_rules(self.endmode, self.process_handler.maybe, shutdown_handler.ending, shutdown_handler.ended, \
+        #     self.reportmode, self.fixmode)
 
 
 def create_service_process(identifier, context, owner=None, before=None, after=None, alternative=None):
