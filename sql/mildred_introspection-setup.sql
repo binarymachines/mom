@@ -75,7 +75,7 @@ insert into dispatch (identifier, category, module, class_name, func_name) value
 insert into dispatch (identifier, category, module, class_name, func_name) values ('report.switch.before', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'before'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('report.switch.after', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'after'); 
 
-insert into dispatch (identifier, category, module, class_name, func_name) values ('requests', 'effect', 'mockserv', 'RequestsModeHandler', 'do_do_reqs'); 
+insert into dispatch (identifier, category, module, class_name, func_name) values ('requests', 'effect', 'mockserv', 'RequestsModeHandler', 'do_reqs'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.before', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'before'); 
 insert into dispatch (identifier, category, module, class_name, func_name) values ('requests.switch.after', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'after'); 

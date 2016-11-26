@@ -82,15 +82,21 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
     
     def create_mode(self, mode_name):
         result = None
+        effect = None
+        handler = None
+
         for moderec in self.moderecords:
             if moderec.mode_name == mode_name:
                 if moderec.stateful_flag == 1:
                     pass
 
                 else:
-                    qname = self._get_qualified_name('handler_package', 'handler_module', 'handler_class')
+                    qname = self._get_qualified_name(moderec.handler_package, moderec.handler_module, moderec.handler_class)
+                    if qname in self.handlers:
+                        handler = self.handlers[qname]
+                        effect = getattr(handler, moderec.handler_func, None)
 
-                    result = Mode(moderec.mode_name, id=moderec.mode_id, priority=moderec.priority, dec_priority_amount=moderec.dec_priority_amount, \
+                    result = Mode(moderec.mode_name, id=moderec.mode_id, effect=effect, priority=moderec.priority, dec_priority_amount=moderec.dec_priority_amount, \
                         inc_priority_amount=moderec.inc_priority_amount, error_tolerance=moderec.error_tolerance)
                 break
 
@@ -122,8 +128,8 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
         # startup
 
-        startup_handler = StartupHandler(self, self.context)
-        self.startmode = Mode(STARTUP, effect=startup_handler.start, dec_priority_amount=1)
+        # startup_handler = StartupHandler(self, self.context)
+        # self.startmode = Mode(STARTUP, effect=startup_handler.start, dec_priority_amount=1)
         # self.startmode = StatefulMode(STARTUP, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler)
         # startup = State(INITIAL, action=startup_handler.start)
         # self.startmode.add_state(startup)
@@ -131,14 +137,15 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
         # eval
 
-        eval_handler = EvalModeHandler(self, self.context)
-        self.evalmode = Mode(EVAL, effect=eval_handler.do_eval, priority=5, dec_priority_amount=1)
+        self.evalmode = self.create_mode(EVAL)
+        # eval_handler = EvalModeHandler(self, self.context)
+        # self.evalmode = Mode(EVAL, effect=eval_handler.do_eval, priority=5, dec_priority_amount=1)
 
 
         # scan
 
         scan_handler = ScanModeHandler(self, self.context)
-        self.scanmode = StatefulMode(SCAN, reader=mode_state_reader, writer=mode_state_writer, state_change_handler=state_change_handler, dec_priority_amount=1)
+        self.scanmode = StatefulMode(SCAN, reader=self.mode_state_reader, writer=self.mode_state_writer, state_change_handler=self.state_change_handler, dec_priority_amount=1)
         
         scan_discover = self.scanmode.get_state(SCAN_DISCOVER)
         scan_discover.action = scan_handler.do_scan_discover
@@ -149,10 +156,10 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         scan_monitor = self.scanmode.get_state(SCAN_MONITOR)
         scan_monitor.action = scan_handler.do_scan_monitor
 
-        state_change_handler.add_transition(scan_discover, scan_update, scan_handler.should_update). \
+        self.state_change_handler.add_transition(scan_discover, scan_update, scan_handler.should_update). \
             add_transition(scan_update, scan_monitor, scan_handler.should_monitor)
 
-        mode_state_reader.restore(self.scanmode, self.context)
+        self.mode_state_reader.restore(self.scanmode, self.context)
         if self.scanmode.get_state() is None:
             self.scanmode.set_state(scan_discover)
             self.scanmode.initialize_context_params(self.context)
@@ -166,32 +173,37 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
         # match
 
-        match_handler = MatchModeHandler(self, self.context)
-        self.matchmode = Mode(MATCH, effect=match_handler.do_match, priority=3, error_tolerance=5, dec_priority_amount=1)
+        self.matchmode = self.create_mode(MATCH)
+        # match_handler = MatchModeHandler(self, self.context)
+        # self.matchmode = Mode(MATCH, effect=match_handler.do_match, priority=3, error_tolerance=5, dec_priority_amount=1)
 
 
         # fix
 
-        fix_handler = FixModeHandler(self, self.context)
-        self.fixmode = Mode(FIX, effect=fix_handler.do_fix, priority=1, dec_priority_amount=1)
+        self.fixmode = self.create_mode(FIX)
+        # fix_handler = FixModeHandler(self, self.context)
+        # self.fixmode = Mode(FIX, effect=fix_handler.do_fix, priority=1, dec_priority_amount=1)
 
 
         # report
 
-        report_handler = ReportModeHandler(self, self.context)
-        self.reportmode = Mode(REPORT, effect=report_handler.do_report, priority=1, dec_priority_amount=1)
+        self.reportmode = self.create_mode(REPORT)
+        # report_handler = ReportModeHandler(self, self.context)
+        # self.reportmode = Mode(REPORT, effect=report_handler.do_report, priority=1, dec_priority_amount=1)
 
 
         # requests
 
-        requests_handler = RequestsModeHandler(self, self.context)
-        self.reqmode = Mode(REQUESTS, effect=requests_handler.do_reqs, priority=1, dec_priority_amount=1)
+        self.reqmode = self.create_mode(REQUESTS)
+        # requests_handler = RequestsModeHandler(self, self.context)
+        # self.reqmode = Mode(REQUESTS, effect=requests_handler.do_reqs, priority=1, dec_priority_amount=1)
 
 
         # shutdown
 
-        shutdown_handler = ShutdownHandler(self, self.context)
-        self.endmode = Mode(SHUTDOWN, effect=shutdown_handler.end, dec_priority_amount=1)
+        self.endmode = self.create_mode(SHUTDOWN)
+        # shutdown_handler = ShutdownHandler(self, self.context)
+        # self.endmode = Mode(SHUTDOWN, effect=shutdown_handler.end, dec_priority_amount=1)
 
 
         # sync
