@@ -58,10 +58,9 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
             self.handlers[qname] = clazz(self, self.context)
 
-    def build_instance_registry(self, switchrules):
+    def build_instance_registry(self, switchrules, moderecords):
 
-        test = self._get_qualified_name(__package__, __module__, self.__class__.__name__)
-
+        # test = self._get_qualified_name(__package__, __module__, self.__class__.__name__)
 
         for rule in switchrules:
             qname = self._get_qualified_name(rule.condition_package, rule.condition_module, rule.condition_class)
@@ -76,22 +75,50 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
             if not qname.endswith(self.process_handler.__class__.__name__):
                 self._register_handler(qname)
 
+        for record in moderecords:
+            qname = self._get_qualified_name(record.handler_package, record.handler_module, record.handler_class)
+            if not qname.endswith(self.process_handler.__class__.__name__):
+                self._register_handler(qname)    
+    
+    def create_mode(self, mode_name):
+        result = None
+        for moderec in self.moderecords:
+            if moderec.mode_name == mode_name:
+                if moderec.stateful_flag == 1:
+                    pass
+
+                else:
+                    qname = self._get_qualified_name('handler_package', 'handler_module', 'handler_class')
+
+                    result = Mode(moderec.mode_name, id=moderec.mode_id, priority=moderec.priority, dec_priority_amount=moderec.dec_priority_amount, \
+                        inc_priority_amount=moderec.inc_priority_amount, error_tolerance=moderec.error_tolerance)
+                break
+
+        return result
+
     # process logic
+
     def setup(self):
         self.selector.remove_at_error_tolerance = True
 
         self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
 
-        state_change_handler = ModeStateChangeHandler()
-        mode_state_reader = AlchemyModeStateReader()
-        mode_state_writer = AlchemyModeStateWriter()
+        self.state_change_handler = ModeStateChangeHandler()
+        self.mode_state_reader = AlchemyModeStateReader()
+        self.mode_state_writer = AlchemyModeStateWriter()
 
-        switchrules = sql.retrieve_values2('v_mode_switch_rule_dispatch', ['name', 'begin_mode', 'end_mode', \
+        self.switchrules = sql.retrieve_values2('v_mode_switch_rule_dispatch_w_id', ['name', 'begin_mode_id', 'begin_mode', 'end_mode_id', 'end_mode', \
             'condition_package', 'condition_module', 'condition_class', 'condition_func', \
             'before_package', 'before_module', 'before_class', 'before_func', \
             'after_package', 'after_module', 'after_class', 'after_func'], [], schema='mildred_introspection');
 
-        self.build_instance_registry(switchrules)
+        self.moderecords = sql.retrieve_values2('v_mode_default_dispatch_w_id', ['mode_id', 'mode_name', 'stateful_flag', 'handler_package', 'handler_module', 'handler_class', 'handler_func', \
+            'priority', 'dec_priority_amount', 'inc_priority_amount', 'times_to_complete', 'error_tolerance'], [], schema='mildred_introspection')
+
+        self.build_instance_registry(self.switchrules, self.moderecords)
+
+
+        self.startmode = self.create_mode(STARTUP)
 
         # startup
 

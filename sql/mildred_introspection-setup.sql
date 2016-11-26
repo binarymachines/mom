@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS `dispatch`;
 DROP TABLE IF EXISTS `exec_rec`;
 
 drop view if exists `v_mode_default_dispatch`;
+drop view if exists `v_mode_default_dispatch_w_id`;
 drop view if exists `v_mode_dispatch`;
 DROP VIEW IF EXISTS `v_mode_state_default`;
 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
@@ -336,6 +337,13 @@ insert into mode_default(mode_id, effect_dispatch_id, effective_dt, priority) va
 
 create view `v_mode_default_dispatch` as
   select m.name, d.package, d.module, d.class_name, d.func_name, md.priority, md.dec_priority_amount, md.inc_priority_amount, md.times_to_complete, md.error_tolerance 
+  from mode m, mode_default md, dispatch d
+  where md.mode_id = m.id and md.effect_dispatch_id = d.id 
+  order by m.name;
+
+create view `v_mode_default_dispatch_w_id` as
+  select m.id mode_id, m.name mode_name, m.stateful_flag, d.package  handler_package, d.module handler_module, d.class_name handler_class, d.func_name handler_func, 
+    md.priority, md.dec_priority_amount, md.inc_priority_amount, md.times_to_complete, md.error_tolerance 
   from mode m, mode_default md, dispatch d
   where md.mode_id = m.id and md.effect_dispatch_id = d.id 
   order by m.name;
