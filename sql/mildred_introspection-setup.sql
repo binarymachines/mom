@@ -165,7 +165,6 @@ CREATE TABLE `mode` (
 
 SET @NONE = 'None';
 insert into mode (index_name, name, effective_dt) values ('media', @NONE, now());
-
 insert into mode (index_name, name, effective_dt) values ('media', 'startup', now());
 insert into mode (index_name, name, stateful_flag, effective_dt) values ('media', 'scan', True, now());
 insert into mode (index_name, name, effective_dt) values ('media', 'match', now());
@@ -191,7 +190,7 @@ CREATE TABLE `state` (
 );
 
 insert into state(index_name, name, effective_dt, initial_state_flag) values ('media', 'initial', now(), 1);
-insert into state(index_name, name, effective_dt) values ('media', 'discover', now());
+insert into state(index_name, name, effective_dt, initial_state_flag) values ('media', 'discover', now(), 1);
 insert into state(index_name, name, effective_dt) values ('media', 'update', now());
 insert into state(index_name, name, effective_dt) values ('media', 'monitor', now());
 insert into state(index_name, name, effective_dt, initial_state_flag) values ('media', 'terminal', now(), 2);

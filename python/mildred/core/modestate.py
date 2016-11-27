@@ -93,6 +93,14 @@ class StatefulMode(Mode):
         return result
 
 
+    def reset_state(self):
+        if self._states:
+            for state in self._states:
+                if self._states[state].is_initial_state:
+                    self.set_state(self._states[state])
+                    break
+
+
     def set_state(self, state):
         LOG.info('%s => set_state(%s)' % (self.name, "None" if state is None else state.name ))
 
@@ -103,10 +111,12 @@ class StatefulMode(Mode):
             if self._reader:
                 self._reader.initialize_mode_from_defaults(self)
 
+
     def save_state(self):
         if self._writer:
             LOG.info('%s => save _state(%s)' % (self.name, "None" if self.get_state() is None else self.get_state().name))
             self._writer.save_state(self)
+
 
 
     def expire_state(self):

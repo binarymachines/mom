@@ -273,6 +273,7 @@ class StartupHandler(DefaultModeHandler):
 
         config.es = search.connect()
 
+
 # shutdown mode
 
 class ShutdownHandler(DefaultModeHandler):
@@ -310,7 +311,7 @@ class CleaningModeHandler(DefaultModeHandler):
     def do_clean(self):
         print  "clean mode starting..."
         LOG.debug('%s clean' % self.owner.name)
-        time.sleep(5)
+        time.sleep(1)
 
 
 # eval mode
@@ -326,7 +327,7 @@ class EvalModeHandler(DefaultModeHandler):
         print  "entering evaluation mode..."
         LOG.debug('%s evaluating' % self.owner.name)
         eval.eval(self.context)
-        time.sleep(5)
+        time.sleep(1)
 
 
 # fix mode
@@ -337,6 +338,8 @@ class FixModeHandler(DefaultModeHandler):
 
     def after_fix(self): 
         LOG.debug('%s done fixing' % self.owner.name)
+        # self.owner.scanmode.reset_state()
+        # self.context.
 
     def before_fix(self): 
         LOG.debug('%s preparing to fix'  % self.owner.name)
@@ -344,7 +347,7 @@ class FixModeHandler(DefaultModeHandler):
     def do_fix(self): 
         print  "fix mode starting..."
         LOG.debug('%s fixing' % self.owner.name)
-        time.sleep(5)
+        time.sleep(1)
 
 
 # match mode
@@ -364,7 +367,7 @@ class MatchModeHandler(DefaultModeHandler):
 
     def do_match(self):
         print  "match mode starting..."
-        time.sleep(5)
+        time.sleep(1)
             
             
 # report mode
@@ -391,7 +394,7 @@ class RequestsModeHandler(DefaultModeHandler):
     def do_reqs(self):
         print  "handling requests..."
         LOG.debug('%s handling requests...' % self.owner.name)
-        time.sleep(5)
+        time.sleep(1)
 
 
 # scan mode
@@ -429,17 +432,17 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        time.sleep(5)
+        time.sleep(1)
 
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
-        time.sleep(5)
+        time.sleep(1)
 
 
     def do_scan(self):
         print  "update scan starting..."
-        time.sleep(5)
+        time.sleep(1)
 
     def should_monitor(self, selector=None, active=None, possible=None):
         return True
