@@ -19,7 +19,7 @@ import search
 import sql
 from core import log
 from core import cache2
-from core.context import Context
+from core.context import Context, DirectoryContext, CachedDirectoryContext
 from core.states import State, StateContext
 
 from errors import AssetException
@@ -169,22 +169,22 @@ def get_matchers():
     return matchers
 
 
-# def main(args):
-#     import redis
-#
-#     # sql.execute_query("delete from matched where 1=1")
-#     # sql.execute_query("delete from op_record where operation_name = 'calc'")
-#     # sql.execute_query("delete from op_record where operation_name = 'match'")
-#     # sql.execute_query("commit");
-#
-#     config.es = search.connect()
-#     cache2.redis = redis.Redis('localhost')
-#     log.start_logging()
-#     paths = None if not args['--path'] else args['<path>']
-#     context = DirectoryContext('_path_context_', paths)
-#     calc(context)
-#
-#
-# if __name__ == '__main__':
-#     args = docopt.docopt(__doc__)
-#     main(args)
+def main(args):
+    import redis
+
+    # sql.execute_query("delete from matched where 1=1")
+    # sql.execute_query("delete from op_record where operation_name = 'calc'")
+    # sql.execute_query("delete from op_record where operation_name = 'match'")
+    # sql.execute_query("commit");
+
+    config.es = search.connect()
+    cache2.redis = redis.Redis('localhost')
+    log.start_logging()
+    paths = None if not args['--path'] else args['<path>']
+    context = DirectoryContext('_path_context_', paths)
+    calc(context)
+
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    main(args)
