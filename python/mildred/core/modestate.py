@@ -67,6 +67,9 @@ class StatefulMode(Mode):
             context.set_param(self.name, param[0], param[1])
 
 
+    def in_state(self, state):
+        return self._state == state
+
     def add_state(self, state):
         self._states[state.name] = state
         return self

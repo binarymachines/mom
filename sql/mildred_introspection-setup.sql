@@ -17,8 +17,10 @@ DROP TABLE IF EXISTS `exec_rec`;
 drop view if exists `v_mode_default_dispatch`;
 drop view if exists `v_mode_default_dispatch_w_id`;
 drop view if exists `v_mode_dispatch`;
-DROP VIEW IF EXISTS `v_mode_state_default`;
+DROP VIEW IF EXISTS `v_mode_state_default_dispatch`;
+DROP VIEW IF EXISTS `v_mode_state_default_dispatch_w_id`;
 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
+DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`;
 drop view if exists `v_mode_switch_rule_dispatch`;
 drop view if exists `v_mode_switch_rule_dispatch_w_id`;
 
@@ -385,6 +387,16 @@ where m.id = md.mode_id and md.state_id = s1.id and
     tr.begin_state_id = s1.id and 
     tr.end_state_id = s2.id and 
     tr.condition_dispatch_id = d1.id;
+
+create view `v_mode_state_default_transition_rule_dispatch_w_id` as
+select tr.name, m.id mode_id, m.name mode, s1.id begin_state_id, s1.name begin_state, s2.id end_state_id, s2.name end_state, 
+    d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
+ from mode m, mode_state_default md, transition_rule tr, state s1, state s2, dispatch d1
+where m.id = md.mode_id and md.state_id = s1.id and
+    tr.begin_state_id = s1.id and 
+    tr.end_state_id = s2.id and 
+    tr.condition_dispatch_id = d1.id;
+
 -- order by m.id;
 
 insert into switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
@@ -648,8 +660,19 @@ CREATE TABLE `mode_state_default_operation` (
 );
 
 
-CREATE VIEW `v_mode_state_default` AS 
+CREATE VIEW `v_mode_state_default_dispatch` AS 
   SELECT m.name mode_name, s.name state_name, d.identifier, d.package, d.module, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance, 
+    ms.effective_dt, ms.expiration_dt
+  FROM mode m, state s, mode_state_default ms, dispatch d
+  WHERE ms.state_id = s.id
+    AND ms.effect_dispatch_id = d.id
+    AND ms.mode_id = m.id
+    AND ms.index_name = 'media' 
+  ORDER BY m.name, s.id;
+
+
+CREATE VIEW `v_mode_state_default_dispatch_w_id` AS 
+  SELECT m.id mode_id, s.id state_id, s.name state_name, d.identifier, d.package, d.module, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance, 
     ms.effective_dt, ms.expiration_dt
   FROM mode m, state s, mode_state_default ms, dispatch d
   WHERE ms.state_id = s.id
