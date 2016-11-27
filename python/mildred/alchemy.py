@@ -112,10 +112,43 @@ class SQLMatcher(Base):
     __tablename__ = 'matcher'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     index_name = Column('index_name', String(128), nullable=False)
+    name = Column('name', String(128), nullable=False)
+    query_type = Column('query_type', String(64), nullable=False)
     name = Column('name', String(64), nullable=False)
-    # percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
-    # comparison_result = Column('comparison_result', String(1), nullable=True)
-    # same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
+    max_score_percentage = Column('max_score_percentage', Float, nullable=False)
+    applies_to_file_type = Column('applies_to_file_type', String(6), nullable=False)
+    active_flag = Column('active_flag', Boolean, nullable=False)
+    # effective_dt = Column('effective_dt', DateTime, nullable=False)
+    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+    @staticmethod
+    def retrieve_matchers():
+        result = ()
+        for instance in sessions[0].query(SQLMatcher). \
+            filter(SQLMatcher.active_flag == True):
+                result += (instance,)
+
+        return result
+
+class SQLMatcherField(Base):
+    __tablename__ = 'matcher_field'
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    index_name = Column('index_name', String(128), nullable=False)
+    document_type = Column('document_type', String(64), nullable=False)
+    matcher_id = Column(Integer, ForeignKey('matcher.id'))
+    field_name = Column('field_name', String(128), nullable=False)
+    boost = Column('boost', Float)
+    bool = Column('bool', String(16))
+    operator = Column('operator', String(16))
+    minimum_should_match = Column('minimum_should_match', Float, nullable=False)
+    analyzer = Column('analyzer', String(64))
+    query_section = Column('query_section', String(128))
+    default_value = Column('default_value', String(128))
+
+
+    matcher = relationship("SQLMatcher", back_populates="match_fields")
+
+SQLMatcher.match_fields = relationship("SQLMatcherField", order_by=SQLMatcherField.id, back_populates="matcher")
 
 
 class SQLMatchRecord(Base):

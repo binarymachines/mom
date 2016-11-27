@@ -27,6 +27,8 @@ from match import ElasticSearchMatcher
 
 import alchemy
 
+from alchemy import SQLMatcher
+
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
@@ -148,14 +150,16 @@ def do_match_op(esid, absolute_path, matchers):
                 library.record_error(err)
                 ERR.warning(': '.join([err.__class__.__name__, err.message, asset.absolute_path]), exc_info=True)
 
+
 def get_matchers():
     keygroup = MATCH
     identifier = 'matchers'
     if not cache2.key_exists(keygroup, identifier):
-        rows = sql.retrieve_values('matcher', ['active_flag', 'id', 'name', 'query_type', 'max_score_percentage'], [str(1)])
-        for row in rows:
-            cache2.set_hash(keygroup, identifier, {'id': row[1], 'name': row[2], 'query_type': row[3], 'max_score_percentage': row[4]})
-
+        matchers  = SQLMatcher.retrieve_matchers()
+        for matcher in matchers:
+            cache2.set_hash(keygroup, identifier, {'id': matcher.id, 'name': matcher.name, 'query_type': matcher.query_type, 'max_score_percentage': matcher.max_score_percentage, \
+                'applies_to_file_type': matcher.applies_to_file_type})
+   
     matcherdata = cache2.get_hashes(keygroup, identifier)
 
     matchers = []
