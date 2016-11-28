@@ -34,37 +34,48 @@ class Asset(object):
         return self.absolute_path.split(os.path.sep)[-1]
 
     def ignore(self):
-        return pathutil.ignore(self.absolute_path)
+        return False
+        # return pathutil.ignore(self.absolute_path)
 
     def is_expunged(self):
-        return pathutil.is_expunged(self.absolute_path)
+        return False
+        # return pathutil.is_expunged(self.absolute_path)
 
     def is_filed(self):
-        return pathutil.is_filed(self.absolute_path)
+        return False
+        # return pathutil.is_filed(self.absolute_path)
 
     def is_filed_as_compilation(self):
-        return pathutil.is_filed_as_compilation(self.absolute_path)
+        return False
+        # return pathutil.is_filed_as_compilation(self.absolute_path)
 
     def is_filed_as_live(self):
-        return pathutil.is_filed_as_live(self.absolute_path)
+        return False
+        # return pathutil.is_filed_as_live(self.absolute_path)
 
     def is_new(self):
-        return pathutil.is_new(self.absolute_path)
+        return False
+        # return pathutil.is_new(self.absolute_path)
 
     def is_noscan(self):
-        return pathutil.is_noscan(self.absolute_path)
+        return False
+        # return pathutil.is_noscan(self.absolute_path)
 
     def is_random(self):
-        return pathutil.is_random(self.absolute_path)
+        return False
+        # return pathutil.is_random(self.absolute_path)
 
     def is_recent(self):
-        return pathutil.is_recent(self.absolute_path)
+        return False
+        # return pathutil.is_recent(self.absolute_path)
 
     def is_unsorted(self):
-        return pathutil.is_unsorted(self.absolute_path)
+        return False
+        # return pathutil.is_unsorted(self.absolute_path)
 
     def is_webcast(self):
-        return pathutil.is_webcast(self.absolute_path)
+        return False
+        # return pathutil.is_webcast(self.absolute_path)
 
     def to_str(self):
         return json.dumps(self.to_dictionary())
