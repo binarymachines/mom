@@ -146,7 +146,7 @@ class SQLExecutionRecord(Base):
 
 
     @staticmethod
-    def insert_exec_record(kwargs):
+    def insert(kwargs):
         rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_time=config.start_time, \
             effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, status=kwargs['status'])
 
@@ -162,7 +162,7 @@ class SQLExecutionRecord(Base):
 
 
     @staticmethod
-    def retrieve_exec_record(pid=None):
+    def retrieve(pid=None):
         pid = config.pid if pid is None else pid
 
         result = ()
@@ -175,10 +175,10 @@ class SQLExecutionRecord(Base):
 
 
     @staticmethod
-    def update_exec_record(kwargs):
+    def update(kwargs):
         
         try:
-            exec_rec=retrieve_exec_record()
+            exec_rec=SQLExecutionRecord.retrieve()
             exec_rec.status = 'terminated'
             exec_rec.expiration_dt = datetime.datetime.now()
             # sessions[1].add(rec_exec)
@@ -262,7 +262,7 @@ class SQLMatcherField(Base):
 SQLMatcher.match_fields = relationship("SQLMatcherField", order_by=SQLMatcherField.id, back_populates="matcher")
 
 
-class SQLMatchRecord(Base):
+class SQLMatch(Base):
     __tablename__ = 'matched'
     doc_id = Column('doc_id', String(64), primary_key=True, nullable=False)
     match_doc_id = Column('match_doc_id', String(64), primary_key=True, nullable=False)
@@ -275,10 +275,10 @@ class SQLMatchRecord(Base):
 
 
     @staticmethod
-    def insert_match(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
+    def insert(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
         # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
-        match_rec = SQLMatchRecord(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
-            matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
+        match_rec = SQLMatch(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
+                             matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
 
         try:
             sessions[0].add(match_rec)
@@ -289,6 +289,7 @@ class SQLMatchRecord(Base):
 
             sessions[0].rollback()
 
+
 class SQLMode(Base):
     __tablename__ = 'mode'
     id = Column('id', Integer, primary_key=True, autoincrement=True)
@@ -298,7 +299,7 @@ class SQLMode(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
     @staticmethod
-    def retrieve_modes():
+    def retrieve_all():
         result = ()
         for instance in sessions[1].query(SQLMode).\
             filter(SQLMode.index_name == config.es_index):
@@ -307,7 +308,7 @@ class SQLMode(Base):
         return result
 
     @staticmethod
-    def insert_mode(name):
+    def insert(name):
         mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
         try:
             sessions[1].add(mode_rec)
@@ -320,7 +321,7 @@ class SQLMode(Base):
 
 
     @staticmethod
-    def retrieve_mode(mode):
+    def retrieve(mode):
         result = ()
         for instance in sessions[1].query(SQLMode).\
             filter(SQLMode.id == mode.id):
@@ -330,7 +331,7 @@ class SQLMode(Base):
 
 
     @staticmethod
-    def retrieve_mode_by_name(name):
+    def retrieve_by_name(name):
         result = ()
         for instance in sessions[1].query(SQLMode).\
             filter(SQLMode.index_name == config.es_index). \
@@ -354,7 +355,7 @@ class SQLState(Base):
 
     # states
     @staticmethod
-    def retrieve_states():
+    def retrieve_all():
         result = ()
         for instance in sessions[1].query(SQLState).\
             filter(SQLState.index_name == config.es_index):
@@ -364,7 +365,7 @@ class SQLState(Base):
 
 
     @staticmethod
-    def retrieve_state(state):
+    def retrieve(state):
         result = ()
         for instance in sessions[1].query(SQLState). \
                 filter(SQLState.id == state.id):
@@ -374,20 +375,7 @@ class SQLState(Base):
 
 
     @staticmethod
-    def retrieve_state_by_id(id):
-        result = ()
-        for instance in sessions[1].query(SQLState).\
-            filter(SQLState.index_name == config.es_index). \
-            filter(SQLState.effective_dt < datetime.datetime.now()). \
-            filter(SQLState.expiration_dt > datetime.datetime.now()). \
-            filter(SQLState.id == id):
-                result += (instance,)
-
-        return result[0] if len(result) == 1 else None
-
-
-    @staticmethod
-    def retrieve_state_by_name(name):
+    def retrieve_by_name(name):
         result = ()
         for instance in sessions[1].query(SQLState).\
             filter(SQLState.index_name == config.es_index). \
@@ -427,9 +415,9 @@ class SQLModeState(Base):
 
 
     @staticmethod
-    def insert_mode_state(mode):
-        sqlmode = SQLMode.retrieve_mode(mode)
-        sqlstate = SQLState.retrieve_state(mode.get_state())
+    def insert(mode):
+        sqlmode = SQLMode.retrieve(mode)
+        sqlstate = SQLState.retrieve(mode.get_state())
         mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, index_name=config.es_index, times_activated=mode.times_activated, \
             times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, status=mode.get_state().name, \
             effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
@@ -445,7 +433,7 @@ class SQLModeState(Base):
 
 
     @staticmethod
-    def retrieve_active_mode_state_record(mode):
+    def retrieve_active(mode):
         result = ()
         for instance in sessions[1].query(SQLModeState).\
             filter(SQLModeState.id == mode.mode_state_id).\
@@ -456,12 +444,12 @@ class SQLModeState(Base):
 
 
     @staticmethod
-    def retrieve_previous_mode_state_record(mode):
+    def retrieve_previous(mode):
         result = ()
 
         if config.old_pid is None: return None
 
-        sqlmode = SQLMode.retrieve_mode(mode)
+        sqlmode = SQLMode.retrieve(mode)
         for instance in sessions[1].query(SQLModeState). \
             filter(SQLModeState.pid == config.old_pid).\
             filter(SQLModeState.mode_id == sqlmode.id):
@@ -481,11 +469,11 @@ class SQLModeState(Base):
 
 
     @staticmethod
-    def update_mode_state(mode, expire=False):
+    def update(mode, expire=False):
 
         if mode.mode_state_id:
 
-            mode_state_rec = SQLModeState.retrieve_active_mode_state_record(mode)
+            mode_state_rec = SQLModeState.retrieve_active(mode)
 
             mode_state_rec.times_activated = mode.times_activated
             mode_state_rec.times_completed = mode.times_completed

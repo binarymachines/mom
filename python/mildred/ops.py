@@ -249,7 +249,7 @@ def get_exec_record_value(field):
 def insert_exec_record():
     values = cache2.get_hash2(get_exec_key())
     try:
-        return SQLExecutionRecord.insert_exec_record(values)
+        return SQLExecutionRecord.insert(values)
     except Exception, err:
         print err.message
 
@@ -258,7 +258,7 @@ def insert_exec_complete_record():
     values = cache2.get_hash2(get_exec_key())
     values['end_time'] = datetime.datetime.now()
     try:
-        return SQLExecutionRecord.update_exec_record(values)
+        return SQLExecutionRecord.update(values)
     except Exception, err:
         print err.message
 

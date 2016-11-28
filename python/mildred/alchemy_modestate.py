@@ -15,13 +15,13 @@ class AlchemyModeStateWriter(ModeStateWriter):
         super(AlchemyModeStateWriter, self).__init__()
 
     def expire_state(self, mode):
-        mode.mode_state_id = SQLModeState.update_mode_state(mode, expire=True)
+        mode.mode_state_id = SQLModeState.update(mode, expire=True)
 
     def save_state(self, mode):
-        mode.mode_state_id = SQLModeState.insert_mode_state(mode)
+        mode.mode_state_id = SQLModeState.insert(mode)
 
     def update_state(self, mode, expire=False):
-        mode.mode_state_id = SQLModeState.update_mode_state(mode, expire=expire)
+        mode.mode_state_id = SQLModeState.update(mode, expire=expire)
 
 
 
@@ -34,7 +34,7 @@ class AlchemyModeStateReader(ModeStateReader):
     def restore(self, mode, context):
         LOG.info('restoring [%s] mode from data' % (mode.name))
 
-        mode_state = SQLModeState.retrieve_previous_mode_state_record(mode)
+        mode_state = SQLModeState.retrieve_previous(mode)
         if mode_state:
             mode.cum_error_count = mode_state.cum_error_count
             mode.times_activated = mode_state.times_activated
@@ -53,7 +53,7 @@ class AlchemyModeStateReader(ModeStateReader):
 
 
     def initialize_mode(self, mode):
-        alchemy_mode  = SQLMode.retrieve_mode_by_name(mode.name)
+        alchemy_mode  = SQLMode.retrieve_by_name(mode.name)
         if alchemy_mode:
             mode.id = alchemy_mode.id
             LOG.info('initializing states for %s' % mode.name)
@@ -80,7 +80,7 @@ class AlchemyModeStateReader(ModeStateReader):
         LOG.info("initializing [%s] mode from defaults" % (mode.name))
         # initialize mode from default data
 
-        alchemy_mode  = SQLMode.retrieve_mode(mode)
+        alchemy_mode  = SQLMode.retrieve(mode)
         if mode.get_state() is None: return
         for default in alchemy_mode.mode_defaults:
             if mode.get_state().id == default.state_id:
