@@ -1,29 +1,39 @@
 #!/usr/bin/env python
 
+TERM = 'term'
+MATCH = 'match'
+BOOST = 'boost'
+BOOL = 'bool'
+QUERY = 'query'
+SHOULD = 'should'
+VALUE = 'value'
+
+
 # TODO: add options to simple query
+
 def get_query(self, query_type, match_fields, values):
     if len(match_fields) == 1:
         fieldinfo = match_fields.values()[0]
 
-        if query_type == 'term':
+        if query_type == TERM:
             return self.get_simple_term(fieldinfo['matcher_field'], values, [])
 
-        elif query_type == 'match':
+        elif query_type == MATCH:
             return self.get_simple_match(fieldinfo['matcher_field'], values, [])
     # (else)
     fieldnames = []
     options = {}
-    options['boost'] = {}
+    options[BOOST] = {}
 
     for field in match_fields:
         fname = match_fields[field]['matcher_field']
         fieldnames.append(fname)
-        options['boost'][fname] = match_fields[field]['boost']
+        options[BOOST][fname] = match_fields[field][BOOST]
 
-    if query_type == 'term':
+    if query_type == TERM:
         return self.get_multi_term(fieldnames, values, options)
 
-    elif query_type == 'match':
+    elif query_type == MATCH:
         return self.get_multi_match(fieldnames, values, options)
 
 
@@ -34,13 +44,13 @@ def get_multi_match(self, fieldnames, values, options):
     for fname in fieldnames:
         if fname in values:
             param = values[fname]
-            # if fname not in options['boost']:
-            term = { "match" : { fname  : param }}
+            # if fname not in options[BOOST]:
+            term = {MATCH : {fname  : param}}
             # else:
-            #     term = { "match" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
+            #     term = {MATCH : {fname : {BOOST : options[BOOST][fname], VALUE : param}}}
             termset.append(term)
 
-    return { 'query' : { 'bool' : { 'should' : termset }}}
+    return {QUERY : {BOOL : {SHOULD : termset}}}
 
 
 #TODO: learn how to concatenate (builder variable)
@@ -50,31 +60,31 @@ def get_multi_term(self, fieldnames, values, options):
     for fname in fieldnames:
         if fname in values:
             param = values[fname]
-            if fname not in options['boost']:
-                term = { "term" : { fname : { "value" : param }}}
-                # builder = [{ "value" : param }]
+            if fname not in options[BOOST]:
+                term = {TERM : {fname : {VALUE : param}}}
+                # builder = [{VALUE : param}]
             else:
-                term = { "term" : { fname : { "boost" : options['boost'][fname], "value" : param }}}
-                # builder += [{"boost" : options['boost'][name]}]
+                term = {TERM : {fname : {BOOST : options[BOOST][fname], VALUE : param}}}
+                # builder += [{BOOST : options[BOOST][name]}]
             termset.append(term)
 
-    return { 'query' : { 'bool' : { 'should' : termset }}}
+    return {QUERY : {BOOL : {SHOULD : termset}}}
 
 
 def get_simple_match(self, fname, values, options):
     if len(options) == 0:
         param = values[fname]
-        term = { 'match' : { fname : param }}
+        term = {MATCH : {fname : param}}
 
-        return { 'query' : term }
+        return {QUERY : term}
 
 
 def get_simple_term(self, fname, values, options):
     if len(options) == 0:
         param = values[fname]
-        term = { 'term' : { fname : param }}
+        term = {TERM : {fname : param}}
 
-        return { 'query' : term }
+        return {QUERY : term}
 
 
 # #TESTS

@@ -4,14 +4,13 @@ import os
 import subprocess
 import sys
 
-import alchemy
+from alchemy import SQLOperationRecord, SQLExecutionRecord
 import config
 import core.cache2
 import sql
 import start
 from core import cache2, log
 
-from alchemy import SQLOperationRecord
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -250,7 +249,7 @@ def get_exec_record_value(field):
 def insert_exec_record():
     values = cache2.get_hash2(get_exec_key())
     try:
-        return alchemy.insert_exec_record(values)
+        return SQLExecutionRecord.insert_exec_record(values)
     except Exception, err:
         print err.message
 
@@ -259,7 +258,7 @@ def insert_exec_complete_record():
     values = cache2.get_hash2(get_exec_key())
     values['end_time'] = datetime.datetime.now()
     try:
-        return alchemy.update_exec_record(values)
+        return SQLExecutionRecord.update_exec_record(values)
     except Exception, err:
         print err.message
 

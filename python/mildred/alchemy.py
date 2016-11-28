@@ -37,6 +37,34 @@ for dbconf in databases:
     sessions.append(sessionmaker(bind=engine)())
 
 
+def alchemy_operation(function):
+    def wrapper(*args, **kwargs):
+        try:
+            return function(*args, **kwargs)
+
+        except RuntimeWarning, warn:
+
+            ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+
+        except IntegrityError, err:
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            print err.__class__.__name__
+            for param in err.params:
+                print param
+            for arg in err.args:
+                print arg
+
+            sessions[0].rollback()
+
+            raise SQLIntegrityError(err, err.message)
+
+        except Exception, err:
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            raise err
+
+    return wrapper
+    
+
 class SQLAsset(Base):
     __tablename__ = 'document'
     id = Column(String(256), primary_key=True)
@@ -59,8 +87,6 @@ class SQLAsset(Base):
         try:
             sessions[0].add(asset)
             sessions[0].commit()
-        # except RuntimeWarning, warn:
-        #     ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
         except IntegrityError, err:
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             print err.__class__.__name__
@@ -117,6 +143,52 @@ class SQLExecutionRecord(Base):
     end_time = Column('end_dt', DateTime, nullable=True)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+
+    @staticmethod
+    def insert_exec_record(kwargs):
+        rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_time=config.start_time, \
+            effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, status=kwargs['status'])
+
+        try:
+            sessions[1].add(rec_exec)
+            sessions[1].commit()
+            return rec_exec
+        except IntegrityError, err:
+            print '\a'
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+
+            sessions[1].rollback()
+
+
+    @staticmethod
+    def retrieve_exec_record(pid=None):
+        pid = config.pid if pid is None else pid
+
+        result = ()
+        for instance in sessions[1].query(SQLExecutionRecord).\
+            filter(SQLExecutionRecord.pid == pid):
+                result += (instance,)
+
+        if len(result) == 1:
+            return result[0]
+
+
+    @staticmethod
+    def update_exec_record(kwargs):
+        
+        try:
+            exec_rec=retrieve_exec_record()
+            exec_rec.status = 'terminated'
+            exec_rec.expiration_dt = datetime.datetime.now()
+            # sessions[1].add(rec_exec)
+            sessions[1].commit()
+            return exec_rec
+        except IntegrityError, err:
+            print '\a'
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        
+        sessions[1].rollback()
 
 
 class SQLFileHandler(Base):
@@ -202,6 +274,20 @@ class SQLMatchRecord(Base):
     same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
 
 
+    @staticmethod
+    def insert_match(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
+        # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
+        match_rec = SQLMatchRecord(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
+            matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
+
+        try:
+            sessions[0].add(match_rec)
+            sessions[0].commit()
+        except IntegrityError, err:
+            print '\a'
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+
+            sessions[0].rollback()
 
 class SQLMode(Base):
     __tablename__ = 'mode'
@@ -210,6 +296,50 @@ class SQLMode(Base):
     name = Column('name', String(128), nullable=False)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+    @staticmethod
+    def retrieve_modes():
+        result = ()
+        for instance in sessions[1].query(SQLMode).\
+            filter(SQLMode.index_name == config.es_index):
+                result += (instance,)
+
+        return result
+
+    @staticmethod
+    def insert_mode(name):
+        mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
+        try:
+            sessions[1].add(mode_rec)
+            sessions[1].commit()
+            return mode_rec.id
+        except IntegrityError, err:
+            print '\a'
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            sessions[1].rollback()
+
+
+    @staticmethod
+    def retrieve_mode(mode):
+        result = ()
+        for instance in sessions[1].query(SQLMode).\
+            filter(SQLMode.id == mode.id):
+                result += (instance,)
+
+        return result[0] if len(result) == 1 else None
+
+
+    @staticmethod
+    def retrieve_mode_by_name(name):
+        result = ()
+        for instance in sessions[1].query(SQLMode).\
+            filter(SQLMode.index_name == config.es_index). \
+            filter(SQLMode.effective_dt < datetime.datetime.now()). \
+            filter(SQLMode.expiration_dt > datetime.datetime.now()). \
+            filter(SQLMode.name == name):
+                result += (instance,)
+
+        return result[0] if len(result) == 1 else None
 
 
 class SQLState(Base):
@@ -221,6 +351,52 @@ class SQLState(Base):
     is_terminal_state = Column('terminal_state_flag', Boolean, nullable=True)
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+    # states
+    @staticmethod
+    def retrieve_states():
+        result = ()
+        for instance in sessions[1].query(SQLState).\
+            filter(SQLState.index_name == config.es_index):
+                result += (instance,)
+
+        return result
+
+
+    @staticmethod
+    def retrieve_state(state):
+        result = ()
+        for instance in sessions[1].query(SQLState). \
+                filter(SQLState.id == state.id):
+            result += (instance,)
+
+        return result[0] if len(result) == 1 else None
+
+
+    @staticmethod
+    def retrieve_state_by_id(id):
+        result = ()
+        for instance in sessions[1].query(SQLState).\
+            filter(SQLState.index_name == config.es_index). \
+            filter(SQLState.effective_dt < datetime.datetime.now()). \
+            filter(SQLState.expiration_dt > datetime.datetime.now()). \
+            filter(SQLState.id == id):
+                result += (instance,)
+
+        return result[0] if len(result) == 1 else None
+
+
+    @staticmethod
+    def retrieve_state_by_name(name):
+        result = ()
+        for instance in sessions[1].query(SQLState).\
+            filter(SQLState.index_name == config.es_index). \
+            filter(SQLState.effective_dt < datetime.datetime.now()). \
+            filter(SQLState.expiration_dt > datetime.datetime.now()). \
+            filter(SQLState.name == name):
+                result += (instance,)
+
+        return result[0] if len(result) == 1 else None
 
 
 class SQLModeState(Base):
@@ -249,6 +425,88 @@ class SQLModeState(Base):
     effective_dt = Column('effective_dt', DateTime, nullable=False)
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
+
+    @staticmethod
+    def insert_mode_state(mode):
+        sqlmode = SQLMode.retrieve_mode(mode)
+        sqlstate = SQLState.retrieve_state(mode.get_state())
+        mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, index_name=config.es_index, times_activated=mode.times_activated, \
+            times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, status=mode.get_state().name, \
+            effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
+
+        try:
+            sessions[1].add(mode_state_rec)
+            sessions[1].commit()
+            return mode_state_rec.id
+        except IntegrityError, err:
+            print '\a'
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            sessions[1].rollback()
+
+
+    @staticmethod
+    def retrieve_active_mode_state_record(mode):
+        result = ()
+        for instance in sessions[1].query(SQLModeState).\
+            filter(SQLModeState.id == mode.mode_state_id).\
+            filter(SQLModeState.pid == config.pid):
+                result += (instance,)
+
+        return result[0] if len(result) == 1 else None
+
+
+    @staticmethod
+    def retrieve_previous_mode_state_record(mode):
+        result = ()
+
+        if config.old_pid is None: return None
+
+        sqlmode = SQLMode.retrieve_mode(mode)
+        for instance in sessions[1].query(SQLModeState). \
+            filter(SQLModeState.pid == config.old_pid).\
+            filter(SQLModeState.mode_id == sqlmode.id):
+                result += (instance,)
+
+        if len(result) == 0: return None
+        if len(result) == 1: return result[0]
+
+        output = result[0]
+        for record in result:
+            if record.effective_dt > output.effective_dt: #and record.expiration_dt >= output.expiration_dt
+                output = record
+
+        print "%s mode will resume in %s state" % (mode.name, output.status)
+
+        return output
+
+
+    @staticmethod
+    def update_mode_state(mode, expire=False):
+
+        if mode.mode_state_id:
+
+            mode_state_rec = SQLModeState.retrieve_active_mode_state_record(mode)
+
+            mode_state_rec.times_activated = mode.times_activated
+            mode_state_rec.times_completed = mode.times_completed
+            mode_state_rec.last_activated = mode.last_activated
+            mode_state_rec.last_completed = mode.last_completed
+            mode_state_rec.error_count = mode.error_count
+
+            if expire:
+                mode_state_rec.cum_error_count += mode.error_count
+                mode_state_rec.expiration_dt = datetime.datetime.now()
+
+            try:
+                sessions[1].commit()
+                return None
+            except IntegrityError, err:
+                print '\a'
+                ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                sessions[1].rollback()
+
+        else:
+            raise Exception('no mode state to save!')
 
 class SQLModeStateDefault(Base):
     __tablename__ = 'mode_state_default'
@@ -322,6 +580,7 @@ class SQLOperationRecord(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     target_hexadecimal_key = Column(String(640), nullable=False)
 
+    @staticmethod
     def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
         op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
@@ -338,6 +597,7 @@ class SQLOperationRecord(Base):
             raise err
 
 
+    @staticmethod
     def retrieve(path, operation, operator=None, apply_lifespan=False, op_status=None):
         # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else
         path = '%s%s' % (path, '%')
@@ -361,266 +621,4 @@ class SQLOperationRecord(Base):
                     result += (instance,)
 
         return result
-
-def alchemy_operation(function):
-    def wrapper(*args, **kwargs):
-        try:
-            return function(*args, **kwargs)
-
-        except RuntimeWarning, warn:
-
-            ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
-
-        except IntegrityError, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            print err.__class__.__name__
-            for param in err.params:
-                print param
-            for arg in err.args:
-                print arg
-
-            sessions[0].rollback()
-
-            raise SQLIntegrityError(err, err.message)
-
-        except Exception, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            raise err
-
-    return wrapper
-
-# SQLAsset
-
-
-
-
-# SQLMatchRecord
-
-def insert_match(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
-    # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
-    match_rec = SQLMatchRecord(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
-        matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
-
-    try:
-        sessions[0].add(match_rec)
-        sessions[0].commit()
-    except IntegrityError, err:
-        print '\a'
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-
-        sessions[0].rollback()
-
-
-# SQLExecutionRecord
-
-def insert_exec_record(kwargs):
-    rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_time=config.start_time, \
-         effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, status=kwargs['status'])
-
-    try:
-        sessions[1].add(rec_exec)
-        sessions[1].commit()
-        return rec_exec
-    except IntegrityError, err:
-        print '\a'
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-
-        sessions[1].rollback()
-
-
-def retrieve_exec_record(pid=None):
-    pid = config.pid if pid is None else pid
-
-    result = ()
-    for instance in sessions[1].query(SQLExecutionRecord).\
-        filter(SQLExecutionRecord.pid == pid):
-            result += (instance,)
-
-    if len(result) == 1:
-        return result[0]
-
-
-def update_exec_record(kwargs):
-    
-    try:
-        exec_rec=retrieve_exec_record()
-        exec_rec.status = 'terminated'
-        exec_rec.expiration_dt = datetime.datetime.now()
-        # sessions[1].add(rec_exec)
-        sessions[1].commit()
-        return exec_rec
-    except IntegrityError, err:
-        print '\a'
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-    
-    sessions[1].rollback()
-
-
-# modes
-
-def insert_mode(name):
-    mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
-    try:
-        sessions[1].add(mode_rec)
-        sessions[1].commit()
-        return mode_rec.id
-    except IntegrityError, err:
-        print '\a'
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        sessions[1].rollback()
-
-
-# SQLModeState
-
-def insert_mode_state(mode):
-    sqlmode = retrieve_mode(mode)
-    sqlstate = retrieve_state(mode.get_state())
-    mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, index_name=config.es_index, times_activated=mode.times_activated, \
-        times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, status=mode.get_state().name, \
-        effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
-
-    try:
-        sessions[1].add(mode_state_rec)
-        sessions[1].commit()
-        return mode_state_rec.id
-    except IntegrityError, err:
-        print '\a'
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        sessions[1].rollback()
-
-
-def retrieve_modes():
-    result = ()
-    for instance in sessions[1].query(SQLMode).\
-        filter(SQLMode.index_name == config.es_index):
-            result += (instance,)
-
-    return result
-
-
-def retrieve_mode(mode):
-    result = ()
-    for instance in sessions[1].query(SQLMode).\
-        filter(SQLMode.id == mode.id):
-            result += (instance,)
-
-    return result[0] if len(result) == 1 else None
-
-
-def retrieve_mode_by_name(name):
-    result = ()
-    for instance in sessions[1].query(SQLMode).\
-        filter(SQLMode.index_name == config.es_index). \
-        filter(SQLMode.effective_dt < datetime.datetime.now()). \
-        filter(SQLMode.expiration_dt > datetime.datetime.now()). \
-        filter(SQLMode.name == name):
-            result += (instance,)
-
-    return result[0] if len(result) == 1 else None
-        
-# states
-
-def retrieve_states():
-    result = ()
-    for instance in sessions[1].query(SQLState).\
-        filter(SQLState.index_name == config.es_index):
-            result += (instance,)
-
-    return result
-
-
-def retrieve_state(state):
-    result = ()
-    for instance in sessions[1].query(SQLState). \
-            filter(SQLState.id == state.id):
-        result += (instance,)
-
-    return result[0] if len(result) == 1 else None
-
-
-def retrieve_state_by_id(id):
-    result = ()
-    for instance in sessions[1].query(SQLState).\
-        filter(SQLState.index_name == config.es_index). \
-        filter(SQLState.effective_dt < datetime.datetime.now()). \
-        filter(SQLState.expiration_dt > datetime.datetime.now()). \
-        filter(SQLState.id == id):
-            result += (instance,)
-
-    return result[0] if len(result) == 1 else None
-
-
-def retrieve_state_by_name(name):
-    result = ()
-    for instance in sessions[1].query(SQLState).\
-        filter(SQLState.index_name == config.es_index). \
-        filter(SQLState.effective_dt < datetime.datetime.now()). \
-        filter(SQLState.expiration_dt > datetime.datetime.now()). \
-        filter(SQLState.name == name):
-            result += (instance,)
-
-    return result[0] if len(result) == 1 else None
-
-# SQLModeState
-
-def retrieve_active_mode_state_record(mode):
-    result = ()
-    for instance in sessions[1].query(SQLModeState).\
-        filter(SQLModeState.id == mode.mode_state_id).\
-        filter(SQLModeState.pid == config.pid):
-            result += (instance,)
-
-    return result[0] if len(result) == 1 else None
-
-
-def retrieve_previous_mode_state_record(mode):
-    result = ()
-
-    if config.old_pid is None: return None
-
-    sqlmode = retrieve_mode(mode)
-    for instance in sessions[1].query(SQLModeState). \
-        filter(SQLModeState.pid == config.old_pid).\
-        filter(SQLModeState.mode_id == sqlmode.id):
-            result += (instance,)
-
-    if len(result) == 0: return None
-    if len(result) == 1: return result[0]
-
-    output = result[0]
-    for record in result:
-        if record.effective_dt > output.effective_dt: #and record.expiration_dt >= output.expiration_dt
-            output = record
-
-    print "%s mode will resume in %s state" % (mode.name, output.status)
-
-    return output
-
-
-def update_mode_state(mode, expire=False):
-
-    if mode.mode_state_id:
-
-        mode_state_rec = retrieve_active_mode_state_record(mode)
-
-        mode_state_rec.times_activated = mode.times_activated
-        mode_state_rec.times_completed = mode.times_completed
-        mode_state_rec.last_activated = mode.last_activated
-        mode_state_rec.last_completed = mode.last_completed
-        mode_state_rec.error_count = mode.error_count
-
-        if expire:
-            mode_state_rec.cum_error_count += mode.error_count
-            mode_state_rec.expiration_dt = datetime.datetime.now()
-
-        try:
-            sessions[1].commit()
-            return None
-        except IntegrityError, err:
-            print '\a'
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            sessions[1].rollback()
-
-    else:
-        raise Exception('no mode state to save!')
 

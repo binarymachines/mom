@@ -14,6 +14,8 @@ import sql
 from core.errors import BaseClassException
 import query
 
+from alchemy import SQLMatchRecord
+
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
@@ -103,7 +105,7 @@ class ElasticSearchMatcher(MediaMatcher):
             compresult = self.match_comparison_result(media.doc, match)
             extflag = str(self.match_extensions_match(media.doc, match))
 
-            alchemy.insert_match(media.esid, match['_id'], self.name, match_percentage, compresult, extflag)
+            SQLMatchRecord.insert_match(media.esid, match['_id'], self.name, match_percentage, compresult, extflag)
 
         ops.record_op_complete('match', self.name, media.absolute_path, media.esid)
 

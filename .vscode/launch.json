@@ -158,7 +158,7 @@
             "env": {},
             "sourceMaps": false,
             "outDir": null
-        }
+        },
         // {
         //     "name": "Python Console App",
         //     "type": "python",
@@ -218,5 +218,35 @@
         //     "secret": "my_secret",
         //     "host": "localhost"
         // }
+
+          {
+            "name": "Java",
+            "type": "java",
+            "request": "launch",
+            "stopOnEntry": true,
+            "cwd": "${fileDirname}", // ${fileDirname}: the current opened file's dirname
+            "startupClass": "com.github.vscode.${fileBasename}", // ${fileBasename}: the current opened file's basename
+            "options": [
+                "-classpath",
+                "${workspaceRoot}/target/classes" // ${fileDirname}: the current opened file's dirname
+            ],
+            "jdkPath": "${env.JAVA_HOME}/bin", // ${env.JAVA_HOME}: reference environment variables
+            "preLaunchTask": "javac"
+        },
+        {
+            "name": "Java Console App",
+            "type": "java",
+            "request": "launch",
+            "stopOnEntry": true,
+            "cwd": "${fileDirname}",
+            "startupClass": "${fileBasename}",
+            "options": [
+                "-classpath",
+                "\"${fileDirname};.\""
+            ],
+            "externalConsole": true,
+            "jdkPath": "${env.JAVA_HOME}/bin",
+            "preLaunchTask": "javac"
+        }
     ]
 }
