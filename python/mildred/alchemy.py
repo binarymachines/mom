@@ -122,7 +122,7 @@ class SQLMatcher(Base):
     # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
     @staticmethod
-    def retrieve_matchers():
+    def retrieve_all():
         result = ()
         for instance in sessions[0].query(SQLMatcher). \
             filter(SQLMatcher.active_flag == True):

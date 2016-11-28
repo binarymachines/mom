@@ -152,23 +152,19 @@ def do_match_op(esid, absolute_path, matchers):
 
 
 def get_matchers():
-    keygroup = MATCH
-    identifier = 'matchers'
-    if not cache2.key_exists(keygroup, identifier):
-        matchers  = SQLMatcher.retrieve_matchers()
-        for matcher in matchers:
-            cache2.set_hash(keygroup, identifier, {'id': matcher.id, 'name': matcher.name, 'query_type': matcher.query_type, 'max_score_percentage': matcher.max_score_percentage, \
-                'applies_to_file_type': matcher.applies_to_file_type})
-   
-    matcherdata = cache2.get_hashes(keygroup, identifier)
-
     matchers = []
-    for item in matcherdata:
-        matcher = ElasticSearchMatcher(item['name'], doc_type=DOCUMENT, id=item['id'], query_type=item['query_type'])
+    sqlmatchers  = SQLMatcher.retrieve_all()
+    for sqlmatcher in sqlmatchers:
+        comparison_fields = {}
 
-        matcher.max_score_percentage = float(item['max_score_percentage'])
-        LOG.debug('matcher %s configured' % (item['name']))
-        matchers += [matcher]
+        for field in sqlmatcher.match_fields:
+            comparison_fields[field.field_name] = {'matcher_id': sqlmatcher.id, 'matcher_field': field.field_name, 'boost': field.boost, 'bool': field.bool, \
+                         'analyzer': field.analyzer, 'operator': field.operator, 'minimum_should_match': field.minimum_should_match, \
+                         'query_section': field.query_section}
+
+        matcher = ElasticSearchMatcher(sqlmatcher.name, comparison_fields, doc_type=DOCUMENT, id=sqlmatcher.id, query_type=sqlmatcher.query_type, \
+                                       max_score_percentage=float(sqlmatcher.max_score_percentage))
+        matchers.append(matcher)
 
     return matchers
 

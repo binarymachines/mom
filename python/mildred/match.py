@@ -24,7 +24,7 @@ def clean_str(string):
 
 class MediaMatcher(object):
     def __init__(self, name, doc_type, id=None):
-        self.comparison_fields = []
+        self.comparison_fields = {}
         self.document_type = doc_type
         self.name = name
         self.id = id
@@ -55,27 +55,11 @@ class MediaMatcher(object):
 
 
 class ElasticSearchMatcher(MediaMatcher):
-    def __init__(self, name, doc_type=None, query_type=None, id=None, max_score_percentage=None):
+    def __init__(self, name, comparison_fields, doc_type=None, query_type=None, id=None, max_score_percentage=None):
         super(ElasticSearchMatcher, self).__init__(name, doc_type=doc_type, id=id)
         self.query_type = query_type
         self.max_score_percentage = max_score_percentage
-
-        if self.id is not None:
-            row = sql.retrieve_values('matcher', ['id', 'name', 'query_type'], [self.id])
-            if len(row) == 0:
-                error_message = "There is no configuation data for %s matcher." % (self.name)
-                raise Exception(error_message)
-
-            rows = sql.retrieve_values('matcher_field', ['matcher_id', 'field_name'], [self.id])
-            for r in rows:
-                self.comparison_fields.append(r[1])
-
-            # TODO: this is a kludge. This module uses self.comparison_fields, which is a single-dimensional array
-            # 'Builder' in query.py uses 'match_fields', which is a tuple. This module should be updated to use the tuple
-            self.match_fields = sql.retrieve_values('matcher_field', ['matcher_id', 'field_name', 'boost'], [self.id])
-
-        if len(self.comparison_fields) > 0 and self.query_type is not None:
-            LOG.info('%s %s matcher configured.' % (self.name, self.query_type))
+        self.comparison_fields = comparison_fields
 
     def get_query(self, media):
 
@@ -85,7 +69,7 @@ class ElasticSearchMatcher(MediaMatcher):
                 values[field] = media.doc['_source'][field]
 
         qb = Builder(config.es_host, config.es_port)
-        return qb.get_query(self.query_type, self.match_fields, values)
+        return qb.get_query(self.query_type, self.comparison_fields, values)
 
 
     def print_match_query_debug_footer(self, media, query, match):

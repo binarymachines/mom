@@ -14,23 +14,26 @@ class Builder:
         self.es_host = es_host
         self.es_port = es_port
 
-    def execute_query(self, name, values):
-        es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
-        res = es.search(index=config.es_index, doc_type=const.DOCUMENT, body=query)
+    # def execute_query(self, name, values):
+    #     es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
+    #     res = es.search(index=config.es_index, doc_type=const.DOCUMENT, body=query)
 
 
     def get_query(self, query_type, match_fields, values):
 
+        # self.match_fields = sql.retrieve_values('matcher_field', ['matcher_id', 'field_name', 'boost'], [self.id])
+
         if len(match_fields) == 1:
-            if match_fields[0][1] is not None:
-                boost = match_fields[0][1]
+            fieldinfo = match_fields.values()[0]
+            # if match_fields[0][1] is not None:
+            #     boost = match_fields[0][1]
 
             # TODO: add options to simple query
 
             if query_type == 'term':
-                return self.get_simple_term(match_fields[0][1], values, [])
+                return self.get_simple_term(fieldinfo['matcher_field'], values, [])
             elif query_type == 'match':
-                return self.get_simple_match(match_fields[0][1], values, [])
+                return self.get_simple_match(fieldinfo['matcher_field'], values, [])
 
         elif len(match_fields) > 1:
 
@@ -39,11 +42,9 @@ class Builder:
             options['boost'] = {}
 
             for field in match_fields:
-                fname = field[1]
+                fname = match_fields[field]['matcher_field']
                 fieldnames.append(fname)
-                if field[2] is not None:
-                    boost = field[2]
-                    options['boost'][fname] = boost
+                options['boost'][fname] = match_fields[field]['boost']
 
             if query_type == 'term':
                 return self.get_multi_term(fieldnames, values, options)
