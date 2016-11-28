@@ -12,7 +12,7 @@ import library
 import ops
 import sql
 from core.errors import BaseClassException
-from query import Builder
+import query
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -61,6 +61,7 @@ class ElasticSearchMatcher(MediaMatcher):
         self.max_score_percentage = max_score_percentage
         self.comparison_fields = comparison_fields
 
+
     def get_query(self, media):
 
         values = {}
@@ -68,20 +69,8 @@ class ElasticSearchMatcher(MediaMatcher):
             if field in media.doc['_source']:
                 values[field] = media.doc['_source'][field]
 
-        qb = Builder(config.es_host, config.es_port)
-        return qb.get_query(self.query_type, self.comparison_fields, values)
+        return query.get_query(self.query_type, self.comparison_fields, values)
 
-
-    def print_match_query_debug_footer(self, media, query, match):
-
-        matchrecord = {}
-        matchrecord['score'] = match['_score']
-        matchrecord['path'] = match['_source']['absolute_path']
-
-        for field in self.comparison_fields:
-            if field != 'deleted':
-                if field in match['_source']:
-                    matchrecord[field] = match['_source'][field]
 
     def match(self, media):
         ops.record_op_begin('match', self.name, media.absolute_path, media.esid)
