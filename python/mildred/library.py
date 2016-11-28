@@ -9,7 +9,7 @@ import time
 
 from elasticsearch.exceptions import ConnectionError, RequestError
 
-import alchemy
+from alchemy import SQLAsset
 import config
 from const import DOCUMENT, DIRECTORY, HEXID, MATCH
 import ops
@@ -106,7 +106,7 @@ def cache_docs(document_type, path, flush=True):
     if flush: clear_docs(document_type, os.path.sep)
     ops.update_listeners('retrieving %s records...' % (document_type), 'library', path)
     LOG.debug('retrieving %s records for %s...' % (document_type, path))
-    rows = alchemy.retrieve_assets(document_type, path)
+    rows = SQLAsset.retrieve(document_type, path)
 
     count = len(rows)
     cached_count = 0
@@ -277,7 +277,7 @@ def index_asset(asset, data):
 
 
 def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
-    alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
+    SQLAsset.insert(index_name, document_type, elasticsearch_id, absolute_path)
     # except Exception, err:
     #         print "database connectivity error, retrying in 5 seconds..." 
     #         db_avail = False

@@ -8,7 +8,7 @@ import config
 import const
 import library
 import ops
-import alchemy
+from alchemy import SQLFileHandler
 
 from core import log
 
@@ -26,7 +26,7 @@ class Reader:
 
 
     def initialize_file_handlers(self):
-        handlers = alchemy.retrieve_file_handlers()
+        handlers = SQLFileHandler.retrieve_all()
         for handler in handlers:
             qualified = []
             if handler.package: 

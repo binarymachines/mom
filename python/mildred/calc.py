@@ -27,7 +27,7 @@ from match import ElasticSearchMatcher
 
 import alchemy
 
-from alchemy import SQLMatcher
+from alchemy import SQLMatcher, SQLOperationRecord
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -53,7 +53,7 @@ def cache_match_ops(matchers, path):
 def path_expands(path, context):
     expanded = []
 
-    op_records = alchemy.retrieve_op_records(path, HSCAN)
+    op_records = SQLOperationRecord.retrieve(path, HSCAN)
     for op_record in op_records:
         if op_record.target_path not in expanded:
             expanded.append(op_record.target_path)

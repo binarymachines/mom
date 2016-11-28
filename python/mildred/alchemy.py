@@ -51,6 +51,41 @@ class SQLAsset(Base):
         return "<SQLAsset(index_name='%s', doc_type='%s', absolute_path='%s')>" % (
                                 self.index_name, self.doc_type, self.absolute_path)
 
+    @staticmethod
+    def insert(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
+        asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
+            effective_dt=datetime.datetime.now(), expiration_dt=expiration_dt)
+
+        try:
+            sessions[0].add(asset)
+            sessions[0].commit()
+        # except RuntimeWarning, warn:
+        #     ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+        except IntegrityError, err:
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            print err.__class__.__name__
+            for param in err.params:
+                print param
+            for arg in err.args:
+                print arg
+
+            sessions[0].rollback()
+
+            raise SQLIntegrityError(err, err.message)
+
+    @staticmethod
+    def retrieve(doc_type, absolute_path):
+        # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path
+        path = '%s%s' % (absolute_path, '%')
+
+        result = ()
+        for instance in sessions[0].query(SQLAsset).\
+            filter(SQLAsset.index_name == config.es_index).\
+            filter(SQLAsset.doc_type == doc_type).\
+            filter(SQLAsset.absolute_path.like(path)):
+                result += (instance,)
+
+        return result
 
 
 class SQLCauseOfDefect(Base):
@@ -86,27 +121,31 @@ class SQLExecutionRecord(Base):
 
 class SQLFileHandler(Base):
     __tablename__ = 'file_handler'
+
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     module = Column('module', String(128), nullable=False)
     package = Column('package', String(1024), nullable=False)
     class_name = Column('class_name', String(128), nullable=False)
 
+    @staticmethod
+    def retrieve_all():
+        result = ()
+        for instance in sessions[0].query(SQLFileHandler):
+            result += (instance,)
+
+        return result
 
 class SQLFileHandlerType(Base): 
     __tablename__ = 'file_handler_type'
+
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     file_handler_id = Column(Integer, ForeignKey('file_handler.id'))
     name = Column('file_type', String(8), nullable=False)
+
     file_handler = relationship("SQLFileHandler", back_populates="file_types")
 
 SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileHandlerType.id, back_populates="file_handler")
 
-def retrieve_file_handlers():
-    result = ()
-    for instance in sessions[0].query(SQLFileHandler):
-        result += (instance,)
-
-    return result
 
 class SQLMatcher(Base):
     __tablename__ = 'matcher'
@@ -283,6 +322,45 @@ class SQLOperationRecord(Base):
     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     target_hexadecimal_key = Column(String(640), nullable=False)
 
+    def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
+        LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
+        op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
+                                    target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now(), \
+                                    expiration_dt=datetime.datetime.max, target_hexadecimal_key=target_path.encode('hex'))
+
+        try:
+            sessions[1].add(op_rec)
+            sessions[1].commit()
+        except RuntimeWarning, warn:
+            ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+        except Exception, err:
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            raise err
+
+
+    def retrieve(path, operation, operator=None, apply_lifespan=False, op_status=None):
+        # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else
+        path = '%s%s' % (path, '%')
+        op_status = 'COMPLETE' if op_status is None else op_status
+
+        result = ()
+        if operator is None:
+            for instance in sessions[1].query(SQLOperationRecord).\
+                filter(SQLOperationRecord.index_name == config.es_index).\
+                filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
+                filter(SQLOperationRecord.operation_name == operation).\
+                filter(SQLOperationRecord.status == op_status):
+                    result += (instance,)
+        else:
+            for instance in sessions[1].query(SQLOperationRecord).\
+                filter(SQLOperationRecord.index_name == config.es_index).\
+                filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
+                filter(SQLOperationRecord.operation_name == operation).\
+                filter(SQLOperationRecord.operator_name == operator).\
+                filter(SQLOperationRecord.status == op_status):
+                    result += (instance,)
+
+        return result
 
 def alchemy_operation(function):
     def wrapper(*args, **kwargs):
@@ -314,40 +392,6 @@ def alchemy_operation(function):
 # SQLAsset
 
 
-def insert_asset(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
-    asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
-        effective_dt=datetime.datetime.now(), expiration_dt=expiration_dt)
-
-    try:
-        sessions[0].add(asset)
-        sessions[0].commit()
-    # except RuntimeWarning, warn:
-    #     ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
-    except IntegrityError, err:
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        print err.__class__.__name__
-        for param in err.params:
-            print param
-        for arg in err.args:
-            print arg
-
-        sessions[0].rollback()
-
-        raise SQLIntegrityError(err, err.message)
-
-
-def retrieve_assets(doc_type, absolute_path):
-    # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path
-    path = '%s%s' % (absolute_path, '%')
-
-    result = ()
-    for instance in sessions[0].query(SQLAsset).\
-        filter(SQLAsset.index_name == config.es_index).\
-        filter(SQLAsset.doc_type == doc_type).\
-        filter(SQLAsset.absolute_path.like(path)):
-            result += (instance,)
-
-    return result
 
 
 # SQLMatchRecord
@@ -412,49 +456,7 @@ def update_exec_record(kwargs):
     sessions[1].rollback()
 
 
-# operations
-
-def insert_op_record(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
-    LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
-    op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
-                                target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now(), \
-                                expiration_dt=datetime.datetime.max, target_hexadecimal_key=target_path.encode('hex'))
-
-    try:
-        sessions[1].add(op_rec)
-        sessions[1].commit()
-    except RuntimeWarning, warn:
-        ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
-    except Exception, err:
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        raise err
-
-
-def retrieve_op_records(path, operation, operator=None, apply_lifespan=False, op_status=None):
-    # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else 
-    path = '%s%s' % (path, '%')
-    op_status = 'COMPLETE' if op_status is None else op_status
-
-    result = ()
-    if operator is None:
-        for instance in sessions[1].query(SQLOperationRecord).\
-            filter(SQLOperationRecord.index_name == config.es_index).\
-            filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
-            filter(SQLOperationRecord.operation_name == operation).\
-            filter(SQLOperationRecord.status == op_status):
-                result += (instance,)
-    else:
-        for instance in sessions[1].query(SQLOperationRecord).\
-            filter(SQLOperationRecord.index_name == config.es_index).\
-            filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
-            filter(SQLOperationRecord.operation_name == operation).\
-            filter(SQLOperationRecord.operator_name == operator).\
-            filter(SQLOperationRecord.status == op_status):
-                result += (instance,)
-
-    return result
-
-
+# modes
 
 def insert_mode(name):
     mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
