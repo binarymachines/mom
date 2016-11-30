@@ -1,7 +1,7 @@
 
 #!/bin/bash
-pushd $m2/python/mildred
-export MILDRED_HOME=$m2/python/mildred
+pushd $M2/python/mildred
+export MILDRED_HOME=$M2/python/mildred
 
-PYTHONPATH=`pwd`/python/mildred $m2/python/mildred/snap/routegen.py -g $m2/python/snap.conf > $m2/python/mildred/snap/main.py
+PYTHONPATH=`pwd`/python/mildred $M2/python/mildred/snap/routegen.py -g $M2/python/snap.conf > $M2/python/mildred/snap/main.py
 popd

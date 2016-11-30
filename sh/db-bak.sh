@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-pushd $m2
+pushd $M2
 
 clear
 
