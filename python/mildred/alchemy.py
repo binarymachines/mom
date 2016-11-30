@@ -286,9 +286,8 @@ class SQLMatch(Base):
         except IntegrityError, err:
             print '\a'
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-
             sessions[0].rollback()
-
+            #TODO raise SQL Exception that contains the session to be rolled back by alchemy decorator
 
 class SQLMode(Base):
     __tablename__ = 'mode'
@@ -487,7 +486,7 @@ class SQLModeState(Base):
 
             try:
                 sessions[1].commit()
-                return None
+                return None if expire else mode_state_rec
             except IntegrityError, err:
                 print '\a'
                 ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)

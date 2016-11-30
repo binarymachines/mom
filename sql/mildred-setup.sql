@@ -13,6 +13,7 @@
 --
 -- Table structure for table `matcher_field`
 --
+DROP TABLE IF EXISTS `matched`;
 DROP TABLE IF EXISTS `matcher_field`;
 DROP TABLE IF EXISTS `matcher`;
 DROP TABLE IF EXISTS `directory`;
@@ -558,3 +559,30 @@ create view `v_file_handler` as
   from file_handler fh, file_handler_type ft
   where ft.file_handler_id = fh.id
   order by fh.package, fh.module, fh.class_name;
+  
+create table `matched` (
+  `index_name` varchar(128) NOT NULL,
+  `doc_id` varchar(128) NOT NULL,
+  `match_doc_id` varchar(128) NOT NULL,
+  `matcher_name` varchar(128) NOT NULL,
+  `percentage_of_max_score` float NOT NULL,
+  `comparison_result` char(1) CHARACTER SET utf8 NOT NULL,
+  `same_ext_flag` tinyint(1) NOT NULL DEFAULT '0',
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`doc_id`,`match_doc_id`)
+);
+
+drop view if exists `v_matched`;
+
+create view `v_matched` as
+
+select d1.absolute_path document_path, m.comparison_result, d2.absolute_path match_path, m.percentage_of_max_score pct, m.same_ext_flag
+from document d1, document d2, matched m
+where m.doc_id = d1.id and
+    m.match_doc_id = d2.id
+union
+select d2.absolute_path document_path, m.comparison_result, d1.absolute_path match_path, m.percentage_of_max_score pct, m.same_ext_flag
+from document d1, document d2, matched m
+where m.doc_id = d2.id and
+    m.match_doc_id = d1.id
