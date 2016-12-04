@@ -1,8 +1,8 @@
--- MySQL dump 10.14  Distrib 5.5.52-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: scratch
+-- Host: localhost    Database: localhost
 -- ------------------------------------------------------
--- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
+-- Server version	10.0.28-MariaDB-1~trusty
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;

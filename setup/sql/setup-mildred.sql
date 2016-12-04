@@ -1,8 +1,8 @@
--- MySQL dump 10.14  Distrib 5.5.52-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: mildred
+-- Host: localhost    Database: localhost
 -- ------------------------------------------------------
--- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
+-- Server version	10.0.28-MariaDB-1~trusty
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -385,6 +385,23 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
+-- Temporary table structure for view `v_matched`
+--
+
+DROP TABLE IF EXISTS `v_matched`;
+/*!50001 DROP VIEW IF EXISTS `v_matched`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `v_matched` (
+  `document_path` tinyint NOT NULL,
+  `comparison_result` tinyint NOT NULL,
+  `match_path` tinyint NOT NULL,
+  `pct` tinyint NOT NULL,
+  `same_ext_flag` tinyint NOT NULL
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Final view structure for view `v_file_handler`
 --
 
@@ -399,6 +416,25 @@ SET character_set_client = @saved_cs_client;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `v_file_handler` AS select `fh`.`package` AS `package`,`fh`.`module` AS `module`,`fh`.`class_name` AS `class_name`,`ft`.`file_type` AS `file_type` from (`file_handler` `fh` join `file_handler_type` `ft`) where (`ft`.`file_handler_id` = `fh`.`id`) order by `fh`.`package`,`fh`.`module`,`fh`.`class_name` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_matched`
+--
+
+/*!50001 DROP TABLE IF EXISTS `v_matched`*/;
+/*!50001 DROP VIEW IF EXISTS `v_matched`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_matched` AS select `d1`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d2`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `matched` `m`) where ((`m`.`doc_id` = `d1`.`id`) and (`m`.`match_doc_id` = `d2`.`id`)) union select `d2`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d1`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `matched` `m`) where ((`m`.`doc_id` = `d2`.`id`) and (`m`.`match_doc_id` = `d1`.`id`)) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;

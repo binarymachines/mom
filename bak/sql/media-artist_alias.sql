@@ -1,8 +1,8 @@
--- MySQL dump 10.14  Distrib 5.5.52-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: media
+-- Host: localhost    Database: localhost
 -- ------------------------------------------------------
--- Server version	5.5.52-MariaDB-1ubuntu0.14.04.1
+-- Server version	10.0.28-MariaDB-1~trusty
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
