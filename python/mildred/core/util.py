@@ -151,16 +151,16 @@ def expand_str_to_path(input):
     return os.path.sep.join(ar)
 
 def main(args):
-    # if args['--delta']:
-    #     source = args['<source>']
-    #     target = args['<target>']
-    #     if args['--remove-source']:
-    #         delta(source, target, True)
-    #     elif args['--dry-run']:
-    #         delta(source, target, False)
+    if args['--delta']:
+        source = args['<source>']
+        target = args['<target>']
+        if args['--remove-source']:
+            delta(source, target, True)
+        elif args['--dry-run']:
+            delta(source, target, False)
 
-    input = 'AAHIDIFKE'
-    print expand_str_to_path(input)
+#    input = 'AAHIDIFKE'
+#    print expand_str_to_path(input)
 
 if __name__ == '__main__':
     args = docopt(__doc__)
