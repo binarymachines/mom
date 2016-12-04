@@ -51,6 +51,7 @@ mysqldump --routines scratch > bak/sql/scratch.sql
 echo "copying setup tables..."
 ./sh/copy-table-ddl.sh mildred setup/sql/setup-mildred.sql
 ./sh/copy-table-ddl.sh mildred_admin setup/sql/setup-mildred_admin.sql
+./sh/copy-table-ddl.sh mildred_action setup/sql/setup-mildred_action.sql
 ./sh/copy-table-ddl.sh mildred_introspection setup/sql/setup-mildred_introspection.sql
 ./sh/copy-table-ddl.sh media setup/sql/setup-media.sql
 ./sh/copy-table-ddl.sh scratch setup/sql/backup-media-no-data.sql
@@ -62,6 +63,7 @@ echo "dumping schemas..."
 
 ./sh/backup-schema.sh mildred
 ./sh/backup-schema.sh mildred_admin
+./sh/backup-schema.sh mildred_action
 ./sh/backup-schema.sh mildred_introspection
 ./sh/backup-schema.sh media
 ./sh/backup-schema.sh scratch
