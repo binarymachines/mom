@@ -28,6 +28,8 @@ CREATE TABLE `action` (
   `action_status_id` int(11) unsigned DEFAULT NULL,
   `reason_id` int(11) unsigned DEFAULT NULL,
   `parent_action_id` int(11) unsigned DEFAULT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `action_type_id` (`action_type_id`),
   KEY `action_status_id` (`action_status_id`),
@@ -75,6 +77,31 @@ CREATE TABLE `action_element_type` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `action_reason_field`
+--
+
+DROP TABLE IF EXISTS `action_reason_field`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `action_reason_field` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `action_id` int(11) unsigned DEFAULT NULL,
+  `reason_id` int(11) unsigned DEFAULT NULL,
+  `reason_type_field_id` int(11) unsigned DEFAULT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  KEY `action_id` (`action_id`),
+  KEY `reason_id` (`reason_id`),
+  KEY `reason_type_field_id` (`reason_type_field_id`),
+  CONSTRAINT `action_reason_field_ibfk_1` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`),
+  CONSTRAINT `action_reason_field_ibfk_2` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`),
+  CONSTRAINT `action_reason_field_ibfk_3` FOREIGN KEY (`reason_type_field_id`) REFERENCES `reason_field` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `action_status`
 --
 
@@ -103,6 +130,25 @@ CREATE TABLE `action_type` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `dispatch`
+--
+
+DROP TABLE IF EXISTS `dispatch`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dispatch` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(128) DEFAULT NULL,
+  `category` varchar(128) DEFAULT NULL,
+  `package` varchar(128) DEFAULT NULL,
+  `module` varchar(128) NOT NULL,
+  `class_name` varchar(128) DEFAULT NULL,
+  `func_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `reason`
 --
 
@@ -111,10 +157,11 @@ DROP TABLE IF EXISTS `reason`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `reason` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `reason_type_id` int(11) unsigned DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `reason_condition_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `reason_type_id` (`reason_type_id`),
-  CONSTRAINT `reason_ibfk_1` FOREIGN KEY (`reason_type_id`) REFERENCES `reason_type` (`id`)
+  KEY `reason_condition_id` (`reason_condition_id`),
+  CONSTRAINT `reason_ibfk_1` FOREIGN KEY (`reason_condition_id`) REFERENCES `dispatch` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -127,48 +174,11 @@ DROP TABLE IF EXISTS `reason_field`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `reason_field` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `action_id` int(11) unsigned DEFAULT NULL,
   `reason_id` int(11) unsigned DEFAULT NULL,
-  `reason_type_field_id` int(11) unsigned DEFAULT NULL,
-  `value` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `action_id` (`action_id`),
-  KEY `reason_id` (`reason_id`),
-  KEY `reason_type_field_id` (`reason_type_field_id`),
-  CONSTRAINT `reason_field_ibfk_1` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`),
-  CONSTRAINT `reason_field_ibfk_2` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`),
-  CONSTRAINT `reason_field_ibfk_3` FOREIGN KEY (`reason_type_field_id`) REFERENCES `reason_type_field` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `reason_type`
---
-
-DROP TABLE IF EXISTS `reason_type`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `reason_type` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `reason_type_field`
---
-
-DROP TABLE IF EXISTS `reason_type_field`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `reason_type_field` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `reason_type_id` int(11) unsigned DEFAULT NULL,
   `field_name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `reason_type_id` (`reason_type_id`),
-  CONSTRAINT `reason_type_field_ibfk_1` FOREIGN KEY (`reason_type_id`) REFERENCES `reason_type` (`id`)
+  KEY `reason_id` (`reason_id`),
+  CONSTRAINT `reason_field_ibfk_1` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
