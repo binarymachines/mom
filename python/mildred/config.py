@@ -27,8 +27,8 @@ es_index = 'media'
 mysql_host = 'localhost'
 mysql_port = 3306
 mysql_db = 'mildred'
-mysql_user = 'mildred'
-mysql_pass = 'changeme'
+mysql_user = 'root'
+mysql_pass = 'steel'
 
 scan = True
 match = True
@@ -43,10 +43,10 @@ def display_status():
     print """Elasticsearch host: %s""" % es_host
     print """Elasticsearch port: %i""" % es_port
     print """Elasticsearch index: %s""" % es_index
-    print"""MariaDB username: %s""" % mysql_user
-    print """MariaDB host: %s""" % mysql_host
-    print """MariaDB port: %i""" % mysql_port
-    print """MariaDB schema: %s""" % mysql_db
+    print"""MySQL username: %s""" % mysql_user
+    print """MySQL host: %s""" % mysql_host
+    print """MySQL port: %i""" % mysql_port
+    print """MySQL schema: %s""" % mysql_db
     print """Media Hound username: %s\n""" % username
     
 

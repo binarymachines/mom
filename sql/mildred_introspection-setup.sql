@@ -1,5 +1,9 @@
+drop schema if exists `mildred_introspection`;
+create schema `mildred_introspection`;
+use `mildred_introspection`;
+
 DROP TABLE IF EXISTS `mode_state_default_param`;
-DROP TABLE IF EXISTS `mode_state_default_operation`;
+-- DROP TABLE IF EXISTS `mode_state_default_operation`;
 DROP TABLE IF EXISTS `mode_state_default`;
 DROP TABLE IF EXISTS `mode_default`;
 DROP TABLE IF EXISTS `mode_state_param`;
@@ -8,8 +12,8 @@ DROP TABLE IF EXISTS `transition_rule`;
 DROP TABLE IF EXISTS `switch_rule`;
 DROP TABLE IF EXISTS `state`;
 DROP TABLE IF EXISTS `mode`;
-DROP TABLE IF EXISTS `operation`;
-DROP TABLE IF EXISTS `operator`;
+-- DROP TABLE IF EXISTS `operation`;
+-- DROP TABLE IF EXISTS `operator`;
 DROP TABLE IF EXISTS `dispatch_target`;
 DROP TABLE IF EXISTS `dispatch`;
 DROP TABLE IF EXISTS `exec_rec`;
@@ -23,6 +27,24 @@ DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`;
 drop view if exists `v_mode_switch_rule_dispatch`;
 drop view if exists `v_mode_switch_rule_dispatch_w_id`;
+drop table if exists op_record;
+
+CREATE TABLE `op_record` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `pid` varchar(32) NOT NULL,
+  `operator_name` varchar(64) NOT NULL,
+  `operation_name` varchar(64) NOT NULL,
+  `target_esid` varchar(64) NOT NULL,
+  `target_path` varchar(1024) NOT NULL,
+  `status` varchar(64) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime DEFAULT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  `target_hexadecimal_key` varchar(640) CHARACTER SET utf8 DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
 
 CREATE TABLE `dispatch` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -106,38 +128,38 @@ insert into dispatch (identifier, category, module, class_name, func_name) value
 --   where dt.dispatch_id = d.id
 --   order by d.identifier;
 
-CREATE TABLE `operator` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `name` varchar(128) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-);
+-- CREATE TABLE `operator` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+--   `name` varchar(128) NOT NULL,
+--   `effective_dt` datetime DEFAULT NULL,
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`)
+-- );
 
-insert into operator (index_name, name, effective_dt) values ('media', 'scan', now());
-insert into operator (index_name, name, effective_dt) values ('media', 'calc', now());
-insert into operator (index_name, name, effective_dt) values ('media', 'clean', now());
-insert into operator (index_name, name, effective_dt) values ('media', 'eval', now());
-insert into operator (index_name, name, effective_dt) values ('media', 'fix', now());
-insert into operator (index_name, name, effective_dt) values ('media', 'report', now());
+-- insert into operator (index_name, name, effective_dt) values ('media', 'scan', now());
+-- insert into operator (index_name, name, effective_dt) values ('media', 'calc', now());
+-- insert into operator (index_name, name, effective_dt) values ('media', 'clean', now());
+-- insert into operator (index_name, name, effective_dt) values ('media', 'eval', now());
+-- insert into operator (index_name, name, effective_dt) values ('media', 'fix', now());
+-- insert into operator (index_name, name, effective_dt) values ('media', 'report', now());
 
-CREATE TABLE `operation` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `operator_id` int(11) unsigned NOT NULL,
-  `name` varchar(128) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`),
-  KEY `fk_operation_operator` (`operator_id`),
-  CONSTRAINT `fk_operation_operator` FOREIGN KEY (`operator_id`) REFERENCES `operator` (`id`)
-);
+-- CREATE TABLE `operation` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+--   `operator_id` int(11) unsigned NOT NULL,
+--   `name` varchar(128) NOT NULL,
+--   `effective_dt` datetime DEFAULT NULL,
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`),
+--   KEY `fk_operation_operator` (`operator_id`),
+--   CONSTRAINT `fk_operation_operator` FOREIGN KEY (`operator_id`) REFERENCES `operator` (`id`)
+-- );
 
 -- insert into operation (index_name, name, operator, effective_dt) values ('media', 'scan', (select id from operator where name = 'scan'), now());
-insert into operation (index_name, name, operator_id, effective_dt) values ('media', 'discover', (select id from operator where name = 'scan'), now());
-insert into operation (index_name, name, operator_id, effective_dt) values ('media', 'update', (select id from operator where name = 'scan'), now());
-insert into operation (index_name, name, operator_id, effective_dt) values ('media', 'monitor', (select id from operator where name = 'scan'), now());
+-- insert into operation (index_name, name, operator_id, effective_dt) values ('media', 'discover', (select id from operator where name = 'scan'), now());
+-- insert into operation (index_name, name, operator_id, effective_dt) values ('media', 'update', (select id from operator where name = 'scan'), now());
+-- insert into operation (index_name, name, operator_id, effective_dt) values ('media', 'monitor', (select id from operator where name = 'scan'), now());
 -- insert into operation (index_name, name, operator, effective_dt) values ('media', 'fix', (select id from operator where name = 'fix'), now());
 -- insert into operation (index_name, name, operator, effective_dt) values ('media', 'eval', (select id from operator where name = 'eval'), now());
 -- insert into operation (index_name, name, operator, effective_dt) values ('media', 'clean', (select id from operator where name = 'clean'), now());
@@ -644,19 +666,19 @@ insert into mode_state_default_param(mode_state_default_id, name, value, effecti
   ((select id from mode_state_default where state_id = (select id from state where name = 'monitor')), 'deep.scan', 'true', now());
 
 
-CREATE TABLE `mode_state_default_operation` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
-  `mode_state_default_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `operation_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`),
-  KEY `fk_mode_state_default_operation_mode_state_default` (`mode_state_default_id`),
-  CONSTRAINT `fk_mode_state_default_operation_mode_state_default` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`),
-  KEY `fk_mode_state_default_operation_operation` (`operation_id`),
-  CONSTRAINT `fk_mode_state_default_operation_operation` FOREIGN KEY (`operation_id`) REFERENCES `operation` (`id`)
-);
+-- CREATE TABLE `mode_state_default_operation` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
+--   `mode_state_default_id` int(11) unsigned NOT NULL DEFAULT '0',
+--   `operation_id` int(11) unsigned NOT NULL DEFAULT '0',
+--   `effective_dt` datetime DEFAULT NULL,
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`),
+--   KEY `fk_mode_state_default_operation_mode_state_default` (`mode_state_default_id`),
+--   CONSTRAINT `fk_mode_state_default_operation_mode_state_default` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`),
+--   KEY `fk_mode_state_default_operation_operation` (`operation_id`),
+--   CONSTRAINT `fk_mode_state_default_operation_operation` FOREIGN KEY (`operation_id`) REFERENCES `operation` (`id`)
+-- );
 
 
 CREATE VIEW `v_mode_state_default_dispatch` AS 

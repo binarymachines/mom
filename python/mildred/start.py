@@ -40,14 +40,16 @@ def execute(args):
 
             LOG.debug('connecting to Elasticsearch...')
             config.es = search.connect()
-        
+            if not config.es.indices.exists(config.es_index):
+                search.create_index(config.es_index)
+
             if 'reset' in options: reset()
 
             # if 'clearmem' in options:
             LOG.debug('clearing data from prior execution...')
             ops.flush_cache(resuming=config.old_pid)
 
-            LOG.debug('connecting to MariaDB...')
+            LOG.debug('connecting to MySQL...')
             load_user_info()
 
             config.display_status()

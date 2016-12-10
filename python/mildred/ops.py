@@ -230,7 +230,7 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
                                  target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
 
     # update_ops_data()
-    LOG.info('%s operations have been updated for %s in MariaDB' % (operation, path))
+    LOG.info('%s operations have been updated for %s in MySQL' % (operation, path))
 
 
 # execution record

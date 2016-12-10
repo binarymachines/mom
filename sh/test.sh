@@ -6,7 +6,7 @@ clear
 
 for filename in ./*.py; do
     echo $filename
-    python "$filename"
+    /home/mpippins/.virtualenvs/mildred/bin/python2.7 "$filename"
 done
 
 popd

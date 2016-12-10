@@ -23,10 +23,19 @@ DROP TABLE IF EXISTS `directory_constant`;
 DROP TABLE IF EXISTS `document_category`;
 DROP TABLE IF EXISTS `path_hierarchy`;
 DROP TABLE IF EXISTS `exclude_directory`;
+DROP TABLE IF EXISTS `document_metadata`;
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 
+CREATE TABLE `document_metadata` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `document_format` varchar(32) NOT NULL,
+  `attribute_name` varchar(128) NOT NULL,
+  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+);
 
 CREATE TABLE `path_hierarchy` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -516,17 +525,18 @@ CREATE TABLE `file_handler` (
   `package` varchar(128) DEFAULT NULL,
   `module` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
+  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 );
 
 # file handlers
 insert into file_handler (module, class_name) values ('pathogen', 'MutagenAAC');
 insert into file_handler (module, class_name) values ('pathogen', 'MutagenAPEv2');
-insert into file_handler (module, class_name) values ('pathogen', 'MutagenFLAC');
-insert into file_handler (module, class_name) values ('pathogen', 'MutagenID3');
+insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenFLAC', 1);
+insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenID3', 1);
 insert into file_handler (module, class_name) values ('pathogen', 'MutagenMP4');
-insert into file_handler (module, class_name) values ('pathogen', 'MutagenOggFlac');
-insert into file_handler (module, class_name) values ('pathogen', 'MutagenOggVorbis');
+insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenOggFlac', 1);
+insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenOggVorbis', 1);
 
 
 CREATE TABLE `file_handler_type` (

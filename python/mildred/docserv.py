@@ -87,7 +87,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         # clean
 
         # cleaning_handler = CleaningModeHandler(self, self.context)
-        # self.cleanmode = Mode(CLEAN, cleaning_handler.do_clean, priority=2, dec_priority_amount=1) # bring ElasticSearch into line with MariaDB
+        # self.cleanmode = Mode(CLEAN, cleaning_handler.do_clean, priority=2, dec_priority_amount=1) # bring ElasticSearch into line with MySQL
 
 
         # match
@@ -122,7 +122,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
         # sync
 
-        # self.syncmode = Mode("SYNC", self.process_handler.do_sync, priority=2, dec_priority_amount=1) # bring MariaDB into line with ElasticSearch
+        # self.syncmode = Mode("SYNC", self.process_handler.do_sync, priority=2, dec_priority_amount=1) # bring MySQL into line with ElasticSearch
 
 
         # sleep

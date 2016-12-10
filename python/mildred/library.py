@@ -209,7 +209,7 @@ def _sub_index_asset(asset, data):
         # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
         asset.esid = esid
         try:
-            LOG.debug("inserting %s: %s into MariaDB" % (asset.document_type, asset.absolute_path))
+            LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
             insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
         except Exception, err:
             config.es.delete(config.es_index, asset.document_type, asset.esid)

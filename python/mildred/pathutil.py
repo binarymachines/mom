@@ -83,7 +83,7 @@ def get_active_document_formats():
 
 
 
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
+# TODO: Offline mode - query MySQL and ES before looking at the file system
 def file_type_recognized(path, extensions, recursive=False):
     # TODO: add 'safe mode'
     # if os.path.isdir(path):
@@ -96,7 +96,7 @@ def file_type_recognized(path, extensions, recursive=False):
     # else: raise Exception('Path does not exist: "' + path + '"')
 
 
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
+# TODO: Offline mode - query MySQL and ES before looking at the file system
 def multiple_file_types_recognized(path, extensions):
     # if self.debug: print path
     if os.path.isdir(path):
@@ -114,14 +114,14 @@ def multiple_file_types_recognized(path, extensions):
     else: raise Exception('Path does not exist: "' + path + '"')
 
 
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
+# TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_has_location_name(path, names):
     # if path.endswith(os.path.sep):
     for name in get_locations():
         if path.endswith(name):
             return True
 
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
+# TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_in_album_directory(path):
     # if self.debug: print path
     if os.path.isdir(path) is False:
@@ -130,21 +130,21 @@ def path_in_album_directory(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
+# TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_in_document_category(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
+# TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_in_location_directory(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
+# TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_is_document_category(path):
     raise Exception('not implemented!')
 
 
-# TODO: Offline mode - query MariaDB and ES before looking at the file system
+# TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_is_location_directory(path):
     raise Exception('not implemented!')
