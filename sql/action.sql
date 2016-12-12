@@ -8,37 +8,48 @@
     -- DROP TABLE IF EXISTS `action_element_type`;
     -- DROP TABLE IF EXISTS `action`;
 
-    drop database if exists `mildred_action`;
-    create database `mildred_action`;
-    use `mildred_action`;
+drop database if exists `mildred_action`;
+create database `mildred_action`;
+use `mildred_action`;
     
-    CREATE TABLE `action_type` (
-        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `name` varchar(255),
-        PRIMARY KEY (`id`)
-    );
+CREATE TABLE IF NOT EXISTS `dispatch` (
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `identifier` VARCHAR(128) NULL DEFAULT NULL,
+    `category` VARCHAR(128) NULL DEFAULT NULL,
+    `package` VARCHAR(128) NULL DEFAULT NULL,
+    `module` VARCHAR(128) NOT NULL,
+    `class_name` VARCHAR(128) NULL DEFAULT NULL,
+    `func_name` VARCHAR(128) NOT NULL,
+    PRIMARY KEY (`id`)
+);
 
-    insert into action_type (name) values ('move'), ('delete'), ('scan'), ('match'), ('retag'), ('consolidate');
+CREATE TABLE `action_type` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `name` varchar(255),
+    PRIMARY KEY (`id`)
+);
 
-    CREATE TABLE `action_status` (
-        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `name` varchar(255),
-        PRIMARY KEY (`id`)
-    );
+insert into action_type (name) values ('move'), ('delete'), ('scan'), ('match'), ('retag'), ('consolidate');
 
-    insert into action_status (name) values ('proposed'), ('accepted'), ('pending'), ('complete'), ('aborted'), ('canceled');
+CREATE TABLE `action_status` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `name` varchar(255),
+    PRIMARY KEY (`id`)
+);
 
-    CREATE TABLE `action_element_type` (
-        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `name` varchar(255),
-        PRIMARY KEY (`id`)
-    );
+insert into action_status (name) values ('proposed'), ('accepted'), ('pending'), ('complete'), ('aborted'), ('canceled');
 
-    CREATE TABLE `reason_type` (
-        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-        `name` varchar(255),
-        PRIMARY KEY (`id`)
-    );
+CREATE TABLE `action_element_type` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `name` varchar(255),
+    PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `reason_type` (
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `name` varchar(255),
+    PRIMARY KEY (`id`)
+);
 
 CREATE TABLE `reason_type_field` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -50,10 +61,21 @@ CREATE TABLE `reason_type_field` (
 
 CREATE TABLE `reason` (
 	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+	`dispatch_id` int(11) unsigned,
 	`reason_type_id` int(11) unsigned,
     PRIMARY KEY (`id`),
+	FOREIGN KEY(`dispatch_id`) REFERENCES `dispatch` (`id`),
 	FOREIGN KEY(`reason_type_id`) REFERENCES `reason_type` (`id`)
 );
+
+
+    CREATE TABLE `reason_param` (
+        `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `reason_id` int(11) unsigned,
+        `name` varchar(255),
+        PRIMARY KEY (`id`),
+    	FOREIGN KEY(`reason_id`) REFERENCES `reason` (`id`)
+    );
 
 
 CREATE TABLE `action` (

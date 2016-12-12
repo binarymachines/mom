@@ -18,6 +18,9 @@ DROP TABLE IF EXISTS `context`;
 
 CREATE TABLE `context` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `pid` int(11) unsigned NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
 
@@ -25,6 +28,7 @@ CREATE TABLE `param_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
   `description` varchar(256) NOT NULL,
+  `table_name` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -64,12 +68,12 @@ CREATE TABLE `value_float` (
 CREATE TABLE `param_value_float` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `float_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_float_param_value` (`param_value_id`),
-  KEY `fk_param_value_float_value_float` (`float_value_id`),
+  KEY `fk_param_value_float` (`value_id`),
   CONSTRAINT `fk_param_value_float_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_float_value_float` FOREIGN KEY (`float_value_id`) REFERENCES `value_float` (`id`));
+  CONSTRAINT `fk_param_value_float` FOREIGN KEY (`value_id`) REFERENCES `value_float` (`id`));
 
 CREATE TABLE `value_boolean` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -80,12 +84,12 @@ CREATE TABLE `value_boolean` (
 CREATE TABLE `param_value_boolean` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `boolean_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_boolean_param_value` (`param_value_id`),
-  KEY `fk_param_value_boolean_value_float` (`boolean_value_id`),
+  KEY `fk_param_value_boolean` (`value_id`),
   CONSTRAINT `fk_param_value_boolean_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_boolean_value_float` FOREIGN KEY (`boolean_value_id`) REFERENCES `value_boolean` (`id`));
+  CONSTRAINT `fk_param_value_boolean` FOREIGN KEY (`value_id`) REFERENCES `value_boolean` (`id`));
 
 
 CREATE TABLE `value_varchar_128` (
@@ -97,12 +101,12 @@ CREATE TABLE `value_varchar_128` (
 CREATE TABLE `param_value_varchar_128` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `varchar_128_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_varchar_128_param_value` (`param_value_id`),
-  KEY `fk_param_value_varchar_128_value_float` (`varchar_128_value_id`),
+  KEY `fk_param_value_varchar_128` (`value_id`),
   CONSTRAINT `fk_param_value_varchar_128_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_varchar_128_value_float` FOREIGN KEY (`varchar_128_value_id`) REFERENCES `value_varchar_128` (`id`));
+  CONSTRAINT `fk_param_value_varchar_128` FOREIGN KEY (`value_id`) REFERENCES `value_varchar_128` (`id`));
 
 
 CREATE TABLE `value_varchar_1024` (
@@ -114,12 +118,12 @@ CREATE TABLE `value_varchar_1024` (
 CREATE TABLE `param_value_varchar_1024` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `varchar_1024_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_varchar_1024_param_value` (`param_value_id`),
-  KEY `fk_param_value_varchar_1024_value_float` (`varchar_1024_value_id`),
+  KEY `fk_param_value_varchar_1024` (`value_id`),
   CONSTRAINT `fk_param_value_varchar_1024_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_varchar_1024_value_float` FOREIGN KEY (`varchar_1024_value_id`) REFERENCES `value_varchar_1024` (`id`));
+  CONSTRAINT `fk_param_value_varchar_1024` FOREIGN KEY (`value_id`) REFERENCES `value_varchar_1024` (`id`));
 
 CREATE TABLE `value_int_11` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -130,12 +134,12 @@ CREATE TABLE `value_int_11` (
 CREATE TABLE `param_value_int_11` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `int_11_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_int_11_param_value` (`param_value_id`),
-  KEY `fk_param_value_int_11_value_float` (`int_11_value_id`),
+  KEY `fk_param_value_int_11` (`value_id`),
   CONSTRAINT `fk_param_value_int_11_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_int_11_value_float` FOREIGN KEY (`int_11_value_id`) REFERENCES `value_int_11` (`id`));
+  CONSTRAINT `fk_param_value_int_11` FOREIGN KEY (`value_id`) REFERENCES `value_int_11` (`id`));
 
 
 
@@ -148,11 +152,9 @@ CREATE TABLE `value_int_3` (
 CREATE TABLE `param_value_int_3` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `int_3_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_int_3_param_value` (`param_value_id`),
-  KEY `fk_param_value_int_3_value_float` (`int_3_value_id`),
+  KEY `fk_param_value_int_3` (`value_id`),
   CONSTRAINT `fk_param_value_int_3_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_int_3_value_float` FOREIGN KEY (`int_3_value_id`) REFERENCES `value_int_3` (`id`));
-  
-
+  CONSTRAINT `fk_param_value_int_3` FOREIGN KEY (`value_id`) REFERENCES `value_int_3` (`id`));

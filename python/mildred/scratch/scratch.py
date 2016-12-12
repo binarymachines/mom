@@ -63,7 +63,7 @@ import sys, os
 #                     cached_paths = [row[0] for row in rows]
 #                     for path in paths:
 #                         if path['esid'] not in cached_paths:
-#                             # if config.sql_debug: print('Updating MariaDB...')
+#                             # if config.sql_debug: print('Updating MySQL...')
 #                             try:
 #                                 library.insert_asset(path['index_name'], path['document_type'], path['esid'], path['absolute_path'])
 #                             except Exception, e:

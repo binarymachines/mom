@@ -46,6 +46,17 @@ CREATE TABLE `op_record` (
   PRIMARY KEY (`id`)
 );
 
+CREATE TABLE IF NOT EXISTS `op_record_param` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `op_record_id` INT(11) UNSIGNED NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  `value` VARCHAR(1024) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_op_record_param` (`op_record_id` ASC),
+  CONSTRAINT `fk_op_record_param`
+    FOREIGN KEY (`op_record_id`)
+    REFERENCES `op_record` (`id`));
+    
 CREATE TABLE `dispatch` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `identifier` varchar(128) DEFAULT NULL,
