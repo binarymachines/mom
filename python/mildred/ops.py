@@ -380,10 +380,13 @@ def start_requested():
 # redis pub/sub
 
 def update_listeners(operation, operator, target):
-    operator = 'ops' if operator is None else operator
+    operation = '' if operation is None else operation
+    operator = '' if operator is None else operator
+    target = '' if target is None else target
 
-    name = 'OPS'
-    channel = 'OPS'
-    message = '%s|%s|%s' % (operation, operator, target)
-    # print 'Welcome to {channel}'.format(**locals())
-    cache2.redis.publish(channel, message)
+    # name = 'OPS'
+    # channel = 'OPS'
+    # message = '%s*%s*%s' % (operation, operator, target)
+    cache2.redis.publish('operation', operation)
+    cache2.redis.publish('operator', operator)
+    cache2.redis.publish('target', target)

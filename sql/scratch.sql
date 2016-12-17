@@ -1,3 +1,5 @@
+create database if not exists `scratch`;
+use scratch;
 
 DROP TABLE IF EXISTS `param_value_int_11`;
 DROP TABLE IF EXISTS `param_value_int_3`;
@@ -27,16 +29,23 @@ CREATE TABLE `context` (
 CREATE TABLE `param_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
-  `description` varchar(256) NOT NULL,
-  `table_name` varchar(256) DEFAULT NULL,
+  `identifier` varchar(256) NOT NULL,
+  `sql_type` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 
-insert into `param_type` (name, description) values ('simple', 'a value from the snowflake');
-insert into `param_type` (name, description) values ('hashset', 'a dictionary of keys and values');
-insert into `param_type` (name, description) values ('list', 'an ordered set of values');
-insert into `param_type` (name, description) values ('bag', 'an unsorted set');
-insert into `param_type` (name, description) values ('key', 'a key value');
+insert into `param_type` (identifier, sql_type) values ('boolean', 'tinyint(1)');
+insert into `param_type` (identifier, sql_type) values ('int_3', 'int(3)');
+insert into `param_type` (identifier, sql_type) values ('int_11', 'int(11)');
+insert into `param_type` (identifier, sql_type) values ('float', 'float');
+insert into `param_type` (identifier, sql_type) values ('varchar_128', 'varchar(128)');
+insert into `param_type` (identifier, sql_type) values ('varchar_1024', 'varchar(1024)');
+
+-- insert into `param_type` (name, description) values ('simple', 'a value from the snowflake');
+-- insert into `param_type` (name, description) values ('hashset', 'a dictionary of keys and values');
+-- insert into `param_type` (name, description) values ('list', 'an ordered set of values');
+-- insert into `param_type` (name, description) values ('bag', 'an unsorted set');
+-- insert into `param_type` (name, description) values ('key', 'a key value');
 
 
 CREATE TABLE `param` (

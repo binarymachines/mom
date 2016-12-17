@@ -26,7 +26,7 @@ from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
 
-LOG = log.get_log(__name__, logging.INFO)
+LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
 PERSIST = 'scan.persist'

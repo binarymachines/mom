@@ -6,6 +6,7 @@ from core.errors import BaseClassException
 from core import log
 from core import cache2
 import sql
+import config
 
 DELIM = ','
 
@@ -18,7 +19,7 @@ def add_field(doc_format, field_name):
     if field_name in get_known_fields(doc_format): 
         return
     try:
-        sql.insert_values(METADATA, ['document_format', 'attribute_name'], [doc_format.upper(), field_name])
+        sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format.upper(), field_name])
         cache2.add_item(KNOWN, doc_format, field_name)
     except Exception, err:
         ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)

@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+        
          {
             "name": "desktop",
             "type": "node",
@@ -24,7 +25,7 @@
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
                 // "--noscan"
-                // "--reset",
+                // "--reset"
                 // "--pattern",
                 // "skillionaire"
                 // "--path",

@@ -1,3 +1,6 @@
+create database `mildred_admin`;
+use mildred_admin;
+
 -- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: localhost

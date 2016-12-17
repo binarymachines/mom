@@ -31,6 +31,7 @@ class Reader:
             qualified = []
             if handler.package: 
                 qualified.append(handler.package)
+                
             qualified.append(handler.module)            
             qualified.append(handler.class_name)            
 

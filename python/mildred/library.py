@@ -82,6 +82,7 @@ def set_active(path):
     directory = None if path is None else Directory(path)
     if directory is not None:
         LOG.debug('syncing metadata for %s' % directory.absolute_path)
+        ops.update_listeners('syncing metadata for %s...' % (directory.absolute_path), 'library', path)
         if search.unique_doc_exists(DIRECTORY, HEXID, directory.absolute_path.encode('hex'), except_on_multiples=True):
             directory.esid = search.unique_doc_id(DIRECTORY, HEXID, directory.absolute_path.encode('hex'))
             # directory.doc = search.get_doc(directory.document_type, directory.esid)
@@ -89,6 +90,7 @@ def set_active(path):
             index_asset(directory, directory.to_dictionary())
     elif directory is None and get_cached_directory():
         cached_directory = get_cached_directory()
+        ops.update_listeners('indexing metadata for %s...' % (cached_directory.absolute_path), 'library', cached_directory.absolute_path)
         if cached_directory.dirty:        
             try:
                 res = config.es.update(index=config.es_index, doc_type=cached_directory.directory, id=cached_directory.esid, body=json.dumps(cached_directory.to_dictionary()))
@@ -97,7 +99,8 @@ def set_active(path):
                 print '\nConnection lost, please verify network connectivity and restart.'
                 sys.exit(1)
 
-    cache_directory(directory)
+    if directory:
+        cache_directory(directory)
 
 
 # document cache

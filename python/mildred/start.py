@@ -206,21 +206,28 @@ def configure(options):
 
 def reset():
 
-    response = raw_input("All data will be deleted, are you sure? (yes, no): ")
-    if response.lower() == 'yes':
-        cache2.redis.flushdb()
+    # response = raw_input("All data will be deleted, are you sure? (yes, no): ")
+    # if response.lower() == 'yes':
+    cache2.redis.flushdb()
 
-        if config.es.indices.exists(config.es_index):
-            search.clear_index(config.es_index)
+    try: 
+        search.clear_index(config.es_index)
+    except Exception, err:
+        ERR.WARNING(err.message)
 
-        if not config.es.indices.exists(config.es_index):
-            search.create_index(config.es_index)
+    try:
+        search.create_index(config.es_index)
+    except Exception, err:
+        ERR.WARNING(err.message)
 
-        for table in ['document', 'op_record', 'matched']:
-            query = 'delete from %s where index_name = %s' % (table, config.es_index)
+    for table in ['document', 'matched']:
+        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+        sql.execute_query(query)
 
-            sql.execute_query(query)
-
+    for table in ['op_record']:
+        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+        sql.execute_query(query, schema="mildred_introspection")
+    
 
 def show_logo():
     with open(os.path.join(os.getcwd(), 'txt','logo.txt'), 'r') as f:

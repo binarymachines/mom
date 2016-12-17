@@ -1,3 +1,5 @@
+create database `media`;
+use `'media`;
 -- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: localhost
