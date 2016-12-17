@@ -1,5 +1,5 @@
 {
-  "name": "resolver",
+  "name": "mildred-electron",
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {},
@@ -12,5 +12,5 @@
   },
   "author": "Mark Pippins",
   "license": "ISC",
-  "description": ""
+  "description": "desktop mildred js interface"
 }
