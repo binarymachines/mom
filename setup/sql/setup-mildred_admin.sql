@@ -1,11 +1,8 @@
-create database `mildred_admin`;
-use mildred_admin;
-
--- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: localhost
+-- Host: localhost    Database: mildred_admin
 -- ------------------------------------------------------
--- Server version	10.0.28-MariaDB-1~trusty
+-- Server version	5.5.53-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;

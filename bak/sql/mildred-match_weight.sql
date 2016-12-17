@@ -1,8 +1,8 @@
--- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: localhost
+-- Host: localhost    Database: mildred
 -- ------------------------------------------------------
--- Server version	10.0.28-MariaDB-1~trusty
+-- Server version	5.5.53-0ubuntu0.14.04.1
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -30,21 +30,6 @@ CREATE TABLE `match_weight` (
 -- Dumping data for table `match_weight`
 --
 
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (1,'intro','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (2,'outro','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (3,'untitled','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (4,'piste','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (5,'remix','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (6,'version','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (7,'edit','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (8,'instrumental','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (9,'rmx','media_file',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (16,'/unsorted','media_folder',1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (17,'/random','media_folder',1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (18,'/temp','media_folder',1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (19,'/incoming','media_folder',1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (20,'live','media_folder',-1);
-INSERT INTO `match_weight` (`id`, `pattern`, `target`, `value`) VALUES (21,'/live recordings','media_file',-1);
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

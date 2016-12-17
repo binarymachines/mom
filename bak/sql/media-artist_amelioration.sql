@@ -1,8 +1,8 @@
--- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: localhost
+-- Host: localhost    Database: media
 -- ------------------------------------------------------
--- Server version	10.0.28-MariaDB-1~trusty
+-- Server version	5.5.53-0ubuntu0.14.04.1
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -29,14 +29,6 @@ CREATE TABLE `artist_amelioration` (
 -- Dumping data for table `artist_amelioration`
 --
 
-INSERT INTO `artist_amelioration` (`id`, `incorrect_name`, `correct_name`) VALUES (1,'cure, the','the cure');
-INSERT INTO `artist_amelioration` (`id`, `incorrect_name`, `correct_name`) VALUES (2,'ant, adam','adam ant');
-INSERT INTO `artist_amelioration` (`id`, `incorrect_name`, `correct_name`) VALUES (3,'various','various artists');
-INSERT INTO `artist_amelioration` (`id`, `incorrect_name`, `correct_name`) VALUES (4,'va','various artists');
-INSERT INTO `artist_amelioration` (`id`, `incorrect_name`, `correct_name`) VALUES (5,'v.a.','various artists');
-INSERT INTO `artist_amelioration` (`id`, `incorrect_name`, `correct_name`) VALUES (6,'varios','various artists');
-INSERT INTO `artist_amelioration` (`id`, `incorrect_name`, `correct_name`) VALUES (7,'v/a','various artists');
-INSERT INTO `artist_amelioration` (`id`, `incorrect_name`, `correct_name`) VALUES (8,'a.a.v..v','various artists');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

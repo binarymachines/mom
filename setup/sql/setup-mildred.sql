@@ -1,11 +1,8 @@
-CREATE DATABASE `mildred`;
-use mildred;
-
--- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: localhost
+-- Host: localhost    Database: mildred
 -- ------------------------------------------------------
--- Server version	10.0.28-MariaDB-1~trusty
+-- Server version	5.5.53-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -17,6 +14,41 @@ use mildred;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `delimited_file_data`
+--
+
+DROP TABLE IF EXISTS `delimited_file_data`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `delimited_file_data` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `delimited_file_id` int(11) unsigned NOT NULL,
+  `column_num` int(3) NOT NULL,
+  `row_num` int(11) NOT NULL,
+  `value` varchar(256) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_delimited_file_data_delimited_file_info` (`delimited_file_id`),
+  CONSTRAINT `fk_delimited_file_data_delimited_file_info` FOREIGN KEY (`delimited_file_id`) REFERENCES `delimited_file_info` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `delimited_file_info`
+--
+
+DROP TABLE IF EXISTS `delimited_file_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `delimited_file_info` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `document_id` varchar(128) NOT NULL,
+  `delimiter` varchar(1) NOT NULL,
+  `column_count` int(3) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `directory`
@@ -104,6 +136,7 @@ DROP TABLE IF EXISTS `document`;
 CREATE TABLE `document` (
   `id` varchar(128) NOT NULL,
   `index_name` varchar(128) NOT NULL,
+  `file_type_id` int(11) unsigned DEFAULT NULL,
   `doc_type` varchar(64) NOT NULL,
   `absolute_path` varchar(1024) NOT NULL,
   `hexadecimal_key` varchar(640) NOT NULL,
@@ -133,25 +166,6 @@ CREATE TABLE `document_category` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `document_format`
---
-
-DROP TABLE IF EXISTS `document_format`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_format` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `media_type_id` int(11) unsigned NOT NULL,
-  `ext` varchar(5) NOT NULL,
-  `name` varchar(128) NOT NULL,
-  `active_flag` tinyint(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`),
-  KEY `fk_media_type_id` (`media_type_id`),
-  CONSTRAINT `fk_document_format_media_type` FOREIGN KEY (`media_type_id`) REFERENCES `document_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `document_metadata`
 --
 
@@ -159,27 +173,13 @@ DROP TABLE IF EXISTS `document_metadata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `document_metadata` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `document_format` varchar(32) NOT NULL,
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `document_type`
---
-
-DROP TABLE IF EXISTS `document_type`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_type` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(25) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=282 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -201,6 +201,25 @@ CREATE TABLE `exclude_directory` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `file_format`
+--
+
+DROP TABLE IF EXISTS `file_format`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `file_format` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `file_type_id` int(11) unsigned NOT NULL,
+  `ext` varchar(5) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `active_flag` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `fk_file_format_file_type` (`file_type_id`),
+  CONSTRAINT `fk_file_format_file_type` FOREIGN KEY (`file_type_id`) REFERENCES `file_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `file_handler`
 --
 
@@ -212,8 +231,9 @@ CREATE TABLE `file_handler` (
   `package` varchar(128) DEFAULT NULL,
   `module` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
+  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -230,7 +250,21 @@ CREATE TABLE `file_handler_type` (
   PRIMARY KEY (`id`),
   KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
   CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `file_type`
+--
+
+DROP TABLE IF EXISTS `file_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `file_type` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -246,7 +280,7 @@ CREATE TABLE `match_discount` (
   `target` varchar(64) NOT NULL,
   `value` int(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -262,7 +296,7 @@ CREATE TABLE `match_weight` (
   `target` varchar(64) NOT NULL,
   `value` int(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -280,7 +314,12 @@ CREATE TABLE `matched` (
   `percentage_of_max_score` float NOT NULL,
   `comparison_result` char(1) CHARACTER SET utf8 NOT NULL,
   `same_ext_flag` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`doc_id`,`match_doc_id`)
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`doc_id`,`match_doc_id`),
+  KEY `fk_match_doc_document` (`match_doc_id`),
+  CONSTRAINT `fk_doc_document` FOREIGN KEY (`doc_id`) REFERENCES `document` (`id`),
+  CONSTRAINT `fk_match_doc_document` FOREIGN KEY (`match_doc_id`) REFERENCES `document` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -354,22 +393,6 @@ CREATE TABLE `path_hierarchy` (
   CONSTRAINT `fk_path_hierarchy_parent` FOREIGN KEY (`parent_id`) REFERENCES `path_hierarchy` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'NO_AUTO_VALUE_ON_ZERO' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `path_hierarchy_effective_dt` BEFORE INSERT ON  `path_hierarchy` 
-FOR EACH ROW SET NEW.effective_dt = IFNULL(NEW.effective_dt, NOW()) */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Temporary table structure for view `v_file_handler`

@@ -1,8 +1,8 @@
--- MySQL dump 10.15  Distrib 10.0.28-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: localhost
+-- Host: localhost    Database: scratch
 -- ------------------------------------------------------
--- Server version	10.0.28-MariaDB-1~trusty
+-- Server version	5.5.53-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -24,6 +24,9 @@ DROP TABLE IF EXISTS `context`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `context` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `pid` int(11) unsigned NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -55,9 +58,10 @@ DROP TABLE IF EXISTS `param_type`;
 CREATE TABLE `param_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
-  `description` varchar(256) NOT NULL,
+  `identifier` varchar(256) NOT NULL,
+  `sql_type` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -90,12 +94,12 @@ DROP TABLE IF EXISTS `param_value_boolean`;
 CREATE TABLE `param_value_boolean` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `boolean_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_boolean_param_value` (`param_value_id`),
-  KEY `fk_param_value_boolean_value_float` (`boolean_value_id`),
-  CONSTRAINT `fk_param_value_boolean_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_boolean_value_float` FOREIGN KEY (`boolean_value_id`) REFERENCES `value_boolean` (`id`)
+  KEY `fk_param_value_boolean` (`value_id`),
+  CONSTRAINT `fk_param_value_boolean` FOREIGN KEY (`value_id`) REFERENCES `value_boolean` (`id`),
+  CONSTRAINT `fk_param_value_boolean_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -109,12 +113,12 @@ DROP TABLE IF EXISTS `param_value_float`;
 CREATE TABLE `param_value_float` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `float_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_float_param_value` (`param_value_id`),
-  KEY `fk_param_value_float_value_float` (`float_value_id`),
-  CONSTRAINT `fk_param_value_float_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_float_value_float` FOREIGN KEY (`float_value_id`) REFERENCES `value_float` (`id`)
+  KEY `fk_param_value_float` (`value_id`),
+  CONSTRAINT `fk_param_value_float` FOREIGN KEY (`value_id`) REFERENCES `value_float` (`id`),
+  CONSTRAINT `fk_param_value_float_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -128,12 +132,12 @@ DROP TABLE IF EXISTS `param_value_int_11`;
 CREATE TABLE `param_value_int_11` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `int_11_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_int_11_param_value` (`param_value_id`),
-  KEY `fk_param_value_int_11_value_float` (`int_11_value_id`),
-  CONSTRAINT `fk_param_value_int_11_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_int_11_value_float` FOREIGN KEY (`int_11_value_id`) REFERENCES `value_int_11` (`id`)
+  KEY `fk_param_value_int_11` (`value_id`),
+  CONSTRAINT `fk_param_value_int_11` FOREIGN KEY (`value_id`) REFERENCES `value_int_11` (`id`),
+  CONSTRAINT `fk_param_value_int_11_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -147,12 +151,12 @@ DROP TABLE IF EXISTS `param_value_int_3`;
 CREATE TABLE `param_value_int_3` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `int_3_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_int_3_param_value` (`param_value_id`),
-  KEY `fk_param_value_int_3_value_float` (`int_3_value_id`),
-  CONSTRAINT `fk_param_value_int_3_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_int_3_value_float` FOREIGN KEY (`int_3_value_id`) REFERENCES `value_int_3` (`id`)
+  KEY `fk_param_value_int_3` (`value_id`),
+  CONSTRAINT `fk_param_value_int_3` FOREIGN KEY (`value_id`) REFERENCES `value_int_3` (`id`),
+  CONSTRAINT `fk_param_value_int_3_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -166,12 +170,12 @@ DROP TABLE IF EXISTS `param_value_varchar_1024`;
 CREATE TABLE `param_value_varchar_1024` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `varchar_1024_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_varchar_1024_param_value` (`param_value_id`),
-  KEY `fk_param_value_varchar_1024_value_float` (`varchar_1024_value_id`),
-  CONSTRAINT `fk_param_value_varchar_1024_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_varchar_1024_value_float` FOREIGN KEY (`varchar_1024_value_id`) REFERENCES `value_varchar_1024` (`id`)
+  KEY `fk_param_value_varchar_1024` (`value_id`),
+  CONSTRAINT `fk_param_value_varchar_1024` FOREIGN KEY (`value_id`) REFERENCES `value_varchar_1024` (`id`),
+  CONSTRAINT `fk_param_value_varchar_1024_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -185,12 +189,12 @@ DROP TABLE IF EXISTS `param_value_varchar_128`;
 CREATE TABLE `param_value_varchar_128` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `param_value_id` int(11) unsigned NOT NULL,
-  `varchar_128_value_id` int(11) unsigned NOT NULL,
+  `value_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_param_value_varchar_128_param_value` (`param_value_id`),
-  KEY `fk_param_value_varchar_128_value_float` (`varchar_128_value_id`),
-  CONSTRAINT `fk_param_value_varchar_128_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_varchar_128_value_float` FOREIGN KEY (`varchar_128_value_id`) REFERENCES `value_varchar_128` (`id`)
+  KEY `fk_param_value_varchar_128` (`value_id`),
+  CONSTRAINT `fk_param_value_varchar_128` FOREIGN KEY (`value_id`) REFERENCES `value_varchar_128` (`id`),
+  CONSTRAINT `fk_param_value_varchar_128_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
