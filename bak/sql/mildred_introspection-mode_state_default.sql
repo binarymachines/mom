@@ -34,7 +34,6 @@ CREATE TABLE `mode_state_default` (
   KEY `fk_mode_state_default_dispatch` (`effect_dispatch_id`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
-  CONSTRAINT `fk_mode_state_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
 );

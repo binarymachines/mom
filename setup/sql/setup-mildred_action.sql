@@ -26,17 +26,14 @@ CREATE TABLE `action` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `action_type_id` int(11) unsigned DEFAULT NULL,
   `action_status_id` int(11) unsigned DEFAULT NULL,
-  `reason_id` int(11) unsigned DEFAULT NULL,
   `parent_action_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `action_type_id` (`action_type_id`),
   KEY `action_status_id` (`action_status_id`),
   KEY `parent_action_id` (`parent_action_id`),
-  KEY `reason_id` (`reason_id`),
   CONSTRAINT `action_ibfk_1` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`id`),
   CONSTRAINT `action_ibfk_2` FOREIGN KEY (`action_status_id`) REFERENCES `action_status` (`id`),
-  CONSTRAINT `action_ibfk_3` FOREIGN KEY (`parent_action_id`) REFERENCES `action` (`id`),
-  CONSTRAINT `action_ibfk_4` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`)
+  CONSTRAINT `action_ibfk_3` FOREIGN KEY (`parent_action_id`) REFERENCES `action` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -98,7 +95,10 @@ DROP TABLE IF EXISTS `action_type`;
 CREATE TABLE `action_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `dispatch_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_action_type_dispatch_idx` (`dispatch_id`),
+  CONSTRAINT `fk_action_type_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `mildred_introspection`.`dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -130,13 +130,13 @@ DROP TABLE IF EXISTS `reason`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `reason` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `dispatch_id` int(11) unsigned DEFAULT NULL,
   `reason_type_id` int(11) unsigned DEFAULT NULL,
+  `action_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `dispatch_id` (`dispatch_id`),
   KEY `reason_type_id` (`reason_type_id`),
-  CONSTRAINT `reason_ibfk_1` FOREIGN KEY (`dispatch_id`) REFERENCES `dispatch` (`id`),
-  CONSTRAINT `reason_ibfk_2` FOREIGN KEY (`reason_type_id`) REFERENCES `reason_type` (`id`)
+  KEY `action_id` (`action_id`),
+  CONSTRAINT `reason_ibfk_1` FOREIGN KEY (`reason_type_id`) REFERENCES `reason_type` (`id`),
+  CONSTRAINT `reason_ibfk_2` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -189,8 +189,11 @@ DROP TABLE IF EXISTS `reason_type`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `reason_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `action_type_id` int(11) unsigned DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `action_type_id` (`action_type_id`),
+  CONSTRAINT `reason_type_ibfk_1` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

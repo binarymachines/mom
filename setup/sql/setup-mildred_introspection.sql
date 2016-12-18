@@ -51,7 +51,7 @@ CREATE TABLE `exec_rec` (
   `effective_dt` datetime NOT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -95,7 +95,6 @@ CREATE TABLE `mode_default` (
   PRIMARY KEY (`id`),
   KEY `fk_mode_default_dispatch` (`effect_dispatch_id`),
   KEY `fk_mode_default_mode` (`mode_id`),
-  CONSTRAINT `fk_mode_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -127,7 +126,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -154,7 +153,6 @@ CREATE TABLE `mode_state_default` (
   KEY `fk_mode_state_default_dispatch` (`effect_dispatch_id`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
-  CONSTRAINT `fk_mode_state_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
@@ -203,7 +201,7 @@ CREATE TABLE `op_record` (
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   `target_hexadecimal_key` varchar(640) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=998 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=18253 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,10 +263,7 @@ CREATE TABLE `switch_rule` (
   KEY `fk_switch_rule_before_dispatch` (`before_dispatch_id`),
   KEY `fk_switch_rule_condition_dispatch` (`condition_dispatch_id`),
   KEY `fk_switch_rule_after_dispatch` (`after_dispatch_id`),
-  CONSTRAINT `fk_switch_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `dispatch` (`id`),
-  CONSTRAINT `fk_switch_rule_before_dispatch` FOREIGN KEY (`before_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_switch_rule_begin_mode` FOREIGN KEY (`begin_mode_id`) REFERENCES `mode` (`id`),
-  CONSTRAINT `fk_switch_rule_condition_dispatch` FOREIGN KEY (`condition_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_switch_rule_end_mode` FOREIGN KEY (`end_mode_id`) REFERENCES `mode` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -293,7 +288,6 @@ CREATE TABLE `transition_rule` (
   KEY `fk_transition_rule_end_state` (`end_state_id`),
   KEY `fk_transition_rule_condition_dispatch` (`condition_dispatch_id`),
   CONSTRAINT `fk_transition_rule_begin_state` FOREIGN KEY (`begin_state_id`) REFERENCES `state` (`id`),
-  CONSTRAINT `fk_transition_rule_condition_dispatch` FOREIGN KEY (`condition_dispatch_id`) REFERENCES `dispatch` (`id`),
   CONSTRAINT `fk_transition_rule_end_state` FOREIGN KEY (`end_state_id`) REFERENCES `state` (`id`),
   CONSTRAINT `fk_transition_rule_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
