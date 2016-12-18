@@ -7,7 +7,6 @@ package com.angrysurfer.mildred.ui.javafx;
 import javafx.application.Application;
 import javafx.stage.*;
 import javafx.scene.*;
-import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.fxml.FXMLLoader;
 import java.net.URL;
@@ -23,7 +22,7 @@ public class MildredMonitorStage extends Application {
     }
 
     public void start(Stage stage) throws Exception {
-        URL fxml = getClass().getClassLoader().getResource("MildredMonitorStage.fxml");
+        URL fxml = getClass().getClassLoader().getResource("com/angrysurfer/mildred/ui/javafx/MildredMonitorStage.fxml");
         Parent root = FXMLLoader.load(fxml);
         Scene scene = new Scene(root);
         stage. setScene(scene);

@@ -111,9 +111,9 @@ class MutagenAAC(Mutagen):
         super(MutagenAAC, self).__init__('mutagen-aac')
 
 
-class MutagenM4A(Mutagen):
-    def __init__(self):
-        super(MutagenM4A, self).__init__('mutagen-m4a')
+# class MutagenM4A(Mutagen):
+#     def __init__(self):
+#         super(MutagenM4A, self).__init__('mutagen-m4a')
 
 
 class MutagenMP4(Mutagen):

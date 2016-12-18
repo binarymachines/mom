@@ -8,7 +8,7 @@ class MildredException(Exception):
 
 class BaseClassException(MildredException):
     def __init__(self, source):
-        super(BaseClassException, self).__init__("Abstract Class Instantiated")
+        super(BaseClassException, self).__init__("Abstract Class Instantiated %s" % self.__class__.__name__)
 
 # modes, rules, selectors and engines
 
