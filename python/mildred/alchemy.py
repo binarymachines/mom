@@ -196,6 +196,16 @@ class SQLFileHandler(Base):
     module = Column('module', String(128), nullable=False)
     package = Column('package', String(1024), nullable=False)
     class_name = Column('class_name', String(128), nullable=False)
+    active_flag = Column('active_flag', Boolean, nullable=False)
+
+    @staticmethod
+    def retrieve_active():
+        result = ()
+        for instance in sessions['mildred'].query(SQLFileHandler).\
+            filter(SQLFileHandler.active_flag == True):
+            result += (instance,)
+
+        return result
 
     @staticmethod
     def retrieve_all():
@@ -204,6 +214,7 @@ class SQLFileHandler(Base):
             result += (instance,)
 
         return result
+
 
 class SQLFileHandlerType(Base): 
     __tablename__ = 'file_handler_type'
@@ -229,6 +240,15 @@ class SQLMatcher(Base):
     active_flag = Column('active_flag', Boolean, nullable=False)
     # effective_dt = Column('effective_dt', DateTime, nullable=False)
     # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+
+    @staticmethod
+    def retrieve_active():
+        result = ()
+        for instance in sessions['mildred'].query(SQLMatcher).\
+            filter(SQLMatcher.active_flag == True):
+            result += (instance,)
+
+        return result
 
     @staticmethod
     def retrieve_all():

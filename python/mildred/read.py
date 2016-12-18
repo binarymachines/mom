@@ -26,7 +26,7 @@ class Reader:
 
 
     def initialize_file_handlers(self):
-        handlers = SQLFileHandler.retrieve_all()
+        handlers = SQLFileHandler.retrieve_active()
         for handler in handlers:
             qualified = []
             if handler.package: 

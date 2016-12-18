@@ -1,4 +1,4 @@
-package com.angrysurfer.mildred.ui;
+package com.angrysurfer.mildred.ui.swing;
 
 import com.angrysurfer.mildred.redis.DefaultMildredCacheMonitor;
 import com.angrysurfer.mildred.redis.MildredCachePubSub;
@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class JMildredCacheMonitorFrame extends JFrame {
+public class MildredMonitorFrame extends JFrame {
 
 	private static int COLUMNS = 50;
 
@@ -19,8 +19,8 @@ public class JMildredCacheMonitorFrame extends JFrame {
 	private JTextField jtfOperation;
 	private JTextField jtfTarget;
 
-	public JMildredCacheMonitorFrame() throws HeadlessException {
-		super("Mildred Cache Monitor");
+	public MildredMonitorFrame() throws HeadlessException {
+		super("Mildred Monitor");
 
 		buildUI();
 
@@ -116,7 +116,7 @@ public class JMildredCacheMonitorFrame extends JFrame {
 
 	private void startListening() throws Exception {
 
-	    final JMildredCacheMonitorFrame frm = this;
+	    final MildredMonitorFrame frm = this;
 
 		MildredCachePubSub pubSub = new MildredCachePubSub(new DefaultMildredCacheMonitor() {
 
@@ -142,7 +142,7 @@ public class JMildredCacheMonitorFrame extends JFrame {
 
 	public static void main(String[] args) {
 
-		new JMildredCacheMonitorFrame().setVisible(true);
+		new MildredMonitorFrame().setVisible(true);
 	}
 
 }

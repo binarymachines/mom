@@ -33,7 +33,7 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
     else:
         LOG.debug('%s retrieving %s operations (%s)...' % (operator, operation, op_status))
 
-    update_listeners('retrieving %s operations (%s)...' % (operation, op_status), operator, path)
+    update_listeners('retrieving %s ops (%s)...' % (operation, op_status), operator, path)
 
     rows = SQLOperationRecord.retrieve(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
 
@@ -286,7 +286,7 @@ def set_exec_record_value(field, value):
     values = cache2.get_hash2(get_exec_key())
     values[field] = value
     cache2.set_hash2(get_exec_key(), values)
-    update_listeners(OPS, get_exec_key(), ' setting %s to %s' % (str(field), str(value)))
+    # update_listeners(OPS, get_exec_key(), ' setting %s to %s' % (str(field), str(value)))
 
 NO_PID = 'NOPID'
 
@@ -380,6 +380,7 @@ def start_requested():
 # redis pub/sub
 
 def update_listeners(operation, operator, target):
+    
     operation = '' if operation is None else operation
     operator = '' if operator is None else operator
     target = '' if target is None else target

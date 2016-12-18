@@ -153,7 +153,7 @@ def do_match_op(esid, absolute_path, matchers):
 
 def get_matchers():
     matchers = []
-    sqlmatchers  = SQLMatcher.retrieve_all()
+    sqlmatchers  = SQLMatcher.retrieve_active()
     for sqlmatcher in sqlmatchers:
         comparison_fields = {}
 
