@@ -96,7 +96,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             match_score = float(match['_score'])
             minimum_match_score = self.max_score_percentage * max_score * 0.01
-            
+
             if match_score < minimum_match_score:
                 LOG.debug('eliminating: \t%s' % (match['_source']['absolute_path']))
                 continue
