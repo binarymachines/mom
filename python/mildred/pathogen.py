@@ -230,7 +230,8 @@ class MutagenID3(Mutagen):
 
         id3_data = {}
         for tag in tags:
-            if len(tag) < 2: continue
+            if len(tag) < 2: 
+                continue
 
             key = tag[0]
             if len(key) == 4 and key not in filehandler.get_known_fields('ID3V2'):
@@ -239,13 +240,16 @@ class MutagenID3(Mutagen):
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
                 filehandler.report_invalid_field(asset.absolute_path, key, value)
-                # print value
+                LOG.info(value)
                 continue
             
+            try:
+                LOG.info("%s = %s" % (key, value))
+            except Exception, e:
+                ERR.warning(e.message)
+                
             if key in filehandler.get_fields('ID3V2'):
                 id3_data[key] = value
-                # TODO: remove for version 0.9.0
-                data[key] = value
 
             if key == "TXXX":
                 for sub_field in filehandler.get_fields('ID3V2.TXXX'):

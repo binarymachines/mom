@@ -132,7 +132,9 @@ def push_operation(operation, operator, path):
 
 def record_op_begin(operation, operator, path, esid=None):
     LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
-
+    
+    update_listeners(operation, operator, path)
+    
     key = cache2.create_key(config.pid, OPS, operation, operator, path)
     values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
         'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': esid,
