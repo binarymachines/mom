@@ -14,16 +14,14 @@ CREATE TABLE `mildred_action`.`dispatch` (
 );
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action_type` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NULL DEFAULT NULL,
-  `dispatch_id` INT(11) UNSIGNED NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_action_type_dispatch_idx` (`dispatch_id` ASC),
-  CONSTRAINT `fk_action_type_dispatch1`
-    FOREIGN KEY (`dispatch_id`)
-    REFERENCES `mildred_introspection`.`dispatch` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NULL DEFAULT NULL,
+    `dispatch_id` INT(11) UNSIGNED NULL,
+    PRIMARY KEY (`id`),
+    INDEX `fk_action_type_dispatch_idx` (`dispatch_id` ASC),
+    CONSTRAINT `fk_action_type_dispatch1` FOREIGN KEY (`dispatch_id`)
+        REFERENCES `mildred_introspection`.`dispatch` (`id`)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `mildred_action`.`action_status` (
@@ -33,65 +31,65 @@ CREATE TABLE `mildred_action`.`action_status` (
 );
 
 CREATE TABLE `mildred_action`.`action_param_type` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(64) NULL DEFAULT NULL,
-  `action_type_id` INT(11) UNSIGNED NOT NULL,
-  `context_param_name` varchar(128) NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_action_param_type_action_type_idx` (`action_type_id` ASC),
-  CONSTRAINT `fk_action_param_type_action_type`
-    FOREIGN KEY (`action_type_id`)
-    REFERENCES `mildred_action`.`action_type` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(64) NULL DEFAULT NULL,
+    `action_type_id` INT(11) UNSIGNED NOT NULL,
+    `context_param_name` varchar(128) NULL,
+    PRIMARY KEY (`id`),
+    INDEX `fk_action_param_type_action_type_idx` (`action_type_id` ASC),
+    CONSTRAINT `fk_action_param_type_action_type` FOREIGN KEY (`action_type_id`)
+        REFERENCES `mildred_action`.`action_type` (`id`)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NULL DEFAULT NULL,
-  `action_type_id` INT(11) UNSIGNED NULL DEFAULT NULL,
-  `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_reason_type_action_type_idx` (`action_type_id` ASC),
-  INDEX `fk_reason_type_dispatch_idx` (`dispatch_id` ASC),
-  CONSTRAINT `fk_reason_type_action_type`
-    FOREIGN KEY (`action_type_id`)
-    REFERENCES `mildred_action`.`action_type` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_reason_type_dispatch`
-    FOREIGN KEY (`dispatch_id`)
-    REFERENCES `mildred_introspection`.`dispatch` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NULL DEFAULT NULL,
+    `action_type_id` INT(11) UNSIGNED NULL DEFAULT NULL,
+    `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `fk_reason_type_action_type_idx` (`action_type_id` ASC),
+    INDEX `fk_reason_type_dispatch_idx` (`dispatch_id` ASC),
+    CONSTRAINT `fk_reason_type_action_type` FOREIGN KEY (`action_type_id`)
+        REFERENCES `mildred_action`.`action_type` (`id`)
+        ON DELETE NO ACTION ON UPDATE NO ACTION,
+    CONSTRAINT `fk_reason_type_dispatch` FOREIGN KEY (`dispatch_id`)
+        REFERENCES `mildred_introspection`.`dispatch` (`id`)
+        ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE `mildred_action`.`reason_type_field` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-	`reason_type_id` int(11) unsigned,
-	`field_name` varchar(255),
+    `reason_type_id` int(11) unsigned,
+    `field_name` varchar(255),
     PRIMARY KEY (`id`),
-	FOREIGN KEY(`reason_type_id`) REFERENCES `reason_type` (`id`)
+    FOREIGN KEY (`reason_type_id`)
+        REFERENCES `reason_type` (`id`)
 );
 
 CREATE TABLE `mildred_action`.`action` (
-	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-	`action_type_id` int(11) unsigned,
-	`action_status_id` int(11) unsigned,
-	`parent_action_id` int(11) unsigned,
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `action_type_id` int(11) unsigned,
+    `action_status_id` int(11) unsigned,
+    `parent_action_id` int(11) unsigned,
     PRIMARY KEY (`id`),
-	FOREIGN KEY(`action_type_id`) REFERENCES `action_type` (`id`),
-	FOREIGN KEY(`action_status_id`) REFERENCES `action_status` (`id`),
-	FOREIGN KEY(`parent_action_id`) REFERENCES `action` (`id`)
+    FOREIGN KEY (`action_type_id`)
+        REFERENCES `action_type` (`id`),
+    FOREIGN KEY (`action_status_id`)
+        REFERENCES `action_status` (`id`),
+    FOREIGN KEY (`parent_action_id`)
+        REFERENCES `action` (`id`)
 );
 
 CREATE TABLE `mildred_action`.`reason` (
-	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-	`reason_type_id` int(11) unsigned,
-	`action_id` int(11) unsigned,
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `reason_type_id` int(11) unsigned,
+    `action_id` int(11) unsigned,
     PRIMARY KEY (`id`),
-	FOREIGN KEY(`reason_type_id`) REFERENCES `reason_type` (`id`),
-	FOREIGN KEY(`action_id`) REFERENCES `action` (`id`)
+    FOREIGN KEY (`reason_type_id`)
+        REFERENCES `reason_type` (`id`),
+    FOREIGN KEY (`action_id`)
+        REFERENCES `action` (`id`)
 );
 
 -- CREATE TABLE `reason_param` (
@@ -104,25 +102,30 @@ CREATE TABLE `mildred_action`.`reason` (
 
 CREATE TABLE `mildred_action`.`reason_field` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-	`action_id` int(11) unsigned,
-	`reason_id` int(11) unsigned,
-	`reason_type_field_id` int(11) unsigned,
-	`value` varchar(255),
+    `action_id` int(11) unsigned,
+    `reason_id` int(11) unsigned,
+    `reason_type_field_id` int(11) unsigned,
+    `value` varchar(255),
     PRIMARY KEY (`id`),
-	FOREIGN KEY(`action_id`) REFERENCES `action` (`id`),
-	FOREIGN KEY(`reason_id`) REFERENCES `reason` (`id`),
-	FOREIGN KEY(`reason_type_field_id`) REFERENCES `reason_type_field` (`id`)
+    FOREIGN KEY (`action_id`)
+        REFERENCES `action` (`id`),
+    FOREIGN KEY (`reason_id`)
+        REFERENCES `reason` (`id`),
+    FOREIGN KEY (`reason_type_field_id`)
+        REFERENCES `reason_type_field` (`id`)
 );
 
 
 CREATE TABLE `mildred_action`.`action_param` (
-	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-	`action_id` int(11) unsigned,
-	`action_param_type_id` int(11) unsigned,
-	`name` varchar(64),
+    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+    `action_id` int(11) unsigned,
+    `action_param_type_id` int(11) unsigned,
+    `name` varchar(64),
     PRIMARY KEY (`id`),
-	FOREIGN KEY(`action_id`) REFERENCES `action` (`id`),
-	FOREIGN KEY(`action_param_type_id`) REFERENCES `action_param_type` (`id`)
+    FOREIGN KEY (`action_id`)
+        REFERENCES `action` (`id`),
+    FOREIGN KEY (`action_param_type_id`)
+        REFERENCES `action_param_type` (`id`)
 );
 
 

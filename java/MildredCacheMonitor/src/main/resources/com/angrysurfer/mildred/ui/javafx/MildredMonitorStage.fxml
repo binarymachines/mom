@@ -17,14 +17,14 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-          <Button mnemonicParsing="false" text="Reconfigure" />
-            <Button mnemonicParsing="false" text="Shutdown" />
-            <Button mnemonicParsing="false" text="Stop" />
-            <Button mnemonicParsing="false" text="Close" />
+          <Button fx:id="btnReconfig" mnemonicParsing="false" text="Reconfigure" />
+            <Button fx:id="btnShutdown" mnemonicParsing="false" text="Shutdown" />
+            <Button fx:id="btnStop" mnemonicParsing="false" text="Stop" />
+            <Button fx:id="btnClose" mnemonicParsing="false" text="Close" />
         </buttons>
          <BorderPane.margin>
             <Insets right="10.0" />
@@ -32,12 +32,12 @@
       </ButtonBar>
    </bottom>
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="TOP_LEFT">
          <children>
             <GridPane>
               <columnConstraints>
-                <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="75.0" minWidth="10.0" prefWidth="50.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="464.0" minWidth="10.0" prefWidth="441.0" />
+                <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" maxWidth="81.0" minWidth="10.0" prefWidth="78.0" />
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="502.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -86,14 +86,14 @@
                   </FlowPane>
                </children>
             </GridPane>
-            <VBox prefHeight="200.0" prefWidth="100.0">
+            <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
                <opaqueInsets>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </opaqueInsets>
                <children>
                   <Label text="Memo" />
-                  <Separator prefWidth="200.0" />
-                  <TextArea fx:id="txtaMemo" editable="false" prefHeight="200.0" prefWidth="200.0" />
+                  <Separator prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                  <TextArea fx:id="txtaMemo" editable="false" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
          </children>

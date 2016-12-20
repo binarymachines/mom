@@ -21,19 +21,24 @@ ERR = log.get_log('errors', logging.WARNING)
 Base = declarative_base()
 
 # engines = []
+MILDRED = 'mildred'
+INTROSPECTION = 'introspection'
+ADMIN = 'admin'
+MEDIA = 'media'
+SCRATCH = 'scratch'
 
-primary = 'mildred', 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db)
-introspection = 'introspection', 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection')
-admin = 'admin', 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin')
-media = 'media', 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'media')
-scratch = 'scratch', 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'scratch')
+_primary = MILDRED, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db)
+_introspection = INTROSPECTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection')
+_admin = ADMIN, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin')
+_media = MEDIA, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, MEDIA)
+_scratch = SCRATCH, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, SCRATCH)
 
-sessions = {}
-for dbconf in (primary, introspection, admin, media, scratch):
+_sessions = {}
+for dbconf in (_primary, _introspection, _admin, _media, _scratch):
     engine = create_engine(dbconf[1])
     # engines.append(engine)
-    # sessions.append(sessionmaker(bind=engine)())
-    sessions[dbconf[0]] = sessionmaker(bind=engine)()
+    # _sessions.append(sessionmaker(bind=engine)())
+    _sessions[dbconf[0]] = sessionmaker(bind=engine)()
 
 def alchemy_operation(function):
     def wrapper(*args, **kwargs):
@@ -52,7 +57,7 @@ def alchemy_operation(function):
             for arg in err.args:
                 print arg
 
-            sessions['mildred'].rollback()
+            _sessions[MILDRED].rollback()
 
             raise SQLIntegrityError(err, err.message)
 
@@ -61,6 +66,9 @@ def alchemy_operation(function):
             raise err
 
     return wrapper
+
+def get_session(name):
+    return _sessions[name]
 
 
 class SQLAsset(Base):
@@ -83,8 +91,8 @@ class SQLAsset(Base):
             effective_dt=datetime.datetime.now(), expiration_dt=expiration_dt)
 
         try:
-            sessions['mildred'].add(asset)
-            sessions['mildred'].commit()
+            _sessions[MILDRED].add(asset)
+            _sessions[MILDRED].commit()
         except IntegrityError, err:
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
             print err.__class__.__name__
@@ -93,7 +101,7 @@ class SQLAsset(Base):
             for arg in err.args:
                 print arg
 
-            sessions['mildred'].rollback()
+            _sessions[MILDRED].rollback()
 
             raise SQLIntegrityError(err, err.message)
 
@@ -103,7 +111,7 @@ class SQLAsset(Base):
         path = '%s%s' % (absolute_path, '%')
 
         result = ()
-        for instance in sessions['mildred'].query(SQLAsset).\
+        for instance in _sessions[MILDRED].query(SQLAsset).\
             filter(SQLAsset.index_name == config.es_index).\
             filter(SQLAsset.doc_type == doc_type).\
             filter(SQLAsset.absolute_path.like(path)):
@@ -149,14 +157,14 @@ class SQLExecutionRecord(Base):
             effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, status=kwargs['status'])
 
         try:
-            sessions['introspection'].add(rec_exec)
-            sessions['introspection'].commit()
+            _sessions[INTROSPECTION].add(rec_exec)
+            _sessions[INTROSPECTION].commit()
             return rec_exec
         except IntegrityError, err:
             print '\a'
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
-            sessions['introspection'].rollback()
+            _sessions[INTROSPECTION].rollback()
 
 
     @staticmethod
@@ -164,7 +172,7 @@ class SQLExecutionRecord(Base):
         pid = config.pid if pid is None else pid
 
         result = ()
-        for instance in sessions['introspection'].query(SQLExecutionRecord).\
+        for instance in _sessions[INTROSPECTION].query(SQLExecutionRecord).\
             filter(SQLExecutionRecord.pid == pid):
                 result += (instance,)
 
@@ -179,14 +187,14 @@ class SQLExecutionRecord(Base):
             exec_rec=SQLExecutionRecord.retrieve()
             exec_rec.status = 'terminated'
             exec_rec.expiration_dt = datetime.datetime.now()
-            # sessions['introspection'].add(rec_exec)
-            sessions['introspection'].commit()
+            # _sessions[INTROSPECTION].add(rec_exec)
+            _sessions[INTROSPECTION].commit()
             return exec_rec
         except IntegrityError, err:
             print '\a'
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         
-        sessions['introspection'].rollback()
+        _sessions[INTROSPECTION].rollback()
 
 
 class SQLFileHandler(Base):
@@ -201,7 +209,7 @@ class SQLFileHandler(Base):
     @staticmethod
     def retrieve_active():
         result = ()
-        for instance in sessions['mildred'].query(SQLFileHandler).\
+        for instance in _sessions[MILDRED].query(SQLFileHandler).\
             filter(SQLFileHandler.active_flag == True):
             result += (instance,)
 
@@ -210,7 +218,7 @@ class SQLFileHandler(Base):
     @staticmethod
     def retrieve_all():
         result = ()
-        for instance in sessions['mildred'].query(SQLFileHandler):
+        for instance in _sessions[MILDRED].query(SQLFileHandler):
             result += (instance,)
 
         return result
@@ -244,7 +252,7 @@ class SQLMatcher(Base):
     @staticmethod
     def retrieve_active():
         result = ()
-        for instance in sessions['mildred'].query(SQLMatcher).\
+        for instance in _sessions[MILDRED].query(SQLMatcher).\
             filter(SQLMatcher.active_flag == True):
             result += (instance,)
 
@@ -253,7 +261,7 @@ class SQLMatcher(Base):
     @staticmethod
     def retrieve_all():
         result = ()
-        for instance in sessions['mildred'].query(SQLMatcher). \
+        for instance in _sessions[MILDRED].query(SQLMatcher). \
             filter(SQLMatcher.active_flag == True):
                 result += (instance,)
 
@@ -299,12 +307,12 @@ class SQLMatch(Base):
                              matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
 
         try:
-            sessions['mildred'].add(match_rec)
-            sessions['mildred'].commit()
+            _sessions[MILDRED].add(match_rec)
+            _sessions[MILDRED].commit()
         except IntegrityError, err:
             print '\a'
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            sessions['mildred'].rollback()
+            _sessions[MILDRED].rollback()
             #TODO raise SQL Exception that contains the session to be rolled back by alchemy decorator
 
 class SQLMode(Base):
@@ -318,7 +326,7 @@ class SQLMode(Base):
     @staticmethod
     def retrieve_all():
         result = ()
-        for instance in sessions['introspection'].query(SQLMode).\
+        for instance in _sessions[INTROSPECTION].query(SQLMode).\
             filter(SQLMode.index_name == config.es_index):
                 result += (instance,)
 
@@ -328,19 +336,19 @@ class SQLMode(Base):
     def insert(name):
         mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
         try:
-            sessions['introspection'].add(mode_rec)
-            sessions['introspection'].commit()
+            _sessions[INTROSPECTION].add(mode_rec)
+            _sessions[INTROSPECTION].commit()
             return mode_rec.id
         except IntegrityError, err:
             print '\a'
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            sessions['introspection'].rollback()
+            _sessions[INTROSPECTION].rollback()
 
 
     @staticmethod
     def retrieve(mode):
         result = ()
-        for instance in sessions['introspection'].query(SQLMode).\
+        for instance in _sessions[INTROSPECTION].query(SQLMode).\
             filter(SQLMode.id == mode.id):
                 result += (instance,)
 
@@ -350,7 +358,7 @@ class SQLMode(Base):
     @staticmethod
     def retrieve_by_name(name):
         result = ()
-        for instance in sessions['introspection'].query(SQLMode).\
+        for instance in _sessions[INTROSPECTION].query(SQLMode).\
             filter(SQLMode.index_name == config.es_index). \
             filter(SQLMode.effective_dt < datetime.datetime.now()). \
             filter(SQLMode.expiration_dt > datetime.datetime.now()). \
@@ -374,7 +382,7 @@ class SQLState(Base):
     @staticmethod
     def retrieve_all():
         result = ()
-        for instance in sessions['introspection'].query(SQLState).\
+        for instance in _sessions[INTROSPECTION].query(SQLState).\
             filter(SQLState.index_name == config.es_index):
                 result += (instance,)
 
@@ -384,7 +392,7 @@ class SQLState(Base):
     @staticmethod
     def retrieve(state):
         result = ()
-        for instance in sessions['introspection'].query(SQLState). \
+        for instance in _sessions[INTROSPECTION].query(SQLState). \
                 filter(SQLState.id == state.id):
             result += (instance,)
 
@@ -394,7 +402,7 @@ class SQLState(Base):
     @staticmethod
     def retrieve_by_name(name):
         result = ()
-        for instance in sessions['introspection'].query(SQLState).\
+        for instance in _sessions[INTROSPECTION].query(SQLState).\
             filter(SQLState.index_name == config.es_index). \
             filter(SQLState.effective_dt < datetime.datetime.now()). \
             filter(SQLState.expiration_dt > datetime.datetime.now()). \
@@ -440,19 +448,19 @@ class SQLModeState(Base):
             effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
 
         try:
-            sessions['introspection'].add(mode_state_rec)
-            sessions['introspection'].commit()
+            _sessions[INTROSPECTION].add(mode_state_rec)
+            _sessions[INTROSPECTION].commit()
             return mode_state_rec.id
         except IntegrityError, err:
             print '\a'
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            sessions['introspection'].rollback()
+            _sessions[INTROSPECTION].rollback()
 
 
     @staticmethod
     def retrieve_active(mode):
         result = ()
-        for instance in sessions['introspection'].query(SQLModeState).\
+        for instance in _sessions[INTROSPECTION].query(SQLModeState).\
             filter(SQLModeState.id == mode.mode_state_id).\
             filter(SQLModeState.pid == config.pid):
                 result += (instance,)
@@ -467,7 +475,7 @@ class SQLModeState(Base):
         if config.old_pid is None: return None
 
         sqlmode = SQLMode.retrieve(mode)
-        for instance in sessions['introspection'].query(SQLModeState). \
+        for instance in _sessions[INTROSPECTION].query(SQLModeState). \
             filter(SQLModeState.pid == config.old_pid).\
             filter(SQLModeState.mode_id == sqlmode.id):
                 result += (instance,)
@@ -503,12 +511,12 @@ class SQLModeState(Base):
                 mode_state_rec.expiration_dt = datetime.datetime.now()
 
             try:
-                sessions['introspection'].commit()
+                _sessions[INTROSPECTION].commit()
                 return None if expire else mode_state_rec
             except IntegrityError, err:
                 print '\a'
                 ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                sessions['introspection'].rollback()
+                _sessions[INTROSPECTION].rollback()
 
         else:
             raise Exception('no mode state to save!')
@@ -593,8 +601,8 @@ class SQLOperationRecord(Base):
                                     expiration_dt=datetime.datetime.max, target_hexadecimal_key=target_path.encode('hex'))
 
         try:
-            sessions['introspection'].add(op_rec)
-            sessions['introspection'].commit()
+            _sessions[INTROSPECTION].add(op_rec)
+            _sessions[INTROSPECTION].commit()
         except RuntimeWarning, warn:
             ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
         except Exception, err:
@@ -610,14 +618,14 @@ class SQLOperationRecord(Base):
 
         result = ()
         if operator is None:
-            for instance in sessions['introspection'].query(SQLOperationRecord).\
+            for instance in _sessions[INTROSPECTION].query(SQLOperationRecord).\
                 filter(SQLOperationRecord.index_name == config.es_index).\
                 filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
                 filter(SQLOperationRecord.operation_name == operation).\
                 filter(SQLOperationRecord.status == op_status):
                     result += (instance,)
         else:
-            for instance in sessions['introspection'].query(SQLOperationRecord).\
+            for instance in _sessions[INTROSPECTION].query(SQLOperationRecord).\
                 filter(SQLOperationRecord.index_name == config.es_index).\
                 filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
                 filter(SQLOperationRecord.operation_name == operation).\
