@@ -266,7 +266,6 @@ class Scanner(Walker):
                 print("%s isn't currently available." % (path))
 
 
-
 def scan(context):
     if SCANNER not in context.data:
         context.data[SCANNER] = Scanner(context)
