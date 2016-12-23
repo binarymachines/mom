@@ -24,17 +24,19 @@ Base = declarative_base()
 MILDRED = 'mildred'
 INTROSPECTION = 'introspection'
 ADMIN = 'admin'
+ACTION = 'action'
 MEDIA = 'media'
 SCRATCH = 'scratch'
 
 _primary = MILDRED, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db)
 _introspection = INTROSPECTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection')
 _admin = ADMIN, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin')
+_action = ACTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_action')
 _media = MEDIA, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, MEDIA)
 _scratch = SCRATCH, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, SCRATCH)
 
 _sessions = {}
-for dbconf in (_primary, _introspection, _admin, _media, _scratch):
+for dbconf in (_primary, _introspection, _admin, _action, _media, _scratch):
     engine = create_engine(dbconf[1])
     # engines.append(engine)
     # _sessions.append(sessionmaker(bind=engine)())
@@ -106,16 +108,31 @@ class SQLAsset(Base):
             raise SQLIntegrityError(err, err.message)
 
     @staticmethod
-    def retrieve(doc_type, absolute_path):
+    def retrieve(doc_type, absolute_path=None, use_like_in_where_clause=True):
         # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path
         path = '%s%s' % (absolute_path, '%')
 
         result = ()
-        for instance in _sessions[MILDRED].query(SQLAsset).\
-            filter(SQLAsset.index_name == config.es_index).\
-            filter(SQLAsset.doc_type == doc_type).\
-            filter(SQLAsset.absolute_path.like(path)):
-                result += (instance,)
+        if absolute_path is None:
+            for instance in _sessions[MILDRED].query(SQLAsset).\
+                filter(SQLAsset.index_name == config.es_index).\
+                filter(SQLAsset.doc_type == doc_type):
+                # filter(SQLAsset.absolute_path.like(path)):
+                    result += (instance,)
+
+        elif use_like_in_where_clause:
+            for instance in _sessions[MILDRED].query(SQLAsset).\
+                filter(SQLAsset.index_name == config.es_index).\
+                filter(SQLAsset.doc_type == doc_type).\
+                filter(SQLAsset.absolute_path.like(path)):
+                    result += (instance,)
+
+        else:
+            for instance in _sessions[MILDRED].query(SQLAsset).\
+                filter(SQLAsset.index_name == config.es_index).\
+                filter(SQLAsset.doc_type == doc_type).\
+                filter(SQLAsset.absolute_path == path):
+                    result += (instance,)
 
         return result
 

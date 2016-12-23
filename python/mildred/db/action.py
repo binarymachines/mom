@@ -21,6 +21,18 @@ class Action(Base):
     parent_action = relationship(u'Action', remote_side=[id])
 
 
+class ActionDispatch(Base):
+    __tablename__ = 'action_dispatch'
+
+    id = Column(Integer, primary_key=True)
+    identifier = Column(String(128), nullable=False)
+    category = Column(String(128))
+    package = Column(String(128))
+    module = Column(String(128), nullable=False)
+    class_name = Column(String(128))
+    func_name = Column(String(128), nullable=False)
+
+
 class ActionParam(Base):
     __tablename__ = 'action_param'
 
@@ -56,21 +68,9 @@ class ActionType(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
-    dispatch_id = Column(ForeignKey(u'mildred_introspection.dispatch.id'), index=True)
+    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
 
-    dispatch = relationship(u'Dispatch')
-
-
-class Dispatch(Base):
-    __tablename__ = 'dispatch'
-
-    id = Column(Integer, primary_key=True)
-    identifier = Column(String(128), nullable=False)
-    category = Column(String(128))
-    package = Column(String(128))
-    module = Column(String(128), nullable=False)
-    class_name = Column(String(128))
-    func_name = Column(String(128), nullable=False)
+    dispatch = relationship(u'ActionDispatch')
 
 
 class Reason(Base):
@@ -104,10 +104,10 @@ class ReasonType(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     action_type_id = Column(ForeignKey(u'action_type.id'), index=True)
-    dispatch_id = Column(ForeignKey(u'mildred_introspection.dispatch.id'), index=True)
+    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
 
     action_type = relationship(u'ActionType')
-    dispatch = relationship(u'Dispatch')
+    dispatch = relationship(u'ActionDispatch')
 
 
 class ReasonTypeField(Base):
@@ -118,16 +118,3 @@ class ReasonTypeField(Base):
     field_name = Column(String(255))
 
     reason_type = relationship(u'ReasonType')
-
-
-class Dispatch(Base):
-    __tablename__ = 'dispatch'
-    __table_args__ = {u'schema': 'mildred_introspection'}
-
-    id = Column(Integer, primary_key=True)
-    identifier = Column(String(128))
-    category = Column(String(128))
-    package = Column(String(128))
-    module = Column(String(128), nullable=False)
-    class_name = Column(String(128))
-    func_name = Column(String(128), nullable=False)

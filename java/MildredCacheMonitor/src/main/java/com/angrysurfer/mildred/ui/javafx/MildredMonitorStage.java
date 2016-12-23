@@ -13,9 +13,6 @@ import java.net.URL;
 
 public class MildredMonitorStage extends Application {
 
-    Stage window;
-    Button btnClose;
-
     public static void main(String[] args) {
 
         launch(args);

@@ -2,7 +2,7 @@ drop database if exists `mildred_action`;
 create database `mildred_action`;
 use `mildred_action`;
 
-CREATE TABLE `mildred_action`.`dispatch` (
+CREATE TABLE `mildred_action`.`action_dispatch` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `identifier` VARCHAR(128) NOT NULL,
     `category` VARCHAR(128) NULL DEFAULT NULL,
@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_type` (
     `dispatch_id` INT(11) UNSIGNED NULL,
     PRIMARY KEY (`id`),
     INDEX `fk_action_type_dispatch_idx` (`dispatch_id` ASC),
-    CONSTRAINT `fk_action_type_dispatch1` FOREIGN KEY (`dispatch_id`)
-        REFERENCES `mildred_introspection`.`dispatch` (`id`)
+    CONSTRAINT `fk_action_type_dispatch` FOREIGN KEY (`dispatch_id`)
+        REFERENCES `mildred_action`.`action_dispatch` (`id`)
         ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type` (
         REFERENCES `mildred_action`.`action_type` (`id`)
         ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT `fk_reason_type_dispatch` FOREIGN KEY (`dispatch_id`)
-        REFERENCES `mildred_introspection`.`dispatch` (`id`)
+        REFERENCES `mildred_action`.`action_dispatch` (`id`)
         ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 

@@ -57,7 +57,7 @@ class Scanner(Walker):
         # LOG.debug('Considering %s...' % root)
         ops.check_status()
 
-        if ops.operation_in_cache(root, SCAN, SCANNER) and not self.deep_scan:
+        if ops.operation_in_cache(root, SCAN, SCANNER): #and not self.deep_scan:
             LOG.debug('skipping %s' % root)
             ops.update_listeners('skipping scan', SCANNER, root)
             return
@@ -105,7 +105,14 @@ class Scanner(Walker):
                 file_was_read = False
                 try:
                     asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
-                    if asset is None or asset.ignore() or asset.available is False: continue
+                    if asset is None or asset.ignore() or asset.available is False: 
+                        continue
+
+                    existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
+                    if self.high_scan and existing_esid:
+                        ops.update_listeners('skipping read', SCANNER, asset.absolute_path)
+                        continue
+
                     data = asset.to_dictionary()
                     self.reader.read(asset, data)
                     file_was_read = True
@@ -160,15 +167,17 @@ class Scanner(Walker):
 
         LOG.debug('caching data for %s...' % path)
         library.cache_docs(const.DOCUMENT, path)
+
+        ops.cache_ops(path, SCAN)
+
         if self.update_scan:
-            ops.cache_ops(path, SCAN)
             ops.cache_ops(path, READ)
             ops.cache_ops(path, READ, op_status='FAIL')
-        
+
+        if self.high_scan:
+            ops.record_op_begin(HSCAN, SCANNER, path)
 
         # if self.deep_scan == False:
-        # if self.high_scan:
-        #     ops.record_op_begin(HSCAN, SCANNER, path)
 
 
     def _post_scan(self, path, update_ops):
@@ -176,7 +185,6 @@ class Scanner(Walker):
         if self.update_scan:
             ops.write_ops_data(path, SCAN)
             ops.write_ops_data(path, READ)
-
 
         if self.high_scan:
             ops.record_op_complete(HSCAN, SCANNER, path)
@@ -196,6 +204,10 @@ class Scanner(Walker):
             ops.update_listeners('skipping high level scan', SCANNER, path)
             return True
 
+        if self.high_scan and ops.operation_in_cache(path, SCAN, SCANNER):
+            LOG.debug('skipping %s...' % path)
+            ops.update_listeners('skipping scan', SCANNER, path)
+            return True
 
     # TODO: individual paths in the directory context should have their own scan configuration
     def scan(self):
@@ -240,7 +252,8 @@ class Scanner(Walker):
                     last_expanded_path = path
                     continue
 
-                if self.scan_should_skip(path): continue
+                if self.scan_should_skip(path): 
+                    continue
 
                 ops.update_listeners('scanning', SCANNER, path)
                 
