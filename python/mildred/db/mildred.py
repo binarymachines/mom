@@ -246,7 +246,7 @@ class PathMapping(Base):
 
     id = Column(Integer, primary_key=True)
     index_name = Column(String(128), nullable=False)
-    parent_id = Column(ForeignKey(u'path_hierarchy.id'), index=True)
+    parent_id = Column(ForeignKey(u'path_mapping.id'), index=True)
     path = Column(String(767), nullable=False)
     hexadecimal_key = Column(String(640))
     effective_dt = Column(DateTime)

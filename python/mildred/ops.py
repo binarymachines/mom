@@ -163,7 +163,6 @@ def record_op_complete(operation, operator, path, esid=None, op_failed=False):
 
         pop_operation()
 
-
 def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
     if apply_lifespan:
         start_time = datetime.date.today() + datetime.timedelta(0 - config.op_life)
@@ -303,7 +302,6 @@ def append_command(command, **kwargs):
 def check_status(opcount=None):
 
     if opcount is not None and opcount % config.status_check_freq!= 0: return
-
 
     # update_listeners(OPS, get_exec_key(), 'checking status')
 

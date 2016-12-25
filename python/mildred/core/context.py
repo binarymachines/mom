@@ -29,7 +29,7 @@ class Context(object):
             self.clear_params(consumer)
 
     # cache
-    
+
     def restore_from_cache(self):
         # context should be able to save and restore whatever portion of its data is not contained in object instances
         pass
@@ -93,13 +93,13 @@ class Context(object):
     def get_params(self, consumer):
         if consumer in self.params:
             return self.params(consumer)
-            
+
     def set_param(self, consumer, param, value):
         # print "setting %s[%s] to %s" % (str(consumer), param, str(value) )
         if consumer not in self.params:
             self.params[consumer] = {}
         self.params[consumer][param] = value
-        
+
 
     def clear_params(self, consumer):
         if consumer in self.params:
@@ -110,8 +110,8 @@ class Context(object):
         self.clear_fifo(consumer)
         self.clear_stack(consumer)
         self.clear_params(consumer)
-            
-            
+
+
 class DirectoryContext(Context):
     def __init__(self, name, paths, cycle=False):
         super(DirectoryContext, self).__init__(name)
@@ -211,7 +211,7 @@ class CachedDirectoryContext(DirectoryContext):
 
     # def clear(self):
     #     super(CachedDirectoryContext, self).clear()
-              
+
   # FIFO
 
     def clear_fifo(self, consumer):
@@ -235,7 +235,7 @@ class CachedDirectoryContext(DirectoryContext):
     def push_fifo(self, consumer, value):
         key = cache2.get_key(CDC, consumer)
         cache2.lpush(key, value)
-        
+
     def rpush_fifo(self, consumer, value):
         key = cache2.get_key(CDC, consumer)
         cache2.rpush(key, value)
@@ -262,7 +262,7 @@ class CachedDirectoryContext(DirectoryContext):
         values = cache2.get_hash2(key)
         values[param] = value
         cache2.set_hash2(key, values)
-        
+
     # Path
 
     def clear_active(self, consumer):
@@ -283,7 +283,7 @@ class CachedDirectoryContext(DirectoryContext):
 
     def get_next(self, consumer, use_fifo=False):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
-        
+
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return self.pop_fifo(consumer)
 
@@ -293,7 +293,7 @@ class CachedDirectoryContext(DirectoryContext):
 
         if consumer in cached_consumer_paths:
             index = self.paths.index(cached_consumer_paths[consumer]) + 1
-                
+
             if len(self.paths) > index:
                 result = self.paths[index]
                 cached_consumer_paths[consumer] = result
@@ -305,7 +305,7 @@ class CachedDirectoryContext(DirectoryContext):
             cached_consumer_paths[consumer] = result
 
         cache2.set_hash2(self.consumer_key, cached_consumer_paths)
-        
+
         return result
 
     def has_active(self, consumer):
@@ -355,9 +355,22 @@ class CachedDirectoryContext(DirectoryContext):
         super(CachedDirectoryContext, self).reset(consumer)
         self.clear_fifo(consumer)
         self.clear_params(consumer)
-        
+
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
-        
+
         if consumer in cached_consumer_paths:
             del(cached_consumer_paths[consumer])
             cache2.set_hash2(self.consumer_key, cached_consumer_paths)
+
+
+class DirectoryContextWalker(object):
+
+    def __init__(self, directorycontext):
+      self.context = directorycontext
+
+    def walk(self):
+      for path in directorycontext.paths:
+        self.handle_path(path):
+
+    def handle_path(self, path):
+        pass

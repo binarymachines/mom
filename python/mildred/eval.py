@@ -1,8 +1,9 @@
 import os, sys
 import logging
 
-import search, sql, library, ops
-from core.context import DirectoryContext
+import asset, search, sql, library, ops, config
+
+from core.context import DirectoryContext, DirectoryContextWalker
 
 from alchemy import ACTION, get_session
 from db.action import ActionType, ActionParamType, ReasonType, ReasonTypeField
@@ -28,12 +29,18 @@ def retrieve_action_types():
 
     return result
 
-class ActionOrchestrator(object):
+class ActionOrchestrator(ContextWalker):
     """The action orchestrator examines files and paths and proposes actions based on conditional methods contained by ReasonTypes"""
 
     def __init__(self, context):
-        self.context = context
+        super(ActionOrchestrator, self).__init__(context)
+        # sself.context = context
         self.available_actions = retrieve_action_types()
 
     def run(self):
-        pass
+        possible_actions = retrieve_action_types()
+        folders = sql.retrieve_values('document', ['index_name', 'doc_type'], [config.es_index, asset.DIRECTORY])
+
+        for folder in folders:
+          pass
+
