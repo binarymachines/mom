@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -50,10 +50,17 @@ class ActionParamType(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(64))
-    action_type_id = Column(ForeignKey(u'action_type.id'), nullable=False, index=True)
     context_param_name = Column(String(128))
+    action_type_id = Column(ForeignKey(u'action_type.id'), nullable=False, index=True)
 
     action_type = relationship(u'ActionType')
+
+
+t_action_reason = Table(
+    'action_reason', metadata,
+    Column('action_type_id', ForeignKey(u'action_type.id'), primary_key=True, nullable=False, server_default=text("'0'")),
+    Column('reason_type_id', ForeignKey(u'reason_type.id'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+)
 
 
 class ActionStatu(Base):
@@ -71,6 +78,7 @@ class ActionType(Base):
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
 
     dispatch = relationship(u'ActionDispatch')
+    reason_types = relationship(u'ReasonType', secondary='action_reason')
 
 
 class Reason(Base):
@@ -103,10 +111,8 @@ class ReasonType(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
-    action_type_id = Column(ForeignKey(u'action_type.id'), index=True)
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
 
-    action_type = relationship(u'ActionType')
     dispatch = relationship(u'ActionDispatch')
 
 
