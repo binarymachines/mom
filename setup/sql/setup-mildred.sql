@@ -179,7 +179,7 @@ CREATE TABLE `document_metadata` (
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=282 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=921 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -373,13 +373,13 @@ CREATE TABLE `matcher_field` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `path_hierarchy`
+-- Table structure for table `path_mapping`
 --
 
-DROP TABLE IF EXISTS `path_hierarchy`;
+DROP TABLE IF EXISTS `path_mapping`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `path_hierarchy` (
+CREATE TABLE `path_mapping` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `parent_id` int(11) unsigned DEFAULT NULL,
@@ -390,7 +390,7 @@ CREATE TABLE `path_hierarchy` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_path_hierarchy` (`index_name`,`hexadecimal_key`),
   KEY `fk_path_hierarchy_parent` (`parent_id`),
-  CONSTRAINT `fk_path_hierarchy_parent` FOREIGN KEY (`parent_id`) REFERENCES `path_hierarchy` (`id`)
+  CONSTRAINT `fk_path_hierarchy_parent` FOREIGN KEY (`parent_id`) REFERENCES `path_mapping` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
