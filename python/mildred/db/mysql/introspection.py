@@ -8,18 +8,6 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class Dispatch(Base):
-    __tablename__ = 'dispatch'
-
-    id = Column(Integer, primary_key=True)
-    identifier = Column(String(128))
-    category = Column(String(128))
-    package = Column(String(128))
-    module = Column(String(128), nullable=False)
-    class_name = Column(String(128))
-    func_name = Column(String(128), nullable=False)
-
-
 class ExecRec(Base):
     __tablename__ = 'exec_rec'
 
@@ -31,6 +19,18 @@ class ExecRec(Base):
     end_dt = Column(DateTime)
     effective_dt = Column(DateTime, nullable=False)
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
+
+
+class IntrospectionDispatch(Base):
+    __tablename__ = 'introspection_dispatch'
+
+    id = Column(Integer, primary_key=True)
+    identifier = Column(String(128))
+    category = Column(String(128))
+    package = Column(String(128))
+    module = Column(String(128), nullable=False)
+    class_name = Column(String(128))
+    func_name = Column(String(128), nullable=False)
 
 
 class Mode(Base):
@@ -54,7 +54,7 @@ class ModeDefault(Base):
     index_name = Column(String(128), nullable=False, server_default=text("'media'"))
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'0'"))
-    effect_dispatch_id = Column(Integer, index=True)
+    effect_dispatch_id = Column(ForeignKey(u'introspection_dispatch.id'), index=True)
     times_to_complete = Column(Integer, nullable=False, server_default=text("'1'"))
     dec_priority_amount = Column(Integer, nullable=False, server_default=text("'1'"))
     inc_priority_amount = Column(Integer, nullable=False, server_default=text("'0'"))
@@ -62,6 +62,7 @@ class ModeDefault(Base):
     effective_dt = Column(DateTime)
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
+    effect_dispatch = relationship(u'IntrospectionDispatch')
     mode = relationship(u'Mode')
 
 
@@ -95,7 +96,7 @@ class ModeStateDefault(Base):
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     state_id = Column(ForeignKey(u'state.id'), nullable=False, index=True, server_default=text("'0'"))
     priority = Column(Integer, nullable=False, server_default=text("'0'"))
-    effect_dispatch_id = Column(Integer, index=True)
+    effect_dispatch_id = Column(ForeignKey(u'introspection_dispatch.id'), index=True)
     times_to_complete = Column(Integer, nullable=False, server_default=text("'1'"))
     dec_priority_amount = Column(Integer, nullable=False, server_default=text("'1'"))
     inc_priority_amount = Column(Integer, nullable=False, server_default=text("'0'"))
@@ -103,6 +104,7 @@ class ModeStateDefault(Base):
     effective_dt = Column(DateTime)
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
+    effect_dispatch = relationship(u'IntrospectionDispatch')
     mode = relationship(u'Mode')
     state = relationship(u'State')
 
@@ -172,11 +174,14 @@ class SwitchRule(Base):
     name = Column(String(128), nullable=False)
     begin_mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     end_mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
-    condition_dispatch_id = Column(Integer, index=True)
-    before_dispatch_id = Column(Integer, nullable=False, index=True)
-    after_dispatch_id = Column(Integer, nullable=False, index=True)
+    condition_dispatch_id = Column(ForeignKey(u'introspection_dispatch.id'), index=True)
+    before_dispatch_id = Column(ForeignKey(u'introspection_dispatch.id'), nullable=False, index=True)
+    after_dispatch_id = Column(ForeignKey(u'introspection_dispatch.id'), nullable=False, index=True)
 
+    after_dispatch = relationship(u'IntrospectionDispatch', primaryjoin='SwitchRule.after_dispatch_id == IntrospectionDispatch.id')
+    before_dispatch = relationship(u'IntrospectionDispatch', primaryjoin='SwitchRule.before_dispatch_id == IntrospectionDispatch.id')
     begin_mode = relationship(u'Mode', primaryjoin='SwitchRule.begin_mode_id == Mode.id')
+    condition_dispatch = relationship(u'IntrospectionDispatch', primaryjoin='SwitchRule.condition_dispatch_id == IntrospectionDispatch.id')
     end_mode = relationship(u'Mode', primaryjoin='SwitchRule.end_mode_id == Mode.id')
 
 
@@ -188,9 +193,10 @@ class TransitionRule(Base):
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     begin_state_id = Column(ForeignKey(u'state.id'), nullable=False, index=True)
     end_state_id = Column(ForeignKey(u'state.id'), nullable=False, index=True)
-    condition_dispatch_id = Column(Integer, nullable=False, index=True)
+    condition_dispatch_id = Column(ForeignKey(u'introspection_dispatch.id'), nullable=False, index=True)
 
     begin_state = relationship(u'State', primaryjoin='TransitionRule.begin_state_id == State.id')
+    condition_dispatch = relationship(u'IntrospectionDispatch')
     end_state = relationship(u'State', primaryjoin='TransitionRule.end_state_id == State.id')
     mode = relationship(u'Mode')
 

@@ -149,11 +149,12 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param` (
 );
 
 
-insert into action_status (name) values ('proposed'), ('accepted'), ('pending'), ('complete'), ('aborted'), ('canceled');
+insert into action_status (name) values ("proposed"), ("accepted"), ("pending"), ("complete"), ("aborted"), ("canceled");
 
--- insert into action_type (name) values ('move'), ('delete'), ('scan'), ('match'), ('retag'), ('consolidate');
-insert into action_type (name, priority) values ('rename.file.apply.tags', 95);
+-- insert into action_type (name) values ("move"), ("delete"), ("scan"), ("match"), ("retag"), ("consolidate");
+insert into action_type (name, priority) values ("rename.file.apply.tags", 95);
 insert into action_param_type(action_type_id, name) values ((select id from action_type where name = "rename.file.apply.tags"), "file.absolute.path");
-
+insert into reason_type (name) values ("file.tag.mismatch");
+insert into action_reason(action_type_id, reason_type_id) values ((select id from action_type where name = "rename.file.apply.tags"), (select id from reason_type where name = "file.tag.mismatch"))
 -- insert into reason_type(action_type_id, name) values ((select id from action_type where name = "file_remove"), "duplicate.exists");
 -- insert into reason_type(action_type_id, name) values ((select id from action_type where name = "file_remove"), "is.lower.quality");s

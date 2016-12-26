@@ -2,6 +2,7 @@ clear
 rm $M2/python/mildred/db/mysql/*.p*
 
 mysql mildred_action < $M2/sql/action.sql
+mysql mildred_introspection < $M2/sql/introspection.sql
 
 touch $M2/python/mildred/db/mysql/__init__.py
 sqlacodegen mysql://root:steel@localhost/media > $M2/python/mildred/db/mysql/media.py
