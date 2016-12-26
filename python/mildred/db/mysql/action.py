@@ -76,7 +76,7 @@ class ActionType(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
-    priority = Column(Integer, nullable=False, server_default=text("'85'"))
+    priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
     dispatch = relationship(u'ActionDispatch')
     reason_types = relationship(u'ReasonType', secondary='action_reason')
@@ -112,6 +112,7 @@ class ReasonType(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
+    weight = Column(Integer, nullable=False, server_default=text("'10'"))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
 
     dispatch = relationship(u'ActionDispatch')

@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_type` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL DEFAULT NULL,
   `dispatch_id` INT(11) UNSIGNED NULL,
-  `priority` INT(3) NOT NULL DEFAULT 85,
+  `priority` INT(3) NOT NULL DEFAULT 10,
   PRIMARY KEY (`id`),
   INDEX `fk_action_type_dispatch_idx` (`dispatch_id` ASC),
   CONSTRAINT `fk_action_type_dispatch1`
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param_type` (
 CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(255) NULL DEFAULT NULL,
-    -- `action_type_id` INT(11) UNSIGNED NULL DEFAULT NULL,
+    `weight` INT(3) NOT NULL DEFAULT 10,
     `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
     -- INDEX `fk_reason_type_action_type_idx` (`action_type_id` ASC),
