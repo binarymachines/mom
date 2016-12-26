@@ -21,9 +21,10 @@ echo "copying lookup tables..."
 ./sh/copy-table-data.sh mildred directory_constant
 
 ./sh/copy-table-data.sh mildred document_category
-./sh/copy-table-data.sh mildred document_format
 ./sh/copy-table-data.sh mildred document_metadata
-./sh/copy-table-data.sh mildred document_type
+
+./sh/copy-table-data.sh mildred file_format
+./sh/copy-table-data.sh mildred file_type
 
 ./sh/copy-table-data.sh mildred match_discount
 ./sh/copy-table-data.sh mildred match_weight
@@ -37,8 +38,8 @@ echo "copying lookup tables..."
 ./sh/copy-table-data.sh mildred_introspection state
 ./sh/copy-table-data.sh mildred_introspection mode_state_default
 ./sh/copy-table-data.sh mildred_introspection mode_state_default_param
-./sh/copy-table-data.sh mildred_introspection error
-./sh/copy-table-data.sh mildred_introspection error_attribute
+#./sh/copy-table-data.sh mildred_introspection error
+#./sh/copy-table-data.sh mildred_introspection error_attribute
 
 ./sh/copy-table-data.sh media artist_alias
 ./sh/copy-table-data.sh media artist_amelioration
