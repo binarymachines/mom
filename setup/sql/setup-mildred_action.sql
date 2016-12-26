@@ -89,8 +89,8 @@ CREATE TABLE `action_param_type` (
   `action_type_id` int(11) unsigned NOT NULL,
   `context_param_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_action_param_type_action_type_idx` (`action_type_id`),
-  CONSTRAINT `fk_action_param_type_action_type` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `fk_action_param_type_action_type1_idx` (`action_type_id`),
+  CONSTRAINT `fk_action_param_type_action_type1` FOREIGN KEY (`action_type_id`) REFERENCES `action_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -136,6 +136,7 @@ CREATE TABLE `action_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `dispatch_id` int(11) unsigned DEFAULT NULL,
+  `priority` int(3) NOT NULL DEFAULT '85',
   PRIMARY KEY (`id`),
   KEY `fk_action_type_dispatch_idx` (`dispatch_id`),
   CONSTRAINT `fk_action_type_dispatch1` FOREIGN KEY (`dispatch_id`) REFERENCES `action_dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
