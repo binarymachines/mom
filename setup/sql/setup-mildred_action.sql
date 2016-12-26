@@ -199,7 +199,7 @@ CREATE TABLE `reason_type` (
   PRIMARY KEY (`id`),
   KEY `fk_reason_type_dispatch_idx` (`dispatch_id`),
   CONSTRAINT `fk_reason_type_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `action_dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
