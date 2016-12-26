@@ -8,6 +8,18 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
+class Dispatch(Base):
+    __tablename__ = 'dispatch'
+
+    id = Column(Integer, primary_key=True)
+    identifier = Column(String(128))
+    category = Column(String(128))
+    package = Column(String(128))
+    module = Column(String(128), nullable=False)
+    class_name = Column(String(128))
+    func_name = Column(String(128), nullable=False)
+
+
 class ExecRec(Base):
     __tablename__ = 'exec_rec'
 

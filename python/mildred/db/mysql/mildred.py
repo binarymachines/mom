@@ -116,19 +116,6 @@ class DocumentMetadatum(Base):
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
-class ExcludeDirectory(Base):
-    __tablename__ = 'exclude_directory'
-    __table_args__ = (
-        Index('uk_exclude_directory_name', 'index_name', 'name', unique=True),
-    )
-
-    id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False)
-    name = Column(String(767), nullable=False)
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
-
-
 class FileFormat(Base):
     __tablename__ = 'file_format'
 
