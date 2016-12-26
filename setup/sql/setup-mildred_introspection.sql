@@ -16,6 +16,25 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `dispatch`
+--
+
+DROP TABLE IF EXISTS `dispatch`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dispatch` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(128) DEFAULT NULL,
+  `category` varchar(128) DEFAULT NULL,
+  `package` varchar(128) DEFAULT NULL,
+  `module` varchar(128) NOT NULL,
+  `class_name` varchar(128) DEFAULT NULL,
+  `func_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `exec_rec`
 --
 

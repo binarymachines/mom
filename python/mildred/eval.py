@@ -19,7 +19,7 @@ EVALUATOR = 'EVALUATOR'
 
 def eval(context):
     if EVALUATOR not in context.data:
-        context.data[EVALUATOR] = Evalutaor(context)
+        context.data[EVALUATOR] = Evaluator(context)
     # context.data[EVALUATOR].run()
 
 def retrieve_types():
@@ -38,11 +38,11 @@ def retrieve_reason_types():
 
     return result
 
-class Evalutaor(DirectoryContextWalker):
+class Evaluator(DirectoryContextWalker):
     """The action EVALUATOR examines files and paths and proposes actions based on conditional methods contained by ReasonTypes"""
 
     def __init__(self, context):
-        super(Evalutaor, self).__init__(context)
+        super(Evaluator, self).__init__(context)
         # sself.context = context
         # self.available_actions = self.retrieve_types()
 

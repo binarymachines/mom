@@ -136,7 +136,7 @@ CREATE TABLE `action_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `dispatch_id` int(11) unsigned DEFAULT NULL,
-  `priority` int(3) NOT NULL DEFAULT '85',
+  `priority` int(3) NOT NULL DEFAULT '10',
   PRIMARY KEY (`id`),
   KEY `fk_action_type_dispatch_idx` (`dispatch_id`),
   CONSTRAINT `fk_action_type_dispatch1` FOREIGN KEY (`dispatch_id`) REFERENCES `action_dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -195,6 +195,7 @@ DROP TABLE IF EXISTS `reason_type`;
 CREATE TABLE `reason_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
+  `weight` int(3) NOT NULL DEFAULT '10',
   `dispatch_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_reason_type_dispatch_idx` (`dispatch_id`),
