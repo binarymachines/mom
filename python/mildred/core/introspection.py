@@ -14,3 +14,19 @@
 # in a process, a mode has an associated state context
 
 # modes express conditional polymorphism by applying the condition associated with its state when asked by selector
+
+from pydoc import locate
+
+def get_func(qname):
+    return  locate(qname)
+    
+def get_qualified_name(*nameparts):
+    result = []
+    for part in nameparts:
+        if part:
+            result.append(part)
+
+    return '.'.join(result)
+
+
+#

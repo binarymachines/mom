@@ -22,6 +22,7 @@ from core.states import State
 from core.serv import SingleSelectorServiceProcess
 
 from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
+import introspection
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -45,13 +46,13 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         self.process_handler.before_switch(selector, mode)
 
 
-    def _get_qualified_name(self, *nameparts):
-        result = []
-        for part in nameparts:
-            if part is not None:
-                result.append(part)
+    # def _get_qualified_name(self, *nameparts):
+    #     result = []
+    #     for part in nameparts:
+    #         if part is not None:
+    #             result.append(part)
 
-        return '.'.join(result)
+    #     return '.'.join(result)
 
 
     def _register_handler(self, qname):
@@ -66,32 +67,32 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
     def _build_instance_registry(self):
 
-        # test = self._get_qualified_name(__package__, __module__, self.__class__.__name__)
+        # test = introspection.get_qualified_name(__package__, __module__, self.__class__.__name__)
         self.switchrules = sql.retrieve_values2('v_mode_switch_rule_dispatch_w_id', ['name', 'begin_mode_id', 'begin_mode', 'end_mode_id', 'end_mode', \
             'condition_package', 'condition_module', 'condition_class', 'condition_func', \
             'before_package', 'before_module', 'before_class', 'before_func', \
             'after_package', 'after_module', 'after_class', 'after_func'], [], schema='mildred_introspection');
 
         for rule in self.switchrules:
-            qname = self._get_qualified_name(rule.condition_package, rule.condition_module, rule.condition_class)
+            qname = introspection.get_qualified_name(rule.condition_package, rule.condition_module, rule.condition_class)
             if qname: self._register_handler(qname)
 
-            qname = self._get_qualified_name(rule.before_package, rule.before_module, rule.before_class)
+            qname = introspection.get_qualified_name(rule.before_package, rule.before_module, rule.before_class)
             if qname: self._register_handler(qname)
 
-            qname = self._get_qualified_name(rule.after_package, rule.after_module, rule.after_class)
+            qname = introspection.get_qualified_name(rule.after_package, rule.after_module, rule.after_class)
             if qname: self._register_handler(qname)
 
         self.moderecords = sql.retrieve_values2('v_mode_default_dispatch_w_id', ['mode_id', 'mode_name', 'stateful_flag', 'handler_package', 'handler_module', 'handler_class', 'handler_func', \
             'priority', 'dec_priority_amount', 'inc_priority_amount', 'times_to_complete', 'error_tolerance'], [], schema='mildred_introspection')
 
         for record in self.moderecords:
-            qname = self._get_qualified_name(record.handler_package, record.handler_module, record.handler_class)
+            qname = introspection.get_qualified_name(record.handler_package, record.handler_module, record.handler_class)
             if qname: self._register_handler(qname)
     
 
     def _create_func(self, package, module, clazz, func):
-        qname = self._get_qualified_name(package, module, clazz)
+        qname = introspection.get_qualified_name(package, module, clazz)
         if qname and qname in self.handlers:
             handler = self.handlers[qname]
             return getattr(handler, func, None)

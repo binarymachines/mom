@@ -1,7 +1,7 @@
 
 
 class InstanceBroker(object):
-    def __init__(reader):
+    def __init__(self, reader):
         self.reader = reader
         self.instances = {}
         self.initialize()

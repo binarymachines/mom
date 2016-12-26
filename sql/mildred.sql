@@ -12,27 +12,27 @@ DROP TABLE IF EXISTS `directory_constant`;
 DROP TABLE IF EXISTS `document_category`;
 DROP TABLE IF EXISTS `path_hierarchy`;
 DROP TABLE IF EXISTS `exclude_directory`;
-DROP TABLE IF EXISTS `document_metadata`;
+-- DROP TABLE IF EXISTS `document_metadata`;
 DROP TABLE IF EXISTS `document_format`;
 DROP TABLE IF EXISTS `document_type`;
 DROP TABLE IF EXISTS `file_format`;
 DROP TABLE IF EXISTS `file_type`;
-DROP TABLE IF EXISTS `document`;
+-- DROP TABLE IF EXISTS `document`;
 DROP TABLE IF EXISTS `file_handler_type`;
 DROP TABLE IF EXISTS `file_handler`;
 
-CREATE TABLE `document` (
-  `id` varchar(128) NOT NULL,
-  `index_name` varchar(128) NOT NULL,
-  `file_type_id` int(11) unsigned DEFAULT NULL,
-  `doc_type` varchar(64) NOT NULL,
-  `absolute_path` varchar(1024) NOT NULL,
-  `hexadecimal_key` varchar(640) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_document` (`index_name`,`hexadecimal_key`)
-);
+-- CREATE TABLE `document` (
+--   `id` varchar(128) NOT NULL,
+--   `index_name` varchar(128) NOT NULL,
+--   `file_type_id` int(11) unsigned DEFAULT NULL,
+--   `doc_type` varchar(64) NOT NULL,
+--   `absolute_path` varchar(1024) NOT NULL,
+--   `hexadecimal_key` varchar(640) NOT NULL,
+--   `effective_dt` datetime DEFAULT NULL,
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`),
+--   UNIQUE KEY `uk_document` (`index_name`,`hexadecimal_key`)
+-- );
 
 CREATE TABLE `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -76,30 +76,30 @@ CREATE TABLE `delimited_file_data` (
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `document_metadata` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `document_format` varchar(32) NOT NULL,
-  `attribute_name` varchar(128) NOT NULL,
-  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-);
+-- CREATE TABLE `document_metadata` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+--   `document_format` varchar(32) NOT NULL,
+--   `attribute_name` varchar(128) NOT NULL,
+--   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`id`)
+-- );
 
-CREATE TABLE IF NOT EXISTS `mildred`.`path_hierarchy` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` VARCHAR(128) CHARACTER SET 'utf8' NOT NULL,
-  `parent_id` INT(11) UNSIGNED NULL DEFAULT NULL,
-  `path` VARCHAR(767) NOT NULL,
-  `hexadecimal_key` VARCHAR(640) NULL DEFAULT NULL,
-  `effective_dt` DATETIME NULL DEFAULT NULL,
-  `expiration_dt` DATETIME NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `uk_path_hierarchy` (`index_name` ASC, `hexadecimal_key` ASC),
-  INDEX `fk_path_hierarchy_parent` (`parent_id` ASC),
-  CONSTRAINT `fk_path_hierarchy_parent`
-    FOREIGN KEY (`parent_id`)
-    REFERENCES `mildred`.`path_hierarchy` (`id`)
-);
+-- CREATE TABLE IF NOT EXISTS `mildred`.`path_hierarchy` (
+--   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+--   `index_name` VARCHAR(128) CHARACTER SET 'utf8' NOT NULL,
+--   `parent_id` INT(11) UNSIGNED NULL DEFAULT NULL,
+--   `path` VARCHAR(767) NOT NULL,
+--   `hexadecimal_key` VARCHAR(640) NULL DEFAULT NULL,
+--   `effective_dt` DATETIME NULL DEFAULT NULL,
+--   `expiration_dt` DATETIME NULL DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`),
+--   UNIQUE INDEX `uk_path_hierarchy` (`index_name` ASC, `hexadecimal_key` ASC),
+--   INDEX `fk_path_hierarchy_parent` (`parent_id` ASC),
+--   CONSTRAINT `fk_path_hierarchy_parent`
+--     FOREIGN KEY (`parent_id`)
+--     REFERENCES `mildred`.`path_hierarchy` (`id`)
+-- );
 
 -- CREATE TRIGGER `path_hierarchy_effective_dt` BEFORE INSERT ON  `path_hierarchy` 
 -- FOR EACH ROW SET NEW.effective_dt = IFNULL(NEW.effective_dt, NOW());
