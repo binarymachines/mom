@@ -104,18 +104,18 @@ CREATE TABLE `delimited_file_data` (
 -- CREATE TRIGGER `path_hierarchy_effective_dt` BEFORE INSERT ON  `path_hierarchy` 
 -- FOR EACH ROW SET NEW.effective_dt = IFNULL(NEW.effective_dt, NOW());
 
-CREATE TABLE `exclude_directory` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `name` varchar(767) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`), 
-  UNIQUE KEY `uk_exclude_directory_name` (`index_name`,`name`)
-);
+-- CREATE TABLE `exclude_directory` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+--   `name` varchar(767) NOT NULL,
+--   `effective_dt` datetime DEFAULT NULL,
+--   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`), 
+--   UNIQUE KEY `uk_exclude_directory_name` (`index_name`,`name`)
+-- );
 
 CREATE TABLE `directory` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(767) NOT NULL,
   `file_type` varchar(8) DEFAULT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE `directory` (
 
 
 CREATE TABLE `matcher` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) NOT NULL,
   `name` varchar(128) NOT NULL,
   `query_type` varchar(64) NOT NULL,
@@ -140,7 +140,7 @@ CREATE TABLE `matcher` (
 );
 
 CREATE TABLE `matcher_field` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `document_type` varchar(64) NOT NULL DEFAULT 'media_file',
   `matcher_id` int(11) unsigned NOT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE `matcher_field` (
 );
 
 CREATE TABLE `directory_amelioration` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `use_tag_flag` tinyint(1) DEFAULT '0',
@@ -172,7 +172,7 @@ CREATE TABLE `directory_amelioration` (
 );
 
 CREATE TABLE `directory_attribute` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `directory_id` int(11) NOT NULL,
   `attribute_name` varchar(256) NOT NULL,
@@ -183,7 +183,7 @@ CREATE TABLE `directory_attribute` (
 );
 
 CREATE TABLE `directory_constant` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `pattern` varchar(256) NOT NULL,
   `location_type` varchar(64) NOT NULL,
@@ -193,7 +193,7 @@ CREATE TABLE `directory_constant` (
 );
 
 CREATE TABLE `document_category` (
-  `id` int(11) unsigned NOT NULL,
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(256) NOT NULL,
   `doc_type` varchar(128) CHARACTER SET utf8 NOT NULL,
@@ -413,191 +413,191 @@ INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`
 INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (12,'media','/unsorted','unsorted','2016-11-16 07:36:52','9999-12-31 23:59:59');
 INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (13,'media','[...]','side_projects','2016-11-16 07:36:52','9999-12-31 23:59:59');
 
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (1,'media','dark classical','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (2,'media','funk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (3,'media','mash-ups','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (4,'media','rap','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (5,'media','acid jazz','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (6,'media','afro-beat','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (7,'media','ambi-sonic','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (8,'media','ambient','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (9,'media','ambient noise','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (10,'media','ambient soundscapes','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (11,'media','art punk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (12,'media','art rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (13,'media','avant-garde','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (14,'media','black metal','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (15,'media','blues','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (16,'media','chamber goth','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (17,'media','classic rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (18,'media','classical','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (19,'media','classics','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (20,'media','contemporary classical','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (21,'media','country','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (22,'media','dark ambient','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (23,'media','deathrock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (24,'media','deep ambient','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (25,'media','disco','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (26,'media','doom jazz','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (27,'media','drum & bass','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (28,'media','dubstep','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (29,'media','electroclash','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (30,'media','electronic','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (31,'media','electronic [abstract hip-hop, illbient]','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (32,'media','electronic [ambient groove]','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (33,'media','electronic [armchair techno, emo-glitch]','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (34,'media','electronic [minimal]','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (35,'media','ethnoambient','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (36,'media','experimental','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (37,'media','folk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (38,'media','folk-horror','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (39,'media','garage rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (40,'media','goth metal','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (41,'media','gothic','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (42,'media','grime','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (43,'media','gun rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (44,'media','hardcore','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (45,'media','hip-hop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (46,'media','hip-hop (old school)','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (47,'media','hip-hop [chopped & screwed]','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (48,'media','house','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (49,'media','idm','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (50,'media','incidental','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (51,'media','indie','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (52,'media','industrial','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (53,'media','industrial rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (54,'media','industrial [soundscapes]','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (55,'media','jazz','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (56,'media','krautrock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (57,'media','martial ambient','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (58,'media','martial folk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (59,'media','martial industrial','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (60,'media','modern rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (61,'media','neo-folk, neo-classical','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (62,'media','new age','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (63,'media','new soul','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (64,'media','new wave, synthpop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (65,'media','noise, powernoise','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (66,'media','oldies','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (67,'media','pop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (68,'media','post-pop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (69,'media','post-rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (70,'media','powernoise','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (71,'media','psychedelic rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (72,'media','punk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (73,'media','punk [american]','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (74,'media','rap (chopped & screwed)','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (75,'media','rap (old school)','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (76,'media','reggae','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (77,'media','ritual ambient','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (78,'media','ritual industrial','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (79,'media','rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (80,'media','roots rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (81,'media','russian hip-hop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (82,'media','ska','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (83,'media','soul','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (84,'media','soundtracks','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (85,'media','surf rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (86,'media','synthpunk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (87,'media','trip-hop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (88,'media','urban','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (89,'media','visual kei','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (90,'media','world fusion','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (91,'media','world musics','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (92,'media','alternative','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (93,'media','atmospheric','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (94,'media','new wave','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (95,'media','noise','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (96,'media','synthpop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (97,'media','unsorted','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (98,'media','coldwave','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (99,'media','film music','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (100,'media','garage punk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (101,'media','goth','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (102,'media','mash-up','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (103,'media','minimal techno','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (104,'media','mixed','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (105,'media','nu jazz','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (106,'media','post-punk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (107,'media','psytrance','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (108,'media','ragga soca','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (109,'media','reggaeton','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (110,'media','ritual','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (111,'media','rockabilly','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (112,'media','smooth jazz','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (113,'media','techno','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (114,'media','tributes','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (115,'media','various','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (116,'media','celebrational','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (117,'media','classic ambient','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (118,'media','electronic rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (119,'media','electrosoul','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (120,'media','fusion','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (121,'media','glitch','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (122,'media','go-go','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (123,'media','hellbilly','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (124,'media','illbient','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (125,'media','industrial [rare]','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (126,'media','jpop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (127,'media','mashup','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (128,'media','minimal','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (129,'media','modern soul','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (130,'media','neo soul','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (131,'media','neo-folk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (132,'media','new beat','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (133,'media','satire','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (134,'media','dark jazz','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (135,'media','classic hip-hop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (136,'media','electronic dance','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (137,'media','minimal house','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (138,'media','minimal wave','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (139,'media','afrobeat','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (140,'media','heavy metal','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (141,'media','new wave, goth, synthpop, alternative','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (142,'media','ska, reggae','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (143,'media','soul & funk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (144,'media','psychedelia','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (145,'media','americana','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (146,'media','dance','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (147,'media','glam','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (148,'media','gothic & new wave','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (149,'media','punk & new wave','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (150,'media','random','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (151,'media','rock, metal, pop','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (152,'media','sound track','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (153,'media','soundtrack','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (154,'media','spacerock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (155,'media','tribute','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (156,'media','unclassifiable','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (157,'media','unknown','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (158,'media','weird','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (159,'media','darkwave','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (160,'media','experimental-noise','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (161,'media','general alternative','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (162,'media','girl group','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (163,'media','gospel & religious','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (164,'media','alternative & punk','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (165,'media','bass','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (166,'media','beat','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (167,'media','black rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (168,'media','classic','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (169,'media','japanese','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (170,'media','kanine','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (171,'media','metal','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (172,'media','moderne','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (173,'media','noise rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (174,'media','other','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (175,'media','post-punk & minimal wave','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (176,'media','progressive rock','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (177,'media','psychic tv','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (178,'media','punk & oi','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (179,'media','radio','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (180,'media','rock\'n\'soul','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (181,'media','spoken word','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (182,'media','temp','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (183,'media','trance','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (184,'media','vocal','directory',NULL,'9999-12-31 23:59:59');
-INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (185,'media','world','directory',NULL,'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (1,'media','dark classical','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (2,'media','funk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (3,'media','mash-ups','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (4,'media','rap','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (5,'media','acid jazz','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (6,'media','afro-beat','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (7,'media','ambi-sonic','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (8,'media','ambient','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (9,'media','ambient noise','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (10,'media','ambient soundscapes','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (11,'media','art punk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (12,'media','art rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (13,'media','avant-garde','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (14,'media','black metal','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (15,'media','blues','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (16,'media','chamber goth','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (17,'media','classic rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (18,'media','classical','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (19,'media','classics','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (20,'media','contemporary classical','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (21,'media','country','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (22,'media','dark ambient','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (23,'media','deathrock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (24,'media','deep ambient','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (25,'media','disco','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (26,'media','doom jazz','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (27,'media','drum & bass','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (28,'media','dubstep','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (29,'media','electroclash','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (30,'media','electronic','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (31,'media','electronic [abstract hip-hop, illbient]','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (32,'media','electronic [ambient groove]','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (33,'media','electronic [armchair techno, emo-glitch]','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (34,'media','electronic [minimal]','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (35,'media','ethnoambient','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (36,'media','experimental','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (37,'media','folk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (38,'media','folk-horror','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (39,'media','garage rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (40,'media','goth metal','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (41,'media','gothic','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (42,'media','grime','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (43,'media','gun rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (44,'media','hardcore','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (45,'media','hip-hop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (46,'media','hip-hop (old school)','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (47,'media','hip-hop [chopped & screwed]','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (48,'media','house','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (49,'media','idm','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (50,'media','incidental','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (51,'media','indie','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (52,'media','industrial','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (53,'media','industrial rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (54,'media','industrial [soundscapes]','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (55,'media','jazz','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (56,'media','krautrock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (57,'media','martial ambient','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (58,'media','martial folk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (59,'media','martial industrial','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (60,'media','modern rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (61,'media','neo-folk, neo-classical','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (62,'media','new age','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (63,'media','new soul','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (64,'media','new wave, synthpop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (65,'media','noise, powernoise','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (66,'media','oldies','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (67,'media','pop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (68,'media','post-pop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (69,'media','post-rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (70,'media','powernoise','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (71,'media','psychedelic rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (72,'media','punk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (73,'media','punk [american]','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (74,'media','rap (chopped & screwed)','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (75,'media','rap (old school)','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (76,'media','reggae','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (77,'media','ritual ambient','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (78,'media','ritual industrial','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (79,'media','rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (80,'media','roots rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (81,'media','russian hip-hop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (82,'media','ska','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (83,'media','soul','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (84,'media','soundtracks','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (85,'media','surf rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (86,'media','synthpunk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (87,'media','trip-hop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (88,'media','urban','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (89,'media','visual kei','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (90,'media','world fusion','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (91,'media','world musics','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (92,'media','alternative','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (93,'media','atmospheric','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (94,'media','new wave','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (95,'media','noise','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (96,'media','synthpop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (97,'media','unsorted','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (98,'media','coldwave','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (99,'media','film music','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (100,'media','garage punk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (101,'media','goth','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (102,'media','mash-up','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (103,'media','minimal techno','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (104,'media','mixed','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (105,'media','nu jazz','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (106,'media','post-punk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (107,'media','psytrance','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (108,'media','ragga soca','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (109,'media','reggaeton','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (110,'media','ritual','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (111,'media','rockabilly','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (112,'media','smooth jazz','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (113,'media','techno','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (114,'media','tributes','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (115,'media','various','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (116,'media','celebrational','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (117,'media','classic ambient','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (118,'media','electronic rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (119,'media','electrosoul','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (120,'media','fusion','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (121,'media','glitch','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (122,'media','go-go','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (123,'media','hellbilly','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (124,'media','illbient','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (125,'media','industrial [rare]','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (126,'media','jpop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (127,'media','mashup','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (128,'media','minimal','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (129,'media','modern soul','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (130,'media','neo soul','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (131,'media','neo-folk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (132,'media','new beat','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (133,'media','satire','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (134,'media','dark jazz','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (135,'media','classic hip-hop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (136,'media','electronic dance','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (137,'media','minimal house','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (138,'media','minimal wave','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (139,'media','afrobeat','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (140,'media','heavy metal','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (141,'media','new wave, goth, synthpop, alternative','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (142,'media','ska, reggae','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (143,'media','soul & funk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (144,'media','psychedelia','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (145,'media','americana','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (146,'media','dance','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (147,'media','glam','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (148,'media','gothic & new wave','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (149,'media','punk & new wave','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (150,'media','random','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (151,'media','rock, metal, pop','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (152,'media','sound track','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (153,'media','soundtrack','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (154,'media','spacerock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (155,'media','tribute','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (156,'media','unclassifiable','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (157,'media','unknown','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (158,'media','weird','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (159,'media','darkwave','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (160,'media','experimental-noise','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (161,'media','general alternative','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (162,'media','girl group','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (163,'media','gospel & religious','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (164,'media','alternative & punk','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (165,'media','bass','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (166,'media','beat','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (167,'media','black rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (168,'media','classic','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (169,'media','japanese','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (170,'media','kanine','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (171,'media','metal','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (172,'media','moderne','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (173,'media','noise rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (174,'media','other','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (175,'media','post-punk & minimal wave','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (176,'media','progressive rock','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (177,'media','psychic tv','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (178,'media','punk & oi','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (179,'media','radio','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (180,'media','rock\'n\'soul','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (181,'media','spoken word','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (182,'media','temp','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (183,'media','trance','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (184,'media','vocal','directory',now(),'9999-12-31 23:59:59');
+INSERT INTO `document_category` (`id`, `index_name`, `name`, `doc_type`, `effective_dt`, `expiration_dt`) VALUES (185,'media','world','directory',now(),'9999-12-31 23:59:59');
 
 INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `applies_to_file_type`) VALUES (1,'media','filename_match_matcher','match',75,1,'*');
 INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `applies_to_file_type`) VALUES (2,'media','tag_term_matcher_artist_album_song','term',0,0,'*');
@@ -642,68 +642,68 @@ insert into file_handler_type (file_handler_id, file_type) values ((select id fr
 insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'oga');
 
 
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1,'media','ID3V2','COMM',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (2,'media','ID3V2','MCDI',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (3,'media','ID3V2','PRIV',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (4,'media','ID3V2','TALB',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (5,'media','ID3V2','TCOM',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (6,'media','ID3V2','TCON',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (7,'media','ID3V2','TDRC',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (8,'media','ID3V2','TIT2',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (9,'media','ID3V2','TLEN',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (10,'media','ID3V2','TPE1',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (11,'media','ID3V2','TPE2',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (12,'media','ID3V2','TPUB',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (13,'media','ID3V2','TRCK',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (14,'media','ID3V2','POPM',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (15,'media','ID3V2','TDOR',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (16,'media','ID3V2','TMED',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (17,'media','ID3V2','TPOS',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (18,'media','ID3V2','TSO2',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (19,'media','ID3V2','TSOP',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (20,'media','ID3V2','TXXX',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (21,'media','ID3V2','UFID',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (22,'media','ID3V2','APIC',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (23,'media','ID3V2','TIT1',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (24,'media','ID3V2','TIPL',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (25,'media','ID3V2','TENC',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (26,'media','ID3V2','TLAN',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (27,'media','ID3V2','TSRC',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (28,'media','ID3V2','GEOB',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (29,'media','ID3V2','TFLT',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (30,'media','ID3V2','TSSE',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (31,'media','ID3V2','WXXX',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (32,'media','ID3V2','TCOP',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (33,'media','ID3V2','TBPM',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (34,'media','ID3V2','TOPE',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (35,'media','ID3V2','TYER',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (36,'media','ID3V2','PCNT',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (37,'media','ID3V2','TKEY',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (38,'media','ID3V2','USER',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (39,'media','ID3V2','TDRL',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (40,'media','ID3V2','TIT3',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (41,'media','ID3V2','TOFN',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (42,'media','ID3V2','TSOA',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (43,'media','ID3V2','WOAR',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (44,'media','ID3V2','TSOT',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (62,'media','ID3V2','WCOM',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (68,'media','ID3V2','RVA2',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (69,'media','ID3V2','WOAF',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (70,'media','ID3V2','WOAS',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (90,'media','ID3V2','TDTG',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (91,'media','ID3V2','USLT',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (92,'media','ID3V2','TCMP',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (93,'media','ID3V2','TPE3',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (132,'media','ID3V2','TOAL',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (149,'media','ID3V2','TDEN',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (168,'media','ID3V2','WCOP',1);
-INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (255,'media','ID3V2','TPE4',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (256,'media','ID3V2','TEXT',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (257,'media','ID3V2','TSST',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (258,'media','ID3V2','WORS',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (259,'media','ID3V2','WPAY',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (260,'media','ID3V2','WPUB',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (261,'media','ID3V2','LINK',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (263,'media','ID3V2','TOLY',1);
--- INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (264,'media','ID3V2','TRSN',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','COMM',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','MCDI',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','PRIV',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TALB',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TCOM',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TCON',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TDRC',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TIT2',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TLEN',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TPE1',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TPE2',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TPUB',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TRCK',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (14,'media','ID3V2','POPM',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TDOR',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TMED',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TPOS',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TSO2',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TSOP',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (20,'media','ID3V2','TXXX',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','UFID',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','APIC',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TIT1',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TIPL',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TENC',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TLAN',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (27,'media','ID3V2','TSRC',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (28,'media','ID3V2','GEOB',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (29,'media','ID3V2','TFLT',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (30,'media','ID3V2','TSSE',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (31,'media','ID3V2','WXXX',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (32,'media','ID3V2','TCOP',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (33,'media','ID3V2','TBPM',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (34,'media','ID3V2','TOPE',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (35,'media','ID3V2','TYER',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (36,'media','ID3V2','PCNT',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (37,'media','ID3V2','TKEY',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (38,'media','ID3V2','USER',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (39,'media','ID3V2','TDRL',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TIT3',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (41,'media','ID3V2','TOFN',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (42,'media','ID3V2','TSOA',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (43,'media','ID3V2','WOAR',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (44,'media','ID3V2','TSOT',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (62,'media','ID3V2','WCOM',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (68,'media','ID3V2','RVA2',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (69,'media','ID3V2','WOAF',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (70,'media','ID3V2','WOAS',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (90,'media','ID3V2','TDTG',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (91,'media','ID3V2','USLT',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (92,'media','ID3V2','TCMP',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TPE3',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (132,'media','ID3V2','TOAL',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (149,'media','ID3V2','TDEN',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (168,'media','ID3V2','WCOP',1);
+INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','TPE4',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (256,'media','ID3V2','TEXT',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (257,'media','ID3V2','TSST',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (258,'media','ID3V2','WORS',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (259,'media','ID3V2','WPAY',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (260,'media','ID3V2','WPUB',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (261,'media','ID3V2','LINK',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (263,'media','ID3V2','TOLY',1);
+-- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (264,'media','ID3V2','TRSN',1);
 
