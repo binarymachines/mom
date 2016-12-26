@@ -50,8 +50,8 @@ class ActionParamType(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(64))
-    context_param_name = Column(String(128))
     action_type_id = Column(ForeignKey(u'action_type.id'), nullable=False, index=True)
+    context_param_name = Column(String(128))
 
     action_type = relationship(u'ActionType')
 
@@ -76,6 +76,7 @@ class ActionType(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
+    priority = Column(Integer, nullable=False, server_default=text("'85'"))
 
     dispatch = relationship(u'ActionDispatch')
     reason_types = relationship(u'ReasonType', secondary='action_reason')
