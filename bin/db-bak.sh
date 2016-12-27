@@ -9,9 +9,9 @@ echo '----------------------------'
 echo
 
 echo "removing existing backups..."
-rm bak/db/*.sql
-rm bak/db/dump/*.sql
-rm setup/db/*.sql
+rm db/bak/*.sql
+rm db/bak/dump/*.sql
+rm db/setup/*.sql
 
 echo "copying lookup tables..."
 
@@ -45,20 +45,20 @@ echo "copying lookup tables..."
 ./bin/copy-table-data.sh media artist_amelioration
 
 echo "adding lookup tables to git."
-git add bak/db/*.sql
+git add db/bak/*.sql
 
-mysqldump --routines scratch > bak/db/scratch.sql
+mysqldump --routines scratch > db/bak/scratch.sql
 
 echo "copying setup tables..."
-./bin/copy-table-ddl.sh mildred setup/db/setup-mildred.sql
-./bin/copy-table-ddl.sh mildred_admin setup/db/setup-mildred_admin.sql
-./bin/copy-table-ddl.sh mildred_action setup/db/setup-mildred_action.sql
-./bin/copy-table-ddl.sh mildred_introspection setup/db/setup-mildred_introspection.sql
-./bin/copy-table-ddl.sh media setup/db/setup-media.sql
-./bin/copy-table-ddl.sh scratch setup/db/backup-media-no-data.sql
+./bin/copy-table-ddl.sh mildred db/setup/setup-mildred.sql
+./bin/copy-table-ddl.sh mildred_admin db/setup/setup-mildred_admin.sql
+./bin/copy-table-ddl.sh mildred_action db/setup/setup-mildred_action.sql
+./bin/copy-table-ddl.sh mildred_introspection db/setup/setup-mildred_introspection.sql
+./bin/copy-table-ddl.sh media db/setup/setup-media.sql
+./bin/copy-table-ddl.sh scratch db/setup/backup-media-no-data.sql
 
 echo "adding setup tables to git."
-git add setup/db/*.sql
+git add db/setup/*.sql
 
 echo "dumping schemas..."
 

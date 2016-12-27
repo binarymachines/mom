@@ -203,9 +203,9 @@ DROP VIEW IF EXISTS `v_action_reasons`;
 
 CREATE VIEW `v_action_reasons` AS 
     select at.name action_type, at.priority, 
-        ad.identifier dispatch_func, ad.category, ad.module, ad.class_name, ad.func_name action_dispatch_func,
+        ad.identifier action_dispatch_func, ad.category action_category, ad.module, ad.class_name, ad.func_name action_func,
         rt.name reason, rt.weight,
-        ad2.identifier conditional_dispatch_func, ad2.category reason_category, ad2.module reason_module, 
+        ad2.identifier conditional_dispatch_func, ad2.category conditional_category, ad2.module conditional_module, 
         ad2.class_name conditional_class_name, ad2.func_name conditional_func
 
     from action_type at, action_dispatch ad, action_dispatch ad2, reason_type rt, action_reason ar
