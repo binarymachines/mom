@@ -129,3 +129,29 @@ class ReasonTypeParam(Base):
     vector_param_name = Column(String(128), nullable=False)
 
     reason_type = relationship(u'ReasonType')
+
+
+t_v_action_dispach_param = Table(
+    'v_action_dispach_param', metadata,
+    Column('action_dispatch_func', String(255)),
+    Column('vector_param_name', String(128))
+)
+
+
+t_v_action_reasons = Table(
+    'v_action_reasons', metadata,
+    Column('action_type', String(255)),
+    Column('priority', Integer, server_default=text("'10'")),
+    Column('action_dispatch_func', String(128)),
+    Column('action_category', String(128)),
+    Column('module', String(128)),
+    Column('class_name', String(128)),
+    Column('action_func', String(128)),
+    Column('reason', String(255)),
+    Column('weight', Integer, server_default=text("'10'")),
+    Column('conditional_dispatch_func', String(128)),
+    Column('conditional_category', String(128)),
+    Column('conditional_module', String(128)),
+    Column('conditional_class_name', String(128)),
+    Column('conditional_func', String(128))
+)

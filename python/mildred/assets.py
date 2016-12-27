@@ -88,9 +88,8 @@ class Asset(object):
 
 
 class Document(Asset):
-    def __init__(self, absolute_path, document_type=const.DOCUMENT, esid=None):
-        super(Document, self).__init__(absolute_path, esid=esid)
-        self.document_type = const.DOCUMENT
+    def __init__(self, absolute_path, esid=None):
+        super(Document, self).__init__(absolute_path, document_type=const.DOCUMENT, esid=esid)
         self.ext = None
         self.file_name = None
         self.file_size = 0
@@ -147,9 +146,9 @@ class Document(Asset):
 
 
 class Directory(Asset):
-    def __init__(self, absolute_path, document_type=const.DIRECTORY, esid=None):
-        super(Directory, self).__init__(absolute_path, esid)
-        self.document_type = const.DIRECTORY
+    def __init__(self, absolute_path, esid=None):
+        super(Directory, self).__init__(absolute_path, document_type=const.DIRECTORY, esid=esid)
+        # self.document_type = const.DIRECTORY
         self.files = []
         self.read_files = []
 

@@ -1,6 +1,4 @@
 import logging
-import os
-import sys
 
 import const
 import alchemy
@@ -8,15 +6,16 @@ from assets import Document, Directory
 import library
 import config
 import library
+import json
 import ops
 import pathutil
 import search
 import sql
 from alchemy import ACTION, SQLAsset, get_session
 from core import introspection, log
-from core.vector import PathVector, PathVectorScanner
-from db.mysql.action import (ActionParamType, ActionType, Reason, ReasonField,
-                             ReasonType, ReasonTypeField)
+from core.vector import PathVectorScanner
+
+from db.mysql.action import ActionParamType, ActionType, Reason, ReasonType
 
 LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
@@ -49,7 +48,7 @@ class Evaluator(object):
     """The action EVALUATOR examines files and paths and proposes actions based on conditional methods contained by ReasonTypes"""
 
     def __init__(self, vector):
-        self.directory_vector_scanner = PathVectorScanner(vector, self.handle_vector_path, handle_error_func=self.handle_error)
+        self.vector_scanner = PathVectorScanner(vector, self.handle_vector_path, handle_error_func=self.handle_error)
 
     def handle_error(self, error, path):
         pass
@@ -62,18 +61,19 @@ class Evaluator(object):
         # actions = self.retrieve_types()
         reasons = retrieve_reason_types()
 
-        # files = sql.retrieve_values2('document', ['index_name', 'doc_type', 'id', 'absolute_path'], [config.es_index, const.DIRECTORY])
         files = SQLAsset.retrieve(const.DOCUMENT, path, use_like_in_where_clause=True)
 
         for file in files:
-            document = Document(file.absolute_path)
-
+            document = Document(file.absolute_path, esid=file.id)
+            document.doc = search.get_doc(const.DOCUMENT, document.esid)
+            document.data = document.to_dictionary()
+            
             for reason in reasons:
                 dispatch = reason.dispatch
                 condition = introspection.get_qualified_name(dispatch.package, dispatch.module, dispatch.func_name)
-                condition = introspection.get_func(dispatch.func_name)
+                condition_func = introspection.get_func(condition)
 
-                if condition(document):
+                if condition_func and condition_func(document):
                     new_reason = Reason()
                     new_reason.reason_type = reason
 
@@ -87,11 +87,11 @@ class Evaluator(object):
                     session.add(new_reason)
                     session.commit()
 
-        folders = sql.retrieve_values2('document', ['index_name', 'doc_type', 'id', 'absolute_path'], [config.es_index, const.DIRECTORY])
+        # folders = sql.retrieve_values2('document', ['index_name', 'doc_type', 'id', 'absolute_path'], [config.es_index, const.DIRECTORY])
         folders = SQLAsset.retrieve(const.DIRECTORY, path, use_like_in_where_clause=True)
 
         for folder in folders:
-            directory = Directory(folder.absolute_path)
+            directory = Directory(folder.absolute_path, esid=folder.id)
 
             for reason in reasons:
                 dispatch = reason.dispatch
@@ -101,9 +101,12 @@ class Evaluator(object):
                 if condition(directory):
                     new_reason = Reason()
                     new_reason.reason_type = reason
+                    # params = sql.retrieve_values2('reason_type_params', ['reason_type_id', 'id', 'vector_param_name'], [reason.id])
 
-                    # for param in reason.params
-                    # path_param = ReasonParam();
+                    # for param in params:
+                    #     new_param = ReasonParam();
+                        # new_param.param_type_id = param.id
+                        # vector_param_name = 
                     # path_param.reason = new_reason
                     # path_param.reason_type = reason
                     # path_param.
@@ -126,4 +129,4 @@ class Evaluator(object):
 
 
     def run(self):
-        self.directory_vector_scanner.scan();
+        self.vector_scanner.scan();

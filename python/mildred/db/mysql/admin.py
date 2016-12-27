@@ -11,9 +11,9 @@ metadata = Base.metadata
 class Member(Base):
     __tablename__ = 'member'
 
-    id = Column(Integer, primary_key=True)
-    org_id = Column(ForeignKey(u'org.id'), nullable=False, index=True)
+    id = Column(Integer, primary_key=True, nullable=False)
     username = Column(String(64), nullable=False)
+    org_id = Column(ForeignKey(u'org.id'), primary_key=True, nullable=False, index=True)
 
     org = relationship(u'Org')
 

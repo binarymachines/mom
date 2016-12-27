@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_type` (
   `priority` INT(3) NOT NULL DEFAULT 10,
   PRIMARY KEY (`id`),
   INDEX `fk_action_type_dispatch_idx` (`dispatch_id` ASC),
-  CONSTRAINT `fk_action_type_dispatch1`
+  CONSTRAINT `fk_action_type_dispatch`
     FOREIGN KEY (`dispatch_id`)
     REFERENCES `action_dispatch` (`id`)
     ON DELETE NO ACTION
@@ -158,7 +158,7 @@ set @FILE_TAG_MISMATCH="file.tag.mismatch";
 insert into action_dispatch (identifier, category, module, func_name) values (@RENAME_FILE_APPLY_TAGS, "action", "audio", "apply_tags_to_filename");
 insert into action_dispatch (identifier, category, module, func_name) values (@FILE_TAG_MISMATCH, "reason", "audio", "file_tags_mismatch_path");
 insert into action_type (name, priority, dispatch_id) values (@RENAME_FILE_APPLY_TAGS, 95, (select id from action_dispatch where identifier = @RENAME_FILE_APPLY_TAGS));
-insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @RENAME_FILE_APPLY_TAGS), "file.absolute.path");
+insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @RENAME_FILE_APPLY_TAGS), "active.scan.path");
 insert into reason_type (name, dispatch_id) values (@FILE_TAG_MISMATCH, (select id from action_dispatch where identifier = @FILE_TAG_MISMATCH));
 insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @RENAME_FILE_APPLY_TAGS), (select id from reason_type where name = @FILE_TAG_MISMATCH));
 
@@ -168,7 +168,7 @@ set @IS_REDUNDANT="file.is.redundant";
 insert into action_dispatch (identifier, category, module, func_name) values (@EXPUNGE_FILE, "action", "audio", "expunge");
 insert into action_dispatch (identifier, category, module, func_name) values (@IS_REDUNDANT, "reason", "audio", "file_is_redundant");
 insert into action_type (name, priority, dispatch_id) values (@EXPUNGE_FILE, 95, (select id from action_dispatch where identifier = @EXPUNGE_FILE));
-insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @EXPUNGE_FILE), "file.absolute.path");
+insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @EXPUNGE_FILE), "active.scan.path");
 insert into reason_type (name, dispatch_id) values (@IS_REDUNDANT, (select id from action_dispatch where identifier = @IS_REDUNDANT));
 insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @EXPUNGE_FILE), (select id from reason_type where name = @IS_REDUNDANT));
 
@@ -178,7 +178,7 @@ set @HAS_LOSSLESS_DUPE="file.has.lossless.duplicate";
 insert into action_dispatch (identifier, category, module, func_name) values (@DEPRECATE_FILE, "action", "audio", "deprecate");
 insert into action_dispatch (identifier, category, module, func_name) values (@HAS_LOSSLESS_DUPE, "reason", "audio", "has_lossless_dupe");
 insert into action_type (name, priority, dispatch_id) values (@DEPRECATE_FILE, 95, (select id from action_dispatch where identifier = @DEPRECATE_FILE));
-insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @DEPRECATE_FILE), "file.absolute.path");
+insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @DEPRECATE_FILE), "active.scan.path");
 insert into reason_type (name, dispatch_id) values (@HAS_LOSSLESS_DUPE, (select id from action_dispatch where identifier = @HAS_LOSSLESS_DUPE));
 insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @DEPRECATE_FILE), (select id from reason_type where name = @HAS_LOSSLESS_DUPE));
 
@@ -190,7 +190,7 @@ insert into action_dispatch (identifier, category, module, func_name) values (@M
 insert into action_dispatch (identifier, category, module, func_name) values (@HAS_CATEGORY, "reason", "audio", "has_category");
 insert into action_dispatch (identifier, category, module, func_name) values (@NOT_IN_CATEGORY, "reason", "audio", "not_in_category");
 insert into action_type (name, priority, dispatch_id) values (@MOVE_TO_CATEGORY, 35, (select id from action_dispatch where identifier = @MOVE_TO_CATEGORY));
-insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @MOVE_TO_CATEGORY), "file.absolute.path");
+insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @MOVE_TO_CATEGORY), "active.scan.path");
 insert into reason_type (name, dispatch_id) values (@HAS_CATEGORY, (select id from action_dispatch where identifier = @HAS_CATEGORY));
 insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @MOVE_TO_CATEGORY), (select id from reason_type where name = @HAS_CATEGORY));
 insert into reason_type (name, dispatch_id) values (@NOT_IN_CATEGORY, (select id from action_dispatch where identifier = @NOT_IN_CATEGORY));

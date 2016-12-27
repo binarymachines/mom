@@ -374,7 +374,8 @@ SCAN = 'vector.scan'
 class PathVectorScanner(object):
 
     def __init__(self, pathvector, handle_vector_path_func, handle_error_func=None, cache_func=None,
-                 before_func=None, after_func=None, should_cache_func=None, should_skip_func=None):
+                 before_func=None, after_func=None, should_cache_func=None, should_skip_func=None,
+                 path_expand_func=None):
 
         self.vector = pathvector
 
@@ -385,6 +386,7 @@ class PathVectorScanner(object):
         self.cache_func = cache_func
         self.should_cache_func = should_cache_func
         self.should_skip_func = should_skip_func
+        self.path_expand_func = path_expand_func
 
         self.last_expanded_path = None
 
@@ -408,6 +410,7 @@ class PathVectorScanner(object):
         if self.handle_error_func:
             self.handle_error_func(error, path)
 
+
     @dynamic_func
     def handle_vector_path(self, path):
         self.handle_vector_path_func(path)
@@ -422,24 +425,10 @@ class PathVectorScanner(object):
         if self.should_skip_func:
             return self.should_skip_func(path)
 
+    @dynamic_func
     def path_expands(self, path):
-        expanded = False
-        do_expand = False
-
-        if path in self.vector.paths:
-        #     if self.vector.get_param('all', 'expand_all'):
-            do_expand = True
-
-        if do_expand:
-            dirs = os.listdir(path)
-            dirs.sort(reverse=True)
-            for directory in dirs:
-                sub_path = os.path.join(path, directory)
-                if os.path.isdir(path) and os.access(path, os.R_OK):
-                    self.vector.push_fifo(SCAN, sub_path)
-                    expanded = True
-
-        return expanded
+        if self.path_expand_func:
+            return self.path_expand_func(path)
 
     # TODO: individual paths in the directory vector should have their own scan configuration
 
@@ -451,32 +440,24 @@ class PathVectorScanner(object):
         while self.vector.has_next(SCAN, use_fifo=True):
             path = path if path_restored else self.vector.get_next(SCAN, True)
             path_restored = False
+
             self.vector.set_param(PERSIST, ACTIVE, path)
 
             try:
-                if path is None or os.path.isfile(path):
+                if path is None or self.should_skip(path):
                     continue
 
-                if os.path.isdir(path) and os.access(path, os.R_OK):
-                    if self.should_cache(path):
-                        self.cache(path)
+                if self.should_cache(path):
+                    self.cache(path)
 
-                    if self.path_expands(path):
-                        # self.vector.clear_active(SCAN)
-                        self.last_expanded_path = path
-                        continue
+                if self.path_expands(path):
+                    # self.vector.clear_active(SCAN)
+                    self.last_expanded_path = path
+                    continue
 
-                    if self.should_skip(path):
-                        continue
-
-                    self.before(path)
-                    self.handle_vector_path(path)
-                    self.after(path)
-
-                elif not os.access(path, os.R_OK):
-                    #TODO: parrot behavior for IOError as seen in read.py
-                    ERR.warning("%s isn't currently available." % (path))
-                    print "%s isn't currently available." % (path)
+                self.before(path)
+                self.handle_vector_path(path)
+                self.after(path)
 
             except Exception, err:
                 self.handle_error(err, path)

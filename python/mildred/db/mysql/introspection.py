@@ -157,11 +157,20 @@ class OpRecordParam(Base):
     __tablename__ = 'op_record_param'
 
     id = Column(Integer, primary_key=True)
+    param_type_id = Column(ForeignKey(u'op_record_param_type.id'), nullable=False, index=True)
     op_record_id = Column(ForeignKey(u'op_record.id'), nullable=False, index=True)
     name = Column(String(128), nullable=False)
     value = Column(String(1024), nullable=False)
 
     op_record = relationship(u'OpRecord')
+    param_type = relationship(u'OpRecordParamType')
+
+
+class OpRecordParamType(Base):
+    __tablename__ = 'op_record_param_type'
+
+    id = Column(Integer, primary_key=True)
+    vector_param_name = Column(String(128), nullable=False)
 
 
 class State(Base):
