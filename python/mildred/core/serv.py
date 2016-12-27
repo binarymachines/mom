@@ -18,9 +18,9 @@ class ServiceProcess(object):
 
 class SingleSelectorServiceProcess(ServiceProcess):
 
-    def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None, restart_on_fail=False, threaded=False):
+    def __init__(self, name, vector, owner=None, stop_on_errors=True, before=None, after=None, restart_on_fail=False, threaded=False):
         super(SingleSelectorServiceProcess, self).__init__(name, owner=owner)
-        self.context = context
+        self.vector = vector
         self.threaded = threaded
 
         self.before = before

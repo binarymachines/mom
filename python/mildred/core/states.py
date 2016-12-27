@@ -18,7 +18,7 @@ class State(object):
         if self.action:
             self.action()
 
-class StateContext(object):
+class StateVector(object):
     def __init__(self, state):
         self.state = state
 

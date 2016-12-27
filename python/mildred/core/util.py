@@ -82,7 +82,7 @@ def get_kivy_directory():
 
         return kivydir
 
-# TODO:	use start mode to store working directories in the context         
+# TODO:	use start mode to store working directories in the vector         
 def get_working_directory():
     if var.workdir is None:
         coredir = os.path.abspath(os.path.join(__file__, os.pardir))

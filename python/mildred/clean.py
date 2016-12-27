@@ -8,14 +8,14 @@ from core import log
 LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
-def clean(context):
-    clear_dupes_from_es(context)
+def clean(vector):
+    clear_dupes_from_es(vector)
 
-def clear_dupes_from_es(context):
-    while context.has_next(CLEAN, True):
+def clear_dupes_from_es(vector):
+    while vector.has_next(CLEAN, True):
         try:
             ops.check_status()
-            path = context.get_next(CLEAN, True)
+            path = vector.get_next(CLEAN, True)
             rows = sql.retrieve_like_values('document', ['absolute_path', 'doc_type', 'hexadecimal_key'], [path]) 
             for row in rows: 
                 ops.check_status()

@@ -79,7 +79,7 @@ class FileHandler(object):
 
 
 # class Archive(FileHandler)
-#     decompress files into temp  and push content into path context. Deference file paths and substitute archive path/name for temp location
+#     decompress files into temp  and push content into path vector. Deference file paths and substitute archive path/name for temp location
 
 
 # class ImageHandler(FileHandler):

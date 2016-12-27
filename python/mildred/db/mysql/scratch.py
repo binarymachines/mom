@@ -8,8 +8,8 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class Context(Base):
-    __tablename__ = 'context'
+class Vector(Base):
+    __tablename__ = 'vector'
 
     id = Column(Integer, primary_key=True)
     pid = Column(Integer, nullable=False)
@@ -40,11 +40,11 @@ class ParamValue(Base):
     __tablename__ = 'param_value'
 
     id = Column(Integer, primary_key=True)
-    context_id = Column(ForeignKey(u'context.id'), nullable=False, index=True)
+    vector_id = Column(ForeignKey(u'vector.id'), nullable=False, index=True)
     param_id = Column(ForeignKey(u'param.id'), nullable=False, index=True)
     parent_id = Column(Integer)
 
-    context = relationship(u'Context')
+    vector = relationship(u'Vector')
     param = relationship(u'Param')
 
 

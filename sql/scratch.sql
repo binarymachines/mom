@@ -16,9 +16,9 @@ DROP TABLE IF EXISTS `value_int_3`;
 DROP TABLE IF EXISTS `value_boolean`;
 DROP TABLE IF EXISTS `value_varchar_128`;
 DROP TABLE IF EXISTS `value_varchar_1024`;
-DROP TABLE IF EXISTS `context`;
+DROP TABLE IF EXISTS `vector`;
 
-CREATE TABLE `context` (
+CREATE TABLE `vector` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `pid` int(11) unsigned NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
@@ -59,11 +59,11 @@ CREATE TABLE `param` (
 
 CREATE TABLE `param_value` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `context_id` int(11) unsigned NOT NULL,
+  `vector_id` int(11) unsigned NOT NULL,
   `param_id` int(11) unsigned NOT NULL,
   `parent_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_param_value_context` FOREIGN KEY (`context_id`) REFERENCES `context` (`id`),
+  CONSTRAINT `fk_param_value_vector` FOREIGN KEY (`vector_id`) REFERENCES `vector` (`id`),
   CONSTRAINT `fk_param_value_param` FOREIGN KEY (`param_id`) REFERENCES `param` (`id`)
 ) ;
 

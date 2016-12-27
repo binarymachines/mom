@@ -3,9 +3,9 @@ import datetime
 
 class Directive:
 
-    def __init__(self, name, context, requirements=None, frequency=None):
+    def __init__(self, name, vector, requirements=None, frequency=None):
         self.name = name
-        self.context = context
+        self.vector = vector
         self.requirements = requirements if requirements is not None else []
         self.frequency = frequency
         self.last_applied = None

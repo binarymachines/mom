@@ -3,7 +3,7 @@ import logging
 
 import asset, search, sql, library, ops, config
 
-from core.context import DirectoryContext, DirectoryContextScanner
+from core.vector import PathVector, PathVectorScanner
 import alchemy, pathutil
 from alchemy import ACTION, get_session, SQLAsset
 from db.mysql.action import ActionType, ActionParamType, ReasonType, ReasonTypeField, Reason, ReasonField
@@ -17,10 +17,10 @@ ERR = log.get_log('errors', logging.WARNING)
 EVALUATOR = 'EVALUATOR'
 
 
-def eval(context):
-    if EVALUATOR not in context.data:
-        context.data[EVALUATOR] = Evaluator(context)
-    context.data[EVALUATOR].run()
+def eval(vector):
+    if EVALUATOR not in vector.data:
+        vector.data[EVALUATOR] = Evaluator(vector)
+    vector.data[EVALUATOR].run()
 
 def retrieve_action_types():
     """retrieve all action types"""
@@ -41,14 +41,14 @@ def retrieve_reason_types():
 class Evaluator(object):
     """The action EVALUATOR examines files and paths and proposes actions based on conditional methods contained by ReasonTypes"""
 
-    def __init__(self, context):
-        self.directory_context_scanner = DirectoryContextScanner(context, pathutil.get_locations(), self.handle_context_path, \
+    def __init__(self, vector):
+        self.directory_vector_scanner = PathVectorScanner(vector, pathutil.get_locations(), self.handle_vector_path, \
         handle_error_func=self.handle_error)
 
     def handle_error(self, error, path):
         pass
 
-    def handle_context_path(self, path):
+    def handle_vector_path(self, path):
         self.generate_reasons(path)
 
     
@@ -91,4 +91,4 @@ class Evaluator(object):
 
 
     def run(self):
-        self.directory_context_scanner.scan();
+        self.directory_vector_scanner.scan();

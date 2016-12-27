@@ -2,7 +2,7 @@
 import datetime
 import logging
 
-from decorators import dynamic_func
+from introspection import dynamic_func
 
 import log
 from spec import Specification

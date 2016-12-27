@@ -19,7 +19,7 @@ import ops
 import pathutil
 import start
 
-from core.context import DirectoryContext, CachedDirectoryContext
+from core.vector import PathVector, CachedPathVector
 from core.serv import Service
 from core import util
 
@@ -50,12 +50,12 @@ def launch(args, run=True):
                 path_args = start.get_paths(args)
                 paths = pathutil.get_locations() if path_args == [] else path_args
 
-                context = CachedDirectoryContext('path context', paths)
-                context.peep_fifo = True
+                vector = CachedPathVector('path vector', paths)
+                vector.peep_fifo = True
                 if args['--expand-all']:
-                    context.set_param('all', 'expand_all', True)
+                    vector.set_param('all', 'expand_all', True)
 
-                process = create_func('service process', context, service, before=before, after=after)    
+                process = create_func('service process', vector, service, before=before, after=after)    
                 service.queue([process])
                 # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
                 service.handle_processes()

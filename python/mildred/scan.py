@@ -21,7 +21,7 @@ import search
 from const import SCANNER, SCAN, HSCAN, READ, USCAN, DEEP
 from core import cache2
 from core import log
-from core.context import Context
+from core.vector import Vector
 from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
@@ -34,13 +34,13 @@ ACTIVE = 'active.scan.path'
 
 
 class Scanner(Walker):
-    def __init__(self, context):
+    def __init__(self, vector):
         super(Scanner, self).__init__()
-        self.context = context
+        self.vector = vector
         self.document_type = const.DOCUMENT
-        self.deep_scan = config.deep or self.context.get_param(SCAN, DEEP)
-        self.high_scan = self.context.get_param(SCAN, HSCAN)
-        self.update_scan = self.context.get_param(SCAN, USCAN)
+        self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
+        self.high_scan = self.vector.get_param(SCAN, HSCAN)
+        self.update_scan = self.vector.get_param(SCAN, USCAN)
         
         self.reader = Reader()
         
@@ -72,18 +72,18 @@ class Scanner(Walker):
                 except ElasticDataIntegrityException, err:
                     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                     library.handle_asset_exception(err, root)
-                    self.context.rpush_fifo(SCAN, root)
+                    self.vector.rpush_fifo(SCAN, root)
                     
                 # # except TransportError:
                 # except Exception, err:
                 #     # attempts += 1
                 #     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                #     # self.context.push_fifo(SCAN, root)
+                #     # self.vector.push_fifo(SCAN, root)
                 #     # ops.invalid
                 #     raise err
         
         elif os.access(root, os.R_OK) == False:
-            # self.context.push_fifo(SCAN, root)
+            # self.vector.push_fifo(SCAN, root)
             # raise Exception("%s isn't currently available." % (root))
             if root is not None:
                 print "%s isn't currently available." % (root)
@@ -145,8 +145,8 @@ class Scanner(Walker):
         if path in pathutil.get_locations():
             do_expand = True
         
-        if path in self.context.paths:
-            if self.context.get_param('all', 'expand_all'):
+        if path in self.vector.paths:
+            if self.vector.get_param('all', 'expand_all'):
                 do_expand = True
         
         if do_expand:
@@ -156,14 +156,14 @@ class Scanner(Walker):
             for dir in dirs:
                 sub_path = os.path.join(path, dir)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
-                    self.context.push_fifo(SCAN, sub_path)
+                    self.vector.push_fifo(SCAN, sub_path)
                     expanded = True
 
         return expanded
 
 
     def _pre_scan(self, path):
-        self.context.set_param(PERSIST, ACTIVE, path)
+        self.vector.set_param(PERSIST, ACTIVE, path)
 
         LOG.debug('caching data for %s...' % path)
         library.cache_docs(const.DOCUMENT, path)
@@ -194,11 +194,11 @@ class Scanner(Walker):
 
         library.clear_docs(const.DOCUMENT, path)
 
-        self.context.set_param(PERSIST, ACTIVE, None)
+        self.vector.set_param(PERSIST, ACTIVE, None)
     
     
     def scan_should_skip(self, path):
-        # update context params based on path
+        # update vector params based on path
         if self.high_scan and ops.operation_in_cache(path, HSCAN, SCANNER):
             LOG.debug('skipping %s...' % path)
             ops.update_listeners('skipping high level scan', SCANNER, path)
@@ -209,22 +209,22 @@ class Scanner(Walker):
             ops.update_listeners('skipping scan', SCANNER, path)
             return True
 
-    # TODO: individual paths in the directory context should have their own scan configuration
+    # TODO: individual paths in the directory vector should have their own scan configuration
     def scan(self):
-        self.deep_scan = config.deep or self.context.get_param(SCAN, DEEP)
-        self.high_scan = self.context.get_param(SCAN, HSCAN)
-        self.update_scan = self.context.get_param(SCAN, USCAN)
+        self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
+        self.high_scan = self.vector.get_param(SCAN, HSCAN)
+        self.update_scan = self.vector.get_param(SCAN, USCAN)
 
-        path = self.context.get_param(PERSIST, ACTIVE)
+        path = self.vector.get_param(PERSIST, ACTIVE)
         path_restored = path is not None
         last_expanded_path = None
 
-        while self.context.has_next(SCAN, use_fifo=True):
+        while self.vector.has_next(SCAN, use_fifo=True):
             ops.check_status()            
             
-            path = path if path_restored else self.context.get_next(SCAN, True)           
+            path = path if path_restored else self.vector.get_next(SCAN, True)           
             path_restored = False
-            self.context.set_param(PERSIST, ACTIVE, path)
+            self.vector.set_param(PERSIST, ACTIVE, path)
 
             if path is None or os.path.isfile(path): 
                 continue
@@ -232,7 +232,7 @@ class Scanner(Walker):
             ops.update_listeners('evaluating', SCANNER, path)
 
             if os.path.isdir(path) and os.access(path, os.R_OK):
-                # if self.high_scan and self.context.path_in_fifo(path, SCAN) == False:
+                # if self.high_scan and self.vector.path_in_fifo(path, SCAN) == False:
 
                 should_cache = last_expanded_path is None
                 if self.high_scan:
@@ -244,11 +244,11 @@ class Scanner(Walker):
                     if should_cache:
                         ops.cache_ops(path, HSCAN, SCANNER)
 
-                # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
+                # if self.deep_scan or self.path_has_handlers(path) or self.vector.path_in_fifos(path, SCAN):
                 if self.path_expands(path):
                     LOG.debug('expanded %s...' % path)
                     ops.update_listeners('expanded', SCANNER, path)
-                    # self.context.clear_active(SCAN)
+                    # self.vector.clear_active(SCAN)
                     last_expanded_path = path
                     continue
 
@@ -279,7 +279,7 @@ class Scanner(Walker):
                 print("%s isn't currently available." % (path))
 
 
-def scan(context):
-    if SCANNER not in context.data:
-        context.data[SCANNER] = Scanner(context)
-    context.data[SCANNER].scan()
+def scan(vector):
+    if SCANNER not in vector.data:
+        vector.data[SCANNER] = Scanner(vector)
+    vector.data[SCANNER].scan()

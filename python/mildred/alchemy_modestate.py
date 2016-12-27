@@ -31,7 +31,7 @@ class AlchemyModeStateReader(ModeStateReader):
 
 
     # NOTE: the requirement is a little more subtle than the data model seems to be at the moment, as it refers to completion for the mode *in the restored state*                    
-    def restore(self, mode, context):
+    def restore(self, mode, vector):
         LOG.info('restoring [%s] mode from data' % (mode.name))
 
         mode_state = SQLModeState.retrieve_previous(mode)
@@ -46,7 +46,7 @@ class AlchemyModeStateReader(ModeStateReader):
                 if state.id == mode_state.state_id:
                     LOG.info('setting state of [%s] mode to [%s]' % (mode.name, state.name))
                     mode.set_state(state)
-                    mode.initialize_context_params(context)
+                    mode.initialize_vector_params(vector)
                     mode.set_restored(True)
                     # mode.action_complete = mode_state.last_completed is not None
                     break
@@ -70,7 +70,7 @@ class AlchemyModeStateReader(ModeStateReader):
                     elif str(value).lower() == 'false':
                         value = False
         
-                    LOG.info('adding context param [%s] to state [%s]' % (param.name, state.name))
+                    LOG.info('adding vector param [%s] to state [%s]' % (param.name, state.name))
                     state.add_param(param.name, value)
 
                 mode.add_state(state)

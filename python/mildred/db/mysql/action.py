@@ -49,7 +49,7 @@ class ActionParamType(Base):
     __tablename__ = 'action_param_type'
 
     id = Column(Integer, primary_key=True)
-    context_param_name = Column(String(128), nullable=False)
+    vector_param_name = Column(String(128), nullable=False)
     action_type_id = Column(ForeignKey(u'action_type.id'), nullable=False, index=True)
 
     action_type = relationship(u'ActionType')
@@ -122,6 +122,6 @@ class ReasonTypeParam(Base):
 
     id = Column(Integer, primary_key=True)
     reason_type_id = Column(ForeignKey(u'reason_type.id'), index=True)
-    context_param_name = Column(String(128), nullable=False)
+    vector_param_name = Column(String(128), nullable=False)
 
     reason_type = relationship(u'ReasonType')

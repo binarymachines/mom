@@ -28,12 +28,12 @@ LOG = log.get_log(__name__, logging.DEBUG)
 
 
 class DocumentServiceProcess(SingleSelectorServiceProcess):
-    def __init__(self, name, context, owner=None, stop_on_errors=True, before=None, after=None):
+    def __init__(self, name, vector, owner=None, stop_on_errors=True, before=None, after=None):
         self.handlers = {'.'.join([__name__, self.__class__.__name__]): self}
         self.modes = {}
 
         # super().__init__() must be called before accessing selector instance
-        super(DocumentServiceProcess, self).__init__(name, context, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
+        super(DocumentServiceProcess, self).__init__(name, vector, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
 
     # selector callbacks
@@ -62,7 +62,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
                 print "%s not found." % qname
                 return
 
-            self.handlers[qname] = clazz(self, self.context)
+            self.handlers[qname] = clazz(self, self.vector)
 
 
     def _build_instance_registry(self):
@@ -128,7 +128,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
                             condition = self._create_func(transition.condition_package, transition.condition_module, transition.condition_class, transition.condition_func)                            
                             self.state_change_handler.add_transition(result.get_state(transition.begin_state), result.get_state(transition.end_state), condition)
                     
-                    self.mode_state_reader.restore(result, self.context)
+                    self.mode_state_reader.restore(result, self.vector)
 
                 else:
                     result = Mode(moderec.mode_name, id=moderec.mode_id, effect=effect, priority=moderec.priority, dec_priority_amount=moderec.dec_priority_amount, \
@@ -159,7 +159,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
     def setup(self):
         self.selector.remove_at_error_tolerance = True
 
-        self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.context)
+        self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.vector)
         self.handlers['.'.join([__name__, self.process_handler.__class__.__name__])] = self.process_handler
 
         self.state_change_handler = ModeStateChangeHandler()
@@ -180,11 +180,11 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         self._create_switch_rules()
 
 
-def create_service_process(identifier, context, owner=None, before=None, after=None, alternative=None):
+def create_service_process(identifier, vector, owner=None, before=None, after=None, alternative=None):
     if alternative is None:
-        return DocumentServiceProcess(identifier, context, owner=owner, before=before, after=after)
+        return DocumentServiceProcess(identifier, vector, owner=owner, before=before, after=after)
 
-    return alternative(identifier, context)
+    return alternative(identifier, vector)
 
 
 class DecisionHandler(object):
@@ -203,9 +203,9 @@ class DecisionHandler(object):
 
 
 class DocumentServiceProcessHandler(DecisionHandler):
-    def __init__(self, owner, name, selector, context):
+    def __init__(self, owner, name, selector, vector):
         super(DocumentServiceProcessHandler, self).__init__()
-        self.context = context
+        self.vector = vector
         self.owner = owner
         self.name = name
         self.selector = selector
@@ -246,7 +246,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
         if initial_and_update_scan_complete:
             if possible is self.owner.matchmode:
-                if self.context.has_next(MATCH):
+                if self.vector.has_next(MATCH):
                     return config.match
 
         return initial_and_update_scan_complete
@@ -255,8 +255,8 @@ class DocumentServiceProcessHandler(DecisionHandler):
 #startup mode
 
 class StartupHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(StartupHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(StartupHandler, self).__init__(owner, vector)
 
     def started(self):
         if self.owner:
@@ -278,8 +278,8 @@ class StartupHandler(DefaultModeHandler):
 # shutdown mode
 
 class ShutdownHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(ShutdownHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(ShutdownHandler, self).__init__(owner, vector)
 
     def ended(self):
         if self.owner:
@@ -298,8 +298,8 @@ class ShutdownHandler(DefaultModeHandler):
 # cleaning mode
 
 class CleaningModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(CleaningModeHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(CleaningModeHandler, self).__init__(owner, vector)
 
     def after_clean(self):
         LOG.debug('%s done cleanining' % self.owner.name)
@@ -318,8 +318,8 @@ class CleaningModeHandler(DefaultModeHandler):
 # eval mode
 
 class EvalModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(EvalModeHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(EvalModeHandler, self).__init__(owner, vector)
 
     def can_eval(self, selector, active, possible):
         return True
@@ -327,20 +327,20 @@ class EvalModeHandler(DefaultModeHandler):
     def do_eval(self):
         print  "entering evaluation mode..."
         LOG.debug('%s evaluating' % self.owner.name)
-        eval.eval(self.context)
+        eval.eval(self.vector)
         time.sleep(1)
 
 
 # fix mode
 
 class FixModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(FixModeHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(FixModeHandler, self).__init__(owner, vector)
 
     def after_fix(self): 
         LOG.debug('%s done fixing' % self.owner.name)
         # self.owner.scanmode.reset_state()
-        # self.context.
+        # self.vector.
 
     def before_fix(self): 
         LOG.debug('%s preparing to fix'  % self.owner.name)
@@ -354,8 +354,8 @@ class FixModeHandler(DefaultModeHandler):
 # match mode
 
 class MatchModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(MatchModeHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(MatchModeHandler, self).__init__(owner, vector)
 
 
     def before_match(self):
@@ -374,8 +374,8 @@ class MatchModeHandler(DefaultModeHandler):
 # report mode
 
 class ReportModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(ReportModeHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(ReportModeHandler, self).__init__(owner, vector)
 
     def do_report(self):
         print  "reporting..."
@@ -389,8 +389,8 @@ class ReportModeHandler(DefaultModeHandler):
 #requests mode
 
 class RequestsModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(RequestsModeHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(RequestsModeHandler, self).__init__(owner, vector)
 
     def do_reqs(self):
         print  "handling requests..."
@@ -401,8 +401,8 @@ class RequestsModeHandler(DefaultModeHandler):
 # scan mode
 
 class ScanModeHandler(DefaultModeHandler):
-    def __init__(self, owner, context):
-        super(ScanModeHandler, self).__init__(owner, context)
+    def __init__(self, owner, vector):
+        super(ScanModeHandler, self).__init__(owner, vector)
         self.scan_complete = False
 
     def before_scan(self):
@@ -410,24 +410,24 @@ class ScanModeHandler(DefaultModeHandler):
             self.owner.scanmode.set_restored(False)
 
         self.owner.scanmode.save_state()
-        self.owner.scanmode.initialize_context_params(self.context)
-        params = self.context.get_params(SCAN)
+        self.owner.scanmode.initialize_vector_params(self.vector)
+        params = self.vector.get_params(SCAN)
         for key in params:
             value = str(params[key])
-            print '[%s = %s parameter found in context]' % (key.replace('.', ' '), value)
+            print '[%s = %s parameter found in vector]' % (key.replace('.', ' '), value)
 
 
     def after_scan(self):
         self.scan_complete = self.owner.scanmode.get_state() is self.owner.scanmode.get_state(SCAN_MONITOR)
         self.owner.scanmode.expire_state()
-        self.context.reset(SCAN, use_fifo=True)
-        self.context.set_param('scan.persist', 'active.scan.path', None)
-        self.owner.scanmode.go_next(self.context)
+        self.vector.reset(SCAN, use_fifo=True)
+        self.vector.set_param('scan.persist', 'active.scan.path', None)
+        self.owner.scanmode.go_next(self.vector)
 
 
     def can_scan(self, selector, active, possible):
         ops.check_status()
-        if self.context.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.context):
+        if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.vector):
             return self.scan_complete == False and config.scan
 
 

@@ -19,8 +19,8 @@ import search
 import sql
 from core import log
 from core import cache2
-from core.context import Context, DirectoryContext, CachedDirectoryContext
-from core.states import State, StateContext
+from core.vector import Vector, PathVector, CachedPathVector
+from core.states import State, StateVector
 
 from errors import AssetException
 from match import ElasticSearchMatcher
@@ -50,7 +50,7 @@ def cache_match_ops(matchers, path):
 
 
 # use paths expanded by scan ops to segment dataset for matching operations
-def path_expands(path, context):
+def path_expands(path, vector):
     expanded = []
 
     op_records = SQLOperationRecord.retrieve(path, HSCAN)
@@ -60,12 +60,12 @@ def path_expands(path, context):
 
     for ex_path in expanded:
         # TODO: count(expath pathsep) == count (path pathsep) + 1
-        context.push_fifo(MATCH, ex_path)
+        vector.push_fifo(MATCH, ex_path)
 
     return len(expanded) > 0
 
 
-def calc(context, cycle_context=False):
+def calc(vector, cycle_vector=False):
 
     # sql.execute_query("delete from matched where 1=1")
     # sql.execute_query("delete from op_record where operation_name = 'calc'")
@@ -76,16 +76,16 @@ def calc(context, cycle_context=False):
     matchers = get_matchers()
     opcount = 0
 
-    while context.has_next(MATCH, use_fifo=True):
+    while vector.has_next(MATCH, use_fifo=True):
         ops.check_status()
-        location = context.get_next(MATCH, use_fifo=True)
+        location = vector.get_next(MATCH, use_fifo=True)
         
         if location is None: continue
 
         # this should never be true, but a test
         if location[-1] != os.path.sep: location += os.path.sep
 
-        if path_expands(location, context): 
+        if path_expands(location, vector): 
             continue
 
         LOG.debug('calc: matching files in %s' % (location))
@@ -181,8 +181,8 @@ def main(args):
     cache2.redis = redis.Redis('localhost')
     log.start_logging()
     paths = None if not args['--path'] else args['<path>']
-    context = DirectoryContext('_path_context_', paths)
-    calc(context)
+    vector = PathVector('_path_vector_', paths)
+    calc(vector)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ import logging
 from errors import BaseClassException, ModeConfigException
 
 from modes import Mode
-from decorators import dynamic_func
+from introspection import dynamic_func
 from states import State
 from spec import Specification
 
@@ -39,18 +39,18 @@ class StatefulMode(Mode):
         self.initialize()
 
 
-    def can_go_next(self, context):
+    def can_go_next(self, vector):
         result = False
         if self._state_change_handler:
-            result = self._state_change_handler.can_go_next(self, context)
+            result = self._state_change_handler.can_go_next(self, vector)
         LOG.info('[%s] => can_go_next() returning %s' % (self.name, str(result)))
         return result
 
 
-    def go_next(self, context):
+    def go_next(self, vector):
         if self._state_change_handler:
             LOG.info('[%s] => go_next()' % (self.name))
-            return self._state_change_handler.go_next(self, context)
+            return self._state_change_handler.go_next(self, vector)
 
 
     def initialize(self):
@@ -59,12 +59,12 @@ class StatefulMode(Mode):
             self._reader.initialize_mode(self)
 
 
-    def initialize_context_params(self, context):
-        LOG.info('initializing context params')
-        context.clear_params(self.name)
-        context.set_param(self.name, 'state', self.get_state().name)
+    def initialize_vector_params(self, vector):
+        LOG.info('initializing vector params')
+        vector.clear_params(self.name)
+        vector.set_param(self.name, 'state', self.get_state().name)
         for param in self.get_state().params:
-            context.set_param(self.name, param[0], param[1])
+            vector.set_param(self.name, param[0], param[1])
 
 
     def in_state(self, state):
@@ -170,7 +170,7 @@ class ModeStateReader(object):
         raise BaseClassException(ModeStateReader)
 
 
-    def restore(self, mode, context):
+    def restore(self, mode, vector):
         raise BaseClassException(ModeStateReader)
 
 
@@ -218,8 +218,8 @@ class ModeStateChangeHandler(object):
         return self
 
 
-    def can_go_next(self, mode, context):
-        active_state_name = context.get_param(mode.name, 'state')
+    def can_go_next(self, mode, vector):
+        active_state_name = vector.get_param(mode.name, 'state')
         if active_state_name is None:
             return len(mode.get_states()) > 0
 
@@ -230,11 +230,11 @@ class ModeStateChangeHandler(object):
  
 
     @dynamic_func
-    def go_next(self, mode, context):
+    def go_next(self, mode, vector):
 
         LOG.info('%s => go_next()' % ("None" if mode is None else mode.name))
 
-        # context.clear_params(mode.name)
+        # vector.clear_params(mode.name)
         active_state = mode.get_state()
 
         if active_state is None:
@@ -242,14 +242,14 @@ class ModeStateChangeHandler(object):
                 for state in mode.get_states():
                     if state.is_initial_state:
                         mode.set_state(state)
-                        mode.initialize_context_params(context)
+                        mode.initialize_vector_params(vector)
 
                         return state
 
             raise ModeConfigException('No initial state for %s found.' % mode.name)
 
         if mode.just_restored():
-            mode.initialize_context_params(context)
+            mode.initialize_vector_params(vector)
             mode.set_restored(False)
 
             return mode.get_state()
@@ -258,15 +258,15 @@ class ModeStateChangeHandler(object):
             if rule.start == active_state:
                 if rule.condition():
                     mode.set_state(rule.end)
-                    mode.initialize_context_params(context)
+                    mode.initialize_vector_params(vector)
 
                     return rule.end
 
 
 class DefaultModeHandler(object):
-    def __init__(self, owner, context):
+    def __init__(self, owner, vector):
         self.owner = owner
-        self.context = context
+        self.vector = vector
 
 
 # TODO: eliminate config methods from StatefulMode and initialize from ModeStateSpecification

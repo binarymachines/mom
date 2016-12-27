@@ -35,7 +35,7 @@ CREATE TABLE `action_status` (
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param_type` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `context_param_name` VARCHAR(128) NOT NULL,
+  `vector_param_name` VARCHAR(128) NOT NULL,
   `action_type_id` INT(11) UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_action_param_type_action_type1_idx` (`action_type_id` ASC),
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_reason` (
 CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type_param` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
     `reason_type_id` int(11) unsigned,
-    `context_param_name` VARCHAR(128) NOT NULL,
+    `vector_param_name` VARCHAR(128) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`reason_type_id`)
         REFERENCES `reason_type` (`id`)
@@ -150,7 +150,7 @@ insert into action_status (name) values ("proposed"), ("accepted"), ("pending"),
 
 -- insert into action_type (name) values ("move"), ("delete"), ("scan"), ("match"), ("retag"), ("consolidate");
 insert into action_type (name, priority) values ("rename.file.apply.tags", 95);
-insert into action_param_type(action_type_id, context_param_name) values ((select id from action_type where name = "rename.file.apply.tags"), "file.absolute.path");
+insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = "rename.file.apply.tags"), "file.absolute.path");
 insert into reason_type (name) values ("file.tag.mismatch");
 insert into action_reason(action_type_id, reason_type_id) values ((select id from action_type where name = "rename.file.apply.tags"), (select id from reason_type where name = "file.tag.mismatch"))
 -- insert into reason_type(action_type_id, name) values ((select id from action_type where name = "file_remove"), "duplicate.exists");
