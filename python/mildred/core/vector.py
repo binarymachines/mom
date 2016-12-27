@@ -35,7 +35,7 @@ class Vector(object):
     # cache
 
     def restore_from_cache(self):
-        # vector should be able to save and restore whatever portion of its data is not contained in object instances
+        #NOTE vector should be able to save and restore whatever portion of its data is not contained in object instances
         pass
 
     def save_to_cache(self):
@@ -84,7 +84,6 @@ class Vector(object):
             self.stacks[consumer] = []
         self.stacks[consumer].append(value)
 
-
     # params
 
     def get_param(self, consumer, param):
@@ -104,11 +103,9 @@ class Vector(object):
             self.params[consumer] = {}
         self.params[consumer][param] = value
 
-
     def clear_params(self, consumer):
         if consumer in self.params:
             del self.params[consumer]
-
 
     def reset(self, consumer):
         self.clear_fifo(consumer)
@@ -191,7 +188,8 @@ class PathVector(Vector):
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:
             return self.peek_fifo(consumer)
 
-        if len(self.paths) == 0: return None
+        if len(self.paths) == 0:
+            return None
 
         if consumer in self.consumer_paths:
             index = self.paths.index(self.consumer_paths[consumer]) + 1
@@ -206,12 +204,12 @@ class PathVector(Vector):
             del self.consumer_paths[consumer]
 
 
-CDC = 'CachedPathVector'
+CACHED_PATH_VECTOR = 'CachedPathVector'
 
 class CachedPathVector(PathVector):
     def __init__(self, name, paths, cycle=False):
         super(CachedPathVector, self).__init__(name, paths, cycle)
-        self.consumer_key = cache2.create_key(CDC, 'consumers')
+        self.consumer_key = cache2.create_key(CACHED_PATH_VECTOR, 'consumers')
 
     # def clear(self):
     #     super(CachedPathVector, self).clear()
@@ -223,46 +221,46 @@ class CachedPathVector(PathVector):
             self.pop_fifo(consumer)
 
     def peek_fifo(self, consumer):
-        key = cache2.get_key(CDC, consumer)
+        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
         value = cache2.lpeek2(key)
         if value == 'None':
             return None
         return value
 
     def pop_fifo(self, consumer):
-        key = cache2.get_key(CDC, consumer)
+        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
         value = cache2.lpop2(key)
         if value == 'None':
             return None
         return value
 
     def push_fifo(self, consumer, value):
-        key = cache2.get_key(CDC, consumer)
+        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
         cache2.lpush(key, value)
 
     def rpush_fifo(self, consumer, value):
-        key = cache2.get_key(CDC, consumer)
+        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
         cache2.rpush(key, value)
 
     # Params
 
     def clear_params(self, consumer):
-        key = cache2.get_key(CDC, consumer)
+        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
         cache2.delete_hash2(key)
 
     def get_param(self, consumer, param):
-        key = cache2.get_key(CDC, consumer)
+        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
         values = cache2.get_hash2(key)
         if param in values:
             return values[param]
 
     def get_params(self, consumer):
-        key = cache2.get_key(CDC, consumer)
+        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
         values = cache2.get_hash2(key)
         return values
 
     def set_param(self, consumer, param, value):
-        key = cache2.get_key(CDC, consumer)
+        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
         values = cache2.get_hash2(key)
         values[param] = value
         cache2.set_hash2(key, values)
@@ -375,10 +373,10 @@ SCAN = 'vector.scan'
 
 class PathVectorScanner(object):
 
-    def __init__(self, directoryvector, handle_vector_path_func, handle_error_func=None, cache_func=None,
+    def __init__(self, pathvector, handle_vector_path_func, handle_error_func=None, cache_func=None,
                  before_func=None, after_func=None, should_cache_func=None, should_skip_func=None):
 
-        self.vector = directoryvector
+        self.vector = pathvector
 
         self.handle_vector_path_func = handle_vector_path_func
         self.handle_error_func = handle_error_func
@@ -429,12 +427,9 @@ class PathVectorScanner(object):
         do_expand = False
 
         if path in self.vector.paths:
-            do_expand = True
-        
-        # if path in self.vector.paths:
         #     if self.vector.get_param('all', 'expand_all'):
-        #         do_expand = True
-        
+            do_expand = True
+
         if do_expand:
             dirs = os.listdir(path)
             dirs.sort(reverse=True)
