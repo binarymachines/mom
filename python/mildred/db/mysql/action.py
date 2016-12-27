@@ -39,7 +39,7 @@ class ActionParam(Base):
     id = Column(Integer, primary_key=True)
     action_id = Column(ForeignKey(u'action.id'), index=True)
     action_param_type_id = Column(ForeignKey(u'action_param_type.id'), index=True)
-    name = Column(String(64))
+    value = Column(String(255))
 
     action = relationship(u'Action')
     action_param_type = relationship(u'ActionParamType')
@@ -49,9 +49,8 @@ class ActionParamType(Base):
     __tablename__ = 'action_param_type'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(64))
+    context_param_name = Column(String(128), nullable=False)
     action_type_id = Column(ForeignKey(u'action_type.id'), nullable=False, index=True)
-    context_param_name = Column(String(128))
 
     action_type = relationship(u'ActionType')
 
@@ -59,7 +58,7 @@ class ActionParamType(Base):
 t_action_reason = Table(
     'action_reason', metadata,
     Column('action_type_id', ForeignKey(u'action_type.id'), primary_key=True, nullable=False, server_default=text("'0'")),
-    Column('reason_type_id', ForeignKey(u'reason_type.id'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    Column('reason_type_id', ForeignKey(u'reason_type.id'), primary_key=True, nullable=False, index=True)
 )
 
 
@@ -93,18 +92,18 @@ class Reason(Base):
     reason_type = relationship(u'ReasonType')
 
 
-class ReasonField(Base):
-    __tablename__ = 'reason_field'
+class ReasonParam(Base):
+    __tablename__ = 'reason_param'
 
     id = Column(Integer, primary_key=True)
     action_id = Column(ForeignKey(u'action.id'), index=True)
     reason_id = Column(ForeignKey(u'reason.id'), index=True)
-    reason_type_field_id = Column(ForeignKey(u'reason_type_field.id'), index=True)
+    reason_type_param_id = Column(ForeignKey(u'reason_type_param.id'), index=True)
     value = Column(String(255))
 
     action = relationship(u'Action')
     reason = relationship(u'Reason')
-    reason_type_field = relationship(u'ReasonTypeField')
+    reason_type_param = relationship(u'ReasonTypeParam')
 
 
 class ReasonType(Base):
@@ -118,11 +117,11 @@ class ReasonType(Base):
     dispatch = relationship(u'ActionDispatch')
 
 
-class ReasonTypeField(Base):
-    __tablename__ = 'reason_type_field'
+class ReasonTypeParam(Base):
+    __tablename__ = 'reason_type_param'
 
     id = Column(Integer, primary_key=True)
     reason_type_id = Column(ForeignKey(u'reason_type.id'), index=True)
-    field_name = Column(String(255))
+    context_param_name = Column(String(128), nullable=False)
 
     reason_type = relationship(u'ReasonType')

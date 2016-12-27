@@ -16,9 +16,10 @@ PID = str(os.getpid())
 
 redis = None
 
-# TODO: in order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
 # these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
 # identifier is an arbitrary list which will be separated by DELIM
+
+# NOTE: in order for complex keys to truly work as indexes, the ordered set of values owned by them need to be used where these keys are currently being used
 
 def str_clean4key(input):
     return util.str_clean4comp(input, DELIM, WILDCARD, '-', '_', '.')
@@ -102,7 +103,7 @@ def key_exists2(key):
 # ordered list functions for compound keys and key groups
 
 def lpeek(key_group, *identifier):
-    key = key_name(key_group, identifier)
+    key = key_name(key_group, *identifier)
     lpeek2(key)
 
 
@@ -113,7 +114,7 @@ def lpeek2(key):
 
 
 def lpop(key_group, *identifier):
-    key = key_name(key_group, identifier)
+    key = key_name(key_group, *identifier)
     lpop2(key)
 
 
@@ -123,7 +124,7 @@ def lpop2(key):
 
 
 # def lpush(key_group, *identifier, **value):
-#     key = key_name(key_group, identifier)
+#     key = key_name(key_group, *identifier)
 #     for val in value:
 #         config.redis.lpush(key, value[val])
 
@@ -134,7 +135,7 @@ def lpush(key, *values):
 
 
 def rpeek(key_group, *identifier):
-    key = key_name(key_group, identifier)
+    key = key_name(key_group, *identifier)
     return rpeek2(key)
 
 
@@ -145,7 +146,7 @@ def rpeek2(key):
 
 
 def rpop(key_group, *identifier):
-    key = key_name(key_group, identifier)
+    key = key_name(key_group, *identifier)
     rpop2(key)
 
 
@@ -154,7 +155,7 @@ def rpop2(key):
         return redis.rpop(key)
 
 # def rpush(key_group, *identifier, **value):
-#     key = key_name(key_group, identifier)
+#     key = key_name(key_group, *identifier)
 #     for val in value:
 #         config.redis.rpush(key, value[val])
 
@@ -198,15 +199,15 @@ def get_hashes(key_group, *identifier):
     result = ()
     if identifier is ():
         for key in get_keys(DELIM.join([HASH, key_group])):
-            hash = redis.hgetall(key)
-            if hash is not None:
-                result += (hash,)
+            ahash = redis.hgetall(key)
+            if ahash is not None:
+                result += (ahash,)
     #(else)
     for keyname in identifier:
         key = DELIM.join([HASH, key_group, keyname])
-        hash = redis.hgetall(key)
-        if hash is not None:
-            result += (hash,)
+        ahash = redis.hgetall(key)
+        if ahash is not None:
+            result += (ahash,)
 
     LOG.debug('get_hashes(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
@@ -264,8 +265,8 @@ def get_hashsets(keyname, set_identifier):
 
     for index in range(count):
         keyinlist = DELIM.join([key, str(index)])
-        hash = get_hash2(keyinlist)
-        result.append(hash)
+        ahash = get_hash2(keyinlist)
+        result.append(ahash)
 
     return result
 

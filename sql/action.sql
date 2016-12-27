@@ -35,9 +35,8 @@ CREATE TABLE `action_status` (
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param_type` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(64) NULL DEFAULT NULL,
+  `context_param_name` VARCHAR(128) NOT NULL,
   `action_type_id` INT(11) UNSIGNED NOT NULL,
-  `context_param_name` VARCHAR(128) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_action_param_type_action_type1_idx` (`action_type_id` ASC),
   CONSTRAINT `fk_action_param_type_action_type1`
@@ -53,35 +52,33 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type` (
     `weight` INT(3) NOT NULL DEFAULT 10,
     `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
     PRIMARY KEY (`id`),
-    -- INDEX `fk_reason_type_action_type_idx` (`action_type_id` ASC),
     INDEX `fk_reason_type_dispatch_idx` (`dispatch_id` ASC),
-    -- CONSTRAINT `fk_reason_type_action_type` FOREIGN KEY (`action_type_id`)
-    --     REFERENCES `action_type` (`id`)
-    --     ON DELETE NO ACTION ON UPDATE NO ACTION,
     CONSTRAINT `fk_reason_type_dispatch` FOREIGN KEY (`dispatch_id`)
         REFERENCES `action_dispatch` (`id`)
         ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action_reason` (
-    `action_type_id` INT(11) UNSIGNED NULL DEFAULT NULL,
-    `reason_type_id` INT(11) UNSIGNED NULL DEFAULT NULL,
-    PRIMARY KEY (`action_type_id`, `reason_type_id`),
-    -- INDEX `fk_action_reason_action_type_idx` (`action_type_id` ASC),
-    -- INDEX `fk_action_reason_reason_type_idx` (`reason_type_id` ASC),
-    CONSTRAINT `fk_action_reason_action_type` FOREIGN KEY (`action_type_id`)
-        REFERENCES `action_type` (`id`)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
-    CONSTRAINT `fk_action_reason_reason_type` FOREIGN KEY (`reason_type_id`)
-        REFERENCES `reason_type` (`id`)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
-);
+  `action_type_id` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+  `reason_type_id` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`action_type_id`, `reason_type_id`),
+  INDEX `fk_action_reason_reason_type1_idx` (`reason_type_id` ASC),
+  CONSTRAINT `fk_action_reason_action_type`
+    FOREIGN KEY (`action_type_id`)
+    REFERENCES `mildred_action`.`action_type` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_action_reason_reason_type1`
+    FOREIGN KEY (`reason_type_id`)
+    REFERENCES `mildred_action`.`reason_type` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 
-CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type_field` (
+CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type_param` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
     `reason_type_id` int(11) unsigned,
-    `field_name` varchar(255),
+    `context_param_name` VARCHAR(128) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`reason_type_id`)
         REFERENCES `reason_type` (`id`)
@@ -120,19 +117,19 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`reason` (
 -- 	FOREIGN KEY(`reason_id`) REFERENCES `reason` (`id`)
 -- );
 
-CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_field` (
+CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_param` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
     `action_id` int(11) unsigned,
     `reason_id` int(11) unsigned,
-    `reason_type_field_id` int(11) unsigned,
+    `reason_type_param_id` int(11) unsigned,
     `value` varchar(255),
     PRIMARY KEY (`id`),
     FOREIGN KEY (`action_id`)
         REFERENCES `action` (`id`),
     FOREIGN KEY (`reason_id`)
         REFERENCES `reason` (`id`),
-    FOREIGN KEY (`reason_type_field_id`)
-        REFERENCES `reason_type_field` (`id`)
+    FOREIGN KEY (`reason_type_param_id`)
+        REFERENCES `reason_type_param` (`id`)
 );
 
 
@@ -140,7 +137,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
     `action_id` int(11) unsigned,
     `action_param_type_id` int(11) unsigned,
-    `name` varchar(64),
+    `value` varchar(255),
     PRIMARY KEY (`id`),
     FOREIGN KEY (`action_id`)
         REFERENCES `action` (`id`),
@@ -153,7 +150,7 @@ insert into action_status (name) values ("proposed"), ("accepted"), ("pending"),
 
 -- insert into action_type (name) values ("move"), ("delete"), ("scan"), ("match"), ("retag"), ("consolidate");
 insert into action_type (name, priority) values ("rename.file.apply.tags", 95);
-insert into action_param_type(action_type_id, name) values ((select id from action_type where name = "rename.file.apply.tags"), "file.absolute.path");
+insert into action_param_type(action_type_id, context_param_name) values ((select id from action_type where name = "rename.file.apply.tags"), "file.absolute.path");
 insert into reason_type (name) values ("file.tag.mismatch");
 insert into action_reason(action_type_id, reason_type_id) values ((select id from action_type where name = "rename.file.apply.tags"), (select id from reason_type where name = "file.tag.mismatch"))
 -- insert into reason_type(action_type_id, name) values ((select id from action_type where name = "file_remove"), "duplicate.exists");

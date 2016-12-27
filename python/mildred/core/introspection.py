@@ -15,11 +15,20 @@
 
 # modes express conditional polymorphism by applying the condition associated with its state when asked by selector
 
+import logging
+
 from pydoc import locate
 
+import log
+
+LOG = log.get_log(__name__, logging.DEBUG)
+ERR = log.get_log('errors', logging.WARNING)
+
+
 def get_func(qname):
-    return  locate(qname)
-    
+    return locate(qname)
+
+
 def get_qualified_name(*nameparts):
     result = []
     for part in nameparts:
@@ -29,4 +38,4 @@ def get_qualified_name(*nameparts):
     return '.'.join(result)
 
 
-#
+    #

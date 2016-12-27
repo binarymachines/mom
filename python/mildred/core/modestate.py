@@ -3,7 +3,7 @@ import logging
 from errors import BaseClassException, ModeConfigException
 
 from modes import Mode
-from decorators import mode_function
+from decorators import dynamic_func
 from states import State
 from spec import Specification
 
@@ -141,7 +141,7 @@ class StatefulMode(Mode):
         return self._restored
 
 
-    @mode_function
+    @dynamic_func
     def do_action(self):
         if self._state and self._state.action:
             self._state.action()
@@ -229,7 +229,7 @@ class ModeStateChangeHandler(object):
                     return rule.condition()
  
 
-    @mode_function
+    @dynamic_func
     def go_next(self, mode, context):
 
         LOG.info('%s => go_next()' % ("None" if mode is None else mode.name))

@@ -1,7 +1,8 @@
 
-import sys, os
+import sys, os, logging
 
-import cache2
+import cache2, log
+from decorators import dynamic_func
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -22,13 +23,13 @@ class Context(object):
     def clear(self):
         self.data.clear()
 
-        for consumer in self.fifos.keys:
+        for consumer in self.fifos.keys():
             self.clear_fifo(consumer)
 
-        for consumer in self.stacks.keys:
+        for consumer in self.stacks.keys():
             self.clear_stack(consumer)
 
-        for consumer in self.params.keys:
+        for consumer in self.params.keys():
             self.clear_params(consumer)
 
     # cache
@@ -44,7 +45,7 @@ class Context(object):
 
     def clear_fifo(self, consumer):
         if consumer in self.fifos:
-            self.fifos.remove(consumer)
+            del self.fifos[consumer]
 
     def peek_fifo(self, consumer):
         if consumer in self.fifos and len(self.fifos[consumer]) > 0:
@@ -68,7 +69,7 @@ class Context(object):
 
     def clear_stack(self, consumer):
         if consumer in self.stacks:
-            self.stacks.remove(consumer)
+            del self.stacks[consumer]
 
     def peek_stack(self, consumer):
         if consumer in self.stacks and len(self.stacks[consumer]) > 0:
@@ -95,7 +96,7 @@ class Context(object):
 
     def get_params(self, consumer):
         if consumer in self.params:
-            return self.params(consumer)
+            return self.params[consumer]
 
     def set_param(self, consumer, param, value):
         # print "setting %s[%s] to %s" % (str(consumer), param, str(value) )
@@ -202,7 +203,7 @@ class DirectoryContext(Context):
     def reset(self, consumer):
         super(DirectoryContext, self).reset(consumer)
         if consumer in self.consumer_paths:
-            del(self.consumer_paths[consumer])
+            del self.consumer_paths[consumer]
 
 
 CDC = 'CachedDirectoryContext'
@@ -272,7 +273,7 @@ class CachedDirectoryContext(DirectoryContext):
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
 
         if consumer in cached_consumer_paths:
-            del(cached_consumer_paths[consumer])
+            del cached_consumer_paths[consumer]
 
         cache2.set_hash2(self.consumer_key, cached_consumer_paths)
 
@@ -290,7 +291,8 @@ class CachedDirectoryContext(DirectoryContext):
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return self.pop_fifo(consumer)
 
-        if len(self.paths) == 0: return None
+        if len(self.paths) == 0:
+            return None
 
         result = None
 
@@ -321,7 +323,8 @@ class CachedDirectoryContext(DirectoryContext):
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return True
 
-        if len(self.paths) == 0: return False
+        if len(self.paths) == 0: 
+            return False
 
         result = False
 
@@ -369,47 +372,74 @@ PERSIST = 'scan.persist'
 ACTIVE = 'active.scan.path'
 SCAN = 'context.scan'
 
+
 class DirectoryContextScanner(object):
 
-    def __init__(self, directorycontext, get_locations_func, handle_context_path_func, handle_error_func=None, before=None, after=None):
+    def __init__(self, directorycontext, handle_context_path_func, handle_error_func=None, cache_func=None,
+                 before_func=None, after_func=None, should_cache_func=None, should_skip_func=None):
+
         self.context = directorycontext
-        self.get_locations_func = get_locations_func
+
         self.handle_context_path_func = handle_context_path_func
         self.handle_error_func = handle_error_func
-        self.before = before
-        self.after = after
+        self.before_func = before_func
+        self.after_func = after_func
+        self.cache_func = cache_func
+        self.should_cache_func = should_cache_func
+        self.should_skip_func = should_skip_func
+
         self.last_expanded_path = None
 
+    @dynamic_func
+    def before(self, path):
+        if self.before_func:
+            self.before_func(path)
+
+    @dynamic_func
+    def after(self, path):
+        if self.after_func:
+            self.after_func(path)
+
+    @dynamic_func
+    def cache(self, path):
+        if self.cache_func:
+            self.cache_func(path)
+
+    @dynamic_func
     def handle_error(self, error, path):
         if self.handle_error_func:
             self.handle_error_func(error, path)
 
+    @dynamic_func
     def handle_context_path(self, path):
         self.handle_context_path_func(path)
 
+    @dynamic_func
     def should_cache(self, path):
-        return False
+        if self.should_cache_func:
+            return self.should_cache_func(path)
 
+    @dynamic_func
     def should_skip(self, path):
-        return False
+        if self.should_skip_func:
+            return self.should_skip_func(path)
 
     def path_expands(self, path):
         expanded = False
         do_expand = False
 
-        if path in self.get_locations_func():
+        if path in self.context.paths:
             do_expand = True
         
-        if path in self.context.paths:
-            if self.context.get_param('all', 'expand_all'):
-                do_expand = True
+        # if path in self.context.paths:
+        #     if self.context.get_param('all', 'expand_all'):
+        #         do_expand = True
         
         if do_expand:
-            # or pathutil.is_curated(path):
             dirs = os.listdir(path)
             dirs.sort(reverse=True)
-            for dir in dirs:
-                sub_path = os.path.join(path, dir)
+            for directory in dirs:
+                sub_path = os.path.join(path, directory)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
                     self.context.push_fifo(SCAN, sub_path)
                     expanded = True
@@ -419,67 +449,39 @@ class DirectoryContextScanner(object):
     # TODO: individual paths in the directory context should have their own scan configuration
 
     def scan(self):
-        # self.deep_scan = self.context.get_param(SCAN, DEEP)
-        # self.high_scan = self.context.get_param(SCAN, HSCAN)
-        # self.update_scan = self.context.get_param(SCAN, USCAN)
-
         path = self.context.get_param(PERSIST, ACTIVE)
         path_restored = path is not None
         self.last_expanded_path = None
 
         while self.context.has_next(SCAN, use_fifo=True):
-            path = path if path_restored else self.context.get_next(SCAN, True)           
+            path = path if path_restored else self.context.get_next(SCAN, True)
             path_restored = False
             self.context.set_param(PERSIST, ACTIVE, path)
 
             try:
-
-                if path is None or os.path.isfile(path): 
+                if path is None or os.path.isfile(path):
                     continue
 
-                # ops.update_listeners('evaluating', SCANNER, path)
-
                 if os.path.isdir(path) and os.access(path, os.R_OK):
-
-                    # should_cache = last_expanded_path is None
-                    # if self.high_scan:
-                    #     if last_expanded_path:
-                    #         if not path.startswith(last_expanded_path):
-                    #             last_expanded_path = None
-                    #             should_cache = True
-
-                    #     if should_cache:
-                    #         ops.cache_ops(path, HSCAN, SCANNER)
-
-                    # if self.deep_scan or self.path_has_handlers(path) or self.context.path_in_fifos(path, SCAN):
+                    if self.should_cache(path):
+                        self.cache(path)
 
                     if self.path_expands(path):
                         # self.context.clear_active(SCAN)
-                        last_expanded_path = path
+                        self.last_expanded_path = path
                         continue
 
-                    if self.should_skip(path): 
+                    if self.should_skip(path):
                         continue
 
-                    
-                    # try:
                     self.before(path)
-
-                    # start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
-                    LOG.debug("scanning %s..." % path)
-                    # ops.update_listeners('scanning', SCANNER, path)
                     self.handle_context_path(path)
-                    # end_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
-
-                    # self._post_scan(path, start_read_cache_size != end_read_cache_size)
-                    
-                    if self.after:
-                        self.after(path)
+                    self.after(path)
 
                 elif not os.access(path, os.R_OK):
-                    #TODO: parrot behavior for IOError as seen in read.py 
+                    #TODO: parrot behavior for IOError as seen in read.py
                     ERR.warning("%s isn't currently available." % (path))
-                    print("%s isn't currently available." % (path))
+                    print "%s isn't currently available." % (path)
 
             except Exception, err:
                 self.handle_error(err, path)

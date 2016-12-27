@@ -2,7 +2,7 @@
 import datetime
 import logging
 
-from decorators import mode_function
+from decorators import dynamic_func
 
 import log
 from spec import Specification
@@ -48,7 +48,7 @@ class Mode(object):
         self._suspended = suspended
 
 
-    @mode_function
+    @dynamic_func
     def do_action(self):
         if self._effect:
             self._effect()
@@ -103,7 +103,7 @@ class Rule(object):
         self.after = after
 
 
-    @mode_function
+    @dynamic_func
     def applies(self, selector, active, possible):
         try:
             func = _parse_func_info(self.condition)
@@ -264,7 +264,7 @@ class Selector:
         return results
 
 
-    @mode_function
+    @dynamic_func
     def select(self):
         applicable = self._peep()
         if len(applicable) == 1:
@@ -322,7 +322,7 @@ class Selector:
                     break
 
 
-    @mode_function
+    @dynamic_func
     def switch(self, mode, rewind=False):
             self.next = mode
 
@@ -464,7 +464,7 @@ class Engine:
                 break
         self.running = running
 
-@mode_function
+@dynamic_func
 def _parse_func_info(func):
     if func is None: return "NONE"
     try:

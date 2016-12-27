@@ -4,7 +4,7 @@ import logging
 import asset, search, sql, library, ops, config
 
 from core.context import DirectoryContext, DirectoryContextScanner
-import alchemy
+import alchemy, pathutil
 from alchemy import ACTION, get_session, SQLAsset
 from db.mysql.action import ActionType, ActionParamType, ReasonType, ReasonTypeField, Reason, ReasonField
 from core import log
@@ -20,7 +20,7 @@ EVALUATOR = 'EVALUATOR'
 def eval(context):
     if EVALUATOR not in context.data:
         context.data[EVALUATOR] = Evaluator(context)
-    # context.data[EVALUATOR].run()
+    context.data[EVALUATOR].run()
 
 def retrieve_action_types():
     """retrieve all action types"""
@@ -38,12 +38,20 @@ def retrieve_reason_types():
 
     return result
 
-class Evaluator(DirectoryContextScanner):
+class Evaluator(object):
     """The action EVALUATOR examines files and paths and proposes actions based on conditional methods contained by ReasonTypes"""
 
     def __init__(self, context):
-        super(Evaluator, self).__init__(context)
- 
+        self.directory_context_scanner = DirectoryContextScanner(context, pathutil.get_locations(), self.handle_context_path, \
+        handle_error_func=self.handle_error)
+
+    def handle_error(self, error, path):
+        pass
+
+    def handle_context_path(self, path):
+        self.generate_reasons(path)
+
+    
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
         reasons = retrieve_reason_types()
@@ -59,13 +67,19 @@ class Evaluator(DirectoryContextScanner):
                 if func(folder.absolute_path):
                     new_reason = Reason()
                     new_reason.reason_type = reason
-
+                    
+                    # for param in reason.params
+                    # path_param = ReasonParam();
+                    # path_param.reason = new_reason
+                    # path_param.reason_type = reason
+                    # path_param. 
                     session = alchemy.get_session(alchemy.ACTION)
                     session.add(new_reason)
                     session.commit()
 
 
     def propose_actions(self, path):
+        action
         pass
 
         # invoke conditionals for all reasons
@@ -74,3 +88,7 @@ class Evaluator(DirectoryContextScanner):
         # training data is my selection between available actions or custom selection, 
         # including query operations performed while evaluating choice and evaluation reason stamp (selectad tags match source, etc) 
         # as well as predicted response
+
+
+    def run(self):
+        self.directory_context_scanner.scan();
