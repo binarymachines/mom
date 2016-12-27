@@ -8,8 +8,8 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class Vector(Base):
-    __tablename__ = 'vector'
+class Context(Base):
+    __tablename__ = 'context'
 
     id = Column(Integer, primary_key=True)
     pid = Column(Integer, nullable=False)
@@ -44,8 +44,8 @@ class ParamValue(Base):
     param_id = Column(ForeignKey(u'param.id'), nullable=False, index=True)
     parent_id = Column(Integer)
 
-    vector = relationship(u'Vector')
     param = relationship(u'Param')
+    vector = relationship(u'Vector')
 
 
 class ParamValueBoolean(Base):
@@ -154,3 +154,12 @@ class ValueVarchar128(Base):
 
     id = Column(Integer, primary_key=True)
     value = Column(String(128), nullable=False)
+
+
+class Vector(Base):
+    __tablename__ = 'vector'
+
+    id = Column(Integer, primary_key=True)
+    pid = Column(Integer, nullable=False)
+    effective_dt = Column(DateTime)
+    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))

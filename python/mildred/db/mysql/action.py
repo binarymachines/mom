@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, ForeignKey, Integer, String, Table, text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -15,6 +15,8 @@ class Action(Base):
     action_type_id = Column(ForeignKey(u'action_type.id'), index=True)
     action_status_id = Column(ForeignKey(u'action_status.id'), index=True)
     parent_action_id = Column(ForeignKey(u'action.id'), index=True)
+    effective_dt = Column(DateTime, nullable=False)
+    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     action_status = relationship(u'ActionStatu')
     action_type = relationship(u'ActionType')
@@ -87,6 +89,8 @@ class Reason(Base):
     id = Column(Integer, primary_key=True)
     reason_type_id = Column(ForeignKey(u'reason_type.id'), index=True)
     action_id = Column(ForeignKey(u'action.id'), index=True)
+    effective_dt = Column(DateTime, nullable=False)
+    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     action = relationship(u'Action')
     reason_type = relationship(u'ReasonType')
