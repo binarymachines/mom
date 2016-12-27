@@ -5,7 +5,7 @@ from mildred.core import cache2
 
 KEYGROUP = 'test-suite'
 
-#TODO: This unit test does not account for Redis' dislike of key names containing spaces
+#NOTE: This unit test does not account for Redis' dislike of key names containing spaces
 
 class TestCache2(unittest.TestCase):
     """Redis must be running for these tests to run"""
@@ -14,7 +14,7 @@ class TestCache2(unittest.TestCase):
         cache2.redis.flushall()
         self.identifiers = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
         self.identifier = cache2.DELIM.join([KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'])
-        self.test_vals = ['a', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dogs']
+        self.test_vals = ['a', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog']
 
     def test_key_name(self):
         keyname = cache2.key_name(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i')
@@ -151,7 +151,7 @@ class TestCache2(unittest.TestCase):
     #     items = cache2.get_items2(listkey)
     #     self.assertItemsEqual(items, self.test_vals, 'get_items fails')
 
-    # Ordered Liss
+    # Ordered List
 
     def test_lpush(self):
         cache2.lpush(KEYGROUP, 'a', 'b', 'c', 'd')
