@@ -1,19 +1,26 @@
-import os, sys
 import logging
+import os
+import sys
 
-import asset, search, sql, library, ops, config
-
+import const
+import alchemy
+from assets import Document, Directory  
+import library
+import config
+import library
+import ops
+import pathutil
+import search
+import sql
+from alchemy import ACTION, SQLAsset, get_session
+from core import introspection, log
 from core.vector import PathVector, PathVectorScanner
-import alchemy, pathutil
-from alchemy import ACTION, get_session, SQLAsset
-from db.mysql.action import ActionType, ActionParamType, ReasonType, ReasonTypeField, Reason, ReasonField
-from core import log
-import introspection
-
-# from  workers import albumutils
+from db.mysql.action import (ActionParamType, ActionType, Reason, ReasonField,
+                             ReasonType, ReasonTypeField)
 
 LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
+
 EVALUATOR = 'EVALUATOR'
 
 
@@ -42,8 +49,7 @@ class Evaluator(object):
     """The action EVALUATOR examines files and paths and proposes actions based on conditional methods contained by ReasonTypes"""
 
     def __init__(self, vector):
-        self.directory_vector_scanner = PathVectorScanner(vector, pathutil.get_locations(), self.handle_vector_path, \
-        handle_error_func=self.handle_error)
+        self.directory_vector_scanner = PathVectorScanner(vector, self.handle_vector_path, handle_error_func=self.handle_error)
 
     def handle_error(self, error, path):
         pass
@@ -55,31 +61,60 @@ class Evaluator(object):
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
         reasons = retrieve_reason_types()
-        
-        folders = sql.retrieve_values2('document', ['index_name', 'doc_type', 'id', 'absolute_path'], [config.es_index, asset.DIRECTORY])
-        folders = SQLAsset.retrieve(asset.DIRECTORY, path, use_like_in_where_clause=True)
-        
-        for folder in folders:
+
+        # files = sql.retrieve_values2('document', ['index_name', 'doc_type', 'id', 'absolute_path'], [config.es_index, const.DIRECTORY])
+        files = SQLAsset.retrieve(const.DOCUMENT, path, use_like_in_where_clause=True)
+
+        for file in files:
+            document = Document(file.absolute_path)
+
             for reason in reasons:
                 dispatch = reason.dispatch
-                func = introspection.get_func(dispatch.package, dispatch.module, dispatch.class_name, dispatch.func_name)
-                # if not op_exists(eval.func.name)
-                if func(folder.absolute_path):
+                condition = introspection.get_qualified_name(dispatch.package, dispatch.module, dispatch.func_name)
+                condition = introspection.get_func(dispatch.func_name)
+
+                if condition(document):
                     new_reason = Reason()
                     new_reason.reason_type = reason
-                    
+
                     # for param in reason.params
                     # path_param = ReasonParam();
                     # path_param.reason = new_reason
                     # path_param.reason_type = reason
-                    # path_param. 
+                    # path_param.
+
+                    session = alchemy.get_session(alchemy.ACTION)
+                    session.add(new_reason)
+                    session.commit()
+
+        folders = sql.retrieve_values2('document', ['index_name', 'doc_type', 'id', 'absolute_path'], [config.es_index, const.DIRECTORY])
+        folders = SQLAsset.retrieve(const.DIRECTORY, path, use_like_in_where_clause=True)
+
+        for folder in folders:
+            directory = Directory(folder.absolute_path)
+
+            for reason in reasons:
+                dispatch = reason.dispatch
+                condition = introspection.get_qualified_name(dispatch.package, dispatch.module, dispatch.func_name)
+                condition = introspection.get_func(dispatch.func_name)
+
+                if condition(directory):
+                    new_reason = Reason()
+                    new_reason.reason_type = reason
+
+                    # for param in reason.params
+                    # path_param = ReasonParam();
+                    # path_param.reason = new_reason
+                    # path_param.reason_type = reason
+                    # path_param.
+                    
                     session = alchemy.get_session(alchemy.ACTION)
                     session.add(new_reason)
                     session.commit()
 
 
     def propose_actions(self, path):
-        action
+        # action
         pass
 
         # invoke conditionals for all reasons

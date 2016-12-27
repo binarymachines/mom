@@ -5,19 +5,18 @@ import time
 import json
 
 import const
-import pathutil
 
 
 class Asset(object):
-    def __init__(self):
-        self.absolute_path = None
+    def __init__(self, absolute_path, document_type, esid=None):
+        self.absolute_path = absolute_path
         self.active = True
         self.available = True
-        self.esid = None
+        self.esid = esid
         self.data = None
         self.deleted = False
         self.doc = None
-        self.document_type = None
+        self.document_type = document_type
         self.has_changed = False
         self.has_errors = False
         self.latest_error = u''
@@ -45,13 +44,13 @@ class Asset(object):
         return False
         # return pathutil.is_filed(self.absolute_path)
 
-    def is_filed_as_compilation(self):
-        return False
-        # return pathutil.is_filed_as_compilation(self.absolute_path)
+    # def is_filed_as_compilation(self):
+    #     return False
+    #     # return pathutil.is_filed_as_compilation(self.absolute_path)
 
-    def is_filed_as_live(self):
-        return False
-        # return pathutil.is_filed_as_live(self.absolute_path)
+    # def is_filed_as_live(self):
+    #     return False
+    #     # return pathutil.is_filed_as_live(self.absolute_path)
 
     def is_new(self):
         return False
@@ -73,17 +72,24 @@ class Asset(object):
         return False
         # return pathutil.is_unsorted(self.absolute_path)
 
-    def is_webcast(self):
-        return False
-        # return pathutil.is_webcast(self.absolute_path)
+    # def is_webcast(self):
+    #     return False
+    #     # return pathutil.is_webcast(self.absolute_path)
+
+    def to_dictionary(self):
+        data = {
+                'absolute_path': self.absolute_path,
+                'esid': self.esid
+                }
+        return data
 
     def to_str(self):
         return json.dumps(self.to_dictionary())
 
 
 class Document(Asset):
-    def __init__(self):
-        super(Document, self).__init__()
+    def __init__(self, absolute_path, document_type=const.DOCUMENT, esid=None):
+        super(Document, self).__init__(absolute_path, esid=esid)
         self.document_type = const.DOCUMENT
         self.ext = None
         self.file_name = None
@@ -106,13 +112,15 @@ class Document(Asset):
 
     # TODO: call Asset.to_dictionary() and append values
     def to_dictionary(self):
+        
         data = {
-                'absolute_path': self.absolute_path,
-                'file_ext': self.ext,
-                'file_name': self.file_name,
-                'directory_name': self.directory_name,
-                'file_size': self.file_size
-                }
+        'absolute_path': self.absolute_path,
+        'file_ext': self.ext,
+        'file_name': self.file_name,
+        'directory_name': self.directory_name,
+        'file_size': self.file_size
+        }
+
 
         if self.location is not None: data['directory_location'] = self.location
 
@@ -123,14 +131,14 @@ class Document(Asset):
             data['mtime'] = time.ctime(os.path.getmtime(self.absolute_path))
         
         data['filed'] = self.is_filed()
-        data['compilation'] = self.is_filed_as_compilation()
-        data['webcast']= self.is_webcast()
+        # data['compilation'] = self.is_filed_as_compilation()
+        # data['webcast']= self.is_webcast()
         data['unsorted'] = self.is_unsorted()
         data['random'] = self.is_random()
         data['new'] = self.is_new()
         data['recent'] = self.is_recent()
         data['active'] = self.active
-        data['live_recording'] = self.is_filed_as_live()
+        # data['live_recording'] = self.is_filed_as_live()
         data['deleted'] = self.deleted
         data['properties'] = self.properties
         data['errors'] = self.errors
@@ -139,11 +147,9 @@ class Document(Asset):
 
 
 class Directory(Asset):
-    def __init__(self, absolute_path, esid=None):
-        super(Directory, self).__init__()
+    def __init__(self, absolute_path, document_type=const.DIRECTORY, esid=None):
+        super(Directory, self).__init__(absolute_path, esid)
         self.document_type = const.DIRECTORY
-        self.absolute_path = absolute_path
-        self.esid = esid
         self.files = []
         self.read_files = []
 
@@ -174,11 +180,11 @@ class Directory(Asset):
     def has_matches(self):
         return False
 
-    def is_proper_compilation(self):
-        return False
+    # def is_proper_compilation(self):
+    #     return False
 
     def match_count(self):
         return 0
 
-    def has_multiple_artists(self):
-        return False
+    # def has_multiple_artists(self):
+    #     return False

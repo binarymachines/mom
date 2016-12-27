@@ -155,8 +155,8 @@ insert into action_status (name) values ("proposed"), ("accepted"), ("pending"),
 set @RENAME_FILE_APPLY_TAGS="rename.file.apply.tags";
 set @FILE_TAG_MISMATCH="file.tag.mismatch";
 
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@RENAME_FILE_APPLY_TAGS, "action", "mildred.media", "MediaHandler", "apply_tags_to_filename");
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@FILE_TAG_MISMATCH, "reason", "mildred.media", "MediaHandler", "file_tag_mismatch");
+insert into action_dispatch (identifier, category, module, func_name) values (@RENAME_FILE_APPLY_TAGS, "action", "audio", "apply_tags_to_filename");
+insert into action_dispatch (identifier, category, module, func_name) values (@FILE_TAG_MISMATCH, "reason", "audio", "file_tags_mismatch_path");
 insert into action_type (name, priority, dispatch_id) values (@RENAME_FILE_APPLY_TAGS, 95, (select id from action_dispatch where identifier = @RENAME_FILE_APPLY_TAGS));
 insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @RENAME_FILE_APPLY_TAGS), "file.absolute.path");
 insert into reason_type (name, dispatch_id) values (@FILE_TAG_MISMATCH, (select id from action_dispatch where identifier = @FILE_TAG_MISMATCH));
@@ -165,8 +165,8 @@ insert into action_reason (action_type_id, reason_type_id) values ((select id fr
 set @EXPUNGE_FILE="expunge.file";
 set @IS_REDUNDANT="file.is.redundant";
 
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@EXPUNGE_FILE, "action", "mildred.media", "MediaHandler", "expunge");
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@IS_REDUNDANT, "reason", "mildred.media", "MediaHandler", "file_is_redundant");
+insert into action_dispatch (identifier, category, module, func_name) values (@EXPUNGE_FILE, "action", "audio", "expunge");
+insert into action_dispatch (identifier, category, module, func_name) values (@IS_REDUNDANT, "reason", "audio", "file_is_redundant");
 insert into action_type (name, priority, dispatch_id) values (@EXPUNGE_FILE, 95, (select id from action_dispatch where identifier = @EXPUNGE_FILE));
 insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @EXPUNGE_FILE), "file.absolute.path");
 insert into reason_type (name, dispatch_id) values (@IS_REDUNDANT, (select id from action_dispatch where identifier = @IS_REDUNDANT));
@@ -175,8 +175,8 @@ insert into action_reason (action_type_id, reason_type_id) values ((select id fr
 set @DEPRECATE_FILE="deprecate.file";
 set @HAS_LOSSLESS_DUPE="file.has.lossless.duplicate";
 
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@DEPRECATE_FILE, "action", "mildred.media", "MediaHandler", "deprecate");
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@HAS_LOSSLESS_DUPE, "reason", "mildred.media", "MediaHandler", "has_lossless_dupe");
+insert into action_dispatch (identifier, category, module, func_name) values (@DEPRECATE_FILE, "action", "audio", "deprecate");
+insert into action_dispatch (identifier, category, module, func_name) values (@HAS_LOSSLESS_DUPE, "reason", "audio", "has_lossless_dupe");
 insert into action_type (name, priority, dispatch_id) values (@DEPRECATE_FILE, 95, (select id from action_dispatch where identifier = @DEPRECATE_FILE));
 insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @DEPRECATE_FILE), "file.absolute.path");
 insert into reason_type (name, dispatch_id) values (@HAS_LOSSLESS_DUPE, (select id from action_dispatch where identifier = @HAS_LOSSLESS_DUPE));
@@ -186,9 +186,9 @@ set @MOVE_TO_CATEGORY="categorize.file";
 set @HAS_CATEGORY="file.category.recognized";
 set @NOT_IN_CATEGORY="file.not.categorized";
 
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@MOVE_TO_CATEGORY, "action", "mildred.media", "MediaHandler", "move_to_category");
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@HAS_CATEGORY, "reason", "mildred.media", "MediaHandler", "has_category");
-insert into action_dispatch (identifier, category, module, class_name, func_name) values (@NOT_IN_CATEGORY, "reason", "mildred.media", "MediaHandler", "not_in_category");
+insert into action_dispatch (identifier, category, module, func_name) values (@MOVE_TO_CATEGORY, "action", "audio", "move_to_category");
+insert into action_dispatch (identifier, category, module, func_name) values (@HAS_CATEGORY, "reason", "audio", "has_category");
+insert into action_dispatch (identifier, category, module, func_name) values (@NOT_IN_CATEGORY, "reason", "audio", "not_in_category");
 insert into action_type (name, priority, dispatch_id) values (@MOVE_TO_CATEGORY, 35, (select id from action_dispatch where identifier = @MOVE_TO_CATEGORY));
 insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @MOVE_TO_CATEGORY), "file.absolute.path");
 insert into reason_type (name, dispatch_id) values (@HAS_CATEGORY, (select id from action_dispatch where identifier = @HAS_CATEGORY));
@@ -215,3 +215,9 @@ CREATE VIEW `v_action_reasons` AS
     and rt.id = ar.reason_type_id
 
     order by action_type;
+
+create view `v_action_dispach_param` as
+select at.name action_dispatch_func, apt.vector_param_name
+from action_type at, action_param_type apt
+where at.id = apt.action_type_id
+  order by action_dispatch_func;
