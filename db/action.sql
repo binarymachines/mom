@@ -13,143 +13,171 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_dispatch` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `mildred_action`.`action_type` (
+
+CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_action` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NULL DEFAULT NULL,
-  `dispatch_id` INT(11) UNSIGNED NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `dispatch_id` INT(11) UNSIGNED NOT NULL,
   `priority` INT(3) NOT NULL DEFAULT 10,
   PRIMARY KEY (`id`),
-  INDEX `fk_action_type_dispatch_idx` (`dispatch_id` ASC),
-  CONSTRAINT `fk_action_type_dispatch`
+  INDEX `fk_meta_action_dispatch_idx` (`dispatch_id` ASC),
+  CONSTRAINT `fk_meta_action_dispatch`
     FOREIGN KEY (`dispatch_id`)
     REFERENCES `action_dispatch` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-
-
-CREATE TABLE `action_status` (
-    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `name` varchar(255),
-    PRIMARY KEY (`id`)
-);
-
-CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param_type` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `vector_param_name` VARCHAR(128) NOT NULL,
-  `action_type_id` INT(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_action_param_type_action_type1_idx` (`action_type_id` ASC),
-  CONSTRAINT `fk_action_param_type_action_type1`
-    FOREIGN KEY (`action_type_id`)
-    REFERENCES `mildred_action`.`action_type` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
 
-CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type` (
-    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(255) NULL DEFAULT NULL,
-    `weight` INT(3) NOT NULL DEFAULT 10,
-    `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    INDEX `fk_reason_type_dispatch_idx` (`dispatch_id` ASC),
-    CONSTRAINT `fk_reason_type_dispatch` FOREIGN KEY (`dispatch_id`)
-        REFERENCES `action_dispatch` (`id`)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+
+CREATE TABLE IF NOT EXISTS `action_status` (
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` varchar(255),
+    PRIMARY KEY (`id`)
 );
+
+
+CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_action_param` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `vector_param_name` VARCHAR(128) NOT NULL,
+  `meta_action_id` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_meta_action_param_meta_action1_idx` (`meta_action_id` ASC),
+  CONSTRAINT `fk_meta_action_param_meta_action1`
+    FOREIGN KEY (`meta_action_id`)
+    REFERENCES `mildred_action`.`meta_action` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+
+CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason` (
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `weight` INT(3) NOT NULL DEFAULT 10,
+    `dispatch_id` INT(11) UNSIGNED NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `fk_meta_reason_dispatch_idx` (`dispatch_id` ASC),
+    CONSTRAINT `fk_meta_reason_dispatch` 
+        FOREIGN KEY (`dispatch_id`)
+        REFERENCES `action_dispatch` (`id`)
+        ON DELETE NO ACTION 
+        ON UPDATE NO ACTION
+);
+
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action_reason` (
-  `action_type_id` INT(11) UNSIGNED NOT NULL DEFAULT '0',
-  `reason_type_id` INT(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (`action_type_id`, `reason_type_id`),
-  INDEX `fk_action_reason_reason_type1_idx` (`reason_type_id` ASC),
-  CONSTRAINT `fk_action_reason_action_type`
-    FOREIGN KEY (`action_type_id`)
-    REFERENCES `mildred_action`.`action_type` (`id`)
+  `meta_action_id` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+  `meta_reason_id` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`meta_action_id`, `meta_reason_id`),
+  INDEX `fk_action_reason_meta_reason1_idx` (`meta_reason_id` ASC),
+  CONSTRAINT `fk_action_reason_meta_action`
+    FOREIGN KEY (`meta_action_id`)
+    REFERENCES `mildred_action`.`meta_action` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_action_reason_reason_type1`
-    FOREIGN KEY (`reason_type_id`)
-    REFERENCES `mildred_action`.`reason_type` (`id`)
+  CONSTRAINT `fk_action_reason_meta_reason1`
+    FOREIGN KEY (`meta_reason_id`)
+    REFERENCES `mildred_action`.`meta_reason` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION);
-
-
-CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_type_param` (
-    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `reason_type_id` int(11) unsigned,
-    `vector_param_name` VARCHAR(128) NOT NULL,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`reason_type_id`)
-        REFERENCES `reason_type` (`id`)
+    ON UPDATE NO ACTION
 );
 
+
+CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason_param` (
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `meta_reason_id` int(11) UNSIGNED,
+    `vector_param_name` VARCHAR(128) NOT NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`meta_reason_id`)
+        REFERENCES `meta_reason` (`id`)
+);
+
+
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action` (
-    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `action_type_id` int(11) unsigned,
-    `action_status_id` int(11) unsigned,
-    `parent_action_id` int(11) unsigned,
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `meta_action_id` int(11) UNSIGNED,
+    `action_status_id` int(11) UNSIGNED,
+    `parent_action_id` int(11) UNSIGNED,
     `effective_dt` datetime NOT NULL,
     `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',    
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`action_type_id`)
-        REFERENCES `action_type` (`id`),
+    FOREIGN KEY (`meta_action_id`)
+        REFERENCES `meta_action` (`id`),
     FOREIGN KEY (`action_status_id`)
         REFERENCES `action_status` (`id`),
     FOREIGN KEY (`parent_action_id`)
         REFERENCES `action` (`id`)
 );
 
+
 CREATE TABLE IF NOT EXISTS `mildred_action`.`reason` (
-    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `reason_type_id` int(11) unsigned,
-    `action_id` int(11) unsigned,
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `meta_reason_id` int(11) UNSIGNED,
+    `action_id` int(11) UNSIGNED,
     `effective_dt` datetime NOT NULL,
     `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',    
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`reason_type_id`)
-        REFERENCES `reason_type` (`id`),
+    FOREIGN KEY (`meta_reason_id`)
+        REFERENCES `meta_reason` (`id`),
     FOREIGN KEY (`action_id`)
         REFERENCES `action` (`id`)
 );
 
--- CREATE TABLE `reason_param` (
--- 	`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
--- 	`reason_id` int(11) unsigned,
--- 	`name` varchar(255),
--- 	PRIMARY KEY (`id`),
--- 	FOREIGN KEY(`reason_id`) REFERENCES `reason` (`id`)
--- );
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`reason_param` (
-    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `action_id` int(11) unsigned,
-    `reason_id` int(11) unsigned,
-    `reason_type_param_id` int(11) unsigned,
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `action_id` int(11) UNSIGNED NOT NULL,
+    `reason_id` int(11) UNSIGNED NOT NULL,
+    `meta_reason_param_id` int(11) UNSIGNED NOT NULL,
     `value` varchar(255),
     PRIMARY KEY (`id`),
     FOREIGN KEY (`action_id`)
         REFERENCES `action` (`id`),
     FOREIGN KEY (`reason_id`)
         REFERENCES `reason` (`id`),
-    FOREIGN KEY (`reason_type_param_id`)
-        REFERENCES `reason_type_param` (`id`)
+    FOREIGN KEY (`meta_reason_param_id`)
+        REFERENCES `meta_reason_param` (`id`)
 );
 
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param` (
-    `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-    `action_id` int(11) unsigned,
-    `action_param_type_id` int(11) unsigned,
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `action_id` int(11) UNSIGNED,
+    `meta_action_param_id` int(11) UNSIGNED,
     `value` varchar(255),
     PRIMARY KEY (`id`),
     FOREIGN KEY (`action_id`)
         REFERENCES `action` (`id`),
-    FOREIGN KEY (`action_param_type_id`)
-        REFERENCES `action_param_type` (`id`)
+    FOREIGN KEY (`meta_action_param_id`)
+        REFERENCES `meta_action_param` (`id`)
 );
 
 
+DROP VIEW IF EXISTS `v_action_reasons`;
+
+CREATE VIEW `v_action_reasons` AS 
+    select at.name meta_action, at.priority, 
+        ad.identifier action_dispatch_func, ad.category action_category, ad.module, ad.class_name, ad.func_name action_func,
+        rt.name reason, rt.weight,
+        ad2.identifier conditional_dispatch_func, ad2.category conditional_category, ad2.module conditional_module, 
+        ad2.class_name conditional_class_name, ad2.func_name conditional_func
+
+    from meta_action at, action_dispatch ad, action_dispatch ad2, meta_reason rt, action_reason ar
+    where at.dispatch_id = ad.id
+    and rt.dispatch_id = ad2.id
+    and at.id = ar.meta_action_id
+    and rt.id = ar.meta_reason_id
+
+    order by meta_action;
+
+create view `v_action_dispach_param` as
+select at.name action_dispatch_func, apt.vector_param_name
+from meta_action at, meta_action_param apt
+where at.id = apt.meta_action_id
+  order by action_dispatch_func;
+
+
+  
 insert into action_status (name) values ("proposed"), ("accepted"), ("pending"), ("complete"), ("aborted"), ("canceled");
 
 set @RENAME_FILE_APPLY_TAGS="rename.file.apply.tags";
@@ -157,30 +185,30 @@ set @FILE_TAG_MISMATCH="file.tag.mismatch";
 
 insert into action_dispatch (identifier, category, module, func_name) values (@RENAME_FILE_APPLY_TAGS, "action", "audio", "apply_tags_to_filename");
 insert into action_dispatch (identifier, category, module, func_name) values (@FILE_TAG_MISMATCH, "reason", "audio", "file_tags_mismatch_path");
-insert into action_type (name, priority, dispatch_id) values (@RENAME_FILE_APPLY_TAGS, 95, (select id from action_dispatch where identifier = @RENAME_FILE_APPLY_TAGS));
-insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @RENAME_FILE_APPLY_TAGS), "active.scan.path");
-insert into reason_type (name, dispatch_id) values (@FILE_TAG_MISMATCH, (select id from action_dispatch where identifier = @FILE_TAG_MISMATCH));
-insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @RENAME_FILE_APPLY_TAGS), (select id from reason_type where name = @FILE_TAG_MISMATCH));
+insert into meta_action (name, priority, dispatch_id) values (@RENAME_FILE_APPLY_TAGS, 95, (select id from action_dispatch where identifier = @RENAME_FILE_APPLY_TAGS));
+insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @RENAME_FILE_APPLY_TAGS), "active.scan.path");
+insert into meta_reason (name, dispatch_id) values (@FILE_TAG_MISMATCH, (select id from action_dispatch where identifier = @FILE_TAG_MISMATCH));
+insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @RENAME_FILE_APPLY_TAGS), (select id from meta_reason where name = @FILE_TAG_MISMATCH));
 
 set @EXPUNGE_FILE="expunge.file";
 set @IS_REDUNDANT="file.is.redundant";
 
 insert into action_dispatch (identifier, category, module, func_name) values (@EXPUNGE_FILE, "action", "audio", "expunge");
 insert into action_dispatch (identifier, category, module, func_name) values (@IS_REDUNDANT, "reason", "audio", "file_is_redundant");
-insert into action_type (name, priority, dispatch_id) values (@EXPUNGE_FILE, 95, (select id from action_dispatch where identifier = @EXPUNGE_FILE));
-insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @EXPUNGE_FILE), "active.scan.path");
-insert into reason_type (name, dispatch_id) values (@IS_REDUNDANT, (select id from action_dispatch where identifier = @IS_REDUNDANT));
-insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @EXPUNGE_FILE), (select id from reason_type where name = @IS_REDUNDANT));
+insert into meta_action (name, priority, dispatch_id) values (@EXPUNGE_FILE, 95, (select id from action_dispatch where identifier = @EXPUNGE_FILE));
+insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @EXPUNGE_FILE), "active.scan.path");
+insert into meta_reason (name, dispatch_id) values (@IS_REDUNDANT, (select id from action_dispatch where identifier = @IS_REDUNDANT));
+insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @EXPUNGE_FILE), (select id from meta_reason where name = @IS_REDUNDANT));
 
 set @DEPRECATE_FILE="deprecate.file";
 set @HAS_LOSSLESS_DUPE="file.has.lossless.duplicate";
 
 insert into action_dispatch (identifier, category, module, func_name) values (@DEPRECATE_FILE, "action", "audio", "deprecate");
 insert into action_dispatch (identifier, category, module, func_name) values (@HAS_LOSSLESS_DUPE, "reason", "audio", "has_lossless_dupe");
-insert into action_type (name, priority, dispatch_id) values (@DEPRECATE_FILE, 95, (select id from action_dispatch where identifier = @DEPRECATE_FILE));
-insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @DEPRECATE_FILE), "active.scan.path");
-insert into reason_type (name, dispatch_id) values (@HAS_LOSSLESS_DUPE, (select id from action_dispatch where identifier = @HAS_LOSSLESS_DUPE));
-insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @DEPRECATE_FILE), (select id from reason_type where name = @HAS_LOSSLESS_DUPE));
+insert into meta_action (name, priority, dispatch_id) values (@DEPRECATE_FILE, 95, (select id from action_dispatch where identifier = @DEPRECATE_FILE));
+insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @DEPRECATE_FILE), "active.scan.path");
+insert into meta_reason (name, dispatch_id) values (@HAS_LOSSLESS_DUPE, (select id from action_dispatch where identifier = @HAS_LOSSLESS_DUPE));
+insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @DEPRECATE_FILE), (select id from meta_reason where name = @HAS_LOSSLESS_DUPE));
 
 set @MOVE_TO_CATEGORY="categorize.file";
 set @HAS_CATEGORY="file.category.recognized";
@@ -189,35 +217,14 @@ set @NOT_IN_CATEGORY="file.not.categorized";
 insert into action_dispatch (identifier, category, module, func_name) values (@MOVE_TO_CATEGORY, "action", "audio", "move_to_category");
 insert into action_dispatch (identifier, category, module, func_name) values (@HAS_CATEGORY, "reason", "audio", "has_category");
 insert into action_dispatch (identifier, category, module, func_name) values (@NOT_IN_CATEGORY, "reason", "audio", "not_in_category");
-insert into action_type (name, priority, dispatch_id) values (@MOVE_TO_CATEGORY, 35, (select id from action_dispatch where identifier = @MOVE_TO_CATEGORY));
-insert into action_param_type(action_type_id, vector_param_name) values ((select id from action_type where name = @MOVE_TO_CATEGORY), "active.scan.path");
-insert into reason_type (name, dispatch_id) values (@HAS_CATEGORY, (select id from action_dispatch where identifier = @HAS_CATEGORY));
-insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @MOVE_TO_CATEGORY), (select id from reason_type where name = @HAS_CATEGORY));
-insert into reason_type (name, dispatch_id) values (@NOT_IN_CATEGORY, (select id from action_dispatch where identifier = @NOT_IN_CATEGORY));
-insert into action_reason (action_type_id, reason_type_id) values ((select id from action_type where name = @MOVE_TO_CATEGORY), (select id from reason_type where name = @NOT_IN_CATEGORY));
+insert into meta_action (name, priority, dispatch_id) values (@MOVE_TO_CATEGORY, 35, (select id from action_dispatch where identifier = @MOVE_TO_CATEGORY));
+insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @MOVE_TO_CATEGORY), "active.scan.path");
+insert into meta_reason (name, dispatch_id) values (@HAS_CATEGORY, (select id from action_dispatch where identifier = @HAS_CATEGORY));
+insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @MOVE_TO_CATEGORY), (select id from meta_reason where name = @HAS_CATEGORY));
+insert into meta_reason (name, dispatch_id) values (@NOT_IN_CATEGORY, (select id from action_dispatch where identifier = @NOT_IN_CATEGORY));
+insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @MOVE_TO_CATEGORY), (select id from meta_reason where name = @NOT_IN_CATEGORY));
 
--- insert into reason_type(action_type_id, name) values ((select id from action_type where name = "file_remove"), "duplicate.exists");
--- insert into reason_type(action_type_id, name) values ((select id from action_type where name = "file_remove"), "is.lower.quality");
+-- insert into meta_reason(meta_action_id, name) values ((select id from meta_action where name = "file_remove"), "duplicate.exists");
+-- insert into meta_reason(meta_action_id, name) values ((select id from meta_action where name = "file_remove"), "is.lower.quality");
 
-DROP VIEW IF EXISTS `v_action_reasons`;
 
-CREATE VIEW `v_action_reasons` AS 
-    select at.name action_type, at.priority, 
-        ad.identifier action_dispatch_func, ad.category action_category, ad.module, ad.class_name, ad.func_name action_func,
-        rt.name reason, rt.weight,
-        ad2.identifier conditional_dispatch_func, ad2.category conditional_category, ad2.module conditional_module, 
-        ad2.class_name conditional_class_name, ad2.func_name conditional_func
-
-    from action_type at, action_dispatch ad, action_dispatch ad2, reason_type rt, action_reason ar
-    where at.dispatch_id = ad.id
-    and rt.dispatch_id = ad2.id
-    and at.id = ar.action_type_id
-    and rt.id = ar.reason_type_id
-
-    order by action_type;
-
-create view `v_action_dispach_param` as
-select at.name action_dispatch_func, apt.vector_param_name
-from action_type at, action_param_type apt
-where at.id = apt.action_type_id
-  order by action_dispatch_func;

@@ -20,23 +20,24 @@ import logging
 from pydoc import locate
 
 import log
+from errors import MildredException
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
 def dynamic_func(function):
+    
     def wrapper(*args, **kwargs):
         try:
             return function(*args, **kwargs)
-        except Exception, err:
+        except MildredException, err:
             ERR.error(err.message, exc_info=True)
-            raise err
+            # raise err
 
     return wrapper
-
+    
 def get_func(qname):
     return locate(qname)
-
 
 def get_qualified_name(*nameparts):
     result = []

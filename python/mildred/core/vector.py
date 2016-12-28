@@ -410,7 +410,6 @@ class PathVectorScanner(object):
         if self.handle_error_func:
             self.handle_error_func(error, path)
 
-
     @dynamic_func
     def handle_vector_path(self, path):
         self.handle_vector_path_func(path)
