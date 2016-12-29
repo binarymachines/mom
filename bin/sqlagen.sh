@@ -2,11 +2,11 @@ clear
 rm $M2/python/mildred/db/generated/*.p*
 
 echo 'updating mildred'
-mysql mildred  < $M2/db/mildred.sql
+mysql mildred  < $M2/db/design/mildred.sql
 echo 'updating mildred action'
-mysql mildred_action < $M2/db/action.sql
+mysql mildred_action < $M2/db/design/action.sql
 echo 'updating mildred introspection'
-mysql mildred_introspection < $M2/db/introspection.sql
+mysql mildred_introspection < $M2/db/design/ssintrospection.sql
 echo 'updating scratch'
 mysql scratch < $M2/db/scratch.sql
 
