@@ -156,17 +156,22 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param` (
 DROP VIEW IF EXISTS `v_action_reasons`;
 
 CREATE VIEW `v_action_reasons` AS 
-    select at.name meta_action, at.priority, 
-        ad.identifier action_dispatch_func, ad.category action_category, ad.module, ad.class_name, ad.func_name action_func,
-        rt.name reason, rt.weight,
-        ad2.identifier conditional_dispatch_func, ad2.category conditional_category, ad2.module conditional_module, 
-        ad2.class_name conditional_class_name, ad2.func_name conditional_func
+    select at.id meta_action_id, at.name meta_action, at.priority action_priority, ad.id action_dispatch_id, ad.identifier action_dispatch_func, 
+        ad.category action_category, ad.module, ad.class_name, ad.func_name action_func,
+        rt.id meta_reason_id, rt.name reason, rt.weight reason_weight,
+        ad2.id conditional_dispatch_id, ad2.identifier conditional_dispatch_func, ad2.category conditional_category, 
+        ad2.module conditional_module, ad2.class_name conditional_class_name, ad2.func_name conditional_func
 
-    from meta_action at, action_dispatch ad, action_dispatch ad2, meta_reason rt, action_reason ar
+    from meta_action at, 
+        action_dispatch ad, 
+        action_dispatch ad2, 
+        meta_reason rt, 
+        action_reason ar
+    
     where at.dispatch_id = ad.id
-    and rt.dispatch_id = ad2.id
-    and at.id = ar.meta_action_id
-    and rt.id = ar.meta_reason_id
+        and rt.dispatch_id = ad2.id
+        and at.id = ar.meta_action_id
+        and rt.id = ar.meta_reason_id
 
     order by meta_action;
 

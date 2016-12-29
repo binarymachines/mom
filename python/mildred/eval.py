@@ -15,7 +15,8 @@ from alchemy import ACTION, SQLAsset, get_session
 from core import introspection, log
 from core.vector import PathVectorScanner
 
-from db.mysql.action import ActionParamType, ActionType, Reason, ReasonType
+
+from alchemy import SQLMetaAction, SQLMetaReason, SQLAction, SQLReason
 
 LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
@@ -28,26 +29,27 @@ def eval(vector):
         vector.data[EVALUATOR] = Evaluator(vector)
     vector.data[EVALUATOR].run()
 
-def retrieve_action_types():
-    """retrieve all action types"""
-    result = ()
-    for instance in get_session(ACTION).query(ActionType):
-        result += (instance,)
+# def retrieve_action_types():
+#     """retrieve all action types"""
+#     result = ()
+#     for instance in get_session(ACTION).query(ActionType):
+#         result += (instance,)
 
-    return result
+#     return result
 
-def retrieve_reason_types():
-    """retrieve all reason types"""
-    result = ()
-    for instance in get_session(ACTION).query(ReasonType):
-        result += (instance,)
+# def retrieve_reason_types():
+#     """retrieve all reason types"""
+#     result = ()
+#     for instance in get_session(ACTION).query(ReasonType):
+#         result += (instance,)
 
-    return result
+#     return result
 
 class Evaluator(object):
     """The action EVALUATOR examines files and paths and proposes actions based on conditional methods contained by ReasonTypes"""
 
     def __init__(self, vector):
+        self.vector = vector
         self.vector_scanner = PathVectorScanner(vector, self.handle_vector_path, handle_error_func=self.handle_error)
 
     def handle_error(self, error, path):
@@ -59,7 +61,7 @@ class Evaluator(object):
     
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
-        reasons = retrieve_reason_types()
+        reasons = SQLMetaReason.retrieve_all()
 
         files = SQLAsset.retrieve(const.DOCUMENT, path, use_like_in_where_clause=True)
 
@@ -74,8 +76,8 @@ class Evaluator(object):
                 condition_func = introspection.get_func(condition)
 
                 if condition_func and condition_func(document):
-                    new_reason = Reason()
-                    new_reason.reason_type = reason
+                    reason_record = SQLReason()
+                    reason_record.meta_reason = reason
 
                     # for param in reason.params
                     # path_param = ReasonParam();
@@ -84,7 +86,7 @@ class Evaluator(object):
                     # path_param.
 
                     session = alchemy.get_session(alchemy.ACTION)
-                    session.add(new_reason)
+                    session.add(reason_record)
                     session.commit()
 
         # folders = sql.retrieve_values2('document', ['index_name', 'doc_type', 'id', 'absolute_path'], [config.es_index, const.DIRECTORY])
@@ -99,7 +101,7 @@ class Evaluator(object):
                 condition = introspection.get_func(dispatch.func_name)
 
                 if condition(directory):
-                    new_reason = Reason()
+                    new_reason = SQLReason()
                     new_reason.reason_type = reason
                     # params = sql.retrieve_values2('reason_type_params', ['reason_type_id', 'id', 'vector_param_name'], [reason.id])
 
@@ -129,4 +131,5 @@ class Evaluator(object):
 
 
     def run(self):
+        # self.vector.reset(const.SCAN)
         self.vector_scanner.scan();

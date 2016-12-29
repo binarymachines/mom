@@ -4,7 +4,6 @@ import os
 import sql
 from core import cache2, log
 
-from walk import Walker
 
 LOG = log.get_log(__name__, logging.DEBUG)
 

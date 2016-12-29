@@ -12,14 +12,14 @@ class Action(Base):
     __tablename__ = 'action'
 
     id = Column(Integer, primary_key=True)
-    action_type_id = Column(ForeignKey(u'action_type.id'), index=True)
+    meta_action_id = Column(ForeignKey(u'meta_action.id'), index=True)
     action_status_id = Column(ForeignKey(u'action_status.id'), index=True)
     parent_action_id = Column(ForeignKey(u'action.id'), index=True)
     effective_dt = Column(DateTime, nullable=False)
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     action_status = relationship(u'ActionStatu')
-    action_type = relationship(u'ActionType')
+    meta_action = relationship(u'MetaAction')
     parent_action = relationship(u'Action', remote_side=[id])
 
 
@@ -40,27 +40,17 @@ class ActionParam(Base):
 
     id = Column(Integer, primary_key=True)
     action_id = Column(ForeignKey(u'action.id'), index=True)
-    action_param_type_id = Column(ForeignKey(u'action_param_type.id'), index=True)
+    meta_action_param_id = Column(ForeignKey(u'meta_action_param.id'), index=True)
     value = Column(String(255))
 
     action = relationship(u'Action')
-    action_param_type = relationship(u'ActionParamType')
-
-
-class ActionParamType(Base):
-    __tablename__ = 'action_param_type'
-
-    id = Column(Integer, primary_key=True)
-    vector_param_name = Column(String(128), nullable=False)
-    action_type_id = Column(ForeignKey(u'action_type.id'), nullable=False, index=True)
-
-    action_type = relationship(u'ActionType')
+    meta_action_param = relationship(u'MetaActionParam')
 
 
 t_action_reason = Table(
     'action_reason', metadata,
-    Column('action_type_id', ForeignKey(u'action_type.id'), primary_key=True, nullable=False, server_default=text("'0'")),
-    Column('reason_type_id', ForeignKey(u'reason_type.id'), primary_key=True, nullable=False, index=True)
+    Column('meta_action_id', ForeignKey(u'meta_action.id'), primary_key=True, nullable=False, server_default=text("'0'")),
+    Column('meta_reason_id', ForeignKey(u'meta_reason.id'), primary_key=True, nullable=False, index=True)
 )
 
 
@@ -71,64 +61,74 @@ class ActionStatu(Base):
     name = Column(String(255))
 
 
-class ActionType(Base):
-    __tablename__ = 'action_type'
+class MetaAction(Base):
+    __tablename__ = 'meta_action'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255))
-    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
+    name = Column(String(255), nullable=False)
+    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
     dispatch = relationship(u'ActionDispatch')
-    reason_types = relationship(u'ReasonType', secondary='action_reason')
+    meta_reasons = relationship(u'MetaReason', secondary='action_reason')
+
+
+class MetaActionParam(Base):
+    __tablename__ = 'meta_action_param'
+
+    id = Column(Integer, primary_key=True)
+    vector_param_name = Column(String(128), nullable=False)
+    meta_action_id = Column(ForeignKey(u'meta_action.id'), nullable=False, index=True)
+
+    meta_action = relationship(u'MetaAction')
+
+
+class MetaReason(Base):
+    __tablename__ = 'meta_reason'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    weight = Column(Integer, nullable=False, server_default=text("'10'"))
+    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
+
+    dispatch = relationship(u'ActionDispatch')
+
+
+class MetaReasonParam(Base):
+    __tablename__ = 'meta_reason_param'
+
+    id = Column(Integer, primary_key=True)
+    meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
+    vector_param_name = Column(String(128), nullable=False)
+
+    meta_reason = relationship(u'MetaReason')
 
 
 class Reason(Base):
     __tablename__ = 'reason'
 
     id = Column(Integer, primary_key=True)
-    reason_type_id = Column(ForeignKey(u'reason_type.id'), index=True)
+    meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
     action_id = Column(ForeignKey(u'action.id'), index=True)
     effective_dt = Column(DateTime, nullable=False)
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     action = relationship(u'Action')
-    reason_type = relationship(u'ReasonType')
+    meta_reason = relationship(u'MetaReason')
 
 
 class ReasonParam(Base):
     __tablename__ = 'reason_param'
 
     id = Column(Integer, primary_key=True)
-    action_id = Column(ForeignKey(u'action.id'), index=True)
-    reason_id = Column(ForeignKey(u'reason.id'), index=True)
-    reason_type_param_id = Column(ForeignKey(u'reason_type_param.id'), index=True)
+    action_id = Column(ForeignKey(u'action.id'), nullable=False, index=True)
+    reason_id = Column(ForeignKey(u'reason.id'), nullable=False, index=True)
+    meta_reason_param_id = Column(ForeignKey(u'meta_reason_param.id'), nullable=False, index=True)
     value = Column(String(255))
 
     action = relationship(u'Action')
+    meta_reason_param = relationship(u'MetaReasonParam')
     reason = relationship(u'Reason')
-    reason_type_param = relationship(u'ReasonTypeParam')
-
-
-class ReasonType(Base):
-    __tablename__ = 'reason_type'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255))
-    weight = Column(Integer, nullable=False, server_default=text("'10'"))
-    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
-
-    dispatch = relationship(u'ActionDispatch')
-
-
-class ReasonTypeParam(Base):
-    __tablename__ = 'reason_type_param'
-
-    id = Column(Integer, primary_key=True)
-    reason_type_id = Column(ForeignKey(u'reason_type.id'), index=True)
-    vector_param_name = Column(String(128), nullable=False)
-
-    reason_type = relationship(u'ReasonType')
 
 
 t_v_action_dispach_param = Table(
@@ -140,15 +140,19 @@ t_v_action_dispach_param = Table(
 
 t_v_action_reasons = Table(
     'v_action_reasons', metadata,
-    Column('action_type', String(255)),
-    Column('priority', Integer, server_default=text("'10'")),
+    Column('meta_action_id', Integer, server_default=text("'0'")),
+    Column('meta_action', String(255)),
+    Column('action_priority', Integer, server_default=text("'10'")),
+    Column('action_dispatch_id', Integer, server_default=text("'0'")),
     Column('action_dispatch_func', String(128)),
     Column('action_category', String(128)),
     Column('module', String(128)),
     Column('class_name', String(128)),
     Column('action_func', String(128)),
+    Column('meta_reason_id', Integer, server_default=text("'0'")),
     Column('reason', String(255)),
-    Column('weight', Integer, server_default=text("'10'")),
+    Column('reason_weight', Integer, server_default=text("'10'")),
+    Column('conditional_dispatch_id', Integer, server_default=text("'0'")),
     Column('conditional_dispatch_func', String(128)),
     Column('conditional_category', String(128)),
     Column('conditional_module', String(128)),
