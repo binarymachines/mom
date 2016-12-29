@@ -179,7 +179,7 @@ CREATE TABLE `document_metadata` (
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1110 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1245 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -340,7 +340,7 @@ CREATE TABLE `matcher_field` (
   `matcher_id` int(11) unsigned NOT NULL,
   `field_name` varchar(128) NOT NULL,
   `boost` float NOT NULL DEFAULT '0',
-  `bool` varchar(16) DEFAULT NULL,
+  `bool_` varchar(16) DEFAULT NULL,
   `operator` varchar(16) DEFAULT NULL,
   `minimum_should_match` float NOT NULL DEFAULT '0',
   `analyzer` varchar(64) DEFAULT NULL,

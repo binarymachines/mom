@@ -24,11 +24,11 @@ DROP TABLE IF EXISTS `member`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `member` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `org_id` int(11) unsigned NOT NULL,
   `username` varchar(64) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_member_org` (`org_id`),
-  CONSTRAINT `fk_member_org` FOREIGN KEY (`org_id`) REFERENCES `org` (`id`)
+  `org_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`,`org_id`),
+  KEY `fk_member_org_idx` (`org_id`),
+  CONSTRAINT `fk_member_org` FOREIGN KEY (`org_id`) REFERENCES `org` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

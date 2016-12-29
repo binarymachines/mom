@@ -234,12 +234,29 @@ DROP TABLE IF EXISTS `op_record_param`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `op_record_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `param_type_id` int(11) unsigned NOT NULL,
   `op_record_id` int(11) unsigned NOT NULL,
   `name` varchar(128) NOT NULL,
   `value` varchar(1024) NOT NULL,
   PRIMARY KEY (`id`),
+  KEY `fk_op_record_param_type_idx` (`param_type_id`),
   KEY `fk_op_record_param` (`op_record_id`),
+  CONSTRAINT `fk_op_record_param_type` FOREIGN KEY (`param_type_id`) REFERENCES `op_record_param_type` (`id`),
   CONSTRAINT `fk_op_record_param` FOREIGN KEY (`op_record_id`) REFERENCES `op_record` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `op_record_param_type`
+--
+
+DROP TABLE IF EXISTS `op_record_param_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `op_record_param_type` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `vector_param_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
