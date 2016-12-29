@@ -138,24 +138,24 @@ t_v_action_dispach_param = Table(
 )
 
 
-t_v_action_reasons = Table(
-    'v_action_reasons', metadata,
+t_v_action_reasons_w_ids = Table(
+    'v_action_reasons_w_ids', metadata,
     Column('meta_action_id', Integer, server_default=text("'0'")),
     Column('meta_action', String(255)),
     Column('action_priority', Integer, server_default=text("'10'")),
     Column('action_dispatch_id', Integer, server_default=text("'0'")),
+    Column('action_dispatch_identifier', String(128)),
+    Column('action_dispatch_category', String(128)),
+    Column('action_dispatch_module', String(128)),
+    Column('action_dispatch_class', String(128)),
     Column('action_dispatch_func', String(128)),
-    Column('action_category', String(128)),
-    Column('module', String(128)),
-    Column('class_name', String(128)),
-    Column('action_func', String(128)),
     Column('meta_reason_id', Integer, server_default=text("'0'")),
     Column('reason', String(255)),
     Column('reason_weight', Integer, server_default=text("'10'")),
     Column('conditional_dispatch_id', Integer, server_default=text("'0'")),
-    Column('conditional_dispatch_func', String(128)),
-    Column('conditional_category', String(128)),
-    Column('conditional_module', String(128)),
-    Column('conditional_class_name', String(128)),
-    Column('conditional_func', String(128))
+    Column('conditional_dispatch_identifier', String(128)),
+    Column('conditional_dispatch_category', String(128)),
+    Column('conditional_dispatch_module', String(128)),
+    Column('conditional_dispatch_class', String(128)),
+    Column('conditional_dispatch_func', String(128))
 )

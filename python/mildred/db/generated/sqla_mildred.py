@@ -213,7 +213,7 @@ class MatcherField(Base):
     matcher_id = Column(ForeignKey(u'matcher.id'), nullable=False, index=True)
     field_name = Column(String(128), nullable=False)
     boost = Column(Float, nullable=False, server_default=text("'0'"))
-    bool = Column(String(16))
+    bool_ = Column(String(16))
     operator = Column(String(16))
     minimum_should_match = Column(Float, nullable=False, server_default=text("'0'"))
     analyzer = Column(String(64))

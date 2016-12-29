@@ -153,14 +153,14 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_param` (
 );
 
 
-DROP VIEW IF EXISTS `v_action_reasons`;
+DROP VIEW IF EXISTS `v_action_reasons_w_ids`;
 
-CREATE VIEW `v_action_reasons` AS 
-    select at.id meta_action_id, at.name meta_action, at.priority action_priority, ad.id action_dispatch_id, ad.identifier action_dispatch_func, 
-        ad.category action_category, ad.module, ad.class_name, ad.func_name action_func,
+CREATE VIEW `v_action_reasons_w_ids` AS 
+    select at.id meta_action_id, at.name meta_action, at.priority action_priority, ad.id action_dispatch_id, ad.identifier action_dispatch_identifier, 
+        ad.category action_dispatch_category, ad.module action_dispatch_module, ad.class_name action_dispatch_class, ad.func_name action_dispatch_func,
         rt.id meta_reason_id, rt.name reason, rt.weight reason_weight,
-        ad2.id conditional_dispatch_id, ad2.identifier conditional_dispatch_func, ad2.category conditional_category, 
-        ad2.module conditional_module, ad2.class_name conditional_class_name, ad2.func_name conditional_func
+        ad2.id conditional_dispatch_id, ad2.identifier conditional_dispatch_identifier, ad2.category conditional_dispatch_category, 
+        ad2.module conditional_dispatch_module, ad2.class_name conditional_dispatch_class, ad2.func_name conditional_dispatch_func
 
     from meta_action at, 
         action_dispatch ad, 
@@ -174,6 +174,13 @@ CREATE VIEW `v_action_reasons` AS
         and rt.id = ar.meta_reason_id
 
     order by meta_action;
+
+-- DROP VIEW IF EXISTS `v_action_reasons`;
+--     select meta_action, action_priority, action_dispatch_func, action_category, ad.module, ad.class_name, ad.func_name action_func,
+--         rt.id meta_reason_id, rt.name reason, rt.weight reason_weight,
+--         ad2.id conditional_dispatch_id, ad2.identifier conditional_dispatch_func, ad2.category conditional_category, 
+--         ad2.module conditional_module, ad2.class_name conditional_class_name, ad2.func_name conditional_func
+
 
 create view `v_action_dispach_param` as
 select at.name action_dispatch_func, apt.vector_param_name

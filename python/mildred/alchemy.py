@@ -13,6 +13,7 @@ from errors import SQLIntegrityError
 
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
+from db.generated.sqla_mildred import Document
 
 import config
 
@@ -115,18 +116,16 @@ class SQLMetaReason(MetaReason):
 
         return result
 
-# end wrapper classses
 
-
-class SQLAsset(Base):
-    __tablename__ = 'document'
-    id = Column(String(256), primary_key=True)
-    index_name = Column(String(256), nullable=False)
-    doc_type = Column(String(256), nullable=False)
-    absolute_path = Column(String(256), nullable=False)
-    hexadecimal_key = Column(String(640), nullable=False)
-    effective_dt = Column('effective_dt', DateTime, nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+class SQLAsset(Document):
+    # __tablename__ = 'document'
+    # id = Column(String(256), primary_key=True)
+    # index_name = Column(String(256), nullable=False)
+    # doc_type = Column(String(256), nullable=False)
+    # absolute_path = Column(String(256), nullable=False)
+    # hexadecimal_key = Column(String(640), nullable=False)
+    # effective_dt = Column('effective_dt', DateTime, nullable=False)
+    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     
     def __repr__(self):
         return "<SQLAsset(index_name='%s', doc_type='%s', absolute_path='%s')>" % (
@@ -181,6 +180,7 @@ class SQLAsset(Base):
 
         return result
 
+# end wrapper classes
 
 class SQLCauseOfDefect(Base):
     __tablename__ = 'cause_of_defect'
@@ -337,7 +337,7 @@ class SQLMatcherField(Base):
     matcher_id = Column(Integer, ForeignKey('matcher.id'))
     field_name = Column('field_name', String(128), nullable=False)
     boost = Column('boost', Float)
-    bool = Column('bool', String(16))
+    bool_ = Column('bool_', String(16))
     operator = Column('operator', String(16))
     minimum_should_match = Column('minimum_should_match', Float, nullable=False)
     analyzer = Column('analyzer', String(64))
