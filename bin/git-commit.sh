@@ -1,5 +1,6 @@
 clear
 git status
+
 #git add $M2/doc/*.ods
 git add $M2/java/MildredCacheMonitor/*.xml
 git add $M2/java/MildredCacheMonitor/*.sh
@@ -33,4 +34,6 @@ git add $M2/db/setup/*.sql
 git add $M2/bin/*.sh
 git add $M2/db/design/*.sql
 git add $M2/db/design/*.mwb
+git add db/orientdb/*.json
+
 git status
