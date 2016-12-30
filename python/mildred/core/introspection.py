@@ -26,7 +26,6 @@ LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
 def dynamic_func(function):
-    
     def wrapper(*args, **kwargs):
         try:
             return function(*args, **kwargs)
@@ -35,7 +34,7 @@ def dynamic_func(function):
             # raise err
 
     return wrapper
-    
+
 def get_func(qname):
     return locate(qname)
 

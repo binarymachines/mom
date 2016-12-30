@@ -191,7 +191,7 @@ def get_hash(key_group, identifier):
 def get_hash2(key):
     identifier = DELIM.join([HASH, key])
     result = redis.hgetall(identifier)
-    LOG.debug('get_hash2ss(key=%s) returns %s' % (key, result))
+    LOG.debug('get_hash2(key=%s) returns %s' % (key, result))
     return result
 
 
