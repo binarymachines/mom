@@ -296,7 +296,7 @@ def add_items2(key, items):
     for item in items:
         key = DELIM.join([LIST, key])
         result = redis.sadd(key, item)
-        LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+        # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def clear_items(key_group, identifier):
