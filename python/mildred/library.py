@@ -10,7 +10,7 @@ import time
 from elasticsearch.exceptions import ConnectionError, RequestError
 
 from alchemy import SQLAsset
-import config
+import config, const
 from const import DOCUMENT, DIRECTORY, HEXID, MATCH
 import ops
 import pathutil
@@ -171,14 +171,12 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
         ERR.warning("File %s is missing or is not readable" % absolute_path)
         return None
     
-    asset = Document()
+    asset = Document(absolute_path, esid=esid)
     filename = os.path.split(absolute_path)[1]
     extension = os.path.splitext(absolute_path)[1]
     filename = filename.replace(extension, '')
     extension = extension.replace('.', '')
 
-    asset.esid = esid
-    asset.absolute_path = absolute_path
     asset.file_name = filename
     asset.location = get_library_location(absolute_path)
     asset.ext = extension

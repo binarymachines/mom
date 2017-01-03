@@ -51,10 +51,11 @@ def get_known_fields(doc_format):
 
 
 def report_invalid_field(path, key, value):
-
-    LOG.debug('Field %s in %s contains too much data.' % (key, path))
-    LOG.debug(value)
-
+    try:
+        LOG.debug('Field %s in %s contains too much data.' % (key, path))
+        LOG.debug(value)
+    except Exception, err:
+        print err.message
 
 class FileHandler(object):
     def __init__(self, name):

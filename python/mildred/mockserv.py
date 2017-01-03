@@ -8,6 +8,7 @@ import config
 import ops
 import search
 import eval
+import scan
 
 import sql
 import library 
@@ -433,17 +434,17 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        time.sleep(1)
+        scan.scan(self.vector)
 
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
-        time.sleep(1)
+        scan.scan(self.vector)
 
 
     def do_scan(self):
         print  "update scan starting..."
-        time.sleep(1)
+        scan.scan(self.vector)
 
     def should_monitor(self, selector=None, active=None, possible=None):
         return True

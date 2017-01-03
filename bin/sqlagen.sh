@@ -1,14 +1,14 @@
 clear
 rm $M2/python/mildred/db/generated/*.p*
 
-echo 'updating mildred'
-mysql mildred  < $M2/db/design/mildred.sql
-echo 'updating mildred action'
-mysql mildred_action < $M2/db/design/action.sql
-echo 'updating mildred introspection'
-mysql mildred_introspection < $M2/db/design/introspection.sql
-echo 'updating scratch'
-mysql scratch < $M2/db/design/scratch.sql
+# echo 'updating mildred'
+# mysql mildred  < $M2/db/design/mildred.sql
+# echo 'updating mildred action'
+# mysql mildred_action < $M2/db/design/action.sql
+# echo 'updating mildred introspection'
+# mysql mildred_introspection < $M2/db/design/introspection.sql
+# echo 'updating scratch'
+# mysql scratch < $M2/db/design/scratch.sql
 
 touch $M2/python/mildred/db/__init__.py
 touch $M2/python/mildred/db/generated/__init__.py

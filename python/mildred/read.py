@@ -44,7 +44,7 @@ class Reader:
             instance = clazz()
 
             for file_type in handler.file_types:
-                instance.extensions += file_type.name.lower(),
+                instance.extensions += file_type.ext.lower(),
             
             self.file_handlers += instance,
 

@@ -14,7 +14,7 @@ from errors import SQLIntegrityError
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
 from db.generated.sqla_mildred import Document, Directory, FileHandler, FileHandlerType, FileFormat, FileType, Matcher, MatcherField, Matched
-from db.generated.sqla_introspection import ExecRec, Mode, ModeDefault, ModeState, ModeStateDefault, ModeStateDefaultParam, State
+from db.generated.sqla_introspection import ExecRec, Mode, ModeDefault, ModeState, ModeStateDefault, ModeStateDefaultParam, State, OpRecord
 
 import config
 
@@ -30,19 +30,26 @@ ACTION = 'action'
 MEDIA = 'media'
 SCRATCH = 'scratch'
 
-_primary = (MILDRED, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db))
-_introspection = (INTROSPECTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection'))
-_admin = (ADMIN, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin'))
-_action = (ACTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_action'))
-_media = (MEDIA, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, MEDIA))
-_scratch = (SCRATCH, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, SCRATCH))
+mildred = (MILDRED, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db))
+introspection = (INTROSPECTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_introspection'))
+admin = (ADMIN, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_admin'))
+action = (ACTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'mildred_action'))
+media = (MEDIA, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, MEDIA))
+scratch = (SCRATCH, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, SCRATCH))
 
 engines = {}
 sessions = {}
-for dbconf in (_primary, _introspection, _admin, _action, _media, _scratch):
+for dbconf in (mildred, introspection, admin, action, media, scratch):
     engine = create_engine(dbconf[1])
     engines[dbconf[0]] = engine
     sessions[dbconf[0]] = sessionmaker(bind=engine)()
+
+
+class SQLAlchemyIntegrityError(SQLIntegrityError):
+    def __init__(self, cause, session, message=None):
+        session = session
+        super(SQLAlchemyIntegrityError, self).__init__(cause, message)
+
 
 def alchemy_operation(function):
     def wrapper(*args, **kwargs):
@@ -53,21 +60,27 @@ def alchemy_operation(function):
 
             ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
 
-        except IntegrityError, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        except SQLAlchemyIntegrityError, err:
             print err.__class__.__name__
-            for param in err.params:
-                print param
-            for arg in err.args:
-                print arg
+            err.session.rollback()
 
-            sessions[MILDRED].rollback()
+            raise Exception(err.cause)     
 
-            raise SQLIntegrityError(err, err.message)
+        # except IntegrityError, err:
+        #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        #     print err.__class__.__name__
+        #     for param in err.params:
+        #         print param
+        #     for arg in err.args:
+        #         print arg
 
-        except Exception, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            raise err
+        #     sessions[MILDRED].rollback()
+
+        #     raise SQLIntegrityError(err, err.message)
+
+        # except Exception, err:
+        #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        #     raise err
 
     return wrapper
 
@@ -86,6 +99,7 @@ class SQLAction(Action):
 
         return result
 
+
 class SQLMetaAction(MetaAction):
     
     @staticmethod
@@ -96,6 +110,7 @@ class SQLMetaAction(MetaAction):
 
         return result
 
+
 class SQLReason(Reason):
     
     @staticmethod
@@ -105,6 +120,7 @@ class SQLReason(Reason):
             result += (instance,)
 
         return result
+
 
 class SQLMetaReason(MetaReason):
     
@@ -118,14 +134,6 @@ class SQLMetaReason(MetaReason):
 
 
 class SQLAsset(Document):
-    # __tablename__ = 'document'
-    # id = Column(String(256), primary_key=True)
-    # index_name = Column(String(256), nullable=False)
-    # doc_type = Column(String(256), nullable=False)
-    # absolute_path = Column(String(256), nullable=False)
-    # hexadecimal_key = Column(String(640), nullable=False)
-    # effective_dt = Column('effective_dt', DateTime, nullable=False)
-    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     
     def __repr__(self):
         return "<SQLAsset(index_name='%s', doc_type='%s', absolute_path='%s')>" % (
@@ -134,26 +142,16 @@ class SQLAsset(Document):
     @staticmethod
     def insert(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
         asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
-            effective_dt=datetime.datetime.now(), expiration_dt=expiration_dt)
+            effective_dt=datetime.datetime.now())
 
         try:
             sessions[MILDRED].add(asset)
             sessions[MILDRED].commit()
         except IntegrityError, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            print err.__class__.__name__
-            for param in err.params:
-                print param
-            for arg in err.args:
-                print arg
-
-            sessions[MILDRED].rollback()
-
-            raise SQLIntegrityError(err, err.message)
+            raise SQLAlchemyIntegrityError(err, err, sessions[MILDRED], message=err.message)
 
     @staticmethod
     def retrieve(doc_type, absolute_path=None, use_like_in_where_clause=True):
-        # path = '%s%s%s' % (absolute_path, os.path.sep, '%') if not absolute_path.endswith(os.path.sep) else absolute_path
         path = '%s%s' % (absolute_path, '%')
 
         result = ()
@@ -180,28 +178,11 @@ class SQLAsset(Document):
 
         return result
 
-# class SQLCauseOfDefect(Base):
-#     __tablename__ = 'cause_of_defect'
-#     id = Column('id', Integer, primary_key=True, autoincrement=True)
-#     index_name = Column('index_name', String(128), nullable=False)
-#     index_name = Column('name', String(128), nullable=False)
-#     exception_class = Column('exception_class', String(128), nullable=False)
-
-
-
-# class SQLEngine(Base):
-#     __tablename__ = 'engine'
-#     id = Column('id', Integer, primary_key=True, autoincrement=True)
-#     index_name = Column('index_name', String(128), nullable=False)
-#     index_name = Column('name', String(128), nullable=False)
-#     effective_rule = Column('effective_rule', String(128), nullable=False)
-#     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
-    # self.stop_on_errors = stop_on_errors
-
 
 class SQLExecutionRecord(ExecRec):
 
     @staticmethod
+    @alchemy_operation
     def insert(kwargs):
         rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_dt=config.start_time, status=kwargs['status'])
 
@@ -210,10 +191,7 @@ class SQLExecutionRecord(ExecRec):
             sessions[INTROSPECTION].commit()
             return rec_exec
         except IntegrityError, err:
-            print '\a'
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-
-            sessions[INTROSPECTION].rollback()
+            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
 
 
     @staticmethod
@@ -228,32 +206,22 @@ class SQLExecutionRecord(ExecRec):
         if len(result) == 1:
             return result[0]
 
-
     @staticmethod
+    @alchemy_operation
     def update(kwargs):
         
         try:
             exec_rec=SQLExecutionRecord.retrieve()
             exec_rec.status = 'terminated'
             exec_rec.expiration_dt = datetime.datetime.now()
-            # sessions[INTROSPECTION].add(rec_exec)
+            sessions[INTROSPECTION].add(rec_exec)
             sessions[INTROSPECTION].commit()
             return exec_rec
         except IntegrityError, err:
-            print '\a'
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        
-        sessions[INTROSPECTION].rollback()
+            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
 
 
 class SQLFileHandler(FileHandler):
-    # __tablename__ = 'file_handler'
-
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # module = Column('module', String(128), nullable=False)
-    # package = Column('package', String(1024), nullable=False)
-    # class_name = Column('class_name', String(128), nullable=False)
-    # active_flag = Column('active_flag', Boolean, nullable=False)
 
     @staticmethod
     def retrieve_active():
@@ -274,11 +242,6 @@ class SQLFileHandler(FileHandler):
 
 
 class SQLFileHandlerType(FileHandlerType): 
-    # __tablename__ = 'file_handler_type'
-
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # file_handler_id = Column(Integer, ForeignKey('file_handler.id'))
-    # name = Column('file_type', String(8), nullable=False)
 
     # replacing relationship in parent class
     file_handler = relationship("SQLFileHandler", back_populates="file_types")
@@ -287,18 +250,6 @@ SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileH
 
 
 class SQLMatcher(Matcher):
-    # __tablename__ = 'matcher'
-
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # index_name = Column('index_name', String(128), nullable=False)
-    # name = Column('name', String(128), nullable=False)
-    # query_type = Column('query_type', String(64), nullable=False)
-    # name = Column('name', String(64), nullable=False)
-    # max_score_percentage = Column('max_score_percentage', Float, nullable=False)
-    # applies_to_file_type = Column('applies_to_file_type', String(6), nullable=False)
-    # active_flag = Column('active_flag', Boolean, nullable=False)
-    # effective_dt = Column('effective_dt', DateTime, nullable=False)
-    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
     @staticmethod
     def retrieve_active():
@@ -318,20 +269,8 @@ class SQLMatcher(Matcher):
 
         return result
 
+
 class SQLMatcherField(MatcherField):
-    # __tablename__ = 'matcher_field'
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # index_name = Column('index_name', String(128), nullable=False)
-    # document_type = Column('document_type', String(64), nullable=False)
-    # matcher_id = Column(Integer, ForeignKey('matcher.id'))
-    # field_name = Column('field_name', String(128), nullable=False)
-    # boost = Column('boost', Float)
-    # bool_ = Column('bool_', String(16))
-    # operator = Column('operator', String(16))
-    # minimum_should_match = Column('minimum_should_match', Float, nullable=False)
-    # analyzer = Column('analyzer', String(64))
-    # query_section = Column('query_section', String(128))
-    # default_value = Column('default_value', String(128))
 
     # replacing relationship in parent class
     matcher = relationship("SQLMatcher", back_populates="match_fields")
@@ -340,17 +279,9 @@ SQLMatcher.match_fields = relationship("SQLMatcherField", order_by=SQLMatcherFie
 
 
 class SQLMatch(Matched):
-    # __tablename__ = 'matched'
-    # doc_id = Column('doc_id', String(64), primary_key=True, nullable=False)
-    # match_doc_id = Column('match_doc_id', String(64), primary_key=True, nullable=False)
-    # index_name = Column('index_name', String(128), nullable=False)
-    # # matcher_id = Column('matcher_id', String(64), primary_key=True, nullable=False)
-    # matcher_name = Column('matcher_name', String(64), nullable=False)
-    # percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
-    # comparison_result = Column('comparison_result', String(1), nullable=True)
-    # same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
 
     @staticmethod
+    @alchemy_operation
     def insert(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
         # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
         match_rec = SQLMatch(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
@@ -360,18 +291,10 @@ class SQLMatch(Matched):
             sessions[MILDRED].add(match_rec)
             sessions[MILDRED].commit()
         except IntegrityError, err:
-            print '\a'
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            sessions[MILDRED].rollback()
-            #TODO raise SQL Exception that contains the session to be rolled back by alchemy decorator
+            raise SQLAlchemyIntegrityError(err, err, sessions[MILDRED], message=err.message)
+
 
 class SQLMode(Mode):
-    # __tablename__ = 'mode'
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # index_name = Column('index_name', String(128), nullable=False)
-    # name = Column('name', String(128), nullable=False)
-    # effective_dt = Column('effective_dt', DateTime, nullable=False)
-    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
     @staticmethod
     def retrieve_all():
@@ -383,6 +306,7 @@ class SQLMode(Mode):
         return result
 
     @staticmethod
+    @alchemy_operation
     def insert(name):
         mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
         try:
@@ -390,10 +314,7 @@ class SQLMode(Mode):
             sessions[INTROSPECTION].commit()
             return mode_rec.id
         except IntegrityError, err:
-            print '\a'
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            sessions[INTROSPECTION].rollback()
-
+            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
 
     @staticmethod
     def retrieve(mode):
@@ -403,7 +324,6 @@ class SQLMode(Mode):
                 result += (instance,)
 
         return result[0] if len(result) == 1 else None
-
 
     @staticmethod
     def retrieve_by_name(name):
@@ -419,16 +339,7 @@ class SQLMode(Mode):
 
 
 class SQLState(State):
-    # __tablename__ = 'state'
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # index_name = Column('index_name', String(128), nullable=False)
-    # name = Column('name', String(128), nullable=False)
-    # is_initial_state = Column('initial_state_flag', Boolean, nullable=True)
-    # is_terminal_state = Column('terminal_state_flag', Boolean, nullable=True)
-    # effective_dt = Column('effective_dt', DateTime, nullable=False)
-    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
-    # states
     @staticmethod
     def retrieve_all():
         result = ()
@@ -438,7 +349,6 @@ class SQLState(State):
 
         return result
 
-
     @staticmethod
     def retrieve(state):
         result = ()
@@ -447,7 +357,6 @@ class SQLState(State):
             result += (instance,)
 
         return result[0] if len(result) == 1 else None
-
 
     @staticmethod
     def retrieve_by_name(name):
@@ -463,36 +372,14 @@ class SQLState(State):
 
 
 class SQLModeState(ModeState):
-    # __tablename__ = 'mode_state'
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # index_name = Column('index_name', String(128), nullable=False)
-
-    # pid = Column('pid', String(32), nullable=False)
-    # mode_id = Column(Integer, ForeignKey('mode.id'))
-    # state_id = Column(Integer, ForeignKey('state.id'))
-    # mode = relationship(u'SQLMode', back_populates="state_records")
-
-    # status = Column('status', String(128), nullable=False)
-    # last_activated = Column('last_activated', DateTime, nullable=True)
-    # last_completed = Column('last_completed', DateTime, nullable=True)
-    # # priority = Column('priority', Integer, nullable=False)
-    # times_activated = Column('times_activated', Integer, nullable=False)
-    # times_completed = Column('times_completed', Integer, nullable=False)
-    # # times_to_complete = Column('times_to_complete', Integer, nullable=False)
-    # # dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
-    # # inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
-    # error_count = Column('error_count', Integer, nullable=False)
-    # cum_error_count = Column('cum_error_count', Integer, nullable=False)
-    # # error_tolerance = Column('error_tolerance', Integer, nullable=False)
-    # # cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
-    # effective_dt = Column('effective_dt', DateTime, nullable=False)
-    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
     # replacing relationship in parent class
+    # mode = relationship(u'SQLMode', back_populates="state_records")
     mode = relationship(u'SQLMode')
     state = relationship(u'SQLState')
 
     @staticmethod
+    @alchemy_operation
     def insert(mode):
         sqlmode = SQLMode.retrieve(mode)
         sqlstate = SQLState.retrieve(mode.get_state())
@@ -505,9 +392,7 @@ class SQLModeState(ModeState):
             sessions[INTROSPECTION].commit()
             return mode_state_rec.id
         except IntegrityError, err:
-            print '\a'
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            sessions[INTROSPECTION].rollback()
+            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
 
 
     @staticmethod
@@ -519,7 +404,6 @@ class SQLModeState(ModeState):
                 result += (instance,)
 
         return result[0] if len(result) == 1 else None
-
 
     @staticmethod
     def retrieve_previous(mode):
@@ -547,6 +431,7 @@ class SQLModeState(ModeState):
 
 
     @staticmethod
+    @alchemy_operation
     def update(mode, expire=False):
 
         if mode.mode_state_id:
@@ -567,100 +452,44 @@ class SQLModeState(ModeState):
                 sessions[INTROSPECTION].commit()
                 return None if expire else mode_state_rec
             except IntegrityError, err:
-                print '\a'
-                ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                sessions[INTROSPECTION].rollback()
+                raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
 
-        else:
-            raise Exception('no mode state to save!')
+        # (else):
+        raise Exception('no mode state to save!')
+
 
 class SQLModeStateDefault(ModeStateDefault):
-    # __tablename__ = 'mode_state_default'
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # index_name = Column('index_name', String(128), nullable=False)
-    # mode_id = Column(Integer, ForeignKey('mode.id'))
-    # state_id = Column(Integer,  ForeignKey('state.id'))
     
     mode = relationship("SQLMode", back_populates="mode_defaults")
     state = relationship("SQLState", back_populates="state_defaults")
-
-    # priority = Column('priority', Integer, nullable=False)
-    # dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
-    # inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
-    # times_to_complete = Column('times_to_complete', Integer, nullable=False)
-    # error_tolerance = Column('error_tolerance', Integer, nullable=False)
-    # # status = Column('status', String(128), nullable=False)
-    # effective_dt = Column('effective_dt', DateTime, nullable=False)
-    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 SQLMode.mode_defaults = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="mode")
 SQLState.state_defaults = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="state")
 
 
-
 class SQLModeStateDefaultParam(ModeStateDefaultParam):
-    # __tablename__ = 'mode_state_default_param'
-    # id = Column('id', Integer, primary_key=True, autoincrement=True)
-    # index_name = Column('index_name', String(128), nullable=False)
-    # mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
+    
     mode_state_default = relationship("SQLModeStateDefault", back_populates="default_params")
-
-    # name = Column('name', String(128), nullable=False)
-    # value = Column('value', String(1024), nullable=False)
 
 SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", order_by=SQLModeStateDefaultParam.id,
                                                   back_populates="mode_state_default")
 
 
-# class SQLModeStateTransitionRecord(Base):
-#     __tablename__ = 'mode_state_trans_error'
-#     id = Column('id', Integer, primary_key=True, autoincrement=True)
-#     index_name = Column('index_name', String(128), nullable=False)
-#     effective_rule = Column('effective_rule', String(128), nullable=False)
-#     error_dt = Column('error_dt', DateTime, nullable=False)
-#     exception_class = Column('exception_class', String(128), nullable=False)
-
-
-class SQLModeStateTransitionError(Base):
-    __tablename__ = 'mode_state_trans_error'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    effective_rule = Column('effective_rule', String(128), nullable=False)
-    error_dt = Column('error_dt', DateTime, nullable=False)
-    exception_class = Column('exception_class', String(128), nullable=False)
-
-
-class SQLOperationRecord(Base):
-    __tablename__ = 'op_record'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    pid = Column('pid', String(32), nullable=False)
-    operator_name = Column('operator_name', String(64), nullable=False)
-    operation_name = Column('operation_name', String(64), nullable=False)
-    target_esid = Column('target_esid', String(64), nullable=False)
-    target_path = Column('target_path', String(1024), nullable=False)
-    status = Column('status', String(64), nullable=False)
-    start_time = Column('start_time', DateTime, nullable=False)
-    end_time = Column('end_time', DateTime, nullable=True)
-    effective_dt = Column('effective_dt', DateTime, nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
-    target_hexadecimal_key = Column(String(640), nullable=False)
+class SQLOperationRecord(OpRecord):
 
     @staticmethod
+    @alchemy_operation
     def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
         op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
-                                    target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status, effective_dt=datetime.datetime.now(), \
-                                    expiration_dt=datetime.datetime.max, target_hexadecimal_key=target_path.encode('hex'))
+                                    target_esid=target_esid, target_path=target_path, start_time=start_time, status=status, \
+                                    target_hexadecimal_key=target_path.encode('hex'))
 
         try:
             sessions[INTROSPECTION].add(op_rec)
             sessions[INTROSPECTION].commit()
-        except RuntimeWarning, warn:
-            ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
-        except Exception, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            raise err
+        except IntegrityError, err:
+            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
 
 
     @staticmethod
@@ -687,4 +516,40 @@ class SQLOperationRecord(Base):
                     result += (instance,)
 
         return result
+
+
+# class SQLModeStateTransitionRecord(Base):
+#     __tablename__ = 'mode_state_trans_error'
+#     id = Column('id', Integer, primary_key=True, autoincrement=True)
+#     index_name = Column('index_name', String(128), nullable=False)
+#     effective_rule = Column('effective_rule', String(128), nullable=False)
+#     error_dt = Column('error_dt', DateTime, nullable=False)
+#     exception_class = Column('exception_class', String(128), nullable=False)
+
+
+# class SQLModeStateTransitionError(Base):
+#     __tablename__ = 'mode_state_trans_error'
+#     id = Column('id', Integer, primary_key=True, autoincrement=True)
+#     index_name = Column('index_name', String(128), nullable=False)
+#     effective_rule = Column('effective_rule', String(128), nullable=False)
+#     error_dt = Column('error_dt', DateTime, nullable=False)
+#     exception_class = Column('exception_class', String(128), nullable=False)
+
+
+# class SQLCauseOfDefect(Base):
+#     __tablename__ = 'cause_of_defect'
+#     id = Column('id', Integer, primary_key=True, autoincrement=True)
+#     index_name = Column('index_name', String(128), nullable=False)
+#     index_name = Column('name', String(128), nullable=False)
+#     exception_class = Column('exception_class', String(128), nullable=False)
+
+
+# class SQLEngine(Base):
+#     __tablename__ = 'engine'
+#     id = Column('id', Integer, primary_key=True, autoincrement=True)
+#     index_name = Column('index_name', String(128), nullable=False)
+#     index_name = Column('name', String(128), nullable=False)
+#     effective_rule = Column('effective_rule', String(128), nullable=False)
+#     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+    # self.stop_on_errors = stop_on_errors
 
