@@ -227,49 +227,6 @@ def set_hash2(key, values):
         result = redis.hmset(identifier, values)
         LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
 
-
-# lists of hashsets
-# These hashsets differ from the hashes handled by set_hash, set_hash2, get_hash, get_hash2, etc. in that they are \
-# intended to be owned by a compound key and are removed when that key is deleted
-
-def add_hashset(keyname, set_identifier, hashset):
-
-    key = get_key(keyname, set_identifier)
-    hlkey = DELIM.join([LIST, HASH, key])
-
-    count = len(get_items2(hlkey))
-    keyinlist = DELIM.join([key, str(count)])
-
-    set_hash2(keyinlist, hashset)
-    add_item2(hlkey, keyinlist)
-
-
-def clear_hashsets(keyname, set_identifier):
-    key = get_key(keyname, set_identifier)
-    hlkey = DELIM.join([LIST, HASH, key])
-
-    count = len(get_items2(hlkey))
-    for index in range(count):
-        keyinlist = DELIM.join([key, str(index)])
-        delete_hash2(keyinlist)
-
-    clear_items2(hlkey)
-
-
-def get_hashsets(keyname, set_identifier):
-    result = []
-
-    key = get_key(keyname, set_identifier)
-    hlkey = DELIM.join([LIST, HASH, key])
-    count = len(get_items2(hlkey))
-
-    for index in range(count):
-        keyinlist = DELIM.join([key, str(index)])
-        ahash = get_hash2(keyinlist)
-        result.append(ahash)
-
-    return result
-
 # lists
 
 def add_item(key_group, identifier, item):
@@ -326,6 +283,49 @@ def get_items2(key):
     key = DELIM.join([LIST, key])
     result = redis.smembers(key)
     LOG.debug('get_items(key=%s) returns: %s' % (key, str(result)))
+    return result
+
+
+# lists of hashsets
+# These hashsets differ from the hashes handled by set_hash, set_hash2, get_hash, get_hash2, etc. in that they are \
+# intended to be owned by a compound key and are removed when that key is deleted
+
+def add_hashset(keyname, set_identifier, hashset):
+
+    key = get_key(keyname, set_identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+
+    count = len(get_items2(hlkey))
+    keyinlist = DELIM.join([key, str(count)])
+
+    set_hash2(keyinlist, hashset)
+    add_item2(hlkey, keyinlist)
+
+
+def clear_hashsets(keyname, set_identifier):
+    key = get_key(keyname, set_identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+
+    count = len(get_items2(hlkey))
+    for index in range(count):
+        keyinlist = DELIM.join([key, str(index)])
+        delete_hash2(keyinlist)
+
+    clear_items2(hlkey)
+
+
+def get_hashsets(keyname, set_identifier):
+    result = []
+
+    key = get_key(keyname, set_identifier)
+    hlkey = DELIM.join([LIST, HASH, key])
+    count = len(get_items2(hlkey))
+
+    for index in range(count):
+        keyinlist = DELIM.join([key, str(index)])
+        ahash = get_hash2(keyinlist)
+        result.append(ahash)
+
     return result
 
 

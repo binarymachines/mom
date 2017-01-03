@@ -13,7 +13,8 @@ from errors import SQLIntegrityError
 
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
-from db.generated.sqla_mildred import Document
+from db.generated.sqla_mildred import Document, Directory, FileHandler, FileHandlerType, FileFormat, FileType, Matcher, MatcherField, Matched
+from db.generated.sqla_introspection import ExecRec, Mode, ModeDefault, ModeState, ModeStateDefault, ModeStateDefaultParam, State
 
 import config
 
@@ -22,7 +23,6 @@ ERR = log.get_log('errors', logging.WARNING)
 
 Base = declarative_base()
 
-# engines = []
 MILDRED = 'mildred'
 INTROSPECTION = 'introspection'
 ADMIN = 'admin'
@@ -37,11 +37,11 @@ _action = (ACTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_p
 _media = (MEDIA, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, MEDIA))
 _scratch = (SCRATCH, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, SCRATCH))
 
+engines = {}
 sessions = {}
 for dbconf in (_primary, _introspection, _admin, _action, _media, _scratch):
     engine = create_engine(dbconf[1])
-    # engines.append(engine)
-    # sessions.append(sessionmaker(bind=engine)())
+    engines[dbconf[0]] = engine
     sessions[dbconf[0]] = sessionmaker(bind=engine)()
 
 def alchemy_operation(function):
@@ -74,7 +74,7 @@ def alchemy_operation(function):
 def get_session(name):
     return sessions[name]
 
-# these wraer classes exteend classes found in  mildred.db.generated.xyz
+# wrapper classes extend classes found in mildred.db.generated.xyz
 
 class SQLAction(Action):
 
@@ -180,43 +180,30 @@ class SQLAsset(Document):
 
         return result
 
-# end wrapper classes
-
-class SQLCauseOfDefect(Base):
-    __tablename__ = 'cause_of_defect'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    index_name = Column('name', String(128), nullable=False)
-    exception_class = Column('exception_class', String(128), nullable=False)
+# class SQLCauseOfDefect(Base):
+#     __tablename__ = 'cause_of_defect'
+#     id = Column('id', Integer, primary_key=True, autoincrement=True)
+#     index_name = Column('index_name', String(128), nullable=False)
+#     index_name = Column('name', String(128), nullable=False)
+#     exception_class = Column('exception_class', String(128), nullable=False)
 
 
 
-class SQLEngine(Base):
-    __tablename__ = 'engine'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    index_name = Column('name', String(128), nullable=False)
-    effective_rule = Column('effective_rule', String(128), nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+# class SQLEngine(Base):
+#     __tablename__ = 'engine'
+#     id = Column('id', Integer, primary_key=True, autoincrement=True)
+#     index_name = Column('index_name', String(128), nullable=False)
+#     index_name = Column('name', String(128), nullable=False)
+#     effective_rule = Column('effective_rule', String(128), nullable=False)
+#     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # self.stop_on_errors = stop_on_errors
 
 
-class SQLExecutionRecord(Base):
-    __tablename__ = 'exec_rec'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    pid = Column('pid', String(32), nullable=False)
-    status = Column('status', String(64), nullable=False)
-    start_time = Column('start_dt', DateTime, nullable=False)
-    end_time = Column('end_dt', DateTime, nullable=True)
-    effective_dt = Column('effective_dt', DateTime, nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
-
+class SQLExecutionRecord(ExecRec):
 
     @staticmethod
     def insert(kwargs):
-        rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_time=config.start_time, \
-            effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, status=kwargs['status'])
+        rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_dt=config.start_time, status=kwargs['status'])
 
         try:
             sessions[INTROSPECTION].add(rec_exec)
@@ -259,14 +246,14 @@ class SQLExecutionRecord(Base):
         sessions[INTROSPECTION].rollback()
 
 
-class SQLFileHandler(Base):
-    __tablename__ = 'file_handler'
+class SQLFileHandler(FileHandler):
+    # __tablename__ = 'file_handler'
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    module = Column('module', String(128), nullable=False)
-    package = Column('package', String(1024), nullable=False)
-    class_name = Column('class_name', String(128), nullable=False)
-    active_flag = Column('active_flag', Boolean, nullable=False)
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # module = Column('module', String(128), nullable=False)
+    # package = Column('package', String(1024), nullable=False)
+    # class_name = Column('class_name', String(128), nullable=False)
+    # active_flag = Column('active_flag', Boolean, nullable=False)
 
     @staticmethod
     def retrieve_active():
@@ -286,28 +273,30 @@ class SQLFileHandler(Base):
         return result
 
 
-class SQLFileHandlerType(Base): 
-    __tablename__ = 'file_handler_type'
+class SQLFileHandlerType(FileHandlerType): 
+    # __tablename__ = 'file_handler_type'
 
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    file_handler_id = Column(Integer, ForeignKey('file_handler.id'))
-    name = Column('file_type', String(8), nullable=False)
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # file_handler_id = Column(Integer, ForeignKey('file_handler.id'))
+    # name = Column('file_type', String(8), nullable=False)
 
+    # replacing relationship in parent class
     file_handler = relationship("SQLFileHandler", back_populates="file_types")
 
 SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileHandlerType.id, back_populates="file_handler")
 
 
-class SQLMatcher(Base):
-    __tablename__ = 'matcher'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    name = Column('name', String(128), nullable=False)
-    query_type = Column('query_type', String(64), nullable=False)
-    name = Column('name', String(64), nullable=False)
-    max_score_percentage = Column('max_score_percentage', Float, nullable=False)
-    applies_to_file_type = Column('applies_to_file_type', String(6), nullable=False)
-    active_flag = Column('active_flag', Boolean, nullable=False)
+class SQLMatcher(Matcher):
+    # __tablename__ = 'matcher'
+
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # index_name = Column('index_name', String(128), nullable=False)
+    # name = Column('name', String(128), nullable=False)
+    # query_type = Column('query_type', String(64), nullable=False)
+    # name = Column('name', String(64), nullable=False)
+    # max_score_percentage = Column('max_score_percentage', Float, nullable=False)
+    # applies_to_file_type = Column('applies_to_file_type', String(6), nullable=False)
+    # active_flag = Column('active_flag', Boolean, nullable=False)
     # effective_dt = Column('effective_dt', DateTime, nullable=False)
     # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
@@ -329,38 +318,37 @@ class SQLMatcher(Base):
 
         return result
 
-class SQLMatcherField(Base):
-    __tablename__ = 'matcher_field'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    document_type = Column('document_type', String(64), nullable=False)
-    matcher_id = Column(Integer, ForeignKey('matcher.id'))
-    field_name = Column('field_name', String(128), nullable=False)
-    boost = Column('boost', Float)
-    bool_ = Column('bool_', String(16))
-    operator = Column('operator', String(16))
-    minimum_should_match = Column('minimum_should_match', Float, nullable=False)
-    analyzer = Column('analyzer', String(64))
-    query_section = Column('query_section', String(128))
-    default_value = Column('default_value', String(128))
+class SQLMatcherField(MatcherField):
+    # __tablename__ = 'matcher_field'
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # index_name = Column('index_name', String(128), nullable=False)
+    # document_type = Column('document_type', String(64), nullable=False)
+    # matcher_id = Column(Integer, ForeignKey('matcher.id'))
+    # field_name = Column('field_name', String(128), nullable=False)
+    # boost = Column('boost', Float)
+    # bool_ = Column('bool_', String(16))
+    # operator = Column('operator', String(16))
+    # minimum_should_match = Column('minimum_should_match', Float, nullable=False)
+    # analyzer = Column('analyzer', String(64))
+    # query_section = Column('query_section', String(128))
+    # default_value = Column('default_value', String(128))
 
-
+    # replacing relationship in parent class
     matcher = relationship("SQLMatcher", back_populates="match_fields")
 
 SQLMatcher.match_fields = relationship("SQLMatcherField", order_by=SQLMatcherField.id, back_populates="matcher")
 
 
-class SQLMatch(Base):
-    __tablename__ = 'matched'
-    doc_id = Column('doc_id', String(64), primary_key=True, nullable=False)
-    match_doc_id = Column('match_doc_id', String(64), primary_key=True, nullable=False)
-    index_name = Column('index_name', String(128), nullable=False)
-    # matcher_id = Column('matcher_id', String(64), primary_key=True, nullable=False)
-    matcher_name = Column('matcher_name', String(64), nullable=False)
-    percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
-    comparison_result = Column('comparison_result', String(1), nullable=True)
-    same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
-
+class SQLMatch(Matched):
+    # __tablename__ = 'matched'
+    # doc_id = Column('doc_id', String(64), primary_key=True, nullable=False)
+    # match_doc_id = Column('match_doc_id', String(64), primary_key=True, nullable=False)
+    # index_name = Column('index_name', String(128), nullable=False)
+    # # matcher_id = Column('matcher_id', String(64), primary_key=True, nullable=False)
+    # matcher_name = Column('matcher_name', String(64), nullable=False)
+    # percentage_of_max_score = Column('percentage_of_max_score', Float, nullable=False)
+    # comparison_result = Column('comparison_result', String(1), nullable=True)
+    # same_ext_flag = Column('same_ext_flag', Boolean, nullable=True)
 
     @staticmethod
     def insert(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
@@ -377,13 +365,13 @@ class SQLMatch(Base):
             sessions[MILDRED].rollback()
             #TODO raise SQL Exception that contains the session to be rolled back by alchemy decorator
 
-class SQLMode(Base):
-    __tablename__ = 'mode'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    name = Column('name', String(128), nullable=False)
-    effective_dt = Column('effective_dt', DateTime, nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+class SQLMode(Mode):
+    # __tablename__ = 'mode'
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # index_name = Column('index_name', String(128), nullable=False)
+    # name = Column('name', String(128), nullable=False)
+    # effective_dt = Column('effective_dt', DateTime, nullable=False)
+    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
     @staticmethod
     def retrieve_all():
@@ -430,15 +418,15 @@ class SQLMode(Base):
         return result[0] if len(result) == 1 else None
 
 
-class SQLState(Base):
-    __tablename__ = 'state'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    name = Column('name', String(128), nullable=False)
-    is_initial_state = Column('initial_state_flag', Boolean, nullable=True)
-    is_terminal_state = Column('terminal_state_flag', Boolean, nullable=True)
-    effective_dt = Column('effective_dt', DateTime, nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+class SQLState(State):
+    # __tablename__ = 'state'
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # index_name = Column('index_name', String(128), nullable=False)
+    # name = Column('name', String(128), nullable=False)
+    # is_initial_state = Column('initial_state_flag', Boolean, nullable=True)
+    # is_terminal_state = Column('terminal_state_flag', Boolean, nullable=True)
+    # effective_dt = Column('effective_dt', DateTime, nullable=False)
+    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
     # states
     @staticmethod
@@ -474,32 +462,35 @@ class SQLState(Base):
         return result[0] if len(result) == 1 else None
 
 
-class SQLModeState(Base):
-    __tablename__ = 'mode_state'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
+class SQLModeState(ModeState):
+    # __tablename__ = 'mode_state'
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # index_name = Column('index_name', String(128), nullable=False)
 
-    pid = Column('pid', String(32), nullable=False)
-    mode_id = Column(Integer, ForeignKey('mode.id'))
-    state_id = Column(Integer, ForeignKey('state.id'))
-    # mode = relationship("SQLMode", back_populates="state_records")
+    # pid = Column('pid', String(32), nullable=False)
+    # mode_id = Column(Integer, ForeignKey('mode.id'))
+    # state_id = Column(Integer, ForeignKey('state.id'))
+    # mode = relationship(u'SQLMode', back_populates="state_records")
 
-    status = Column('status', String(128), nullable=False)
-    last_activated = Column('last_activated', DateTime, nullable=True)
-    last_completed = Column('last_completed', DateTime, nullable=True)
-    # priority = Column('priority', Integer, nullable=False)
-    times_activated = Column('times_activated', Integer, nullable=False)
-    times_completed = Column('times_completed', Integer, nullable=False)
-    # times_to_complete = Column('times_to_complete', Integer, nullable=False)
-    # dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
-    # inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
-    error_count = Column('error_count', Integer, nullable=False)
-    cum_error_count = Column('cum_error_count', Integer, nullable=False)
-    # error_tolerance = Column('error_tolerance', Integer, nullable=False)
-    # cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
-    effective_dt = Column('effective_dt', DateTime, nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+    # status = Column('status', String(128), nullable=False)
+    # last_activated = Column('last_activated', DateTime, nullable=True)
+    # last_completed = Column('last_completed', DateTime, nullable=True)
+    # # priority = Column('priority', Integer, nullable=False)
+    # times_activated = Column('times_activated', Integer, nullable=False)
+    # times_completed = Column('times_completed', Integer, nullable=False)
+    # # times_to_complete = Column('times_to_complete', Integer, nullable=False)
+    # # dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
+    # # inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
+    # error_count = Column('error_count', Integer, nullable=False)
+    # cum_error_count = Column('cum_error_count', Integer, nullable=False)
+    # # error_tolerance = Column('error_tolerance', Integer, nullable=False)
+    # # cum_error_tolerance = Column('cum_error_tolerance', Integer, nullable=False)
+    # effective_dt = Column('effective_dt', DateTime, nullable=False)
+    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
+    # replacing relationship in parent class
+    mode = relationship(u'SQLMode')
+    state = relationship(u'SQLState')
 
     @staticmethod
     def insert(mode):
@@ -507,7 +498,7 @@ class SQLModeState(Base):
         sqlstate = SQLState.retrieve(mode.get_state())
         mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, index_name=config.es_index, times_activated=mode.times_activated, \
             times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, status=mode.get_state().name, \
-            effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max, pid=str(config.pid))
+            effective_dt=datetime.datetime.now(), pid=str(config.pid))
 
         try:
             sessions[INTROSPECTION].add(mode_state_rec)
@@ -583,39 +574,39 @@ class SQLModeState(Base):
         else:
             raise Exception('no mode state to save!')
 
-class SQLModeStateDefault(Base):
-    __tablename__ = 'mode_state_default'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    mode_id = Column(Integer, ForeignKey('mode.id'))
-    state_id = Column(Integer,  ForeignKey('state.id'))
+class SQLModeStateDefault(ModeStateDefault):
+    # __tablename__ = 'mode_state_default'
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # index_name = Column('index_name', String(128), nullable=False)
+    # mode_id = Column(Integer, ForeignKey('mode.id'))
+    # state_id = Column(Integer,  ForeignKey('state.id'))
     
     mode = relationship("SQLMode", back_populates="mode_defaults")
     state = relationship("SQLState", back_populates="state_defaults")
 
-    priority = Column('priority', Integer, nullable=False)
-    dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
-    inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
-    times_to_complete = Column('times_to_complete', Integer, nullable=False)
-    error_tolerance = Column('error_tolerance', Integer, nullable=False)
-    # status = Column('status', String(128), nullable=False)
-    effective_dt = Column('effective_dt', DateTime, nullable=False)
-    expiration_dt = Column('expiration_dt', DateTime, nullable=True)
+    # priority = Column('priority', Integer, nullable=False)
+    # dec_priority_amount = Column('dec_priority_amount', Integer, nullable=False)
+    # inc_priority_amount = Column('inc_priority_amount', Integer, nullable=False)
+    # times_to_complete = Column('times_to_complete', Integer, nullable=False)
+    # error_tolerance = Column('error_tolerance', Integer, nullable=False)
+    # # status = Column('status', String(128), nullable=False)
+    # effective_dt = Column('effective_dt', DateTime, nullable=False)
+    # expiration_dt = Column('expiration_dt', DateTime, nullable=True)
 
 SQLMode.mode_defaults = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="mode")
 SQLState.state_defaults = relationship("SQLModeStateDefault", order_by=SQLModeStateDefault.id, back_populates="state")
 
 
 
-class SQLModeStateDefaultParam(Base):
-    __tablename__ = 'mode_state_default_param'
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    index_name = Column('index_name', String(128), nullable=False)
-    mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
+class SQLModeStateDefaultParam(ModeStateDefaultParam):
+    # __tablename__ = 'mode_state_default_param'
+    # id = Column('id', Integer, primary_key=True, autoincrement=True)
+    # index_name = Column('index_name', String(128), nullable=False)
+    # mode_state_default_id = Column(Integer, ForeignKey('mode_state_default.id'))
     mode_state_default = relationship("SQLModeStateDefault", back_populates="default_params")
 
-    name = Column('name', String(128), nullable=False)
-    value = Column('value', String(1024), nullable=False)
+    # name = Column('name', String(128), nullable=False)
+    # value = Column('value', String(1024), nullable=False)
 
 SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", order_by=SQLModeStateDefaultParam.id,
                                                   back_populates="mode_state_default")

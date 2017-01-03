@@ -42,6 +42,7 @@ class Evaluator(object):
 
     def handle_vector_path(self, path):
         self.generate_reasons(path)
+        pass
 
     def evaluate_asset(self, reasons, document):
         for reason in reasons:

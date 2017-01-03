@@ -216,6 +216,7 @@ CREATE TABLE `file_handler_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `file_handler_id` int(11) unsigned NOT NULL,
   `file_type` varchar(128) DEFAULT NULL,
+  `name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
   CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
@@ -628,18 +629,18 @@ insert into file_handler (module, class_name, active_flag) values ('pathogen', '
 insert into file_handler (module, class_name) values ('pathogen', 'MutagenOggFlac');
 insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenOggVorbis', 1);
 
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenAAC'), 'aac');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenAPEv2'), 'ape');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenAPEv2'), 'mpc');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenFLAC'), 'flac');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenID3'), 'mp3');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenID3'), 'flac');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenMP4'), 'mp4');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenMP4'), 'm4a');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'ogg');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'flac');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'ogg');
-insert into file_handler_type (file_handler_id, file_type) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'oga');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenAAC'), 'aac', 'mutagen-aac');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenAPEv2'), 'ape', 'mutagen-ape');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenAPEv2'), 'mpc', 'mutagen-mpc');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenFLAC'), 'flac', 'mutagen-flac');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenID3'), 'mp3', 'mutagen-id3-mp3');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenID3'), 'flac', 'mutagen-id3-flac');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenMP4'), 'mp4', 'mutagen-mp4');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenMP4'), 'm4a', 'mutagen-m4a');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'ogg', 'mutagen-ogg');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'flac', 'mutagen-ogg-flac');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'ogg', 'mutagen-ogg-vorbis');
+insert into file_handler_type (file_handler_id, file_type, name) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'oga', 'mutagen-ogg-oga');
 
 
 INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3V2','COMM',1);

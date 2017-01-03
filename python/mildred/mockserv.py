@@ -22,7 +22,7 @@ from core.states import State
 from core.serv import SingleSelectorServiceProcess
 
 from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
-import introspection
+from core import introspection
 
 LOG = log.get_log(__name__, logging.DEBUG)
 

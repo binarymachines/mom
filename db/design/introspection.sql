@@ -80,7 +80,7 @@ CREATE TABLE `introspection_dispatch` (
   `package` varchar(128) DEFAULT NULL,
   `module` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
-  `func_name` varchar(128) NOT NULL,
+  `func_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -293,30 +293,30 @@ CREATE TABLE `switch_rule` (
 );
 
 create view `v_mode_switch_rule_dispatch` as
-select sr.name, m1.name begin_mode, m2.name end_mode, 
-    d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func, 
-    d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
-    d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
- from mode m1, mode m2, switch_rule sr, introspection_dispatch d1, introspection_dispatch d2, introspection_dispatch d3
-where sr.begin_mode_id = m1.id and 
-    sr.end_mode_id = m2.id and 
-    sr.condition_dispatch_id = d1.id and
-    sr.before_dispatch_id = d2.id and
-    sr.after_dispatch_id = d3.id
-order by m1.id;
+    select sr.name, m1.name begin_mode, m2.name end_mode, 
+        d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func, 
+        d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
+        d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
+    from mode m1, mode m2, switch_rule sr, introspection_dispatch d1, introspection_dispatch d2, introspection_dispatch d3
+    where sr.begin_mode_id = m1.id and 
+        sr.end_mode_id = m2.id and 
+        sr.condition_dispatch_id = d1.id and
+        sr.before_dispatch_id = d2.id and
+        sr.after_dispatch_id = d3.id
+    order by m1.id;
 
 create view `v_mode_switch_rule_dispatch_w_id` as
-select sr.name, m1.id begin_mode_id, m1.name begin_mode, m2.id end_mode_id, m2.name end_mode, 
-    d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func, 
-    d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
-    d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
- from mode m1, mode m2, switch_rule sr, introspection_dispatch d1, introspection_dispatch d2, introspection_dispatch d3
-where sr.begin_mode_id = m1.id and 
-    sr.end_mode_id = m2.id and 
-    sr.condition_dispatch_id = d1.id and
-    sr.before_dispatch_id = d2.id and
-    sr.after_dispatch_id = d3.id
-order by m1.id;
+    select sr.name, m1.id begin_mode_id, m1.name begin_mode, m2.id end_mode_id, m2.name end_mode, 
+        d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func, 
+        d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
+        d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
+    from mode m1, mode m2, switch_rule sr, introspection_dispatch d1, introspection_dispatch d2, introspection_dispatch d3
+    where sr.begin_mode_id = m1.id and 
+        sr.end_mode_id = m2.id and 
+        sr.condition_dispatch_id = d1.id and
+        sr.before_dispatch_id = d2.id and
+        sr.after_dispatch_id = d3.id
+    order by m1.id;
 
 INSERT INTO transition_rule(name, mode_id, begin_state_id, end_state_id, condition_dispatch_id)
     VALUES('scan.discover::update',
@@ -427,24 +427,23 @@ INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_
 INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'monitor'), (select id from introspection_dispatch where identifier = 'scan.monitor'),now(), 5);
 
 create view `v_mode_state_default_transition_rule_dispatch` as
-select tr.name, m.name mode, s1.name begin_state, s2.name end_state, 
-    d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
- from mode m, mode_state_default md, transition_rule tr, state s1, state s2, introspection_dispatch d1
-where m.id = md.mode_id and md.state_id = s1.id and
-    tr.begin_state_id = s1.id and 
-    tr.end_state_id = s2.id and 
-    tr.condition_dispatch_id = d1.id;
+    select tr.name, m.name mode, s1.name begin_state, s2.name end_state, 
+        d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
+    from mode m, mode_state_default md, transition_rule tr, state s1, state s2, introspection_dispatch d1
+    where m.id = md.mode_id and md.state_id = s1.id and
+        tr.begin_state_id = s1.id and 
+        tr.end_state_id = s2.id and 
+        tr.condition_dispatch_id = d1.id;
 
 create view `v_mode_state_default_transition_rule_dispatch_w_id` as
-select tr.name, m.id mode_id, m.name mode, s1.id begin_state_id, s1.name begin_state, s2.id end_state_id, s2.name end_state, 
-    d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
- from mode m, mode_state_default md, transition_rule tr, state s1, state s2, introspection_dispatch d1
-where m.id = md.mode_id and md.state_id = s1.id and
-    tr.begin_state_id = s1.id and 
-    tr.end_state_id = s2.id and 
-    tr.condition_dispatch_id = d1.id;
-
--- order by m.id;
+    select tr.name, m.id mode_id, m.name mode, s1.id begin_state_id, s1.name begin_state, s2.id end_state_id, s2.name end_state, 
+        d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
+    from mode m, mode_state_default md, transition_rule tr, state s1, state s2, introspection_dispatch d1
+    where m.id = md.mode_id and md.state_id = s1.id and
+        tr.begin_state_id = s1.id and 
+        tr.end_state_id = s2.id and 
+        tr.condition_dispatch_id = d1.id
+    order by m.id;
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('startup',
@@ -752,7 +751,6 @@ CREATE VIEW `v_mode_state` AS
   ORDER BY ms.effective_dt;
 
 
-
 CREATE TABLE `exec_rec` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `pid` varchar(32) NOT NULL,
@@ -760,8 +758,8 @@ CREATE TABLE `exec_rec` (
   `status` varchar(128) NOT NULL,
   `start_dt` datetime NOT NULL,
   `end_dt` datetime DEFAULT NULL,
-  `effective_dt` datetime NOT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  `effective_dt` datetime DEFAULT now(),
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
 

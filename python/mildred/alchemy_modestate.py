@@ -53,14 +53,14 @@ class AlchemyModeStateReader(ModeStateReader):
 
 
     def initialize_mode(self, mode):
-        alchemy_mode  = SQLMode.retrieve_by_name(mode.name)
+        alchemy_mode = SQLMode.retrieve_by_name(mode.name)
         if alchemy_mode:
             mode.id = alchemy_mode.id
             LOG.info('initializing states for %s' % mode.name)
             for default in alchemy_mode.mode_defaults:
                 state = State(default.state.name, data=default, id=default.state_id)
-                state.is_initial_state = default.state.is_initial_state
-                state.is_terminal_state = default.state.is_terminal_state
+                state.is_initial_state = default.state.initial_state_flag
+                state.is_terminal_state = default.state.terminal_state_flag
 
                 state.params = ()
                 for param in default.default_params:
@@ -69,7 +69,7 @@ class AlchemyModeStateReader(ModeStateReader):
                         value = True
                     elif str(value).lower() == 'false':
                         value = False
-        
+
                     LOG.info('adding vector param [%s] to state [%s]' % (param.name, state.name))
                     state.add_param(param.name, value)
 

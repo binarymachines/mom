@@ -28,7 +28,7 @@ CREATE TABLE `vector` (
 
 CREATE TABLE `param_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) NOT NULL,
+  -- `name` varchar(128) NOT NULL,
   `identifier` varchar(256) NOT NULL,
   `sql_type` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)

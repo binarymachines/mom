@@ -144,6 +144,7 @@ class FileHandlerType(Base):
     id = Column(Integer, primary_key=True)
     file_handler_id = Column(ForeignKey(u'file_handler.id'), nullable=False, index=True)
     file_type = Column(String(128))
+    name = Column(String(128), nullable=False)
 
     file_handler = relationship(u'FileHandler')
 

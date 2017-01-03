@@ -8,15 +8,6 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class Context(Base):
-    __tablename__ = 'context'
-
-    id = Column(Integer, primary_key=True)
-    pid = Column(Integer, nullable=False)
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
-
-
 class Param(Base):
     __tablename__ = 'param'
 
@@ -31,7 +22,6 @@ class ParamType(Base):
     __tablename__ = 'param_type'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(128), nullable=False)
     identifier = Column(String(256), nullable=False)
     sql_type = Column(String(256))
 

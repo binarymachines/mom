@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, ForeignKey, Index, Integer, String, Table, text
+from sqlalchemy import Column, DateTime, ForeignKey, Index, Integer, String, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -29,8 +29,8 @@ class ExecRec(Base):
     status = Column(String(128), nullable=False)
     start_dt = Column(DateTime, nullable=False)
     end_dt = Column(DateTime)
-    effective_dt = Column(DateTime, nullable=False)
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
+    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class IntrospectionDispatch(Base):
@@ -42,7 +42,7 @@ class IntrospectionDispatch(Base):
     package = Column(String(128))
     module = Column(String(128), nullable=False)
     class_name = Column(String(128))
-    func_name = Column(String(128), nullable=False)
+    func_name = Column(String(128))
 
 
 class Mode(Base):
@@ -220,173 +220,3 @@ class TransitionRule(Base):
     condition_dispatch = relationship(u'IntrospectionDispatch')
     end_state = relationship(u'State', primaryjoin='TransitionRule.end_state_id == State.id')
     mode = relationship(u'Mode')
-
-
-t_v_mode_default_dispatch = Table(
-    'v_mode_default_dispatch', metadata,
-    Column('name', String(128)),
-    Column('package', String(128)),
-    Column('module', String(128)),
-    Column('class_name', String(128)),
-    Column('func_name', String(128)),
-    Column('priority', Integer, server_default=text("'0'")),
-    Column('dec_priority_amount', Integer, server_default=text("'1'")),
-    Column('inc_priority_amount', Integer, server_default=text("'0'")),
-    Column('times_to_complete', Integer, server_default=text("'1'")),
-    Column('error_tolerance', Integer, server_default=text("'0'"))
-)
-
-
-t_v_mode_default_dispatch_w_id = Table(
-    'v_mode_default_dispatch_w_id', metadata,
-    Column('mode_id', Integer, server_default=text("'0'")),
-    Column('mode_name', String(128)),
-    Column('stateful_flag', Integer, server_default=text("'0'")),
-    Column('handler_package', String(128)),
-    Column('handler_module', String(128)),
-    Column('handler_class', String(128)),
-    Column('handler_func', String(128)),
-    Column('priority', Integer, server_default=text("'0'")),
-    Column('dec_priority_amount', Integer, server_default=text("'1'")),
-    Column('inc_priority_amount', Integer, server_default=text("'0'")),
-    Column('times_to_complete', Integer, server_default=text("'1'")),
-    Column('error_tolerance', Integer, server_default=text("'0'"))
-)
-
-
-t_v_mode_state = Table(
-    'v_mode_state', metadata,
-    Column('mode_name', String(128)),
-    Column('state_name', String(128)),
-    Column('status', String(64)),
-    Column('pid', String(32)),
-    Column('times_activated', Integer, server_default=text("'0'")),
-    Column('times_completed', Integer, server_default=text("'0'")),
-    Column('last_activated', DateTime),
-    Column('last_completed', DateTime),
-    Column('error_count', Integer, server_default=text("'0'")),
-    Column('cum_error_count', Integer, server_default=text("'0'")),
-    Column('effective_dt', DateTime),
-    Column('expiration_dt', DateTime, server_default=text("'9999-12-31 23:59:59'"))
-)
-
-
-t_v_mode_state_default_dispatch = Table(
-    'v_mode_state_default_dispatch', metadata,
-    Column('mode_name', String(128)),
-    Column('state_name', String(128)),
-    Column('identifier', String(128)),
-    Column('package', String(128)),
-    Column('module', String(128)),
-    Column('class_name', String(128)),
-    Column('func_name', String(128)),
-    Column('priority', Integer, server_default=text("'0'")),
-    Column('dec_priority_amount', Integer, server_default=text("'1'")),
-    Column('inc_priority_amount', Integer, server_default=text("'0'")),
-    Column('times_to_complete', Integer, server_default=text("'1'")),
-    Column('error_tolerance', Integer, server_default=text("'0'")),
-    Column('effective_dt', DateTime),
-    Column('expiration_dt', DateTime, server_default=text("'9999-12-31 23:59:59'"))
-)
-
-
-t_v_mode_state_default_dispatch_w_id = Table(
-    'v_mode_state_default_dispatch_w_id', metadata,
-    Column('mode_id', Integer, server_default=text("'0'")),
-    Column('state_id', Integer, server_default=text("'0'")),
-    Column('state_name', String(128)),
-    Column('identifier', String(128)),
-    Column('package', String(128)),
-    Column('module', String(128)),
-    Column('class_name', String(128)),
-    Column('func_name', String(128)),
-    Column('priority', Integer, server_default=text("'0'")),
-    Column('dec_priority_amount', Integer, server_default=text("'1'")),
-    Column('inc_priority_amount', Integer, server_default=text("'0'")),
-    Column('times_to_complete', Integer, server_default=text("'1'")),
-    Column('error_tolerance', Integer, server_default=text("'0'")),
-    Column('effective_dt', DateTime),
-    Column('expiration_dt', DateTime, server_default=text("'9999-12-31 23:59:59'"))
-)
-
-
-t_v_mode_state_default_param = Table(
-    'v_mode_state_default_param', metadata,
-    Column('mode_name', String(128)),
-    Column('state_name', String(128)),
-    Column('name', String(128)),
-    Column('value', String(1024)),
-    Column('effective_dt', DateTime),
-    Column('expiration_dt', DateTime, server_default=text("'9999-12-31 23:59:59'"))
-)
-
-
-t_v_mode_state_default_transition_rule_dispatch = Table(
-    'v_mode_state_default_transition_rule_dispatch', metadata,
-    Column('name', String(128)),
-    Column('mode', String(128)),
-    Column('begin_state', String(128)),
-    Column('end_state', String(128)),
-    Column('condition_package', String(128)),
-    Column('condition_module', String(128)),
-    Column('condition_class', String(128)),
-    Column('condition_func', String(128))
-)
-
-
-t_v_mode_state_default_transition_rule_dispatch_w_id = Table(
-    'v_mode_state_default_transition_rule_dispatch_w_id', metadata,
-    Column('name', String(128)),
-    Column('mode_id', Integer, server_default=text("'0'")),
-    Column('mode', String(128)),
-    Column('begin_state_id', Integer, server_default=text("'0'")),
-    Column('begin_state', String(128)),
-    Column('end_state_id', Integer, server_default=text("'0'")),
-    Column('end_state', String(128)),
-    Column('condition_package', String(128)),
-    Column('condition_module', String(128)),
-    Column('condition_class', String(128)),
-    Column('condition_func', String(128))
-)
-
-
-t_v_mode_switch_rule_dispatch = Table(
-    'v_mode_switch_rule_dispatch', metadata,
-    Column('name', String(128)),
-    Column('begin_mode', String(128)),
-    Column('end_mode', String(128)),
-    Column('condition_package', String(128)),
-    Column('condition_module', String(128)),
-    Column('condition_class', String(128)),
-    Column('condition_func', String(128)),
-    Column('before_package', String(128)),
-    Column('before_module', String(128)),
-    Column('before_class', String(128)),
-    Column('before_func', String(128)),
-    Column('after_package', String(128)),
-    Column('after_module', String(128)),
-    Column('after_class', String(128)),
-    Column('after_func', String(128))
-)
-
-
-t_v_mode_switch_rule_dispatch_w_id = Table(
-    'v_mode_switch_rule_dispatch_w_id', metadata,
-    Column('name', String(128)),
-    Column('begin_mode_id', Integer, server_default=text("'0'")),
-    Column('begin_mode', String(128)),
-    Column('end_mode_id', Integer, server_default=text("'0'")),
-    Column('end_mode', String(128)),
-    Column('condition_package', String(128)),
-    Column('condition_module', String(128)),
-    Column('condition_class', String(128)),
-    Column('condition_func', String(128)),
-    Column('before_package', String(128)),
-    Column('before_module', String(128)),
-    Column('before_class', String(128)),
-    Column('before_func', String(128)),
-    Column('after_package', String(128)),
-    Column('after_module', String(128)),
-    Column('after_class', String(128)),
-    Column('after_func', String(128))
-)
