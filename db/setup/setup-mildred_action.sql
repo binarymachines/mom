@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
 --
 -- Host: localhost    Database: mildred_action
 -- ------------------------------------------------------
--- Server version	5.5.53-0ubuntu0.14.04.1
+-- Server version	5.7.17
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -224,54 +224,51 @@ CREATE TABLE `reason_param` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Temporary table structure for view `v_action_dispach_param`
+-- Temporary view structure for view `v_action_dispach_param`
 --
 
 DROP TABLE IF EXISTS `v_action_dispach_param`;
 /*!50001 DROP VIEW IF EXISTS `v_action_dispach_param`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_action_dispach_param` (
-  `action_dispatch_func` tinyint NOT NULL,
-  `vector_param_name` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_action_dispach_param` AS SELECT 
+ 1 AS `action_dispatch_func`,
+ 1 AS `vector_param_name`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_action_reasons_w_ids`
+-- Temporary view structure for view `v_action_reasons_w_ids`
 --
 
 DROP TABLE IF EXISTS `v_action_reasons_w_ids`;
 /*!50001 DROP VIEW IF EXISTS `v_action_reasons_w_ids`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_action_reasons_w_ids` (
-  `meta_action_id` tinyint NOT NULL,
-  `meta_action` tinyint NOT NULL,
-  `action_priority` tinyint NOT NULL,
-  `action_dispatch_id` tinyint NOT NULL,
-  `action_dispatch_identifier` tinyint NOT NULL,
-  `action_dispatch_category` tinyint NOT NULL,
-  `action_dispatch_module` tinyint NOT NULL,
-  `action_dispatch_class` tinyint NOT NULL,
-  `action_dispatch_func` tinyint NOT NULL,
-  `meta_reason_id` tinyint NOT NULL,
-  `reason` tinyint NOT NULL,
-  `reason_weight` tinyint NOT NULL,
-  `conditional_dispatch_id` tinyint NOT NULL,
-  `conditional_dispatch_identifier` tinyint NOT NULL,
-  `conditional_dispatch_category` tinyint NOT NULL,
-  `conditional_dispatch_module` tinyint NOT NULL,
-  `conditional_dispatch_class` tinyint NOT NULL,
-  `conditional_dispatch_func` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_action_reasons_w_ids` AS SELECT 
+ 1 AS `meta_action_id`,
+ 1 AS `meta_action`,
+ 1 AS `action_priority`,
+ 1 AS `action_dispatch_id`,
+ 1 AS `action_dispatch_identifier`,
+ 1 AS `action_dispatch_category`,
+ 1 AS `action_dispatch_module`,
+ 1 AS `action_dispatch_class`,
+ 1 AS `action_dispatch_func`,
+ 1 AS `meta_reason_id`,
+ 1 AS `reason`,
+ 1 AS `reason_weight`,
+ 1 AS `conditional_dispatch_id`,
+ 1 AS `conditional_dispatch_identifier`,
+ 1 AS `conditional_dispatch_category`,
+ 1 AS `conditional_dispatch_module`,
+ 1 AS `conditional_dispatch_class`,
+ 1 AS `conditional_dispatch_func`*/;
 SET character_set_client = @saved_cs_client;
 
 --
 -- Final view structure for view `v_action_dispach_param`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_action_dispach_param`*/;
 /*!50001 DROP VIEW IF EXISTS `v_action_dispach_param`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -290,7 +287,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_action_reasons_w_ids`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_action_reasons_w_ids`*/;
 /*!50001 DROP VIEW IF EXISTS `v_action_reasons_w_ids`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;

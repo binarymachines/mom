@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
 --
 -- Host: localhost    Database: mildred_introspection
 -- ------------------------------------------------------
--- Server version	5.5.53-0ubuntu0.14.04.1
+-- Server version	5.7.17
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -48,10 +48,10 @@ CREATE TABLE `exec_rec` (
   `status` varchar(128) NOT NULL,
   `start_dt` datetime NOT NULL,
   `end_dt` datetime DEFAULT NULL,
-  `effective_dt` datetime NOT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,7 +68,7 @@ CREATE TABLE `introspection_dispatch` (
   `package` varchar(128) DEFAULT NULL,
   `module` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
-  `func_name` varchar(128) NOT NULL,
+  `func_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -146,7 +146,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -241,8 +241,8 @@ CREATE TABLE `op_record_param` (
   PRIMARY KEY (`id`),
   KEY `fk_op_record_param_type_idx` (`param_type_id`),
   KEY `fk_op_record_param` (`op_record_id`),
-  CONSTRAINT `fk_op_record_param_type` FOREIGN KEY (`param_type_id`) REFERENCES `op_record_param_type` (`id`),
-  CONSTRAINT `fk_op_record_param` FOREIGN KEY (`op_record_id`) REFERENCES `op_record` (`id`)
+  CONSTRAINT `fk_op_record_param` FOREIGN KEY (`op_record_id`) REFERENCES `op_record` (`id`),
+  CONSTRAINT `fk_op_record_param_type` FOREIGN KEY (`param_type_id`) REFERENCES `op_record_param_type` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -301,11 +301,11 @@ CREATE TABLE `switch_rule` (
   KEY `fk_switch_rule_before_dispatch` (`before_dispatch_id`),
   KEY `fk_switch_rule_condition_dispatch` (`condition_dispatch_id`),
   KEY `fk_switch_rule_after_dispatch` (`after_dispatch_id`),
-  CONSTRAINT `fk_switch_rule_begin_mode` FOREIGN KEY (`begin_mode_id`) REFERENCES `mode` (`id`),
-  CONSTRAINT `fk_switch_rule_end_mode` FOREIGN KEY (`end_mode_id`) REFERENCES `mode` (`id`),
+  CONSTRAINT `fk_switch_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `introspection_dispatch` (`id`),
   CONSTRAINT `fk_switch_rule_before_dispatch` FOREIGN KEY (`before_dispatch_id`) REFERENCES `introspection_dispatch` (`id`),
+  CONSTRAINT `fk_switch_rule_begin_mode` FOREIGN KEY (`begin_mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_switch_rule_condition_dispatch` FOREIGN KEY (`condition_dispatch_id`) REFERENCES `introspection_dispatch` (`id`),
-  CONSTRAINT `fk_switch_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `introspection_dispatch` (`id`)
+  CONSTRAINT `fk_switch_rule_end_mode` FOREIGN KEY (`end_mode_id`) REFERENCES `mode` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -328,258 +328,247 @@ CREATE TABLE `transition_rule` (
   KEY `fk_transition_rule_begin_state` (`begin_state_id`),
   KEY `fk_transition_rule_end_state` (`end_state_id`),
   KEY `fk_transition_rule_condition_dispatch` (`condition_dispatch_id`),
-  CONSTRAINT `fk_transition_rule_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_transition_rule_begin_state` FOREIGN KEY (`begin_state_id`) REFERENCES `state` (`id`),
+  CONSTRAINT `fk_transition_rule_condition_dispatch` FOREIGN KEY (`condition_dispatch_id`) REFERENCES `introspection_dispatch` (`id`),
   CONSTRAINT `fk_transition_rule_end_state` FOREIGN KEY (`end_state_id`) REFERENCES `state` (`id`),
-  CONSTRAINT `fk_transition_rule_condition_dispatch` FOREIGN KEY (`condition_dispatch_id`) REFERENCES `introspection_dispatch` (`id`)
+  CONSTRAINT `fk_transition_rule_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Temporary table structure for view `v_mode_default_dispatch`
+-- Temporary view structure for view `v_mode_default_dispatch`
 --
 
 DROP TABLE IF EXISTS `v_mode_default_dispatch`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_default_dispatch`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_default_dispatch` (
-  `name` tinyint NOT NULL,
-  `package` tinyint NOT NULL,
-  `module` tinyint NOT NULL,
-  `class_name` tinyint NOT NULL,
-  `func_name` tinyint NOT NULL,
-  `priority` tinyint NOT NULL,
-  `dec_priority_amount` tinyint NOT NULL,
-  `inc_priority_amount` tinyint NOT NULL,
-  `times_to_complete` tinyint NOT NULL,
-  `error_tolerance` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_default_dispatch` AS SELECT 
+ 1 AS `name`,
+ 1 AS `package`,
+ 1 AS `module`,
+ 1 AS `class_name`,
+ 1 AS `func_name`,
+ 1 AS `priority`,
+ 1 AS `dec_priority_amount`,
+ 1 AS `inc_priority_amount`,
+ 1 AS `times_to_complete`,
+ 1 AS `error_tolerance`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_default_dispatch_w_id`
+-- Temporary view structure for view `v_mode_default_dispatch_w_id`
 --
 
 DROP TABLE IF EXISTS `v_mode_default_dispatch_w_id`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_default_dispatch_w_id`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_default_dispatch_w_id` (
-  `mode_id` tinyint NOT NULL,
-  `mode_name` tinyint NOT NULL,
-  `stateful_flag` tinyint NOT NULL,
-  `handler_package` tinyint NOT NULL,
-  `handler_module` tinyint NOT NULL,
-  `handler_class` tinyint NOT NULL,
-  `handler_func` tinyint NOT NULL,
-  `priority` tinyint NOT NULL,
-  `dec_priority_amount` tinyint NOT NULL,
-  `inc_priority_amount` tinyint NOT NULL,
-  `times_to_complete` tinyint NOT NULL,
-  `error_tolerance` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_default_dispatch_w_id` AS SELECT 
+ 1 AS `mode_id`,
+ 1 AS `mode_name`,
+ 1 AS `stateful_flag`,
+ 1 AS `handler_package`,
+ 1 AS `handler_module`,
+ 1 AS `handler_class`,
+ 1 AS `handler_func`,
+ 1 AS `priority`,
+ 1 AS `dec_priority_amount`,
+ 1 AS `inc_priority_amount`,
+ 1 AS `times_to_complete`,
+ 1 AS `error_tolerance`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_state`
+-- Temporary view structure for view `v_mode_state`
 --
 
 DROP TABLE IF EXISTS `v_mode_state`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_state` (
-  `mode_name` tinyint NOT NULL,
-  `state_name` tinyint NOT NULL,
-  `status` tinyint NOT NULL,
-  `pid` tinyint NOT NULL,
-  `times_activated` tinyint NOT NULL,
-  `times_completed` tinyint NOT NULL,
-  `last_activated` tinyint NOT NULL,
-  `last_completed` tinyint NOT NULL,
-  `error_count` tinyint NOT NULL,
-  `cum_error_count` tinyint NOT NULL,
-  `effective_dt` tinyint NOT NULL,
-  `expiration_dt` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_state` AS SELECT 
+ 1 AS `mode_name`,
+ 1 AS `state_name`,
+ 1 AS `status`,
+ 1 AS `pid`,
+ 1 AS `times_activated`,
+ 1 AS `times_completed`,
+ 1 AS `last_activated`,
+ 1 AS `last_completed`,
+ 1 AS `error_count`,
+ 1 AS `cum_error_count`,
+ 1 AS `effective_dt`,
+ 1 AS `expiration_dt`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_state_default_dispatch`
+-- Temporary view structure for view `v_mode_state_default_dispatch`
 --
 
 DROP TABLE IF EXISTS `v_mode_state_default_dispatch`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_dispatch`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_state_default_dispatch` (
-  `mode_name` tinyint NOT NULL,
-  `state_name` tinyint NOT NULL,
-  `identifier` tinyint NOT NULL,
-  `package` tinyint NOT NULL,
-  `module` tinyint NOT NULL,
-  `class_name` tinyint NOT NULL,
-  `func_name` tinyint NOT NULL,
-  `priority` tinyint NOT NULL,
-  `dec_priority_amount` tinyint NOT NULL,
-  `inc_priority_amount` tinyint NOT NULL,
-  `times_to_complete` tinyint NOT NULL,
-  `error_tolerance` tinyint NOT NULL,
-  `effective_dt` tinyint NOT NULL,
-  `expiration_dt` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_state_default_dispatch` AS SELECT 
+ 1 AS `mode_name`,
+ 1 AS `state_name`,
+ 1 AS `identifier`,
+ 1 AS `package`,
+ 1 AS `module`,
+ 1 AS `class_name`,
+ 1 AS `func_name`,
+ 1 AS `priority`,
+ 1 AS `dec_priority_amount`,
+ 1 AS `inc_priority_amount`,
+ 1 AS `times_to_complete`,
+ 1 AS `error_tolerance`,
+ 1 AS `effective_dt`,
+ 1 AS `expiration_dt`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_state_default_dispatch_w_id`
+-- Temporary view structure for view `v_mode_state_default_dispatch_w_id`
 --
 
 DROP TABLE IF EXISTS `v_mode_state_default_dispatch_w_id`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_dispatch_w_id`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_state_default_dispatch_w_id` (
-  `mode_id` tinyint NOT NULL,
-  `state_id` tinyint NOT NULL,
-  `state_name` tinyint NOT NULL,
-  `identifier` tinyint NOT NULL,
-  `package` tinyint NOT NULL,
-  `module` tinyint NOT NULL,
-  `class_name` tinyint NOT NULL,
-  `func_name` tinyint NOT NULL,
-  `priority` tinyint NOT NULL,
-  `dec_priority_amount` tinyint NOT NULL,
-  `inc_priority_amount` tinyint NOT NULL,
-  `times_to_complete` tinyint NOT NULL,
-  `error_tolerance` tinyint NOT NULL,
-  `effective_dt` tinyint NOT NULL,
-  `expiration_dt` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_state_default_dispatch_w_id` AS SELECT 
+ 1 AS `mode_id`,
+ 1 AS `state_id`,
+ 1 AS `state_name`,
+ 1 AS `identifier`,
+ 1 AS `package`,
+ 1 AS `module`,
+ 1 AS `class_name`,
+ 1 AS `func_name`,
+ 1 AS `priority`,
+ 1 AS `dec_priority_amount`,
+ 1 AS `inc_priority_amount`,
+ 1 AS `times_to_complete`,
+ 1 AS `error_tolerance`,
+ 1 AS `effective_dt`,
+ 1 AS `expiration_dt`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_state_default_param`
+-- Temporary view structure for view `v_mode_state_default_param`
 --
 
 DROP TABLE IF EXISTS `v_mode_state_default_param`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_param`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_state_default_param` (
-  `mode_name` tinyint NOT NULL,
-  `state_name` tinyint NOT NULL,
-  `name` tinyint NOT NULL,
-  `value` tinyint NOT NULL,
-  `effective_dt` tinyint NOT NULL,
-  `expiration_dt` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_state_default_param` AS SELECT 
+ 1 AS `mode_name`,
+ 1 AS `state_name`,
+ 1 AS `name`,
+ 1 AS `value`,
+ 1 AS `effective_dt`,
+ 1 AS `expiration_dt`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_state_default_transition_rule_dispatch`
+-- Temporary view structure for view `v_mode_state_default_transition_rule_dispatch`
 --
 
 DROP TABLE IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_state_default_transition_rule_dispatch` (
-  `name` tinyint NOT NULL,
-  `mode` tinyint NOT NULL,
-  `begin_state` tinyint NOT NULL,
-  `end_state` tinyint NOT NULL,
-  `condition_package` tinyint NOT NULL,
-  `condition_module` tinyint NOT NULL,
-  `condition_class` tinyint NOT NULL,
-  `condition_func` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_state_default_transition_rule_dispatch` AS SELECT 
+ 1 AS `name`,
+ 1 AS `mode`,
+ 1 AS `begin_state`,
+ 1 AS `end_state`,
+ 1 AS `condition_package`,
+ 1 AS `condition_module`,
+ 1 AS `condition_class`,
+ 1 AS `condition_func`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_state_default_transition_rule_dispatch_w_id`
+-- Temporary view structure for view `v_mode_state_default_transition_rule_dispatch_w_id`
 --
 
 DROP TABLE IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_state_default_transition_rule_dispatch_w_id` (
-  `name` tinyint NOT NULL,
-  `mode_id` tinyint NOT NULL,
-  `mode` tinyint NOT NULL,
-  `begin_state_id` tinyint NOT NULL,
-  `begin_state` tinyint NOT NULL,
-  `end_state_id` tinyint NOT NULL,
-  `end_state` tinyint NOT NULL,
-  `condition_package` tinyint NOT NULL,
-  `condition_module` tinyint NOT NULL,
-  `condition_class` tinyint NOT NULL,
-  `condition_func` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_state_default_transition_rule_dispatch_w_id` AS SELECT 
+ 1 AS `name`,
+ 1 AS `mode_id`,
+ 1 AS `mode`,
+ 1 AS `begin_state_id`,
+ 1 AS `begin_state`,
+ 1 AS `end_state_id`,
+ 1 AS `end_state`,
+ 1 AS `condition_package`,
+ 1 AS `condition_module`,
+ 1 AS `condition_class`,
+ 1 AS `condition_func`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_switch_rule_dispatch`
+-- Temporary view structure for view `v_mode_switch_rule_dispatch`
 --
 
 DROP TABLE IF EXISTS `v_mode_switch_rule_dispatch`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_switch_rule_dispatch` (
-  `name` tinyint NOT NULL,
-  `begin_mode` tinyint NOT NULL,
-  `end_mode` tinyint NOT NULL,
-  `condition_package` tinyint NOT NULL,
-  `condition_module` tinyint NOT NULL,
-  `condition_class` tinyint NOT NULL,
-  `condition_func` tinyint NOT NULL,
-  `before_package` tinyint NOT NULL,
-  `before_module` tinyint NOT NULL,
-  `before_class` tinyint NOT NULL,
-  `before_func` tinyint NOT NULL,
-  `after_package` tinyint NOT NULL,
-  `after_module` tinyint NOT NULL,
-  `after_class` tinyint NOT NULL,
-  `after_func` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_switch_rule_dispatch` AS SELECT 
+ 1 AS `name`,
+ 1 AS `begin_mode`,
+ 1 AS `end_mode`,
+ 1 AS `condition_package`,
+ 1 AS `condition_module`,
+ 1 AS `condition_class`,
+ 1 AS `condition_func`,
+ 1 AS `before_package`,
+ 1 AS `before_module`,
+ 1 AS `before_class`,
+ 1 AS `before_func`,
+ 1 AS `after_package`,
+ 1 AS `after_module`,
+ 1 AS `after_class`,
+ 1 AS `after_func`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_mode_switch_rule_dispatch_w_id`
+-- Temporary view structure for view `v_mode_switch_rule_dispatch_w_id`
 --
 
 DROP TABLE IF EXISTS `v_mode_switch_rule_dispatch_w_id`;
 /*!50001 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch_w_id`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_mode_switch_rule_dispatch_w_id` (
-  `name` tinyint NOT NULL,
-  `begin_mode_id` tinyint NOT NULL,
-  `begin_mode` tinyint NOT NULL,
-  `end_mode_id` tinyint NOT NULL,
-  `end_mode` tinyint NOT NULL,
-  `condition_package` tinyint NOT NULL,
-  `condition_module` tinyint NOT NULL,
-  `condition_class` tinyint NOT NULL,
-  `condition_func` tinyint NOT NULL,
-  `before_package` tinyint NOT NULL,
-  `before_module` tinyint NOT NULL,
-  `before_class` tinyint NOT NULL,
-  `before_func` tinyint NOT NULL,
-  `after_package` tinyint NOT NULL,
-  `after_module` tinyint NOT NULL,
-  `after_class` tinyint NOT NULL,
-  `after_func` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_mode_switch_rule_dispatch_w_id` AS SELECT 
+ 1 AS `name`,
+ 1 AS `begin_mode_id`,
+ 1 AS `begin_mode`,
+ 1 AS `end_mode_id`,
+ 1 AS `end_mode`,
+ 1 AS `condition_package`,
+ 1 AS `condition_module`,
+ 1 AS `condition_class`,
+ 1 AS `condition_func`,
+ 1 AS `before_package`,
+ 1 AS `before_module`,
+ 1 AS `before_class`,
+ 1 AS `before_func`,
+ 1 AS `after_package`,
+ 1 AS `after_module`,
+ 1 AS `after_class`,
+ 1 AS `after_func`*/;
 SET character_set_client = @saved_cs_client;
 
 --
 -- Final view structure for view `v_mode_default_dispatch`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_default_dispatch`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_default_dispatch`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -598,7 +587,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_default_dispatch_w_id`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_default_dispatch_w_id`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_default_dispatch_w_id`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -617,7 +605,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_state`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_state`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -636,7 +623,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_state_default_dispatch`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_state_default_dispatch`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_dispatch`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -655,7 +641,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_state_default_dispatch_w_id`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_state_default_dispatch_w_id`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_dispatch_w_id`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -674,7 +659,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_state_default_param`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_state_default_param`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_param`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -693,7 +677,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_state_default_transition_rule_dispatch`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_state_default_transition_rule_dispatch`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -712,7 +695,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_state_default_transition_rule_dispatch_w_id`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -722,7 +704,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_mode_state_default_transition_rule_dispatch_w_id` AS select `tr`.`name` AS `name`,`m`.`id` AS `mode_id`,`m`.`name` AS `mode`,`s1`.`id` AS `begin_state_id`,`s1`.`name` AS `begin_state`,`s2`.`id` AS `end_state_id`,`s2`.`name` AS `end_state`,`d1`.`package` AS `condition_package`,`d1`.`module` AS `condition_module`,`d1`.`class_name` AS `condition_class`,`d1`.`func_name` AS `condition_func` from (((((`mode` `m` join `mode_state_default` `md`) join `transition_rule` `tr`) join `state` `s1`) join `state` `s2`) join `introspection_dispatch` `d1`) where ((`m`.`id` = `md`.`mode_id`) and (`md`.`state_id` = `s1`.`id`) and (`tr`.`begin_state_id` = `s1`.`id`) and (`tr`.`end_state_id` = `s2`.`id`) and (`tr`.`condition_dispatch_id` = `d1`.`id`)) */;
+/*!50001 VIEW `v_mode_state_default_transition_rule_dispatch_w_id` AS select `tr`.`name` AS `name`,`m`.`id` AS `mode_id`,`m`.`name` AS `mode`,`s1`.`id` AS `begin_state_id`,`s1`.`name` AS `begin_state`,`s2`.`id` AS `end_state_id`,`s2`.`name` AS `end_state`,`d1`.`package` AS `condition_package`,`d1`.`module` AS `condition_module`,`d1`.`class_name` AS `condition_class`,`d1`.`func_name` AS `condition_func` from (((((`mode` `m` join `mode_state_default` `md`) join `transition_rule` `tr`) join `state` `s1`) join `state` `s2`) join `introspection_dispatch` `d1`) where ((`m`.`id` = `md`.`mode_id`) and (`md`.`state_id` = `s1`.`id`) and (`tr`.`begin_state_id` = `s1`.`id`) and (`tr`.`end_state_id` = `s2`.`id`) and (`tr`.`condition_dispatch_id` = `d1`.`id`)) order by `m`.`id` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
@@ -731,7 +713,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_switch_rule_dispatch`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_switch_rule_dispatch`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -750,7 +731,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_mode_switch_rule_dispatch_w_id`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_mode_switch_rule_dispatch_w_id`*/;
 /*!50001 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch_w_id`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;

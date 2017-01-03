@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
 --
 -- Host: localhost    Database: scratch
 -- ------------------------------------------------------
--- Server version	5.5.53-0ubuntu0.14.04.1
+-- Server version	5.7.17
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,22 +14,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `context`
---
-
-DROP TABLE IF EXISTS `context`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `context` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pid` int(11) unsigned NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `param`
@@ -57,7 +41,6 @@ DROP TABLE IF EXISTS `param_type`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `param_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) NOT NULL,
   `identifier` varchar(256) NOT NULL,
   `sql_type` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -79,8 +62,8 @@ CREATE TABLE `param_value` (
   PRIMARY KEY (`id`),
   KEY `fk_param_value_vector` (`vector_id`),
   KEY `fk_param_value_param` (`param_id`),
-  CONSTRAINT `fk_param_value_vector` FOREIGN KEY (`vector_id`) REFERENCES `vector` (`id`),
-  CONSTRAINT `fk_param_value_param` FOREIGN KEY (`param_id`) REFERENCES `param` (`id`)
+  CONSTRAINT `fk_param_value_param` FOREIGN KEY (`param_id`) REFERENCES `param` (`id`),
+  CONSTRAINT `fk_param_value_vector` FOREIGN KEY (`vector_id`) REFERENCES `vector` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -98,8 +81,8 @@ CREATE TABLE `param_value_boolean` (
   PRIMARY KEY (`id`),
   KEY `fk_param_value_boolean_param_value` (`param_value_id`),
   KEY `fk_param_value_boolean` (`value_id`),
-  CONSTRAINT `fk_param_value_boolean_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_boolean` FOREIGN KEY (`value_id`) REFERENCES `value_boolean` (`id`)
+  CONSTRAINT `fk_param_value_boolean` FOREIGN KEY (`value_id`) REFERENCES `value_boolean` (`id`),
+  CONSTRAINT `fk_param_value_boolean_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -117,8 +100,8 @@ CREATE TABLE `param_value_float` (
   PRIMARY KEY (`id`),
   KEY `fk_param_value_float_param_value` (`param_value_id`),
   KEY `fk_param_value_float` (`value_id`),
-  CONSTRAINT `fk_param_value_float_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_float` FOREIGN KEY (`value_id`) REFERENCES `value_float` (`id`)
+  CONSTRAINT `fk_param_value_float` FOREIGN KEY (`value_id`) REFERENCES `value_float` (`id`),
+  CONSTRAINT `fk_param_value_float_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -136,8 +119,8 @@ CREATE TABLE `param_value_int_11` (
   PRIMARY KEY (`id`),
   KEY `fk_param_value_int_11_param_value` (`param_value_id`),
   KEY `fk_param_value_int_11` (`value_id`),
-  CONSTRAINT `fk_param_value_int_11_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_int_11` FOREIGN KEY (`value_id`) REFERENCES `value_int_11` (`id`)
+  CONSTRAINT `fk_param_value_int_11` FOREIGN KEY (`value_id`) REFERENCES `value_int_11` (`id`),
+  CONSTRAINT `fk_param_value_int_11_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -155,8 +138,8 @@ CREATE TABLE `param_value_int_3` (
   PRIMARY KEY (`id`),
   KEY `fk_param_value_int_3_param_value` (`param_value_id`),
   KEY `fk_param_value_int_3` (`value_id`),
-  CONSTRAINT `fk_param_value_int_3_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_int_3` FOREIGN KEY (`value_id`) REFERENCES `value_int_3` (`id`)
+  CONSTRAINT `fk_param_value_int_3` FOREIGN KEY (`value_id`) REFERENCES `value_int_3` (`id`),
+  CONSTRAINT `fk_param_value_int_3_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -174,8 +157,8 @@ CREATE TABLE `param_value_varchar_1024` (
   PRIMARY KEY (`id`),
   KEY `fk_param_value_varchar_1024_param_value` (`param_value_id`),
   KEY `fk_param_value_varchar_1024` (`value_id`),
-  CONSTRAINT `fk_param_value_varchar_1024_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_varchar_1024` FOREIGN KEY (`value_id`) REFERENCES `value_varchar_1024` (`id`)
+  CONSTRAINT `fk_param_value_varchar_1024` FOREIGN KEY (`value_id`) REFERENCES `value_varchar_1024` (`id`),
+  CONSTRAINT `fk_param_value_varchar_1024_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -193,8 +176,8 @@ CREATE TABLE `param_value_varchar_128` (
   PRIMARY KEY (`id`),
   KEY `fk_param_value_varchar_128_param_value` (`param_value_id`),
   KEY `fk_param_value_varchar_128` (`value_id`),
-  CONSTRAINT `fk_param_value_varchar_128_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`),
-  CONSTRAINT `fk_param_value_varchar_128` FOREIGN KEY (`value_id`) REFERENCES `value_varchar_128` (`id`)
+  CONSTRAINT `fk_param_value_varchar_128` FOREIGN KEY (`value_id`) REFERENCES `value_varchar_128` (`id`),
+  CONSTRAINT `fk_param_value_varchar_128_param_value` FOREIGN KEY (`param_value_id`) REFERENCES `param_value` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

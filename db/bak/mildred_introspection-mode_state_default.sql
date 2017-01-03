@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
 --
 -- Host: localhost    Database: mildred_introspection
 -- ------------------------------------------------------
--- Server version	5.5.53-0ubuntu0.14.04.1
+-- Server version	5.7.17
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -44,9 +44,9 @@ CREATE TABLE `mode_state_default` (
 -- Dumping data for table `mode_state_default`
 --
 
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (1,'media',3,2,5,17,1,1,0,0,'2016-12-29 17:37:19','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (2,'media',3,3,5,18,1,1,0,0,'2016-12-29 17:37:19','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (3,'media',3,4,5,19,1,1,0,0,'2016-12-29 17:37:20','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (1,'media',3,2,5,17,1,1,0,0,'2017-01-02 23:12:12','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (2,'media',3,3,5,18,1,1,0,0,'2017-01-02 23:12:12','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (3,'media',3,4,5,19,1,1,0,0,'2017-01-02 23:12:12','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

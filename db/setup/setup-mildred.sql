@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
 --
 -- Host: localhost    Database: mildred
 -- ------------------------------------------------------
--- Server version	5.5.53-0ubuntu0.14.04.1
+-- Server version	5.7.17
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -179,7 +179,7 @@ CREATE TABLE `document_metadata` (
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1272 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1623 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -229,6 +229,7 @@ CREATE TABLE `file_handler_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `file_handler_id` int(11) unsigned NOT NULL,
   `file_type` varchar(128) DEFAULT NULL,
+  `name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
   CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
@@ -377,43 +378,40 @@ CREATE TABLE `path_mapping` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Temporary table structure for view `v_file_handler`
+-- Temporary view structure for view `v_file_handler`
 --
 
 DROP TABLE IF EXISTS `v_file_handler`;
 /*!50001 DROP VIEW IF EXISTS `v_file_handler`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_file_handler` (
-  `package` tinyint NOT NULL,
-  `module` tinyint NOT NULL,
-  `class_name` tinyint NOT NULL,
-  `file_type` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_file_handler` AS SELECT 
+ 1 AS `package`,
+ 1 AS `module`,
+ 1 AS `class_name`,
+ 1 AS `file_type`*/;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_matched`
+-- Temporary view structure for view `v_matched`
 --
 
 DROP TABLE IF EXISTS `v_matched`;
 /*!50001 DROP VIEW IF EXISTS `v_matched`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE TABLE `v_matched` (
-  `document_path` tinyint NOT NULL,
-  `comparison_result` tinyint NOT NULL,
-  `match_path` tinyint NOT NULL,
-  `pct` tinyint NOT NULL,
-  `same_ext_flag` tinyint NOT NULL
-) ENGINE=MyISAM */;
+/*!50001 CREATE VIEW `v_matched` AS SELECT 
+ 1 AS `document_path`,
+ 1 AS `comparison_result`,
+ 1 AS `match_path`,
+ 1 AS `pct`,
+ 1 AS `same_ext_flag`*/;
 SET character_set_client = @saved_cs_client;
 
 --
 -- Final view structure for view `v_file_handler`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_file_handler`*/;
 /*!50001 DROP VIEW IF EXISTS `v_file_handler`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -432,7 +430,6 @@ SET character_set_client = @saved_cs_client;
 -- Final view structure for view `v_matched`
 --
 
-/*!50001 DROP TABLE IF EXISTS `v_matched`*/;
 /*!50001 DROP VIEW IF EXISTS `v_matched`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -447,5 +444,13 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed
