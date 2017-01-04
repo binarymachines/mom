@@ -19,7 +19,7 @@ DROP TABLE IF EXISTS `introspection_dispatch`;
 DROP TABLE IF EXISTS `exec_rec`;
 DROP TABLE IF EXISTS `op_record_param`;
 DROP TABLE IF EXISTS `op_record_param_type`;
-DROP TABLE IF EXISTS `op_record`;
+-- DROP TABLE IF EXISTS `op_record`;
 
 DROP VIEW IF EXISTS `v_mode_default_dispatch`;
 DROP VIEW IF EXISTS `v_mode_default_dispatch_w_id`;
@@ -31,22 +31,22 @@ DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`;
 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch`;
 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch_w_id`;
 
-CREATE TABLE IF NOT EXISTS `mildred_introspection`.`op_record` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` VARCHAR(128) CHARACTER SET 'utf8' NOT NULL,
-  `pid` VARCHAR(32) NOT NULL,
-  `operator_name` VARCHAR(64) NOT NULL,
-  `operation_name` VARCHAR(64) NOT NULL,
-  `target_esid` VARCHAR(64) NOT NULL,
-  `target_path` VARCHAR(1024) NOT NULL,
-  `status` VARCHAR(64) NOT NULL,
-  `start_time` DATETIME NOT NULL,
-  `end_time` DATETIME NULL DEFAULT NULL,
-  `effective_dt` DATETIME NULL DEFAULT now(),
-  `expiration_dt` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
-  `target_hexadecimal_key` VARCHAR(640) CHARACTER SET 'utf8' NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
-);
+-- CREATE TABLE IF NOT EXISTS `mildred_introspection`.`op_record` (
+--   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+--   `index_name` VARCHAR(128) CHARACTER SET 'utf8' NOT NULL,
+--   `pid` VARCHAR(32) NOT NULL,
+--   `operator_name` VARCHAR(64) NOT NULL,
+--   `operation_name` VARCHAR(64) NOT NULL,
+--   `target_esid` VARCHAR(64) NOT NULL,
+--   `target_path` VARCHAR(1024) NOT NULL,
+--   `status` VARCHAR(64) NOT NULL,
+--   `start_time` DATETIME NOT NULL,
+--   `end_time` DATETIME NULL DEFAULT NULL,
+--   `effective_dt` DATETIME NULL DEFAULT now(),
+--   `expiration_dt` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   `target_hexadecimal_key` VARCHAR(640) CHARACTER SET 'utf8' NULL DEFAULT NULL,
+--   PRIMARY KEY (`id`)
+-- );
 
 CREATE TABLE IF NOT EXISTS `op_record_param_type` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
