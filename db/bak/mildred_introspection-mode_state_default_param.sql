@@ -35,9 +35,9 @@ CREATE TABLE `mode_state_default_param` (
 -- Dumping data for table `mode_state_default_param`
 --
 
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (1,'media',1,'high.level.scan','true','2017-01-02 23:12:13','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (2,'media',2,'update.scan','true','2017-01-02 23:12:13','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (3,'media',3,'deep.scan','true','2017-01-02 23:12:13','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (1,'media',1,'high.level.scan','true','2017-01-04 10:48:37','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (2,'media',2,'update.scan','true','2017-01-04 10:48:37','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (3,'media',3,'deep.scan','true','2017-01-04 10:48:37','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
