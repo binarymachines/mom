@@ -158,7 +158,7 @@ def get_matchers():
         comparison_fields = {}
 
         for field in sqlmatcher.match_fields:
-            comparison_fields[field.field_name] = {'matcher_id': sqlmatcher.id, 'matcher_field': field.field_name, 'boost': field.boost, 'bool': field.bool, \
+            comparison_fields[field.field_name] = {'matcher_id': sqlmatcher.id, 'matcher_field': field.field_name, 'boost': field.boost, 'bool': field.bool_, \
                          'analyzer': field.analyzer, 'operator': field.operator, 'minimum_should_match': field.minimum_should_match, \
                          'query_section': field.query_section}
 

@@ -1507,6 +1507,11 @@ INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribu
 INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1702,'media','ID3','TPE3',1);
 INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1703,'media','ID3','TPE4',1);
 INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1704,'media','ID3','RGAD',0);
+INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1705,'media','ID3','TORY',0);
+INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1706,'media','ID3','TDAT',0);
+INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1707,'media','ID3','IPLS',0);
+INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1708,'media','ID3','TSIZ',0);
+INSERT INTO `document_metadata` (`id`, `index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (1709,'media','ID3','RVAD',0);
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

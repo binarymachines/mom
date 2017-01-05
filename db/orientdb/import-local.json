@@ -1,0 +1,27 @@
+{
+  "config": {
+    "log": "debug"
+  },
+  "extractor" : {
+    "jdbc": { "driver": "com.mysql.jdbc.Driver",
+              "url": "jdbc:mysql://localhost/mildred_action",
+              "userName": "root",
+              "userPassword": "steel",
+              "query": "select * from action_dispatch" }
+  },
+  "transformers" : [
+   { "vertex": { "class": "Dispatch"} }
+  ],
+  "loader" : {
+    "orientdb": {
+        "dbURL": "remote:localhost/merlin",
+        "dbUser": "admin",
+        "dbPassword": "admin",
+        "dbAutoCreate": true,
+        "tx": false,
+        "batchCommit": 1000,
+        "dbType": "graph"
+    }
+  }
+}
+

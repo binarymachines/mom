@@ -1,0 +1,18 @@
+CONNECT REMOTE:localhost/merlin root steel;
+
+create class Dispatch extends V;
+create property Dispatch.id long;
+create property Dispatch.identifier string;
+create property Dispatch.category string;
+
+create class MetaAction extends V;
+create property MetaAction.id long;
+create property MetaAction.name string;
+create property MetaAction.priority integer;
+create property MetaAction.dispatch_id long;
+
+create class MetaReason extends V;
+create property MetaReason.id long;
+create property MetaReason.name string;
+create property MetaReason.weight integer;
+create property MetaReason.dispatch_id long;

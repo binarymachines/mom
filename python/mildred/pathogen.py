@@ -9,6 +9,8 @@ from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamInfoError
 
+from third.id3reader import Reader as ID3v1Reader
+
 import const
 import ops
 import filehandler
@@ -22,9 +24,9 @@ LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
 
-class Mutagen(FileHandler):
+class Pathogen(FileHandler):
     def __init__(self, name):
-        super(Mutagen, self).__init__(name)
+        super(Pathogen, self).__init__(name)
 
 
     def handle_file(self, asset, data):
@@ -102,21 +104,20 @@ class Mutagen(FileHandler):
 
 
     def read_tags(self, asset, data):
-        raise BaseClassException(Mutagen)
+        raise BaseClassException(Pathogen)
 
 
-
-class MutagenAAC(Mutagen):
+class MutagenAAC(Pathogen):
     def __init__(self):
         super(MutagenAAC, self).__init__('mutagen-aac')
 
 
-# class MutagenM4A(Mutagen):
+# class MutagenM4A(Pathogen):
 #     def __init__(self):
 #         super(MutagenM4A, self).__init__('mutagen-m4a')
 
 
-class MutagenMP4(Mutagen):
+class MutagenMP4(Pathogen):
     def __init__(self):
         super(MutagenMP4, self).__init__('mutagen-mp4')
 
@@ -148,12 +149,12 @@ class MutagenMP4(Mutagen):
             data['properties'].append(mp4_data)
 
 
-class MutagenOggFlac(Mutagen):
+class MutagenOggFlac(Pathogen):
     def __init__(self):
         super(MutagenOggFlac, self).__init__('mutagen-oggflac')
 
 
-class MutagenAPEv2(Mutagen):
+class MutagenAPEv2(Pathogen):
     def __init__(self):
         super(MutagenAPEv2, self).__init__('mutagen-apev2')
 
@@ -180,7 +181,7 @@ class MutagenAPEv2(Mutagen):
             data['properties'].append(ape_data)
 
 
-class MutagenFLAC(Mutagen):
+class MutagenFLAC(Pathogen):
     def __init__(self):
         super(MutagenFLAC, self).__init__('mutagen-flac')
 
@@ -219,7 +220,7 @@ class MutagenFLAC(Mutagen):
             data['properties'].append(flac_data)
 
 
-class MutagenID3(Mutagen):
+class MutagenID3(Pathogen):
     def __init__(self):
         super(MutagenID3, self).__init__('mutagen-id3')
 
@@ -234,8 +235,8 @@ class MutagenID3(Mutagen):
                 continue
 
             key = tag[0]
-            if len(key) == 4 and key not in filehandler.get_known_fields('ID3V2'):
-                filehandler.add_field('ID3V2', key)
+            if len(key) == 4 and key not in filehandler.get_known_fields('ID3'):
+                filehandler.add_field('ID3', key)
 
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
@@ -248,20 +249,19 @@ class MutagenID3(Mutagen):
             except Exception, e:
                 ERR.warning(e.message)
                 
-            if key in filehandler.get_fields('ID3V2'):
+            if key in filehandler.get_fields('ID3'):
                 id3_data[key] = value
 
             if key == "TXXX":
-                for sub_field in filehandler.get_fields('ID3V2.TXXX'):
+                for sub_field in filehandler.get_fields('ID3.TXXX'):
                     if sub_field in value:
                         subtags = value.split('=')
                         subkey = subtags[0].replace(' ', '_').upper()
-                        if subkey not in filehandler.get_known_fields('ID3V2.TXXX'):
-                            filehandler.add_field('ID3V2.TXXX', key)
+                        if subkey not in filehandler.get_known_fields('ID3.TXXX'):
+                            filehandler.add_field('ID3.TXXX', key)
 
                         id3_data[subkey] = subtags[1]
 
-        # for version 0.9.0
         if len(id3_data) > 0:
             id3_data['version'] = document.version
             id3_data['_reader'] = self.name
@@ -269,7 +269,7 @@ class MutagenID3(Mutagen):
             data['properties'].append(id3_data)
 
 
-class MutagenOggVorbis(Mutagen):
+class MutagenOggVorbis(Pathogen):
     def __init__(self):
         super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis')
 
@@ -294,3 +294,36 @@ class MutagenOggVorbis(Mutagen):
             ogg_data['_reader'] = self.name
             ogg_data['_read_date'] = datetime.datetime.now().isoformat()
             data['properties'].append(ogg_data)
+
+
+class BatchelderID3(Pathogen):
+    def __init__(self):
+        super(BatchelderID3, self).__init__('batchelder-id3')
+
+    def read_tags(self, asset, data):
+
+        id3_data = {}
+        reader = ID3v1Reader(asset.absolute_path)
+        
+        for key in reader.frames:
+            try:
+                if len(key) == 4 and key not in filehandler.get_known_fields('ID3'):
+                    filehandler.add_field('ID3', key)
+
+                value = reader.getValue(key)
+                if len(value) > MAX_DATA_LENGTH:
+                    filehandler.report_invalid_field(asset.absolute_path, key, value)
+                    LOG.info(value)
+                    continue
+            
+                LOG.info("%s = %s" % (key, value))
+                if key in filehandler.get_fields('ID3'):
+                    id3_data[key] = value
+            except Exception, e:
+                ERR.warning(e.message)
+                
+
+        if len(id3_data) > 0:
+            id3_data['_reader'] = self.name
+            id3_data['_read_date'] = datetime.datetime.now().isoformat()
+            data['properties'].append(id3_data)

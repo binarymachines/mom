@@ -216,54 +216,81 @@ class CachedPathVector(PathVector):
 
   # FIFO
 
-    def clear_fifo(self, consumer):
-        while self.peek_fifo(consumer) is not None:
-            self.pop_fifo(consumer)
+    def clear_fifo(self, consumer, transient=False):
+        if transient:
+            super(CachedPathVector, self).clear_fifo(consumer)
+        else:
+            while self.peek_fifo(consumer) is not None:
+                self.pop_fifo(consumer)
 
-    def peek_fifo(self, consumer):
-        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
-        value = cache2.lpeek2(key)
-        if value == 'None':
-            return None
-        return value
+    def peek_fifo(self, consumer, transient=False):
+        if transient:
+            return super(CachedPathVector, self).peek_fifo(consumer)
+        else:
+            key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            value = cache2.lpeek2(key)
+            if value == 'None':
+                return None
+            return value
 
-    def pop_fifo(self, consumer):
-        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
-        value = cache2.lpop2(key)
-        if value == 'None':
-            return None
-        return value
+    def pop_fifo(self, consumer, transient=False):
+        if transient:
+            return super(CachedPathVector, self).pop_fifo(consumer)
+        else:
+            key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            value = cache2.lpop2(key)
+            if value == 'None':
+                return None
+            return value
 
-    def push_fifo(self, consumer, value):
-        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
-        cache2.lpush(key, value)
+    def push_fifo(self, consumer, value, transient=False):
+        if transient:
+            super(CachedPathVector, self).push_fifo(consumer)
+        else:
+            key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            cache2.lpush(key, value)
 
-    def rpush_fifo(self, consumer, value):
-        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
-        cache2.rpush(key, value)
+    def rpush_fifo(self, consumer, value, transient=False):
+        if transient:
+            super(CachedPathVector, self).rpush_fifo(consumer)
+        else:
+            key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            cache2.rpush(key, value)
 
     # Params
 
-    def clear_params(self, consumer):
-        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
-        cache2.delete_hash2(key)
+    def clear_params(self, consumer, transient=False):
+        if transient:
+            super(CachedPathVector, self).clear_params(consumer)
+        else:
+            key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            cache2.delete_hash2(key)
 
-    def get_param(self, consumer, param):
-        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
-        values = cache2.get_hash2(key)
-        if param in values:
-            return values[param]
+    def get_param(self, consumer, param, transient=False):
+        if transient:
+            return super(CachedPathVector, self).get_param(consumer, param)
+        else:
+            key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            values = cache2.get_hash2(key)
+            if param in values:
+                return values[param]
 
-    def get_params(self, consumer):
-        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
-        values = cache2.get_hash2(key)
-        return values
+    def get_params(self, consumer, transient=False):
+        if transient:
+            return super(CachedPathVector, self).get_params(consumer)
+        else:
+            key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            values = cache2.get_hash2(key)
+            return values
 
-    def set_param(self, consumer, param, value):
-        key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
-        values = cache2.get_hash2(key)
-        values[param] = value
-        cache2.set_hash2(key, values)
+    def set_param(self, consumer, param, value, transient=False):
+        if transient:
+            super(CachedPathVector, self).set_param(consumer, param)
+        else:
+            key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            values = cache2.get_hash2(key)
+            values[param] = value
+            cache2.set_hash2(key, values)
 
     # Path
 

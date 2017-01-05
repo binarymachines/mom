@@ -14,10 +14,12 @@
   ],
   "loader" : {
     "orientdb": {
-        "dbURL": "plocal:/media/removable/SDCARD/var/bin/orientdb-community-2.2.13/databases/merlin",
+        "dbURL": "remote:localhost/merlin",
         "dbUser": "admin",
         "dbPassword": "admin",
         "dbAutoCreate": true,
+        "serverUser": "root",
+        "serverPassword": "steel",
         "tx": false,
         "batchCommit": 1000,
         "dbType": "graph"

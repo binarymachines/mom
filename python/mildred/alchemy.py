@@ -14,7 +14,10 @@ from errors import SQLIntegrityError
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
 from db.generated.sqla_mildred import Document, Directory, FileHandler, FileHandlerType, FileFormat, FileType, Matcher, MatcherField, Matched
-from db.generated.sqla_introspection import ExecRec, Mode, ModeDefault, ModeState, ModeStateDefault, ModeStateDefaultParam, State, OpRecord
+from db.generated.sqla_introspection import ExecRec, ModeDefault, ModeStateDefault, ModeStateDefaultParam, OpRecord
+from db.generated.sqla_introspection import Mode as AlchemyMode
+from db.generated.sqla_introspection import State as AlchemyState
+from db.generated.sqla_introspection import ModeState as AlchemyModeState
 
 import config
 
@@ -214,7 +217,7 @@ class SQLExecutionRecord(ExecRec):
             exec_rec=SQLExecutionRecord.retrieve()
             exec_rec.status = 'terminated'
             exec_rec.expiration_dt = datetime.datetime.now()
-            sessions[INTROSPECTION].add(rec_exec)
+            sessions[INTROSPECTION].add(exec_rec)
             sessions[INTROSPECTION].commit()
             return exec_rec
         except IntegrityError, err:
@@ -294,7 +297,7 @@ class SQLMatch(Matched):
             raise SQLAlchemyIntegrityError(err, err, sessions[MILDRED], message=err.message)
 
 
-class SQLMode(Mode):
+class SQLMode(AlchemyMode):
 
     @staticmethod
     def retrieve_all():
@@ -338,7 +341,7 @@ class SQLMode(Mode):
         return result[0] if len(result) == 1 else None
 
 
-class SQLState(State):
+class SQLState(AlchemyState):
 
     @staticmethod
     def retrieve_all():
@@ -371,7 +374,7 @@ class SQLState(State):
         return result[0] if len(result) == 1 else None
 
 
-class SQLModeState(ModeState):
+class SQLModeState(AlchemyModeState):
 
     # replacing relationship in parent class
     # mode = relationship(u'SQLMode', back_populates="state_records")

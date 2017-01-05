@@ -43,5 +43,6 @@ def get_qualified_name(*nameparts):
     for part in nameparts:
         if part:
             result.append(part)
-
-    return '.'.join(result)
+    name = '.'.join(result)
+    LOG.info("returning qualified name: %s" % name)
+    return name

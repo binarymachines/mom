@@ -1,0 +1,35 @@
+{
+  "config": {
+    "log": "debug"
+  },
+  "extractor" : {
+    "jdbc": { "driver": "com.mysql.jdbc.Driver",
+              "url": "jdbc:mysql://localhost/mildred_action",
+              "userName": "root",
+              "userPassword": "steel",
+              "query": "select meta_action_id, meta_reason_id from action_reason" }
+  },
+  "transformers": [
+      { "merge": { "joinFieldName": "meta_action_id", "lookup": "MetaAction.id" } },
+      { "vertex": {"class": "MetaAction", "skipDuplicates": true} },
+      { "edge": { "class": "IsSuggestedBy",
+                  "joinFieldName": "meta_reason_id",
+                  "lookup": "MetaReason.id",
+                  "direction": "out"
+                }
+      }
+  ],
+  "loader" : {
+    "orientdb": {
+        "dbURL": "remote:localhost/merlin",
+        "dbUser": "admin",
+        "dbPassword": "admin",
+        "dbAutoCreate": true,
+        "serverUser": "root",
+        "serverPassword": "steel",
+        "tx": false,
+        "batchCommit": 1000,
+        "dbType": "graph"
+    }
+  }
+}
