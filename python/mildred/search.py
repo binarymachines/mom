@@ -17,10 +17,11 @@ ERR = log.get_log('errors', logging.WARNING)
 def backup_doc(doc, target_folder=var.snapshotdir):
 
     doc_id = doc['_id']
-    backupfolder = os.path.join(target_folder, doc_id)
+    backupfolder = os.path.join(target_folder, util.expand_str_to_path(doc_id))
     if not os.path.isdir(backupfolder):
         os.makedirs(backupfolder)
-
+    
+    
     doc_name = '.'.join([str(datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]).replace(' ', '_'), 'json'])
 
     backup = os.path.join(backupfolder, doc_name)
