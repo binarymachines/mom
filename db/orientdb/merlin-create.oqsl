@@ -4,6 +4,10 @@ create class Dispatch extends V;
 create property Dispatch.id long;
 create property Dispatch.identifier string;
 create property Dispatch.category string;
+create property Dispatch.module_name string;
+create property Dispatch.package_name string;
+create property Dispatch.class_name string;
+create property Dispatch.func_name string;
 
 create class MetaAction extends V;
 create property MetaAction.id long;
