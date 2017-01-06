@@ -42,6 +42,7 @@ scratch = (SCRATCH, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_
 
 engines = {}
 sessions = {}
+
 for dbconf in (mildred, introspection, admin, action, media, scratch):
     engine = create_engine(dbconf[1])
     engines[dbconf[0]] = engine
@@ -69,32 +70,23 @@ def alchemy_operation(function):
 
             raise Exception(err.cause)     
 
-        # except IntegrityError, err:
-        #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        #     print err.__class__.__name__
-        #     for param in err.params:
-        #         print param
-        #     for arg in err.args:
-        #         print arg
-
-        #     sessions[MILDRED].rollback()
-
-        #     raise SQLIntegrityError(err, err.message)
-
-        # except Exception, err:
-        #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        #     raise err
+        except Exception, err:
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            raise err
 
     return wrapper
 
+
 def get_session(name):
     return sessions[name]
+
 
 # wrapper classes extend classes found in mildred.db.generated.xyz
 
 class SQLAction(Action):
 
     @staticmethod
+    @alchemy_operation
     def retrieve_all():
         result = ()
         for instance in sessions[ACTION].query(SQLAction):
@@ -105,7 +97,11 @@ class SQLAction(Action):
 
 class SQLMetaAction(MetaAction):
     
+    # dispatch = relationship(u'SQLActionDispatch')
+    # meta_reasons = relationship(u'SQLMetaReason', secondary='action_reason')
+
     @staticmethod
+    @alchemy_operation
     def retrieve_all():
         result = ()
         for instance in sessions[ACTION].query(MetaAction):
@@ -117,6 +113,7 @@ class SQLMetaAction(MetaAction):
 class SQLReason(Reason):
     
     @staticmethod
+    @alchemy_operation
     def retrieve_all():
         result = ()
         for instance in sessions[ACTION].query(SQLReason):
@@ -128,6 +125,7 @@ class SQLReason(Reason):
 class SQLMetaReason(MetaReason):
     
     @staticmethod
+    @alchemy_operation
     def retrieve_all():
         result = ()
         for instance in sessions[ACTION].query(MetaReason):
@@ -143,6 +141,7 @@ class SQLAsset(Document):
                                 self.index_name, self.doc_type, self.absolute_path)
 
     @staticmethod
+    @alchemy_operation
     def insert(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
         asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
             effective_dt=datetime.datetime.now())
@@ -154,6 +153,7 @@ class SQLAsset(Document):
             raise SQLAlchemyIntegrityError(err, err, sessions[MILDRED], message=err.message)
 
     @staticmethod
+    @alchemy_operation
     def retrieve(doc_type, absolute_path=None, use_like_in_where_clause=True):
         path = '%s%s' % (absolute_path, '%')
 
@@ -227,6 +227,7 @@ class SQLExecutionRecord(ExecRec):
 class SQLFileHandler(FileHandler):
 
     @staticmethod
+    @alchemy_operation
     def retrieve_active():
         result = ()
         for instance in sessions[MILDRED].query(SQLFileHandler).\
@@ -236,6 +237,7 @@ class SQLFileHandler(FileHandler):
         return result
 
     @staticmethod
+    @alchemy_operation
     def retrieve_all():
         result = ()
         for instance in sessions[MILDRED].query(SQLFileHandler):
@@ -255,6 +257,7 @@ SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileH
 class SQLMatcher(Matcher):
 
     @staticmethod
+    @alchemy_operation
     def retrieve_active():
         result = ()
         for instance in sessions[MILDRED].query(SQLMatcher).\
@@ -264,6 +267,7 @@ class SQLMatcher(Matcher):
         return result
 
     @staticmethod
+    @alchemy_operation
     def retrieve_all():
         result = ()
         for instance in sessions[MILDRED].query(SQLMatcher). \
@@ -300,6 +304,7 @@ class SQLMatch(Matched):
 class SQLMode(AlchemyMode):
 
     @staticmethod
+    @alchemy_operation
     def retrieve_all():
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
@@ -320,6 +325,7 @@ class SQLMode(AlchemyMode):
             raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
 
     @staticmethod
+    @alchemy_operation
     def retrieve(mode):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
@@ -329,6 +335,7 @@ class SQLMode(AlchemyMode):
         return result[0] if len(result) == 1 else None
 
     @staticmethod
+    @alchemy_operation
     def retrieve_by_name(name):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
@@ -344,6 +351,7 @@ class SQLMode(AlchemyMode):
 class SQLState(AlchemyState):
 
     @staticmethod
+    @alchemy_operation
     def retrieve_all():
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLState).\
@@ -353,6 +361,7 @@ class SQLState(AlchemyState):
         return result
 
     @staticmethod
+    @alchemy_operation
     def retrieve(state):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLState). \
@@ -362,6 +371,7 @@ class SQLState(AlchemyState):
         return result[0] if len(result) == 1 else None
 
     @staticmethod
+    @alchemy_operation
     def retrieve_by_name(name):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLState).\
@@ -399,6 +409,7 @@ class SQLModeState(AlchemyModeState):
 
 
     @staticmethod
+    @alchemy_operation
     def retrieve_active(mode):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLModeState).\
@@ -409,6 +420,7 @@ class SQLModeState(AlchemyModeState):
         return result[0] if len(result) == 1 else None
 
     @staticmethod
+    @alchemy_operation
     def retrieve_previous(mode):
         result = ()
 
@@ -496,6 +508,7 @@ class SQLOperationRecord(OpRecord):
 
 
     @staticmethod
+    @alchemy_operation
     def retrieve(path, operation, operator=None, apply_lifespan=False, op_status=None):
         # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else
         path = '%s%s' % (path, '%')

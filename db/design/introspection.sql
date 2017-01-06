@@ -84,56 +84,56 @@ CREATE TABLE `introspection_dispatch` (
 );
 
 # service process
-INSERT INTO introspection_dispatch (identifier, category, module, func_name) VALUES ('service', 'process', 'mockserv', 'create_service_process');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name) VALUES ('service', 'process.handler', 'mockserv', 'DocumentServiceProcessHandler');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('service', 'process.before', 'mockserv', 'DocumentServiceProcessHandler', 'before_switch');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('service', 'process.after', 'mockserv', 'DocumentServiceProcessHandler', 'after_switch');
+INSERT INTO introspection_dispatch (identifier, category, module, func_name) VALUES ('service', 'process', 'docserv', 'create_service_process');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name) VALUES ('service', 'process.handler', 'docserv', 'DocumentServiceProcessHandler');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('service', 'process.before', 'docserv', 'DocumentServiceProcessHandler', 'before_switch');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('service', 'process.after', 'docserv', 'DocumentServiceProcessHandler', 'after_switch');
 
 # modes
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup', 'effect', 'mockserv', 'StartupHandler', 'start'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'definitely');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.before', 'switch', 'mockserv', 'StartupHandler', 'starting'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.after', 'switch', 'mockserv', 'StartupHandler', 'started'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup', 'effect', 'docserv', 'StartupHandler', 'start'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'definitely');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.before', 'switch', 'docserv', 'StartupHandler', 'starting'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.after', 'switch', 'docserv', 'StartupHandler', 'started'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval', 'effect', 'mockserv', 'EvalModeHandler', 'do_eval'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.before', 'switch', 'mockserv', 'EvalModeHandler', 'before_eval'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.after', 'switch', 'mockserv', 'EvalModeHandler', 'after_eval'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval', 'effect', 'docserv', 'EvalModeHandler', 'do_eval'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.before', 'switch', 'docserv', 'EvalModeHandler', 'before_eval'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.after', 'switch', 'docserv', 'EvalModeHandler', 'after_eval'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.update.condition', 'condition', 'mockserv', 'ScanModeHandler', 'should_update');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.monitor.condition', 'condition', 'mockserv', 'ScanModeHandler', 'should_monitor');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.condition', 'condition', 'mockserv', 'ScanModeHandler', 'can_scan');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan', 'effect', 'mockserv', 'ScanModeHandler', 'do_scan');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.discover', 'action', 'mockserv', 'ScanModeHandler', 'do_scan_discover');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.update', 'action', 'mockserv', 'ScanModeHandler', 'do_scan');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.monitor', 'action', 'mockserv', 'ScanModeHandler', 'do_scan_monitor');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.before', 'switch', 'mockserv', 'ScanModeHandler', 'before_scan'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.after', 'switch', 'mockserv', 'ScanModeHandler', 'after_scan'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.update.condition', 'condition', 'docserv', 'ScanModeHandler', 'should_update');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.monitor.condition', 'condition', 'docserv', 'ScanModeHandler', 'should_monitor');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.condition', 'condition', 'docserv', 'ScanModeHandler', 'can_scan');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan', 'effect', 'docserv', 'ScanModeHandler', 'do_scan');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.discover', 'action', 'docserv', 'ScanModeHandler', 'do_scan_discover');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.update', 'action', 'docserv', 'ScanModeHandler', 'do_scan');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.monitor', 'action', 'docserv', 'ScanModeHandler', 'do_scan_monitor');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.before', 'switch', 'docserv', 'ScanModeHandler', 'before_scan'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.after', 'switch', 'docserv', 'ScanModeHandler', 'after_scan'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match', 'effect', 'mockserv', 'MatchModeHandler', 'do_match'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.before', 'switch', 'mockserv', 'MatchModeHandler', 'before_match'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.after', 'switch', 'mockserv', 'MatchModeHandler', 'after_match'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match', 'effect', 'docserv', 'MatchModeHandler', 'do_match'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.before', 'switch', 'docserv', 'MatchModeHandler', 'before_match'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.after', 'switch', 'docserv', 'MatchModeHandler', 'after_match'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix', 'effect', 'mockserv', 'FixModeHandler', 'do_fix'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.before', 'switch', 'mockserv', 'FixModeHandler', 'before_fix'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.after', 'switch', 'mockserv', 'FixModeHandler', 'after_fix'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix', 'effect', 'docserv', 'FixModeHandler', 'do_fix'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.before', 'switch', 'docserv', 'FixModeHandler', 'before_fix'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.after', 'switch', 'docserv', 'FixModeHandler', 'after_fix'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report', 'effect', 'mockserv', 'ReportModeHandler', 'do_report'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.before', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'before'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.after', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'after'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report', 'effect', 'docserv', 'ReportModeHandler', 'do_report'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.before', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'before'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.after', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'after'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests', 'effect', 'mockserv', 'RequestsModeHandler', 'do_reqs'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.before', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'before'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.after', 'switch', 'mockserv', 'DocumentServiceProcessHandler', 'after'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests', 'effect', 'docserv', 'RequestsModeHandler', 'do_reqs'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.before', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'before'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.after', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'after'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown', 'effect', 'mockserv', 'ShutdownHandler', 'end'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.before', 'switch', 'mockserv', 'ShutdownHandler', 'ending'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.after', 'switch', 'mockserv', 'ShutdownHandler', 'ended'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.condition', 'condition', 'mockserv', 'DocumentServiceProcessHandler', 'maybe'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown', 'effect', 'docserv', 'ShutdownHandler', 'end'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.before', 'switch', 'docserv', 'ShutdownHandler', 'ending'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.after', 'switch', 'docserv', 'ShutdownHandler', 'ended'); 
+INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'maybe'); 
 
 
 -- CREATE TABLE `dispatch_target` (
