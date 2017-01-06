@@ -64,6 +64,7 @@ CREATE TABLE `directory` (
   `file_type` varchar(8) DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  `active_flag` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
@@ -179,7 +180,7 @@ CREATE TABLE `document_metadata` (
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1710 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1741 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
