@@ -38,7 +38,7 @@ class Analyzer(object):
     def __init__(self, vector):
         self.vector = vector
         self.vector_scanner = PathVectorScanner(vector, self.handle_vector_path, handle_error_func=self.handle_error)
-        # reasons = self.get_reasons()
+        reasons = self.get_reasons()
 
     def handle_error(self, error, path):
         pass
@@ -69,18 +69,24 @@ class Analyzer(object):
 
     def get_reasons(self):
 
-        client = pyorient.OrientDB("localhost", 2424) 
-        session_id = client.connect( "root", "steel" )
+        try: 
+            client = pyorient.OrientDB("localhost", 2424)
+            session_id = client.connect( "root", "steel" )
 
+            client.db_list()
+            
+            client.db_open( "merlin", "root", "steel" ) 
+            results = client.query("select * from MetaReason")
+            client.db_close()
 
-        results = client.query("select from MetaReason")
-        for result in results:
-            print result
+            for result in results:
+                print result.oRecordData
+                for item in result.oRecordData.viewitems():
+                    print item
 
-        client.db_open( "merlin", "admin", "admin" ) 
-        client.db_close()
-
-        return results
+            return results
+        except Exception, err:
+            print err.message
 
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
