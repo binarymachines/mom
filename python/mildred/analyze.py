@@ -1,5 +1,7 @@
 import logging
 
+import pyorient
+
 import const
 import alchemy
 from assets import Document, Directory  
@@ -36,6 +38,7 @@ class Analyzer(object):
     def __init__(self, vector):
         self.vector = vector
         self.vector_scanner = PathVectorScanner(vector, self.handle_vector_path, handle_error_func=self.handle_error)
+        # reasons = self.get_reasons()
 
     def handle_error(self, error, path):
         pass
@@ -47,7 +50,7 @@ class Analyzer(object):
     def analyze_asset(self, reasons, document):
         for reason in reasons:
             dispatch = reason.dispatch
-            condition = introspection.get_qualified_name(dispatch.package, dispatch.module, dispatch.func_name)
+            condition = introspection.get_qualified_name(dispatch.package_name, dispatch.module_name, dispatch.func_name)
             condition_func = introspection.get_func(condition)
 
             if condition_func and condition_func(document):
@@ -64,9 +67,26 @@ class Analyzer(object):
                 session.add(reason_record)
                 session.commit()
 
+    def get_reasons(self):
+
+        client = pyorient.OrientDB("localhost", 2424) 
+        session_id = client.connect( "root", "steel" )
+
+
+        results = client.query("select from MetaReason")
+        for result in results:
+            print result
+
+        client.db_open( "merlin", "admin", "admin" ) 
+        client.db_close()
+
+        return results
+
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
         reasons = SQLMetaReason.retrieve_all()
+
+        # reasons = self.get_reasons()
 
         for file_ in SQLAsset.retrieve(const.DOCUMENT, path, use_like_in_where_clause=True):
             document = Document(file_.absolute_path, esid=file_.id)

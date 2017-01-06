@@ -311,6 +311,9 @@ class BatchelderID3(Pathogen):
                     filehandler.add_field('ID3', key)
 
                 value = reader.getValue(key)
+                if value is None:
+                    continue
+                     
                 if len(value) > MAX_DATA_LENGTH:
                     filehandler.report_invalid_field(asset.absolute_path, key, value)
                     LOG.info(value)

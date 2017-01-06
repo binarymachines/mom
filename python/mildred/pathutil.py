@@ -32,8 +32,8 @@ def get_locations():
     identifier = 'location'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
-        rows = sql.retrieve_values('directory', ['name'], [])
-        cache2.add_items(keygroup, identifier, [row[0] for row in rows])
+        rows = sql.retrieve_values('directory', ['active_flag', 'name'], ['1'])
+        cache2.add_items(keygroup, identifier, [row[1] for row in rows])
 
     return get_items(keygroup, identifier)
 
