@@ -8,6 +8,7 @@ docutils==0.12
 elasticsearch==2.4.0
 eyeD3==0.7.9
 image==1.5.5
+inflect==0.2.5
 isort==4.2.5
 Jinja2==2.8
 lazy-object-proxy==1.2.2
@@ -24,8 +25,9 @@ pylint==1.6.4
 pyorient==1.5.4
 PyYAML==3.12
 redis==2.10.5
-requests==2.11.1
+requests==2.12.4
 six==1.10.0
-SQLAlchemy==1.0.15
+sqlacodegen==1.1.6
+SQLAlchemy==1.1.4
 urllib3==1.18
 wrapt==1.10.8
