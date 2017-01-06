@@ -121,6 +121,7 @@ CREATE TABLE `directory` (
   `file_type` varchar(8) DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  `active_flag` tinyint not null default 1,
   PRIMARY KEY (`id`), 
   UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
 );

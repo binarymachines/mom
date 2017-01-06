@@ -13,7 +13,7 @@ rm db/bak/*.sql
 rm db/bak/dump/*.sql
 rm db/setup/*.sql
 
-echo "copying lookup tables..."
+echo "copying tables..."
 
 ./bin/copy-table-data.sh mildred directory
 ./bin/copy-table-data.sh mildred directory_amelioration
@@ -47,7 +47,7 @@ echo "copying lookup tables..."
 echo "adding lookup tables to git."
 git add db/bak/*.sql
 
-mysqldump --routines scratch > db/bak/scratch.sql
+# mysqldump --routines scratch > db/bak/scratch.sql
 
 echo "copying setup tables..."
 ./bin/copy-table-ddl.sh mildred db/setup/setup-mildred.sql
