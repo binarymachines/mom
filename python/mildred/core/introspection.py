@@ -46,3 +46,11 @@ def get_qualified_name(*nameparts):
     name = '.'.join(result)
     LOG.info("returning qualified name: %s" % name)
     return name
+
+# handler utilities
+
+def create_func(handlers, package, module, clazz, func):
+    qname = get_qualified_name(package, module, clazz)
+    if qname and qname in handlers:
+        handler = handlers[qname]
+        return getattr(handler, func, None)

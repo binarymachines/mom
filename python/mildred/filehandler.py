@@ -63,17 +63,7 @@ class FileHandler(object):
         self.extensions = ()
 
     def handle_exception(self, exception, asset, data):
-
-        if isinstance(exception, IOError):
-            pass
-
-        else:
-            # error_data = { 'reader:': self.name, 'error': exception.__class__.__name__, 'details': exception.message }
-            
-            # data['has_error'] = True
-            # data['errors'].append(error_data)
-
-            library.record_error(exception)
+        library.record_error(exception)
 
     def handle_file(self, asset, data):
         raise BaseClassException(FileHandler)

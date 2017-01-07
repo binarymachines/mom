@@ -41,44 +41,33 @@ class Pathogen(FileHandler):
 
         except ID3NoHeaderError, err:
             read_failed = True
-            if asset.absolute_path.lower().endswith('mp3'):
-                self.handle_exception(err, asset, data)
 
         except UnicodeEncodeError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except UnicodeDecodeError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except FLACNoHeaderError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except FLACVorbisError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except APENoHeaderError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except OggVorbisHeaderError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except MP4MetadataError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except MP4MetadataValueError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except MP4StreamInfoError, err:
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         except MutagenError, err:
             ERR.error(err.__class__.__name__, exc_info=True)
@@ -97,7 +86,6 @@ class Pathogen(FileHandler):
         except Exception, err:
             ERR.error(err.message, exc_info=True)
             read_failed = True
-            self.handle_exception(err, asset, data)
 
         finally:
             ops.record_op_complete(const.READ, self.name, asset.absolute_path, asset.esid, op_failed=read_failed)
@@ -249,18 +237,23 @@ class MutagenID3(Pathogen):
             except Exception, e:
                 ERR.warning(e.message)
                 
-            if key in filehandler.get_fields('ID3'):
-                id3_data[key] = value
-
             if key == "TXXX":
-                for sub_field in filehandler.get_fields('ID3.TXXX'):
-                    if sub_field in value:
-                        subtags = value.split('=')
-                        subkey = subtags[0].replace(' ', '_').upper()
-                        if subkey not in filehandler.get_known_fields('ID3.TXXX'):
-                            filehandler.add_field('ID3.TXXX', key)
+                if not key in id3_data:
+                    id3_data[key] = []   
+                # for sub_field in filehandler.get_fields('ID3.TXXX'):
+                #     if sub_field in value:
+                subtags = value.split('=')
+                subkey = subtags[0].replace(' ', '_')#.upper()
+                if subkey not in filehandler.get_known_fields('ID3.TXXX'):
+                    filehandler.add_field('ID3.TXXX', key)
 
-                        id3_data[subkey] = subtags[1]
+                id3_data[key].append(subtags[0])
+                id3_data[key].append(subtags[1])
+                # id3_data[key][subkey] = subtags[1]
+
+            else:
+                # if key in filehandler.get_fields('ID3'):
+                id3_data[key] = value
 
         if len(id3_data) > 0:
             id3_data['version'] = document.version
@@ -320,10 +313,10 @@ class BatchelderID3(Pathogen):
                     continue
             
                 LOG.info("%s = %s" % (key, value))
-                if key in filehandler.get_fields('ID3'):
-                    id3_data[key] = value
+                # if key in filehandler.get_fields('ID3'):
+                id3_data[key] = value
             except Exception, e:
-                ERR.warning(e.message)
+                ERR.warning('%s read failure on %s: %s' % (self.name, asset.absolute_path, e.message))
                 
 
         if len(id3_data) > 0:

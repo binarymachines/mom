@@ -29,7 +29,7 @@ COMMAND = 'COMMAND'
 
 # reader constants
 
-MAX_DATA_LENGTH =256
+MAX_DATA_LENGTH = 512
 KNOWN = 'known_fields'
 METADATA = 'document_metadata'
 

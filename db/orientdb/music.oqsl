@@ -1,0 +1,22 @@
+CONNECT REMOTE:localhost/music root steel;
+
+create class Artist extends V;
+create property Artist.name string;
+
+create class Band extends V;
+create property Band.name string;
+
+create class IsMember extends E;
+create class IsSideProject extends E;
+create class IsJointProject extends E;
+create class IsAlternateNameFor extends E;
+create class IsIncorrectNameFor extends E;
+
+create class Album extends V;
+create property Album.name string;
+
+create class Song extends V;
+create property Song.name string;
+
+create class Has extends E;
+

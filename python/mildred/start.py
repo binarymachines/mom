@@ -43,11 +43,13 @@ def execute(args):
             if not config.es.indices.exists(config.es_index):
                 search.create_index(config.es_index)
 
-            if 'reset' in options: reset()
-
-            # if 'clearmem' in options:
-            LOG.debug('clearing data from prior execution...')
-            ops.flush_cache(resuming=config.old_pid)
+            if 'reset' in options: 
+                reset()
+                ops.flush_cache(resuming=False)
+            else:
+                # if 'clearmem' in options:
+                LOG.debug('clearing data from prior execution...')
+                ops.flush_cache(resuming=config.old_pid)
 
             LOG.debug('connecting to MySQL...')
             load_user_info()
@@ -208,14 +210,10 @@ def reset():
 
     # response = raw_input("All data will be deleted, are you sure? (yes, no): ")
     # if response.lower() == 'yes':
-    cache2.redis.flushdb()
+    cache2.redis.flushall()
 
     try: 
         search.clear_index(config.es_index)
-    except Exception, err:
-        ERR.WARNING(err.message)
-
-    try:
         search.create_index(config.es_index)
     except Exception, err:
         ERR.WARNING(err.message)
