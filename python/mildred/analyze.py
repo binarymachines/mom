@@ -69,30 +69,34 @@ class Analyzer(object):
 
     def get_reasons(self):
 
+        results = ()
+
         try: 
             client = pyorient.OrientDB("localhost", 2424)
             session_id = client.connect( "root", "steel" )
-
-            client.db_list()
-            
             client.db_open( "merlin", "root", "steel" ) 
-            reasons = client.query("select * from MetaReason")
 
-            results = []
+            reasons = client.query("select from MetaReason")
             for reason in reasons:
                 reason_data = {}
-
+                reason_data['funcs'] = ()
                 reason_data['rid'] = reason._OrientRecord__rid
-                reason_data['reason_name'] = reason.oRecordData['name']
+                reason_data['id'] = reason.oRecordData['id']
+                reason_data['name'] = reason.oRecordData['name']
+                
+                dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'reason'" % reason_data['rid'])
+                for dispatch in dispatches: 
+                    dispatch_func = {}
+                    dispatch_func['rid'] = dispatch._OrientRecord__rid
+                    dispatch_func['id'] = dispatch.oRecordData['id']
+                    dispatch_func['package_name'] = dispatch.oRecordData['package_name']
+                    dispatch_func['module_name'] = dispatch.oRecordData['module_name']
+                    dispatch_func['class_name'] = dispatch.oRecordData['class_name']
+                    dispatch_func['func_name'] = dispatch.oRecordData['func_name']
 
-                dispatch = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'reason'" % reason_data['rid'])
+                    reason_data['funcs'] += dispatch_func,
 
-                reason_data['func_package'] = dispatch[0].oRecordData['package_name']
-                reason_data['func_module'] = dispatch[0].oRecordData['module_name']
-                reason_data['func_class'] = dispatch[0].oRecordData['class_name']
-                reason_data['func_name'] = dispatch[0].oRecordData['func_name']
-
-                results.append(reason_data)
+                results += reason_data,
 
             client.db_close()
             return results
