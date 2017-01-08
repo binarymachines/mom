@@ -12,14 +12,15 @@ DROP TABLE IF EXISTS `directory_constant`;
 DROP TABLE IF EXISTS `document_category`;
 DROP TABLE IF EXISTS `path_hierarchy`;
 DROP TABLE IF EXISTS `exclude_directory`;
-DROP TABLE IF EXISTS `document_metadata`;
+DROP TABLE IF EXISTS `document_attribute`;
 DROP TABLE IF EXISTS `document_format`;
 DROP TABLE IF EXISTS `document_type`;
 DROP TABLE IF EXISTS `file_format`;
 DROP TABLE IF EXISTS `file_type`;
 DROP TABLE IF EXISTS `document`;
 DROP TABLE IF EXISTS `file_handler_type`;
-DROP TABLE IF EXISTS `file_handler`;
+DROP TABLE IF EXISTS `synonym_document_attribute`;
+DROP TABLE IF EXISTS `synonym`;
 
 CREATE TABLE `document` (
   `id` varchar(128) NOT NULL,
@@ -76,7 +77,7 @@ CREATE TABLE `delimited_file_data` (
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `document_metadata` (
+CREATE TABLE `document_attribute` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `document_format` varchar(32) NOT NULL,
@@ -647,68 +648,107 @@ insert into file_handler_type (file_handler_id, ext, name) values ((select id fr
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'BatchelderID3'), 'mp3', 'batchelder-id3-mp3');
 
 
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','COMM',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','MCDI',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','PRIV',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TALB',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TCOM',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TCON',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TDRC',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TIT2',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TLEN',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPE1',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPE2',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPUB',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TRCK',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (14,'media','ID3','POPM',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TDOR',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TMED',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPOS',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TSO2',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TSOP',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (20,'media','ID3','TXXX',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','UFID',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','APIC',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TIT1',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TIPL',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TENC',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TLAN',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (27,'media','ID3','TSRC',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (28,'media','ID3','GEOB',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (29,'media','ID3','TFLT',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (30,'media','ID3','TSSE',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (31,'media','ID3','WXXX',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (32,'media','ID3','TCOP',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (33,'media','ID3','TBPM',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (34,'media','ID3','TOPE',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (35,'media','ID3','TYER',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (36,'media','ID3','PCNT',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (37,'media','ID3','TKEY',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (38,'media','ID3','USER',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (39,'media','ID3','TDRL',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TIT3',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (41,'media','ID3','TOFN',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (42,'media','ID3','TSOA',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (43,'media','ID3','WOAR',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (44,'media','ID3','TSOT',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (62,'media','ID3','WCOM',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (68,'media','ID3','RVA2',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (69,'media','ID3','WOAF',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (70,'media','ID3','WOAS',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (90,'media','ID3','TDTG',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (91,'media','ID3','USLT',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (92,'media','ID3','TCMP',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPE3',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (132,'media','ID3','TOAL',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (149,'media','ID3','TDEN',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (168,'media','ID3','WCOP',1);
-INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPE4',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (256,'media','ID3','TEXT',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (257,'media','ID3','TSST',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (258,'media','ID3','WORS',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (259,'media','ID3','WPAY',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (260,'media','ID3','WPUB',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (261,'media','ID3','LINK',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (263,'media','ID3','TOLY',1);
--- INSERT INTO `document_metadata` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (264,'media','ID3','TRSN',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','COMM',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','MCDI',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','PRIV',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TALB',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TCOM',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TCON',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TDRC',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TIT2',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TLEN',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPE1',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPE2',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPUB',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TRCK',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (14,'media','ID3','POPM',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TDOR',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TMED',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPOS',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TSO2',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TSOP',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (20,'media','ID3','TXXX',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','UFID',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','APIC',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TIT1',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TIPL',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TENC',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TLAN',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (27,'media','ID3','TSRC',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (28,'media','ID3','GEOB',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (29,'media','ID3','TFLT',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (30,'media','ID3','TSSE',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (31,'media','ID3','WXXX',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (32,'media','ID3','TCOP',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (33,'media','ID3','TBPM',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (34,'media','ID3','TOPE',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (35,'media','ID3','TYER',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (36,'media','ID3','PCNT',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (37,'media','ID3','TKEY',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (38,'media','ID3','USER',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (39,'media','ID3','TDRL',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TIT3',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (41,'media','ID3','TOFN',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (42,'media','ID3','TSOA',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (43,'media','ID3','WOAR',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (44,'media','ID3','TSOT',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (62,'media','ID3','WCOM',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (68,'media','ID3','RVA2',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (69,'media','ID3','WOAF',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (70,'media','ID3','WOAS',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (90,'media','ID3','TDTG',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (91,'media','ID3','USLT',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (92,'media','ID3','TCMP',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPE3',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (132,'media','ID3','TOAL',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (149,'media','ID3','TDEN',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (168,'media','ID3','WCOP',1);
+INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3','TPE4',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (256,'media','ID3','TEXT',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (257,'media','ID3','TSST',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (258,'media','ID3','WORS',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (259,'media','ID3','WPAY',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (260,'media','ID3','WPUB',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (261,'media','ID3','LINK',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (263,'media','ID3','TOLY',1);
+-- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (264,'media','ID3','TRSN',1);
 
+CREATE TABLE IF NOT EXISTS `mildred`.`synonym` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(25) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `mildred`.`synonym_document_attribute` (
+  `document_attribute_id` INT(11) UNSIGNED NOT NULL,
+  `synonym_id` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`document_attribute_id`, `synonym_id`),
+  INDEX `fk_synonym_document_attribute_document_attribute1_idx` (`document_attribute_id` ASC),
+  INDEX `fk_synonym_document_attribute_synonym1_idx` (`synonym_id` ASC),
+  CONSTRAINT `fk_synonym_document_attribute_document_attribute1`
+    FOREIGN KEY (`document_attribute_id`)
+    REFERENCES `mildred`.`document_attribute` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_synonym_document_attribute_synonym1`
+    FOREIGN KEY (`synonym_id`)
+    REFERENCES `mildred`.`synonym` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+drop view if exists `v_synonym`;
+
+create view `v_synonym` as
+	SELECT attr.document_format, syn.name, attr.attribute_name FROM mildred.synonym syn, mildred.synonym_document_attribute sda, mildred.document_attribute attr
+	where syn.id = sda.synonym_id
+	  and attr.id = sda.document_attribute_id
+	order by document_format, name, attribute_name;
+  
+insert into `synonym` (name) values ('artist'), ('album'), ('song'), ('track_id');
+
+insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'album'), (select id from `document_attribute` where attribute_name = 'TALB' and document_format = 'ID3'));
+insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE1' and document_format = 'ID3'));
+insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE2' and document_format = 'ID3'));
+insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT1' and document_format = 'ID3'));
+insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT2' and document_format = 'ID3'));

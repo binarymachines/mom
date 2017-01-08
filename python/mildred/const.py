@@ -31,7 +31,7 @@ COMMAND = 'COMMAND'
 
 MAX_DATA_LENGTH = 512
 KNOWN = 'known_fields'
-METADATA = 'document_metadata'
+METADATA = 'document_attribute'
 
 # other constants
 HEXID = '_hex_id'

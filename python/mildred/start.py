@@ -31,7 +31,7 @@ def execute(args):
 
         options = make_options(args)
         configure(options)
-        configure2(options)
+        # configure2(options)
 
         try:
             # TODO: connect to an explicit redis database. Check for execution record. Change database if required.

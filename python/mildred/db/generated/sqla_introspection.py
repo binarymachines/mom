@@ -148,7 +148,7 @@ class OpRecord(Base):
     status = Column(String(64), nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime)
-    effective_dt = Column(DateTime)
+    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
     target_hexadecimal_key = Column(String(640))
 

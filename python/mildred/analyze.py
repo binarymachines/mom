@@ -76,14 +76,25 @@ class Analyzer(object):
             client.db_list()
             
             client.db_open( "merlin", "root", "steel" ) 
-            results = client.query("select * from MetaReason")
+            reasons = client.query("select * from MetaReason")
+
+            results = []
+            for reason in reasons:
+                reason_data = {}
+
+                reason_data['rid'] = reason._OrientRecord__rid
+                reason_data['reason_name'] = reason.oRecordData['name']
+
+                dispatch = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'reason'" % reason_data['rid'])
+
+                reason_data['func_package'] = dispatch[0].oRecordData['package_name']
+                reason_data['func_module'] = dispatch[0].oRecordData['module_name']
+                reason_data['func_class'] = dispatch[0].oRecordData['class_name']
+                reason_data['func_name'] = dispatch[0].oRecordData['func_name']
+
+                results.append(reason_data)
+
             client.db_close()
-
-            for result in results:
-                print result.oRecordData
-                for item in result.oRecordData.viewitems():
-                    print item
-
             return results
         except Exception, err:
             print err.message
@@ -123,5 +134,5 @@ class Analyzer(object):
 
 
     def run(self):
-        # self.vector.reset(const.SCAN)
+        self.vector.reset(const.SCAN)
         self.vector_scanner.scan();

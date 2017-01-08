@@ -250,8 +250,8 @@ class DocumentServiceProcessHandler(DecisionHandler):
                 if self.vector.has_next(MATCH):
                     return config.match
 
-        return initial_and_update_scan_complete
-
+        return initial_and_update_scan_complete or config.scan == False
+        
 
 #startup mode
 

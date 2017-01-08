@@ -167,13 +167,13 @@ CREATE TABLE `document_category` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `document_metadata`
+-- Table structure for table `document_attribute`
 --
 
-DROP TABLE IF EXISTS `document_metadata`;
+DROP TABLE IF EXISTS `document_attribute`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_metadata` (
+CREATE TABLE `document_attribute` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `document_format` varchar(32) NOT NULL,

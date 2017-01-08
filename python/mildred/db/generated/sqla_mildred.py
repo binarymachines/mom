@@ -41,6 +41,7 @@ class Directory(Base):
     file_type = Column(String(8))
     effective_dt = Column(DateTime)
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
+    active_flag = Column(Integer, nullable=False, server_default=text("'1'"))
 
 
 class DirectoryAmelioration(Base):
@@ -107,7 +108,7 @@ class DocumentCategory(Base):
 
 
 class DocumentMetadatum(Base):
-    __tablename__ = 'document_metadata'
+    __tablename__ = 'document_attribute'
 
     id = Column(Integer, primary_key=True)
     index_name = Column(String(128), nullable=False)

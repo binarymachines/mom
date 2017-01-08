@@ -21,7 +21,7 @@ echo "copying tables..."
 ./bin/copy-table-data.sh mildred directory_constant
 
 ./bin/copy-table-data.sh mildred document_category
-./bin/copy-table-data.sh mildred document_metadata
+./bin/copy-table-data.sh mildred document_attribute
 
 ./bin/copy-table-data.sh mildred file_format
 ./bin/copy-table-data.sh mildred file_type

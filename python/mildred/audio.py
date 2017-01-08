@@ -30,17 +30,20 @@ def file_has_inferior_dupe(asset):
 def file_has_superior_dupe(asset):
     pass
 
+
 def file_tags_mismatch_path(asset):
     items = get_view_items(asset.doc, 'artist', 'album', 'song', 'track_id')
     # artist = asset.doc.viewitem().
     return False
 
 def get_view_items(doc, *items):
-    for item in items:
-        for viewitem in doc.viewitems():
-            name = viewitem[0]
+    result = {}
+    for viewitem in doc.viewitems():
+        name = viewitem[0]
+        if name == '_source':
             data = viewitem[1]
-
-            print data
-            
-    return {}
+            for item in items:
+                if item in data:
+                    result[item] = data[item]
+                
+    return result

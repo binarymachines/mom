@@ -29,10 +29,10 @@ class ActionDispatch(Base):
     id = Column(Integer, primary_key=True)
     identifier = Column(String(128), nullable=False)
     category = Column(String(128))
-    py_package = Column(String(128))
-    py_module = Column(String(128), nullable=False)
-    py_class = Column(String(128))
-    py_func = Column(String(128), nullable=False)
+    package_name = Column(String(128))
+    module_name = Column(String(128), nullable=False)
+    class_name = Column(String(128))
+    func_name = Column(String(128), nullable=False)
 
 
 class ActionParam(Base):
