@@ -34,7 +34,7 @@ def file_has_superior_dupe(asset):
 def file_tags_mismatch_path(asset):
     items = get_view_items(asset.doc, 'artist', 'album', 'song', 'track_id')
     # artist = asset.doc.viewitem().
-    return False
+    return True
 
 def get_view_items(doc, *items):
     result = {}

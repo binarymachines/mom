@@ -49,23 +49,36 @@ class Analyzer(object):
 
     def analyze_asset(self, reasons, document):
         for reason in reasons:
-            dispatch = reason.dispatch
-            condition = introspection.get_qualified_name(dispatch.package_name, dispatch.module_name, dispatch.func_name)
-            condition_func = introspection.get_func(condition)
+            dispatch_funcs = reason['funcs']
+            for func in dispatch_funcs:
+                condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
+                condition_func = introspection.get_func(condition)
 
-            if condition_func and condition_func(document):
-                reason_record = SQLReason()
-                reason_record.meta_reason = reason
+                if condition_func:
+                    if condition_func(document) == False:
+                        return 
 
-                # for param in reason.params
-                # path_param = ReasonParam();
-                # path_param.reason = new_reason
-                # path_param.reason_type = reason
-                # path_param.
+            print "%s returns True" % reason['name']
+            # reason_record = SQLReason()
+            # reason_record.meta_reason = reason
 
-                session = alchemy.get_session(alchemy.ACTION)
-                session.add(reason_record)
-                session.commit()
+            # for param in reason.params
+            # path_param = ReasonParam();
+            # path_param.reason = new_reason
+            # path_param.reason_type = reason
+            # path_param.
+
+            # session = alchemy.get_session(alchemy.ACTION)
+            # session.add(reason_record)
+            # session.commit()
+
+    def oRecord2dict(self, oRecord, *items):
+        result = {}
+        result['rid'] = oRecord._OrientRecord__rid
+        for item in items:
+            result[item] = oRecord.oRecordData[item]
+                
+        return result
 
     def get_reasons(self):
 
@@ -78,23 +91,12 @@ class Analyzer(object):
 
             reasons = client.query("select from MetaReason")
             for reason in reasons:
-                reason_data = {}
+                reason_data = self.oRecord2dict(reason, 'id', 'name')
                 reason_data['funcs'] = ()
-                reason_data['rid'] = reason._OrientRecord__rid
-                reason_data['id'] = reason.oRecordData['id']
-                reason_data['name'] = reason.oRecordData['name']
-                
+
                 dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'reason'" % reason_data['rid'])
                 for dispatch in dispatches: 
-                    dispatch_func = {}
-                    dispatch_func['rid'] = dispatch._OrientRecord__rid
-                    dispatch_func['id'] = dispatch.oRecordData['id']
-                    dispatch_func['package_name'] = dispatch.oRecordData['package_name']
-                    dispatch_func['module_name'] = dispatch.oRecordData['module_name']
-                    dispatch_func['class_name'] = dispatch.oRecordData['class_name']
-                    dispatch_func['func_name'] = dispatch.oRecordData['func_name']
-
-                    reason_data['funcs'] += dispatch_func,
+                    reason_data['funcs'] += self.oRecord2dict(dispatch, 'id', 'package_name', 'module_name', 'class_name', 'func_name'),
 
                 results += reason_data,
 
@@ -105,9 +107,7 @@ class Analyzer(object):
 
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
-        reasons = SQLMetaReason.retrieve_all()
-
-        # reasons = self.get_reasons()
+        reasons = self.get_reasons()
 
         for file_ in SQLAsset.retrieve(const.DOCUMENT, path, use_like_in_where_clause=True):
             document = Document(file_.absolute_path, esid=file_.id)
