@@ -196,7 +196,7 @@ set @RENAME_FILE_APPLY_TAGS="rename.file.apply.tags";
 set @FILE_TAG_MISMATCH="file.tag.mismatch";
 
 insert into action_dispatch (identifier, category, module_name, func_name) values (@RENAME_FILE_APPLY_TAGS, "action", "audio", "apply_tags_to_filename");
-insert into action_dispatch (identifier, category, module_name, func_name) values (@FILE_TAG_MISMATCH, "reason", "audio", "file_tags_mismatch_path");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@FILE_TAG_MISMATCH, "reason", "audio", "tags_mismatch_path");
 insert into meta_action (name, priority, dispatch_id) values (@RENAME_FILE_APPLY_TAGS, 95, (select id from action_dispatch where identifier = @RENAME_FILE_APPLY_TAGS));
 insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @RENAME_FILE_APPLY_TAGS), "active.scan.path");
 insert into meta_reason (name, dispatch_id) values (@FILE_TAG_MISMATCH, (select id from action_dispatch where identifier = @FILE_TAG_MISMATCH));
@@ -206,7 +206,7 @@ set @EXPUNGE_FILE="expunge.file";
 set @IS_REDUNDANT="file.is.redundant";
 
 insert into action_dispatch (identifier, category, module_name, func_name) values (@EXPUNGE_FILE, "action", "audio", "expunge");
-insert into action_dispatch (identifier, category, module_name, func_name) values (@IS_REDUNDANT, "reason", "audio", "file_is_redundant");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@IS_REDUNDANT, "reason", "audio", "is_redundant");
 insert into meta_action (name, priority, dispatch_id) values (@EXPUNGE_FILE, 95, (select id from action_dispatch where identifier = @EXPUNGE_FILE));
 insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @EXPUNGE_FILE), "active.scan.path");
 insert into meta_reason (name, dispatch_id) values (@IS_REDUNDANT, (select id from action_dispatch where identifier = @IS_REDUNDANT));

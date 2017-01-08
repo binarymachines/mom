@@ -38,7 +38,6 @@ class Analyzer(object):
     def __init__(self, vector):
         self.vector = vector
         self.vector_scanner = PathVectorScanner(vector, self.handle_vector_path, handle_error_func=self.handle_error)
-        reasons = self.get_reasons()
 
     def handle_error(self, error, path):
         pass
@@ -50,15 +49,18 @@ class Analyzer(object):
     def analyze_asset(self, reasons, document):
         for reason in reasons:
             dispatch_funcs = reason['funcs']
+            invalid = len(dispatch_funcs)
             for func in dispatch_funcs:
                 condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
                 condition_func = introspection.get_func(condition)
 
-                if condition_func:
-                    if condition_func(document) == False:
-                        return 
-
-            print "%s returns True" % reason['name']
+                if condition_func and condition_func(document):
+                    invalid -= 1
+            
+            if invalid:
+                print "%s returns 'False'" % reason['name']
+            else:
+                print "%s returns 'True'" % reason['name']
             # reason_record = SQLReason()
             # reason_record.meta_reason = reason
 

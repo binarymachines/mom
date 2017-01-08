@@ -9,29 +9,29 @@ def deprecate(asset):
 def expunge(asset):
     pass
 
-def file_has_category(asset):
+def has_category(asset):
     pass
 
-def file_in_category(asset):
+def in_category(asset):
     pass
 
-def file_not_in_category(asset):
+def not_in_category(asset):
     pass
 
-def file_is_redundant(asset):
+def is_redundant(asset):
     return False
 
-def file_has_lossless_dupe(asset):
+def has_lossless_dupe(asset):
     pass
 
-def file_has_inferior_dupe(asset):
+def has_inferior_dupe(asset):
     pass
 
-def file_has_superior_dupe(asset):
+def has_superior_dupe(asset):
     pass
 
 
-def file_tags_mismatch_path(asset):
+def tags_mismatch_path(asset):
     items = get_view_items(asset.doc, 'artist', 'album', 'song', 'track_id')
     # artist = asset.doc.viewitem().
     return True
