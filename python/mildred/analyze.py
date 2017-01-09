@@ -54,7 +54,7 @@ class Analyzer(object):
                 condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
                 condition_func = introspection.get_func(condition)
 
-                if condition_func and condition_func(document):
+                if condition_func and condition_func(document) == reason['expected_result']:
                     unsatisfied_conditions -= 1
             
             # record op record, condition applied
@@ -97,7 +97,7 @@ class Analyzer(object):
 
             reasons = client.query("select from MetaReason")
             for reason in reasons:
-                reason_data = self.oRecord2dict(reason, 'id', 'name')
+                reason_data = self.oRecord2dict(reason, 'id', 'name', 'expected_result')
                 reason_data['funcs'] = ()
 
                 dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'reason'" % reason_data['rid'])

@@ -37,11 +37,17 @@ def tags_contain_artist_and_album(asset):
     data = get_attribute_values(asset, 'artist', 'album')
     return len(data) == 2
 
+def tags_mismatch_filename(asset):
+    data = get_attribute_values(asset, 'artist', 'album')
+    if len(data) == 2:
+        tagdata = os.path.sep.join([data['artist'], data['album']]).lower()
+        path_nominal = tagdata in asset.absolute_path.lower()
+        return path_nominal == False
+
 def tags_mismatch_path(asset):
     data = get_attribute_values(asset, 'artist', 'album')
     if len(data) == 2:
         tagdata = os.path.sep.join([data['artist'], data['album']]).lower()
-        print "comparing %s to %s" % (tagdata, asset.absolute_path.lower()) 
         path_nominal = tagdata in asset.absolute_path.lower()
         return path_nominal == False
 

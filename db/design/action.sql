@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason` (
     `name` VARCHAR(255) NOT NULL,
     `weight` INT(3) NOT NULL DEFAULT 10,
     `dispatch_id` INT(11) UNSIGNED NOT NULL,
+    `expected_result` tinyint(1) NOT NULL DEFAULT '1',
     PRIMARY KEY (`id`),
     INDEX `fk_meta_reason_dispatch_idx` (`dispatch_id` ASC),
     CONSTRAINT `fk_meta_reason_dispatch` 

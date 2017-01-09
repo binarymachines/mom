@@ -90,6 +90,7 @@ class MetaReason(Base):
     name = Column(String(255), nullable=False)
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
+    expected_result = Column(Integer, nullable=False, server_default=text("'1'"))
 
     dispatch = relationship(u'ActionDispatch')
 
