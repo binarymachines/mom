@@ -195,19 +195,20 @@ insert into action_status (name) values ("proposed"), ("accepted"), ("pending"),
 
 set @RENAME_FILE_APPLY_TAGS="rename.file.apply.tags";
 set @FILE_TAG_MISMATCH="file.tag.mismatch";
+set @TAGS_MATCH_PATH="file.tag.mismatch";
 
 insert into action_dispatch (identifier, category, module_name, func_name) values (@RENAME_FILE_APPLY_TAGS, "action", "audio", "apply_tags_to_filename");
-insert into action_dispatch (identifier, category, module_name, func_name) values (@FILE_TAG_MISMATCH, "reason", "audio", "tags_mismatch_path");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@TAGS_MATCH_PATH,"condition", "audio", "tags_match_path");
 insert into meta_action (name, priority, dispatch_id) values (@RENAME_FILE_APPLY_TAGS, 95, (select id from action_dispatch where identifier = @RENAME_FILE_APPLY_TAGS));
 insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @RENAME_FILE_APPLY_TAGS), "active.scan.path");
-insert into meta_reason (name, dispatch_id) values (@FILE_TAG_MISMATCH, (select id from action_dispatch where identifier = @FILE_TAG_MISMATCH));
+insert into meta_reason (name, dispatch_id, expected_result) values (@FILE_TAG_MISMATCH, (select id from action_dispatch where identifier = @TAGS_MATCH_PATH), 0);
 insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @RENAME_FILE_APPLY_TAGS), (select id from meta_reason where name = @FILE_TAG_MISMATCH));
 
 set @EXPUNGE_FILE="expunge.file";
 set @IS_REDUNDANT="file.is.redundant";
 
 insert into action_dispatch (identifier, category, module_name, func_name) values (@EXPUNGE_FILE, "action", "audio", "expunge");
-insert into action_dispatch (identifier, category, module_name, func_name) values (@IS_REDUNDANT, "reason", "audio", "is_redundant");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@IS_REDUNDANT,"condition", "audio", "is_redundant");
 insert into meta_action (name, priority, dispatch_id) values (@EXPUNGE_FILE, 95, (select id from action_dispatch where identifier = @EXPUNGE_FILE));
 insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @EXPUNGE_FILE), "active.scan.path");
 insert into meta_reason (name, dispatch_id) values (@IS_REDUNDANT, (select id from action_dispatch where identifier = @IS_REDUNDANT));
@@ -217,7 +218,7 @@ set @DEPRECATE_FILE="deprecate.file";
 set @HAS_LOSSLESS_DUPE="file.has.lossless.duplicate";
 
 insert into action_dispatch (identifier, category, module_name, func_name) values (@DEPRECATE_FILE, "action", "audio", "deprecate");
-insert into action_dispatch (identifier, category, module_name, func_name) values (@HAS_LOSSLESS_DUPE, "reason", "audio", "has_lossless_dupe");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@HAS_LOSSLESS_DUPE,"condition", "audio", "has_lossless_dupe");
 insert into meta_action (name, priority, dispatch_id) values (@DEPRECATE_FILE, 95, (select id from action_dispatch where identifier = @DEPRECATE_FILE));
 insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @DEPRECATE_FILE), "active.scan.path");
 insert into meta_reason (name, dispatch_id) values (@HAS_LOSSLESS_DUPE, (select id from action_dispatch where identifier = @HAS_LOSSLESS_DUPE));
@@ -228,8 +229,8 @@ set @HAS_CATEGORY="file.category.recognized";
 set @NOT_IN_CATEGORY="file.not.categorized";
 
 insert into action_dispatch (identifier, category, module_name, func_name) values (@MOVE_TO_CATEGORY, "action", "audio", "move_to_category");
-insert into action_dispatch (identifier, category, module_name, func_name) values (@HAS_CATEGORY, "reason", "audio", "has_category");
-insert into action_dispatch (identifier, category, module_name, func_name) values (@NOT_IN_CATEGORY, "reason", "audio", "not_in_category");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@HAS_CATEGORY,"condition", "audio", "has_category");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@NOT_IN_CATEGORY,"condition", "audio", "not_in_category");
 insert into meta_action (name, priority, dispatch_id) values (@MOVE_TO_CATEGORY, 35, (select id from action_dispatch where identifier = @MOVE_TO_CATEGORY));
 insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @MOVE_TO_CATEGORY), "active.scan.path");
 insert into meta_reason (name, dispatch_id) values (@HAS_CATEGORY, (select id from action_dispatch where identifier = @HAS_CATEGORY));

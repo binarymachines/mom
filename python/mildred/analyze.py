@@ -100,7 +100,7 @@ class Analyzer(object):
                 reason_data = self.oRecord2dict(reason, 'id', 'name', 'expected_result')
                 reason_data['funcs'] = ()
 
-                dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'reason'" % reason_data['rid'])
+                dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'condition'" % reason_data['rid'])
                 for dispatch in dispatches: 
                     reason_data['funcs'] += self.oRecord2dict(dispatch, 'id', 'package_name', 'module_name', 'class_name', 'func_name'),
 
