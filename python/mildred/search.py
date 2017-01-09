@@ -55,17 +55,31 @@ def connect(hostname=config.es_host, port_num=config.es_port):
 
 
 def create_index(index):
-    LOG.debug("creating '%s' index..." % index)
-    # since we are running locally, use one shard and no replicas
-    request_body = {
-        "settings" : {
-            "number_of_shards": 1,
-            "number_of_replicas": 0
+    try:
+        LOG.debug("creating '%s' index..." % index)
+        # since we are running locally, use one shard and no replicas
+        request_body = {
+            "settings" : {
+                "number_of_shards": 1,
+                "number_of_replicas": 0
+            },
+            "mappings": {
+                "document": {
+                    "date_detection": False,
+                    "properties":{
+                        "attributes":{
+                            "type" : "nested"
+                        }
+                    }
+                }
+            }
         }
-    }
-    res = config.es.indices.create(index, request_body)
-    LOG.debug("response: '%s'" % res)
-
+        res = config.es.indices.create(index, request_body)
+        LOG.debug("response: '%s'" % res)
+    
+    except Exception, err:
+        print err.message
+        sys.exit(1)
 
 def delete_doc(doc):
     doc_id = doc['_id']

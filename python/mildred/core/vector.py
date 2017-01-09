@@ -456,6 +456,8 @@ class PathVectorScanner(object):
         if self.path_expand_func:
             return self.path_expand_func(path)
 
+        # return path in self.vector.paths
+
     # TODO: individual paths in the directory vector should have their own scan configuration
 
     def scan(self):

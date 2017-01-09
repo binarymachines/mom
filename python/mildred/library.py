@@ -45,8 +45,8 @@ def cache_directory(directory):
         cache2.set_hash2(get_cache_key(), directory.to_dictionary())
         # for hash in directory.errors:
         #     cache2.add_hashset(get_cache_key(), 'errors', hash)
-        # for hash in directory.properties:
-        #     cache2.add_hashset(get_cache_key(), 'properties', hash)
+        # for hash in directory.attributes:
+        #     cache2.add_hashset(get_cache_key(), 'attributes', hash)
         # for hash in directory.files:
         #     cache2.add_hashset(get_cache_key(), 'files', hash)
         # for hash in directory.read_files:
@@ -56,7 +56,7 @@ def cache_directory(directory):
 def clear_directory_cache():
     cache2.delete_hash2(get_cache_key())
     # cache2.clear_hashsets(get_cache_key(), 'errors')
-    # cache2.clear_hashsets(get_cache_key(), 'properties')
+    # cache2.clear_hashsets(get_cache_key(), 'attributes')
     # cache2.clear_hashsets(get_cache_key(), 'files')
     # cache2.clear_hashsets(get_cache_key(), 'read_files')
 
@@ -72,7 +72,7 @@ def get_cached_directory():
     result.latest_operation = values['latest_operation']
 
     # result.errors = cache2.get_hashsets(get_cache_key(), 'errors')
-    # result.properties = cache2.get_hashsets(get_cache_key(), 'properties')
+    # result.attributes = cache2.get_hashsets(get_cache_key(), 'attributes')
     # result.files = cache2.get_hashsets(get_cache_key(), 'files')
     # result.read_files = cache2.get_hashsets(get_cache_key(), 'read_files')
 
@@ -204,17 +204,20 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
 
 def _sub_index_asset(asset, data):
     data[HEXID] = asset.absolute_path.encode('hex')
-    res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
-    if res['_shards']['successful'] == 1:
-        esid = res['_id']
-        # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
-        asset.esid = esid
-        try:
-            LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-            insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
-        except Exception, err:
-            config.es.delete(config.es_index, asset.document_type, asset.esid)
-            raise AssetException(err, asset)
+    try:
+        res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
+        if res['_shards']['successful'] == 1:
+            esid = res['_id']
+            # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
+            asset.esid = esid
+            try:
+                LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
+                insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
+            except Exception, err:
+                config.es.delete(config.es_index, asset.document_type, asset.esid)
+                raise AssetException(err, asset)
+    except Exception, err:
+        raise AssetException(err, asset)
 
 
 def index_asset(asset, data):
@@ -231,7 +234,7 @@ def index_asset(asset, data):
         print 'Error encountered handling %s:\n %s' % (asset.absolute_path, err.args[2])
         
         error_string = err.args[2]['error']['reason']
-        PROPERTIES = 'properties'
+        ATTRIBUTES = 'attributes'
         FAILED_TO_PARSE = 'failed to parse'
         if error_string.startswith(FAILED_TO_PARSE):
 
@@ -240,13 +243,13 @@ def index_asset(asset, data):
             error_cause =  err.args[2]['error']['caused_by']['reason']
             error_value = error_cause.split('"')[1]
 
-            if error_field.startswith(PROPERTIES):
-                error_field = error_field.replace('%s.' % PROPERTIES, '').strip()
-                for index in range(len(data[PROPERTIES])):
-                    props = data[PROPERTIES][index]
+            if error_field.startswith(ATTRIBUTES):
+                error_field = error_field.replace('%s.' % ATTRIBUTES, '').strip()
+                for index in range(len(data[ATTRIBUTES])):
+                    props = data[ATTRIBUTES][index]
                     if props[error_field] == error_value:
                         props[error_field] = None
-                        data[PROPERTIES][index] = props
+                        data[ATTRIBUTES][index] = props
 
                         return index_asset(asset, data)
  
@@ -272,7 +275,8 @@ def index_asset(asset, data):
 
     except AssetException, err:
         handle_asset_exception(err, asset.absolute_path)
-        return False
+        raise err
+        # return False
         
     return True        
 
@@ -330,15 +334,15 @@ def update_asset(asset, data):
         if search.unique_doc_exists(asset.document_type, HEXID, hex_id, except_on_multiples=True):
             esid = search.unique_doc_id(asset.document_type, HEXID, hex_id)
             old_doc = search.get_doc(asset.document_type, esid)
-            old_data = old_doc['_source']['properties']
+            old_data = old_doc['_source']['attributes']
 
             updated_reads = []
-            for index in range(len(data['properties'])):
-                updated_reads.append(data['properties'][index]['_reader'])
+            for index in range(len(data['attributes'])):
+                updated_reads.append(data['attributes'][index]['_reader'])
 
             for index in range(len(old_data)):
                 if old_data[index]['_reader'] not in updated_reads:
-                    data['properties'].append(old_data[index])
+                    data['attributes'].append(old_data[index])
 
             new_doc = json.dumps({'doc': data})
             try:

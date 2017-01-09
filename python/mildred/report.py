@@ -214,7 +214,7 @@ def post_process__data(data, exclude_ignore, records):
     for result in data[RESULTS]:
         average = data[RESULTS][AVERAGE_SCORE]
         for source_file in data[RESULTS][FILE_LIST]:
-            # TODO: file post-process based on mediaDIRECTORY properties
+            # TODO: file post-process based on mediaDIRECTORY attributes
             file_meta = source_file[META]
             for directory in source_file[MATCHES]:
                 for matched_file in [FILES_MATCHED]:

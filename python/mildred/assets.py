@@ -25,7 +25,7 @@ class Asset(object):
 
         # TODO: use in scanner, reader and to_dictionary()
         self.errors = []
-        self.properties = []
+        self.attributes = []
 
     def short_name(self):
         if self.absolute_path is None:
@@ -139,7 +139,7 @@ class Document(Asset):
         data['active'] = self.active
         # data['live_recording'] = self.is_filed_as_live()
         data['deleted'] = self.deleted
-        data['properties'] = self.properties
+        data['attributes'] = self.attributes
         data['errors'] = self.errors
 
         return data
@@ -168,7 +168,7 @@ class Directory(Asset):
 
         data['errors'] = self.errors
         data['files'] = self.files
-        data['properties'] = self.properties
+        data['attributes'] = self.attributes
         data['read_files'] = self.read_files
 
         return data

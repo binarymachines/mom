@@ -119,7 +119,7 @@ class Scanner(Walker):
 
                     existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
                     if existing_esid:
-                        if len(data['properties']) > 0:
+                        if len(data['attributes']) > 0:
                             library.update_asset(asset, data)
                     else:
                         library.index_asset(asset, data)
@@ -222,9 +222,11 @@ class Scanner(Walker):
         while self.vector.has_next(SCAN, use_fifo=True):
             ops.check_status()            
             
-            path = path if path_restored else self.vector.get_next(SCAN, True)           
+            path = path if path_restored else self.vector.get_next(SCAN, True) 
             path_restored = False
             self.vector.set_param(PERSIST, ACTIVE, path)
+            
+            print "active path = %s" % path
 
             if path is None or os.path.isfile(path): 
                 continue

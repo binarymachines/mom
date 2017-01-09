@@ -9,7 +9,7 @@ from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamInfoError
 
-from third.id3reader import Reader as ID3v1Reader
+from third.id3reader import Reader as BatchelderID3Reader
 
 import const
 import ops
@@ -134,7 +134,7 @@ class MutagenMP4(Pathogen):
         if len(mp4_data) > 0:
             mp4_data['_reader'] = self.name
             mp4_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['properties'].append(mp4_data)
+            data['attributes'].append(mp4_data)
 
 
 class MutagenOggFlac(Pathogen):
@@ -166,7 +166,7 @@ class MutagenAPEv2(Pathogen):
         if len(ape_data) > 0:
             ape_data['_reader'] = self.name
             ape_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['properties'].append(ape_data)
+            data['attributes'].append(ape_data)
 
 
 class MutagenFLAC(Pathogen):
@@ -205,7 +205,7 @@ class MutagenFLAC(Pathogen):
         if len(flac_data) > 0:
             flac_data['_reader'] = self.name
             flac_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['properties'].append(flac_data)
+            data['attributes'].append(flac_data)
 
 
 class MutagenID3(Pathogen):
@@ -214,6 +214,9 @@ class MutagenID3(Pathogen):
 
     def read_tags(self, asset, data):
         document = ID3(asset.absolute_path)
+        version = '.'.join([str(value) for value in document.version])
+        document_type = 'ID3v%s' % version
+
         metadata = document.pprint() # gets all metadata
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
@@ -223,10 +226,15 @@ class MutagenID3(Pathogen):
                 continue
 
             key = tag[0]
-            if len(key) == 4 and key not in filehandler.get_known_fields('ID3'):
-                filehandler.add_field('ID3', key)
+            if len(key) == 4 and key not in filehandler.get_known_fields(document_type):
+                filehandler.add_field(document_type, key)
 
             value = tag[1]
+            if value is None:
+                continue
+                if not isinstance(value, unicode) and isinstance(value, basestring):
+                    value = unicode(value, errors='ignore')
+
             if len(value) > MAX_DATA_LENGTH:
                 filehandler.report_invalid_field(asset.absolute_path, key, value)
                 LOG.info(value)
@@ -244,23 +252,26 @@ class MutagenID3(Pathogen):
                 #     if sub_field in value:
                 subtags = value.split('=')
                 subkey = subtags[0].replace(' ', '_')#.upper()
-                if subkey not in filehandler.get_known_fields('ID3.TXXX'):
-                    filehandler.add_field('ID3.TXXX', key)
+                if subkey not in filehandler.get_known_fields('%s.TXXX' % document_type):
+                    filehandler.add_field('%s.TXXX' % document_type, key)
 
                 id3_data[key].append(subtags[0])
                 id3_data[key].append(subtags[1])
                 # id3_data[key][subkey] = subtags[1]
 
             else:
-                # if key in filehandler.get_fields('ID3'):
+                # if key in filehandler.get_fields(document_type):
                 id3_data[key] = value
 
         if len(id3_data) > 0:
-            id3_data['version'] = document.version
+            # if len(data['attributes']) != len(id3_data):
+            #     unsatisfied_conditions
+
+            id3_data['_version'] = document_type
             id3_data['_reader'] = self.name
             id3_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['properties'].append(id3_data)
 
+            data['attributes'].append(id3_data)
 
 class MutagenOggVorbis(Pathogen):
     def __init__(self):
@@ -286,7 +297,7 @@ class MutagenOggVorbis(Pathogen):
         if len(ogg_data) > 0:
             ogg_data['_reader'] = self.name
             ogg_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['properties'].append(ogg_data)
+            data['attributes'].append(ogg_data)
 
 
 class BatchelderID3(Pathogen):
@@ -296,30 +307,42 @@ class BatchelderID3(Pathogen):
     def read_tags(self, asset, data):
 
         id3_data = {}
-        reader = ID3v1Reader(asset.absolute_path)
+        reader = BatchelderID3Reader(asset.absolute_path)
         
+        if reader.header.majorVersion == 1:
+            document_type = 'ID3v%i.%i' % (reader.header.majorVersion, reader.header.revision)
+        else:
+            document_type = 'ID3v2.%i.%i' % (reader.header.majorVersion, reader.header.revision)
+
         for key in reader.frames:
             try:
-                if len(key) == 4 and key not in filehandler.get_known_fields('ID3'):
-                    filehandler.add_field('ID3', key)
+                if len(key) == 4 and key not in filehandler.get_known_fields(document_type):
+                    filehandler.add_field(document_type, key)
 
                 value = reader.getValue(key)
                 if value is None:
                     continue
-                     
+                if not isinstance(value, unicode) and isinstance(value, basestring):
+                    value = unicode(value, errors='ignore')
+
                 if len(value) > MAX_DATA_LENGTH:
                     filehandler.report_invalid_field(asset.absolute_path, key, value)
                     LOG.info(value)
                     continue
             
                 LOG.info("%s = %s" % (key, value))
-                # if key in filehandler.get_fields('ID3'):
+                # if key in filehandler.get_fields(document_type):
                 id3_data[key] = value
             except Exception, e:
                 ERR.warning('%s read failure on %s: %s' % (self.name, asset.absolute_path, e.message))
                 
 
         if len(id3_data) > 0:
+            # if len(data['attributes']) != len(id3_data):
+            #     print 'UnicodeDecodeError'
+
+            id3_data['_version'] = document_type
             id3_data['_reader'] = self.name
             id3_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['properties'].append(id3_data)
+
+            data['attributes'].append(id3_data)

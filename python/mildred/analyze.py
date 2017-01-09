@@ -33,7 +33,7 @@ def analyze(vector):
 
 
 class Analyzer(object):
-    """The action ANALYZER examines files and paths and proposes actions based on conditional methods contained by ReasonTypes"""
+    """The action ANALYZER examines files and paths and proposes actions based on conditional methods invoked by MetaReason"""
 
     def __init__(self, vector):
         self.vector = vector
@@ -49,19 +49,23 @@ class Analyzer(object):
     def analyze_asset(self, reasons, document):
         for reason in reasons:
             dispatch_funcs = reason['funcs']
-            invalid = len(dispatch_funcs)
+            unsatisfied_conditions = len(dispatch_funcs)
             for func in dispatch_funcs:
                 condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
                 condition_func = introspection.get_func(condition)
 
                 if condition_func and condition_func(document):
-                    invalid -= 1
+                    unsatisfied_conditions -= 1
             
-            if invalid:
-                print "%s returns 'False'" % reason['name']
-            else:
-                print "%s returns 'True'" % reason['name']
-            # reason_record = SQLReason()
+            # record op record, condition applied
+
+            if unsatisfied_conditions:
+                continue
+            #else:
+            print "%s returns 'True'" % reason['name']
+            
+            reason_record = SQLReason()
+            # reason_record.meta_reason_id = reason['id']
             # reason_record.meta_reason = reason
 
             # for param in reason.params
@@ -82,7 +86,7 @@ class Analyzer(object):
                 
         return result
 
-    def get_reasons(self):
+    def get_meta_reasons(self):
 
         results = ()
 
@@ -109,7 +113,7 @@ class Analyzer(object):
 
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
-        reasons = self.get_reasons()
+        reasons = self.get_meta_reasons()
 
         for file_ in SQLAsset.retrieve(const.DOCUMENT, path, use_like_in_where_clause=True):
             document = Document(file_.absolute_path, esid=file_.id)
@@ -119,13 +123,13 @@ class Analyzer(object):
             # if no op record exists
             self.analyze_asset(reasons, document)
 
-        for folder in SQLAsset.retrieve(const.DIRECTORY, path, use_like_in_where_clause=True):
-            directory = Directory(folder.absolute_path, esid=folder.id)
-            directory.doc = search.get_doc(const.DIRECTORY, directory.esid)
-            directory.data = directory.to_dictionary()
+        # for folder in SQLAsset.retrieve(const.DIRECTORY, path, use_like_in_where_clause=True):
+        #     directory = Directory(folder.absolute_path, esid=folder.id)
+        #     directory.doc = search.get_doc(const.DIRECTORY, directory.esid)
+        #     directory.data = directory.to_dictionary()
 
-            # if no op record exists
-            self.analyze_asset(reasons, document)
+        #     # if no op record exists
+        #     self.analyze_asset(reasons, directory)
  
     def propose_actions(self, path):
         # action

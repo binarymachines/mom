@@ -188,15 +188,14 @@ def configure(options):
 
     # action
     config.deep = read(parser, "Action")['deep_scan'].lower() == 'true'
-    # if 'no_scan' in options:
-    #     config.scan = False
-    # else:
-    config.scan = read(parser, "Action")['scan'].lower() == 'true' or 'scan' in options
 
-    # if 'no_match' in options:
-    #     config.match = False
-    # else: 
+    config.scan = read(parser, "Action")['scan'].lower() == 'true' or 'scan' in options
+    if 'no_scan' in options:
+        config.scan = False
+
     config.match = read(parser, "Action")['match'].lower() == 'true' or 'match' in options
+    if 'no_match' in options:
+        config.match = False
 
     # cache
     config.path_cache_size = int(read(parser, "Cache")['path_cache_size'])
@@ -218,11 +217,15 @@ def reset():
     except Exception, err:
         ERR.WARNING(err.message)
 
+    for table in ['synonym_document_attribute', 'synonym', 'document_attribute']:
+        query = 'delete from %s' % (table)
+        sql.execute_query(query)
+
     for table in ['document', 'matched']:
         query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
         sql.execute_query(query)
 
-    for table in ['op_record']:
+    for table in ['op_record', 'mode_state']:
         query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
         sql.execute_query(query, schema="mildred_introspection")
     

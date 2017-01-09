@@ -19,7 +19,7 @@ def add_field(doc_format, field_name):
     if field_name in get_known_fields(doc_format): 
         return
     try:
-        sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format.upper(), field_name])
+        sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format, field_name])
         cache2.add_item(KNOWN, doc_format, field_name)
     except Exception, err:
         ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -30,7 +30,7 @@ def get_fields(doc_format):
     keygroup = 'fields'
     if not cache2.key_exists(keygroup, doc_format):
         key = cache2.get_key(keygroup, doc_format)
-        rows = sql.retrieve_values2('document_attribute', ['active_flag', 'document_format', 'attribute_name'], ['1', doc_format.upper()])
+        rows = sql.retrieve_values2('document_attribute', ['active_flag', 'document_format', 'attribute_name'], ['1', doc_format])
         cache2.add_items(keygroup, doc_format, [row.attribute_name for row in rows])
 
     result = cache2.get_items(keygroup, doc_format)
@@ -42,7 +42,7 @@ def get_known_fields(doc_format):
     """retrieve all attributes, including unused ones, from document_attribute for the specified document_type"""
     if not cache2.key_exists(KNOWN, doc_format):
         key = cache2.create_key(KNOWN, doc_format)
-        rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format.upper()])
+        rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format])
         cache2.add_items(KNOWN, doc_format, [row.attribute_name for row in rows])
 
     result = cache2.get_items(KNOWN, doc_format)

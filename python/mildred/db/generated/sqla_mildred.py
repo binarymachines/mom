@@ -96,6 +96,18 @@ class Document(Base):
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
 
+class DocumentAttribute(Base):
+    __tablename__ = 'document_attribute'
+
+    id = Column(Integer, primary_key=True)
+    index_name = Column(String(128), nullable=False)
+    document_format = Column(String(32), nullable=False)
+    attribute_name = Column(String(128), nullable=False)
+    active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
+
+    synonyms = relationship(u'Synonym', secondary='synonym_document_attribute')
+
+
 class DocumentCategory(Base):
     __tablename__ = 'document_category'
 
@@ -105,16 +117,6 @@ class DocumentCategory(Base):
     doc_type = Column(String(128), nullable=False)
     effective_dt = Column(DateTime)
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
-
-
-class DocumentMetadatum(Base):
-    __tablename__ = 'document_attribute'
-
-    id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False)
-    document_format = Column(String(32), nullable=False)
-    attribute_name = Column(String(128), nullable=False)
-    active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
 class FileFormat(Base):
@@ -244,6 +246,20 @@ class PathMapping(Base):
     parent = relationship(u'PathMapping', remote_side=[id])
 
 
+class Synonym(Base):
+    __tablename__ = 'synonym'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(25), nullable=False)
+
+
+t_synonym_document_attribute = Table(
+    'synonym_document_attribute', metadata,
+    Column('document_attribute_id', ForeignKey(u'document_attribute.id'), primary_key=True, nullable=False, index=True),
+    Column('synonym_id', ForeignKey(u'synonym.id'), primary_key=True, nullable=False, index=True)
+)
+
+
 t_v_file_handler = Table(
     'v_file_handler', metadata,
     Column('package', String(128)),
@@ -260,4 +276,12 @@ t_v_matched = Table(
     Column('match_path', Text),
     Column('pct', Float, server_default=text("'0'")),
     Column('same_ext_flag', Integer, server_default=text("'0'"))
+)
+
+
+t_v_synonym = Table(
+    'v_synonym', metadata,
+    Column('document_format', String(32)),
+    Column('name', String(25)),
+    Column('attribute_name', String(128))
 )

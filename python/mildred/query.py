@@ -8,6 +8,21 @@ QUERY = 'query'
 SHOULD = 'should'
 VALUE = 'value'
 
+# {
+#     "query": {
+#         "nested" : {
+#             "path" : "attributes",
+#             "score_mode" : "avg",
+#             "query" : {
+#                 "bool" : {
+#                     "must" : [
+#                     { "match" : {"attributes.TALB" : "manipulate"} }
+#                     ]
+#                 }
+#             }
+#         }
+#     }
+# }
 
 # TODO: add options to simple query
 

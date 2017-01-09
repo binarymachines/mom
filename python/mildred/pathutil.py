@@ -20,7 +20,7 @@ def get_directory_constants(identifier):
     return cache2.get_items2(key)
 
 
-def get_items(keygroup, identifier):
+def get_sorted_items(keygroup, identifier):
     result = []
     result.extend(cache2.get_items(keygroup, identifier))
     result.sort()
@@ -35,7 +35,7 @@ def get_locations():
         rows = sql.retrieve_values('directory', ['active_flag', 'name'], ['1'])
         cache2.add_items(keygroup, identifier, [row[1] for row in rows])
 
-    return get_items(keygroup, identifier)
+    return get_sorted_items(keygroup, identifier)
 
 
 def get_excluded_locations():
@@ -46,7 +46,7 @@ def get_excluded_locations():
         rows = sql.retrieve_values('exclude_directory', ['name'], [])
         cache2.add_items(keygroup, identifier, [row[0] for row in rows])
 
-    return get_items(keygroup, identifier)
+    return get_sorted_items(keygroup, identifier)
 
 
 def get_document_category_names():
@@ -57,7 +57,7 @@ def get_document_category_names():
         rows = sql.retrieve_values('document_category', ['name'], [])
         cache2.add_items(keygroup, identifier, [row[0] for row in rows])
 
-    return get_items(keygroup, identifier)
+    return get_sorted_items(keygroup, identifier)
 
 
 def get_active_document_formats():
@@ -68,7 +68,7 @@ def get_active_document_formats():
         rows = sql.retrieve_values('document_format', ['active_flag', 'ext'], ['1'])
         cache2.add_items(keygroup, identifier, [row[1] for row in rows])
 
-    return get_items(keygroup, identifier)
+    return get_sorted_items(keygroup, identifier)
 
 
 
