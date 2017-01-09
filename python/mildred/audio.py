@@ -33,7 +33,7 @@ def has_inferior_dupe(asset):
 def has_superior_dupe(asset):
     pass
 
-def tags_contain_artist_and_album(asset:)
+def tags_contain_artist_and_album(asset):
     data = get_attribute_values(asset, 'artist', 'album')
     return len(data) == 2
 
