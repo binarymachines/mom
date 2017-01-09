@@ -22,7 +22,7 @@ def not_in_category(asset):
     pass
 
 def is_redundant(asset):
-    return False
+    pass
 
 def has_lossless_dupe(asset):
     pass
@@ -33,13 +33,19 @@ def has_inferior_dupe(asset):
 def has_superior_dupe(asset):
     pass
 
+def tags_contain_artist_and_album(asset:)
+    data = get_attribute_values(asset, 'artist', 'album')
+    return len(data) == 2
 
 def tags_mismatch_path(asset):
-    if asset.document_type == const.DOCUMENT:
-        values = get_attribute_values(asset, 'artist', 'album', 'song', 'track_id')
-    # artist = asset.doc.viewitem().
-    return True
+    data = get_attribute_values(asset, 'artist', 'album')
+    if len(data) == 2:
+        tagdata = os.path.sep.join([data['artist'], data['album']]).lower()
+        print "comparing %s to %s" % (tagdata, asset.absolute_path.lower()) 
+        path_nominal = tagdata in asset.absolute_path.lower()
+        return path_nominal == False
 
+    
 def get_attribute_values(asset, *items):
     result = {}
     # for viewitem in asset.doc.viewitems():
