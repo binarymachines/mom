@@ -1,11 +1,11 @@
 import redis
 import unittest
 
-from mildred.core import cache2
+import cache2
 
-KEYGROUP = 'test-suite'
+KEYGROUP = 'tests-suite'
 
-#NOTE: This unit test does not account for Redis' dislike of key names containing spaces
+#NOTE: This unit tests does not account for Redis' dislike of key names containing spaces
 
 class TestCache2(unittest.TestCase):
     """Redis must be running for these tests to run"""
@@ -23,7 +23,7 @@ class TestCache2(unittest.TestCase):
     # Keys and Key Groups
 
     def test_create_key(self):
-        key = cache2.create_key(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', value='test')
+        key = cache2.create_key(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', value='tests')
         self.assertEquals(key, self.identifier, 'error in key name')
 
         testkey = cache2.redis.keys(self.identifier)
@@ -45,7 +45,7 @@ class TestCache2(unittest.TestCase):
         pass
 
     def test_get_key(self):
-        # get_key() calls get_keys, unit test is redundant
+        # get_key() calls get_keys, unit tests is redundant
         pass
 
     def test_get_keys(self):
@@ -74,9 +74,9 @@ class TestCache2(unittest.TestCase):
 
     def test_get_key_value(self):
         keyname = 'get_key_value'
-        keyvalue = 'test'
+        keyvalue = 'tests'
 
-        # test using API method
+        # tests using API method
         key = cache2.create_key(KEYGROUP, keyname, value=keyvalue)
         testvalue = cache2.get_key_value(KEYGROUP, keyname)
 
@@ -252,7 +252,7 @@ class TestCache2(unittest.TestCase):
         self.assertDictEqual(hash, testhash)
 
     # def test_set_hash2(self):
-    #     keyname = cache2.key_name(KEYGROUP, 'hash2', 'test')
+    #     keyname = cache2.key_name(KEYGROUP, 'hash2', 'tests')
     #     hash = { 'operation': 'scan', 'operator': 'id3v2' }
 
     #     cache2.set_hash2(keyname, hash)

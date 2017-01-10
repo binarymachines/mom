@@ -132,6 +132,7 @@ class MutagenMP4(Pathogen):
             mp4_data[key] = value
 
         if len(mp4_data) > 0:
+            mp4_data['_version'] = 'm4a'
             mp4_data['_reader'] = self.name
             mp4_data['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(mp4_data)
@@ -164,6 +165,7 @@ class MutagenAPEv2(Pathogen):
             ape_data[key] = value
 
         if len(ape_data) > 0:
+            ape_data['_version'] = 'apev2'
             ape_data['_reader'] = self.name
             ape_data['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(ape_data)
@@ -192,17 +194,19 @@ class MutagenFLAC(Pathogen):
 
         for tag in document.vc:
             key = tag[0]
-            if key not in filehandler.get_known_fields('flac.vc'):
-                filehandler.add_field('flac.vc', key)
+            if key not in filehandler.get_known_fields('flac'):
+                filehandler.add_field('flac', key)
 
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
                 filehandler.report_invalid_field(asset.absolute_path, key, value)
                 continue
 
-            flac_data[key] = value
+            if key not in flac_data:
+                flac_data[key] = value
 
         if len(flac_data) > 0:
+            flac_data['_version'] = 'flac'
             flac_data['_reader'] = self.name
             flac_data['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(flac_data)
@@ -226,7 +230,7 @@ class MutagenID3(Pathogen):
                 continue
 
             key = tag[0]
-            if len(key) == 4 and key not in filehandler.get_known_fields(document_type):
+            if len(key) == 4 and key not in filehandler.get_known_fields(document_type) and key != "TXXX":
                 filehandler.add_field(document_type, key)
 
             value = tag[1]
@@ -252,8 +256,9 @@ class MutagenID3(Pathogen):
                 #     if sub_field in value:
                 subtags = value.split('=')
                 subkey = subtags[0].replace(' ', '_')#.upper()
-                if subkey not in filehandler.get_known_fields('%s.TXXX' % document_type):
-                    filehandler.add_field('%s.TXXX' % document_type, key)
+                txxkey = '.'.join([key, subkey])
+                if txxkey not in filehandler.get_known_fields(document_type):
+                    filehandler.add_field(document_type, txxkey)
 
                 id3_data[key].append(subtags[0])
                 id3_data[key].append(subtags[1])
@@ -270,7 +275,6 @@ class MutagenID3(Pathogen):
             id3_data['_version'] = document_type
             id3_data['_reader'] = self.name
             id3_data['_read_date'] = datetime.datetime.now().isoformat()
-
             data['attributes'].append(id3_data)
 
 class MutagenOggVorbis(Pathogen):
@@ -295,6 +299,7 @@ class MutagenOggVorbis(Pathogen):
             ogg_data[key] = value
 
         if len(ogg_data) > 0:
+            ogg_data['_version'] = 'ogg'
             ogg_data['_reader'] = self.name
             ogg_data['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(ogg_data)
@@ -316,15 +321,27 @@ class BatchelderID3(Pathogen):
 
         for key in reader.frames:
             try:
-                if len(key) == 4 and key not in filehandler.get_known_fields(document_type):
+                if len(key) == 4 and key not in filehandler.get_known_fields(document_type) and key != "TXXX":
                     filehandler.add_field(document_type, key)
 
                 value = reader.getValue(key)
                 if value is None:
                     continue
-                if not isinstance(value, unicode) and isinstance(value, basestring):
-                    value = unicode(value, errors='ignore')
 
+                if isinstance(value, basestring):
+                    if not isinstance(value, unicode):
+                        value = unicode(value, errors='ignore')
+                # elif len(value) == 2:
+                    
+                # subkey = value[0]
+                # txxkey = '.'.join([key, subkey])
+                # if txxkey not in filehandler.get_known_fields(document_type):
+                #     filehandler.add_field(document_type, txxkey)
+
+                # id3_data[key].append(subtags[0])
+                # id3_data[key].append(subtags[1])
+
+                    
                 if len(value) > MAX_DATA_LENGTH:
                     filehandler.report_invalid_field(asset.absolute_path, key, value)
                     LOG.info(value)

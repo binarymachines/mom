@@ -67,8 +67,9 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason` (
 
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action_reason` (
-  `meta_action_id` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+  `meta_action_id` INT(11) UNSIGNED NOT NULL,
   `meta_reason_id` INT(11) UNSIGNED NOT NULL,
+   `is_sufficient_solo` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`meta_action_id`, `meta_reason_id`),
   INDEX `fk_action_reason_meta_reason1_idx` (`meta_reason_id` ASC),
   CONSTRAINT `fk_action_reason_meta_action`
@@ -193,16 +194,22 @@ where at.id = apt.meta_action_id
   
 insert into action_status (name) values ("proposed"), ("accepted"), ("pending"), ("complete"), ("aborted"), ("canceled");
 
-set @RENAME_FILE_APPLY_TAGS="rename.file.apply.tags";
-set @FILE_TAG_MISMATCH="file.tag.mismatch";
-set @TAGS_MATCH_PATH="file.tag.mismatch";
+set @ACTION_RENAME_FILE_APPLY_TAGS="rename.file.apply.tags";
+set @REASON_PATH_TAGS_MISMATCH="path.tags.mismatch";
+set @CONDITION_TAGS_MATCH_PATH="tags.match.path";
 
-insert into action_dispatch (identifier, category, module_name, func_name) values (@RENAME_FILE_APPLY_TAGS, "action", "audio", "apply_tags_to_filename");
-insert into action_dispatch (identifier, category, module_name, func_name) values (@TAGS_MATCH_PATH,"condition", "audio", "tags_match_path");
-insert into meta_action (name, priority, dispatch_id) values (@RENAME_FILE_APPLY_TAGS, 95, (select id from action_dispatch where identifier = @RENAME_FILE_APPLY_TAGS));
-insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @RENAME_FILE_APPLY_TAGS), "active.scan.path");
-insert into meta_reason (name, dispatch_id, expected_result) values (@FILE_TAG_MISMATCH, (select id from action_dispatch where identifier = @TAGS_MATCH_PATH), 0);
-insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @RENAME_FILE_APPLY_TAGS), (select id from meta_reason where name = @FILE_TAG_MISMATCH));
+set @REASON_TAGS_CONTAIN_ARTIST_ALBUM="tags.contain.artist.album";
+set @CONDITION_TAGS_CONTAIN_ARTIST_ALBUM="tags.contain.artist.album";
+
+insert into action_dispatch (identifier, category, module_name, func_name) values (@ACTION_RENAME_FILE_APPLY_TAGS, "action", "audio", "apply_tags_to_filename");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@CONDITION_TAGS_MATCH_PATH,"condition", "audio", "tags_match_path");
+insert into action_dispatch (identifier, category, module_name, func_name) values (@CONDITION_TAGS_CONTAIN_ARTIST_ALBUM,"condition", "audio", "tags_contain_artist_and_album");
+insert into meta_action (name, priority, dispatch_id) values (@ACTION_RENAME_FILE_APPLY_TAGS, 95, (select id from action_dispatch where identifier = @ACTION_RENAME_FILE_APPLY_TAGS));
+insert into meta_action_param(meta_action_id, vector_param_name) values ((select id from meta_action where name = @ACTION_RENAME_FILE_APPLY_TAGS), "active.scan.path");
+insert into meta_reason (name, dispatch_id, expected_result) values (@REASON_PATH_TAGS_MISMATCH, (select id from action_dispatch where identifier = @CONDITION_TAGS_MATCH_PATH), 0);
+-- insert into meta_reason (name, dispatch_id) values (@REASON_TAGS_CONTAIN_ARTIST_ALBUM, (select id from action_dispatch where identifier = @CONDITION_TAGS_CONTAIN_ARTIST_ALBUM));
+insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @ACTION_RENAME_FILE_APPLY_TAGS), (select id from meta_reason where name = @REASON_PATH_TAGS_MISMATCH));
+-- insert into action_reason (meta_action_id, meta_reason_id) values ((select id from meta_action where name = @ACTION_RENAME_FILE_APPLY_TAGS), (select id from meta_reason where name = @REASON_TAGS_CONTAIN_ARTIST_ALBUM));
 
 set @EXPUNGE_FILE="expunge.file";
 set @IS_REDUNDANT="file.is.redundant";

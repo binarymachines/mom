@@ -63,7 +63,7 @@ class FileHandler(object):
         self.extensions = ()
 
     def handle_exception(self, exception, asset, data):
-        library.record_error(exception)
+        raise Exception
 
     def handle_file(self, asset, data):
         raise BaseClassException(FileHandler)

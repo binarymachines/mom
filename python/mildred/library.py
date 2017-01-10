@@ -127,13 +127,11 @@ def clear_docs(document_type, path):
     for key in keys:
         cache2.delete_key(key)
 
-
 def get_cached_esid(document_type, path):
     key = cache2.get_key(KEY_GROUP, document_type, path)
     values = cache2.get_hash2(key)
     if 'esid' in values:
         return values['esid']
-
 
 def get_doc_keys(document_type):
     keys = cache2.get_keys(KEY_GROUP, document_type)
@@ -143,17 +141,7 @@ def get_doc_keys(document_type):
 def retrieve_docs(document_type, path):
     return sql.run_query_template(RETRIEVE_DOCS, config.es_index, document_type, path)
 
-
 # assets
-
-def append_read_file_to_active_directory(self, reader_name, asset):
-    pass
-    # """append file to _read_files section of the active directory's elasticsearch data *THIS DOES NOT UPDATE ELASTICSEARCH*"""
-    # if asset is not None:
-    #     file_data = { '_reader': reader_name, '_file_name': asset.file_name }
-    #     dir_vals = cache2.get_hash2(get_cache_key())
-    #     dir_vals['read_files'].append(file_data)
-
 
 def doc_exists_for_path(doc_type, path):
     # check cache, cache will query db if esid not found in cache
@@ -192,15 +180,6 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
         asset.doc = search.get_doc(asset.document_type, asset.esid)
 
     return asset
-
-# def get_latest_operation(self, path):
-#
-#     directory = Directory(path)
-#
-#     doc = search.get_doc(directory)
-#     if doc is not None:
-#         latest_operation = doc['_source']['latest_operation']
-#         return latest_operation
 
 def _sub_index_asset(asset, data):
     data[HEXID] = asset.absolute_path.encode('hex')
@@ -276,45 +255,13 @@ def index_asset(asset, data):
     except AssetException, err:
         handle_asset_exception(err, asset.absolute_path)
         raise err
-        # return False
         
     return True        
 
 
 def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
     SQLAsset.insert(index_name, document_type, elasticsearch_id, absolute_path)
-    # except Exception, err:
-    #         print "database connectivity error, retrying in 5 seconds..." 
-    #         db_avail = False
-    #         while db_avail is False:
-    #             ERR.error(err.__class__.__name__, exc_info=True)
-    #             ops.check_status()
-    #             time.sleep(5)
-    #             try:
-    #                 if DATABASE_AVAILABLE:
-    #                     alchemy.insert_asset(index_name, document_type, elasticsearch_id, absolute_path)
-    #                     db_avail = True
-    #             except Exception, err:
-    #                 print "database connectivity error, retrying in 5 seconds..." 
 
-def record_error(error):
-    # error_class = error.__class__.__name__
-    # cached_dir = get_cached_directory()
-    # cached_dir.errors.append(error_class)
-    # cached_dir.has_errors = True
-    # cached_dir.dirty = True
-    # cache_directory(cached_dir)
-    pass
-
-
-def record_file_read(file_handler_name, asset):
-    # LOG.info("recording file read: " + error_class + ", " + directory.esid + ", " + directory.absolute_path)
-    # read_record = {'read_by': file_handler_name, 'filename': asset.file_name, 'file_ext': asset.ext, 'read_date' : datetime.datetime.now().isoformat()}
-    # cached_dir = get_cached_directory()
-    # cached_dir.read_files.append(read_record)
-    # cached_dir.dirty = True
-    # cache_directory(cached_dir)
-    pass
 
 def retrieve_esid(document_type, absolute_path):
     cached = get_cached_esid(document_type, absolute_path)
@@ -380,7 +327,6 @@ def clear_matches(matcher_name, esid):
     cache2.clear_items2(key)
     cache2.delete_key(key)
 
-
 # util
 
 def get_library_location(path):
@@ -412,7 +358,32 @@ def path_in_cache(document_type, path):
 def path_in_db(document_type, path):
     return len(sql.run_query_template(PATH_IN_DB, config.es_index, document_type, path)) is 1
 
+    
+def get_attribute_values(asset, *items, document_format_attribute='_version'):
+    result = {}
+    
+    data = asset.doc['_source']
+    attributes = {}
+    if 'attributes' in data:
+        for attribute_group in data['attributes']:
+            for attribute in attribute_group:
+                if attribute in attributes:
+                    continue  
+                attributes[attribute] = attribute_group[attribute]
+              
+    for item in items:
+        synonyms = get_synonyms(attributes[document_format_attribute], item)
+        for synonym in synonyms:
+            if synonym.attribute_name in attributes:
+                result[item] = attributes[synonym.attribute_name]
+                break
 
+    return result
+
+
+def get_synonyms(document_format, term):
+   return sql.retrieve_values2('v_synonym', ['document_format', 'name', 'attribute_name'], [document_format, term])
+   
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later
 
 def handle_asset_exception(error, path):

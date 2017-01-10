@@ -356,7 +356,7 @@ class CachedPathVector(PathVector):
         if consumer in cached_consumer_paths:
             index = self.paths.index(cached_consumer_paths[consumer]) + 1
             if len(self.paths) > index or self.cycle: result = True
-        else: result = True
+        else: result = len(self.paths) > 0
 
         return result
 
@@ -393,8 +393,8 @@ class CachedPathVector(PathVector):
             del(cached_consumer_paths[consumer])
             cache2.set_hash2(self.consumer_key, cached_consumer_paths)
 
-PERSIST = 'scan.persist'
-ACTIVE = 'active.scan.path'
+PERSIST = 'vector.scan.persist'
+ACTIVE = 'active.vector.scan.path'
 SCAN = 'vector.scan'
 
 
@@ -462,7 +462,7 @@ class PathVectorScanner(object):
 
     def scan(self):
         path = self.vector.get_param(PERSIST, ACTIVE)
-        path_restored = path is not None
+        path_restored = path is not None and path != 'None'
         self.last_expanded_path = None
 
         while self.vector.has_next(SCAN, use_fifo=True):
@@ -472,8 +472,10 @@ class PathVectorScanner(object):
             self.vector.set_param(PERSIST, ACTIVE, path)
 
             try:
-                if path is None or self.should_skip(path):
+                if path is None or path == 'None' or self.should_skip(path):
                     continue
+
+                print 'scanning %s' % path
 
                 if self.should_cache(path):
                     self.cache(path)

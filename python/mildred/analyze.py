@@ -15,7 +15,7 @@ import search
 import sql
 from alchemy import ACTION, SQLAsset, get_session
 from core import introspection, log
-from core.vector import PathVectorScanner
+from core.vector import PathVectorScanner, ACTIVE, PERSIST
 
 
 from alchemy import SQLMetaAction, SQLMetaReason, SQLAction, SQLReason
@@ -54,8 +54,10 @@ class Analyzer(object):
                 condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
                 condition_func = introspection.get_func(condition)
 
-                if condition_func and condition_func(document) == reason['expected_result']:
-                    unsatisfied_conditions -= 1
+                if condition_func:
+                    # print "calling %s()" % condition
+                    if condition_func(document) == reason['expected_result']:
+                        unsatisfied_conditions -= 1
             
             # record op record, condition applied
 
@@ -145,4 +147,5 @@ class Analyzer(object):
 
     def run(self):
         self.vector.reset(const.SCAN)
+        self.vector.set_param(PERSIST, ACTIVE, None)
         self.vector_scanner.scan();

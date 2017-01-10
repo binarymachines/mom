@@ -13,11 +13,13 @@ from errors import ElasticDataIntegrityException
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
-
+def get_backup_folder(document_id, target_folder=var.snapshotdir):
+    return os.path.join(target_folder, util.expand_str_to_path(doc_id))
+    
 def backup_doc(doc, target_folder=var.snapshotdir):
 
     doc_id = doc['_id']
-    backupfolder = os.path.join(target_folder, util.expand_str_to_path(doc_id))
+    backupfolder = get_backup_folder(doc_id, target_folder)
     if not os.path.isdir(backupfolder):
         os.makedirs(backupfolder)
 
@@ -35,10 +37,9 @@ def backup_doc(doc, target_folder=var.snapshotdir):
 
     return os.path.isfile(backup)
 
-
 def backup_exists(doc,target_folder=var.snapshotdir):
     doc_id = doc['_id']
-    backupfolder = os.path.join(target_folder, doc_id)
+    backupfolder = get_backup_folder(doc_id, target_folder)
     if os.path.isdir(backupfolder):
         return True
 

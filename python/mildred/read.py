@@ -81,9 +81,8 @@ class Reader:
                 if asset.ext.lower() in file_handler.extensions or '*' in file_handler.extensions or force_read:
                     if ops.operation_in_cache(asset.absolute_path, const.READ, file_handler.name):
                         continue
-                    elif file_handler.handle_file(asset, data):
-                        library.record_file_read(file_handler.name, asset)
-
+                    else: 
+                        return file_handler.handle_file(asset, data)
 
     def get_file_handlers(self):
         return self.file_handlers

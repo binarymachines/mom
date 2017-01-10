@@ -5,9 +5,9 @@ import redis
 import config
 from scratch import cache3
 
-KEYGROUP = cache3.DELIM.join([config.pid, 'test-suite'])
+KEYGROUP = cache3.DELIM.join([config.pid, 'tests-suite'])
 
-#TODO: This unit test does not account for Redis' dislike of key names containing spaces
+#TODO: This unit tests does not account for Redis' dislike of key names containing spaces
 
 class TestCache3(unittest.TestCase):
     """Redis must be running for these tests to run"""
@@ -19,13 +19,13 @@ class TestCache3(unittest.TestCase):
         self.test_vals = ['a', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dogs']
 
     def test_key_name(self):
-        keyname = cache3.key_name('test-suite', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i')
+        keyname = cache3.key_name('tests-suite', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i')
         self.assertEquals(keyname, self.identifier)
 
     # Keys and Key Groups
 
     def test_create_key(self):
-        key = cache3.create_key('test-suite', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', value='test')
+        key = cache3.create_key('tests-suite', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', value='tests')
         self.assertEquals(key, self.identifier, 'error in key name')
 
         testkey = self.redis.keys(self.identifier)
@@ -47,7 +47,7 @@ class TestCache3(unittest.TestCase):
         pass
 
     def test_get_key(self):
-        # get_key() calls get_keys, unit test is redundant
+        # get_key() calls get_keys, unit tests is redundant
         pass
 
     def test_get_keys(self):
@@ -63,7 +63,7 @@ class TestCache3(unittest.TestCase):
 
         # get keys individually
         for val in self.test_vals:
-            testkey = cache3.get_keys('test-suite', val)
+            testkey = cache3.get_keys('tests-suite', val)
             compkey = [cache3.DELIM.join([KEYGROUP, val])]
             self.assertEquals(testkey, compkey, 'get_keys: keygroup + string identifier retrieval fails')
 
@@ -71,14 +71,14 @@ class TestCache3(unittest.TestCase):
         for val in self.test_vals:
             key = cache3.DELIM.join([KEYGROUP, 'multi-args', val])
             self.redis.rpush(key, val)
-            testkeys = cache3.get_keys('test-suite', 'multi-args', val)
+            testkeys = cache3.get_keys('tests-suite', 'multi-args', val)
             self.assertEquals(testkeys, [key], 'get_keys: keygroup + *identifier retrieval fails')
 
     def test_get_key_value(self):
         keyname = 'get_key_value'
-        keyvalue = 'test'
+        keyvalue = 'tests'
 
-        # test using API method
+        # tests using API method
         key = cache3.create_key(KEYGROUP, keyname, value=keyvalue)
         testvalue = cache3.get_key_value(KEYGROUP, keyname)
 
@@ -214,7 +214,7 @@ class TestCache3(unittest.TestCase):
         self.assertDictEqual(hash, testhash)
 
     # def test_set_hash2(self):
-    #     keyname = cache3.key_name(KEYGROUP, 'hash2', 'test')
+    #     keyname = cache3.key_name(KEYGROUP, 'hash2', 'tests')
     #     hash = { 'operation': 'scan', 'operator': 'id3v2' }
 
     #     cache3.set_hash2(keyname, hash)

@@ -163,6 +163,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.vector)
         self.handlers['.'.join([__name__, self.process_handler.__class__.__name__])] = self.process_handler
 
+        print "setting up..."
         self.state_change_handler = ModeStateChangeHandler()
         self.mode_state_reader = AlchemyModeStateReader()
         self.mode_state_writer = AlchemyModeStateWriter()
@@ -179,6 +180,8 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         self.endmode = self._create_mode(SHUTDOWN)
 
         self._create_switch_rules()
+
+        print "setup complete"
 
 
 def create_service_process(identifier, vector, owner=None, before=None, after=None, alternative=None):
@@ -329,7 +332,6 @@ class EvalModeHandler(DefaultModeHandler):
         print  "entering evaluation mode..."
         LOG.debug('%s evaluating' % self.owner.name)
         analyze.analyze(self.vector)
-        time.sleep(1)
 
 
 # fix mode

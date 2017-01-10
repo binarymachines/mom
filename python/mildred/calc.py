@@ -139,15 +139,15 @@ def do_match_op(esid, absolute_path, matchers):
                 library.handle_asset_exception(err, asset.absolute_path)
 
             except UnicodeDecodeError, u:
-                library.record_error(u)
+                # library.record_error(u)
                 ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
 
             except UnicodeEncodeError, u:
-                library.record_error(u)
+                # library.record_error(u)
                 ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
 
             except Exception, err:
-                library.record_error(err)
+                # library.record_error(err)
                 ERR.warning(': '.join([err.__class__.__name__, err.message, asset.absolute_path]), exc_info=True)
 
 
