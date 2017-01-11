@@ -55,7 +55,7 @@ CREATE TABLE `action_dispatch` (
   `class_name` varchar(128) DEFAULT NULL,
   `func_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -86,8 +86,9 @@ DROP TABLE IF EXISTS `action_reason`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `action_reason` (
-  `meta_action_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `meta_action_id` int(11) unsigned NOT NULL,
   `meta_reason_id` int(11) unsigned NOT NULL,
+  `is_sufficient_solo` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`meta_action_id`,`meta_reason_id`),
   KEY `fk_action_reason_meta_reason1_idx` (`meta_reason_id`),
   CONSTRAINT `fk_action_reason_meta_action` FOREIGN KEY (`meta_action_id`) REFERENCES `meta_action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -156,6 +157,7 @@ CREATE TABLE `meta_reason` (
   `name` varchar(255) NOT NULL,
   `weight` int(3) NOT NULL DEFAULT '10',
   `dispatch_id` int(11) unsigned NOT NULL,
+  `expected_result` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `fk_meta_reason_dispatch_idx` (`dispatch_id`),
   CONSTRAINT `fk_meta_reason_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `action_dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION

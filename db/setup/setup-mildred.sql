@@ -138,32 +138,14 @@ CREATE TABLE `document` (
   `id` varchar(128) NOT NULL,
   `index_name` varchar(128) NOT NULL,
   `file_type_id` int(11) unsigned DEFAULT NULL,
-  `doc_type` varchar(64) NOT NULL,
+  `document_type` varchar(64) NOT NULL,
   `absolute_path` varchar(1024) NOT NULL,
-  `hexadecimal_key` varchar(640) NOT NULL,
+  `hex_key` varchar(640) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_document` (`index_name`,`hexadecimal_key`)
+  UNIQUE KEY `uk_document` (`index_name`,`hex_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `document_category`
---
-
-DROP TABLE IF EXISTS `document_category`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `document_category` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `name` varchar(256) NOT NULL,
-  `doc_type` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=186 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +162,25 @@ CREATE TABLE `document_attribute` (
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1741 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=175 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `document_category`
+--
+
+DROP TABLE IF EXISTS `document_category`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `document_category` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(256) NOT NULL,
+  `document_type` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=186 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -247,38 +247,6 @@ DROP TABLE IF EXISTS `file_type`;
 CREATE TABLE `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(25) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `match_discount`
---
-
-DROP TABLE IF EXISTS `match_discount`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `match_discount` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `method` varchar(128) NOT NULL,
-  `target` varchar(64) NOT NULL,
-  `value` int(3) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `match_weight`
---
-
-DROP TABLE IF EXISTS `match_weight`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `match_weight` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pattern` varchar(64) NOT NULL,
-  `target` varchar(64) NOT NULL,
-  `value` int(3) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -357,24 +325,34 @@ CREATE TABLE `matcher_field` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `path_mapping`
+-- Table structure for table `synonym`
 --
 
-DROP TABLE IF EXISTS `path_mapping`;
+DROP TABLE IF EXISTS `synonym`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `path_mapping` (
+CREATE TABLE `synonym` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `parent_id` int(11) unsigned DEFAULT NULL,
-  `path` varchar(767) NOT NULL,
-  `hexadecimal_key` varchar(640) DEFAULT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_path_hierarchy` (`index_name`,`hexadecimal_key`),
-  KEY `fk_path_hierarchy_parent` (`parent_id`),
-  CONSTRAINT `fk_path_hierarchy_parent` FOREIGN KEY (`parent_id`) REFERENCES `path_mapping` (`id`)
+  `name` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `synonym_document_attribute`
+--
+
+DROP TABLE IF EXISTS `synonym_document_attribute`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `synonym_document_attribute` (
+  `document_attribute_id` int(11) unsigned NOT NULL,
+  `synonym_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`document_attribute_id`,`synonym_id`),
+  KEY `fk_synonym_document_attribute_document_attribute1_idx` (`document_attribute_id`),
+  KEY `fk_synonym_document_attribute_synonym1_idx` (`synonym_id`),
+  CONSTRAINT `fk_synonym_document_attribute_document_attribute1` FOREIGN KEY (`document_attribute_id`) REFERENCES `document_attribute` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_synonym_document_attribute_synonym1` FOREIGN KEY (`synonym_id`) REFERENCES `synonym` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -410,6 +388,20 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
+-- Temporary view structure for view `v_synonym`
+--
+
+DROP TABLE IF EXISTS `v_synonym`;
+/*!50001 DROP VIEW IF EXISTS `v_synonym`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_synonym` AS SELECT 
+ 1 AS `document_format`,
+ 1 AS `name`,
+ 1 AS `attribute_name`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Final view structure for view `v_file_handler`
 --
 
@@ -441,6 +433,24 @@ SET character_set_client = @saved_cs_client;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `v_matched` AS select `d1`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d2`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `matched` `m`) where ((`m`.`doc_id` = `d1`.`id`) and (`m`.`match_doc_id` = `d2`.`id`)) union select `d2`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d1`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `matched` `m`) where ((`m`.`doc_id` = `d2`.`id`) and (`m`.`match_doc_id` = `d1`.`id`)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_synonym`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_synonym`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_synonym` AS select `attr`.`document_format` AS `document_format`,`syn`.`name` AS `name`,`attr`.`attribute_name` AS `attribute_name` from ((`synonym` `syn` join `synonym_document_attribute` `sda`) join `document_attribute` `attr`) where ((`syn`.`id` = `sda`.`synonym_id`) and (`attr`.`id` = `sda`.`document_attribute_id`)) order by `attr`.`document_format`,`syn`.`name`,`attr`.`attribute_name` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
