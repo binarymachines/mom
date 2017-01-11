@@ -9,8 +9,6 @@ from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamInfoError
 
-from third.id3reader import Reader as BatchelderID3Reader
-
 import const
 import ops
 import filehandler
@@ -305,61 +303,3 @@ class MutagenOggVorbis(Pathogen):
             data['attributes'].append(ogg_data)
 
 
-class BatchelderID3(Pathogen):
-    def __init__(self):
-        super(BatchelderID3, self).__init__('batchelder-id3')
-
-    def read_tags(self, asset, data):
-
-        id3_data = {}
-        reader = BatchelderID3Reader(asset.absolute_path)
-        
-        if reader.header.majorVersion == 1:
-            document_format = 'ID3v%i.%i' % (reader.header.majorVersion, reader.header.revision)
-        else:
-            document_format = 'ID3v2.%i.%i' % (reader.header.majorVersion, reader.header.revision)
-
-        for key in reader.frames:
-            try:
-                if len(key) == 4 and key not in filehandler.get_known_fields(document_format) and key != "TXXX":
-                    filehandler.add_field(document_format, key)
-
-                value = reader.getValue(key)
-                if value is None:
-                    continue
-
-                if isinstance(value, basestring):
-                    if not isinstance(value, unicode):
-                        value = unicode(value, errors='ignore')
-                # elif len(value) == 2:
-                    
-                # subkey = value[0]
-                # txxkey = '.'.join([key, subkey])
-                # if txxkey not in filehandler.get_known_fields(document_format):
-                #     filehandler.add_field(document_format, txxkey)
-
-                # id3_data[key].append(subtags[0])
-                # id3_data[key].append(subtags[1])
-
-                    
-                if len(value) > MAX_DATA_LENGTH:
-                    filehandler.report_invalid_field(asset.absolute_path, key, value)
-                    LOG.info(value)
-                    continue
-            
-                LOG.info("%s = %s" % (key, value))
-                # if key in filehandler.get_fields(document_format):
-                id3_data[key] = value
-            except Exception, e:
-                ERR.warning('%s read failure on %s: %s' % (self.name, asset.absolute_path, e.message))
-                
-
-        if len(id3_data) > 0:
-            # if len(data['attributes']) != len(id3_data):
-            #     print 'UnicodeDecodeError'
-
-            id3_data['_document_format'] = document_format
-            id3_data['_reader'] = self.name
-            id3_data['_read_date'] = datetime.datetime.now().isoformat()
-
-            data['attributes'].append(id3_data)
