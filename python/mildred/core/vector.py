@@ -201,7 +201,6 @@ class PathVector(Vector):
     def reset(self, consumer):
         if consumer in self.consumer_paths:
             del self.consumer_paths[consumer]
-        print self.consumer_paths
 
 CACHED_PATH_VECTOR = 'CachedPathVector'
 
@@ -478,7 +477,7 @@ class PathVectorScanner(object):
                 if path is None or path == 'None' or self.should_skip(path):
                     continue
 
-                print 'scanning %s' % path
+                LOG.info('scanning %s' % path) 
 
                 if self.should_cache(path):
                     self.cache(path)
