@@ -2,5 +2,6 @@ CONNECT REMOTE:localhost/merlin root steel;
 drop class Dispatch unsafe;
 drop class MetaAction unsafe;
 drop class MetaReason unsafe;
+drop class MetaReasonParam unsafe;
 drop class Invokes unsafe;
 drop class IsSuggestedBy unsafe;

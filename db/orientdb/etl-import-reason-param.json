@@ -7,17 +7,13 @@
               "url": "jdbc:mysql://localhost/mildred_action",
               "userName": "root",
               "userPassword": "steel",
-              "query": "select meta_action_id, meta_reason_id from m_action_m_reason" }
+              "query": "select * from meta_reason_param" }
   },
-  "transformers": [
-      { "merge": { "joinFieldName": "meta_action_id", "lookup": "MetaAction.id" } },
-      { "vertex": {"class": "MetaAction", "skipDuplicates": true} },
-      { "edge": { "class": "IsSuggestedBy",
-                  "joinFieldName": "meta_reason_id",
-                  "lookup": "MetaReason.id",
-                  "direction": "out"
-                }
-      }
+  "transformers" : [
+   { "vertex": { "class": "MetaReasonParam"} },
+   { "edge": { "class": "Has", "direction" : "in", 
+            "joinFieldName": "meta_reason_id",
+   "lookup":"MetaReason.id", "unresolvedLinkAction":"CREATE"} }
   ],
   "loader" : {
     "orientdb": {
@@ -33,3 +29,4 @@
     }
   }
 }
+
