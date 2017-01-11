@@ -15,7 +15,7 @@ import search
 import sql
 from alchemy import ACTION, SQLAsset, get_session
 from core import introspection, log
-from core.vector import PathVectorScanner, ACTIVE, PERSIST
+from core.vector import PathVectorScanner, ACTIVE, PERSIST, SCAN as VECTORSCAN
 
 
 from alchemy import SQLMetaAction, SQLMetaReason, SQLAction, SQLReason
@@ -146,6 +146,6 @@ class Analyzer(object):
 
 
     def run(self):
-        self.vector.reset(const.SCAN)
+        self.vector.reset(VECTORSCAN)
         self.vector.set_param(PERSIST, ACTIVE, None)
         self.vector_scanner.scan();

@@ -16,12 +16,12 @@ def clear_dupes_from_es(vector):
         try:
             ops.check_status()
             path = vector.get_next(CLEAN, True)
-            rows = sql.retrieve_like_values('document', ['absolute_path', 'doc_type', 'hexadecimal_key'], [path]) 
+            rows = sql.retrieve_like_values('document', ['absolute_path', 'document_type', 'hex_key'], [path]) 
             for row in rows: 
                 ops.check_status()
                 try:
                     ops.update_listeners('enforcing data integrity', 'elasticsearch cleaner', row[0])
-                    search.unique_doc_exists(row[1], '_hex_id', row[2], except_on_multiples=True)
+                    search.unique_doc_exists(row[1], '_hex_key', row[2], except_on_multiples=True)
                 except ElasticDataIntegrityException, err:
                     LOG.info('Duplicate documents found for %s' % row[0])
                     library.handle_asset_exception(err, row[0])

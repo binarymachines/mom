@@ -162,7 +162,7 @@ def get_matchers():
                          'analyzer': field.analyzer, 'operator': field.operator, 'minimum_should_match': field.minimum_should_match, \
                          'query_section': field.query_section}
 
-        matcher = ElasticSearchMatcher(sqlmatcher.name, comparison_fields, doc_type=DOCUMENT, id=sqlmatcher.id, query_type=sqlmatcher.query_type, \
+        matcher = ElasticSearchMatcher(sqlmatcher.name, comparison_fields, document_type=DOCUMENT, id=sqlmatcher.id, query_type=sqlmatcher.query_type, \
                                        max_score_percentage=float(sqlmatcher.max_score_percentage))
         matchers.append(matcher)
 

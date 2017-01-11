@@ -25,9 +25,9 @@ def clean_str(string):
     return string.lower().replace(', ', ' ').replace('_', ' ').replace(':', ' ').replace(' ', '')
 
 class MediaMatcher(object):
-    def __init__(self, name, doc_type, id=None):
+    def __init__(self, name, document_type, id=None):
         self.comparison_fields = {}
-        self.document_type = doc_type
+        self.document_type = document_type
         self.name = name
         self.id = id
 
@@ -57,8 +57,8 @@ class MediaMatcher(object):
 
 
 class ElasticSearchMatcher(MediaMatcher):
-    def __init__(self, name, comparison_fields, doc_type=None, query_type=None, id=None, max_score_percentage=None):
-        super(ElasticSearchMatcher, self).__init__(name, doc_type=doc_type, id=id)
+    def __init__(self, name, comparison_fields, document_type=None, query_type=None, id=None, max_score_percentage=None):
+        super(ElasticSearchMatcher, self).__init__(name, document_type=document_type, id=id)
         self.query_type = query_type
         self.max_score_percentage = max_score_percentage
         self.comparison_fields = comparison_fields

@@ -137,13 +137,13 @@ class SQLMetaReason(MetaReason):
 class SQLAsset(Document):
     
     def __repr__(self):
-        return "<SQLAsset(index_name='%s', doc_type='%s', absolute_path='%s')>" % (
-                                self.index_name, self.doc_type, self.absolute_path)
+        return "<SQLAsset(index_name='%s', document_type='%s', absolute_path='%s')>" % (
+                                self.index_name, self.document_type, self.absolute_path)
 
     @staticmethod
     @alchemy_operation
-    def insert(index_name, doc_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
-        asset = SQLAsset(id=id, index_name=index_name, doc_type=doc_type, absolute_path=absolute_path, hexadecimal_key=absolute_path.encode('hex'), \
+    def insert(index_name, document_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
+        asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path, hex_key=absolute_path.encode('hex'), \
             effective_dt=datetime.datetime.now())
 
         try:
@@ -154,28 +154,28 @@ class SQLAsset(Document):
 
     @staticmethod
     @alchemy_operation
-    def retrieve(doc_type, absolute_path=None, use_like_in_where_clause=True):
+    def retrieve(document_type, absolute_path=None, use_like_in_where_clause=True):
         path = '%s%s' % (absolute_path, '%')
 
         result = ()
         if absolute_path is None:
             for instance in sessions[MILDRED].query(SQLAsset).\
                 filter(SQLAsset.index_name == config.es_index).\
-                filter(SQLAsset.doc_type == doc_type):
+                filter(SQLAsset.document_type == document_type):
                 # filter(SQLAsset.absolute_path.like(path)):
                     result += (instance,)
 
         elif use_like_in_where_clause:
             for instance in sessions[MILDRED].query(SQLAsset).\
                 filter(SQLAsset.index_name == config.es_index).\
-                filter(SQLAsset.doc_type == doc_type).\
+                filter(SQLAsset.document_type == document_type).\
                 filter(SQLAsset.absolute_path.like(path)):
                     result += (instance,)
 
         else:
             for instance in sessions[MILDRED].query(SQLAsset).\
                 filter(SQLAsset.index_name == config.es_index).\
-                filter(SQLAsset.doc_type == doc_type).\
+                filter(SQLAsset.document_type == document_type).\
                 filter(SQLAsset.absolute_path == path):
                     result += (instance,)
 
@@ -498,7 +498,7 @@ class SQLOperationRecord(OpRecord):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
         op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
                                     target_esid=target_esid, target_path=target_path, start_time=start_time, status=status, \
-                                    target_hexadecimal_key=target_path.encode('hex'))
+                                    target_hex_key=target_path.encode('hex'))
 
         try:
             sessions[INTROSPECTION].add(op_rec)

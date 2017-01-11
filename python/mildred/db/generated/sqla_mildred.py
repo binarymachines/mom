@@ -83,15 +83,15 @@ class DirectoryConstant(Base):
 class Document(Base):
     __tablename__ = 'document'
     __table_args__ = (
-        Index('uk_document', 'index_name', 'hexadecimal_key', unique=True),
+        Index('uk_document', 'index_name', 'hex_key', unique=True),
     )
 
     id = Column(String(128), primary_key=True)
     index_name = Column(String(128), nullable=False)
     file_type_id = Column(Integer)
-    doc_type = Column(String(64), nullable=False)
+    document_type = Column(String(64), nullable=False)
     absolute_path = Column(String(1024), nullable=False)
-    hexadecimal_key = Column(String(640), nullable=False)
+    hex_key = Column(String(640), nullable=False)
     effective_dt = Column(DateTime)
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
@@ -114,7 +114,7 @@ class DocumentCategory(Base):
     id = Column(Integer, primary_key=True)
     index_name = Column(String(128), nullable=False)
     name = Column(String(256), nullable=False)
-    doc_type = Column(String(128), nullable=False)
+    document_type = Column(String(128), nullable=False)
     effective_dt = Column(DateTime)
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
@@ -157,24 +157,6 @@ class FileType(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(25), nullable=False)
-
-
-class MatchDiscount(Base):
-    __tablename__ = 'match_discount'
-
-    id = Column(Integer, primary_key=True)
-    method = Column(String(128), nullable=False)
-    target = Column(String(64), nullable=False)
-    value = Column(Integer, nullable=False, server_default=text("'0'"))
-
-
-class MatchWeight(Base):
-    __tablename__ = 'match_weight'
-
-    id = Column(Integer, primary_key=True)
-    pattern = Column(String(64), nullable=False)
-    target = Column(String(64), nullable=False)
-    value = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
 class Matched(Base):
@@ -227,23 +209,6 @@ class MatcherField(Base):
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
     matcher = relationship(u'Matcher')
-
-
-class PathMapping(Base):
-    __tablename__ = 'path_mapping'
-    __table_args__ = (
-        Index('uk_path_hierarchy', 'index_name', 'hexadecimal_key', unique=True),
-    )
-
-    id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False)
-    parent_id = Column(ForeignKey(u'path_mapping.id'), index=True)
-    path = Column(String(767), nullable=False)
-    hexadecimal_key = Column(String(640))
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
-
-    parent = relationship(u'PathMapping', remote_side=[id])
 
 
 class Synonym(Base):

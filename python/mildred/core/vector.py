@@ -107,10 +107,10 @@ class Vector(object):
         if consumer in self.params:
             del self.params[consumer]
 
-    def reset(self, consumer):
-        self.clear_fifo(consumer)
-        self.clear_stack(consumer)
-        self.clear_params(consumer)
+    # def reset(self, consumer):
+    #     self.clear_fifo(consumer)
+    #     self.clear_stack(consumer)
+    #     self.clear_params(consumer)
 
 
 class PathVector(Vector):
@@ -127,7 +127,7 @@ class PathVector(Vector):
 
     def clear_active(self, consumer):
         if consumer in self.consumer_paths:
-            del(self.consumer_paths[consumer])
+            del self.consumer_paths[consumer]
 
     def get_active(self, consumer):
         if consumer in self.consumer_paths:
@@ -199,10 +199,9 @@ class PathVector(Vector):
         else: return self.paths[0]
 
     def reset(self, consumer):
-        super(PathVector, self).reset(consumer)
         if consumer in self.consumer_paths:
             del self.consumer_paths[consumer]
-
+        print self.consumer_paths
 
 CACHED_PATH_VECTOR = 'CachedPathVector'
 
@@ -311,15 +310,15 @@ class CachedPathVector(PathVector):
             return self.get_next(consumer)
 
     def get_next(self, consumer, use_fifo=False):
-        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+        if len(self.paths) == 0:
+            return None
 
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return self.pop_fifo(consumer)
 
-        if len(self.paths) == 0:
-            return None
-
         result = None
+
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
 
         if consumer in cached_consumer_paths:
             index = self.paths.index(cached_consumer_paths[consumer]) + 1
@@ -343,20 +342,21 @@ class CachedPathVector(PathVector):
         return consumer in cached_consumer_paths
 
     def has_next(self, consumer, use_fifo=False):
-        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
+        if len(self.paths) == 0: 
+            return False
 
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
             return True
 
-        if len(self.paths) == 0: 
-            return False
-
         result = False
 
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
         if consumer in cached_consumer_paths:
             index = self.paths.index(cached_consumer_paths[consumer]) + 1
-            if len(self.paths) > index or self.cycle: result = True
-        else: result = len(self.paths) > 0
+            if len(self.paths) > index or self.cycle: 
+                result = True
+        else: 
+            result = len(self.paths) > 0
 
         return result
 
@@ -368,29 +368,32 @@ class CachedPathVector(PathVector):
     #         return path in self.fifos[consumer]
 
     def peek_next(self, consumer, use_fifo=False):
-        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
 
+        if len(self.paths) == 0: 
+            return None
+        
         if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer) is not None:
             return self.peek_fifo(consumer)
 
-        if len(self.paths) == 0: return None
-
+        cached_consumer_paths = cache2.get_hash2(self.consumer_key)
         if consumer in cached_consumer_paths:
             index = self.paths.index(cached_consumer_paths[consumer]) + 1
             if len(self.paths) > index:
                 return self.paths[index]
         # elif cycle:
-        else: return self.paths[0]
+        else: 
+            return self.paths[0]
 
     def reset(self, consumer, use_fifo=False):
         super(CachedPathVector, self).reset(consumer)
         self.clear_fifo(consumer)
         self.clear_params(consumer)
+        self.clear_stack(consumer)
 
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
 
         if consumer in cached_consumer_paths:
-            del(cached_consumer_paths[consumer])
+            del cached_consumer_paths[consumer]
             cache2.set_hash2(self.consumer_key, cached_consumer_paths)
 
 PERSIST = 'vector.scan.persist'

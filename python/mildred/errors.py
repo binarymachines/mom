@@ -9,13 +9,13 @@ class AssetException(MildredException):
 
 
 class ElasticDataIntegrityException(AssetException):
-    def __init__(self, doc_type, attribute, value):
-        self.doc_type = doc_type
+    def __init__(self, document_type, attribute, value):
+        self.document_type = document_type
         self.attribute = attribute
         # self.data = value
 
         data = None
-        if attribute == '_hex_id':
+        if attribute == '_hex_key':
             data = value.decode('hex')
 
         if attribute == 'absolute_path':

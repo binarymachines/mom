@@ -216,7 +216,7 @@ class Scanner(Walker):
         self.update_scan = self.vector.get_param(SCAN, USCAN)
 
         path = self.vector.get_param(PERSIST, ACTIVE)
-        path_restored = path is not None
+        path_restored = path is not None and path != 'None'
         last_expanded_path = None
 
         while self.vector.has_next(SCAN, use_fifo=True):
@@ -228,7 +228,7 @@ class Scanner(Walker):
             
             print "active path = %s" % path
 
-            if path is None or os.path.isfile(path): 
+            if path is None or path == 'None' or os.path.isfile(path): 
                 continue
 
             ops.update_listeners('evaluating', SCANNER, path)

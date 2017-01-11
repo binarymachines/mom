@@ -258,7 +258,7 @@ def get_directories(path):
     print 'retrieving s matching pattern: "%s"' % (path)
 
     q = """SELECT id, absolute_path FROM document
-            WHERE index_name = '%s' and doc_type = 'media_'
+            WHERE index_name = '%s' and document_type = 'media_'
               and absolute_path like '%s%s%s' ORDER BY absolute_path""" % (config.es_index, '%', path, '%')
 
     return sql.run_query(q)

@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -47,11 +47,15 @@ class ActionParam(Base):
     meta_action_param = relationship(u'MetaActionParam')
 
 
-t_action_reason = Table(
-    'action_reason', metadata,
-    Column('meta_action_id', ForeignKey(u'meta_action.id'), primary_key=True, nullable=False, server_default=text("'0'")),
-    Column('meta_reason_id', ForeignKey(u'meta_reason.id'), primary_key=True, nullable=False, index=True)
-)
+class ActionReason(Base):
+    __tablename__ = 'action_reason'
+
+    meta_action_id = Column(ForeignKey(u'meta_action.id'), primary_key=True, nullable=False)
+    meta_reason_id = Column(ForeignKey(u'meta_reason.id'), primary_key=True, nullable=False, index=True)
+    is_sufficient_solo = Column(Integer, nullable=False, server_default=text("'0'"))
+
+    meta_action = relationship(u'MetaAction')
+    meta_reason = relationship(u'MetaReason')
 
 
 class ActionStatu(Base):
@@ -70,7 +74,6 @@ class MetaAction(Base):
     priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
     dispatch = relationship(u'ActionDispatch')
-    meta_reasons = relationship(u'MetaReason', secondary='action_reason')
 
 
 class MetaActionParam(Base):

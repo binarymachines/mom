@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `mildred_introspection`.`op_record` (
   `end_time` DATETIME NULL DEFAULT NULL,
   `effective_dt` DATETIME NULL DEFAULT now(),
   `expiration_dt` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
-  `target_hexadecimal_key` VARCHAR(640) CHARACTER SET 'utf8' NULL DEFAULT NULL,
+  `target_hex_key` VARCHAR(640) CHARACTER SET 'utf8' NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 

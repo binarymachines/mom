@@ -26,11 +26,11 @@ def clear_bad_entries():
             print ': '.join([err.__class__.__name__, err.message])
 
 
-def delete_docs_for_path( indexname, doctype, path):
-    rows = sql.retrieve_like_values('document', ['index_name', 'doc_type', 'absolute_path', 'active_flag', 'id'], [indexname, doctype, path, str(1)])
+def delete_docs_for_path( indexname, document_type, path):
+    rows = sql.retrieve_like_values('document', ['index_name', 'document_type', 'absolute_path', 'active_flag', 'id'], [indexname, document_type, path, str(1)])
     for r in rows:
         esid = r[4]
-        res = config.es.delete(index=indexname,doc_type=doctype,id=esid)
+        res = config.es.delete(index=indexname,doc_type=document_type,id=esid)
         if res['_shards']['successful'] == 1:
             sql.update_values('document', 'active_flag', False, ['id'], [esid])
 
@@ -111,17 +111,17 @@ def record_matches_as_ops():
 #     s = sql.retrieve_values('directory', ['name'], [])
 #     for directory in directories:
 #         asset = os.path.join(config.START_FOLDER, [0])
-#         files = sql.retrieve_like_values('document', ['absolute_path', 'doc_type'], [asset, config.DIRECTORY])
+#         files = sql.retrieve_like_values('document', ['absolute_path', 'document_type'], [asset, config.DIRECTORY])
 #         for f in files:
 #             filename = f[0]
 #             doc_type = f[1]
 
 #             try:
-#                 esid = library.retrieve_esid(doc_type, filename)
+#                 esid = library.retrieve_esid(document_type, filename)
 #                 if esid is not None:
 #                     print ','.join([esid, filename])
 #                 else:
-#                     sql.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [config.es_index, doc_type, filename, "NO ESID"])
+#                     sql.insert_values('problem_path', ['index_name', 'document_type', 'path', 'problem_description'], [config.es_index, document_type, filename, "NO ESID"])
 
 #             except AssetException, error:
 #                 print error.message

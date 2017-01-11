@@ -11,7 +11,7 @@ from elasticsearch.exceptions import ConnectionError, RequestError
 
 from alchemy import SQLAsset
 import config, const
-from const import DOCUMENT, DIRECTORY, HEXID, MATCH
+from const import DOCUMENT, DIRECTORY, HEX_KEY, MATCH
 import ops
 import pathutil
 import search
@@ -83,8 +83,8 @@ def set_active(path):
     if directory is not None:
         LOG.debug('syncing metadata for %s' % directory.absolute_path)
         ops.update_listeners('syncing metadata', 'library', path)
-        if search.unique_doc_exists(DIRECTORY, HEXID, directory.absolute_path.encode('hex'), except_on_multiples=True):
-            directory.esid = search.unique_doc_id(DIRECTORY, HEXID, directory.absolute_path.encode('hex'))
+        if search.unique_doc_exists(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'), except_on_multiples=True):
+            directory.esid = search.unique_doc_id(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'))
             # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
             index_asset(directory, directory.to_dictionary())
@@ -117,7 +117,7 @@ def cache_docs(document_type, path, flush=True):
     for sql_asset in rows:
         ops.check_status()
         ops.update_listeners('caching %i %s records...' % (count - cached_count, document_type), 'library', path)
-        key = cache2.create_key(KEY_GROUP, sql_asset.doc_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
+        key = cache2.create_key(KEY_GROUP, sql_asset.document_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
         keyvalue = {'absolute_path': sql_asset.absolute_path, 'esid': sql_asset.id}
         cache2.set_hash2(key, keyvalue)
         cached_count += 1
@@ -143,13 +143,13 @@ def retrieve_docs(document_type, path):
 
 # assets
 
-def doc_exists_for_path(doc_type, path):
+def doc_exists_for_path(document_type, path):
     # check cache, cache will query db if esid not found in cache
-    esid = retrieve_esid(doc_type, path)
+    esid = retrieve_esid(document_type, path)
     if esid is not None: return True
 
     # esid not found in cache or db, search es
-    return search.unique_doc_exists(doc_type, HEXID, path.encode('hex'), except_on_multiples=True)
+    return search.unique_doc_exists(document_type, HEX_KEY, path.encode('hex'), except_on_multiples=True)
 
 
 def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
@@ -182,7 +182,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
     return asset
 
 def _sub_index_asset(asset, data):
-    data[HEXID] = asset.absolute_path.encode('hex')
+    data[HEX_KEY] = asset.absolute_path.encode('hex')
     try:
         res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
         if res['_shards']['successful'] == 1:
@@ -267,8 +267,8 @@ def retrieve_esid(document_type, absolute_path):
     cached = get_cached_esid(document_type, absolute_path)
     if cached: return cached
 
-    rows = sql.retrieve_values('document', ['index_name', 'doc_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
-    # rows = sql.run_query("select index_name, doc_type, absolute_path")
+    rows = sql.retrieve_values('document', ['index_name', 'document_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
+    # rows = sql.run_query("select index_name, document_type, absolute_path")
     if len(rows) == 0: return None
     if len(rows) == 1: return rows[0][3]
     elif len(rows) >1: raise ElasticDataIntegrityException(document_type, 'absolute_path', absolute_path)
@@ -276,10 +276,10 @@ def retrieve_esid(document_type, absolute_path):
 
 
 def update_asset(asset, data):
-    hex_id = asset.absolute_path.encode('hex')
+    hex_key = asset.absolute_path.encode('hex')
     try:
-        if search.unique_doc_exists(asset.document_type, HEXID, hex_id, except_on_multiples=True):
-            esid = search.unique_doc_id(asset.document_type, HEXID, hex_id)
+        if search.unique_doc_exists(asset.document_type, HEX_KEY, hex_key, except_on_multiples=True):
+            esid = search.unique_doc_id(asset.document_type, HEX_KEY, hex_key)
             old_doc = search.get_doc(asset.document_type, esid)
             old_data = old_doc['_source']['attributes']
 
@@ -359,7 +359,7 @@ def path_in_db(document_type, path):
     return len(sql.run_query_template(PATH_IN_DB, config.es_index, document_type, path)) is 1
 
     
-def get_attribute_values(asset, *items, document_format_attribute='_version'):
+def get_attribute_values(asset, document_format_attribute, *items):
     result = {}
     
     data = asset.doc['_source']
@@ -388,7 +388,7 @@ def get_synonyms(document_format, term):
 
 def handle_asset_exception(error, path):
     if isinstance(error, ElasticDataIntegrityException):
-        docs = search.find_docs(error.doc_type, error.attribute, error.data)
+        docs = search.find_docs(error.document_type, error.attribute, error.data)
         keepdoc = docs[0]
         for doc in docs:
             if doc is not keepdoc:
@@ -407,12 +407,12 @@ def handle_asset_exception(error, path):
 
 def backup_assets():
     ops.update_listeners('querying...', 'library', '')
-    docs = sql.retrieve_values2('document', ['id', 'doc_type', 'absolute_path'], []) 
+    docs = sql.retrieve_values2('document', ['id', 'document_type', 'absolute_path'], []) 
     count = len(docs)
     for doc in docs:
         ops.check_status()
         try:
-            es_doc = search.get_doc(doc.doc_type, doc.id)
+            es_doc = search.get_doc(doc.document_type, doc.id)
             if search.backup_exists(es_doc):
                 ops.update_listeners('backup exists, skipping file %i/%i' % (doc.rownum, count), 'library', doc.absolute_path)
                 continue

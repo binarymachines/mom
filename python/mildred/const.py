@@ -34,7 +34,7 @@ KNOWN = 'known_fields'
 METADATA = 'document_attribute'
 
 # other constants
-HEXID = '_hex_id'
+HEX_KEY = '_hex_key'
 
 # states
 INITIAL = "initial"

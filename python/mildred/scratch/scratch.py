@@ -77,14 +77,14 @@ def test_func():
 
 def main():
     # index = 'media'
-    # rows = sql.retrieve_values('document', ['id', 'absolute_path', 'doc_type'], [])
+    # rows = sql.retrieve_values('document', ['id', 'absolute_path', 'document_type'], [])
     # for row in rows:
     #     id = row[0]
     #     path = row[1]
-    #     doc_type = row[2]
+    #     document_type = row[2]
     #     hex = path.encode('hex')
     #     try:
-    #         sql.insert_values('document2', ['id', 'index_name', 'doc_type', 'absolute_path', 'hexadecimal_key'], [id, index, doc_type, path, hex])
+    #         sql.insert_values('document2', ['id', 'index_name', 'document_type', 'absolute_path', 'hex_key'], [id, index, document_type, path, hex])
     #     except Exception, err:
     #         print err.message
 
@@ -93,7 +93,7 @@ def main():
     #     id = int(row[0])
     #     key = row[1].encode('hex')
     #     try:
-    #         query = 'update op_record set target_hexadecimal_key = "%s" where id = %i' % (key, id)
+    #         query = 'update op_record set target_hex_key = "%s" where id = %i' % (key, id)
     #         print query
     #         sql.execute_query(query)
     #     except Exception, err:
