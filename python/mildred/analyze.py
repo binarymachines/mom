@@ -15,10 +15,10 @@ import search
 import sql
 from alchemy import ACTION, SQLAsset, get_session
 from core import introspection, log
-from core.vector import PathVectorScanner, ACTIVE, PERSIST, SCAN as VECTORSCAN
+from core.vector import PathVectorScanner, ACTIVE, PERSIST
 
 
-from alchemy import SQLMetaAction, SQLMetaReason, SQLAction, SQLReason
+from alchemy import SQLMetaAction, SQLMetaReason, SQLMetaReasonParam, SQLAction, SQLReason, SQLReasonParam
 
 LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
@@ -37,7 +37,7 @@ class Analyzer(object):
 
     def __init__(self, vector):
         self.vector = vector
-        self.vector_scanner = PathVectorScanner(vector, self.handle_vector_path, handle_error_func=self.handle_error)
+        self.vector_scanner = PathVectorScanner(ANALYZER, vector, self.handle_vector_path, handle_error_func=self.handle_error)
 
     def handle_error(self, error, path):
         pass
@@ -46,9 +46,10 @@ class Analyzer(object):
         self.generate_reasons(path)
         pass
 
-    def analyze_asset(self, reasons, document):
-        for reason in reasons:
-            dispatch_funcs = reason['funcs']
+    def analyze_asset(self, meta_reasons, document):
+        self.vector.set_param(ANALYZER, ACTIVE, document.absolute_path)
+        for meta_reason in meta_reasons:
+            dispatch_funcs = meta_reason['funcs']
             unsatisfied_conditions = len(dispatch_funcs)
             for func in dispatch_funcs:
                 condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
@@ -56,30 +57,30 @@ class Analyzer(object):
 
                 if condition_func:
                     # print "calling %s()" % condition
-                    if condition_func(document) == reason['expected_result']:
+                    if condition_func(document) == meta_reason['expected_result']:
                         unsatisfied_conditions -= 1
-            
-            # record op record, condition applied
 
             if unsatisfied_conditions:
                 continue
-            #else:
-            print "%s returns 'True'" % reason['name']
             
-            reason_record = SQLReason()
-            # reason_record.meta_reason_id = reason['id']
-            # reason_record.meta_reason = reason
+            reason = SQLReason()
+            reason.meta_reason_id = meta_reason['id']
 
-            # for param in reason.params
-            # path_param = ReasonParam();
-            # path_param.reason = new_reason
-            # path_param.reason_type = reason
-            # path_param.
+            vector_params = self.vector.get_params(ANALYZER)
+            for param in meta_reason['params']:
+                param_name = param['vector_param_name']
+                param_id = param['id']
+                if param_name in vector_params:
+                    reason_param = SQLReasonParam()
+                    reason_param.meta_reason_param_id = param_id
+                    reason_param.value = vector_params[param_name]
+                    reason.params.append(reason_param)
 
-            # session = alchemy.get_session(alchemy.ACTION)
-            # session.add(reason_record)
-            # session.commit()
+            session = alchemy.get_session(alchemy.ACTION)
+            session.add(reason)
+            session.commit()
 
+            
     def oRecord2dict(self, oRecord, *items):
         result = {}
         result['rid'] = oRecord._OrientRecord__rid
@@ -101,10 +102,15 @@ class Analyzer(object):
             for reason in reasons:
                 reason_data = self.oRecord2dict(reason, 'id', 'name', 'expected_result')
                 reason_data['funcs'] = ()
+                reason_data['params'] = ()
 
                 dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'condition'" % reason_data['rid'])
                 for dispatch in dispatches: 
                     reason_data['funcs'] += self.oRecord2dict(dispatch, 'id', 'package_name', 'module_name', 'class_name', 'func_name'),
+
+                params = client.query("select from (traverse all() from %s) where @class = 'MetaReasonParam'" % reason_data['rid'])
+                for param in params: 
+                    reason_data['params'] += self.oRecord2dict(param, 'id', 'vector_param_name'),
 
                 results += reason_data,
 
@@ -146,6 +152,6 @@ class Analyzer(object):
 
 
     def run(self):
-        self.vector.reset(VECTORSCAN)
-        self.vector.set_param(PERSIST, ACTIVE, None)
+        self.vector.reset(ANALYZER)
+        self.vector.set_param(ANALYZER, ACTIVE, None)
         self.vector_scanner.scan();

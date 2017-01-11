@@ -109,6 +109,24 @@ class SQLMetaAction(MetaAction):
 
         return result
 
+class SQLMetaReason(MetaReason):
+    
+    @staticmethod
+    @alchemy_operation
+    def retrieve_all():
+        result = ()
+        for instance in sessions[ACTION].query(MetaReason):
+            result += (instance,)
+
+        return result
+
+
+class SQLMetaReasonParam(MetaReasonParam):
+    # meta_reason = relationship(u'SQLMetaReason', back_populates="params")
+    meta_reason = relationship(u'SQLMetaReason')
+    
+SQLMetaReason.params = relationship("SQLMetaReasonParam", order_by=SQLMetaReasonParam.id, back_populates="meta_reason")
+
 
 class SQLReason(Reason):
     
@@ -121,17 +139,10 @@ class SQLReason(Reason):
 
         return result
 
-
-class SQLMetaReason(MetaReason):
+class SQLReasonParam(ReasonParam):
+    reason = relationship(u'SQLReason')
     
-    @staticmethod
-    @alchemy_operation
-    def retrieve_all():
-        result = ()
-        for instance in sessions[ACTION].query(MetaReason):
-            result += (instance,)
-
-        return result
+SQLReason.params = relationship("SQLReasonParam", order_by=SQLReasonParam.id, back_populates="reason")
 
 
 class SQLAsset(Document):

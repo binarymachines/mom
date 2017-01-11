@@ -27,7 +27,7 @@ CREATE TABLE `action` (
   `meta_action_id` int(11) unsigned DEFAULT NULL,
   `action_status_id` int(11) unsigned DEFAULT NULL,
   `parent_action_id` int(11) unsigned DEFAULT NULL,
-  `effective_dt` datetime NOT NULL,
+  `effective_dt` datetime NOT NULL DEFAULT now()
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `meta_action_id` (`meta_action_id`),
@@ -192,7 +192,7 @@ CREATE TABLE `reason` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `meta_reason_id` int(11) unsigned DEFAULT NULL,
   `action_id` int(11) unsigned DEFAULT NULL,
-  `effective_dt` datetime NOT NULL,
+  `effective_dt` datetime NOT NULL DEFAULT now()
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `meta_reason_id` (`meta_reason_id`),

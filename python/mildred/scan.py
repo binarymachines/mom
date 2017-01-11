@@ -190,10 +190,10 @@ class Scanner(Walker):
             ops.record_op_complete(HSCAN, SCANNER, path)
             ops.write_ops_data(path, HSCAN, SCANNER)
 
-        if update_ops: ops.update_ops_data()
+        if update_ops: 
+            ops.update_ops_data()
 
         library.clear_docs(const.DOCUMENT, path)
-
         self.vector.set_param(PERSIST, ACTIVE, None)
     
     

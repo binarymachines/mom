@@ -396,16 +396,17 @@ class CachedPathVector(PathVector):
             cache2.set_hash2(self.consumer_key, cached_consumer_paths)
 
 PERSIST = 'vector.scan.persist'
-ACTIVE = 'active.vector.scan.path'
-SCAN = 'vector.scan'
+ACTIVE = 'active.path'
+# SCAN = 'vector.scan'
 
 
 class PathVectorScanner(object):
 
-    def __init__(self, pathvector, handle_vector_path_func, handle_error_func=None, cache_func=None,
+    def __init__(self, owner, pathvector, handle_vector_path_func, handle_error_func=None, cache_func=None,
                  before_func=None, after_func=None, should_cache_func=None, should_skip_func=None,
                  path_expand_func=None):
 
+        self.owner = owner
         self.vector = pathvector
 
         self.handle_vector_path_func = handle_vector_path_func
@@ -463,15 +464,15 @@ class PathVectorScanner(object):
     # TODO: individual paths in the directory vector should have their own scan configuration
 
     def scan(self):
-        path = self.vector.get_param(PERSIST, ACTIVE)
+        path = self.vector.get_param(self.owner, ACTIVE)
         path_restored = path is not None and path != 'None'
         self.last_expanded_path = None
 
-        while self.vector.has_next(SCAN, use_fifo=True):
-            path = path if path_restored else self.vector.get_next(SCAN, True)
+        while self.vector.has_next(self.owner, use_fifo=True):
+            path = path if path_restored else self.vector.get_next(self.owner, True)
             path_restored = False
 
-            self.vector.set_param(PERSIST, ACTIVE, path)
+            self.vector.set_param(self.owner, ACTIVE, path)
 
             try:
                 if path is None or path == 'None' or self.should_skip(path):

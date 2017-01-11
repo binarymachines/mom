@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -15,12 +15,13 @@ class Action(Base):
     meta_action_id = Column(ForeignKey(u'meta_action.id'), index=True)
     action_status_id = Column(ForeignKey(u'action_status.id'), index=True)
     parent_action_id = Column(ForeignKey(u'action.id'), index=True)
-    effective_dt = Column(DateTime, nullable=False)
+    effective_dt = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     action_status = relationship(u'ActionStatu')
     meta_action = relationship(u'MetaAction')
     parent_action = relationship(u'Action', remote_side=[id])
+    reasons = relationship(u'Reason', secondary='action_reason')
 
 
 class ActionDispatch(Base):
@@ -41,21 +42,17 @@ class ActionParam(Base):
     id = Column(Integer, primary_key=True)
     action_id = Column(ForeignKey(u'action.id'), index=True)
     meta_action_param_id = Column(ForeignKey(u'meta_action_param.id'), index=True)
-    value = Column(String(255))
+    value = Column(String(1024))
 
     action = relationship(u'Action')
     meta_action_param = relationship(u'MetaActionParam')
 
 
-class ActionReason(Base):
-    __tablename__ = 'action_reason'
-
-    meta_action_id = Column(ForeignKey(u'meta_action.id'), primary_key=True, nullable=False)
-    meta_reason_id = Column(ForeignKey(u'meta_reason.id'), primary_key=True, nullable=False, index=True)
-    is_sufficient_solo = Column(Integer, nullable=False, server_default=text("'0'"))
-
-    meta_action = relationship(u'MetaAction')
-    meta_reason = relationship(u'MetaReason')
+t_action_reason = Table(
+    'action_reason', metadata,
+    Column('action_id', ForeignKey(u'action.id'), primary_key=True, nullable=False, index=True),
+    Column('reason_id', ForeignKey(u'reason.id'), primary_key=True, nullable=False, index=True)
+)
 
 
 class ActionStatu(Base):
@@ -63,6 +60,17 @@ class ActionStatu(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
+
+
+class MActionMReason(Base):
+    __tablename__ = 'm_action_m_reason'
+
+    meta_action_id = Column(ForeignKey(u'meta_action.id'), primary_key=True, nullable=False)
+    meta_reason_id = Column(ForeignKey(u'meta_reason.id'), primary_key=True, nullable=False, index=True)
+    is_sufficient_solo = Column(Integer, nullable=False, server_default=text("'0'"))
+
+    meta_action = relationship(u'MetaAction')
+    meta_reason = relationship(u'MetaReason')
 
 
 class MetaAction(Base):
@@ -90,12 +98,14 @@ class MetaReason(Base):
     __tablename__ = 'meta_reason'
 
     id = Column(Integer, primary_key=True)
+    parent_meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
     name = Column(String(255), nullable=False)
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
     expected_result = Column(Integer, nullable=False, server_default=text("'1'"))
 
     dispatch = relationship(u'ActionDispatch')
+    parent_meta_reason = relationship(u'MetaReason', remote_side=[id])
 
 
 class MetaReasonParam(Base):
@@ -113,23 +123,21 @@ class Reason(Base):
 
     id = Column(Integer, primary_key=True)
     meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
-    action_id = Column(ForeignKey(u'action.id'), index=True)
-    effective_dt = Column(DateTime, nullable=False)
+    parent_reason_id = Column(ForeignKey(u'reason.id'), index=True)
+    effective_dt = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
-    action = relationship(u'Action')
     meta_reason = relationship(u'MetaReason')
+    parent_reason = relationship(u'Reason', remote_side=[id])
 
 
 class ReasonParam(Base):
     __tablename__ = 'reason_param'
 
     id = Column(Integer, primary_key=True)
-    action_id = Column(ForeignKey(u'action.id'), nullable=False, index=True)
     reason_id = Column(ForeignKey(u'reason.id'), nullable=False, index=True)
     meta_reason_param_id = Column(ForeignKey(u'meta_reason_param.id'), nullable=False, index=True)
-    value = Column(String(255))
+    value = Column(String(1024))
 
-    action = relationship(u'Action')
     meta_reason_param = relationship(u'MetaReasonParam')
     reason = relationship(u'Reason')

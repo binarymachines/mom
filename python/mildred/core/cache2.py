@@ -49,7 +49,7 @@ def create_key(key_group, *identifier, **values):
     return key
 
 
-# def delete_key(key, delete_list=False, delete_hash=False):s
+# def delete_key(key, delete_list=False, delete_hash=False):
 def delete_key(key):
     result = redis.delete(key)
     LOG.debug('redis.delete(key=%s) returns: %s' % (key, str(result)))
@@ -248,8 +248,8 @@ def add_items(key_group, identifier, items):
 
 
 def add_items2(key, items):
+    key = DELIM.join([LIST, key])
     for item in items:
-        key = DELIM.join([LIST, key])
         result = redis.sadd(key, item)
         # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
