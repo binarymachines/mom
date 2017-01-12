@@ -215,8 +215,9 @@ def get_hashes(key_group, *identifier):
 
 def set_hash(key_group, identifier, values):
     key = DELIM.join([HASH, key_group, identifier])
-    result = redis.hmset(key, values)
-    LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
+    if len(values) > 0:
+        result = redis.hmset(key, values)
+        LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
 
 
 def set_hash2(key, values):
