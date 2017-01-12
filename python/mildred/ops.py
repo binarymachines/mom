@@ -334,6 +334,7 @@ def evaluate(no_pid=False):
 
     check_status()
 
+
 def eval_commands():
     commands = get_exec_record_value('commands')
     if commands is not None:
@@ -355,6 +356,7 @@ def reconfig_requested():
             return values['pid'] == config.pid and values['reconfig_requested'] == 'True'
         except KeyError, ke:
             ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
+
 
 def stop_requested():
     values = cache2.get_hash2(get_exec_key())

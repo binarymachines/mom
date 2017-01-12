@@ -111,9 +111,13 @@ class MutagenMP4(Pathogen):
         mp4_data = {}
         document = MP4(asset.absolute_path)
         for item in document.items():
-            if len(item) < 2: continue
+            if len(item) < 2: 
+                continue
 
             key = item[0]
+            if not isinstance(key, unicode) and isinstance(key, basestring):
+                key = unicode(key, errors='ignore')
+
             if key not in filehandler.get_known_fields('m4a'):
                 filehandler.add_field('m4a', key)
 
@@ -122,10 +126,12 @@ class MutagenMP4(Pathogen):
             except Exception, err:
                 value = item[1]
 
-            if isinstance(value, basestring):
-                if len(value) > MAX_DATA_LENGTH:
-                    filehandler.report_invalid_field(asset.absolute_path, key, value)
-                    continue
+            if not isinstance(value, unicode) and isinstance(value, basestring):
+                value = unicode(value, errors='ignore')
+
+            if isinstance(value, unicode) and len(value) > MAX_DATA_LENGTH:
+                filehandler.report_invalid_field(asset.absolute_path, key, value)
+                continue
 
             mp4_data[key] = value
 
@@ -234,8 +240,9 @@ class MutagenID3(Pathogen):
             value = tag[1]
             if value is None:
                 continue
-                if not isinstance(value, unicode) and isinstance(value, basestring):
-                    value = unicode(value, errors='ignore')
+
+            if not isinstance(value, unicode) and isinstance(value, basestring):
+                value = unicode(value, errors='ignore')
 
             if len(value) > MAX_DATA_LENGTH:
                 filehandler.report_invalid_field(asset.absolute_path, key, value)

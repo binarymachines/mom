@@ -221,9 +221,10 @@ def set_hash(key_group, identifier, values):
 
 def set_hash2(key, values):
     identifier = DELIM.join([HASH, key])
-    delete_hash2(key)
-    result = redis.hmset(identifier, values)
-    LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
+    result = delete_hash2(key)
+    if len(values) > 0:
+        result = redis.hmset(identifier, values)
+        LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
 
 # lists
 

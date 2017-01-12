@@ -225,8 +225,6 @@ class Scanner(Walker):
             path_restored = False
             self.vector.set_param(PERSIST, ACTIVE, path)
             
-            print "active path = %s" % path
-
             if path is None or path == 'None' or os.path.isfile(path): 
                 continue
 
