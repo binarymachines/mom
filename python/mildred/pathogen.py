@@ -118,6 +118,9 @@ class MutagenMP4(Pathogen):
             if not isinstance(key, unicode) and isinstance(key, basestring):
                 key = unicode(key, errors='ignore')
 
+            if '.' in key:
+                continue
+
             if key not in filehandler.get_known_fields('m4a'):
                 filehandler.add_field('m4a', key)
 
