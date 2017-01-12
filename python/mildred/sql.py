@@ -120,7 +120,7 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
 
 # execute queries
 
-def execute_query(query, host=config.mysql_host,  user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db):
+def execute_query(query, host=config.mysql_host, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db):
     con = None
     try:
         con = mdb.connect(host, user, password, schema)
@@ -150,7 +150,7 @@ def execute_query(query, host=config.mysql_host,  user=config.mysql_user, passwo
         if con: con.close()
 
 
-def run_query(query, host=config.mysql_host,  user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db):
+def run_query(query, host=config.mysql_host, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db):
     con = None
     rows = []
     try:
@@ -185,16 +185,16 @@ def run_query(query, host=config.mysql_host,  user=config.mysql_user, password=c
 
 # load and run query templates
 
-def execute_query_template(filename, *args):
+def execute_query_template(filename, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db, *args):
     print os.getcwd()
     query = _load_query(filename, args)
     # you could do some kind of validation here
-    return execute_query(query)
+    return execute_query(query, user=user, password=password, schema=schema)
 
-def run_query_template(filename, *args):
+def run_query_template(filename, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db, *args):
     query = _load_query(filename, args)
     # you could do some kind of validation here
-    return run_query(query)
+    return run_query(query, user=user, password=password, schema=schema)
 
 
 def _load_query(filename, args):

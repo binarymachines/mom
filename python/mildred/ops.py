@@ -188,7 +188,7 @@ def update_ops_data():
     # update_listeners(OPS, get_exec_key(), + 'updating ops records')
     # TODO: add params to this query (index_name, date range, etc)
     try:
-        sql.execute_query_template('ops_update_op_record')
+        sql.execute_query_template('ops_update_op_record', schema='mildred_introspection')
     except Exception, err:
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
