@@ -28,11 +28,12 @@ EXEC_RECORD = { 'id': None, 'pid': str(config.pid), 'index_name': config.es_inde
 def create_op_key(operation, operator, path):
     return cache2.create_key(config.pid, OPS, operation, operator, path)
 
+
 def get_op_key(operation, operator, path):
     return cache2.get_key(config.pid, OPS, operation, operator, path)
 
+
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
-    # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
     if operator is None:
         LOG.debug('%s retrieving %s operations (%s)...' % (OPS, operation, op_status))
     else:
@@ -56,15 +57,12 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
 
 
 def clear_cached_operation(path, operation, operator=None):
-    # LOG.debug('%s caching %i %s operations (%s)...' % (operator, len(rows), operation, op_status))
     op_key = get_op_key(operation, operator, path)
-    # values = cache2.get_hash2(key)
     cache2.delete_hash2(op_key)
     cache2.delete_key(op_key)
 
 
 def flush_cache(resuming=False):
-
     write_ops_data(os.path.sep, resuming=resuming)
     if resuming is False:
         LOG.info('flushing redis database')
@@ -74,7 +72,6 @@ def flush_cache(resuming=False):
 def mark_operation_invalid(operation, operator, path):
     LOG.debug("marking operation invalid: %s:::%s - path %s " % (operator, operation, path))
 
-    # key = cache2.get_key(config.pid, OPS, operation, operator, path)
     op_get_op_key(operation, operator, path)
     values = cache2.get_hash2(op_key)
     values['status'] = 'INVALID'
@@ -97,20 +94,16 @@ def operation_completed(path, operation, operator=None):
 
 def operation_in_cache(path, operation, operator=None):
     op_key = get_op_key(operation, operator, path)
-    # key = cache2.get_key(config.pid, OPS, operation, operator, path)
     values = cache2.get_hash2(op_key)
     return 'persisted' in values and values['persisted'] == 'True'
     #LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
-    # return result
 
 
 def pop_operation():
     try:
-        # exec_key = cache2.get_key(config.pid, OPS, EXEC)
         stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
-        op_key = cache2.lpop2(stack_key)
-        # op_values = cache2.get_hash2(op_key)
-
+        cache2.lpop2(stack_key)
+        
         last_op_key = cache2.lpeek2(stack_key)
 
         if last_op_key is None or last_op_key == 'None':
@@ -125,24 +118,20 @@ def pop_operation():
             exec_rec['current_operation'] = op_rec['operation_name']
             exec_rec['current_operator'] = op_rec['operator_name']
             exec_rec['operation_status'] = op_rec['status']
-            # exec_rec.set_hash2(get_exec_key(), exec_rec)
             cache2.set_hash2(get_exec_key(), exec_rec)
 
             update_listeners(op_rec['operation_name'], op_rec['operator_name'], op_rec['target_path'])
-            # print 'current operation: %s' % values['current_operator']
 
     except Exception, err:
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 def push_operation(operation, operator, path):
-    # op_key = cache2.get_key(config.pid, OPS, operation, operator, path)
     op_key = get_op_key(operation, operator, path)
     stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
     cache2.lpush(stack_key, op_key)
 
     update_listeners(operation, operator, path)
-    # print 'current operation: %s' % operation
 
 
 def record_op_begin(operation, operator, path, esid=None):
@@ -155,25 +144,20 @@ def record_op_begin(operation, operator, path, esid=None):
     op_record['target_esid'] = esid
     op_record['target_path'] = path
     op_record['status'] = 'ACTIVE'
-
     cache2.set_hash2(create_op_key(operation, operator, path), op_record)
 
-    # key = cache2.get_key(config.pid, OPS, EXEC)
     exec_rec = cache2.get_hash2(get_exec_key())
     exec_rec['current_operation'] = operation
     exec_rec['current_operator'] = operator
     exec_rec['operation_status'] = 'ACTIVE'
-    
     cache2.set_hash2(get_exec_key(), exec_rec)
 
     push_operation(operation, operator, path)
-
     update_listeners(operation, operator, path)
 
 def record_op_complete(operation, operator, path, esid=None, op_failed=False):
     LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
 
-    # key = cache2.get_key(config.pid, OPS, operation, operator, path)
     op_key = get_op_key(operation, operator, path)
     values = cache2.get_hash2(op_key)
 
@@ -200,7 +184,6 @@ def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
     return rows
 
 def update_ops_data():
-    # pass
     LOG.debug('updating operation records')
     update_listeners(OPS, get_exec_key(), + 'updating ops records')
     # TODO: add params to this query (index_name, date range, etc)
@@ -211,10 +194,7 @@ def update_ops_data():
 
 
 def write_ops_data(path, operation=None, operator=None, this_pid_only=False, resuming=False):
-    # update_listeners(OPS, get_exec_key(), + 'terminating')
-
     LOG.debug('writing op records...')
-    # update_listeners(OPS, get_exec_key(), + 'writing ops records')
 
     table_name = 'op_record'
     operator = '*' if operator is None else operator
@@ -251,7 +231,6 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
         SQLOperationRecord.insert(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
                                  target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
 
-    # update_ops_data()
     LOG.info('%s operations have been updated for %s in MySQL' % (operation, path))
 
 
@@ -307,7 +286,6 @@ def set_exec_record_value(field, value):
     values = cache2.get_hash2(get_exec_key())
     values[field] = value
     cache2.set_hash2(get_exec_key(), values)
-    # update_listeners(OPS, get_exec_key(), ' setting %s to %s' % (str(field), str(value)))
 
 NO_PID = 'NOPID'
 
@@ -341,7 +319,6 @@ def check_status(opcount=None):
         insert_exec_complete_record()
 
         sys.exit(0)
-
 
 
 def evaluate(no_pid=False):
