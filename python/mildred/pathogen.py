@@ -242,10 +242,10 @@ class MutagenID3(Pathogen):
                 LOG.info(value)
                 continue
             
-            try:
-                LOG.info("%s = %s" % (key, value))
-            except Exception, e:
-                ERR.warning(e.message)
+            # try:
+            #     LOG.info("%s = %s" % (key, value))
+            # except Exception, e:
+            #     ERR.warning(e.message)
                 
             if key == "TXXX":
                 if not key in id3_data:

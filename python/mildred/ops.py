@@ -185,7 +185,7 @@ def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
 
 def update_ops_data():
     LOG.debug('updating operation records')
-    update_listeners(OPS, get_exec_key(), + 'updating ops records')
+    # update_listeners(OPS, get_exec_key(), + 'updating ops records')
     # TODO: add params to this query (index_name, date range, etc)
     try:
         sql.execute_query_template('ops_update_op_record')

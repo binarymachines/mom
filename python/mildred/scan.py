@@ -182,16 +182,15 @@ class Scanner(Walker):
 
     def _post_scan(self, path, update_ops):
 
-        if self.update_scan:
-            ops.write_ops_data(path, SCAN)
-            ops.write_ops_data(path, READ)
+        ops.write_ops_data(path, SCAN)
+        ops.write_ops_data(path, READ)
 
         if self.high_scan:
             ops.record_op_complete(HSCAN, SCANNER, path)
             ops.write_ops_data(path, HSCAN, SCANNER)
 
-        if update_ops: 
-            ops.update_ops_data()
+        # if update_ops: 
+        ops.update_ops_data()
 
         library.clear_docs(const.DOCUMENT, path)
         self.vector.set_param(PERSIST, ACTIVE, None)
