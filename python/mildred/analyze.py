@@ -56,7 +56,6 @@ class Analyzer(object):
                 condition_func = introspection.get_func(condition)
 
                 if condition_func:
-                    # print "calling %s()" % condition
                     if condition_func(document) == meta_reason['expected_result']:
                         unsatisfied_conditions -= 1
 
@@ -80,7 +79,7 @@ class Analyzer(object):
             session.add(reason)
             session.commit()
 
-            
+
     def oRecord2dict(self, oRecord, *items):
         result = {}
         result['rid'] = oRecord._OrientRecord__rid

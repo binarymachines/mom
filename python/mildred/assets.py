@@ -93,7 +93,7 @@ class Document(Asset):
         self.ext = None
         self.file_name = None
         self.file_size = 0
-        self.directory_name = None
+        # self.directory_name = None
         self.location = None
 
     def duplicates(self):
@@ -116,18 +116,20 @@ class Document(Asset):
         'absolute_path': self.absolute_path,
         'file_ext': self.ext,
         'file_name': self.file_name,
-        'directory_name': self.directory_name,
+        # 'directory_name': self.directory_name,
         'file_size': self.file_size
         }
 
 
-        if self.location is not None: data['directory_location'] = self.location
+        if self.location is not None: 
+            data['location'] = self.location
 
         fs_avail = os.path.isfile(self.absolute_path) and os.access(self.absolute_path, os.R_OK)
         self.available = fs_avail
         if fs_avail:
             data['ctime'] = time.ctime(os.path.getctime(self.absolute_path))
             data['mtime'] = time.ctime(os.path.getmtime(self.absolute_path))
+            data['file_size'] = os.path.getsize(self.absolute_path)
         
         data['filed'] = self.is_filed()
         # data['compilation'] = self.is_filed_as_compilation()

@@ -18,13 +18,18 @@ ERR = log.get_log('errors', logging.WARNING)
 OPS = 'ops'
 EXEC = 'exec'
 
-OP_RECORD = ['pid', 'index_name', 'operation_name', 'operator_name', 'persisted', 'start_time', 'end_time', 'status', \
-    'target_esid', 'target_path']
+OP_RECORD = { 'pid': str(config.pid), 'operation_name': None, 'start_time': config.start_time, 'end_time': None, \
+    'target_esid': None, 'target_path': None, 'status': None, 'persisted': False  }
 
 EXEC_RECORD = { 'id': None, 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
     'effective_dt': datetime.datetime.now(), 'expiration_dt': None, \
     'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
 
+def create_op_key(operation, operator, path):
+    return cache2.create_key(config.pid, OPS, operation, operator, path)
+
+def get_op_key(operation, operator, path):
+    return cache2.get_key(config.pid, OPS, operation, operator, path)
 
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
     # rows = retrieve_ops__data(path, operation, operator, apply_lifespan)
@@ -52,10 +57,10 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
 
 def clear_cached_operation(path, operation, operator=None):
     # LOG.debug('%s caching %i %s operations (%s)...' % (operator, len(rows), operation, op_status))
-    key = cache2.get_key(config.pid, OPS, operation, operator, path)
-    values = cache2.get_hash2(key)
-    cache2.delete_hash2(key)
-    cache2.delete_key(key)
+    op_key = get_op_key(operation, operator, path)
+    # values = cache2.get_hash2(key)
+    cache2.delete_hash2(op_key)
+    cache2.delete_key(op_key)
 
 
 def flush_cache(resuming=False):
@@ -69,8 +74,9 @@ def flush_cache(resuming=False):
 def mark_operation_invalid(operation, operator, path):
     LOG.debug("marking operation invalid: %s:::%s - path %s " % (operator, operation, path))
 
-    key = cache2.get_key(config.pid, OPS, operation, operator, path)
-    values = cache2.get_hash2(key)
+    # key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    op_get_op_key(operation, operator, path)
+    values = cache2.get_hash2(op_key)
     values['status'] = 'INVALID'
     cache2.set_hash2(key, values)
 
@@ -90,18 +96,18 @@ def operation_completed(path, operation, operator=None):
 
 
 def operation_in_cache(path, operation, operator=None):
-    key = cache2.get_key(config.pid, OPS, operation, operator, path)
-    values = cache2.get_hash2(key)
-    result = 'persisted' in values and values['persisted'] == 'True'
+    op_key = get_op_key(operation, operator, path)
+    # key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    values = cache2.get_hash2(op_key)
+    return 'persisted' in values and values['persisted'] == 'True'
     #LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
-    return result
+    # return result
 
 
 def pop_operation():
     try:
-        exec_key = cache2.get_key(config.pid, OPS, EXEC)
+        # exec_key = cache2.get_key(config.pid, OPS, EXEC)
         stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
-
         op_key = cache2.lpop2(stack_key)
         # op_values = cache2.get_hash2(op_key)
 
@@ -111,10 +117,18 @@ def pop_operation():
             set_exec_record_value('current_operation', None)
             set_exec_record_value('current_operator', None)
             set_exec_record_value('operation_status', None)
+            update_listeners('', '', '')
         else:
-            values = cache2.get_hash2(last_op_key)
-            cache2.set_hash2(exec_key, values)
-            update_listeners(values['operation_name'], values['operator_name'], values['target_path'])
+            op_rec = cache2.get_hash2(last_op_key)
+            exec_rec = cache2.get_hash2(get_exec_key())
+            
+            exec_rec['current_operation'] = op_rec['operation_name']
+            exec_rec['current_operator'] = op_rec['operator_name']
+            exec_rec['operation_status'] = op_rec['status']
+            # exec_rec.set_hash2(get_exec_key(), exec_rec)
+            cache2.set_hash2(get_exec_key(), exec_rec)
+
+            update_listeners(op_rec['operation_name'], op_rec['operator_name'], op_rec['target_path'])
             # print 'current operation: %s' % values['current_operator']
 
     except Exception, err:
@@ -122,7 +136,8 @@ def pop_operation():
 
 
 def push_operation(operation, operator, path):
-    op_key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    # op_key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    op_key = get_op_key(operation, operator, path)
     stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
     cache2.lpush(stack_key, op_key)
 
@@ -133,33 +148,39 @@ def push_operation(operation, operator, path):
 def record_op_begin(operation, operator, path, esid=None):
     LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
     
-    update_listeners(operation, operator, path)
-    
-    key = cache2.create_key(config.pid, OPS, operation, operator, path)
-    values = { 'operation_name': operation, 'operator_name': operator, 'persisted': False, 'pid': config.pid,
-        'start_time': datetime.datetime.now().isoformat(), 'end_time': None, 'target_esid': esid,
-        'target_path': path, 'index_name': config.es_index, 'status': "ACTIVE" }
-    cache2.set_hash2(key, values)
+    op_record = OP_RECORD
+    op_record['operation_name'] = operation
+    op_record['operator_name'] = operator
+    op_record['start_time'] = datetime.datetime.now().isoformat()
+    op_record['target_esid'] = esid
+    op_record['target_path'] = path
+    op_record['status'] = 'ACTIVE'
 
-    key = cache2.get_key(config.pid, OPS, EXEC)
-    values = cache2.get_hash2(key)
-    values['current_operation'] = operation
-    values['current_operator'] = operator
-    values['operation_status'] = 'active'
-    cache2.set_hash2(key, values)
+    cache2.set_hash2(create_op_key(operation, operator, path), op_record)
+
+    # key = cache2.get_key(config.pid, OPS, EXEC)
+    exec_rec = cache2.get_hash2(get_exec_key())
+    exec_rec['current_operation'] = operation
+    exec_rec['current_operator'] = operator
+    exec_rec['operation_status'] = 'ACTIVE'
+    
+    cache2.set_hash2(get_exec_key(), exec_rec)
 
     push_operation(operation, operator, path)
+
+    update_listeners(operation, operator, path)
 
 def record_op_complete(operation, operator, path, esid=None, op_failed=False):
     LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
 
-    key = cache2.get_key(config.pid, OPS, operation, operator, path)
-    values = cache2.get_hash2(key)
+    # key = cache2.get_key(config.pid, OPS, operation, operator, path)
+    op_key = get_op_key(operation, operator, path)
+    values = cache2.get_hash2(op_key)
 
     if len(values) > 0:
         values['status'] = "FAIL" if op_failed else 'COMPLETE'
         values['end_time'] = datetime.datetime.now().isoformat()
-        cache2.set_hash2(key, values)
+        cache2.set_hash2(op_key, values)
 
         pop_operation()
 
@@ -237,9 +258,8 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
 # execution record
 
 def get_exec_key(no_pid=False):
-    result =  cache2.get_key(NO_PID, OPS, EXEC) if no_pid else cache2.get_key(str(config.pid), OPS, EXEC)
-    return result
-
+    return cache2.get_key(NO_PID, OPS, EXEC) if no_pid else cache2.get_key(str(config.pid), OPS, EXEC)
+    
 
 def get_exec_record_value(field):
     values = cache2.get_hash2(get_exec_key())
@@ -329,7 +349,7 @@ def evaluate(no_pid=False):
 
     if start_requested():
         cache2.set_hash2(get_exec_key(no_pid=True), {'pid': NO_PID,'start_requested': False,  'stop_requested':False, 'reconfig_requested': False})
-        subprocess.call(["/home/mpippins/dev/m2/run.sh"], shell=True)
+        subprocess.call(["$M2/bin/run.sh"], shell=True)
 
     commands = get_exec_record_value('commands')
     if commands is not None and len(commands) > 0:

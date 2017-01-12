@@ -631,7 +631,6 @@ insert into file_handler (module, class_name, active_flag) values ('pathogen', '
 insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenMP4', 1);
 insert into file_handler (module, class_name) values ('pathogen', 'MutagenOggFlac');
 insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenOggVorbis', 1);
-insert into file_handler (module, class_name, active_flag) values ('pathogen', 'BatchelderID3', 1);
 
 # TODO: apply names from database in FileHandler constructor
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenAAC'), 'aac', 'mutagen-aac');
@@ -646,8 +645,6 @@ insert into file_handler_type (file_handler_id, ext, name) values ((select id fr
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'flac', 'mutagen-ogg-flac');
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'ogg', 'mutagen-ogg-vorbis');
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'oga', 'mutagen-ogg-oga');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'BatchelderID3'), 'mp3', 'batchelder-id3-mp3');
-
 
 INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3v2.3.0','COMM',1);
 INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media','ID3v2.3.0','MCDI',1);
