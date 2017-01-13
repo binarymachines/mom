@@ -6,34 +6,21 @@ from elasticsearch import Elasticsearch
 
 import const
 
+FILTER = 'filter'
+QUERY = 'query'
+
 TERM = "term"
-MATCH = "match"
+MATCH = 'match'
+MATCH_ALL = 'match_all'
+BOOL = 'bool'
+NESTED = 'nested'
 BOOST = "boost"
-BOOL = "bool"
-QUERY = "query"
 SHOULD = "should"
+MUST = 'must'
+MUST_NOT = 'must_not'
 VALUE = "value"
-
-# {
-#     "query": {
-#         "nested" : {
-#             "path" : "attributes",
-#             "score_mode" : "avg",
-#             "query" : {
-#                 "bool" : {
-#                     "must" : [
-#                     { "match" : {"attributes.TALB" : "manipulate"} }
-#                     ]
-#                 }
-#             }
-#         }
-#     }
-# }
-
-# TODO: add options to simple query
-
-def build_query(query_type, match_fields, values):
-    pass
+OPERATOR = 'operator'
+MINIMUM_SHOULD_MATCH = 'minimum_should_match'
 
 
 def orig_get_query(query_type, match_fields, values):
@@ -131,19 +118,6 @@ def get_bool(bool_spec):
     
     return {BOOL:{bool_spec['directive']: ar}} 
 
-# def get_inner_object_match(path, attribute, value, boost=False, boost_val=None):
-#     result = { MATCH : None }
-#     field = '.'.join([path, attribute])
-
-#     if boost:
-#         result[MATCH] = {field: {BOOST: boost_val, QUERY: value}}
-         
-#     else:
-#         result[MATCH] = {field: value}
-    
-#     return result
-
-    
 #TESTS
 
 OPTIONS = {'boost':{'TPE1': 0, 'TIT2': 0, 'TALB': 0}}
@@ -159,14 +133,12 @@ def connect(hostname=es_host, port_num=es_port):
     return Elasticsearch([{'host': hostname, 'port': port_num}])
 
 def run_query(query): 
-    print
-    print "++++++++++++++++++++++++++++++++++++++++++++"
-    pp.pprint(query)
-    raw_input()
-    print "============================================"
+    # raw_input()
     es = connect()
     res = es.search(index=es_index, doc_type=const.DOCUMENT, body=query)
     pp.pprint(res)
+    print "======================================================================================================================================================================"
+    pp.pprint(query)
 
 def test_simple_term():
     fname = "file_name"
@@ -201,13 +173,13 @@ def main():
     # test_multi_match()
 
     bool_spec1 = {'path': 'attributes', 'attribute': 'TPE1', 'value': 'skinny puppy', 'boost' : False, 'boost_val': None}
-    bool_spec2 = {'path': 'attributes', 'attribute': 'TIT2', 'value': 'punk in park zoos', 'boost' : True, 'boost_val': 5.0}
+    bool_spec2 = {'path': 'attributes', 'attribute': 'TALB', 'value': 'cleanse', 'boost' : True, 'boost_val': 5.0}
     bool_spec = {'directive': 'must', 'type': 'inner_object', 'specs': [bool_spec1, bool_spec2]}
     inner_spec = {'path': 'attributes', 'bool_spec' : bool_spec}
     
     # pp.pprint(get_inner_object_match(spec1))
     # pp.pprint(get_bool(bool_spec))
-    pp.pprint({'query' : get_inner_object_query(inner_spec)})
+    run_query({'query' : get_inner_object_query(inner_spec)})
 
 
 if __name__ == "__main__":
