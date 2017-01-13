@@ -108,7 +108,7 @@ def run_query(query):
 
 def main():
     r = Request()
-    artist = ClauseSpecification(MATCH, field="file_name", value="forget")
+    artist = ClauseSpecification(MATCH, field="file_name", value="you often forget")
 
     r.clauses.append(artist)
     run_query(r.as_query())
