@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import os, sys
 import json, pprint
 
 from elasticsearch import Elasticsearch
@@ -22,8 +22,8 @@ VALUE = "value"
 OPERATOR = 'operator'
 MINIMUM_SHOULD_MATCH = 'minimum_should_match'
 
-def class ClauseSpecification(Object):
-    def __init__(self, clause_type, field, value, operator=None, minimum_should_match=None, boost=None):
+class ClauseSpecification(object):
+    def __init__(self, clause_type, field=None, value=None, operator=None, minimum_should_match=None, boost=None):
         self._clause_type = clause_type
         self._field = field
         self._value = value
@@ -43,7 +43,7 @@ def class ClauseSpecification(Object):
 
         if self._clause_type in (MATCH, TERM):
             if self._operator is None and self._minimum_should_match is None and self._boost is None:
-                return {self._clause_type : {self_field : self._value}}
+                return {self._clause_type : {self._field : self._value}}
 
             sub_query = {QUERY : self._value}
 
@@ -65,7 +65,7 @@ def class ClauseSpecification(Object):
         return {FILTER : self.get_clause()}
 
 
-def class BooleanClauseSpecification(ClauseSpecification):
+class BooleanClauseSpecification(ClauseSpecification):
     def __init__(self, must_clauses=[], must_not_clauses=[], should_clauses=[]):
         super(Boolean, self).__init__(self, BOOL)
 
@@ -76,6 +76,16 @@ def class BooleanClauseSpecification(ClauseSpecification):
     def is_valid(self):
         return (len(self._should_clauses) + len(self._must_clauses) + len(self._must_not_clauses)) > 1
 
+
+class Request(object):
+    def __init__(self):
+        self.clauses = []
+
+    def as_query(self):
+        if len(self.clauses) == 0:
+            return {}
+
+        return {QUERY : clause.get_clause() for clause in self.clauses}
 
 es_host = 'localhost'
 es_port = 9200
@@ -97,7 +107,11 @@ def run_query(query):
 
 
 def main():
-    pass
+    r = Request()
+    artist = ClauseSpecification(MATCH, field="file_name", value="forget")
+
+    r.clauses.append(artist)
+    run_query(r.as_query())
 
 if __name__ == "__main__":
     main()
