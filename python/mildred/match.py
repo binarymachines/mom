@@ -71,7 +71,7 @@ class ElasticSearchMatcher(MediaMatcher):
             if field in media.doc['_source']:
                 values[field] = media.doc['_source'][field]
 
-        return query.get_query(self.query_type, self.comparison_fields, values)
+        return query.orig_get_query(self.query_type, self.comparison_fields, values)
 
 
     def match(self, media):
