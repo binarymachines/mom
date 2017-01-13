@@ -21,8 +21,9 @@ MUST_NOT = 'must_not'
 VALUE = "value"
 OPERATOR = 'operator'
 MINIMUM_SHOULD_MATCH = 'minimum_should_match'
+PATH = 'path'
 
-class ClauseSpecification(object):
+class Clause(object):
     def __init__(self, clause_type, field=None, value=None, operator=None, minimum_should_match=None, boost=None):
         self._clause_type = clause_type
         self._field = field
@@ -38,7 +39,7 @@ class ClauseSpecification(object):
         if self._value is None:
             return {}
 
-        if isinstance(self._value, ClauseSpecification):
+        if isinstance(self._value, Clause):
             return {self._clause_type : _value.get_clause()}
 
         if self._clause_type in (MATCH, TERM):
@@ -65,7 +66,7 @@ class ClauseSpecification(object):
         return {FILTER : self.get_clause()}
 
 
-class BooleanClauseSpecification(ClauseSpecification):
+class BooleanClause(Clause):
     def __init__(self, must_clauses=[], must_not_clauses=[], should_clauses=[]):
         super(Boolean, self).__init__(self, BOOL)
 
@@ -77,6 +78,16 @@ class BooleanClauseSpecification(ClauseSpecification):
         return (len(self._should_clauses) + len(self._must_clauses) + len(self._must_not_clauses)) > 1
 
 
+class NestedClause(Clause):
+    def __init__(self, path, value):
+        self._path = path
+        super(NestedClause, self).__init__(self, NESTED, value=value)
+
+
+    def get_clause(self):
+        return {NESTED : {PATH : self._path}}
+
+
 class Request(object):
     def __init__(self):
         self.clauses = []
@@ -85,7 +96,9 @@ class Request(object):
         if len(self.clauses) == 0:
             return {}
 
-        return {QUERY : clause.get_clause() for clause in self.clauses}
+        clauses = ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
+        query = '{"%s" : %s}' % (QUERY, clauses)
+        return query
 
 es_host = 'localhost'
 es_port = 9200
@@ -98,19 +111,28 @@ def connect(hostname=es_host, port_num=es_port):
     return Elasticsearch([{'host': hostname, 'port': port_num}])
 
 def run_query(query): 
-    # raw_input()
-    es = connect()
-    res = es.search(index=es_index, doc_type=const.DOCUMENT, body=query)
-    pp.pprint(res)
+    try:
+        es = connect()
+        res = es.search(index=es_index, doc_type=const.DOCUMENT, body=query)
+        pp.pprint(res)
+    except Exception, err:
+        print err.message
+    
     print "======================================================================================================================================================================"
     pp.pprint(query)
 
 
 def main():
     r = Request()
-    artist = ClauseSpecification(MATCH, field="file_name", value="you often forget")
 
-    r.clauses.append(artist)
+    filename = Clause(MATCH, field="file_name", value="you often forget")
+    # filetype = Clause(MATCH, field="ext", value="mp3")
+    # artist = NestedClause('attributes', Clause(MATCH, field="TPE1", value="revolting cocks"))
+
+    r.clauses.append(filename)
+    # r.clauses.append(filetype)
+    # r.clauses.append(artist)
+
     run_query(r.as_query())
 
 if __name__ == "__main__":
