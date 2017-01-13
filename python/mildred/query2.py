@@ -92,14 +92,16 @@ class Request(object):
     def __init__(self):
         self.clauses = []
 
+    def _clauses2str(self):
+        return ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
+
     def as_query(self):
         if len(self.clauses) == 0:
             return {}
 
-        clauses = ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
-        query = '{"%s" : %s}' % (QUERY, clauses)
-        return query
-
+        return '{"%s" : %s}' % (QUERY, self._clauses2str())
+        
+        
 es_host = 'localhost'
 es_port = 9200
 es_index = 'media'
@@ -119,7 +121,7 @@ def run_query(query):
         print err.message
     
     print "======================================================================================================================================================================"
-    pp.pprint(query)
+    pp.pprint(json.loads(query))
 
 
 def main():
