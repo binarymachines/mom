@@ -23,7 +23,7 @@ OPERATOR = 'operator'
 MINIMUM_SHOULD_MATCH = 'minimum_should_match'
 
 
-def orig_get_query(query_type, match_fields, values):
+def get_query(query_type, match_fields, values):
     if len(match_fields) == 1:
         fieldinfo = match_fields.values()[0]
 
@@ -93,6 +93,8 @@ def get_multi_term(fieldnames, values, options):
             termset.append(term)
 
     return {QUERY : {BOOL : {SHOULD : termset}}}
+
+# nested queries
 
 def get_inner_object_query(spec):
     return {'nested' : {'path' : spec['path'], 'query' : get_bool(spec['bool_spec'])}}

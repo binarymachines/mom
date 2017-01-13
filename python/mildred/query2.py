@@ -81,7 +81,7 @@ es_host = 'localhost'
 es_port = 9200
 es_index = 'media'
 
-pp = pprint.PrettyPrinter(indent=4)
+pp = pprint.PrettyPrinter(indent=2)
 
 def connect(hostname=es_host, port_num=es_port):
     # LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
@@ -96,6 +96,8 @@ def run_query(query):
     pp.pprint(query)
 
 
+def main():
+    pass
 
 if __name__ == "__main__":
     main()
