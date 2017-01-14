@@ -75,7 +75,7 @@ class Clause(object):
             if self._minimum_should_match:
                 sub_query[MINIMUM_SHOULD_MATCH] = self._minimum_should_match
 
-            return {self._clause_type : {self_field : sub_query}}
+            return {self._clause_type : {self._field : sub_query}}
     
     def as_query(self):
         return {QUERY : self.get_clause()}
