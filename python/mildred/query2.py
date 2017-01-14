@@ -33,13 +33,14 @@ def connect(hostname=es_host, port_num=es_port):
     # LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
     return Elasticsearch([{'host': hostname, 'port': port_num}])
 
-def run_query(query): 
+def execute(query): 
     try:
         es = connect()
         res = es.search(index=es_index, doc_type=const.DOCUMENT, body=query)
         pp.pprint(res)
     except Exception, err:
         print err.message
+    
 
 class Clause(object):
     def __init__(self, clause_type, field=None, value=None, operator=None, minimum_should_match=None, boost=None):
@@ -49,9 +50,6 @@ class Clause(object):
         self._boost = boost
         self._operator = operator
         self._minimum_should_match=minimum_should_match
-
-    def is_valid(self):
-        return True       
             
     def get_clause(self):
         if self._value is None:
@@ -88,12 +86,12 @@ class BooleanClause(Clause):
     def __init__(self, must_clauses=[], must_not_clauses=[], should_clauses=[]):
         super(BooleanClause, self).__init__(self, BOOL)
 
-        self._must_clauses = must_clauses
-        self._must_not_clauses = must_not_clauses
-        self._should_clauses = should_clauses
+        self.must_clauses = must_clauses
+        self.must_not_clauses = must_not_clauses
+        self.should_clauses = should_clauses
 
     def is_valid(self):
-        return (len(self._should_clauses) + len(self._must_clauses) + len(self._must_not_clauses)) > 1
+        return (len(self.should_clauses) + len(self.must_clauses) + len(self.must_not_clauses)) > 1
 
 
     def get_sub_clause(self, section, criteria):
@@ -106,29 +104,27 @@ class BooleanClause(Clause):
 
     def get_clause(self):
         subclauses = {}
-        if len(self._must_clauses) > 0:
-            subclauses[MUST] = self.get_sub_clause(MUST, self._must_clauses) 
+        if len(self.must_clauses) > 0:
+            subclauses[MUST] = self.get_sub_clause(MUST, self.must_clauses) 
 
-        if len(self._must_not_clauses) > 0:
-            subclauses[MUST_NOT] = self.get_sub_clause(MUST_NOT, self._must_not_clauses) 
+        if len(self.must_not_clauses) > 0:
+            subclauses[MUST_NOT] = self.get_sub_clause(MUST_NOT, self.must_not_clauses) 
 
-        if len(self._should_clauses) > 0:
-            subclauses[SHOULD] = self.get_sub_clause(SHOULD, self._should_clauses) 
+        if len(self.should_clauses) > 0:
+            subclauses[SHOULD] = self.get_sub_clause(SHOULD, self.should_clauses) 
         
         return {BOOL : subclauses}
 
 
 class NestedClause(Clause):
-    def __init__(self, path, value):
+    def __init__(self, path, clause):
         self._path = path
-        super(NestedClause, self).__init__(self, NESTED, value=value)
-
+        self.subclause = clause
+        super(NestedClause, self).__init__(self, NESTED)
 
     def get_clause(self):
-        subclause = self._value.get_clause()
-        result = {NESTED : {PATH : self._path, QUERY: subclause}}
-        pp.pprint(result)
-        return result
+        subclause = self.subclause.get_clause()
+        return {NESTED : {PATH : self._path, QUERY: subclause}}
 
 
 class Request(object):
@@ -140,6 +136,12 @@ class Request(object):
             return json.dumps(self.clauses[0].get_clause())
         
         return ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
+
+    def submit(self, request_type=QUERY):
+        if request_type == QUERY:
+            execute(self.as_query())
+        else:
+            execute(self.as_filter())
 
     def as_filter(self):
         if len(self.clauses) == 0:
@@ -157,32 +159,46 @@ class Request(object):
         return { ','.join([json.dumps(clause.get_clause()) for clause in self.clauses]) }
         
 def main():
-    r = Request()
 
     # filename = Clause(MATCH, field="file_name", value="TV Mind")
     # filetype = Clause(MATCH, field="ext", value="mp3", boost=5.0)
     # filepath1 = Clause(MATCH, field="absolute_path", value="sexy")
     # filepath2 = Clause(MATCH, field="absolute_path", value="bitch")
 
-    artist = NestedClause('attributes', Clause(MATCH, field="attributes.TPE1", value="revolting cocks"))
-    artist = NestedClause('attributes', Clause(MATCH, field="attributes.TALB", value="sexy"))
+    # artist = NestedClause('attributes', Clause(MATCH, field="attributes.TPE1", value="revolting cocks"))
+    # album = NestedClause('attributes', Clause(MATCH, field="attributes.TALB", value="sexy"))
     # filename_filetype = BooleanClause(BOOL)
     # must_clauses = [filename]
     # must_not_clauses = [filepath1, filepath2]
     # should_clauses = [filetype] 
 
-    # filename_filetype._must_clauses = must_clauses
-    # filename_filetype._must_not_clauses = must_not_clauses
-    # filename_filetype._should_clauses = should_clauses
+    # filename_filetype.must_clauses = must_clauses
+    # filename_filetype.must_not_clauses = must_not_clauses
+    # filename_filetype.should_clauses = should_clauses
 
     # r.clauses.append(filename)
     # r.clauses.append(filetype)
-    r.clauses.append(artist)
+    # r.clauses.append(artist)
     # r.clauses.append(filename_filetype)
-    q = r.as_query()
-    run_query(q)
-    print "======================================================================================================================================================================"
-    pp.pprint(q)
+
+
+    artist = Clause(MATCH, field="attributes.TPE1", value="prince")
+    album = Clause(MATCH, field="attributes.TIT2", value="annie christian", boost=5.0, minimum_should_match=10)
+    artist_album = BooleanClause(BOOL)
+    artist_album.must_clauses = [artist, album]
+
+    artist_album_nested = NestedClause('attributes', artist_album)
+
+    filepath = Clause(MATCH, field="absolute_path", value="controversy")
+    complex_bool = BooleanClause(BOOL)
+    complex_bool.must_clauses = [filepath]
+    complex_bool.should_clauses = [artist_album_nested]
+ 
+    r = Request()
+    r.clauses.append(complex_bool)
+    r.submit()
+
+    pp.pprint(json.loads(r.as_query()))
 
 if __name__ == "__main__":
     main()
