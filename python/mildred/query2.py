@@ -137,11 +137,9 @@ class Request(object):
 
     def _clauses2str(self):
         if len (self.clauses) == 1:
-            subclause = self.clauses[0].get_clause()
-            return json.dumps(subclause)
+            return json.dumps(self.clauses[0].get_clause())
         
-        subclause = ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
-        return subclause 
+        return ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
 
     def as_filter(self):
         if len(self.clauses) == 0:
@@ -155,9 +153,9 @@ class Request(object):
 
         return '{"%s" : %s}' % (QUERY, self._clauses2str())
         
+    def as_request(self):
+        return { ','.join([json.dumps(clause.get_clause()) for clause in self.clauses]) }
         
-
-
 def main():
     r = Request()
 
