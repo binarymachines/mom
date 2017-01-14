@@ -151,7 +151,7 @@ def main():
     r = Request()
 
     filename = Clause(MATCH, field="file_name", value="TV Mind")
-    filetype = Clause(MATCH, field="ext", value="mp3")
+    filetype = Clause(MATCH, field="ext", value="mp3", boost=5.0)
     filepath1 = Clause(MATCH, field="absolute_path", value="sexy")
     filepath2 = Clause(MATCH, field="absolute_path", value="bitch")
 
