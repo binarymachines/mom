@@ -58,24 +58,24 @@ class Clause(object):
             return {}
 
         if isinstance(self._value, Clause):
-            return {self._clause_type : _value.get_clause()}
+            return {self._clause_type : self._value.get_clause()}
 
         if self._clause_type in (MATCH, TERM):
             if self._operator is None and self._minimum_should_match is None and self._boost is None:
                 return {self._clause_type : {self._field : self._value}}
 
-            sub_query = {QUERY : self._value}
+            subclause = {QUERY : self._value}
 
             if self._boost:
-                sub_query[BOOST] = self._boost
+                subclause[BOOST] = self._boost
 
             if self._operator:
-                sub_query[OPERATOR] = self._operator
+                subclause[OPERATOR] = self._operator
 
             if self._minimum_should_match:
-                sub_query[MINIMUM_SHOULD_MATCH] = self._minimum_should_match
+                subclause[MINIMUM_SHOULD_MATCH] = self._minimum_should_match
 
-            return {self._clause_type : {self._field : sub_query}}
+            return {self._clause_type : {self._field : subclause}}
     
     def as_query(self):
         return {QUERY : self.get_clause()}
@@ -96,12 +96,12 @@ class BooleanClause(Clause):
         return (len(self._should_clauses) + len(self._must_clauses) + len(self._must_not_clauses)) > 1
 
 
-    def get_sub_clause(self, section, param_array):
-        if len(param_array) == 1:
-            return param_array[0].get_clause()
+    def get_sub_clause(self, section, criteria):
+        if len(criteria) == 1:
+            return criteria[0].get_clause()
 
         result = []
-        result.extend([param.get_clause() for param in param_array])
+        result.extend([crit.get_clause() for crit in criteria])
         return result
 
     def get_clause(self):
@@ -117,6 +117,7 @@ class BooleanClause(Clause):
         
         return {BOOL : subclauses}
 
+
 class NestedClause(Clause):
     def __init__(self, path, value):
         self._path = path
@@ -124,7 +125,10 @@ class NestedClause(Clause):
 
 
     def get_clause(self):
-        return {NESTED : {PATH : self._path}}
+        subclause = self._value.get_clause()
+        result = {NESTED : {PATH : self._path, QUERY: subclause}}
+        pp.pprint(result)
+        return result
 
 
 class Request(object):
@@ -133,11 +137,18 @@ class Request(object):
 
     def _clauses2str(self):
         if len (self.clauses) == 1:
-            return json.dumps(self.clauses[0].get_clause())
+            subclause = self.clauses[0].get_clause()
+            return json.dumps(subclause)
 
         
         return ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
 
+    def as_filter(self):
+        if len(self.clauses) == 0:
+            return {}
+
+        return '{"%s" : %s}' % (FILTER, self._clauses2str())
+        
     def as_query(self):
         if len(self.clauses) == 0:
             return {}
@@ -155,7 +166,7 @@ def main():
     filepath1 = Clause(MATCH, field="absolute_path", value="sexy")
     filepath2 = Clause(MATCH, field="absolute_path", value="bitch")
 
-    # filepath = NestedClause('attributes', Clause(MATCH, field="absolute_path", value="bitch"))
+    artist = NestedClause('attributes', Clause(MATCH, field="attributes.TPE1", value="skinny puppy"))
     filename_filetype = BooleanClause(BOOL)
     must_clauses = [filename]
     must_not_clauses = [filepath1, filepath2]
@@ -167,8 +178,8 @@ def main():
 
     # r.clauses.append(filename)
     # r.clauses.append(filetype)
-    # r.clauses.append(artist)
-    r.clauses.append(filename_filetype)
+    r.clauses.append(artist)
+    # r.clauses.append(filename_filetype)
     q = r.as_query()
     run_query(q)
     print "======================================================================================================================================================================"
