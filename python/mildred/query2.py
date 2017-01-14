@@ -139,9 +139,9 @@ class Request(object):
         if len (self.clauses) == 1:
             subclause = self.clauses[0].get_clause()
             return json.dumps(subclause)
-
         
-        return ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
+        subclause = ','.join([json.dumps(clause.get_clause()) for clause in self.clauses])
+        return subclause 
 
     def as_filter(self):
         if len(self.clauses) == 0:
@@ -161,20 +161,21 @@ class Request(object):
 def main():
     r = Request()
 
-    filename = Clause(MATCH, field="file_name", value="TV Mind")
-    filetype = Clause(MATCH, field="ext", value="mp3", boost=5.0)
-    filepath1 = Clause(MATCH, field="absolute_path", value="sexy")
-    filepath2 = Clause(MATCH, field="absolute_path", value="bitch")
+    # filename = Clause(MATCH, field="file_name", value="TV Mind")
+    # filetype = Clause(MATCH, field="ext", value="mp3", boost=5.0)
+    # filepath1 = Clause(MATCH, field="absolute_path", value="sexy")
+    # filepath2 = Clause(MATCH, field="absolute_path", value="bitch")
 
-    artist = NestedClause('attributes', Clause(MATCH, field="attributes.TPE1", value="skinny puppy"))
-    filename_filetype = BooleanClause(BOOL)
-    must_clauses = [filename]
-    must_not_clauses = [filepath1, filepath2]
-    should_clauses = [filetype] 
+    artist = NestedClause('attributes', Clause(MATCH, field="attributes.TPE1", value="revolting cocks"))
+    artist = NestedClause('attributes', Clause(MATCH, field="attributes.TALB", value="sexy"))
+    # filename_filetype = BooleanClause(BOOL)
+    # must_clauses = [filename]
+    # must_not_clauses = [filepath1, filepath2]
+    # should_clauses = [filetype] 
 
-    filename_filetype._must_clauses = must_clauses
-    filename_filetype._must_not_clauses = must_not_clauses
-    filename_filetype._should_clauses = should_clauses
+    # filename_filetype._must_clauses = must_clauses
+    # filename_filetype._must_not_clauses = must_not_clauses
+    # filename_filetype._should_clauses = should_clauses
 
     # r.clauses.append(filename)
     # r.clauses.append(filetype)
