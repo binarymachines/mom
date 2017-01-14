@@ -34,10 +34,12 @@ def connect(hostname=es_host, port_num=es_port):
     return Elasticsearch([{'host': hostname, 'port': port_num}])
 
 def run_query(query): 
-    es = connect()
-    res = es.search(index=es_index, doc_type=const.DOCUMENT, body=query)
-    pp.pprint(res)
-    
+    try:
+        es = connect()
+        res = es.search(index=es_index, doc_type=const.DOCUMENT, body=query)
+        pp.pprint(res)
+    except Exception, err:
+        print err.message
 
 class Clause(object):
     def __init__(self, clause_type, field=None, value=None, operator=None, minimum_should_match=None, boost=None):
@@ -98,25 +100,22 @@ class BooleanClause(Clause):
         if len(param_array) == 1:
             return param_array[0].get_clause()
 
-        out = []
-        # out = ','.join([json.dumps(param.get_clause()) for param in param_array])
-        out.append([param.get_clause() for param in param_array])
-        return {section : out}
+        result = []
+        result.extend([param.get_clause() for param in param_array])
+        return result
 
     def get_clause(self):
-        out = {}
+        subclauses = {}
         if len(self._must_clauses) > 0:
-            out[MUST] = self.get_sub_clause(MUST, self._must_clauses) 
+            subclauses[MUST] = self.get_sub_clause(MUST, self._must_clauses) 
 
         if len(self._must_not_clauses) > 0:
-            out[MUST_NOT] = self.get_sub_clause(MUST_NOT, self._must_clauses) 
+            subclauses[MUST_NOT] = self.get_sub_clause(MUST_NOT, self._must_not_clauses) 
 
         if len(self._should_clauses) > 0:
-            out[SHOULD] = self.get_sub_clause(SHOULD, self._should_clauses) 
+            subclauses[SHOULD] = self.get_sub_clause(SHOULD, self._should_clauses) 
         
-        boolsec = {BOOL : out}
-
-        return boolsec
+        return {BOOL : subclauses}
 
 class NestedClause(Clause):
     def __init__(self, path, value):
@@ -151,14 +150,19 @@ class Request(object):
 def main():
     r = Request()
 
-    filename = Clause(MATCH, field="file_name", value="you")
-    filetype = Clause(MATCH, field="file_name", value="often")
-    # # artist = NestedClause('attributes', Clause(MATCH, field="TPE1", value="revolting cocks"))
+    filename = Clause(MATCH, field="file_name", value="TV Mind")
+    filetype = Clause(MATCH, field="ext", value="mp3")
+    filepath1 = Clause(MATCH, field="absolute_path", value="sexy")
+    filepath2 = Clause(MATCH, field="absolute_path", value="bitch")
+
+    # filepath = NestedClause('attributes', Clause(MATCH, field="absolute_path", value="bitch"))
     filename_filetype = BooleanClause(BOOL)
     must_clauses = [filename]
+    must_not_clauses = [filepath1, filepath2]
     should_clauses = [filetype] 
 
     filename_filetype._must_clauses = must_clauses
+    filename_filetype._must_not_clauses = must_not_clauses
     filename_filetype._should_clauses = should_clauses
 
     # r.clauses.append(filename)
@@ -166,10 +170,9 @@ def main():
     # r.clauses.append(artist)
     r.clauses.append(filename_filetype)
     q = r.as_query()
-    pp.pprint(q)
-    print "======================================================================================================================================================================"
-    # pp.pprint(json.loads(query))
     run_query(q)
+    print "======================================================================================================================================================================"
+    pp.pprint(q)
 
 if __name__ == "__main__":
     main()
