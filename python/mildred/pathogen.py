@@ -259,7 +259,8 @@ class MutagenID3(Pathogen):
                 
             if key == "TXXX":
                 if not key in id3_data:
-                    id3_data[key] = []   
+                    # id3_data[key] = []   
+                    id3_data[key] = {}   
                 # for sub_field in filehandler.get_fields('ID3.TXXX'):
                 #     if sub_field in value:
                 subtags = value.split('=')
@@ -268,9 +269,9 @@ class MutagenID3(Pathogen):
                 if txxkey not in filehandler.get_known_fields(document_format):
                     filehandler.add_field(document_format, txxkey)
 
-                id3_data[key].append(subtags[0])
-                id3_data[key].append(subtags[1])
-                # id3_data[key][subkey] = subtags[1]
+                # id3_data[key].append(subtags[0])
+                # id3_data[key].append(subtags[1])
+                id3_data[key][subkey] = subtags[1]
 
             else:
                 # if key in filehandler.get_fields(document_format):

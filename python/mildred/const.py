@@ -1,5 +1,5 @@
 # assets
-DOCUMENT = 'document'
+FILE = 'file'
 DIRECTORY = 'directory'
 
 # operators

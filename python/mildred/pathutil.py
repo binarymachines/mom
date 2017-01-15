@@ -4,6 +4,7 @@ import os
 import sql
 from core import cache2, log
 
+from const import DIRECTORY, FILE
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
@@ -28,18 +29,18 @@ def get_sorted_items(keygroup, identifier):
 
 
 def get_locations():
-    keygroup = 'directory'
+    keygroup = DIRECTORY
     identifier = 'location'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
-        rows = sql.retrieve_values('directory', ['active_flag', 'name'], ['1'])
+        rows = sql.retrieve_values(DIRECTORY, ['active_flag', 'name'], ['1'])
         cache2.add_items(keygroup, identifier, [row[1] for row in rows])
 
     return get_sorted_items(keygroup, identifier)
 
 
 def get_excluded_locations():
-    keygroup = 'directory'
+    keygroup = DIRECTORY
     identifier = 'exclude'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
@@ -50,7 +51,7 @@ def get_excluded_locations():
 
 
 def get_document_category_names():
-    keygroup = 'document'
+    keygroup = DOCUMENT
     identifier = 'category_names'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
@@ -61,7 +62,7 @@ def get_document_category_names():
 
 
 def get_active_document_formats():
-    keygroup = 'document'
+    keygroup = DOCUMENT
     identifier = 'formats'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)

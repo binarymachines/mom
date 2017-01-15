@@ -82,7 +82,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
         query = self.get_query(media)
 
-        res = config.es.search(index=config.es_index, doc_type=const.DOCUMENT, body=query)
+        res = config.es.search(index=config.es_index, doc_type=const.FILE, body=query)
         max_score = res['hits']['max_score']
         for match in res['hits']['hits']:
             if match['_id'] == media.doc['_id'] or match['_id'] in previous_matches:

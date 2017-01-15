@@ -11,7 +11,7 @@ from elasticsearch.exceptions import ConnectionError, RequestError
 
 from alchemy import SQLAsset
 import config, const
-from const import DOCUMENT, DIRECTORY, HEX_KEY, MATCH
+from const import FILE, DIRECTORY, HEX_KEY, MATCH
 import ops
 import pathutil
 import search
@@ -398,7 +398,7 @@ def handle_asset_exception(error, path):
     #     for item in  error.data:
     #         sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
     # # elif error.message.lower().startswith('unable'):
-    # # elif error.message.lower().startswith('NO DOCUMENT'):
+    # # elif error.message.lower().startswith('NO FILE'):
     # else:
     #     sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], \
     #                       [config.es_index, error.data.document_type, error.data.esid, error.message])

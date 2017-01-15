@@ -1,7 +1,7 @@
 import logging
 
 import search, sql, library, ops
-from const import CLEAN
+from const import CLEAN, FILE
 from errors import ElasticDataIntegrityException
 from core import log
 
@@ -16,7 +16,7 @@ def clear_dupes_from_es(vector):
         try:
             ops.check_status()
             path = vector.get_next(CLEAN, True)
-            rows = sql.retrieve_like_values('document', ['absolute_path', 'document_type', 'hex_key'], [path]) 
+            rows = sql.retrieve_like_values(FILE, ['absolute_path', 'document_type', 'hex_key'], [path]) 
             for row in rows: 
                 ops.check_status()
                 try:

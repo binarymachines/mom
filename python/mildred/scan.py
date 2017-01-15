@@ -37,7 +37,7 @@ class Scanner(Walker):
     def __init__(self, vector):
         super(Scanner, self).__init__()
         self.vector = vector
-        self.document_type = const.DOCUMENT
+        self.document_type = const.FILE
         self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
         self.high_scan = self.vector.get_param(SCAN, HSCAN)
         self.update_scan = self.vector.get_param(SCAN, USCAN)
@@ -166,7 +166,7 @@ class Scanner(Walker):
         self.vector.set_param(PERSIST, ACTIVE, path)
 
         LOG.debug('caching data for %s...' % path)
-        library.cache_docs(const.DOCUMENT, path)
+        library.cache_docs(const.FILE, path)
 
         ops.cache_ops(path, SCAN)
 
@@ -192,7 +192,7 @@ class Scanner(Walker):
         # if update_ops: 
         # ops.update_ops_data()
 
-        library.clear_docs(const.DOCUMENT, path)
+        library.clear_docs(const.FILE, path)
         self.vector.set_param(PERSIST, ACTIVE, None)
     
     

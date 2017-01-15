@@ -89,7 +89,7 @@ class Asset(object):
 
 class Document(Asset):
     def __init__(self, absolute_path, esid=None):
-        super(Document, self).__init__(absolute_path, document_type=const.DOCUMENT, esid=esid)
+        super(Document, self).__init__(absolute_path, document_type=const.FILE, esid=esid)
         self.ext = None
         self.file_name = None
         self.file_size = 0

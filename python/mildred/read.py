@@ -18,7 +18,7 @@ ERR = log.get_log('errors', logging.WARNING)
 
 class Reader:
     def __init__(self):
-        self.document_type = const.DOCUMENT
+        self.document_type = const.FILE
         self.extensions = ()
         self.file_handlers = ()
 

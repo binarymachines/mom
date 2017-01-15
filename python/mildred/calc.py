@@ -12,14 +12,14 @@ import os
 import docopt
 
 import config
-from const import DOCUMENT, HSCAN, MATCH
+from const import FILE, HSCAN, MATCH
 import library
 import ops
 import search
 import sql
 from core import log
 from core import cache2
-from core.vector import Vector, PathVector, CachedPathVector
+from core.vector import Vector, PathVector, CachedPathVector, PathVectorScanner
 from core.states import State, StateVector
 
 from errors import AssetException
@@ -89,11 +89,11 @@ def calc(vector, cycle_vector=False):
             continue
 
         LOG.debug('calc: matching files in %s' % (location))
-        library.cache_docs(DOCUMENT, location)
+        library.cache_docs(FILE, location)
         ops.cache_ops(location, MATCH, apply_lifespan=True)
         library.cache_matches(location)
 
-        for key in library.get_doc_keys(DOCUMENT):
+        for key in library.get_doc_keys(FILE):
             opcount += 1
             ops.check_status(opcount)
 
@@ -107,7 +107,7 @@ def calc(vector, cycle_vector=False):
             except Exception, err:
                 print err.message
 
-        library.clear_docs(DOCUMENT, location)
+        library.clear_docs(FILE, location)
         for matcher in matchers:
             ops.write_ops_data(location, MATCH, matcher.name)
             library.clear_matches(matcher.name, location)
@@ -162,7 +162,7 @@ def get_matchers():
                          'analyzer': field.analyzer, 'operator': field.operator, 'minimum_should_match': field.minimum_should_match, \
                          'query_section': field.query_section}
 
-        matcher = ElasticSearchMatcher(sqlmatcher.name, comparison_fields, document_type=DOCUMENT, id=sqlmatcher.id, query_type=sqlmatcher.query_type, \
+        matcher = ElasticSearchMatcher(sqlmatcher.name, comparison_fields, document_type=FILE, id=sqlmatcher.id, query_type=sqlmatcher.query_type, \
                                        max_score_percentage=float(sqlmatcher.max_score_percentage))
         matchers.append(matcher)
 

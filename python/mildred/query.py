@@ -137,7 +137,7 @@ def connect(hostname=es_host, port_num=es_port):
 def run_query(query): 
     # raw_input()
     es = connect()
-    res = es.search(index=es_index, doc_type=const.DOCUMENT, body=query)
+    res = es.search(index=es_index, doc_type=const.FILE, body=query)
     pp.pprint(res)
     print "======================================================================================================================================================================"
     pp.pprint(query)

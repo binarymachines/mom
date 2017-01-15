@@ -22,27 +22,27 @@ class TestLibrary(unittest.TestCase):
 
     def test_cache_docs(self):
         path = '/media/removable/Audio/music/albums/ambient/biosphere/substrata'
-        library.cache_docs(const.DOCUMENT, path)
+        library.cache_docs(const.FILE, path)
 
-        rows = sql.run_query_template(RETRIEVE_DOCS, config.es_index, const.DOCUMENT, path)
-        keys = cache2.get_keys(cache2.DELIM.join([library.KEY_GROUP, const.DOCUMENT, path]))
+        rows = sql.run_query_template(RETRIEVE_DOCS, config.es_index, const.FILE, path)
+        keys = cache2.get_keys(cache2.DELIM.join([library.KEY_GROUP, const.FILE, path]))
         self.assertEqual(len(rows), len(keys))
 
 
     def test_clear_docs(self):
         path = '/media/removable/Audio/music/albums/ambient/biosphere/substrata'
-        library.cache_docs(const.DOCUMENT, path)
+        library.cache_docs(const.FILE, path)
 
-        dockeys = cache2.get_keys(library.KEY_GROUP, const.DOCUMENT, path)
+        dockeys = cache2.get_keys(library.KEY_GROUP, const.FILE, path)
         self.assertEquals(len(dockeys), 12)
 
-        cache2.create_key(library.KEY_GROUP, const.DOCUMENT, '/some/other/path', value='/some/other/path')
-        library.clear_docs(const.DOCUMENT, path)
+        cache2.create_key(library.KEY_GROUP, const.FILE, '/some/other/path', value='/some/other/path')
+        library.clear_docs(const.FILE, path)
 
-        dockeys = cache2.get_keys(library.KEY_GROUP, const.DOCUMENT, path)
+        dockeys = cache2.get_keys(library.KEY_GROUP, const.FILE, path)
         self.assertEquals(len(dockeys), 0)
 
-        dockeys = cache2.get_keys(library.KEY_GROUP, const.DOCUMENT, '/some/other/path')
+        dockeys = cache2.get_keys(library.KEY_GROUP, const.FILE, '/some/other/path')
         self.assertEquals(len(dockeys), 1)
 
 

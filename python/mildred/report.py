@@ -80,7 +80,7 @@ def calculate_weight(path, weights):
 
 def get_discounts():
     discounts = {}
-    rows = sql.retrieve_values('match_discount', ['target', 'method', 'value'], [const.DOCUMENT])
+    rows = sql.retrieve_values('match_discount', ['target', 'method', 'value'], [const.FILE])
     for row in rows:
         discounts[row[1]] = float(row[2])
 
@@ -88,7 +88,7 @@ def get_discounts():
 
 def get_weights():
     weights = {}
-    rows = sql.retrieve_values('match_weight', ['target', 'pattern', 'value'], [const.DOCUMENT])
+    rows = sql.retrieve_values('match_weight', ['target', 'pattern', 'value'], [const.FILE])
     for row in rows:
         weights[row[1]] = float(row[2])
 
@@ -311,9 +311,9 @@ def get_media_meta_data(es, esid, media_data):
 
     # mediaFile = Document()
     # mediaFile.esid = esid
-    # mediaFile.document_type = config.DOCUMENT
+    # mediaFile.document_type = config.FILE
     try:
-        doc = search.get_doc(const.DOCUMENT, esid)
+        doc = search.get_doc(const.FILE, esid)
 
         media_data['file_size'] = doc['_source']['file_size']
 

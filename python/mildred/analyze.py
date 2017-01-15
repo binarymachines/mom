@@ -15,7 +15,7 @@ import search
 import sql
 from alchemy import ACTION, SQLAsset, get_session
 from core import introspection, log
-from core.vector import PathVectorScanner, ACTIVE, PERSIST
+from core.vector import PathVectorScanner, ACTIVE_FILE, ACTIVE_PATH, PERSIST
 
 
 from alchemy import SQLMetaAction, SQLMetaReason, SQLMetaReasonParam, SQLAction, SQLReason, SQLReasonParam
@@ -47,7 +47,7 @@ class Analyzer(object):
         pass
 
     def analyze_asset(self, meta_reasons, document):
-        self.vector.set_param(ANALYZER, ACTIVE, document.absolute_path)
+        self.vector.set_param(ANALYZER, ACTIVE_FILE, document.absolute_path)
         for meta_reason in meta_reasons:
             dispatch_funcs = meta_reason['funcs']
             unsatisfied_conditions = len(dispatch_funcs)
@@ -121,9 +121,9 @@ class Analyzer(object):
         # actions = self.retrieve_types()
         reasons = self.get_meta_reasons()
 
-        for file_ in SQLAsset.retrieve(const.DOCUMENT, path, use_like_in_where_clause=True):
+        for file_ in SQLAsset.retrieve(const.FILE, path, use_like_in_where_clause=True):
             document = Document(file_.absolute_path, esid=file_.id)
-            document.doc = search.get_doc(const.DOCUMENT, document.esid)
+            document.doc = search.get_doc(const.FILE, document.esid)
             document.data = document.to_dictionary()
 
             # if no op record exists
@@ -151,5 +151,5 @@ class Analyzer(object):
 
     def run(self):
         self.vector.reset(ANALYZER)
-        self.vector.set_param(ANALYZER, ACTIVE, None)
+        self.vector.set_param(ANALYZER, ACTIVE_PATH, None)
         self.vector_scanner.scan();

@@ -396,8 +396,8 @@ class CachedPathVector(PathVector):
             cache2.set_hash2(self.consumer_key, cached_consumer_paths)
 
 PERSIST = 'vector.scan.persist'
-ACTIVE = 'active.path'
-# SCAN = 'vector.scan'
+ACTIVE_PATH = 'active.path'
+ACTIVE_FILE = 'active.path'
 
 
 class PathVectorScanner(object):
@@ -464,7 +464,7 @@ class PathVectorScanner(object):
     # TODO: individual paths in the directory vector should have their own scan configuration
 
     def scan(self):
-        path = self.vector.get_param(self.owner, ACTIVE)
+        path = self.vector.get_param(self.owner, ACTIVE_PATH)
         path_restored = path is not None and path != 'None'
         self.last_expanded_path = None
 

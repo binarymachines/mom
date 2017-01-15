@@ -7,6 +7,7 @@ import os, sys, logging, datetime, json
 from elasticsearch import Elasticsearch
 
 import config, const
+from const import FILE
 from core import log, var, util
 from errors import ElasticDataIntegrityException
 
@@ -65,11 +66,16 @@ def create_index(index):
                 "number_of_replicas": 0
             },
             "mappings": {
-                "document": {
+                FILE: {
                     "date_detection": False,
                     "properties":{
                         "attributes":{
-                            "type" : "nested"
+                            "type" : "nested",
+                            "properties":{
+                                "TXXX":{
+                                    "type" : "nested"
+                                }
+                            }
                         }
                     }
                 }
@@ -136,7 +142,7 @@ def unique_doc_exists(document_type, attribute, value, except_on_multiples=False
     doc_count = len(docs)
 
     if doc_count > 1 and except_on_multiples:
-        # if document_type == const.DOCUMENT:
+        # if document_type == const.FILE:
             # print "multiple documents found for % %s (%s)" % (document_type, attribute, value)
             # sys.exit(1)
 

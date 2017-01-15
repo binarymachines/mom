@@ -33,11 +33,11 @@ def connect(hostname=es_host, port_num=es_port):
     # LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
     return Elasticsearch([{'host': hostname, 'port': port_num}])
 
-def execute(query): 
+def execute(doc_type, query): 
     try:
         es = connect()
-        res = es.search(index=es_index, doc_type=const.DOCUMENT, body=query)
-        pp.pprint(res)
+        res = es.search(index=es_index, doc_type=doc_type, body=query)
+        return res
     except Exception, err:
         print err.message
     
@@ -128,7 +128,8 @@ class NestedClause(Clause):
 
 
 class Request(object):
-    def __init__(self):
+    def __init__(self, doc_type):
+        self.doc_type = doc_type
         self.clauses = []
 
     def _clauses2str(self):
@@ -139,9 +140,9 @@ class Request(object):
 
     def submit(self, request_type=QUERY):
         if request_type == QUERY:
-            execute(self.as_query())
+            return execute(self.doc_type, self.as_query())
         else:
-            execute(self.as_filter())
+            return execute(self.doc_type, self.as_filter())
 
     def as_filter(self):
         if len(self.clauses) == 0:
@@ -182,22 +183,28 @@ def main():
     # r.clauses.append(filename_filetype)
 
 
-    artist = Clause(MATCH, field="attributes.TPE1", value="prince")
-    album = Clause(MATCH, field="attributes.TIT2", value="annie christian", boost=5.0, minimum_should_match=10)
+    artist = Clause(MATCH, field="attributes.TPE1", value="puppy")
+    album = Clause(MATCH, field="attributes.TIT2", value="first", boost=5.0, minimum_should_match=10)
     artist_album = BooleanClause(BOOL)
     artist_album.must_clauses = [artist, album]
 
     artist_album_nested = NestedClause('attributes', artist_album)
 
-    filepath = Clause(MATCH, field="absolute_path", value="controversy")
+    filepath = Clause(MATCH, field="absolute_path", value="mind")
     complex_bool = BooleanClause(BOOL)
     complex_bool.must_clauses = [filepath]
     complex_bool.should_clauses = [artist_album_nested]
  
-    r = Request()
+    r = Request("document")
     r.clauses.append(complex_bool)
-    r.submit()
+    results = r.submit()
+    # if len(results['hits']) > 0:
+    #     for doc in results['hits']['hits']:
+    #         data = doc['_source']
+    #         esid = doc['_id']
+    #         pp.pprint(data)
 
+      
     pp.pprint(json.loads(r.as_query()))
 
 if __name__ == "__main__":
