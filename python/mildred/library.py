@@ -372,17 +372,17 @@ def get_attribute_values(asset, document_format_attribute, *items):
                 attributes[attribute] = attribute_group[attribute]
               
     for item in items:
-        synonyms = get_synonyms(attributes[document_format_attribute], item)
-        for synonym in synonyms:
-            if synonym.attribute_name in attributes:
-                result[item] = attributes[synonym.attribute_name]
+        aliases = get_aliases(attributes[document_format_attribute], item)
+        for alias in aliases:
+            if alias.attribute_name in attributes:
+                result[item] = attributes[alias.attribute_name]
                 break
 
     return result
 
 
-def get_synonyms(document_format, term):
-   return sql.retrieve_values2('v_synonym', ['document_format', 'name', 'attribute_name'], [document_format, term])
+def get_aliases(document_format, term):
+   return sql.retrieve_values2('v_alias', ['document_format', 'name', 'attribute_name'], [document_format, term])
    
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later
 

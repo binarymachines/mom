@@ -105,7 +105,7 @@ class DocumentAttribute(Base):
     attribute_name = Column(String(128), nullable=False)
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
-    synonyms = relationship(u'Synonym', secondary='synonym_document_attribute')
+    aliases = relationship(u'Alias', secondary='alias_document_attribute')
 
 
 class DocumentCategory(Base):
@@ -211,17 +211,17 @@ class MatcherField(Base):
     matcher = relationship(u'Matcher')
 
 
-class Synonym(Base):
-    __tablename__ = 'synonym'
+class Alias(Base):
+    __tablename__ = 'alias'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(25), nullable=False)
 
 
-t_synonym_document_attribute = Table(
-    'synonym_document_attribute', metadata,
+t_alias_document_attribute = Table(
+    'alias_document_attribute', metadata,
     Column('document_attribute_id', ForeignKey(u'document_attribute.id'), primary_key=True, nullable=False, index=True),
-    Column('synonym_id', ForeignKey(u'synonym.id'), primary_key=True, nullable=False, index=True)
+    Column('alias_id', ForeignKey(u'alias.id'), primary_key=True, nullable=False, index=True)
 )
 
 
@@ -244,8 +244,8 @@ t_v_matched = Table(
 )
 
 
-t_v_synonym = Table(
-    'v_synonym', metadata,
+t_v_alias = Table(
+    'v_alias', metadata,
     Column('document_format', String(32)),
     Column('name', String(25)),
     Column('attribute_name', String(128))

@@ -217,7 +217,7 @@ def reset():
     except Exception, err:
         ERR.WARNING(err.message)
 
-    for table in ['synonym_document_attribute', 'synonym', 'document_attribute']:
+    for table in ['alias_document_attribute', 'alias', 'document_attribute']:
         query = 'delete from %s' % (table)
         sql.execute_query(query)
 

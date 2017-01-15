@@ -325,13 +325,13 @@ CREATE TABLE `matcher_field` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `synonym`
+-- Table structure for table `alias`
 --
 
-DROP TABLE IF EXISTS `synonym`;
+DROP TABLE IF EXISTS `alias`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `synonym` (
+CREATE TABLE `alias` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(25) NOT NULL,
   PRIMARY KEY (`id`)
@@ -339,20 +339,20 @@ CREATE TABLE `synonym` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `synonym_document_attribute`
+-- Table structure for table `alias_document_attribute`
 --
 
-DROP TABLE IF EXISTS `synonym_document_attribute`;
+DROP TABLE IF EXISTS `alias_document_attribute`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `synonym_document_attribute` (
+CREATE TABLE `alias_document_attribute` (
   `document_attribute_id` int(11) unsigned NOT NULL,
-  `synonym_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`document_attribute_id`,`synonym_id`),
-  KEY `fk_synonym_document_attribute_document_attribute1_idx` (`document_attribute_id`),
-  KEY `fk_synonym_document_attribute_synonym1_idx` (`synonym_id`),
-  CONSTRAINT `fk_synonym_document_attribute_document_attribute1` FOREIGN KEY (`document_attribute_id`) REFERENCES `document_attribute` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_synonym_document_attribute_synonym1` FOREIGN KEY (`synonym_id`) REFERENCES `synonym` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  `alias_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`document_attribute_id`,`alias_id`),
+  KEY `fk_alias_document_attribute_document_attribute1_idx` (`document_attribute_id`),
+  KEY `fk_alias_document_attribute_alias1_idx` (`alias_id`),
+  CONSTRAINT `fk_alias_document_attribute_document_attribute1` FOREIGN KEY (`document_attribute_id`) REFERENCES `document_attribute` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_alias_document_attribute_alias1` FOREIGN KEY (`alias_id`) REFERENCES `alias` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -388,14 +388,14 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary view structure for view `v_synonym`
+-- Temporary view structure for view `v_alias`
 --
 
-DROP TABLE IF EXISTS `v_synonym`;
-/*!50001 DROP VIEW IF EXISTS `v_synonym`*/;
+DROP TABLE IF EXISTS `v_alias`;
+/*!50001 DROP VIEW IF EXISTS `v_alias`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `v_synonym` AS SELECT 
+/*!50001 CREATE VIEW `v_alias` AS SELECT 
  1 AS `document_format`,
  1 AS `name`,
  1 AS `attribute_name`*/;
@@ -438,10 +438,10 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
--- Final view structure for view `v_synonym`
+-- Final view structure for view `v_alias`
 --
 
-/*!50001 DROP VIEW IF EXISTS `v_synonym`*/;
+/*!50001 DROP VIEW IF EXISTS `v_alias`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
@@ -450,7 +450,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_synonym` AS select `attr`.`document_format` AS `document_format`,`syn`.`name` AS `name`,`attr`.`attribute_name` AS `attribute_name` from ((`synonym` `syn` join `synonym_document_attribute` `sda`) join `document_attribute` `attr`) where ((`syn`.`id` = `sda`.`synonym_id`) and (`attr`.`id` = `sda`.`document_attribute_id`)) order by `attr`.`document_format`,`syn`.`name`,`attr`.`attribute_name` */;
+/*!50001 VIEW `v_alias` AS select `attr`.`document_format` AS `document_format`,`syn`.`name` AS `name`,`attr`.`attribute_name` AS `attribute_name` from ((`alias` `syn` join `alias_document_attribute` `sda`) join `document_attribute` `attr`) where ((`syn`.`id` = `sda`.`alias_id`) and (`attr`.`id` = `sda`.`document_attribute_id`)) order by `attr`.`document_format`,`syn`.`name`,`attr`.`attribute_name` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;

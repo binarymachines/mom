@@ -202,6 +202,16 @@ CREATE VIEW `v_m_action_m_reasons_w_ids` AS
 
     order by meta_action;
 
+DROP VIEW IF EXISTS `v_m_action_m_reasons`;
+
+CREATE VIEW `v_m_action_m_reasons` AS 
+    select meta_action, action_priority, action_dispatch_identifier, 
+        action_dispatch_category, action_dispatch_module, action_dispatch_class, action_dispatch_func,
+        reason, reason_weight, conditional_dispatch_identifier, conditional_dispatch_category, 
+        conditional_dispatch_module, conditional_dispatch_class, conditional_dispatch_func
+    from v_m_action_m_reasons_w_ids
+    order by meta_action;
+    
 -- DROP VIEW IF EXISTS `v_m_action_m_reasons`;
 --     select meta_action, action_priority, action_dispatch_func, action_category, ad.module_name, ad.class_name, ad.func_name action_func,
 --         rt.id meta_reason_id, rt.name reason, rt.weight reason_weight,

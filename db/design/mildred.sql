@@ -12,9 +12,9 @@ DROP TABLE IF EXISTS `directory_constant`;
 DROP TABLE IF EXISTS `document_category`;
 DROP TABLE IF EXISTS `path_hierarchy`;
 DROP TABLE IF EXISTS `exclude_directory`;
-DROP TABLE IF EXISTS `synonym_document_attribute`;
+DROP TABLE IF EXISTS `alias_document_attribute`;
 DROP TABLE IF EXISTS `document_attribute`;
-DROP TABLE IF EXISTS `synonym`;
+DROP TABLE IF EXISTS `alias`;
 DROP TABLE IF EXISTS `document_format`;
 DROP TABLE IF EXISTS `document_type`;
 DROP TABLE IF EXISTS `file_format`;
@@ -711,42 +711,42 @@ INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_na
 -- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (263,'media','ID3v2.3.0','TOLY',1);
 -- INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES (264,'media','ID3v2.3.0','TRSN',1);
 
-CREATE TABLE IF NOT EXISTS `mildred`.`synonym` (
+CREATE TABLE IF NOT EXISTS `mildred`.`alias` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(25) NOT NULL,
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `mildred`.`synonym_document_attribute` (
+CREATE TABLE IF NOT EXISTS `mildred`.`alias_document_attribute` (
   `document_attribute_id` INT(11) UNSIGNED NOT NULL,
-  `synonym_id` INT(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (`document_attribute_id`, `synonym_id`),
-  INDEX `fk_synonym_document_attribute_document_attribute1_idx` (`document_attribute_id` ASC),
-  INDEX `fk_synonym_document_attribute_synonym1_idx` (`synonym_id` ASC),
-  CONSTRAINT `fk_synonym_document_attribute_document_attribute1`
+  `alias_id` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`document_attribute_id`, `alias_id`),
+  INDEX `fk_alias_document_attribute_document_attribute1_idx` (`document_attribute_id` ASC),
+  INDEX `fk_alias_document_attribute_alias1_idx` (`alias_id` ASC),
+  CONSTRAINT `fk_alias_document_attribute_document_attribute1`
     FOREIGN KEY (`document_attribute_id`)
     REFERENCES `mildred`.`document_attribute` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_synonym_document_attribute_synonym1`
-    FOREIGN KEY (`synonym_id`)
-    REFERENCES `mildred`.`synonym` (`id`)
+  CONSTRAINT `fk_alias_document_attribute_alias1`
+    FOREIGN KEY (`alias_id`)
+    REFERENCES `mildred`.`alias` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
 
-drop view if exists `v_synonym`;
+drop view if exists `v_alias`;
 
-create view `v_synonym` as
-	SELECT attr.document_format, syn.name, attr.attribute_name FROM mildred.synonym syn, mildred.synonym_document_attribute sda, mildred.document_attribute attr
-	where syn.id = sda.synonym_id
+create view `v_alias` as
+	SELECT attr.document_format, syn.name, attr.attribute_name FROM mildred.alias syn, mildred.alias_document_attribute sda, mildred.document_attribute attr
+	where syn.id = sda.alias_id
 	  and attr.id = sda.document_attribute_id
 	order by document_format, name, attribute_name;
   
-insert into `synonym` (name) values ('artist'), ('album'), ('song'), ('track_id');
+insert into `alias` (name) values ('artist'), ('album'), ('song'), ('track_id');
 
-insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'album'), (select id from `document_attribute` where attribute_name = 'TALB' and document_format = 'ID3v2.3.0'));
-insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE1' and document_format = 'ID3v2.3.0'));
-insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE2' and document_format = 'ID3v2.3.0'));
-insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT1' and document_format = 'ID3v2.3.0'));
-insert into `synonym_document_attribute` (`synonym_id`, `document_attribute_id`) values ((select id from `synonym` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT2' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'TALB' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE1' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE2' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT1' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT2' and document_format = 'ID3v2.3.0'));

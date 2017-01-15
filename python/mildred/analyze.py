@@ -52,32 +52,26 @@ class Analyzer(object):
             dispatch_funcs = meta_reason['funcs']
             unsatisfied_conditions = len(dispatch_funcs)
             for func in dispatch_funcs:
-                condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
-                condition_func = introspection.get_func(condition)
+                if func(document) == meta_reason['expected_result']:
+                    unsatisfied_conditions -= 1
 
-                if condition_func:
-                    if condition_func(document) == meta_reason['expected_result']:
-                        unsatisfied_conditions -= 1
+            if unsatisfied_conditions == 0:
+                reason = SQLReason()
+                reason.meta_reason_id = meta_reason['id']
 
-            if unsatisfied_conditions:
-                continue
-            
-            reason = SQLReason()
-            reason.meta_reason_id = meta_reason['id']
+                vector_params = self.vector.get_params(ANALYZER)
+                for param in meta_reason['params']:
+                    param_name = param['vector_param_name']
+                    param_id = param['id']
+                    if param_name in vector_params:
+                        reason_param = SQLReasonParam()
+                        reason_param.meta_reason_param_id = param_id
+                        reason_param.value = vector_params[param_name]
+                        reason.params.append(reason_param)
 
-            vector_params = self.vector.get_params(ANALYZER)
-            for param in meta_reason['params']:
-                param_name = param['vector_param_name']
-                param_id = param['id']
-                if param_name in vector_params:
-                    reason_param = SQLReasonParam()
-                    reason_param.meta_reason_param_id = param_id
-                    reason_param.value = vector_params[param_name]
-                    reason.params.append(reason_param)
-
-            session = alchemy.get_session(alchemy.ACTION)
-            session.add(reason)
-            session.commit()
+                session = alchemy.get_session(alchemy.ACTION)
+                session.add(reason)
+                session.commit()
 
 
     def oRecord2dict(self, oRecord, *items):
@@ -97,6 +91,7 @@ class Analyzer(object):
             session_id = client.connect( "root", "steel" )
             client.db_open( "merlin", "root", "steel" ) 
 
+            # reasons = client.query("select from (traverse all() from (select from MetaReason))")
             reasons = client.query("select from MetaReason")
             for reason in reasons:
                 reason_data = self.oRecord2dict(reason, 'id', 'name', 'expected_result')
@@ -105,7 +100,11 @@ class Analyzer(object):
 
                 dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'condition'" % reason_data['rid'])
                 for dispatch in dispatches: 
-                    reason_data['funcs'] += self.oRecord2dict(dispatch, 'id', 'package_name', 'module_name', 'class_name', 'func_name'),
+                    func = self.oRecord2dict(dispatch, 'id', 'package_name', 'module_name', 'class_name', 'func_name')
+                    condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
+                    if condition:
+                        condition_func = introspection.get_func(condition)
+                        reason_data['funcs'] += condition_func,
 
                 params = client.query("select from (traverse all() from %s) where @class = 'MetaReasonParam'" % reason_data['rid'])
                 for param in params: 
