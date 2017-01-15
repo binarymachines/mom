@@ -12,7 +12,7 @@ import start
 from core import cache2, log
 
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
 OPS = 'ops'

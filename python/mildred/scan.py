@@ -93,7 +93,9 @@ class Scanner(Walker):
     def handle_root(self, root):
         ops.check_status()
         directory = library.get_cached_directory()
-        if directory is None or directory.esid is None: return
+        # or directory.esid is None: return
+        if directory is None:
+            return 
 
         LOG.debug('scanning %s' % (root))
         ops.update_listeners('scanning', SCANNER, root)
@@ -105,7 +107,7 @@ class Scanner(Walker):
                 file_was_read = False
                 try:
                     asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
-                    if asset is None or asset.ignore() or asset.available is False: 
+                    if asset is None or asset.available is False: 
                         continue
 
                     existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)

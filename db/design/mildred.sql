@@ -415,7 +415,10 @@ INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`
 INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (10,'media','/random','random',now(),'9999-12-31 23:59:59');
 INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (11,'media','/recently','recent',now(),'9999-12-31 23:59:59');
 INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (12,'media','/unsorted','unsorted',now(),'9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (13,'media','[...]','side_projects',now(),'9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (13,'media','[...]','side_project',now(),'9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (13,'media','[...]','side_project',now(),'9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (14,'media','albums','album',now(),'9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (15,'media','noscan','no_scan',now(),'9999-12-31 23:59:59');
 
 INSERT INTO `document_category` (`id`, `index_name`, `name`, `document_type`, `effective_dt`, `expiration_dt`) VALUES (1,'media','dark classical','directory',now(),'9999-12-31 23:59:59');
 INSERT INTO `document_category` (`id`, `index_name`, `name`, `document_type`, `effective_dt`, `expiration_dt`) VALUES (2,'media','funk','directory',now(),'9999-12-31 23:59:59');

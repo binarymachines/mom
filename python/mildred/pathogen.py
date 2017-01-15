@@ -9,8 +9,8 @@ from mutagen.apev2 import APEv2, APENoHeaderError, APEUnsupportedVersionError
 from mutagen.oggvorbis import OggVorbis, OggVorbisHeaderError
 from mutagen.mp4 import MP4, MP4MetadataError, MP4MetadataValueError, MP4StreamInfoError
 
-import const
-import ops
+import const, ops
+
 import filehandler
 from filehandler import FileHandler
 from const import MAX_DATA_LENGTH
@@ -18,7 +18,7 @@ from core import log
 from core.errors import BaseClassException
 
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
 
@@ -26,15 +26,14 @@ class Pathogen(FileHandler):
     def __init__(self, name):
         super(Pathogen, self).__init__(name)
 
-
     def handle_file(self, asset, data):
         LOG.info("%s reading file: %s" % (self.name, asset.absolute_path))
-
         read_failed = False
 
         try:
-            ops.record_op_begin(const.READ, self.name, asset.absolute_path, asset.esid)
+            ops.record_op_begin(const.READ, self.name, asset.absolute_path, asset.esid)            
             self.read_tags(asset, data)
+
             return True
 
         except ID3NoHeaderError, err:

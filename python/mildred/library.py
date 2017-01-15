@@ -30,6 +30,21 @@ RETRIEVE_DOCS = 'cache_retrieve_docs'
 
 pp = pprint.PrettyPrinter(indent=4)
 
+PATTERN = 'pattern'
+
+COMPILATION = 'compilation'
+EXTENDED = 'extended'
+IGNORE = 'ignore'
+INCOMPLETE = 'incomplete'
+LIVE = 'live_recording'
+NEW = 'new'
+RANDOM = 'random'
+RECENT = 'recent'
+SIDE_PROJECT = 'side_project'
+UNSORTED = 'unsorted'
+ALBUM = 'album'
+NO_SCAN = 'no_scan'
+
 # directory cache
 
 def get_cache_key(subset=None):
@@ -43,15 +58,6 @@ def cache_directory(directory):
 
     if directory:
         cache2.set_hash2(get_cache_key(), directory.to_dictionary())
-        # for hash in directory.errors:
-        #     cache2.add_hashset(get_cache_key(), 'errors', hash)
-        # for hash in directory.attributes:
-        #     cache2.add_hashset(get_cache_key(), 'attributes', hash)
-        # for hash in directory.files:
-        #     cache2.add_hashset(get_cache_key(), 'files', hash)
-        # for hash in directory.read_files:
-        #     cache2.add_hashset(get_cache_key(), 'read_files', hash)
-
 
 def clear_directory_cache():
     cache2.delete_hash2(get_cache_key())
@@ -65,18 +71,31 @@ def get_cached_directory():
     values = cache2.get_hash2(get_cache_key())
     if len(values) is 0: return None
    
-    result = Directory(values['absolute_path'], esid=values['esid'])
-    result.dirty = values['dirty'] == 'True'
+    result = Directory(values['absolute_path'])#, esid=values['esid'])
+    # result.dirty = values['dirty'] == 'True'
     result.has_errors = values['has_errors'] == 'True'
     result.latest_error = values['latest_error']
     result.latest_operation = values['latest_operation']
 
-    # result.errors = cache2.get_hashsets(get_cache_key(), 'errors')
-    # result.attributes = cache2.get_hashsets(get_cache_key(), 'attributes')
-    # result.files = cache2.get_hashsets(get_cache_key(), 'files')
-    # result.read_files = cache2.get_hashsets(get_cache_key(), 'read_files')
-
     return result
+
+def get_location_patterns(location_type):
+    if not cache2.key_exists(PATTERN, location_type):
+        key = cache2.create_key(PATTERN, location_type)
+        rows = sql.retrieve_values2('directory_constant', ['location_type', 'pattern'], [location_type])
+        cache2.add_items(PATTERN, location_type, [row.pattern for row in rows])
+
+    return cache2.get_items(PATTERN, location_type)
+
+
+def pattern_in_path(pattern, path):
+
+    path_fragments = get_location_patterns(pattern) 
+    for path_fragment in path_fragments:
+        if path_fragment in path:
+            return True
+
+    return False
 
 def set_active(path):
     directory = None if path is None else Directory(path)
@@ -87,17 +106,21 @@ def set_active(path):
             directory.esid = search.unique_doc_id(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'))
             # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
-            index_asset(directory, directory.to_dictionary())
-    elif directory is None and get_cached_directory():
-        cached_directory = get_cached_directory()
-        ops.update_listeners('indexing metadata', 'library', cached_directory.absolute_path)
-        if cached_directory.dirty:        
-            try:
-                res = config.es.update(index=config.es_index, doc_type=cached_directory.directory, id=cached_directory.esid, body=json.dumps(cached_directory.to_dictionary()))
-            except ConnectionError, err:
-                ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                print '\nConnection lost, please verify network connectivity and restart.'
-                sys.exit(1)
+            data = directory.to_dictionary()
+
+            data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
+            data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
+            data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
+            data['is_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
+            data['is_live'] = pattern_in_path(LIVE, directory.absolute_path)
+            data['is_new'] = pattern_in_path(NEW, directory.absolute_path)
+            data['is_random'] = pattern_in_path(RANDOM, directory.absolute_path)
+            data['is_recent'] = pattern_in_path(RECENT, directory.absolute_path)
+            data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
+            data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
+            data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
+
+            index_asset(directory, data)
 
     if directory:
         cache_directory(directory)
@@ -205,12 +228,13 @@ def index_asset(asset, data):
         _sub_index_asset(asset, data)
     except RequestError, err:
         ERR.error(err.__class__.__name__, exc_info=True)
-        ERR.error(asset.absolute_path)
         
-        # print.error(asset.absolute_path)
-        # print 'Error code: %i' % err.args[0]
-        # print 'Error class: %s' % err.args[1]
-        print 'Error encountered handling %s:\n %s' % (asset.absolute_path, err.args[2])
+        try:
+            ERR.error(asset.absolute_path)
+            print 'Error encountered handling %s:\n %s' % (asset.absolute_path, err.args[2])
+        except Exception, err2:
+            ERR.error("LOGGING ERROR %s" % err2.message)
+
         
         error_string = err.args[2]['error']['reason']
         ATTRIBUTES = 'attributes'
@@ -267,11 +291,14 @@ def retrieve_esid(document_type, absolute_path):
     cached = get_cached_esid(document_type, absolute_path)
     if cached: return cached
 
-    rows = sql.retrieve_values('document', ['index_name', 'document_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
+    rows = sql.retrieve_values2('document', ['index_name', 'document_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
     # rows = sql.run_query("select index_name, document_type, absolute_path")
-    if len(rows) == 0: return None
-    if len(rows) == 1: return rows[0][3]
-    elif len(rows) >1: raise ElasticDataIntegrityException(document_type, 'absolute_path', absolute_path)
+    if len(rows) == 0: 
+        return None
+    if len(rows) == 1: 
+        return rows[0]['id']
+    elif len(rows) >1: 
+        raise ElasticDataIntegrityException(document_type, 'absolute_path', absolute_path)
     # AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
 

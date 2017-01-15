@@ -198,11 +198,12 @@ def main():
     r = Request("document")
     r.clauses.append(complex_bool)
     results = r.submit()
-    # if len(results['hits']) > 0:
-    #     for doc in results['hits']['hits']:
-    #         data = doc['_source']
-    #         esid = doc['_id']
-    #         pp.pprint(data)
+    if ['hits'] in results:
+        if len(results['hits']) > 0:
+            for doc in results['hits']['hits']:
+                data = doc['_source']
+                esid = doc['_id']
+                pp.pprint(data)
 
       
     pp.pprint(json.loads(r.as_query()))
