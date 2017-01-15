@@ -1,6 +1,11 @@
 clear
 echo "creating databases..."
-mysql sys < $M2/db/setup/setup.sql
+echo "create schema media" | mysql
+echo "create schema mildred" | mysql
+echo "create schema mildred_action" | mysql
+echo "create schema mildred_admin" | mysql
+echo "create schema mildred_introspection" | mysql
+echo "create schema scratch" | mysql
 
 echo "creating media schema..."
 mysql media < $M2/db/setup/setup-media.sql
