@@ -93,13 +93,12 @@ class Scanner(Walker):
     def handle_root(self, root):
         ops.check_status()
         directory = library.get_cached_directory()
-        # or directory.esid is None: return
-        if directory is None:
+        if len(directory) == 0:
             return 
 
         LOG.debug('scanning %s' % (root))
         ops.update_listeners('scanning', SCANNER, root)
-        ops.record_op_begin(SCAN, SCANNER, directory.absolute_path, directory.esid)
+        ops.record_op_begin(SCAN, SCANNER, directory['absolute_path'], directory['esid'])
             
         for filename in os.listdir(root):
             if self.reader.has_handler_for(filename):
@@ -116,6 +115,7 @@ class Scanner(Walker):
                         continue
 
                     data = asset.to_dictionary()
+                    data['directory'] = directory['esid']
                     self.reader.read(asset, data)
                     file_was_read = True
 
@@ -129,7 +129,7 @@ class Scanner(Walker):
                     if file_was_read:
                         self.reader.invalidate_read_ops(asset)
 
-        ops.record_op_complete(SCAN, SCANNER, directory.absolute_path, directory.esid)
+        ops.record_op_complete(SCAN, SCANNER, directory['absolute_path'], directory['esid'])
         LOG.debug('done scanning : %s' % (root))
 
 

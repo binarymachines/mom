@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action_dispatch` (
 CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_action` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
+  `document_type` VARCHAR(32) NOT NULL DEFAULT 'file',
   `dispatch_id` INT(11) UNSIGNED NOT NULL,
   `priority` INT(3) NOT NULL DEFAULT 10,
   PRIMARY KEY (`id`),
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `parent_meta_reason_id` int(11) UNSIGNED,
     `name` VARCHAR(255) NOT NULL,
-    `document_type` VARCHAR(32) NOT NULL DEFAULT 'FILE',
+    `document_type` VARCHAR(32) NOT NULL DEFAULT 'file',
     `weight` INT(3) NOT NULL DEFAULT 10,
     `dispatch_id` INT(11) UNSIGNED NOT NULL,
     `expected_result` tinyint(1) NOT NULL DEFAULT '1',

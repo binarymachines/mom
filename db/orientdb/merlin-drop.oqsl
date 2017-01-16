@@ -5,3 +5,4 @@ drop class MetaReason unsafe;
 drop class MetaReasonParam unsafe;
 drop class Invokes unsafe;
 drop class IsSuggestedBy unsafe;
+drop class Suggests unsafe;

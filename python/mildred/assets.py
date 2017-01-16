@@ -6,10 +6,17 @@ import json
 
 import const
 
+def uu_str(value):
+    if isinstance(value, unicode):
+        return value
+    
+    elif isinstance(value, basestring):
+        return unicode(value)
+    
+    return value
 
 class Asset(object):
     def __init__(self, absolute_path, document_type, esid=None):
-        self.absolute_path = absolute_path
         # self.active = True
         self.available = True
         self.esid = esid
@@ -22,64 +29,25 @@ class Asset(object):
         self.latest_error = u''
         self.latest_operation = u''
         self.latest_operation_start_time = None
+        self.location = None
 
         # TODO: use in scanner, reader and to_dictionary()
         self.errors = []
-        self.attributes = []
+
+        try:
+            self.absolute_path = uu_str(absolute_path)
+        except Exception, err:
+            self.has_errors = True
+            self.errors.append(err)
 
     def short_name(self):
         if self.absolute_path is None:
             return None
         return self.absolute_path.split(os.path.sep)[-1]
 
-    # def ignore(self):
-    #     return False
-    #     # return pathutil.ignore(self.absolute_path)
-
-    # def is_expunged(self):
-    #     return False
-    #     # return pathutil.is_expunged(self.absolute_path)
-
-    # def is_filed(self):
-    #     return False
-        # return pathutil.is_filed(self.absolute_path)
-
-    # def is_filed_as_compilation(self):
-    #     return False
-    #     # return pathutil.is_filed_as_compilation(self.absolute_path)
-
-    # def is_filed_as_live(self):
-    #     return False
-    #     # return pathutil.is_filed_as_live(self.absolute_path)
-
-    # def is_new(self):
-    #     return False
-    #     # return pathutil.is_new(self.absolute_path)
-
-    # def is_noscan(self):
-    #     return False
-    #     # return pathutil.is_noscan(self.absolute_path)
-
-    # def is_random(self):
-    #     return False
-    #     # return pathutil.is_random(self.absolute_path)
-
-    # def is_recent(self):
-    #     return False
-    #     # return pathutil.is_recent(self.absolute_path)
-
-    # def is_unsorted(self):
-    #     return False
-    #     # return pathutil.is_unsorted(self.absolute_path)
-
-    # def is_webcast(self):
-    #     return False
-    #     # return pathutil.is_webcast(self.absolute_path)
-
     def to_dictionary(self):
         data = {
-                'absolute_path': self.absolute_path,
-                'esid': self.esid
+                'absolute_path': self.absolute_path
                 }
         return data
 
@@ -94,7 +62,7 @@ class Document(Asset):
         self.file_name = None
         self.file_size = 0
         # self.directory_name = None
-        self.location = None
+        self.attributes = []
 
     def duplicates(self):
         return []
@@ -130,15 +98,6 @@ class Document(Asset):
             data['mtime'] = time.ctime(os.path.getmtime(self.absolute_path))
             data['file_size'] = os.path.getsize(self.absolute_path)
         
-        # data['filed'] = self.is_filed()
-        # data['compilation'] = self.is_filed_as_compilation()
-        # data['webcast']= self.is_webcast()
-        # data['unsorted'] = self.is_unsorted()
-        # data['random'] = self.is_random()
-        # data['new'] = self.is_new()
-        # data['recent'] = self.is_recent()
-        # data['active'] = self.active
-        # data['live_recording'] = self.is_filed_as_live()
         data['deleted'] = self.deleted
         data['attributes'] = self.attributes
         data['errors'] = self.errors
@@ -149,30 +108,27 @@ class Document(Asset):
 class Directory(Asset):
     def __init__(self, absolute_path, esid=None):
         super(Directory, self).__init__(absolute_path, document_type=const.DIRECTORY, esid=esid)
-        self.files = []
-        self.read_files = []
-
 
     # TODO: call Asset.to_dictionary and append values
     def to_dictionary(self):
 
-        # 'esid': self.esid,
         data = {    
-                    'document_type': self.document_type,
                     'absolute_path': self.absolute_path,
                     'has_errors': self.has_errors,
                     'latest_error': self.latest_error,
                     'latest_operation': self.latest_operation         
         }
 
+        if self.location is not None: 
+            data['location'] = self.location
+
         data['errors'] = self.errors
-        data['files'] = self.files
-        data['read_files'] = self.read_files
 
         fs_avail = os.path.isdir(self.absolute_path) and os.access(self.absolute_path, os.R_OK)
         if fs_avail:
             data['ctime'] = time.ctime(os.path.getctime(self.absolute_path))
-            data['contents'] = os.listdir(self.absolute_path)
+            data['contents'] = [uu_str(f) for f in os.listdir(self.absolute_path)]
+            data['contents'].sort()
             
         return data
 

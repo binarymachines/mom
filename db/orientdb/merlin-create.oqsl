@@ -23,5 +23,5 @@ create property MetaReason.dispatch_id long;
 create property MetaReason.expected_result boolean;
 
 create class Invokes extends E;
-create class IsSuggestedBy extends E;
-create property IsSuggestedBy.is_sufficient_solo boolean;
+create class Suggests extends E;
+create property /ggestedBy.is_sufficient_solo boolean;

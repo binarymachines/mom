@@ -57,27 +57,16 @@ def cache_directory(directory):
     clear_directory_cache()
 
     if directory:
-        cache2.set_hash2(get_cache_key(), directory.to_dictionary())
+        data = directory.to_dictionary()
+        data['esid'] = directory.esid
+        cache2.set_hash2(get_cache_key(), data)
 
 def clear_directory_cache():
     cache2.delete_hash2(get_cache_key())
-    # cache2.clear_hashsets(get_cache_key(), 'errors')
-    # cache2.clear_hashsets(get_cache_key(), 'attributes')
-    # cache2.clear_hashsets(get_cache_key(), 'files')
-    # cache2.clear_hashsets(get_cache_key(), 'read_files')
 
 
 def get_cached_directory():
-    values = cache2.get_hash2(get_cache_key())
-    if len(values) is 0: return None
-   
-    result = Directory(values['absolute_path'])#, esid=values['esid'])
-    # result.dirty = values['dirty'] == 'True'
-    result.has_errors = values['has_errors'] == 'True'
-    result.latest_error = values['latest_error']
-    result.latest_operation = values['latest_operation']
-
-    return result
+    return cache2.get_hash2(get_cache_key())
 
 def get_location_patterns(location_type):
     if not cache2.key_exists(PATTERN, location_type):
@@ -98,33 +87,36 @@ def pattern_in_path(pattern, path):
     return False
 
 def set_active(path):
-    directory = None if path is None else Directory(path)
-    if directory is not None:
-        LOG.debug('syncing metadata for %s' % directory.absolute_path)
-        ops.update_listeners('syncing metadata', 'library', path)
-        if search.unique_doc_exists(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'), except_on_multiples=True):
-            directory.esid = search.unique_doc_id(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'))
-            # directory.doc = search.get_doc(directory.document_type, directory.esid)
-        else:
-            data = directory.to_dictionary()
+    try:
+        directory = None if path is None else Directory(path)
 
-            data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
-            data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
-            data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
-            data['is_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
-            data['is_live'] = pattern_in_path(LIVE, directory.absolute_path)
-            data['is_new'] = pattern_in_path(NEW, directory.absolute_path)
-            data['is_random'] = pattern_in_path(RANDOM, directory.absolute_path)
-            data['is_recent'] = pattern_in_path(RECENT, directory.absolute_path)
-            data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
-            data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
-            data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
+        if directory is not None:
+            LOG.debug('syncing metadata for %s' % directory.absolute_path)
+            ops.update_listeners('syncing metadata', 'library', path)
+            if search.unique_doc_exists(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'), except_on_multiples=True):
+                directory.esid = search.unique_doc_id(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'))
+                # directory.doc = search.get_doc(directory.document_type, directory.esid)
+            else:
+                directory.location = get_library_location(path)
+                data = directory.to_dictionary()
+        
+                data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
+                data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
+                data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
+                data['is_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
+                data['is_live'] = pattern_in_path(LIVE, directory.absolute_path)
+                data['is_new'] = pattern_in_path(NEW, directory.absolute_path)
+                data['is_random'] = pattern_in_path(RANDOM, directory.absolute_path)
+                data['is_recent'] = pattern_in_path(RECENT, directory.absolute_path)
+                data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
+                data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
+                data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
 
-            index_asset(directory, data)
+                index_asset(directory, data)
 
-    if directory:
-        cache_directory(directory)
-
+            cache_directory(directory)
+    except Exception, err:
+        raise err
 
 # document cache
 

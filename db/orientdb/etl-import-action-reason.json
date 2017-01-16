@@ -12,10 +12,10 @@
   "transformers": [
       { "merge": { "joinFieldName": "meta_action_id", "lookup": "MetaAction.id" } },
       { "vertex": {"class": "MetaAction", "skipDuplicates": true} },
-      { "edge": { "class": "IsSuggestedBy",
+      { "edge": { "class": "Suggests",
                   "joinFieldName": "meta_reason_id",
                   "lookup": "MetaReason.id",
-                  "direction": "out"
+                  "direction": "in"
                 }
       }
   ],
