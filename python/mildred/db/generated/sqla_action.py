@@ -78,6 +78,7 @@ class MetaAction(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
+    document_type = Column(String(32), nullable=False, server_default=text("'file'"))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
@@ -100,6 +101,7 @@ class MetaReason(Base):
     id = Column(Integer, primary_key=True)
     parent_meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
     name = Column(String(255), nullable=False)
+    document_type = Column(String(32), nullable=False, server_default=text("'file'"))
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
     expected_result = Column(Integer, nullable=False, server_default=text("'1'"))

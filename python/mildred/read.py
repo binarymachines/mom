@@ -69,20 +69,21 @@ class Reader:
                     return True
 
 
-    def invalidate_read_ops(self, asset):
+    def invalidate_read_ops(self, path):
         for file_handler in self.get_file_handlers():
-           if ops.operation_in_cache(asset.absolute_path, const.READ, file_handler.name):
-               ops.mark_operation_invalid(asset.absolute_path, const.READ, file_handler.name)
+           if ops.operation_in_cache(path, const.READ, file_handler.name):
+               ops.mark_operation_invalid(path, const.READ, file_handler.name)
 
 
-    def read(self, asset, data, file_handler_name=None, force_read=False):
+    def read(self, path, data, file_handler_name=None, force_read=False):
         for file_handler in self.get_file_handlers():
             if file_handler_name is None or file_handler.name == file_handler_name:
-                if asset.ext.lower() in file_handler.extensions or '*' in file_handler.extensions or force_read:
-                    if ops.operation_in_cache(asset.absolute_path, const.READ, file_handler.name):
-                        continue
-                    else: 
-                        return file_handler.handle_file(asset, data)
+                for extension in file_handler.extensions:
+                    if path.lower().endswith(extension) or '*' in file_handler.extensions or force_read:
+                        if ops.operation_in_cache(path, const.READ, file_handler.name):
+                            continue
+                        else: 
+                            return file_handler.handle_file(path, data)
 
     def get_file_handlers(self):
         return self.file_handlers

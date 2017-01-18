@@ -1,11 +1,11 @@
 import redis
 import unittest
 
-import cache2
+from core import cache2
 
 KEYGROUP = 'tests-suite'
 
-#NOTE: This unit tests does not account for Redis' dislike of key names containing spaces
+#NOTE: This unit test does not account for Redis' dislike of key names containing spaces
 
 class TestCache2(unittest.TestCase):
     """Redis must be running for these tests to run"""

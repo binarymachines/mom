@@ -77,7 +77,7 @@ def calc(vector, cycle_vector=False):
     opcount = 0
 
     while vector.has_next(MATCH, use_fifo=True):
-        ops.check_status()
+        # ops.check_status()
         location = vector.get_next(MATCH, use_fifo=True)
         
         if location is None: continue
@@ -95,7 +95,7 @@ def calc(vector, cycle_vector=False):
 
         for key in library.get_doc_keys(FILE):
             opcount += 1
-            ops.check_status(opcount)
+            # ops.check_status(opcount)
 
             values = cache2.get_hash2(key)
             if 'esid' not in values:
@@ -124,9 +124,9 @@ def do_match_op(esid, absolute_path, matchers):
     elif asset.doc:
         # if library.doc_exists_for_path(asset.document_type, asset.absolute_path):
         for matcher in matchers:
-            message = str('calc: skipping %s operation on %s' % (matcher.name, asset.absolute_path)) \
+            message = 'calc: skipping %s operation on %s' % (matcher.name, asset.absolute_path) \
                 if  ops.operation_in_cache(asset.absolute_path, MATCH, matcher.name)  \
-                else str('calc: %s seeking matches for %s' % (matcher.name, asset.absolute_path))
+                else 'calc: %s seeking matches for %s' % (matcher.name, asset.absolute_path)
             
             LOG.info(message)
             

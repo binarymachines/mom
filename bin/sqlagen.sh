@@ -13,16 +13,10 @@ clear
 touch $M2/python/mildred/db/__init__.py
 touch $M2/python/mildred/db/generated/__init__.py
 sqlacodegen mysql://root:steel@localhost/media > $M2/python/mildred/db/generated/sqla_media.py
-# cat $M2/python/mildred/db/generated/sqla_media.py
 sqlacodegen mysql://root:steel@localhost/mildred > $M2/python/mildred/db/generated/sqla_mildred.py
-# cat $M2/python/mildred/db/generated/sqla_mildred.py
 sqlacodegen mysql://root:steel@localhost/mildred_action --tables action_dispatch,action,action_param,meta_action,meta_action_param,reason,reason_param,meta_reason,meta_reason_param,action_reason,m_action_m_reason > $M2/python/mildred/db/generated/sqla_action.py
-# cat $M2/python/mildred/db/generated/sqla_action.py
 sqlacodegen mysql://root:steel@localhost/mildred_admin > $M2/python/mildred/db/generated/sqla_admin.py
-# cat $M2/python/mildred/db/generated/sqla_admin.py
 sqlacodegen mysql://root:steel@localhost/mildred_introspection > $M2/python/mildred/db/generated/sqla_introspection.py
-# cat $M2/python/mildred/db/generated/sqla_introspection.py
 sqlacodegen mysql://root:steel@localhost/scratch > $M2/python/mildred/db/generated/sqla_scratch.py
-# cat $M2/python/mildred/db/generated/sqla_scratch.py
 
 # cat $M2/python/mildred/db/generated/*.py

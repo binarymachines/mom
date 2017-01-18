@@ -54,7 +54,7 @@ def report_invalid_field(path, key, value):
     try:
         LOG.debug('Field %s in %s contains too much data.' % (key, path))
         LOG.debug(value)
-    except Exception, err:
+    except UnicodeDecodeError, err:
         pass
         # print "Logging Error: %s" % err.message
 
@@ -63,10 +63,10 @@ class FileHandler(object):
         self.name = name
         self.extensions = ()
 
-    def handle_exception(self, exception, asset, data):
+    def handle_exception(self, exception, path, data):
         raise Exception
 
-    def handle_file(self, asset, data):
+    def handle_file(self, path, data):
         raise BaseClassException(FileHandler)
 
 
@@ -78,7 +78,7 @@ class FileHandler(object):
 #     def __init__(self):
 #         super(ImageHandler, self).__init__('mildred-img', get_supported_image_types())
 #
-#     def handle_file(self, asset, data):
+#     def handle_file(self, path, data):
 #         pass
 
 
@@ -86,7 +86,7 @@ class GenericText(FileHandler):
     def __init__(self):
         super(GenericText, self).__init__('mildred-txt', 'txt', 'java', 'c', 'cpp', 'xml', 'html')
 
-    def handle_file(self, asset, data):
+    def handle_file(self, path, data):
         pass
 
 
@@ -96,5 +96,5 @@ class DelimitedText(GenericText):
         super(GenericText, self).__init__('mildred-delimited', 'csv')
         self.DELIM = DELIM_char
 
-    def handle_file(self, asset, data):
+    def handle_file(self, path, data):
         pass

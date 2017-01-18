@@ -33,9 +33,6 @@ MAX_DATA_LENGTH = 512
 KNOWN = 'known_fields'
 METADATA = 'document_attribute'
 
-# other constants
-HEX_KEY = '_hex_key'
-
 # states
 INITIAL = "initial"
 TERMINAL = 'terminal'

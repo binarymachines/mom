@@ -21,8 +21,11 @@ from db.generated.sqla_introspection import ModeState as AlchemyModeState
 
 import config
 
-LOG = log.get_log(__name__, logging.DEBUG)  
+LOG = log.get_log('sqlalchemy.engine', logging.DEBUG)  
 ERR = log.get_log('errors', logging.WARNING)
+
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 Base = declarative_base()
 
@@ -154,7 +157,7 @@ class SQLAsset(Document):
     @staticmethod
     @alchemy_operation
     def insert(index_name, document_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
-        asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path, hex_key=absolute_path.encode('hex'), \
+        asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path, \
             effective_dt=datetime.datetime.now())
 
         try:
@@ -508,8 +511,7 @@ class SQLOperationRecord(OpRecord):
     def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
         op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
-                                    target_esid=target_esid, target_path=target_path, start_time=start_time, status=status, \
-                                    target_hex_key=target_path.encode('hex'))
+                                    target_esid=target_esid, target_path=target_path, start_time=start_time, status=status)
 
         try:
             sessions[INTROSPECTION].add(op_rec)

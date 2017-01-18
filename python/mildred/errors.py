@@ -15,8 +15,6 @@ class ElasticDataIntegrityException(AssetException):
         # self.data = value
 
         data = None
-        if attribute == '_hex_key':
-            data = value.decode('hex')
 
         if attribute == 'absolute_path':
             data = value

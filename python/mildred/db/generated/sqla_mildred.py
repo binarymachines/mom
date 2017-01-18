@@ -8,6 +8,22 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
+class Alia(Base):
+    __tablename__ = 'alias'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(25), nullable=False)
+
+    document_attributes = relationship(u'DocumentAttribute', secondary='alias_document_attribute')
+
+
+t_alias_document_attribute = Table(
+    'alias_document_attribute', metadata,
+    Column('document_attribute_id', ForeignKey(u'document_attribute.id'), primary_key=True, nullable=False, index=True),
+    Column('alias_id', ForeignKey(u'alias.id'), primary_key=True, nullable=False, index=True)
+)
+
+
 class DelimitedFileDatum(Base):
     __tablename__ = 'delimited_file_data'
 
@@ -82,16 +98,12 @@ class DirectoryConstant(Base):
 
 class Document(Base):
     __tablename__ = 'document'
-    __table_args__ = (
-        Index('uk_document', 'index_name', 'hex_key', unique=True),
-    )
 
     id = Column(String(128), primary_key=True)
     index_name = Column(String(128), nullable=False)
     file_type_id = Column(Integer)
     document_type = Column(String(64), nullable=False)
     absolute_path = Column(String(1024), nullable=False)
-    hex_key = Column(String(640), nullable=False)
     effective_dt = Column(DateTime)
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
@@ -104,8 +116,6 @@ class DocumentAttribute(Base):
     document_format = Column(String(32), nullable=False)
     attribute_name = Column(String(128), nullable=False)
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-
-    aliases = relationship(u'Alias', secondary='alias_document_attribute')
 
 
 class DocumentCategory(Base):
@@ -211,17 +221,11 @@ class MatcherField(Base):
     matcher = relationship(u'Matcher')
 
 
-class Alias(Base):
-    __tablename__ = 'alias'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(25), nullable=False)
-
-
-t_alias_document_attribute = Table(
-    'alias_document_attribute', metadata,
-    Column('document_attribute_id', ForeignKey(u'document_attribute.id'), primary_key=True, nullable=False, index=True),
-    Column('alias_id', ForeignKey(u'alias.id'), primary_key=True, nullable=False, index=True)
+t_v_alias = Table(
+    'v_alias', metadata,
+    Column('document_format', String(32)),
+    Column('name', String(25)),
+    Column('attribute_name', String(128))
 )
 
 
@@ -241,12 +245,4 @@ t_v_matched = Table(
     Column('match_path', Text),
     Column('pct', Float, server_default=text("'0'")),
     Column('same_ext_flag', Integer, server_default=text("'0'"))
-)
-
-
-t_v_alias = Table(
-    'v_alias', metadata,
-    Column('document_format', String(32)),
-    Column('name', String(25)),
-    Column('attribute_name', String(128))
 )

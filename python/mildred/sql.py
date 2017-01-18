@@ -185,19 +185,33 @@ def run_query(query, host=config.mysql_host, user=config.mysql_user, password=co
 
 # load and run query templates
 
-def execute_query_template(filename, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db, *args):
+def kwarg_val(kw, default_value, args):
+    if kw in args:
+        return args[kw]
+
+    return default_value
+
+def execute_query_template(filename, *args):
     print os.getcwd()
-    query = _load_query(filename, args)
-    # you could do some kind of validation here
+    query = _load_query(filename, *args)
+
+    user = kwarg_val('user', config.mysql_user, kwargs)
+    password = kwarg_val('password', config.mysql_pass, kwargs)
+    schema = kwarg_val('schema', config.mysql_db, kwargs)
+    
     return execute_query(query, user=user, password=password, schema=schema)
 
-def run_query_template(filename, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db, *args):
-    query = _load_query(filename, args)
-    # you could do some kind of validation here
+def run_query_template(filename, *args, **kwargs):
+    query = _load_query(filename, *args)
+
+    user = kwarg_val('user', config.mysql_user, kwargs)
+    password = kwarg_val('password', config.mysql_pass, kwargs)
+    schema = kwarg_val('schema', config.mysql_db, kwargs)
+
     return run_query(query, user=user, password=password, schema=schema)
 
 
-def _load_query(filename, args):
+def _load_query(filename, *args):
     newargs = ()
     for arg in args:
         newargs += (arg,) #.replace('"', "'"),)

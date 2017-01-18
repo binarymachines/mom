@@ -12,7 +12,7 @@ import library
 import ops
 import sql
 from core.errors import BaseClassException
-import query
+from query2 import Clause, BooleanClause, NestedClause, Request, Response
 
 from alchemy import SQLMatch
 
@@ -64,14 +64,77 @@ class ElasticSearchMatcher(MediaMatcher):
         self.comparison_fields = comparison_fields
 
 
+    def field_in_doc(self, field_name, data):
+        if field_name in data:
+            return True
+
+        if '.' in field_name:
+            section = field_name.split('.')[0]
+            field = field_name.split('.')[1]
+            
+            if section in data:
+                for set_of_attribs in data[section]:
+                    if field in set_of_attribs:
+                        return True 
+
+
+    def value_from_doc(self, field_name, data):
+        if field_name in data:
+            return data[field_name]
+
+        if '.' in field_name:
+            section = field_name.split('.')[0]
+            field = field_name.split('.')[1]
+            
+            if section in data:
+                for set_of_attribs in data[section]:
+                     if field in set_of_attribs:
+                        return set_of_attribs[field]
+
+
     def get_query(self, media):
+        
+        TOP = 'top'
+        clauses = { TOP: [] }
+        composition = []
 
-        values = {}
-        for field in self.comparison_fields:
-            if field in media.doc['_source']:
-                values[field] = media.doc['_source'][field]
+        for fieldspec in self.comparison_fields:
+            comparison = self.comparison_fields[fieldspec]
 
-        return query.get_query(self.query_type, self.comparison_fields, values)
+            matcher_field = comparison['matcher_field']
+            must = comparison['query_section'] == 'must'
+            must_not = comparison['query_section'] == 'must_not'
+            should = comparison['query_section'] == 'should'
+
+            if self.field_in_doc(matcher_field, media.doc['_source']):
+                value = self.value_from_doc(matcher_field, media.doc['_source'])
+
+                if '.' in matcher_field:
+                    section = matcher_field.split('.')[0]
+                    if not section in clauses:
+                        clauses[section] = []
+
+                    clauses[section].append(Clause(self.query_type, field=matcher_field, value=value, must=must, must_not=must_not, should=should, boost=comparison['boost'], \
+                        operator=comparison['operator'], minimum_should_match=comparison['minimum_should_match']))
+
+                else:
+                    clauses[TOP].append(Clause(self.query_type, field=matcher_field, value=value, must=must, must_not=must_not, should=should, boost=comparison['boost'], \
+                        operator=comparison['operator'], minimum_should_match=comparison['minimum_should_match']))
+                        
+        if len(clauses) == 1 and len(clauses[TOP]) == 1:
+            return clauses[TOP][0].as_query()
+
+        for section in clauses:
+            if section == TOP:
+                for clause in clauses[section]:
+                    composition.append(clause)
+            else:
+                if len(section) == 1:
+                    composition.append(NestedClause(section, clauses[section][0], should=True))
+                else:
+                    composition.append(NestedClause(section, BooleanClause(clauses[section]), should=True))
+                
+        return BooleanClause(composition, should=True).as_query()
 
 
     def match(self, media):
@@ -91,7 +154,7 @@ class ElasticSearchMatcher(MediaMatcher):
             orig_parent = os.path.abspath(os.path.join(media.absolute_path, os.pardir))
             match_parent = os.path.abspath(os.path.join(match['_source']['absolute_path'], os.pardir))
 
-            if str(match_parent) == str(orig_parent):
+            if match_parent == orig_parent:
                 continue
 
             match_score = float(match['_score'])

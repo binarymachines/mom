@@ -6,6 +6,7 @@
 import os
 import sys
 import types
+import traceback
 
 from docopt import docopt
 
@@ -145,6 +146,20 @@ def str_clean4comp(input, *exception):
         alphanum += item
 
     return ''.join([letter.lower() for letter in input if letter.lower() in alphanum])
+
+def uu_str(value):
+    if isinstance(value, unicode):
+        return value
+    
+    elif isinstance(value, basestring):
+        try:
+            return unicode(value, 'latin-1')
+        except Exception, err:
+            traceback.print_exc()
+            sys.exit(1)
+
+    return value
+
 
 def expand_str_to_path(input):
     ar = list(input)

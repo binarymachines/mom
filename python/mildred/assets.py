@@ -5,19 +5,12 @@ import time
 import json
 
 import const
-
-def uu_str(value):
-    if isinstance(value, unicode):
-        return value
-    
-    elif isinstance(value, basestring):
-        return unicode(value)
-    
-    return value
+from core import util
 
 class Asset(object):
     def __init__(self, absolute_path, document_type, esid=None):
         # self.active = True
+        self.absolute_path = absolute_path
         self.available = True
         self.esid = esid
         self.data = None
@@ -33,12 +26,6 @@ class Asset(object):
 
         # TODO: use in scanner, reader and to_dictionary()
         self.errors = []
-
-        try:
-            self.absolute_path = uu_str(absolute_path)
-        except Exception, err:
-            self.has_errors = True
-            self.errors.append(err)
 
     def short_name(self):
         if self.absolute_path is None:
@@ -127,9 +114,13 @@ class Directory(Asset):
         fs_avail = os.path.isdir(self.absolute_path) and os.access(self.absolute_path, os.R_OK)
         if fs_avail:
             data['ctime'] = time.ctime(os.path.getctime(self.absolute_path))
-            data['contents'] = [uu_str(f) for f in os.listdir(self.absolute_path)]
-            data['contents'].sort()
-            
+            try:
+                data['contents'] = [util.uu_str(f) for f in os.listdir(self.absolute_path)]
+                data['contents'].sort()
+            except Exception, err:
+                self.has_errors = True
+                self.errors.append(err.message)
+
         return data
 
     def all_files_have_matches(self):

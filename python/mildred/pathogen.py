@@ -1,6 +1,6 @@
 """pathogen is a wrapper around the mutagen API"""
 
-import os, json, sys, logging, traceback, time, datetime
+import os, json, sys, logging, traceback, time, datetime, traceback
 
 from mutagen import MutagenError
 from mutagen.id3 import ID3, ID3NoHeaderError
@@ -14,7 +14,7 @@ import const, ops
 import filehandler
 from filehandler import FileHandler
 from const import MAX_DATA_LENGTH
-from core import log
+from core import log, util
 from core.errors import BaseClassException
 
 
@@ -26,13 +26,13 @@ class Pathogen(FileHandler):
     def __init__(self, name):
         super(Pathogen, self).__init__(name)
 
-    def handle_file(self, asset, data):
-        LOG.info("%s reading file: %s" % (self.name, asset.absolute_path))
+    def handle_file(self, path, data):
+        # LOG.info("%s reading file: %s" % (self.name, path))
         read_failed = False
 
         try:
-            ops.record_op_begin(const.READ, self.name, asset.absolute_path, asset.esid)            
-            self.read_tags(asset, data)
+            ops.record_op_begin(const.READ, self.name, path)            
+            self.read_tags(path, data)
 
             return True
 
@@ -74,21 +74,22 @@ class Pathogen(FileHandler):
                     ops.check_status()
                     print "file system offline, retrying in 5 seconds..." 
                     time.sleep(5)
-                    fs_avail = os.access(asset.absolute_path, os.R_OK) 
+                    fs_avail = os.access(path, os.R_OK) 
 
                 print "resuming..." 
-                self.read_tags(asset, data)
+                self.read_tags(path, data)
                 return True
 
         except Exception, err:
             ERR.error(err.message, exc_info=True)
+            sys.exit(0)
             read_failed = True
 
         finally:
-            ops.record_op_complete(const.READ, self.name, asset.absolute_path, asset.esid, op_failed=read_failed)
+            ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed)
 
 
-    def read_tags(self, asset, data):
+    def read_tags(self, path, data):
         raise BaseClassException(Pathogen)
 
 
@@ -106,36 +107,35 @@ class MutagenMP4(Pathogen):
     def __init__(self):
         super(MutagenMP4, self).__init__('mutagen-mp4')
 
-    def read_tags(self, asset, data):
+    def read_tags(self, path, data):
         mp4_data = {}
-        document = MP4(asset.absolute_path)
+        document = MP4(path)
         for item in document.items():
             if len(item) < 2: 
                 continue
 
-            key = item[0]
-            if not isinstance(key, unicode) and isinstance(key, basestring):
-                key = unicode(key, errors='ignore')
+            key = util.uu_str(item[0])
 
-            if '.' in key:
+            if '.' in key: 
                 continue
 
             if key not in filehandler.get_known_fields('m4a'):
                 filehandler.add_field('m4a', key)
 
-            try:
-                value = item[1][0]
-            except Exception, err:
+            if isinstance(item[1], bool):
                 value = item[1]
+            elif isinstance(item[1],(list, tuple)):
+                if isinstance(item[1][0], basestring):
+                    value = util.uu_str(item[1][0])
+                else:
+                    value = item[1][0]
 
-            if not isinstance(value, unicode) and isinstance(value, basestring):
-                value = unicode(value, errors='ignore')
 
             if isinstance(value, unicode) and len(value) > MAX_DATA_LENGTH:
-                filehandler.report_invalid_field(asset.absolute_path, key, value)
+                # filehandler.report_invalid_field(path, key, value)
                 continue
 
-            mp4_data[key] = value
+            mp4_data[key] = util.uu_str(value)
 
         if len(mp4_data) > 0:
             mp4_data['_document_format'] = 'm4a'
@@ -153,19 +153,19 @@ class MutagenAPEv2(Pathogen):
     def __init__(self):
         super(MutagenAPEv2, self).__init__('mutagen-apev2')
 
-    def read_tags(self, asset, data):
+    def read_tags(self, path, data):
         ape_data = {}
-        document = APEv2(asset.absolute_path)
+        document = APEv2(path)
         for item in document.items():
             if len(item) < 2: continue
 
-            key = item[0]
+            key = util.uu_str(item[0])
             if key not in filehandler.get_known_fields('apev2'):
                 filehandler.add_field('apev2', key)
 
-            value = item[1].value
+            value = util.uu_str(item[1].value)
             if len(value) > MAX_DATA_LENGTH:
-                filehandler.report_invalid_field(asset.absolute_path, key, value)
+                # filehandler.report_invalid_field(path, key, value)
                 continue
 
             ape_data[key] = value
@@ -181,31 +181,31 @@ class MutagenFLAC(Pathogen):
     def __init__(self):
         super(MutagenFLAC, self).__init__('mutagen-flac')
 
-    def read_tags(self, asset, data):
+    def read_tags(self, path, data):
         flac_data = {}
-        document = FLAC(asset.absolute_path)
+        document = FLAC(path)
         for tag in document.tags:
             if len(tag) < 2: continue
             
-            key = tag[0]
+            key = util.uu_str(tag[0])
             if key not in filehandler.get_known_fields('flac'):
                 filehandler.add_field('flac', key)
 
-            value = tag[1]
+            value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
-                filehandler.report_invalid_field(asset.absolute_path, key, value)
+                # filehandler.report_invalid_field(path, key, value)
                 continue
             flac_data[key] = value
 
 
         for tag in document.vc:
-            key = tag[0]
+            key = util.uu_str(tag[0])
             if key not in filehandler.get_known_fields('flac'):
                 filehandler.add_field('flac', key)
 
-            value = tag[1]
+            value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
-                filehandler.report_invalid_field(asset.absolute_path, key, value)
+                # filehandler.report_invalid_field(path, key, value)
                 continue
 
             if key not in flac_data:
@@ -222,8 +222,8 @@ class MutagenID3(Pathogen):
     def __init__(self):
         super(MutagenID3, self).__init__('mutagen-id3')
 
-    def read_tags(self, asset, data):
-        document = ID3(asset.absolute_path)
+    def read_tags(self, path, data):
+        document = ID3(path)
         version = '.'.join([str(value) for value in document.version])
         document_format = 'ID3v%s' % version
 
@@ -235,20 +235,17 @@ class MutagenID3(Pathogen):
             if len(tag) < 2: 
                 continue
 
-            key = tag[0]
+            key = util.uu_str(tag[0])
             if len(key) == 4 and key not in filehandler.get_known_fields(document_format) and key != "TXXX":
                 filehandler.add_field(document_format, key)
 
-            value = tag[1]
+            value = util.uu_str(tag[1])
             if value is None:
                 continue
 
-            if not isinstance(value, unicode) and isinstance(value, basestring):
-                value = unicode(value, errors='ignore')
-
             if len(value) > MAX_DATA_LENGTH:
-                filehandler.report_invalid_field(asset.absolute_path, key, value)
-                LOG.info(value)
+                # filehandler.report_invalid_field(path, key, value)
+                # LOG.info(value)
                 continue
             
             # try:
@@ -256,25 +253,28 @@ class MutagenID3(Pathogen):
             # except Exception, e:
             #     ERR.warning(e.message)
                 
-            if key == "TXXX":
+            if key == u"TXXX":
                 if not key in id3_data:
                     # id3_data[key] = []   
                     id3_data[key] = {}   
                 # for sub_field in filehandler.get_fields('ID3.TXXX'):
                 #     if sub_field in value:
                 subtags = value.split('=')
-                subkey = subtags[0].replace(' ', '_')#.upper()
+                subkey = util.uu_str(subtags[0].replace(' ', '_'))#.upper()
+                if '.' in subkey: 
+                    continue
+                
                 txxkey = '.'.join([key, subkey])
                 if txxkey not in filehandler.get_known_fields(document_format):
                     filehandler.add_field(document_format, txxkey)
 
                 # id3_data[key].append(subtags[0])
                 # id3_data[key].append(subtags[1])
-                id3_data[key][subkey] = subtags[1]
+                id3_data[key][subkey] = util.uu_str(subtags[1])
 
             else:
                 # if key in filehandler.get_fields(document_format):
-                id3_data[key] = value
+                id3_data[key] = util.uu_str(value)
 
         if len(id3_data) > 0:
             # if len(data['attributes']) != len(id3_data):
@@ -289,9 +289,9 @@ class MutagenOggVorbis(Pathogen):
     def __init__(self):
         super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis')
 
-    def read_tags(self, asset, data):
+    def read_tags(self, path, data):
         ogg_data = {}
-        document = OggVorbis(asset.absolute_path)
+        document = OggVorbis(path)
         for tag in document.tags:
             if len(tag) < 2: continue
 
@@ -301,7 +301,7 @@ class MutagenOggVorbis(Pathogen):
 
             value = tag[1]
             if len(value) > MAX_DATA_LENGTH:
-                filehandler.report_invalid_field(asset.absolute_path, key, value)
+                # filehandler.report_invalid_field(path, key, value)
                 continue
 
             ogg_data[key] = value

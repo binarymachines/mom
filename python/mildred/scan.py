@@ -116,7 +116,7 @@ class Scanner(Walker):
 
                     data = asset.to_dictionary()
                     data['directory'] = directory['esid']
-                    self.reader.read(asset, data)
+                    self.reader.read(os.path.join(root, filename), data)
                     file_was_read = True
 
                     existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)

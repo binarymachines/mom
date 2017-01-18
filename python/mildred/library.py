@@ -11,13 +11,13 @@ from elasticsearch.exceptions import ConnectionError, RequestError
 
 from alchemy import SQLAsset
 import config, const
-from const import FILE, DIRECTORY, HEX_KEY, MATCH
+from const import FILE, DIRECTORY, MATCH
 import ops
 import pathutil
 import search
 import sql
 from assets import Directory, Document
-from core import cache2, log
+from core import cache2, log, util
 from errors import AssetException, ElasticDataIntegrityException
 
 LOG = log.get_log(__name__, logging.DEBUG)
@@ -87,36 +87,33 @@ def pattern_in_path(pattern, path):
     return False
 
 def set_active(path):
-    try:
-        directory = None if path is None else Directory(path)
+    directory = None if path is None else Directory(util.uu_str(path))
 
-        if directory is not None:
-            LOG.debug('syncing metadata for %s' % directory.absolute_path)
-            ops.update_listeners('syncing metadata', 'library', path)
-            if search.unique_doc_exists(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'), except_on_multiples=True):
-                directory.esid = search.unique_doc_id(DIRECTORY, HEX_KEY, directory.absolute_path.encode('hex'))
-                # directory.doc = search.get_doc(directory.document_type, directory.esid)
-            else:
-                directory.location = get_library_location(path)
-                data = directory.to_dictionary()
-        
-                data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
-                data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
-                data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
-                data['is_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
-                data['is_live'] = pattern_in_path(LIVE, directory.absolute_path)
-                data['is_new'] = pattern_in_path(NEW, directory.absolute_path)
-                data['is_random'] = pattern_in_path(RANDOM, directory.absolute_path)
-                data['is_recent'] = pattern_in_path(RECENT, directory.absolute_path)
-                data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
-                data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
-                data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
+    if directory is not None:
+        LOG.debug('syncing metadata for %s' % directory.absolute_path)
+        ops.update_listeners('syncing metadata', 'library', path)
+        if search.unique_doc_exists(DIRECTORY, 'absolute_path', directory.absolute_path, except_on_multiples=True):
+            directory.esid = search.unique_doc_id(DIRECTORY, 'absolute_path', directory.absolute_path)
+            # directory.doc = search.get_doc(directory.document_type, directory.esid)
+        else:
+            directory.location = get_library_location(path)
+            data = directory.to_dictionary()
+    
+            data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
+            data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
+            data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
+            data['is_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
+            data['is_live'] = pattern_in_path(LIVE, directory.absolute_path)
+            data['is_new'] = pattern_in_path(NEW, directory.absolute_path)
+            data['is_random'] = pattern_in_path(RANDOM, directory.absolute_path)
+            data['is_recent'] = pattern_in_path(RECENT, directory.absolute_path)
+            data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
+            data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
+            data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
 
-                index_asset(directory, data)
+            index_asset(directory, data)
 
-            cache_directory(directory)
-    except Exception, err:
-        raise err
+        cache_directory(directory)
 
 # document cache
 
@@ -130,7 +127,7 @@ def cache_docs(document_type, path, flush=True):
     cached_count = 0
 
     for sql_asset in rows:
-        ops.check_status()
+        # ops.check_status()
         ops.update_listeners('caching %i %s records...' % (count - cached_count, document_type), 'library', path)
         key = cache2.create_key(KEY_GROUP, sql_asset.document_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
         keyvalue = {'absolute_path': sql_asset.absolute_path, 'esid': sql_asset.id}
@@ -164,7 +161,7 @@ def doc_exists_for_path(document_type, path):
     if esid is not None: return True
 
     # esid not found in cache or db, search es
-    return search.unique_doc_exists(document_type, HEX_KEY, path.encode('hex'), except_on_multiples=True)
+    return search.unique_doc_exists(document_type, 'absolute_path', path, except_on_multiples=True)
 
 
 def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
@@ -174,7 +171,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
         ERR.warning("File %s is missing or is not readable" % absolute_path)
         return None
     
-    asset = Document(absolute_path, esid=esid)
+    asset = Document(util.uu_str(absolute_path), esid=esid)
     filename = os.path.split(absolute_path)[1]
     extension = os.path.splitext(absolute_path)[1]
     filename = filename.replace(extension, '')
@@ -197,25 +194,26 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
     return asset
 
 def _sub_index_asset(asset, data):
-    data[HEX_KEY] = asset.absolute_path.encode('hex')
-    try:
-        res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
-        if res['_shards']['successful'] == 1:
-            esid = res['_id']
-            # LOG.debug("attaching NEW esid: %s to %s." % (esid, asset.file_name))
-            asset.esid = esid
-            try:
-                LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-                insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
-            except Exception, err:
-                config.es.delete(config.es_index, asset.document_type, asset.esid)
-                raise AssetException(err, asset)
-    except Exception, err:
-        raise AssetException(err, asset)
+    # try:
+    res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
+    if res['_shards']['successful'] == 1:
+        asset.esid = res['_id']
+        try:
+            # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
+            insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
+        except Exception, err:
+            config.es.delete(config.es_index, asset.document_type, asset.esid)
+            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            sys.exit(0)
+            # raise AssetException(err, asset)
+    # except Exception, err:
+    #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+    #     sys.exit(0)
+        # raise AssetException(err, asset)
 
 
 def index_asset(asset, data):
-    LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
+    # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
     try:
         _sub_index_asset(asset, data)
     except RequestError, err:
@@ -271,7 +269,11 @@ def index_asset(asset, data):
     except AssetException, err:
         handle_asset_exception(err, asset.absolute_path)
         raise err
-        
+
+    except Exception, err:
+        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        sys.exit(0)
+                
     return True        
 
 
@@ -295,10 +297,9 @@ def retrieve_esid(document_type, absolute_path):
 
 
 def update_asset(asset, data):
-    hex_key = asset.absolute_path.encode('hex')
     try:
-        if search.unique_doc_exists(asset.document_type, HEX_KEY, hex_key, except_on_multiples=True):
-            esid = search.unique_doc_id(asset.document_type, HEX_KEY, hex_key)
+        if search.unique_doc_exists(asset.document_type, 'absolute_path', asset.absolute_path, except_on_multiples=True):
+            esid = search.unique_doc_id(asset.document_type, 'absolute_path', asset.absolute_path)
             old_doc = search.get_doc(asset.document_type, esid)
             old_data = old_doc['_source']['attributes']
 

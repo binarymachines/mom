@@ -472,7 +472,7 @@ class PathVectorScanner(object):
             path = path if path_restored else self.vector.get_next(self.owner, True)
             path_restored = False
 
-            self.vector.set_param(self.owner, ACTIVE, path)
+            self.vector.set_param(self.owner, ACTIVE_PATH, path)
 
             try:
                 if path is None or path == 'None' or self.should_skip(path):

@@ -115,8 +115,9 @@ class Analyzer(object):
             client.db_close()
             return results
         except Exception, err:
-            print err.message
-
+            ERR.error(err.message, exc_info=True)
+            sys.exit(0)
+            
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
         reasons = self.get_meta_reasons()
