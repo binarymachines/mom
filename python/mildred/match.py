@@ -132,9 +132,9 @@ class ElasticSearchMatcher(MediaMatcher):
                 if len(section) == 1:
                     composition.append(NestedClause(section, clauses[section][0], should=True))
                 else:
-                    composition.append(NestedClause(section, BooleanClause(clauses[section]), should=True))
+                    composition.append(NestedClause(section, BooleanClause(*clauses[section]), should=True))
                 
-        return BooleanClause(composition, should=True).as_query()
+        return BooleanClause(*composition, should=True).as_query()
 
 
     def match(self, media):

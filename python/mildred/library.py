@@ -204,7 +204,7 @@ def _sub_index_asset(asset, data):
         except Exception, err:
             config.es.delete(config.es_index, asset.document_type, asset.esid)
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            sys.exit(0)
+            raise err
             # raise AssetException(err, asset)
     # except Exception, err:
     #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -272,7 +272,7 @@ def index_asset(asset, data):
 
     except Exception, err:
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-        sys.exit(0)
+        raise err
                 
     return True        
 
