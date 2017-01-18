@@ -58,18 +58,18 @@ def path_expands(path, vector):
         if op_record.target_path not in expanded:
             expanded.append(op_record.target_path)
 
-    for ex_path in expanded:
+    for xp in expanded:
         # TODO: count(expath pathsep) == count (path pathsep) + 1
-        vector.push_fifo(MATCH, ex_path)
+        vector.push_fifo(MATCH, xp)
 
     return len(expanded) > 0
 
 
 def calc(vector, cycle_vector=False):
 
-    # sql.execute_query("delete from matched where 1=1")
-    # sql.execute_query("delete from op_record where operation_name = 'calc'")
-    # sql.execute_query("delete from op_record where operation_name = 'match'")
+    sql.execute_query("delete from matched where 1=1")
+    sql.execute_query("delete from op_record where operation_name = 'calc'", schema='mildred_introspection')
+    sql.execute_query("delete from op_record where operation_name = 'match'", schema='mildred_introspection')
     # sql.execute_query("commit");
 
     # MAX_RECORDS = ...

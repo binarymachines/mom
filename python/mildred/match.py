@@ -95,7 +95,7 @@ class ElasticSearchMatcher(MediaMatcher):
     def get_query(self, media):
         
         TOP = 'top'
-        clauses = { TOP: [] }
+        clauses = { TOP : [] }
         composition = []
 
         for fieldspec in self.comparison_fields:
@@ -171,8 +171,3 @@ class ElasticSearchMatcher(MediaMatcher):
             SQLMatch.insert(media.esid, match['_id'], self.name, match_percentage, compresult, extflag)
 
         ops.record_op_complete('match', self.name, media.absolute_path, media.esid)
-
-
-class FolderNameMatcher(MediaMatcher):
-    def match(self, media):
-        raise Exception('Not Implemented!')
