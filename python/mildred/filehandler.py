@@ -4,7 +4,7 @@ import library
 from const import KNOWN, METADATA
 from core.errors import BaseClassException
 from core import log
-from core import cache2
+from core import cache2, util
 import sql
 import config
 

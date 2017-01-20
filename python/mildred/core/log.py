@@ -44,3 +44,4 @@ def start_logging():
     # log.debug("console logging started.")
     
     setup_log('elasticsearch', 'elasticsearch.trace', logging.INFO)
+# 'sqlalchemy.engine'

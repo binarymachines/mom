@@ -118,8 +118,9 @@ class MutagenMP4(Pathogen):
 
             if '.' in key: 
                 continue
-
-            if key not in filehandler.get_known_fields('m4a'):
+            
+            known = filehandler.get_known_fields('m4a')
+            if key not in known:
                 filehandler.add_field('m4a', key)
 
             if isinstance(item[1], bool):
@@ -161,8 +162,11 @@ class MutagenAPEv2(Pathogen):
 
             key = util.uu_str(item[0])
             if key not in filehandler.get_known_fields('apev2'):
-                filehandler.add_field('apev2', key)
-
+                try:
+                    filehandler.add_field('apev2', key)
+                except Exception, err:
+                    continue
+                    
             value = util.uu_str(item[1].value)
             if len(value) > MAX_DATA_LENGTH:
                 # filehandler.report_invalid_field(path, key, value)
@@ -184,13 +188,15 @@ class MutagenFLAC(Pathogen):
     def read_tags(self, path, data):
         flac_data = {}
         document = FLAC(path)
+        known = filehandler.get_known_fields('flac')
         for tag in document.tags:
             if len(tag) < 2: continue
             
-            key = util.uu_str(tag[0])
-            if key not in filehandler.get_known_fields('flac'):
+            key = tag[0]  #util.uu_str(tag[0])
+            if key not in known:
                 filehandler.add_field('flac', key)
-
+                known = filehandler.get_known_fields('flac')
+                
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
                 # filehandler.report_invalid_field(path, key, value)
@@ -237,7 +243,10 @@ class MutagenID3(Pathogen):
 
             key = util.uu_str(tag[0])
             if len(key) == 4 and key not in filehandler.get_known_fields(document_format) and key != "TXXX":
-                filehandler.add_field(document_format, key)
+                try:
+                    filehandler.add_field(document_format, key)
+                except Exception, err:
+                    continue
 
             value = util.uu_str(tag[1])
             if value is None:
@@ -248,17 +257,11 @@ class MutagenID3(Pathogen):
                 # LOG.info(value)
                 continue
             
-            # try:
-            #     LOG.info("%s = %s" % (key, value))
-            # except Exception, e:
-            #     ERR.warning(e.message)
-                
             if key == u"TXXX":
                 if not key in id3_data:
                     # id3_data[key] = []   
                     id3_data[key] = {}   
-                # for sub_field in filehandler.get_fields('ID3.TXXX'):
-                #     if sub_field in value:
+
                 subtags = value.split('=')
                 subkey = util.uu_str(subtags[0].replace(' ', '_'))#.upper()
                 if '.' in subkey: 
@@ -266,10 +269,11 @@ class MutagenID3(Pathogen):
                 
                 txxkey = '.'.join([key, subkey])
                 if txxkey not in filehandler.get_known_fields(document_format):
-                    filehandler.add_field(document_format, txxkey)
+                    try:
+                        filehandler.add_field(document_format, txxkey)
+                    except Exception, err:
+                        continue
 
-                # id3_data[key].append(subtags[0])
-                # id3_data[key].append(subtags[1])
                 id3_data[key][subkey] = util.uu_str(subtags[1])
 
             else:
@@ -277,9 +281,6 @@ class MutagenID3(Pathogen):
                 id3_data[key] = util.uu_str(value)
 
         if len(id3_data) > 0:
-            # if len(data['attributes']) != len(id3_data):
-            #     unsatisfied_conditions
-
             id3_data['_document_format'] = document_format
             id3_data['_reader'] = self.name
             id3_data['_read_date'] = datetime.datetime.now().isoformat()
@@ -295,11 +296,14 @@ class MutagenOggVorbis(Pathogen):
         for tag in document.tags:
             if len(tag) < 2: continue
 
-            key = tag[0]
+            key = util.uu_str(tag[0])
             if key not in filehandler.get_known_fields('ogg'):
-                filehandler.add_field('ogg', key)
+                try:
+                    filehandler.add_field('ogg', key)
+                except Exception, err:
+                    continue
 
-            value = tag[1]
+            value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
                 # filehandler.report_invalid_field(path, key, value)
                 continue

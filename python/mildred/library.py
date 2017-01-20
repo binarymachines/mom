@@ -156,12 +156,8 @@ def retrieve_docs(document_type, path):
 # assets
 
 def doc_exists_for_path(document_type, path):
-    # check cache, cache will query db if esid not found in cache
-    esid = retrieve_esid(document_type, path)
-    if esid is not None: return True
-
-    # esid not found in cache or db, search es
-    return search.unique_doc_exists(document_type, 'absolute_path', path, except_on_multiples=True)
+    return search.unique_doc_exists(document_type, 'absolute_path', path, except_on_multiples=True) if retrieve_esid(document_type, path) is None \
+        else True
 
 
 def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):

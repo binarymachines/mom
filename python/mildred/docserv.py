@@ -36,25 +36,13 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         # super().__init__() must be called before accessing selector instance
         super(DocumentServiceProcess, self).__init__(name, vector, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
 
-
     # selector callbacks
     
     def after_switch(self, selector, mode):
         self.process_handler.after_switch(selector, mode)
 
-
     def before_switch(self, selector, mode):
         self.process_handler.before_switch(selector, mode)
-
-
-    # def _get_qualified_name(self, *nameparts):
-    #     result = []
-    #     for part in nameparts:
-    #         if part is not None:
-    #             result.append(part)
-
-    #     return '.'.join(result)
-
 
     def _register_handler(self, qname):
         if qname not in self.handlers:
@@ -216,7 +204,6 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
         random.seed()
 
-
     # selector callbacks
 
     def after_switch(self, selector, mode):
@@ -224,7 +211,6 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def before_switch(self, selector, mode):
         pass
-
 
     # generic rule callbacks
 

@@ -33,6 +33,7 @@ def connect(hostname=es_host, port_num=es_port):
     # LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
     return Elasticsearch([{'host': hostname, 'port': port_num}])
 
+
 def execute(doc_type, query): 
     try:
         return connect().search(index=es_index, doc_type=doc_type, body=query)
@@ -45,8 +46,8 @@ def set_key_if_value(values, key, value):
         values[key] = value
 
 
-def kwarg_bool(kw, args):
-    return kw in args and args[kw]
+def kwarg_bool(kw, kwargs):
+    return kw in kwargs and kwargs[kw]
 
 
 class Clause(object):
@@ -96,25 +97,25 @@ class BooleanClause(Clause):
         self.must_not_clauses = [clause for clause in clauses if clause.must_not]
         self.should_clauses = [clause for clause in clauses if clause.should]        
 
-    def is_valid(self):
-        return (len(self.should_clauses) + len(self.must_clauses) + len(self.must_not_clauses)) > 1
+    def get_clause(self):        
+        subclauses = {}
+        
+        self.set_subclause_if_section_in_clauses(subclauses, MUST, self.must_clauses)
+        self.set_subclause_if_section_in_clauses(subclauses, MUST_NOT, self.must_not_clauses)
+        self.set_subclause_if_section_in_clauses(subclauses, SHOULD, self.should_clauses)
+                
+        return {BOOL : subclauses}
 
     def get_sub_clause(self, section, criteria):
         return criteria[0].get_clause() if len(criteria) == 1 else [crit.get_clause() for crit in criteria]
         
-    def get_clause(self):
-        subclauses = {}
+    # def is_valid(self):
+    #     return (len(self.should_clauses) + len(self.must_clauses) + len(self.must_not_clauses)) > 1
 
-        if len(self.must_clauses) > 0:
-            subclauses[MUST] = self.get_sub_clause(MUST, self.must_clauses) 
-
-        if len(self.must_not_clauses) > 0:
-            subclauses[MUST_NOT] = self.get_sub_clause(MUST_NOT, self.must_not_clauses) 
-
-        if len(self.should_clauses) > 0:
-            subclauses[SHOULD] = self.get_sub_clause(SHOULD, self.should_clauses) 
+    def set_subclause_if_section_in_clauses(self, subclauses, section, clauses):
+        if len(clauses) > 0:
+            subclauses[section] = self.get_sub_clause(section, clauses) 
         
-        return {BOOL : subclauses}
 
 
 class NestedClause(Clause):

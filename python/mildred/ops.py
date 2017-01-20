@@ -22,7 +22,7 @@ OP_RECORD = { 'pid': str(config.pid), 'operation_name': None, 'start_time': conf
     'target_esid': None, 'target_path': None, 'status': None, 'persisted': False  }
 
 EXEC_RECORD = { 'id': None, 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
-    'effective_dt': datetime.datetime.now(), 'expiration_dt': None, \
+    'effective_dt': datetime.datetime.now(), 'expiration_dt': None, 'halt_requested':False, \
     'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
 
 def create_op_key(operation, operator, path):
@@ -309,17 +309,28 @@ def check_status(opcount=None):
         clear_reconfig_request()
 
     if stop_requested():
-        print 'stop requested, terminating...'
-        LOG.debug('stop requested, terminating...')
+        print 'STOP requested, terminating...'
+        LOG.debug('STOP requested, terminating...')
         update_listeners(OPS, get_exec_key(), 'terminating')
-        # flush_cache()
+        flush_cache()
         # cache.flush_cache()
-        LOG.debug('Run complete')
+        LOG.debug('system stopped')
 
         insert_exec_complete_record()
 
         sys.exit(0)
 
+    if halt_requested():
+        print 'HALT requested, terminating...'
+        LOG.debug('HALT requested, terminating...')
+        update_listeners(OPS, get_exec_key(), 'terminating')
+        # flush_cache()
+        # cache.flush_cache()
+        LOG.debug('system halted')
+
+        insert_exec_complete_record()
+
+        sys.exit(0)
 
 def evaluate(no_pid=False):
     exec_rec = get_exec_record(no_pid=no_pid)
@@ -366,6 +377,13 @@ def stop_requested():
     except KeyError, ke:
         ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
 
+def halt_requested():
+    values = cache2.get_hash2(get_exec_key())
+    try:
+        if len(values) > 0:
+            return values['pid'] == config.pid and values['halt_requested'] == 'True'
+    except KeyError, ke:
+        ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
 
 def start_requested():
     try:

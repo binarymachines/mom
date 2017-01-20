@@ -1,5 +1,5 @@
 '''
-   Usage: control.py [--stop] [--reconfig] [--start] ([--inc_path_cache_size])
+   Usage: control.py [--halt] [--stop] [--reconfig] [--start] ([--inc_path_cache_size])
 
 '''
 import os
@@ -44,13 +44,17 @@ def request_start():
     ops.evaluate(no_pid=True)
 
 
+def request_halt(pid):
+    print 'submitting HALT request for %s...' % (pid)
+    _set_field_value(pid, 'halt_requested', True)
+
 def request_stop(pid):
-    print 'submitting stop request for %s...' % (pid)
+    print 'submitting STOP request for %s...' % (pid)
     _set_field_value(pid, 'stop_requested', True)
 
 
 def request_reconfig(pid):
-    print 'submitting reconfig request for %s...' % (pid)
+    print 'submitting RECONFIG request for %s...' % (pid)
     _set_field_value(pid, 'reconfig_requested', True)
 
 
@@ -71,6 +75,7 @@ def main(args):
         if args['--reconfig']: request_reconfig(pid)
         if args['--stop']: request_stop(pid)
         if args['--start']: request_start()
+        if args['--halt']: request_halt(pid)
         # if args['--inc_path_cache_size']: inc_cache_size(pid, 'path')
 
 # main

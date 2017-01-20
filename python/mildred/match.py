@@ -126,8 +126,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
         for section in clauses:
             if section == TOP:
-                for clause in clauses[section]:
-                    composition.append(clause)
+                composition.extend([clause for clause in clauses[section]])
             else:
                 if len(section) == 1:
                     composition.append(NestedClause(section, clauses[section][0], should=True))

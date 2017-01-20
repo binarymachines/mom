@@ -19,20 +19,20 @@ DROP TABLE IF EXISTS `document_format`;
 DROP TABLE IF EXISTS `document_type`;
 DROP TABLE IF EXISTS `file_format`;
 DROP TABLE IF EXISTS `file_type`;
-DROP TABLE IF EXISTS `document`;
+-- DROP TABLE IF EXISTS `document`;
 DROP TABLE IF EXISTS `file_handler_type`;
 DROP TABLE IF EXISTS `file_handler`;
 
-CREATE TABLE `document` (
-  `id` varchar(128) NOT NULL,
-  `index_name` varchar(128) NOT NULL,
-  `file_type_id` int(11) unsigned DEFAULT NULL,
-  `document_type` varchar(64) NOT NULL,
-  `absolute_path` varchar(1024) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-);
+-- CREATE TABLE `document` (
+--   `id` varchar(128) NOT NULL,
+--   `index_name` varchar(128) NOT NULL,
+--   `file_type_id` int(11) unsigned DEFAULT NULL,
+--   `document_type` varchar(64) NOT NULL,
+--   `absolute_path` varchar(1024) NOT NULL,
+--   `effective_dt` datetime DEFAULT NULL,
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`)
+-- );
 
 CREATE TABLE `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -82,6 +82,7 @@ CREATE TABLE `document_attribute` (
   `document_format` varchar(32) NOT NULL,
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
+  UNIQUE INDEX `uk_document_attribute` (`document_format` ASC, `attribute_name` ASC),
   PRIMARY KEY (`id`)
 );
 

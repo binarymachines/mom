@@ -21,7 +21,7 @@ from db.generated.sqla_introspection import ModeState as AlchemyModeState
 
 import config
 
-LOG = log.get_log('sqlalchemy.engine', logging.DEBUG)  
+LOG = log.get_log(__name__, logging.DEBUG)  
 ERR = log.get_log('errors', logging.WARNING)
 
 # logging.basicConfig()

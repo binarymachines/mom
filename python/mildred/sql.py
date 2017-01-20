@@ -55,7 +55,8 @@ def retrieve_values(table_name, field_names, field_values, order_by=None, schema
             pos += 1
             if pos < len(field_values):
                 query += ' AND '
-            else: break
+            else: 
+                break
     # if order_by is not None: query += " ORDER BY " + str(order_by).replace('[', '').replace(']', '')
     return run_query(query, schema=schema)
 
@@ -86,7 +87,8 @@ def retrieve_like_values(table_name, field_names, field_values):
         pos += 1
         if pos < len(field_values):
             query += ' AND '
-        else: break
+        else: 
+            break
 
     return run_query(query)
 
@@ -113,7 +115,8 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
         pos += 1
         if pos < len(where_field_values):
             query += ' AND '
-        else: break
+        else: 
+            break
 
     execute_query(query)
 
@@ -129,23 +132,14 @@ def execute_query(query, host=config.mysql_host, user=config.mysql_user, passwor
         cur.execute(query)
         con.commit()
     except mdb.Error, e:
-        message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERR.error(message, exc_info=True)
-        for arg in e.args:
-            print arg
-        print query
+        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
         raise Exception(e, message)
     except TypeError, e:
-        message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERR.error(message, exc_info=True)
-        for arg in e.args:
-            print arg
-        print query
-        raise Exception(message)
+        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        raise Exception(e.message)
     except Exception, e:
-        message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERR.error(message, exc_info=True)
-        raise Exception(message)
+        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        raise Exception(e.message)
     finally:
         if con: con.close()
 
@@ -160,23 +154,14 @@ def run_query(query, host=config.mysql_host, user=config.mysql_user, password=co
         cur.execute(query)
         rows = cur.fetchall()
     except mdb.Error, e:
-        message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERR.error(message, exc_info=True)
-        for arg in e.args:
-            print arg
-        print query
+        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
         raise Exception(e, message)
     except TypeError, e:
-        message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERR.error(message, exc_info=True)
-        for arg in e.args:
-            print arg
-        print query
-        raise Exception(message)
+        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        raise Exception(e.message)
     except Exception, e:
-        message = "Error %d: %s" % (e.args[0], e.args[1])
-        ERR.error(message)
-        raise Exception(message)
+        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        raise Exception(e.message)
     finally:
         if con: con.close()
 
@@ -228,7 +213,6 @@ def _load_query(filename, *args):
         # substitute wildcard and escape single quotes
         return str(query % newargs).replace('*', WILD).replace("'", "\'")#.replace('\n', ' ')
     except IOError, e:
-        message = e.message
-        ERR.error(message, exc_info=True)
+        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
         # raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename), exc_info=True)
         sys.exit(0)
