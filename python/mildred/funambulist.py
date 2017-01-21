@@ -1,10 +1,12 @@
 """funambulist is a wrapper around the PyPDF2 library"""
-import sys, os
+import sys, os, logging, datetime
+import pprint
 
 from third.PyPDF2 import PdfFileReader
 
 import const, ops
 from const import MAX_DATA_LENGTH
+import filehandler
 from filehandler import FileHandler as MildredFileHandler 
 from core import log, util
 from core.errors import BaseClassException
@@ -13,9 +15,11 @@ from core.errors import BaseClassException
 LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
-class AcrobatFileHandler(MildredFileHandler):
-    def __init__(self, name):
-        super(AcrobatFileHandler, self).__init__(name)
+pp = pprint.PrettyPrinter(indent=4)
+
+class PyPDF2FileHandler(MildredFileHandler):
+    def __init__(self):
+        super(PyPDF2FileHandler, self).__init__('pypdf2')
 
     def handle_file(self, path, data):
         # LOG.info("%s reading file: %s" % (self.name, path))
@@ -63,3 +67,15 @@ class AcrobatFileHandler(MildredFileHandler):
             pdf_data['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(pdf_data)                
 
+def main():
+    document = PdfFileReader(open("logic.pdf", "rb"))
+    info = document.getDocumentInfo()
+    for key in info:
+        print ('%s = %s' % (key, info[key]))
+
+    outlines = document.getOutlines()
+    if outlines:
+        pp.pprint(outlines)
+
+if __name__ == '__main__':
+    main()

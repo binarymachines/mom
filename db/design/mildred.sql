@@ -233,6 +233,7 @@ create view `v_file_handler` as
   where ft.file_handler_id = fh.id
   order by fh.package, fh.module, fh.class_name;
   
+
 create table `matched` (
   `index_name` varchar(128) NOT NULL,
   `doc_id` varchar(128) NOT NULL,
@@ -265,6 +266,9 @@ select d2.absolute_path document_path, m.comparison_result, d1.absolute_path mat
 from document d1, document d2, matched m
 where m.doc_id = d2.id and
     m.match_doc_id = d1.id;
+
+
+INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `active_flag`) VALUES ('media', '/home/mpippins/google-drive/books', 'pdf', now(), '9999-12-31 23:59:59', 0);
 
 INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/live recordings [wav]', 'wav', now(), '9999-12-31 23:59:59');
 INSERT INTO `directory` (`index_name`, `name`, `file_type`, `category_prototype_flag`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums', 'mp3', 1, now(), '9999-12-31 23:59:59');
@@ -301,6 +305,12 @@ INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `exp
 INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music [noscan]/albums', 'mp3', now(), '9999-12-31 23:59:59');
 INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music [iTunes]', 'mp3', now(), '9999-12-31 23:59:59');
 INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/spoken word', '', now(), '9999-12-31 23:59:59');
+
+INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/radio', '*', now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/spoken word', '*', now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared', '*', now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared [flac]', '*', now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared [wav]', '*', now(), '9999-12-31 23:59:59');
 
 INSERT INTO `directory_amelioration` (`id`, `name`, `index_name`, `use_tag_flag`, `replacement_tag`, `use_parent_folder_flag`, `effective_dt`, `expiration_dt`) VALUES (1, 'cd1', 'media',0,NULL,1,NULL, '9999-12-31 23:59:59');
 INSERT INTO `directory_amelioration` (`id`, `name`, `index_name`, `use_tag_flag`, `replacement_tag`, `use_parent_folder_flag`, `effective_dt`, `expiration_dt`) VALUES (2, 'cd2', 'media',0,NULL,1,NULL, '9999-12-31 23:59:59');
@@ -633,6 +643,7 @@ insert into file_handler (module, class_name, active_flag) values ('pathogen', '
 insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenMP4', 1);
 insert into file_handler (module, class_name) values ('pathogen', 'MutagenOggFlac');
 insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenOggVorbis', 1);
+insert into file_handler (module, class_name, active_flag) values ('funambulist', 'PyPDF2FileHandler', 1);
 
 # TODO: apply names from database in FileHandler constructor
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenAAC'), 'aac', 'mutagen-aac');
@@ -647,6 +658,8 @@ insert into file_handler_type (file_handler_id, ext, name) values ((select id fr
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'flac', 'mutagen-ogg-flac');
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'ogg', 'mutagen-ogg-vorbis');
 insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'oga', 'mutagen-ogg-oga');
+insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'PyPDF2FileHandler'), 'pdf', 'pypdf2');
+
 
 INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media', 'ID3v2.3.0', 'TPE1',1);
 INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media', 'ID3v2.3.0', 'TPE2',1);
