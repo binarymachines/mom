@@ -82,7 +82,6 @@ class Pathogen(FileHandler):
 
         except Exception, err:
             ERR.error(err.message, exc_info=True)
-            sys.exit(0)
             read_failed = True
 
         finally:

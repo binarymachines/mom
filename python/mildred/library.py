@@ -440,11 +440,4 @@ def backup_assets():
         except Exception, err:
             ERR.error(err.message, exc_info=True)
 
-    ssys.exit('backup complete')
-
-def main(args):
-    backup_assets()
-
-
-if __name__ == '__main__':
-    main(args)
+    sys.exit('backup complete')
