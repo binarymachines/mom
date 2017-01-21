@@ -32,19 +32,22 @@ CREATE TABLE `directory_constant` (
 -- Dumping data for table `directory_constant`
 --
 
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (1,'media','/compilations','compilation','2017-01-10 17:26:05','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (2,'media','compilations/','compilation','2017-01-10 17:26:05','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (3,'media','/various','compilation','2017-01-10 17:26:05','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (4,'media','/bak/','ignore','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (5,'media','/webcasts and custom mixes','extended','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (6,'media','/downloading','incomplete','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (7,'media','/live','live_recording','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (8,'media','/slsk/','new','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (9,'media','/incoming/','new','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (10,'media','/random','random','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (11,'media','/recently','recent','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (12,'media','/unsorted','unsorted','2017-01-10 17:26:06','9999-12-31 23:59:59');
-INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (13,'media','[...]','side_projects','2017-01-10 17:26:06','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (1,'media','/compilations','compilation','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (2,'media','compilations/','compilation','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (3,'media','/various','compilation','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (4,'media','/bak/','ignore','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (5,'media','/webcasts and custom mixes','extended','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (6,'media','/downloading','incomplete','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (7,'media','/live','live_recording','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (8,'media','/slsk/','new','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (9,'media','/incoming/','new','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (10,'media','/random','random','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (11,'media','/recently','recent','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (12,'media','/unsorted','unsorted','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (13,'media','[...]','side_project','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (14,'media','albums','album','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (15,'media','noscan','no_scan','2017-01-16 04:19:21','9999-12-31 23:59:59');
+INSERT INTO `directory_constant` (`id`, `index_name`, `pattern`, `location_type`, `effective_dt`, `expiration_dt`) VALUES (16,'media','[...]','side_project','2017-01-16 04:19:21','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -44,9 +44,9 @@ CREATE TABLE `mode_state_default` (
 -- Dumping data for table `mode_state_default`
 --
 
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (1,'media',3,2,5,17,1,1,0,0,'2017-01-10 17:26:22','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (2,'media',3,3,5,18,1,1,0,0,'2017-01-10 17:26:22','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (3,'media',3,4,5,19,1,1,0,0,'2017-01-10 17:26:22','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (1,'media',3,2,5,17,1,1,0,0,'2017-01-16 04:19:57','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (2,'media',3,3,5,18,1,1,0,0,'2017-01-16 04:19:57','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default` (`id`, `index_name`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`, `effective_dt`, `expiration_dt`) VALUES (3,'media',3,4,5,19,1,1,0,0,'2017-01-16 04:19:57','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

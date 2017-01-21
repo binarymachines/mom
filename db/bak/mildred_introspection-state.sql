@@ -34,11 +34,11 @@ CREATE TABLE `state` (
 -- Dumping data for table `state`
 --
 
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (1,'media','initial',0,1,'2017-01-10 17:26:19','9999-12-31 23:59:59');
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (2,'media','discover',0,1,'2017-01-10 17:26:19','9999-12-31 23:59:59');
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (3,'media','update',0,0,'2017-01-10 17:26:19','9999-12-31 23:59:59');
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (4,'media','monitor',0,0,'2017-01-10 17:26:19','9999-12-31 23:59:59');
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','terminal',0,2,'2017-01-10 17:26:19','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (1,'media','initial',0,1,'2017-01-16 04:19:54','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (2,'media','discover',0,1,'2017-01-16 04:19:54','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (3,'media','update',0,0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (4,'media','monitor',0,0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','terminal',0,2,'2017-01-16 04:19:54','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

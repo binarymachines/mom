@@ -27,7 +27,7 @@ CREATE TABLE `action` (
   `meta_action_id` int(11) unsigned DEFAULT NULL,
   `action_status_id` int(11) unsigned DEFAULT NULL,
   `parent_action_id` int(11) unsigned DEFAULT NULL,
-  `effective_dt` datetime NOT NULL DEFAULT now()
+  `effective_dt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `meta_action_id` (`meta_action_id`),
@@ -69,7 +69,7 @@ CREATE TABLE `action_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `action_id` int(11) unsigned DEFAULT NULL,
   `meta_action_param_id` int(11) unsigned DEFAULT NULL,
-  `value` varchar(255) DEFAULT NULL,
+  `value` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `action_id` (`action_id`),
   KEY `meta_action_param_id` (`meta_action_param_id`),
@@ -86,13 +86,13 @@ DROP TABLE IF EXISTS `action_reason`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `action_reason` (
-  `meta_action_id` int(11) unsigned NOT NULL,
-  `meta_reason_id` int(11) unsigned NOT NULL,
-  `is_sufficient_solo` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`meta_action_id`,`meta_reason_id`),
-  KEY `fk_action_reason_meta_reason1_idx` (`meta_reason_id`),
-  CONSTRAINT `fk_action_reason_meta_action` FOREIGN KEY (`meta_action_id`) REFERENCES `meta_action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_action_reason_meta_reason1` FOREIGN KEY (`meta_reason_id`) REFERENCES `meta_reason` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  `action_id` int(11) unsigned NOT NULL,
+  `reason_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`action_id`,`reason_id`),
+  KEY `fk_action_reason_reason_idx` (`reason_id`),
+  KEY `fk_action_reason_action_idx` (`action_id`),
+  CONSTRAINT `fk_action_reason_action` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_action_reason_reason` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -111,6 +111,24 @@ CREATE TABLE `action_status` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `m_action_m_reason`
+--
+
+DROP TABLE IF EXISTS `m_action_m_reason`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `m_action_m_reason` (
+  `meta_action_id` int(11) unsigned NOT NULL,
+  `meta_reason_id` int(11) unsigned NOT NULL,
+  `is_sufficient_solo` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`meta_action_id`,`meta_reason_id`),
+  KEY `fk_m_action_m_reason_meta_reason_idx` (`meta_reason_id`),
+  CONSTRAINT `fk_m_action_m_reason_meta_action` FOREIGN KEY (`meta_action_id`) REFERENCES `meta_action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_m_action_m_reason_meta_reason` FOREIGN KEY (`meta_reason_id`) REFERENCES `meta_reason` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `meta_action`
 --
 
@@ -120,6 +138,7 @@ DROP TABLE IF EXISTS `meta_action`;
 CREATE TABLE `meta_action` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `document_type` varchar(32) NOT NULL DEFAULT 'file',
   `dispatch_id` int(11) unsigned NOT NULL,
   `priority` int(3) NOT NULL DEFAULT '10',
   PRIMARY KEY (`id`),
@@ -140,8 +159,8 @@ CREATE TABLE `meta_action_param` (
   `vector_param_name` varchar(128) NOT NULL,
   `meta_action_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_meta_action_param_meta_action1_idx` (`meta_action_id`),
-  CONSTRAINT `fk_meta_action_param_meta_action1` FOREIGN KEY (`meta_action_id`) REFERENCES `meta_action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `fk_meta_action_param_meta_action_idx` (`meta_action_id`),
+  CONSTRAINT `fk_meta_action_param_meta_action` FOREIGN KEY (`meta_action_id`) REFERENCES `meta_action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -154,13 +173,17 @@ DROP TABLE IF EXISTS `meta_reason`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `meta_reason` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_meta_reason_id` int(11) unsigned DEFAULT NULL,
   `name` varchar(255) NOT NULL,
+  `document_type` varchar(32) NOT NULL DEFAULT 'file',
   `weight` int(3) NOT NULL DEFAULT '10',
   `dispatch_id` int(11) unsigned NOT NULL,
   `expected_result` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `fk_meta_reason_dispatch_idx` (`dispatch_id`),
-  CONSTRAINT `fk_meta_reason_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `action_dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `parent_meta_reason_id` (`parent_meta_reason_id`),
+  CONSTRAINT `fk_meta_reason_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `action_dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `meta_reason_ibfk_1` FOREIGN KEY (`parent_meta_reason_id`) REFERENCES `meta_reason` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -176,9 +199,9 @@ CREATE TABLE `meta_reason_param` (
   `meta_reason_id` int(11) unsigned DEFAULT NULL,
   `vector_param_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `meta_reason_id` (`meta_reason_id`),
-  CONSTRAINT `meta_reason_param_ibfk_1` FOREIGN KEY (`meta_reason_id`) REFERENCES `meta_reason` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  KEY `fk_m_action_meta_reason_param_meta_reason` (`meta_reason_id`),
+  CONSTRAINT `fk_m_action_meta_reason_param_meta_reason` FOREIGN KEY (`meta_reason_id`) REFERENCES `meta_reason` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -191,14 +214,14 @@ DROP TABLE IF EXISTS `reason`;
 CREATE TABLE `reason` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `meta_reason_id` int(11) unsigned DEFAULT NULL,
-  `action_id` int(11) unsigned DEFAULT NULL,
-  `effective_dt` datetime NOT NULL DEFAULT now()
+  `parent_reason_id` int(11) unsigned DEFAULT NULL,
+  `effective_dt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `meta_reason_id` (`meta_reason_id`),
-  KEY `action_id` (`action_id`),
+  KEY `parent_reason_id` (`parent_reason_id`),
   CONSTRAINT `reason_ibfk_1` FOREIGN KEY (`meta_reason_id`) REFERENCES `meta_reason` (`id`),
-  CONSTRAINT `reason_ibfk_2` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`)
+  CONSTRAINT `reason_ibfk_2` FOREIGN KEY (`parent_reason_id`) REFERENCES `reason` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -211,17 +234,14 @@ DROP TABLE IF EXISTS `reason_param`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `reason_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `action_id` int(11) unsigned NOT NULL,
   `reason_id` int(11) unsigned NOT NULL,
   `meta_reason_param_id` int(11) unsigned NOT NULL,
-  `value` varchar(255) DEFAULT NULL,
+  `value` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `action_id` (`action_id`),
   KEY `reason_id` (`reason_id`),
   KEY `meta_reason_param_id` (`meta_reason_param_id`),
-  CONSTRAINT `reason_param_ibfk_1` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`),
-  CONSTRAINT `reason_param_ibfk_2` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`),
-  CONSTRAINT `reason_param_ibfk_3` FOREIGN KEY (`meta_reason_param_id`) REFERENCES `meta_reason_param` (`id`)
+  CONSTRAINT `reason_param_ibfk_1` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`),
+  CONSTRAINT `reason_param_ibfk_2` FOREIGN KEY (`meta_reason_param_id`) REFERENCES `meta_reason_param` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -239,14 +259,39 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary view structure for view `v_action_reasons_w_ids`
+-- Temporary view structure for view `v_m_action_m_reasons`
 --
 
-DROP TABLE IF EXISTS `v_action_reasons_w_ids`;
-/*!50001 DROP VIEW IF EXISTS `v_action_reasons_w_ids`*/;
+DROP TABLE IF EXISTS `v_m_action_m_reasons`;
+/*!50001 DROP VIEW IF EXISTS `v_m_action_m_reasons`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `v_action_reasons_w_ids` AS SELECT 
+/*!50001 CREATE VIEW `v_m_action_m_reasons` AS SELECT 
+ 1 AS `meta_action`,
+ 1 AS `action_priority`,
+ 1 AS `action_dispatch_identifier`,
+ 1 AS `action_dispatch_category`,
+ 1 AS `action_dispatch_module`,
+ 1 AS `action_dispatch_class`,
+ 1 AS `action_dispatch_func`,
+ 1 AS `reason`,
+ 1 AS `reason_weight`,
+ 1 AS `conditional_dispatch_identifier`,
+ 1 AS `conditional_dispatch_category`,
+ 1 AS `conditional_dispatch_module`,
+ 1 AS `conditional_dispatch_class`,
+ 1 AS `conditional_dispatch_func`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `v_m_action_m_reasons_w_ids`
+--
+
+DROP TABLE IF EXISTS `v_m_action_m_reasons_w_ids`;
+/*!50001 DROP VIEW IF EXISTS `v_m_action_m_reasons_w_ids`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_m_action_m_reasons_w_ids` AS SELECT 
  1 AS `meta_action_id`,
  1 AS `meta_action`,
  1 AS `action_priority`,
@@ -286,10 +331,10 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
--- Final view structure for view `v_action_reasons_w_ids`
+-- Final view structure for view `v_m_action_m_reasons`
 --
 
-/*!50001 DROP VIEW IF EXISTS `v_action_reasons_w_ids`*/;
+/*!50001 DROP VIEW IF EXISTS `v_m_action_m_reasons`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
@@ -298,7 +343,25 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_action_reasons_w_ids` AS select `at`.`id` AS `meta_action_id`,`at`.`name` AS `meta_action`,`at`.`priority` AS `action_priority`,`ad`.`id` AS `action_dispatch_id`,`ad`.`identifier` AS `action_dispatch_identifier`,`ad`.`category` AS `action_dispatch_category`,`ad`.`module_name` AS `action_dispatch_module`,`ad`.`class_name` AS `action_dispatch_class`,`ad`.`func_name` AS `action_dispatch_func`,`rt`.`id` AS `meta_reason_id`,`rt`.`name` AS `reason`,`rt`.`weight` AS `reason_weight`,`ad2`.`id` AS `conditional_dispatch_id`,`ad2`.`identifier` AS `conditional_dispatch_identifier`,`ad2`.`category` AS `conditional_dispatch_category`,`ad2`.`module_name` AS `conditional_dispatch_module`,`ad2`.`class_name` AS `conditional_dispatch_class`,`ad2`.`func_name` AS `conditional_dispatch_func` from ((((`meta_action` `at` join `action_dispatch` `ad`) join `action_dispatch` `ad2`) join `meta_reason` `rt`) join `action_reason` `ar`) where ((`at`.`dispatch_id` = `ad`.`id`) and (`rt`.`dispatch_id` = `ad2`.`id`) and (`at`.`id` = `ar`.`meta_action_id`) and (`rt`.`id` = `ar`.`meta_reason_id`)) order by `at`.`name` */;
+/*!50001 VIEW `v_m_action_m_reasons` AS select `v_m_action_m_reasons_w_ids`.`meta_action` AS `meta_action`,`v_m_action_m_reasons_w_ids`.`action_priority` AS `action_priority`,`v_m_action_m_reasons_w_ids`.`action_dispatch_identifier` AS `action_dispatch_identifier`,`v_m_action_m_reasons_w_ids`.`action_dispatch_category` AS `action_dispatch_category`,`v_m_action_m_reasons_w_ids`.`action_dispatch_module` AS `action_dispatch_module`,`v_m_action_m_reasons_w_ids`.`action_dispatch_class` AS `action_dispatch_class`,`v_m_action_m_reasons_w_ids`.`action_dispatch_func` AS `action_dispatch_func`,`v_m_action_m_reasons_w_ids`.`reason` AS `reason`,`v_m_action_m_reasons_w_ids`.`reason_weight` AS `reason_weight`,`v_m_action_m_reasons_w_ids`.`conditional_dispatch_identifier` AS `conditional_dispatch_identifier`,`v_m_action_m_reasons_w_ids`.`conditional_dispatch_category` AS `conditional_dispatch_category`,`v_m_action_m_reasons_w_ids`.`conditional_dispatch_module` AS `conditional_dispatch_module`,`v_m_action_m_reasons_w_ids`.`conditional_dispatch_class` AS `conditional_dispatch_class`,`v_m_action_m_reasons_w_ids`.`conditional_dispatch_func` AS `conditional_dispatch_func` from `v_m_action_m_reasons_w_ids` order by `v_m_action_m_reasons_w_ids`.`meta_action` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_m_action_m_reasons_w_ids`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_m_action_m_reasons_w_ids`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_m_action_m_reasons_w_ids` AS select `at`.`id` AS `meta_action_id`,`at`.`name` AS `meta_action`,`at`.`priority` AS `action_priority`,`ad`.`id` AS `action_dispatch_id`,`ad`.`identifier` AS `action_dispatch_identifier`,`ad`.`category` AS `action_dispatch_category`,`ad`.`module_name` AS `action_dispatch_module`,`ad`.`class_name` AS `action_dispatch_class`,`ad`.`func_name` AS `action_dispatch_func`,`rt`.`id` AS `meta_reason_id`,`rt`.`name` AS `reason`,`rt`.`weight` AS `reason_weight`,`ad2`.`id` AS `conditional_dispatch_id`,`ad2`.`identifier` AS `conditional_dispatch_identifier`,`ad2`.`category` AS `conditional_dispatch_category`,`ad2`.`module_name` AS `conditional_dispatch_module`,`ad2`.`class_name` AS `conditional_dispatch_class`,`ad2`.`func_name` AS `conditional_dispatch_func` from ((((`meta_action` `at` join `action_dispatch` `ad`) join `action_dispatch` `ad2`) join `meta_reason` `rt`) join `m_action_m_reason` `ar`) where ((`at`.`dispatch_id` = `ad`.`id`) and (`rt`.`dispatch_id` = `ad2`.`id`) and (`at`.`id` = `ar`.`meta_action_id`) and (`rt`.`id` = `ar`.`meta_reason_id`)) order by `at`.`name` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;

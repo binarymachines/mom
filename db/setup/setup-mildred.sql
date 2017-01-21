@@ -16,6 +16,38 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `alias`
+--
+
+DROP TABLE IF EXISTS `alias`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `alias` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `alias_document_attribute`
+--
+
+DROP TABLE IF EXISTS `alias_document_attribute`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `alias_document_attribute` (
+  `document_attribute_id` int(11) unsigned NOT NULL,
+  `alias_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`document_attribute_id`,`alias_id`),
+  KEY `fk_alias_document_attribute_document_attribute1_idx` (`document_attribute_id`),
+  KEY `fk_alias_document_attribute_alias1_idx` (`alias_id`),
+  CONSTRAINT `fk_alias_document_attribute_alias` FOREIGN KEY (`alias_id`) REFERENCES `alias` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_alias_document_attribute_document_attribute` FOREIGN KEY (`document_attribute_id`) REFERENCES `document_attribute` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `delimited_file_data`
 --
 
@@ -64,6 +96,7 @@ CREATE TABLE `directory` (
   `file_type` varchar(8) DEFAULT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  `category_prototype_flag` tinyint(4) NOT NULL DEFAULT '0',
   `active_flag` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
@@ -124,7 +157,7 @@ CREATE TABLE `directory_constant` (
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,11 +173,9 @@ CREATE TABLE `document` (
   `file_type_id` int(11) unsigned DEFAULT NULL,
   `document_type` varchar(64) NOT NULL,
   `absolute_path` varchar(1024) NOT NULL,
-  `hex_key` varchar(640) NOT NULL,
   `effective_dt` datetime DEFAULT NULL,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_document` (`index_name`,`hex_key`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -162,7 +193,7 @@ CREATE TABLE `document_attribute` (
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=175 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4276 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -216,7 +247,7 @@ CREATE TABLE `file_handler` (
   `class_name` varchar(128) DEFAULT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -234,7 +265,7 @@ CREATE TABLE `file_handler_type` (
   PRIMARY KEY (`id`),
   KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
   CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -325,36 +356,18 @@ CREATE TABLE `matcher_field` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `alias`
+-- Temporary view structure for view `v_alias`
 --
 
-DROP TABLE IF EXISTS `alias`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `alias` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(25) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `alias_document_attribute`
---
-
-DROP TABLE IF EXISTS `alias_document_attribute`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `alias_document_attribute` (
-  `document_attribute_id` int(11) unsigned NOT NULL,
-  `alias_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`document_attribute_id`,`alias_id`),
-  KEY `fk_alias_document_attribute_document_attribute1_idx` (`document_attribute_id`),
-  KEY `fk_alias_document_attribute_alias1_idx` (`alias_id`),
-  CONSTRAINT `fk_alias_document_attribute_document_attribute1` FOREIGN KEY (`document_attribute_id`) REFERENCES `document_attribute` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_alias_document_attribute_alias1` FOREIGN KEY (`alias_id`) REFERENCES `alias` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `v_alias`;
+/*!50001 DROP VIEW IF EXISTS `v_alias`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_alias` AS SELECT 
+ 1 AS `document_format`,
+ 1 AS `name`,
+ 1 AS `attribute_name`*/;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Temporary view structure for view `v_file_handler`
@@ -388,18 +401,22 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary view structure for view `v_alias`
+-- Final view structure for view `v_alias`
 --
 
-DROP TABLE IF EXISTS `v_alias`;
 /*!50001 DROP VIEW IF EXISTS `v_alias`*/;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-/*!50001 CREATE VIEW `v_alias` AS SELECT 
- 1 AS `document_format`,
- 1 AS `name`,
- 1 AS `attribute_name`*/;
-SET character_set_client = @saved_cs_client;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_alias` AS select `attr`.`document_format` AS `document_format`,`syn`.`name` AS `name`,`attr`.`attribute_name` AS `attribute_name` from ((`alias` `syn` join `alias_document_attribute` `sda`) join `document_attribute` `attr`) where ((`syn`.`id` = `sda`.`alias_id`) and (`attr`.`id` = `sda`.`document_attribute_id`)) order by `attr`.`document_format`,`syn`.`name`,`attr`.`attribute_name` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
 -- Final view structure for view `v_file_handler`
@@ -433,24 +450,6 @@ SET character_set_client = @saved_cs_client;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `v_matched` AS select `d1`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d2`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `matched` `m`) where ((`m`.`doc_id` = `d1`.`id`) and (`m`.`match_doc_id` = `d2`.`id`)) union select `d2`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d1`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `matched` `m`) where ((`m`.`doc_id` = `d2`.`id`) and (`m`.`match_doc_id` = `d1`.`id`)) */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
-
---
--- Final view structure for view `v_alias`
---
-
-/*!50001 DROP VIEW IF EXISTS `v_alias`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8 */;
-/*!50001 SET character_set_results     = utf8 */;
-/*!50001 SET collation_connection      = utf8_general_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_alias` AS select `attr`.`document_format` AS `document_format`,`syn`.`name` AS `name`,`attr`.`attribute_name` AS `attribute_name` from ((`alias` `syn` join `alias_document_attribute` `sda`) join `document_attribute` `attr`) where ((`syn`.`id` = `sda`.`alias_id`) and (`attr`.`id` = `sda`.`document_attribute_id`)) order by `attr`.`document_format`,`syn`.`name`,`attr`.`attribute_name` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
