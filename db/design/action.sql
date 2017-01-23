@@ -53,8 +53,9 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_action_param` (
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `parent_meta_reason_id` int(11) UNSIGNED,
     `name` VARCHAR(255) NOT NULL,
+    `parent_meta_reason_id` int(11) UNSIGNED,
+    `is_sufficient_solo` tinyint(1) NOT NULL DEFAULT '0',
     `document_type` VARCHAR(32) NOT NULL DEFAULT 'file',
     `weight` INT(3) NOT NULL DEFAULT 10,
     `dispatch_id` INT(11) UNSIGNED NOT NULL,
@@ -74,7 +75,6 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason` (
 CREATE TABLE IF NOT EXISTS `mildred_action`.`m_action_m_reason` (
   `meta_action_id` INT(11) UNSIGNED NOT NULL,
   `meta_reason_id` INT(11) UNSIGNED NOT NULL,
-   `is_sufficient_solo` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`meta_action_id`, `meta_reason_id`),
   INDEX `fk_m_action_m_reason_meta_reason_idx` (`meta_reason_id` ASC),
   CONSTRAINT `fk_m_action_m_reason_meta_action`
