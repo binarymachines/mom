@@ -210,7 +210,7 @@ class Matcher(Base):
     max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
     applies_to_file_type = Column(String(6), nullable=False, server_default=text("'*'"))
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-    effective_dt = Column(DateTime)
+    effective_dt = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
@@ -229,7 +229,7 @@ class MatcherField(Base):
     analyzer = Column(String(64))
     query_section = Column(String(128), server_default=text("'should'"))
     default_value = Column(String(128))
-    effective_dt = Column(DateTime)
+    effective_dt = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
     matcher = relationship(u'Matcher')

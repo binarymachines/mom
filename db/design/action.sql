@@ -2,6 +2,39 @@ drop database if EXISTS `mildred_action`;
 create database `mildred_action`;
 use `mildred_action`;
 
+CREATE TABLE `es_clause` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `query_type` varchar(64) NOT NULL,
+  `max_score_percentage` float NOT NULL DEFAULT '0',
+  `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
+  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
+  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `es_clause_field` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `document_type` varchar(64) NOT NULL DEFAULT 'media_file',
+  `es_clause_id` int(11) unsigned NOT NULL,
+  `field_name` varchar(128) NOT NULL,
+  `boost` float NOT NULL DEFAULT '0',
+  `bool_` varchar(16) DEFAULT NULL,
+  `operator` varchar(16) DEFAULT NULL,
+  `minimum_should_match` float NOT NULL DEFAULT '0',
+  `analyzer` varchar(64) DEFAULT NULL,
+  `query_section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
+  `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
+  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`),
+  KEY `fk_clause_field_es_clause` (`es_clause_id`),
+  CONSTRAINT `fk_clause_field_es_clause` FOREIGN KEY (`es_clause_id`) REFERENCES `es_clause` (`id`)
+);
+
 CREATE TABLE IF NOT EXISTS `mildred_action`.`action_dispatch` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `identifier` VARCHAR(128) NOT NULL,
@@ -50,27 +83,33 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_action_param` (
     ON UPDATE NO ACTION
 );
 
-
 CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason` (
-    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL,
-    `parent_meta_reason_id` int(11) UNSIGNED,
-    `is_sufficient_solo` tinyint(1) NOT NULL DEFAULT '0',
-    `document_type` VARCHAR(32) NOT NULL DEFAULT 'file',
-    `weight` INT(3) NOT NULL DEFAULT 10,
-    `dispatch_id` INT(11) UNSIGNED NOT NULL,
-    `expected_result` tinyint(1) NOT NULL DEFAULT '1',
-    PRIMARY KEY (`id`),
-    INDEX `fk_meta_reason_dispatch_idx` (`dispatch_id` ASC),
-    CONSTRAINT `fk_meta_reason_dispatch` 
-        FOREIGN KEY (`dispatch_id`)
-        REFERENCES `action_dispatch` (`id`)
-        ON DELETE NO ACTION 
-        ON UPDATE NO ACTION,
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `parent_meta_reason_id` INT(11) UNSIGNED NULL,
+  `is_sufficient_solo` TINYINT(1) NOT NULL DEFAULT '0',
+  `document_type` VARCHAR(32) NOT NULL DEFAULT 'file',
+  `weight` INT(3) NOT NULL DEFAULT '10',
+  `dispatch_id` INT(11) UNSIGNED NOT NULL,
+  `expected_result` TINYINT(1) NOT NULL DEFAULT '1',
+  `es_clause_id` INT(11) UNSIGNED NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_meta_reason_dispatch_idx` (`dispatch_id` ASC),
+  INDEX `parent_meta_reason_id` (`parent_meta_reason_id` ASC),
+  INDEX `fk_meta_reason_es_clause1_idx` (`es_clause_id` ASC),
+  CONSTRAINT `fk_meta_reason_dispatch`
+    FOREIGN KEY (`dispatch_id`)
+    REFERENCES `mildred_action`.`action_dispatch` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `meta_reason_ibfk_1`
     FOREIGN KEY (`parent_meta_reason_id`)
-        REFERENCES `meta_reason` (`id`)
-);
-
+    REFERENCES `mildred_action`.`meta_reason` (`id`),
+  CONSTRAINT `fk_meta_reason_es_clause1`
+    FOREIGN KEY (`es_clause_id`)
+    REFERENCES `mildred_action`.`es_clause` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`m_action_m_reason` (
   `meta_action_id` INT(11) UNSIGNED NOT NULL,

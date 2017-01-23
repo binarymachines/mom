@@ -184,7 +184,6 @@ CREATE TABLE `directory` (
   UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
 );
 
-
 CREATE TABLE `matcher` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) NOT NULL,
@@ -324,6 +323,16 @@ from document d1, document d2, matched m
 where m.doc_id = d2.id and
     m.match_doc_id = d1.id;
 
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("*");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("aac");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("ape");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("flac");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("ogg");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("oga");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("m4a");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("mpc");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("mp3");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("wav");
 
 INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `active_flag`) VALUES ('media', '/home/mpippins/google-drive/books', 'pdf', now(), '9999-12-31 23:59:59', 0);
 

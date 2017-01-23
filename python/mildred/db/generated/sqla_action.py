@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, text
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -62,15 +62,25 @@ class ActionStatu(Base):
     name = Column(String(255))
 
 
-class MActionMReason(Base):
-    __tablename__ = 'm_action_m_reason'
+class EsClause(Base):
+    __tablename__ = 'es_clause'
 
-    meta_action_id = Column(ForeignKey(u'meta_action.id'), primary_key=True, nullable=False)
-    meta_reason_id = Column(ForeignKey(u'meta_reason.id'), primary_key=True, nullable=False, index=True)
-    is_sufficient_solo = Column(Integer, nullable=False, server_default=text("'0'"))
+    id = Column(Integer, primary_key=True)
+    index_name = Column(String(128), nullable=False)
+    name = Column(String(128), nullable=False)
+    query_type = Column(String(64), nullable=False)
+    max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
+    applies_to_file_type = Column(String(6), nullable=False, server_default=text("'*'"))
+    active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
+    effective_dt = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
+    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
-    meta_action = relationship(u'MetaAction')
-    meta_reason = relationship(u'MetaReason')
+
+t_m_action_m_reason = Table(
+    'm_action_m_reason', metadata,
+    Column('meta_action_id', ForeignKey(u'meta_action.id'), primary_key=True, nullable=False),
+    Column('meta_reason_id', ForeignKey(u'meta_reason.id'), primary_key=True, nullable=False, index=True)
+)
 
 
 class MetaAction(Base):
@@ -83,6 +93,7 @@ class MetaAction(Base):
     priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
     dispatch = relationship(u'ActionDispatch')
+    meta_reasons = relationship(u'MetaReason', secondary='m_action_m_reason')
 
 
 class MetaActionParam(Base):
@@ -99,14 +110,17 @@ class MetaReason(Base):
     __tablename__ = 'meta_reason'
 
     id = Column(Integer, primary_key=True)
-    parent_meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
     name = Column(String(255), nullable=False)
+    parent_meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
+    is_sufficient_solo = Column(Integer, nullable=False, server_default=text("'0'"))
     document_type = Column(String(32), nullable=False, server_default=text("'file'"))
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
     expected_result = Column(Integer, nullable=False, server_default=text("'1'"))
+    es_clause_id = Column(ForeignKey(u'es_clause.id'), index=True)
 
     dispatch = relationship(u'ActionDispatch')
+    es_clause = relationship(u'EsClause')
     parent_meta_reason = relationship(u'MetaReason', remote_side=[id])
 
 
