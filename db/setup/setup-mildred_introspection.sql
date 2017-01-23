@@ -35,26 +35,6 @@ CREATE TABLE `dispatch` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `exec_rec`
---
-
-DROP TABLE IF EXISTS `exec_rec`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `exec_rec` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pid` varchar(32) NOT NULL,
-  `index_name` varchar(1024) NOT NULL,
-  `status` varchar(128) NOT NULL,
-  `start_dt` datetime NOT NULL,
-  `end_dt` datetime DEFAULT NULL,
-  `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `introspection_dispatch`
 --
 
@@ -146,7 +126,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=92 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -198,65 +178,6 @@ CREATE TABLE `mode_state_default_param` (
   KEY `fk_mode_state_default_param` (`mode_state_default_id`),
   CONSTRAINT `fk_mode_state_default_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `op_record`
---
-
-DROP TABLE IF EXISTS `op_record`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `op_record` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `pid` varchar(32) NOT NULL,
-  `operator_name` varchar(64) NOT NULL,
-  `operation_name` varchar(64) NOT NULL,
-  `target_esid` varchar(64) NOT NULL,
-  `target_path` varchar(1024) NOT NULL,
-  `status` varchar(64) NOT NULL,
-  `start_time` datetime NOT NULL,
-  `end_time` datetime DEFAULT NULL,
-  `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=279414 DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `op_record_param`
---
-
-DROP TABLE IF EXISTS `op_record_param`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `op_record_param` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `param_type_id` int(11) unsigned NOT NULL,
-  `op_record_id` int(11) unsigned NOT NULL,
-  `name` varchar(128) NOT NULL,
-  `value` varchar(1024) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_op_record_param_type_idx` (`param_type_id`),
-  KEY `fk_op_record_param` (`op_record_id`),
-  CONSTRAINT `fk_op_record_param` FOREIGN KEY (`op_record_id`) REFERENCES `op_record` (`id`),
-  CONSTRAINT `fk_op_record_param_type` FOREIGN KEY (`param_type_id`) REFERENCES `op_record_param_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `op_record_param_type`
---
-
-DROP TABLE IF EXISTS `op_record_param_type`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `op_record_param_type` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `vector_param_name` varchar(128) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

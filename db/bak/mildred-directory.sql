@@ -70,6 +70,12 @@ INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`
 INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (33,'media','/media/removable/Audio/music [noscan]/albums','mp3','2017-01-20 13:29:14','9999-12-31 23:59:59',0,1);
 INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (34,'media','/media/removable/SG932/media/music [iTunes]','mp3','2017-01-20 13:29:14','9999-12-31 23:59:59',0,1);
 INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (35,'media','/media/removable/SG932/media/spoken word','','2017-01-20 13:29:14','9999-12-31 23:59:59',0,1);
+INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (36,'media','/home/mpippins/google-drive/books','pdf','2017-01-21 13:56:22','9999-12-31 23:59:59',0,0);
+INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (37,'media','/media/removable/Audio/radio','*','2017-01-21 18:08:33','9999-12-31 23:59:59',0,1);
+INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (38,'media','/media/removable/Audio/spoken word','*','2017-01-21 18:08:33','9999-12-31 23:59:59',0,1);
+INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (39,'media','/media/removable/Audio/music/shared','*','2017-01-21 18:08:33','9999-12-31 23:59:59',0,1);
+INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (40,'media','/media/removable/Audio/music/shared [flac]','*','2017-01-21 18:08:33','9999-12-31 23:59:59',0,1);
+INSERT INTO `directory` (`id`, `index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `category_prototype_flag`, `active_flag`) VALUES (41,'media','/media/removable/Audio/music/shared [wav]','*','2017-01-21 18:08:33','9999-12-31 23:59:59',0,1);
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

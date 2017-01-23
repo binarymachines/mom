@@ -100,7 +100,7 @@ CREATE TABLE `directory` (
   `active_flag` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -193,7 +193,7 @@ CREATE TABLE `document_attribute` (
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4276 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11017 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -212,6 +212,26 @@ CREATE TABLE `document_category` (
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=186 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `exec_rec`
+--
+
+DROP TABLE IF EXISTS `exec_rec`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `exec_rec` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `pid` varchar(32) NOT NULL,
+  `index_name` varchar(1024) NOT NULL,
+  `status` varchar(128) NOT NULL,
+  `start_dt` datetime NOT NULL,
+  `end_dt` datetime DEFAULT NULL,
+  `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -247,7 +267,7 @@ CREATE TABLE `file_handler` (
   `class_name` varchar(128) DEFAULT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,7 +285,7 @@ CREATE TABLE `file_handler_type` (
   PRIMARY KEY (`id`),
   KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
   CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -353,6 +373,30 @@ CREATE TABLE `matcher_field` (
   KEY `fk_matcher_field_matcher` (`matcher_id`),
   CONSTRAINT `fk_matcher_field_matcher` FOREIGN KEY (`matcher_id`) REFERENCES `matcher` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `op_record`
+--
+
+DROP TABLE IF EXISTS `op_record`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `op_record` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `pid` varchar(32) NOT NULL,
+  `operator_name` varchar(64) NOT NULL,
+  `operation_name` varchar(64) NOT NULL,
+  `target_esid` varchar(64) NOT NULL,
+  `target_path` varchar(1024) NOT NULL,
+  `status` varchar(64) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime DEFAULT NULL,
+  `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=397077 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
