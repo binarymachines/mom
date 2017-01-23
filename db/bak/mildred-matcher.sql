@@ -25,7 +25,7 @@ CREATE TABLE `matcher` (
   `max_score_percentage` float NOT NULL DEFAULT '0',
   `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
-  `effective_dt` datetime DEFAULT NULL,
+  `effective_dt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
@@ -35,11 +35,11 @@ CREATE TABLE `matcher` (
 -- Dumping data for table `matcher`
 --
 
-INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (1,'media','filename_match_matcher','match',75,'*',1,NULL,'9999-12-31 23:59:59');
-INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (2,'media','tag_term_matcher_artist_album_song','term',0,'*',0,NULL,'9999-12-31 23:59:59');
-INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (3,'media','filesize_term_matcher','term',0,'flac',0,NULL,'9999-12-31 23:59:59');
-INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (4,'media','artist_matcher','term',0,'*',0,NULL,'9999-12-31 23:59:59');
-INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','match_artist_album_song','match',75,'*',1,NULL,'9999-12-31 23:59:59');
+INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (1,'media','filename_match_matcher','match',75,'*',1,'2017-01-22 20:44:11','9999-12-31 23:59:59');
+INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (2,'media','tag_term_matcher_artist_album_song','term',0,'*',0,'2017-01-22 20:44:11','9999-12-31 23:59:59');
+INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (3,'media','filesize_term_matcher','term',0,'flac',0,'2017-01-22 20:44:11','9999-12-31 23:59:59');
+INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (4,'media','artist_matcher','term',0,'*',0,'2017-01-22 20:44:11','9999-12-31 23:59:59');
+INSERT INTO `matcher` (`id`, `index_name`, `name`, `query_type`, `max_score_percentage`, `applies_to_file_type`, `active_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','match_artist_album_song','match',75,'*',1,'2017-01-22 20:44:11','9999-12-31 23:59:59');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

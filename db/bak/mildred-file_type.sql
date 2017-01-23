@@ -28,6 +28,16 @@ CREATE TABLE `file_type` (
 -- Dumping data for table `file_type`
 --
 
+INSERT INTO `file_type` (`id`, `name`) VALUES (1,'*');
+INSERT INTO `file_type` (`id`, `name`) VALUES (2,'aac');
+INSERT INTO `file_type` (`id`, `name`) VALUES (3,'ape');
+INSERT INTO `file_type` (`id`, `name`) VALUES (4,'flac');
+INSERT INTO `file_type` (`id`, `name`) VALUES (5,'ogg');
+INSERT INTO `file_type` (`id`, `name`) VALUES (6,'oga');
+INSERT INTO `file_type` (`id`, `name`) VALUES (7,'m4a');
+INSERT INTO `file_type` (`id`, `name`) VALUES (8,'mpc');
+INSERT INTO `file_type` (`id`, `name`) VALUES (9,'mp3');
+INSERT INTO `file_type` (`id`, `name`) VALUES (10,'wav');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
