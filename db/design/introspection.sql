@@ -16,10 +16,6 @@ DROP TABLE IF EXISTS `mode`;
 -- DROP TABLE IF EXISTS `operator`;
 DROP TABLE IF EXISTS `dispatch_target`;
 DROP TABLE IF EXISTS `introspection_dispatch`;
-DROP TABLE IF EXISTS `exec_rec`;
-DROP TABLE IF EXISTS `op_record_param`;
-DROP TABLE IF EXISTS `op_record_param_type`;
-DROP TABLE IF EXISTS `op_record`;
 
 DROP VIEW IF EXISTS `v_mode_default_dispatch`;
 DROP VIEW IF EXISTS `v_mode_default_dispatch_w_id`;
@@ -30,46 +26,6 @@ DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`;
 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch`;
 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch_w_id`;
-
-CREATE TABLE IF NOT EXISTS `mildred_introspection`.`op_record` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` VARCHAR(128) CHARACTER SET 'utf8' NOT NULL,
-  `pid` VARCHAR(32) NOT NULL,
-  `operator_name` VARCHAR(64) NOT NULL,
-  `operation_name` VARCHAR(64) NOT NULL,
-  `target_esid` VARCHAR(64) NOT NULL,
-  `target_path` VARCHAR(1024) NOT NULL,
-  `status` VARCHAR(64) NOT NULL,
-  `start_time` DATETIME NOT NULL,
-  `end_time` DATETIME NULL DEFAULT NULL,
-  `effective_dt` DATETIME NULL DEFAULT now(),
-  `expiration_dt` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE IF NOT EXISTS `op_record_param_type` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `vector_param_name` VARCHAR(128) NOT NULL,
-  PRIMARY KEY (`id`)
-);
-
-
-CREATE TABLE IF NOT EXISTS `op_record_param` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `param_type_id` int(11) UNSIGNED NOT NULL,
-  `op_record_id` INT(11) UNSIGNED NOT NULL,
-  `name` VARCHAR(128) NOT NULL,
-  `value` VARCHAR(1024) NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_op_record_param_type_idx` (`param_type_id` ASC),
-  CONSTRAINT `fk_op_record_param_type`
-    FOREIGN KEY (`param_type_id`)
-    REFERENCES `op_record_param_type` (`id`),
-  INDEX `fk_op_record_param` (`op_record_id` ASC),
-  CONSTRAINT `fk_op_record_param`
-    FOREIGN KEY (`op_record_id`)
-    REFERENCES `op_record` (`id`)
-);
     
 CREATE TABLE `introspection_dispatch` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -747,19 +703,6 @@ CREATE VIEW `v_mode_state` AS
     AND ms.mode_id = m.id
     AND ms.index_name = 'media' 
   ORDER BY ms.effective_dt;
-
-
-CREATE TABLE `exec_rec` (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `pid` varchar(32) NOT NULL,
-  `index_name` varchar(1024) NOT NULL,
-  `status` varchar(128) NOT NULL,
-  `start_dt` datetime NOT NULL,
-  `end_dt` datetime DEFAULT NULL,
-  `effective_dt` datetime DEFAULT now(),
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-);
 
 
 -- DROP TABLE IF EXISTS `error_attribute_value`;

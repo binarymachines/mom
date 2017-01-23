@@ -26,26 +26,27 @@ class ElasticDataIntegrityException(AssetException):
 
 class ElasticSearchError(MildredException):
     def __init__(self, cause, message=None):
+        super(ElasticSearchError, self).__init__(message)
         self.cause = cause
-        self.message = message
 
 
 class IndexNotFoundException(ElasticSearchError):
-    def __init__(self, cause=None):
-        super(IndexNotFoundException, self).__init__(cause)
-
+    def __init__(self, cause):
+        super(IndexNotFoundException, self).__init__(message)
+        self.cause = cause
 
 class SQLError(MildredException):
     def __init__(self, cause, message=None):
+        super(SQLError, self).__init__(message)
         self.cause = cause
-        self.message = message
 
 
 class SQLIntegrityError(SQLError):
     def __init__(self, cause, message=None):
-        super(SQLIntegrityError, self).__init__(cause, message)
-
+        super(SQLIntegrityError, self).__init__(message)
+        self.cause = cause
 
 class SQLConnectError(SQLError):
     def __init__(self, cause, message=None):
-        super(SQLConnectError, self).__init__(cause, message)
+        super(SQLConnectError, self).__init__(message)
+        self.cause = cause

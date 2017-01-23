@@ -13,8 +13,8 @@ from errors import SQLIntegrityError
 
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
-from db.generated.sqla_mildred import Document, Directory, FileHandler, FileHandlerType, FileFormat, FileType, Matcher, MatcherField, Matched
-from db.generated.sqla_introspection import ExecRec, ModeDefault, ModeStateDefault, ModeStateDefaultParam, OpRecord
+from db.generated.sqla_mildred import ExecRec, OpRecord, Document, Directory, FileHandler, FileHandlerType, FileFormat, FileType, Matcher, MatcherField, Matched
+from db.generated.sqla_introspection import ModeDefault, ModeStateDefault, ModeStateDefaultParam
 from db.generated.sqla_introspection import Mode as AlchemyMode
 from db.generated.sqla_introspection import State as AlchemyState
 from db.generated.sqla_introspection import ModeState as AlchemyModeState
@@ -25,7 +25,7 @@ LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
 # logging.basicConfig()
-# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 Base = declarative_base()
 
@@ -54,7 +54,7 @@ for dbconf in (mildred, introspection, admin, action, media, scratch):
 
 class SQLAlchemyIntegrityError(SQLIntegrityError):
     def __init__(self, cause, session, message=None):
-        session = session
+        self.session = session
         super(SQLAlchemyIntegrityError, self).__init__(cause, message)
 
 
@@ -164,7 +164,7 @@ class SQLAsset(Document):
             sessions[MILDRED].add(asset)
             sessions[MILDRED].commit()
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, err, sessions[MILDRED], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
     @staticmethod
     @alchemy_operation
@@ -204,11 +204,11 @@ class SQLExecutionRecord(ExecRec):
         rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_dt=config.start_time, status=kwargs['status'])
 
         try:
-            sessions[INTROSPECTION].add(rec_exec)
+            sessions[MILDRED].add(rec_exec)
             sessions[INTROSPECTION].commit()
             return rec_exec
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
 
     @staticmethod
@@ -216,7 +216,7 @@ class SQLExecutionRecord(ExecRec):
         pid = config.pid if pid is None else pid
 
         result = ()
-        for instance in sessions[INTROSPECTION].query(SQLExecutionRecord).\
+        for instance in sessions[MILDRED].query(SQLExecutionRecord).\
             filter(SQLExecutionRecord.pid == pid):
                 result += (instance,)
 
@@ -231,11 +231,11 @@ class SQLExecutionRecord(ExecRec):
             exec_rec=SQLExecutionRecord.retrieve()
             exec_rec.status = 'terminated'
             exec_rec.expiration_dt = datetime.datetime.now()
-            sessions[INTROSPECTION].add(exec_rec)
-            sessions[INTROSPECTION].commit()
+            sessions[MILDRED].add(exec_rec)
+            sessions[MILDRED].commit()
             return exec_rec
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
 
 class SQLFileHandler(FileHandler):
@@ -312,7 +312,7 @@ class SQLMatch(Matched):
             sessions[MILDRED].add(match_rec)
             sessions[MILDRED].commit()
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, err, sessions[MILDRED], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
 
 class SQLMode(AlchemyMode):
@@ -336,7 +336,7 @@ class SQLMode(AlchemyMode):
             sessions[INTROSPECTION].commit()
             return mode_rec.id
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[INTROSPECTION], message=err.message)
 
     @staticmethod
     @alchemy_operation
@@ -419,7 +419,7 @@ class SQLModeState(AlchemyModeState):
             sessions[INTROSPECTION].commit()
             return mode_state_rec.id
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[INTROSPECTION], message=err.message)
 
 
     @staticmethod
@@ -481,7 +481,7 @@ class SQLModeState(AlchemyModeState):
                 sessions[INTROSPECTION].commit()
                 return None if expire else mode_state_rec
             except IntegrityError, err:
-                raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
+                raise SQLAlchemyIntegrityError(err, sessions[INTROSPECTION], message=err.message)
 
         # (else):
         raise Exception('no mode state to save!')
@@ -514,10 +514,10 @@ class SQLOperationRecord(OpRecord):
                                     target_esid=target_esid, target_path=target_path, start_time=start_time, status=status)
 
         try:
-            sessions[INTROSPECTION].add(op_rec)
-            sessions[INTROSPECTION].commit()
+            sessions[MILDRED].add(op_rec)
+            sessions[MILDRED].commit()
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, err, sessions[INTROSPECTION], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
 
     @staticmethod
@@ -529,14 +529,14 @@ class SQLOperationRecord(OpRecord):
 
         result = ()
         if operator is None:
-            for instance in sessions[INTROSPECTION].query(SQLOperationRecord).\
+            for instance in sessions[MILDRED].query(SQLOperationRecord).\
                 filter(SQLOperationRecord.index_name == config.es_index).\
                 filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
                 filter(SQLOperationRecord.operation_name == operation).\
                 filter(SQLOperationRecord.status == op_status):
                     result += (instance,)
         else:
-            for instance in sessions[INTROSPECTION].query(SQLOperationRecord).\
+            for instance in sessions[MILDRED].query(SQLOperationRecord).\
                 filter(SQLOperationRecord.index_name == config.es_index).\
                 filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
                 filter(SQLOperationRecord.operation_name == operation).\

@@ -67,9 +67,9 @@ def path_expands(path, vector):
 
 def calc(vector, cycle_vector=False):
 
-    sql.execute_query("delete from matched where 1=1")
-    sql.execute_query("delete from op_record where operation_name = 'calc'", schema='mildred_introspection')
-    sql.execute_query("delete from op_record where operation_name = 'match'", schema='mildred_introspection')
+    # sql.execute_query("delete from matched where 1=1")
+    # sql.execute_query("delete from op_record where operation_name = 'calc'")
+    # sql.execute_query("delete from op_record where operation_name = 'match'")
     # sql.execute_query("commit");
 
     # MAX_RECORDS = ...
@@ -172,7 +172,7 @@ def get_matchers():
 def main(args):
     import redis
 
-    # sql.execute_query("delete from matched where 1=1")
+    # sql.execute_query("delete from matched")
     # sql.execute_query("delete from op_record where operation_name = 'calc'")
     # sql.execute_query("delete from op_record where operation_name = 'match'")
     # sql.execute_query("commit");

@@ -151,6 +151,7 @@ class Analyzer(object):
 
 
     def run(self):
-        self.vector.reset(ANALYZER)
-        self.vector.set_param(ANALYZER, ACTIVE_PATH, None)
-        self.vector_scanner.scan();
+        pass
+        # self.vector.reset(ANALYZER)
+        # self.vector.set_param(ANALYZER, ACTIVE_PATH, None)
+        # self.vector_scanner.scan();

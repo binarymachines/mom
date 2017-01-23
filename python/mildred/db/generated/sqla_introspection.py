@@ -20,19 +20,6 @@ class Dispatch(Base):
     func_name = Column(String(128), nullable=False)
 
 
-class ExecRec(Base):
-    __tablename__ = 'exec_rec'
-
-    id = Column(Integer, primary_key=True)
-    pid = Column(String(32), nullable=False)
-    index_name = Column(String(1024), nullable=False)
-    status = Column(String(128), nullable=False)
-    start_dt = Column(DateTime, nullable=False)
-    end_dt = Column(DateTime)
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
-
-
 class IntrospectionDispatch(Base):
     __tablename__ = 'introspection_dispatch'
 
@@ -133,43 +120,6 @@ class ModeStateDefaultParam(Base):
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     mode_state_default = relationship(u'ModeStateDefault')
-
-
-class OpRecord(Base):
-    __tablename__ = 'op_record'
-
-    id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False)
-    pid = Column(String(32), nullable=False)
-    operator_name = Column(String(64), nullable=False)
-    operation_name = Column(String(64), nullable=False)
-    target_esid = Column(String(64), nullable=False)
-    target_path = Column(String(1024), nullable=False)
-    status = Column(String(64), nullable=False)
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime)
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
-
-
-class OpRecordParam(Base):
-    __tablename__ = 'op_record_param'
-
-    id = Column(Integer, primary_key=True)
-    param_type_id = Column(ForeignKey(u'op_record_param_type.id'), nullable=False, index=True)
-    op_record_id = Column(ForeignKey(u'op_record.id'), nullable=False, index=True)
-    name = Column(String(128), nullable=False)
-    value = Column(String(1024), nullable=False)
-
-    op_record = relationship(u'OpRecord')
-    param_type = relationship(u'OpRecordParamType')
-
-
-class OpRecordParamType(Base):
-    __tablename__ = 'op_record_param_type'
-
-    id = Column(Integer, primary_key=True)
-    vector_param_name = Column(String(128), nullable=False)
 
 
 class State(Base):

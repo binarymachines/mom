@@ -9,6 +9,7 @@ import ops
 import search
 import analyze
 import scan
+import calc
 
 import sql
 import library 
@@ -231,7 +232,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
-
+        return True
         initial_and_update_scan_complete = self.owner.scanmode.in_state(self.owner.scanmode.get_state(SCAN_MONITOR))
 
         if initial_and_update_scan_complete:
@@ -363,12 +364,12 @@ class MatchModeHandler(DefaultModeHandler):
     def do_match(self):
         print  "match mode starting..."
         # dir = self.vector.get_active (MATCH)
-        # LOG.debug('%s matching in %s...' % (self.name, dir))
+        # LOG.debug('%s matching in %s...' % (self.owner.name, dir))
         try:
-            pass
-            # calc.calc(self.vector)
+            # pass
+            calc.calc(self.vector)
         except Exception, err:
-            self.selector.handle_error(err)
+            # self.selector.handle_error(err)
             LOG.debug(err.message)
             
             
