@@ -29,66 +29,66 @@ DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch_w_id`;
     
 CREATE TABLE `introspection_dispatch` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(128) DEFAULT NULL,
+  `name` varchar(128) DEFAULT NULL,
   `category` varchar(128) DEFAULT NULL,
-  `package` varchar(128) DEFAULT NULL,
-  `module` varchar(128) NOT NULL,
+  `package_name` varchar(128) DEFAULT NULL,
+  `module_name` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
   `func_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 
 # service process
-INSERT INTO introspection_dispatch (identifier, category, module, func_name) VALUES ('service', 'process', 'docserv', 'create_service_process');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name) VALUES ('service', 'process.handler', 'docserv', 'DocumentServiceProcessHandler');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('service', 'process.before', 'docserv', 'DocumentServiceProcessHandler', 'before_switch');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('service', 'process.after', 'docserv', 'DocumentServiceProcessHandler', 'after_switch');
+INSERT INTO introspection_dispatch (name, category, module_name, func_name) VALUES ('create_service_process', 'process', 'docserv', 'create_service_process');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name) VALUES ('handle_service_process', 'process.handler', 'docserv', 'DocumentServiceProcessHandler');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('service_process_before_switch', 'process.before', 'docserv', 'DocumentServiceProcessHandler', 'before_switch');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('service_process_after_switch', 'process.after', 'docserv', 'DocumentServiceProcessHandler', 'after_switch');
 
 # modes
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup', 'effect', 'docserv', 'StartupHandler', 'start'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'definitely');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.before', 'switch', 'docserv', 'StartupHandler', 'starting'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('startup.switch.after', 'switch', 'docserv', 'StartupHandler', 'started'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup', 'effect', 'docserv', 'StartupHandler', 'start'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'definitely');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup.switch.before', 'switch', 'docserv', 'StartupHandler', 'starting'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup.switch.after', 'switch', 'docserv', 'StartupHandler', 'started'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval', 'effect', 'docserv', 'EvalModeHandler', 'do_eval'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.before', 'switch', 'docserv', 'EvalModeHandler', 'before_eval'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('eval.switch.after', 'switch', 'docserv', 'EvalModeHandler', 'after_eval'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('eval', 'effect', 'docserv', 'EvalModeHandler', 'do_eval'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('eval.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('eval.switch.before', 'switch', 'docserv', 'EvalModeHandler', 'before_eval'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('eval.switch.after', 'switch', 'docserv', 'EvalModeHandler', 'after_eval'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.update.condition', 'condition', 'docserv', 'ScanModeHandler', 'should_update');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.monitor.condition', 'condition', 'docserv', 'ScanModeHandler', 'should_monitor');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.condition', 'condition', 'docserv', 'ScanModeHandler', 'can_scan');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan', 'effect', 'docserv', 'ScanModeHandler', 'do_scan');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.discover', 'action', 'docserv', 'ScanModeHandler', 'do_scan_discover');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.update', 'action', 'docserv', 'ScanModeHandler', 'do_scan');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.monitor', 'action', 'docserv', 'ScanModeHandler', 'do_scan_monitor');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.before', 'switch', 'docserv', 'ScanModeHandler', 'before_scan'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('scan.switch.after', 'switch', 'docserv', 'ScanModeHandler', 'after_scan'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.update.condition', 'condition', 'docserv', 'ScanModeHandler', 'should_update');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor.condition', 'condition', 'docserv', 'ScanModeHandler', 'should_monitor');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.condition', 'condition', 'docserv', 'ScanModeHandler', 'can_scan');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan', 'effect', 'docserv', 'ScanModeHandler', 'do_scan');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.discover', 'action', 'docserv', 'ScanModeHandler', 'do_scan_discover');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.update', 'action', 'docserv', 'ScanModeHandler', 'do_scan');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor', 'action', 'docserv', 'ScanModeHandler', 'do_scan_monitor');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.before', 'switch', 'docserv', 'ScanModeHandler', 'before_scan'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.after', 'switch', 'docserv', 'ScanModeHandler', 'after_scan'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match', 'effect', 'docserv', 'MatchModeHandler', 'do_match'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.before', 'switch', 'docserv', 'MatchModeHandler', 'before_match'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('match.switch.after', 'switch', 'docserv', 'MatchModeHandler', 'after_match'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('match', 'effect', 'docserv', 'MatchModeHandler', 'do_match'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('match.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('match.switch.before', 'switch', 'docserv', 'MatchModeHandler', 'before_match'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('match.switch.after', 'switch', 'docserv', 'MatchModeHandler', 'after_match'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix', 'effect', 'docserv', 'FixModeHandler', 'do_fix'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.before', 'switch', 'docserv', 'FixModeHandler', 'before_fix'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('fix.switch.after', 'switch', 'docserv', 'FixModeHandler', 'after_fix'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix', 'effect', 'docserv', 'FixModeHandler', 'do_fix'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix.switch.before', 'switch', 'docserv', 'FixModeHandler', 'before_fix'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix.switch.after', 'switch', 'docserv', 'FixModeHandler', 'after_fix'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report', 'effect', 'docserv', 'ReportModeHandler', 'do_report'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.before', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'before'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('report.switch.after', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'after'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('report.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('report', 'effect', 'docserv', 'ReportModeHandler', 'do_report'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('report.switch.before', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'before'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('report.switch.after', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'after'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests', 'effect', 'docserv', 'RequestsModeHandler', 'do_reqs'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.before', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'before'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('requests.switch.after', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'after'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests', 'effect', 'docserv', 'RequestsModeHandler', 'do_reqs'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests.switch.before', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'before'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests.switch.after', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'after'); 
 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown', 'effect', 'docserv', 'ShutdownHandler', 'end'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.before', 'switch', 'docserv', 'ShutdownHandler', 'ending'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.after', 'switch', 'docserv', 'ShutdownHandler', 'ended'); 
-INSERT INTO introspection_dispatch (identifier, category, module, class_name, func_name) VALUES ('shutdown.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'maybe'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown', 'effect', 'docserv', 'ShutdownHandler', 'end'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.before', 'switch', 'docserv', 'ShutdownHandler', 'ending'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.after', 'switch', 'docserv', 'ShutdownHandler', 'ended'); 
+INSERT INTO introspection_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.condition', 'condition', 'docserv', 'DocumentServiceProcessHandler', 'maybe'); 
 
 
 -- CREATE TABLE `dispatch_target` (
@@ -103,10 +103,10 @@ INSERT INTO introspection_dispatch (identifier, category, module, class_name, fu
 -- DROP VIEW IF EXISTS `v_dispatch_target`;
 
 -- create view `v_dispatch_target` as
---   select d.identifier, d.package, d.module, d.class_name, d.func_name, dt.target
+--   select d.name, d.package_name, d.module_name, d.class_name, d.func_name, dt.target
 --   from introspection_dispatch d, dispatch_target dt
 --   where dt.dispatch_id = d.id
---   order by d.identifier;
+--   order by d.name;
 
 -- CREATE TABLE `operator` (
 --   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -117,12 +117,12 @@ INSERT INTO introspection_dispatch (identifier, category, module, class_name, fu
 --   PRIMARY KEY (`id`)
 -- );
 
--- INSERT INTO operator (index_name, name, effective_dt) VALUES ('media', 'scan', now());
--- INSERT INTO operator (index_name, name, effective_dt) VALUES ('media', 'calc', now());
--- INSERT INTO operator (index_name, name, effective_dt) VALUES ('media', 'clean', now());
--- INSERT INTO operator (index_name, name, effective_dt) VALUES ('media', 'eval', now());
--- INSERT INTO operator (index_name, name, effective_dt) VALUES ('media', 'fix', now());
--- INSERT INTO operator (index_name, name, effective_dt) VALUES ('media', 'report', now());
+-- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'scan', now());
+-- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'calc', now());
+-- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'clean', now());
+-- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'eval', now());
+-- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'fix', now());
+-- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'report', now());
 
 -- CREATE TABLE `operation` (
 --   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -136,22 +136,22 @@ INSERT INTO introspection_dispatch (identifier, category, module, class_name, fu
 --   CONSTRAINT `fk_operation_operator` FOREIGN KEY (`operator_id`) REFERENCES `operator` (`id`)
 -- );
 
--- INSERT INTO operation (index_name, name, operator, effective_dt) VALUES ('media', 'scan', (select id from operator where name = 'scan'), now());
--- INSERT INTO operation (index_name, name, operator_id, effective_dt) VALUES ('media', 'discover', (select id from operator where name = 'scan'), now());
--- INSERT INTO operation (index_name, name, operator_id, effective_dt) VALUES ('media', 'update', (select id from operator where name = 'scan'), now());
--- INSERT INTO operation (index_name, name, operator_id, effective_dt) VALUES ('media', 'monitor', (select id from operator where name = 'scan'), now());
--- INSERT INTO operation (index_name, name, operator, effective_dt) VALUES ('media', 'fix', (select id from operator where name = 'fix'), now());
--- INSERT INTO operation (index_name, name, operator, effective_dt) VALUES ('media', 'eval', (select id from operator where name = 'eval'), now());
--- INSERT INTO operation (index_name, name, operator, effective_dt) VALUES ('media', 'clean', (select id from operator where name = 'clean'), now());
+-- INSERT INTO operation (index_name,name, operator, effective_dt) VALUES ('media', 'scan', (select id from operator where name = 'scan'), now());
+-- INSERT INTO operation (index_name,name, operator_id, effective_dt) VALUES ('media', 'discover', (select id from operator where name = 'scan'), now());
+-- INSERT INTO operation (index_name,name, operator_id, effective_dt) VALUES ('media', 'update', (select id from operator where name = 'scan'), now());
+-- INSERT INTO operation (index_name,name, operator_id, effective_dt) VALUES ('media', 'monitor', (select id from operator where name = 'scan'), now());
+-- INSERT INTO operation (index_name,name, operator, effective_dt) VALUES ('media', 'fix', (select id from operator where name = 'fix'), now());
+-- INSERT INTO operation (index_name,name, operator, effective_dt) VALUES ('media', 'eval', (select id from operator where name = 'eval'), now());
+-- INSERT INTO operation (index_name,name, operator, effective_dt) VALUES ('media', 'clean', (select id from operator where name = 'clean'), now());
 
--- INSERT INTO operation (index_name, name, effective_dt) VALUES ('media', 'clean', now());
--- INSERT INTO operation (index_name, name, effective_dt) VALUES ('media', 'eval', now());
--- INSERT INTO operation (index_name, name, effective_dt) VALUES ('media', 'fix', now());
--- INSERT INTO operation (index_name, name, effective_dt) VALUES ('media', 'match', now());
--- INSERT INTO operation (index_name, name, effective_dt) VALUES ('media', 'scan', now());
--- INSERT INTO operation (index_name, name, effective_dt) VALUES ('media', 'sync', now());
--- INSERT INTO operation (index_name, name, effective_dt) VALUES ('media', 'report', now());
--- INSERT INTO operation (index_name, name, effective_dt) VALUES ('media', 'requests', now());
+-- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'clean', now());
+-- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'eval', now());
+-- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'fix', now());
+-- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'match', now());
+-- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'scan', now());
+-- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'sync', now());
+-- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'report', now());
+-- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'requests', now());
 
 
 CREATE TABLE `mode` (
@@ -166,18 +166,18 @@ CREATE TABLE `mode` (
 );
 
 SET @NONE = 'None';
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', @NONE, now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'startup', now());
-INSERT INTO mode (index_name, name, stateful_flag, effective_dt) VALUES ('media', 'scan', True, now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'match', now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'eval', now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'fix', now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'clean', now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'sync', now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'requests', now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'report', now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'sleep', now());
-INSERT INTO mode (index_name, name, effective_dt) VALUES ('media', 'shutdown', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', @NONE, now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'startup', now());
+INSERT INTO mode (index_name,name, stateful_flag, effective_dt) VALUES ('media', 'scan', True, now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'match', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'eval', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'fix', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'clean', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'sync', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'requests', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'report', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'sleep', now());
+INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'shutdown', now());
 
 CREATE TABLE `state` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -191,11 +191,11 @@ CREATE TABLE `state` (
   UNIQUE KEY `uk_state_name` (`index_name`,`name`)
 );
 
-INSERT INTO state(index_name, name, effective_dt, initial_state_flag) VALUES ('media', 'initial', now(), 1);
-INSERT INTO state(index_name, name, effective_dt, initial_state_flag) VALUES ('media', 'discover', now(), 1);
-INSERT INTO state(index_name, name, effective_dt) VALUES ('media', 'update', now());
-INSERT INTO state(index_name, name, effective_dt) VALUES ('media', 'monitor', now());
-INSERT INTO state(index_name, name, effective_dt, initial_state_flag) VALUES ('media', 'terminal', now(), 2);
+INSERT INTO state(index_name,name, effective_dt, initial_state_flag) VALUES ('media', 'initial', now(), 1);
+INSERT INTO state(index_name,name, effective_dt, initial_state_flag) VALUES ('media', 'discover', now(), 1);
+INSERT INTO state(index_name,name, effective_dt) VALUES ('media', 'update', now());
+INSERT INTO state(index_name,name, effective_dt) VALUES ('media', 'monitor', now());
+INSERT INTO state(index_name,name, effective_dt, initial_state_flag) VALUES ('media', 'terminal', now(), 2);
 
 
 CREATE TABLE `transition_rule` (
@@ -248,9 +248,9 @@ CREATE TABLE `switch_rule` (
 
 create view `v_mode_switch_rule_dispatch` as
     select sr.name, m1.name begin_mode, m2.name end_mode, 
-        d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func, 
-        d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
-        d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
+        d1.package_name condition_package, d1.module_name condition_module, d1.class_name condition_class, d1.func_name condition_func, 
+        d2.package_name before_package, d2.module_name before_module, d2.class_name before_class, d2.func_name before_func, 
+        d3.package_name after_package, d3.module_name after_module, d3.class_name after_class, d3.func_name after_func
     from mode m1, mode m2, switch_rule sr, introspection_dispatch d1, introspection_dispatch d2, introspection_dispatch d3
     where sr.begin_mode_id = m1.id and 
         sr.end_mode_id = m2.id and 
@@ -261,9 +261,9 @@ create view `v_mode_switch_rule_dispatch` as
 
 create view `v_mode_switch_rule_dispatch_w_id` as
     select sr.name, m1.id begin_mode_id, m1.name begin_mode, m2.id end_mode_id, m2.name end_mode, 
-        d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func, 
-        d2.package before_package, d2.module before_module, d2.class_name before_class, d2.func_name before_func, 
-        d3.package after_package, d3.module after_module, d3.class_name after_class, d3.func_name after_func
+        d1.package_name condition_package, d1.module_name condition_module, d1.class_name condition_class, d1.func_name condition_func, 
+        d2.package_name before_package, d2.module_name before_module, d2.class_name before_class, d2.func_name before_func, 
+        d3.package_name after_package, d3.module_name after_module, d3.class_name after_class, d3.func_name after_func
     from mode m1, mode m2, switch_rule sr, introspection_dispatch d1, introspection_dispatch d2, introspection_dispatch d3
     where sr.begin_mode_id = m1.id and 
         sr.end_mode_id = m2.id and 
@@ -277,7 +277,7 @@ INSERT INTO transition_rule(name, mode_id, begin_state_id, end_state_id, conditi
         (select id from mode where name = 'scan'),
         (select id from state where name = 'discover'),
         (select id from state where name = 'update'),
-        (select id from introspection_dispatch where identifier = 'scan.update.condition')
+        (select id from introspection_dispatch where name = 'scan.update.condition')
     );
     
 INSERT INTO transition_rule(name, mode_id, begin_state_id, end_state_id, condition_dispatch_id)
@@ -285,7 +285,7 @@ INSERT INTO transition_rule(name, mode_id, begin_state_id, end_state_id, conditi
         (select id from mode where name = 'scan'),
         (select id from state where name = 'update'),
         (select id from state where name = 'monitor'),
-        (select id from introspection_dispatch where identifier = 'scan.monitor.condition')
+        (select id from introspection_dispatch where name = 'scan.monitor.condition')
     );
     
 CREATE TABLE `mode_state` (
@@ -329,24 +329,24 @@ CREATE TABLE `mode_default` (
   KEY `fk_mode_default_mode` (`mode_id`),
   CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`));
 
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'startup'), (select id from introspection_dispatch where identifier = 'startup'),now(), 0);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'eval'), (select id from introspection_dispatch where identifier = 'eval'),now(), 3);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'match'), (select id from introspection_dispatch where identifier = 'match'),now(), 5);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from introspection_dispatch where identifier = 'scan'),now(), 5);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'fix'), (select id from introspection_dispatch where identifier = 'fix'),now(), 1);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'clean'), (select id from introspection_dispatch where identifier = 'clean'),now(), 1);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'requests'), (select id from introspection_dispatch where identifier = 'requests'),now(), 2);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'report'), (select id from introspection_dispatch where identifier = 'report'),now(), 2);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'shutdown'), (select id from introspection_dispatch where identifier = 'shutdown'),now(), 0);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'startup'), (select id from introspection_dispatch where name = 'startup'),now(), 0);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'eval'), (select id from introspection_dispatch where name = 'eval'),now(), 3);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'match'), (select id from introspection_dispatch where name = 'match'),now(), 5);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from introspection_dispatch where name = 'scan'),now(), 5);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'fix'), (select id from introspection_dispatch where name = 'fix'),now(), 1);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'clean'), (select id from introspection_dispatch where name = 'clean'),now(), 1);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'requests'), (select id from introspection_dispatch where name = 'requests'),now(), 2);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'report'), (select id from introspection_dispatch where name = 'report'),now(), 2);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'shutdown'), (select id from introspection_dispatch where name = 'shutdown'),now(), 0);
 
 create view `v_mode_default_dispatch` as
-  select m.name, d.package, d.module, d.class_name, d.func_name, md.priority, md.dec_priority_amount, md.inc_priority_amount, md.times_to_complete, md.error_tolerance 
+  select m.name, d.package_name, d.module_name, d.class_name, d.func_name, md.priority, md.dec_priority_amount, md.inc_priority_amount, md.times_to_complete, md.error_tolerance 
   from mode m, mode_default md, introspection_dispatch d
   where md.mode_id = m.id and md.effect_dispatch_id = d.id 
   order by m.name;
 
 create view `v_mode_default_dispatch_w_id` as
-  select m.id mode_id, m.name mode_name, m.stateful_flag, d.package  handler_package, d.module handler_module, d.class_name handler_class, d.func_name handler_func, 
+  select m.id mode_id, m.name mode_name, m.stateful_flag, d.package_name  handler_package, d.module_name handler_module, d.class_name handler_class, d.func_name handler_func, 
     md.priority, md.dec_priority_amount, md.inc_priority_amount, md.times_to_complete, md.error_tolerance 
   from mode m, mode_default md, introspection_dispatch d
   where md.mode_id = m.id and md.effect_dispatch_id = d.id 
@@ -376,13 +376,13 @@ CREATE TABLE `mode_state_default` (
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
 );
 
-INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'discover'), (select id from introspection_dispatch where identifier = 'scan.discover'),now(), 5);
-INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'update'), (select id from introspection_dispatch where identifier = 'scan.update'),now(), 5);
-INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'monitor'), (select id from introspection_dispatch where identifier = 'scan.monitor'),now(), 5);
+INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'discover'), (select id from introspection_dispatch where name = 'scan.discover'),now(), 5);
+INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'update'), (select id from introspection_dispatch where name = 'scan.update'),now(), 5);
+INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'monitor'), (select id from introspection_dispatch where name = 'scan.monitor'),now(), 5);
 
 create view `v_mode_state_default_transition_rule_dispatch` as
     select tr.name, m.name mode, s1.name begin_state, s2.name end_state, 
-        d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
+        d1.package_name condition_package, d1.module_name condition_module, d1.class_name condition_class, d1.func_name condition_func
     from mode m, mode_state_default md, transition_rule tr, state s1, state s2, introspection_dispatch d1
     where m.id = md.mode_id and md.state_id = s1.id and
         tr.begin_state_id = s1.id and 
@@ -391,7 +391,7 @@ create view `v_mode_state_default_transition_rule_dispatch` as
 
 create view `v_mode_state_default_transition_rule_dispatch_w_id` as
     select tr.name, m.id mode_id, m.name mode, s1.id begin_state_id, s1.name begin_state, s2.id end_state_id, s2.name end_state, 
-        d1.package condition_package, d1.module condition_module, d1.class_name condition_class, d1.func_name condition_func
+        d1.package_name condition_package, d1.module_name condition_module, d1.class_name condition_class, d1.func_name condition_func
     from mode m, mode_state_default md, transition_rule tr, state s1, state s2, introspection_dispatch d1
     where m.id = md.mode_id and md.state_id = s1.id and
         tr.begin_state_id = s1.id and 
@@ -403,9 +403,9 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('startup',
         (select id from mode where name = @NONE),
         (select id from mode where name = 'startup'),
-        (select id from introspection_dispatch where identifier = 'startup.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'startup.switch.before'),
-        (select id from introspection_dispatch where identifier = 'startup.switch.after')
+        (select id from introspection_dispatch where name = 'startup.switch.condition'),
+        (select id from introspection_dispatch where name = 'startup.switch.before'),
+        (select id from introspection_dispatch where name = 'startup.switch.after')
     );
 
 
@@ -415,54 +415,54 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('startup.eval',
         (select id from mode where name = 'startup'),
         (select id from mode where name = 'eval'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.before'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.after')
+        (select id from introspection_dispatch where name = 'eval.switch.condition'),
+        (select id from introspection_dispatch where name = 'eval.switch.before'),
+        (select id from introspection_dispatch where name = 'eval.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('scan.eval',
         (select id from mode where name = 'scan'),
         (select id from mode where name = 'eval'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.before'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.after')
+        (select id from introspection_dispatch where name = 'eval.switch.condition'),
+        (select id from introspection_dispatch where name = 'eval.switch.before'),
+        (select id from introspection_dispatch where name = 'eval.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('match.eval',
         (select id from mode where name = 'match'),
         (select id from mode where name = 'eval'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.before'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.after')
+        (select id from introspection_dispatch where name = 'eval.switch.condition'),
+        (select id from introspection_dispatch where name = 'eval.switch.before'),
+        (select id from introspection_dispatch where name = 'eval.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('requests.eval',
         (select id from mode where name = 'requests'),
         (select id from mode where name = 'eval'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.before'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.after')
+        (select id from introspection_dispatch where name = 'eval.switch.condition'),
+        (select id from introspection_dispatch where name = 'eval.switch.before'),
+        (select id from introspection_dispatch where name = 'eval.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('report.eval',
         (select id from mode where name = 'report'),
         (select id from mode where name = 'eval'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.before'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.after')
+        (select id from introspection_dispatch where name = 'eval.switch.condition'),
+        (select id from introspection_dispatch where name = 'eval.switch.before'),
+        (select id from introspection_dispatch where name = 'eval.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('fix.eval',
         (select id from mode where name = 'fix'),
         (select id from mode where name = 'eval'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.before'),
-        (select id from introspection_dispatch where identifier = 'eval.switch.after')
+        (select id from introspection_dispatch where name = 'eval.switch.condition'),
+        (select id from introspection_dispatch where name = 'eval.switch.before'),
+        (select id from introspection_dispatch where name = 'eval.switch.after')
     );
 
 # paths to scan
@@ -471,36 +471,36 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('startup.scan',
         (select id from mode where name = 'startup'),
         (select id from mode where name = 'scan'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.before'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.after')
+        (select id from introspection_dispatch where name = 'scan.switch.condition'),
+        (select id from introspection_dispatch where name = 'scan.switch.before'),
+        (select id from introspection_dispatch where name = 'scan.switch.after')
     );
     
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('startup.scan',
         (select id from mode where name = 'startup'),
         (select id from mode where name = 'scan'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.before'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.after')
+        (select id from introspection_dispatch where name = 'scan.switch.condition'),
+        (select id from introspection_dispatch where name = 'scan.switch.before'),
+        (select id from introspection_dispatch where name = 'scan.switch.after')
     );
     
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('eval.scan',
         (select id from mode where name = 'eval'),
         (select id from mode where name = 'scan'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.before'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.after')
+        (select id from introspection_dispatch where name = 'scan.switch.condition'),
+        (select id from introspection_dispatch where name = 'scan.switch.before'),
+        (select id from introspection_dispatch where name = 'scan.switch.after')
     );
     
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('scan.scan',
         (select id from mode where name = 'scan'),
         (select id from mode where name = 'scan'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.before'),
-        (select id from introspection_dispatch where identifier = 'scan.switch.after')
+        (select id from introspection_dispatch where name = 'scan.switch.condition'),
+        (select id from introspection_dispatch where name = 'scan.switch.before'),
+        (select id from introspection_dispatch where name = 'scan.switch.after')
     );
     
 # paths to match
@@ -509,18 +509,18 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('startup.match',
         (select id from mode where name = 'startup'),
         (select id from mode where name = 'match'),
-        (select id from introspection_dispatch where identifier = 'match.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'match.switch.before'),
-        (select id from introspection_dispatch where identifier = 'match.switch.after')
+        (select id from introspection_dispatch where name = 'match.switch.condition'),
+        (select id from introspection_dispatch where name = 'match.switch.before'),
+        (select id from introspection_dispatch where name = 'match.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('eval.match',
         (select id from mode where name = 'eval'),
         (select id from mode where name = 'match'),
-        (select id from introspection_dispatch where identifier = 'match.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'match.switch.before'),
-        (select id from introspection_dispatch where identifier = 'match.switch.after')
+        (select id from introspection_dispatch where name = 'match.switch.condition'),
+        (select id from introspection_dispatch where name = 'match.switch.before'),
+        (select id from introspection_dispatch where name = 'match.switch.after')
     );
 
 
@@ -528,9 +528,9 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('scan.match',
         (select id from mode where name = 'scan'),
         (select id from mode where name = 'match'),
-        (select id from introspection_dispatch where identifier = 'match.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'match.switch.before'),
-        (select id from introspection_dispatch where identifier = 'match.switch.after')
+        (select id from introspection_dispatch where name = 'match.switch.condition'),
+        (select id from introspection_dispatch where name = 'match.switch.before'),
+        (select id from introspection_dispatch where name = 'match.switch.after')
     );
 
 # paths to report
@@ -539,18 +539,18 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('fix.report',
         (select id from mode where name = 'fix'),
         (select id from mode where name = 'report'),
-        (select id from introspection_dispatch where identifier = 'report.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'report.switch.before'),
-        (select id from introspection_dispatch where identifier = 'report.switch.after')
+        (select id from introspection_dispatch where name = 'report.switch.condition'),
+        (select id from introspection_dispatch where name = 'report.switch.before'),
+        (select id from introspection_dispatch where name = 'report.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('requests.report',
         (select id from mode where name = 'requests'),
         (select id from mode where name = 'report'),
-        (select id from introspection_dispatch where identifier = 'report.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'report.switch.before'),
-        (select id from introspection_dispatch where identifier = 'report.switch.after')
+        (select id from introspection_dispatch where name = 'report.switch.condition'),
+        (select id from introspection_dispatch where name = 'report.switch.before'),
+        (select id from introspection_dispatch where name = 'report.switch.after')
     );
 
 # paths to requests
@@ -559,27 +559,27 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('scan.requests',
         (select id from mode where name = 'scan'),
         (select id from mode where name = 'requests'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.before'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.after')
+        (select id from introspection_dispatch where name = 'requests.switch.condition'),
+        (select id from introspection_dispatch where name = 'requests.switch.before'),
+        (select id from introspection_dispatch where name = 'requests.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('match.requests',
         (select id from mode where name = 'match'),
         (select id from mode where name = 'requests'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.before'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.after')
+        (select id from introspection_dispatch where name = 'requests.switch.condition'),
+        (select id from introspection_dispatch where name = 'requests.switch.before'),
+        (select id from introspection_dispatch where name = 'requests.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('eval.requests',
         (select id from mode where name = 'eval'),
         (select id from mode where name = 'requests'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.before'),
-        (select id from introspection_dispatch where identifier = 'requests.switch.after')
+        (select id from introspection_dispatch where name = 'requests.switch.condition'),
+        (select id from introspection_dispatch where name = 'requests.switch.before'),
+        (select id from introspection_dispatch where name = 'requests.switch.after')
     );
 
 # paths to fix
@@ -588,18 +588,18 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('requests.fix',
         (select id from mode where name = 'requests'),
         (select id from mode where name = 'fix'),
-        (select id from introspection_dispatch where identifier = 'fix.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'fix.switch.before'),
-        (select id from introspection_dispatch where identifier = 'fix.switch.after')
+        (select id from introspection_dispatch where name = 'fix.switch.condition'),
+        (select id from introspection_dispatch where name = 'fix.switch.before'),
+        (select id from introspection_dispatch where name = 'fix.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('report.fix',
         (select id from mode where name = 'report'),
         (select id from mode where name = 'fix'),
-        (select id from introspection_dispatch where identifier = 'fix.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'fix.switch.before'),
-        (select id from introspection_dispatch where identifier = 'fix.switch.after')
+        (select id from introspection_dispatch where name = 'fix.switch.condition'),
+        (select id from introspection_dispatch where name = 'fix.switch.before'),
+        (select id from introspection_dispatch where name = 'fix.switch.after')
     );
 
 # paths to shutdown
@@ -608,18 +608,18 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
     VALUES('fix.shutdown',
         (select id from mode where name = 'fix'),
         (select id from mode where name = 'shutdown'),
-        (select id from introspection_dispatch where identifier = 'shutdown.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'shutdown.switch.before'),
-        (select id from introspection_dispatch where identifier = 'shutdown.switch.after')
+        (select id from introspection_dispatch where name = 'shutdown.switch.condition'),
+        (select id from introspection_dispatch where name = 'shutdown.switch.before'),
+        (select id from introspection_dispatch where name = 'shutdown.switch.after')
     );
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('report.shutdown',
         (select id from mode where name = 'report'),
         (select id from mode where name = 'shutdown'),
-        (select id from introspection_dispatch where identifier = 'shutdown.switch.condition'),
-        (select id from introspection_dispatch where identifier = 'shutdown.switch.before'),
-        (select id from introspection_dispatch where identifier = 'shutdown.switch.after')
+        (select id from introspection_dispatch where name = 'shutdown.switch.condition'),
+        (select id from introspection_dispatch where name = 'shutdown.switch.before'),
+        (select id from introspection_dispatch where name = 'shutdown.switch.after')
     );
 
 CREATE TABLE `mode_state_default_param` (
@@ -635,13 +635,13 @@ CREATE TABLE `mode_state_default_param` (
   CONSTRAINT `fk_mode_state_default_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
 );
 
-INSERT INTO mode_state_default_param(mode_state_default_id, name, value, effective_dt) VALUES 
+INSERT INTO mode_state_default_param(mode_state_default_id,name, value, effective_dt) VALUES 
   ((select id from mode_state_default where state_id = (select id from state where name = 'discover')), 'high.level.scan', 'true', now());
 
-INSERT INTO mode_state_default_param(mode_state_default_id, name, value, effective_dt) VALUES 
+INSERT INTO mode_state_default_param(mode_state_default_id,name, value, effective_dt) VALUES 
   ((select id from mode_state_default where state_id = (select id from state where name = 'update')), 'update.scan', 'true', now());
     
-INSERT INTO mode_state_default_param(mode_state_default_id, name, value, effective_dt) VALUES 
+INSERT INTO mode_state_default_param(mode_state_default_id,name, value, effective_dt) VALUES 
   ((select id from mode_state_default where state_id = (select id from state where name = 'monitor')), 'deep.scan', 'true', now());
 
 
@@ -661,7 +661,7 @@ INSERT INTO mode_state_default_param(mode_state_default_id, name, value, effecti
 
 
 CREATE VIEW `v_mode_state_default_dispatch` AS 
-  SELECT m.name mode_name, s.name state_name, d.identifier, d.package, d.module, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance, 
+  SELECT m.name mode_name, s.name state_name, d.name, d.package_name, d.module_name, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance, 
     ms.effective_dt, ms.expiration_dt
   FROM mode m, state s, mode_state_default ms, introspection_dispatch d
   WHERE ms.state_id = s.id
@@ -672,7 +672,7 @@ CREATE VIEW `v_mode_state_default_dispatch` AS
 
 
 CREATE VIEW `v_mode_state_default_dispatch_w_id` AS 
-  SELECT m.id mode_id, s.id state_id, s.name state_name, d.identifier, d.package, d.module, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance, 
+  SELECT m.id mode_id, s.id state_id, s.name state_name, d.name, d.package_name, d.module_name, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance, 
     ms.effective_dt, ms.expiration_dt
   FROM mode m, state s, mode_state_default ms, introspection_dispatch d
   WHERE ms.state_id = s.id
