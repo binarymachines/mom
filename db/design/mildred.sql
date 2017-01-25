@@ -97,20 +97,20 @@ CREATE TABLE IF NOT EXISTS `file_type` (
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `file_format` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `file_type_id` INT(11) UNSIGNED NOT NULL,
-  `ext` VARCHAR(5) NOT NULL,
-  `name` VARCHAR(128) NOT NULL,
-  `active_flag` TINYINT(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`),
-  INDEX `fk_file_format_file_type` (`file_type_id` ASC),
-  CONSTRAINT `fk_file_format_file_type`
-    FOREIGN KEY (`file_type_id`)
-    REFERENCES `mildred`.`file_type` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
+-- CREATE TABLE IF NOT EXISTS `file_format` (
+--   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+--   `file_type_id` INT(11) UNSIGNED NOT NULL,
+--   `ext` VARCHAR(5) NOT NULL,
+--   `name` VARCHAR(128) NOT NULL,
+--   `active_flag` TINYINT(1) NOT NULL DEFAULT '1',
+--   PRIMARY KEY (`id`),
+--   INDEX `fk_file_format_file_type` (`file_type_id` ASC),
+--   CONSTRAINT `fk_file_format_file_type`
+--     FOREIGN KEY (`file_type_id`)
+--     REFERENCES `mildred`.`file_type` (`id`)
+--     ON DELETE NO ACTION
+--     ON UPDATE NO ACTION
+-- );
 
 CREATE TABLE `delimited_file_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -175,11 +175,14 @@ CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(767) NOT NULL,
-  `file_type` varchar(8) DEFAULT NULL,
+  `file_type_id` int(11) unsigned not null default 0,
   `effective_dt` datetime NOT NULL DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   `category_prototype_flag` tinyint not null default 0,
   `active_flag` tinyint not null default 1,
+  CONSTRAINT `fk_directory_file_type`
+    FOREIGN KEY (`file_type_id`)
+    REFERENCES `mildred`.`file_type` (`id`),
   PRIMARY KEY (`id`), 
   UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
 );
@@ -329,54 +332,56 @@ INSERT INTO `mildred`.`file_type` (`name`) VALUES ("ape");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("flac");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("ogg");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("oga");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("iso");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("m4a");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("mpc");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("mp3");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("wav");
 
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`, `active_flag`) VALUES ('media', '/home/mpippins/google-drive/books', 'pdf', now(), '9999-12-31 23:59:59', 0);
 
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/live recordings [wav]', 'wav', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `category_prototype_flag`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums', 'mp3', 1, now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [ape]', 'ape', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [flac]', 'flac', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [iso]', 'iso', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [mpc]', 'mpc', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [ogg]', 'ogg', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [wav]', 'wav', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `category_prototype_flag`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations', 'mp3', 1, now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [aac]', 'aac', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [flac]', 'flac', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [iso]', 'iso', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [ogg]', 'ogg', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [wav]', 'wav', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/random compilations', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/random tracks', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded albums', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded albums [flac]', 'flac', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded albums [wav]', 'wav', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded compilations', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded compilations [flac]', 'flac', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded discographies', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded discographies [flac]', 'flac', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/webcasts and custom mixes', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/live recordings', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/live recordings [flac]', 'flac', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/temp', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music/incoming/complete', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music/mp3', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music/shared', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/radio', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/incoming', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music [noscan]/albums', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music [iTunes]', 'mp3', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/spoken word', '', now(), '9999-12-31 23:59:59');
+-- INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`, `active_flag`) VALUES ('media', '/home/mpippins/google-drive/books', 'pdf', now(), '9999-12-31 23:59:59', 0);
 
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/radio', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/spoken word', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared [flac]', '*', now(), '9999-12-31 23:59:59');
-INSERT INTO `directory` (`index_name`, `name`, `file_type`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared [wav]', '*', now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/live recordings [wav]', (select id from file_type where name = 'wav'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `category_prototype_flag`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums', (select id from file_type where name = 'mp3'), 1, now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [ape]', (select id from file_type where name = 'ape'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [flac]', (select id from file_type where name = 'flac'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [iso]', (select id from file_type where name = 'iso'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [mpc]', (select id from file_type where name = 'mpc'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [ogg]', (select id from file_type where name = 'ogg'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/albums [wav]', (select id from file_type where name = 'wav'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `category_prototype_flag`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations', (select id from file_type where name = 'mp3'), 1, now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [aac]', (select id from file_type where name = 'aac'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [flac]', (select id from file_type where name = 'flac'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [iso]', (select id from file_type where name = 'iso'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [ogg]', (select id from file_type where name = 'ogg'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/compilations [wav]', (select id from file_type where name = 'wav'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/random compilations', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/random tracks', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded albums', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded albums [flac]', (select id from file_type where name = 'flac'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded albums [wav]', (select id from file_type where name = 'wav'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded compilations', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded compilations [flac]', (select id from file_type where name = 'flac'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded discographies', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/recently downloaded discographies [flac]', (select id from file_type where name = 'flac'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/webcasts and custom mixes', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/live recordings', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/live recordings [flac]', (select id from file_type where name = 'flac'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/temp', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music/incoming/complete', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music/mp3', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music/shared', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/radio', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/incoming', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music [noscan]/albums', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/music [iTunes]', (select id from file_type where name = 'mp3'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/SG932/media/spoken word', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/radio', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/spoken word', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared', (select id from file_type where name = '*'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared [flac]', (select id from file_type where name = 'flac'), now(), '9999-12-31 23:59:59');
+INSERT INTO `directory` (`index_name`, `name`, `file_type_id`, `effective_dt`, `expiration_dt`) VALUES ('media', '/media/removable/Audio/music/shared [wav]', (select id from file_type where name = 'wav'), now(), '9999-12-31 23:59:59');
 
 INSERT INTO `directory_amelioration` (`id`, `name`, `index_name`, `use_tag_flag`, `replacement_tag`, `use_parent_folder_flag`, `effective_dt`, `expiration_dt`) VALUES (1, 'cd1', 'media',0,NULL,1,NULL, '9999-12-31 23:59:59');
 INSERT INTO `directory_amelioration` (`id`, `name`, `index_name`, `use_tag_flag`, `replacement_tag`, `use_parent_folder_flag`, `effective_dt`, `expiration_dt`) VALUES (2, 'cd2', 'media',0,NULL,1,NULL, '9999-12-31 23:59:59');
