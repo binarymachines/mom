@@ -1202,14 +1202,16 @@ CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(767) NOT NULL,
-  `file_type` varchar(8) DEFAULT NULL,
-  `effective_dt` datetime DEFAULT NULL,
+  `file_type_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `effective_dt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  `ACTIVE_FLAG` tinyint(1) NOT NULL,
   `CATEGORY_PROTOTYPE_FLAG` tinyint(1) NOT NULL,
+  `ACTIVE_FLAG` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
+  UNIQUE KEY `uk_directory_name` (`index_name`,`name`),
+  KEY `fk_directory_file_type` (`file_type_id`),
+  CONSTRAINT `fk_directory_file_type` FOREIGN KEY (`file_type_id`) REFERENCES `file_type` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1340,7 +1342,7 @@ CREATE TABLE `exec_rec` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1408,7 +1410,7 @@ CREATE TABLE `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(25) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1505,7 +1507,7 @@ CREATE TABLE `op_record` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=397077 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=398651 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

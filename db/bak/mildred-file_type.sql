@@ -38,6 +38,7 @@ INSERT INTO `file_type` (`id`, `name`) VALUES (7,'m4a');
 INSERT INTO `file_type` (`id`, `name`) VALUES (8,'mpc');
 INSERT INTO `file_type` (`id`, `name`) VALUES (9,'mp3');
 INSERT INTO `file_type` (`id`, `name`) VALUES (10,'wav');
+INSERT INTO `file_type` (`id`, `name`) VALUES (11,'iso');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
