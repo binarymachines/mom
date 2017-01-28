@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
+    <view class="com.angrysurfer.mildred.cuba.actions.entity.MetaReason"
+          extends="_local"
+          name="MetaReason-screen-view">
+        <property name="parentMetaReason"
+                  view="_minimal"/>
+        <property name="dispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.cuba.actions.entity.MetaActionParam"
+          extends="_local"
+          name="MetaActionParam-screen-view">
+        <property name="metaAction"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.cuba.actions.entity.MetaAction"
+          extends="_local"
+          name="MetaAction-screen-view">
+        <property name="dispatch"
+                  view="_minimal"/>
+        <property name="metaReason"
+                  view="_minimal">
+            <property name="documentType"/>
+            <property name="weight"/>
+        </property>
+        <property name="metaActionParam"
+                  view="_minimal">
+            <property name="vectorParamName"/>
+        </property>
+    </view>
+    <view class="com.angrysurfer.mildred.cuba.actions.entity.EsSearchSpec"
+          extends="_local"
+          name="esSearchSpec-view">
+        <property name="esSearchFieldSpec"
+                  view="_minimal">
+            <property name="fieldName"/>
+            <property name="boost"/>
+            <property name="bool"/>
+            <property name="operator"/>
+            <property name="minimumShouldMatch"/>
+            <property name="analyzer"/>
+            <property name="querySection"/>
+            <property name="defaultValue"/>
+        </property>
+    </view>
+</views>

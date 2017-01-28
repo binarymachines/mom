@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.actions.web.essearchspec.EsSearchSpecBrowse"
+        focusComponent="esSearchSpecsTable"
+        lookupComponent="esSearchSpecsTable"
+        messagesPack="com.angrysurfer.mildred.cuba.actions.web.essearchspec">
+    <dsContext>
+        <collectionDatasource id="esSearchSpecsDs"
+                              class="com.angrysurfer.mildred.cuba.actions.entity.EsSearchSpec"
+                              view="_local">
+            <query>
+                <![CDATA[select e from actionsui$EsSearchSpec e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="esSearchSpecsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="esSearchSpecsTable"
+                datasource="esSearchSpecsDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="esSearchSpecsTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="queryType"/>
+                <column id="maxScorePercentage"/>
+                <column id="appliesToFileType"/>
+                <column id="activeFlag"/>
+            </columns>
+            <rows datasource="esSearchSpecsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="esSearchSpecsTable.create"/>
+                <button id="editBtn"
+                        action="esSearchSpecsTable.edit"/>
+                <button id="removeBtn"
+                        action="esSearchSpecsTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

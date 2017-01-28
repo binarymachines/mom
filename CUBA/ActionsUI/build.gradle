@@ -1,0 +1,203 @@
+
+buildscript {
+    ext.cubaVersion = '6.3.6'
+    repositories {
+        maven {
+            url 'https://repo.cuba-platform.com/content/groups/work'
+            credentials {
+                username(rootProject.hasProperty('repoUser') ? rootProject['repoUser'] : 'cuba')
+                password(rootProject.hasProperty('repoPass') ? rootProject['repoPass'] : 'cuba123')
+            }
+        }
+        
+    }
+    dependencies {
+        classpath "com.haulmont.gradle:cuba-plugin:$cubaVersion"
+
+        classpath "com.haulmont.cuba:cuba-global:$cubaVersion"
+
+        
+    }
+}
+
+def globalModule = project(':mildred-global')
+def coreModule = project(':mildred-core')
+def guiModule = project(':mildred-gui')
+def webModule = project(':mildred-web')
+
+def servletApi = 'org.apache.tomcat:tomcat-servlet-api:8.0.26'
+
+
+apply(plugin: 'idea')
+apply(plugin: 'cuba')
+
+cuba {
+    artifact {
+        group = 'com.angrysurfer.mildred.cuba.actions'
+        version = '0.1'
+        isSnapshot = true
+    }
+    tomcat {
+        dir = "$project.rootDir/build/tomcat"
+    }
+}
+
+def mysql = 'mysql:mysql-connector-java:5.1.38'
+
+configure([globalModule, coreModule, guiModule, webModule]) {
+    apply(plugin: 'java')
+    apply(plugin: 'maven')
+    apply(plugin: 'idea')
+    apply(plugin: 'cuba')
+
+    dependencies {
+        testCompile('junit:junit:4.12')
+    }
+
+    task sourceJar(type: Jar) {
+        from file('src')
+        classifier = 'sources'
+    }
+
+    artifacts {
+        archives sourceJar
+    }
+}
+
+configure(globalModule) {
+    task enhance(type: CubaEnhancing)
+    
+    
+}
+
+configure(coreModule) {
+
+    configurations {
+        jdbc
+        dbscripts
+    }
+
+    dependencies {
+        compile(globalModule)
+        provided(servletApi)
+        jdbc(mysql)
+        testRuntime(mysql)
+
+    }
+
+    task cleanConf(description: 'Cleans up conf directory') << {
+        def dir = new File(cuba.tomcat.dir, '/conf/mildred-core')
+        if (dir.isDirectory()) {
+            ant.delete(includeemptydirs: true) {
+                fileset(dir: dir, includes: '**/*', excludes: 'local.app.properties')
+            }
+        }
+    }
+
+    task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
+        appName = 'mildred-core'
+        appJars('mildred-global', 'mildred-core')
+    }
+
+    task createDb(dependsOn: assembleDbScripts, description: 'Creates local database', type: CubaDbCreation) {
+        dbms = 'mysql'
+        host = 'localhost'
+        dbName = 'mildred_action'
+        dbUser = 'root'
+        dbPassword = 'steel'
+        connectionParams = '?useSSL=false&allowMultiQueries=true'
+    }
+
+    task updateDb(dependsOn: assembleDbScripts, description: 'Updates local database', type: CubaDbUpdate) {
+        dbms = 'mysql'
+        host = 'localhost'
+        dbName = 'mildred_action'
+        dbUser = 'root'
+        dbPassword = 'steel'
+        connectionParams = '?useSSL=false&allowMultiQueries=true'
+    }
+}
+
+configure(guiModule) {
+    dependencies {
+        compile(globalModule)
+
+    }
+
+    task deployConf(type: Copy) {
+        from file('src')
+        include "com/angrysurfer/mildred/cuba/actions/**"
+        into "$cuba.tomcat.dir/conf/mildred"
+    }
+}
+
+configure(webModule) {
+    configurations {
+        webcontent
+    }
+
+    dependencies {
+        provided(servletApi)
+        compile(guiModule)
+
+    }
+    
+    task webArchive(type: Zip) {
+        from file("$buildDir/web")
+        from file('web')
+        classifier = 'web'
+    }
+
+    artifacts {
+        archives webArchive
+    }
+
+    task deployConf(type: Copy) {
+        from file('src')
+        include "com/angrysurfer/mildred/cuba/actions/**"
+        into "$cuba.tomcat.dir/conf/mildred"
+    }
+
+    task clearMessagesCache(type: CubaClearMessagesCache) {
+        appName = 'mildred'
+    }
+    deployConf.dependsOn clearMessagesCache
+
+    task cleanConf(description: 'Cleans up conf directory') << {
+        def dir = new File(cuba.tomcat.dir, '/conf/mildred')
+        if (dir.isDirectory()) {
+            ant.delete(includeemptydirs: true) {
+                fileset(dir: dir, includes: '**/*', excludes: 'local.app.properties')
+            }
+        }
+    }
+
+    task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
+        appName = 'mildred'
+        appJars('mildred-global', 'mildred-gui', 'mildred-web')
+    }
+}
+
+
+
+
+task undeploy(type: Delete, dependsOn: ':mildred-web:cleanConf') {
+    delete("$cuba.tomcat.dir/shared")
+    delete("$cuba.tomcat.dir/webapps/mildred-core")
+    delete("$cuba.tomcat.dir/webapps/mildred")
+}
+
+task restart(dependsOn: ['stop', ':mildred-core:deploy', ':mildred-web:deploy'], description: 'Redeploys applications and restarts local Tomcat') << {
+    ant.waitfor(maxwait: 6, maxwaitunit: 'second', checkevery: 2, checkeveryunit: 'second') {
+        not {
+            socket(server: 'localhost', port: '8787')
+        }
+    }
+    start.execute()
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.13'
+}
+
+apply from: 'extra.gradle'

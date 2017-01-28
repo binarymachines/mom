@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
+    <menu id="application"
+          insertBefore="administration">
+        <item id="actionsui$MetaAction.browse"
+              icon="icons/wf-design-scripts.png"/>
+        <item id="actionsui$MetaActionParam.browse"/>
+        <item id="actionsui$MetaReason.browse"/>
+        <item id="actionsui$MetaReasonParam.browse"/>
+        <item id="actionsui$ActionDispatch.browse"/>
+        <item id="actionsui$EsSearchSpec.browse"/>
+        <item id="actionsui$EsSearchFieldSpec.browse"/>
+    </menu>
+</menu-config>

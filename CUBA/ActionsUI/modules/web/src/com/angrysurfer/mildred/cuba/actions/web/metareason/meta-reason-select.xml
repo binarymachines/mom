@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="Select a Reason"
+        class="com.angrysurfer.mildred.cuba.actions.web.metareason.MetaReasonBrowse"
+        focusComponent="metaReasonsTable"
+        lookupComponent="metaReasonsTable"
+        messagesPack="com.angrysurfer.mildred.cuba.actions.web.metareason">
+    <dsContext>
+        <collectionDatasource id="metaReasonsDs"
+                              class="com.angrysurfer.mildred.cuba.actions.entity.MetaReason"
+                              view="MetaReason-screen-view">
+            <query>
+                <![CDATA[select e from actionsui$MetaReason e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode forceDialog="true"
+                height="600"
+                width="800"/>
+    <layout expand="metaReasonsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="metaReasonsTable"
+                datasource="metaReasonsDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="metaReasonsTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="documentType"
+                        caption="Document Type"/>
+                <column id="dispatch"
+                        caption="Condition"/>
+                <column id="expectedResult"
+                        caption="Condition Result"/>
+                <column id="esClause"
+                        caption="ES Clause"/>
+                <column id="weight"
+                        caption="Weight"/>
+                <column id="parentMetaReason"
+                        caption="Parent Reason"/>
+            </columns>
+            <rows datasource="metaReasonsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="metaReasonsTable.create"/>
+                <button id="editBtn"
+                        action="metaReasonsTable.edit"/>
+                <button id="removeBtn"
+                        action="metaReasonsTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

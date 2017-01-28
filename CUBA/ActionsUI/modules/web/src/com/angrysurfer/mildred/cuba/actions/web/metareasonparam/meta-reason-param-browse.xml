@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.actions.web.metareasonparam.MetaReasonParamBrowse"
+        focusComponent="metaReasonParamsTable"
+        lookupComponent="metaReasonParamsTable"
+        messagesPack="com.angrysurfer.mildred.cuba.actions.web.metareasonparam">
+    <dsContext>
+        <collectionDatasource id="metaReasonParamsDs"
+                              class="com.angrysurfer.mildred.cuba.actions.entity.MetaReasonParam"
+                              view="_local">
+            <query>
+                <![CDATA[select e from actionsui$MetaReasonParam e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="metaReasonParamsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="metaReasonParamsTable"
+                datasource="metaReasonParamsDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="metaReasonParamsTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="vectorParamName"/>
+                <column id="metaReason"/>
+            </columns>
+            <rows datasource="metaReasonParamsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="metaReasonParamsTable.create"/>
+                <button id="editBtn"
+                        action="metaReasonParamsTable.edit"/>
+                <button id="removeBtn"
+                        action="metaReasonParamsTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

@@ -15,7 +15,7 @@ import sql
 import library 
 
 from core import log
-from const import SCAN, MATCH, CLEAN, EVAL, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INITIAL, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR, HSCAN, DEEP, USCAN
+from const import SCAN, MATCH, CLEAN, ANALYZE, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INITIAL, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR, HSCAN, DEEP, USCAN
 
 from core.modes import Mode
 from core.modestate import StatefulMode, ModeStateChangeHandler, DefaultModeHandler
@@ -160,7 +160,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
         self._build_instance_registry()
 
         self.startmode = self._create_mode(STARTUP)
-        self.evalmode = self._create_mode(EVAL)
+        self.analyzemode = self._create_mode(ANALYZE)
         self.scanmode = self._create_mode(SCAN)
         self.matchmode = self._create_mode(MATCH)
         self.fixmode = self._create_mode(FIX)
@@ -308,15 +308,15 @@ class CleaningModeHandler(DefaultModeHandler):
 
 # eval mode
 
-class EvalModeHandler(DefaultModeHandler):
+class AnalyzeModeHandler(DefaultModeHandler):
     def __init__(self, owner, vector):
-        super(EvalModeHandler, self).__init__(owner, vector)
+        super(AnalyzeModeHandler, self).__init__(owner, vector)
 
-    def can_eval(self, selector, active, possible):
+    def can_analyze(self, selector, active, possible):
         return True
 
-    def do_eval(self):
-        print  "entering evaluation mode..."
+    def do_analyze(self):
+        print  "entering analysis mode..."
         LOG.debug('%s evaluating' % self.owner.name)
         analyze.analyze(self.vector)
 

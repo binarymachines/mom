@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<screen-config xmlns="http://schemas.haulmont.com/cuba/screens.xsd">
+    <include file="com/angrysurfer/mildred/cuba/actions/screens.xml"/>
+    <screen id="actionsui$MetaReason.edit"
+            template="com/angrysurfer/mildred/cuba/actions/web/metareason/meta-reason-edit.xml"/>
+    <screen id="actionsui$MetaReason.browse"
+            template="com/angrysurfer/mildred/cuba/actions/web/metareason/meta-reason-browse.xml"/>
+    <screen id="actionsui$ActionDispatch.browse"
+            template="com/angrysurfer/mildred/cuba/actions/web/actiondispatch/action-dispatch-browse.xml"/>
+    <screen id="actionsui$ActionDispatch.edit"
+            template="com/angrysurfer/mildred/cuba/actions/web/actiondispatch/action-dispatch-edit.xml"/>
+    <screen id="actionsui$MetaActionParam.browse"
+            template="com/angrysurfer/mildred/cuba/actions/web/metaactionparam/meta-action-param-browse.xml"/>
+    <screen id="actionsui$MetaActionParam.edit"
+            template="com/angrysurfer/mildred/cuba/actions/web/metaactionparam/meta-action-param-edit.xml"/>
+    <screen id="actionsui$MetaAction.edit"
+            template="com/angrysurfer/mildred/cuba/actions/web/metaaction/meta-action-edit.xml"/>
+    <screen id="actionsui$MetaAction.browse"
+            template="com/angrysurfer/mildred/cuba/actions/web/metaaction/meta-action-browse.xml"/>
+    <screen id="actionsui$EsSearchFieldSpec.browse"
+            template="com/angrysurfer/mildred/cuba/actions/web/essearchfieldspec/es-search-field-spec-browse.xml"/>
+    <screen id="actionsui$EsSearchFieldSpec.edit"
+            template="com/angrysurfer/mildred/cuba/actions/web/essearchfieldspec/es-search-field-spec-edit.xml"/>
+    <screen id="actionsui$EsSearchSpec.browse"
+            template="com/angrysurfer/mildred/cuba/actions/web/essearchspec/es-search-spec-browse.xml"/>
+    <screen id="actionsui$EsSearchSpec.edit"
+            template="com/angrysurfer/mildred/cuba/actions/web/essearchspec/es-search-spec-edit.xml"/>
+    <screen id="actionsui$MetaReasonParam.edit"
+            template="com/angrysurfer/mildred/cuba/actions/web/metareasonparam/meta-reason-param-edit.xml"/>
+    <screen id="actionsui$MetaReasonParam.browse"
+            template="com/angrysurfer/mildred/cuba/actions/web/metareasonparam/meta-reason-param-browse.xml"/>
+    <screen id="actionsui$MetaReason.select"
+            template="com/angrysurfer/mildred/cuba/actions/web/metareason/meta-reason-select.xml"/>
+</screen-config>

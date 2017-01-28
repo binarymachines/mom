@@ -1,0 +1,6 @@
+rootProject.name = 'M2ActionsUI'
+include(':mildred-global', ':mildred-core', ':mildred-gui', ':mildred-web')
+project(':mildred-global').projectDir = new File(settingsDir, 'modules/global')
+project(':mildred-core').projectDir = new File(settingsDir, 'modules/core')
+project(':mildred-gui').projectDir = new File(settingsDir, 'modules/gui')
+project(':mildred-web').projectDir = new File(settingsDir, 'modules/web')

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editCaption"
+        class="com.angrysurfer.mildred.cuba.actions.web.metareason.MetaReasonEdit"
+        datasource="metaReasonDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.cuba.actions.web.metareason">
+    <dsContext>
+        <datasource id="metaReasonDs"
+                    class="com.angrysurfer.mildred.cuba.actions.entity.MetaReason"
+                    view="MetaReason-screen-view"/>
+        <collectionDatasource id="dispatchesDs"
+                              class="com.angrysurfer.mildred.cuba.actions.entity.ActionDispatch"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e 
+from actionsui$ActionDispatch e 
+where e.category = 'condition' 
+order by e.name]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="parentMetaReasonDs"
+                              class="com.angrysurfer.mildred.cuba.actions.entity.MetaReason"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from actionsui$MetaReason e order by e.name]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode forceDialog="true"
+                height="385"
+                modal="true"
+                width="400"/>
+    <layout expand="windowActions"
+            margin="true"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="metaReasonDs">
+            <column width="250px">
+                <field id="name"
+                       caption="Name"/>
+                <field id="documentType"
+                       caption="Document Type"/>
+                <field id="dispatch"
+                       caption="Condition"
+                       datasource="metaReasonDs"
+                       optionsDatasource="dispatchesDs"/>
+                <field id="expectedResult"
+                       caption="Condition Result"/>
+                <field id="weight"
+                       caption="Weight"/>
+                <field id="parentMetaReason"
+                       caption="Parent Reason"
+                       optionsDatasource="parentMetaReasonDs"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               align="MIDDLE_CENTER"
+               screen="editWindowActions"/>
+    </layout>
+</window>

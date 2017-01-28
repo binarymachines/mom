@@ -37,7 +37,7 @@ INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`,
 INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (2,'media','startup',0,'2017-01-16 04:19:53','9999-12-31 23:59:59');
 INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (3,'media','scan',1,'2017-01-16 04:19:53','9999-12-31 23:59:59');
 INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (4,'media','match',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','eval',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','analyze',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
 INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (6,'media','fix',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
 INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (7,'media','clean',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
 INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (8,'media','sync',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
