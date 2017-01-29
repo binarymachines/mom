@@ -2,13 +2,12 @@
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
     <menu id="application"
           insertBefore="administration">
-        <item id="actionsui$MetaAction.browse"
-              icon="icons/wf-design-scripts.png"/>
-        <item id="actionsui$MetaActionParam.browse"/>
-        <item id="actionsui$MetaReason.browse"/>
-        <item id="actionsui$MetaReasonParam.browse"/>
-        <item id="actionsui$ActionDispatch.browse"/>
-        <item id="actionsui$EsSearchSpec.browse"/>
-        <item id="actionsui$EsSearchFieldSpec.browse"/>
+        <item id="actions$ActionDispatch.browse"/>
+        <item id="actions$ActionStatus.browse"/>
+        <item id="actions$EsSearchFieldSpec.browse"/>
+        <item id="actions$EsSearchSpec.browse"/>
+        <item id="actions$MetaAction.browse"/>
+        <item id="actions$MetaReason.browse"/>
+        <item id="actions$VectorParam.browse"/>
     </menu>
 </menu-config>

@@ -11,16 +11,9 @@
                     view="MetaAction-screen-view">
             <collectionDatasource id="metaReasonDs"
                                   property="metaReason"/>
-            <collectionDatasource id="metaActionParamDs"
-                                  property="metaActionParam"/>
+            <collectionDatasource id="vectorParamDs"
+                                  property="vectorParam"/>
         </datasource>
-        <collectionDatasource id="actionDispatchesOptionDs"
-                              class="com.angrysurfer.mildred.cuba.actions.entity.ActionDispatch"
-                              view="_local">
-            <query>
-                <![CDATA[select e from actionsui$ActionDispatch e where e.category = 'action' order by e.name]]>
-            </query>
-        </collectionDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -31,38 +24,10 @@
             <column width="250px">
                 <field id="name"/>
                 <field id="documentType"/>
-                <field id="dispatch"
-                       caption="Dispatch Function"
-                       optionsDatasource="actionDispatchesOptionDs"/>
+                <field id="dispatch"/>
                 <field id="priority"/>
             </column>
         </fieldGroup>
-        <groupBox id="metaActionParamBox"
-                  caption="Action Parameters">
-            <table id="metaActionParamTable"
-                   height="200px"
-                   width="100%">
-                <actions>
-                    <action id="add"
-                            openType="DIALOG"/>
-                    <action id="create"
-                            openType="DIALOG"/>
-                    <action id="remove"/>
-                </actions>
-                <columns>
-                    <column id="vectorParamName"/>
-                </columns>
-                <rows datasource="metaActionParamDs"/>
-                <buttonsPanel>
-                    <button id="btnAddActionParam"
-                            action="metaActionParamTable.add"/>
-                    <button id="btnCreateActionParam"
-                            action="metaActionParamTable.create"/>
-                    <button id="btnRemoveActionParam"
-                            action="metaActionParamTable.remove"/>
-                </buttonsPanel>
-            </table>
-        </groupBox>
         <groupBox id="metaReasonBox"
                   caption="msg://com.angrysurfer.mildred.cuba.actions.entity/MetaAction.metaReason">
             <table id="metaReasonTable"
@@ -74,15 +39,30 @@
                 </actions>
                 <columns>
                     <column id="name"/>
-                    <column id="documentType"/>
-                    <column id="weight"/>
-                    <column id="solo"
-                            generator="generateSoloCell"/>
                 </columns>
                 <rows datasource="metaReasonDs"/>
                 <buttonsPanel>
                     <button action="metaReasonTable.add"/>
                     <button action="metaReasonTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <groupBox id="vectorParamBox"
+                  caption="msg://com.angrysurfer.mildred.cuba.actions.entity/MetaAction.vectorParam">
+            <table id="vectorParamTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="name"/>
+                </columns>
+                <rows datasource="vectorParamDs"/>
+                <buttonsPanel>
+                    <button action="vectorParamTable.add"/>
+                    <button action="vectorParamTable.remove"/>
                 </buttonsPanel>
             </table>
         </groupBox>

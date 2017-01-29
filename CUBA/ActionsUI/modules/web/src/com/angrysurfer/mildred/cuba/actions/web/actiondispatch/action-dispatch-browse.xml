@@ -10,7 +10,7 @@
                               class="com.angrysurfer.mildred.cuba.actions.entity.ActionDispatch"
                               view="_local">
             <query>
-                <![CDATA[select e from actionsui$ActionDispatch e]]>
+                <![CDATA[select e from actions$ActionDispatch e]]>
             </query>
         </collectionDatasource>
     </dsContext>

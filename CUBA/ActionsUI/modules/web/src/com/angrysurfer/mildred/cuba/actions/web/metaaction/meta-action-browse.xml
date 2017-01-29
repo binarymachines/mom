@@ -10,7 +10,7 @@
                               class="com.angrysurfer.mildred.cuba.actions.entity.MetaAction"
                               view="MetaAction-screen-view">
             <query>
-                <![CDATA[select e from actionsui$MetaAction e]]>
+                <![CDATA[select e from actions$MetaAction e]]>
             </query>
         </collectionDatasource>
     </dsContext>

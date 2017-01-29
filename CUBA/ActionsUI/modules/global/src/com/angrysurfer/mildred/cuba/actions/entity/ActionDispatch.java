@@ -10,14 +10,14 @@ import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
 @Table(name = "action_dispatch")
-@Entity(name = "actionsui$ActionDispatch")
+@Entity(name = "actions$ActionDispatch")
 public class ActionDispatch extends BaseIdentityIdEntity {
-    private static final long serialVersionUID = 6441606305927889823L;
+    private static final long serialVersionUID = 6276220833359947898L;
 
     @Column(name = "name", nullable = false, length = 128)
     protected String name;
 
-    @Column(name = "category", length = 128)
+    @Column(name = "category")
     protected String category;
 
     @Column(name = "package_name", length = 128)
@@ -32,20 +32,21 @@ public class ActionDispatch extends BaseIdentityIdEntity {
     @Column(name = "func_name", nullable = false, length = 128)
     protected String funcName;
 
+    public DispatchTypeEnum getCategory() {
+        return category == null ? null : DispatchTypeEnum.fromId(category);
+    }
+
+    public void setCategory(DispatchTypeEnum category) {
+        this.category = category == null ? null : category.getId();
+    }
+
+
     public void setName(String name) {
         this.name = name;
     }
 
     public String getName() {
         return name;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getCategory() {
-        return category;
     }
 
     public void setPackageName(String packageName) {

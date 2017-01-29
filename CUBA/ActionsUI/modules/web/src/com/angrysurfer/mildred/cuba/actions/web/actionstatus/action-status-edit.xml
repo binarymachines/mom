@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://editCaption"
-        class="com.angrysurfer.mildred.cuba.actions.web.essearchspec.EsSearchSpecEdit"
-        datasource="esSearchSpecDs"
+        class="com.angrysurfer.mildred.cuba.actions.web.actionstatus.ActionStatusEdit"
+        datasource="actionStatusDs"
         focusComponent="fieldGroup"
-        messagesPack="com.angrysurfer.mildred.cuba.actions.web.essearchspec">
+        messagesPack="com.angrysurfer.mildred.cuba.actions.web.actionstatus">
     <dsContext>
-        <datasource id="esSearchSpecDs"
-                    class="com.angrysurfer.mildred.cuba.actions.entity.EsSearchSpec"
+        <datasource id="actionStatusDs"
+                    class="com.angrysurfer.mildred.cuba.actions.entity.ActionStatus"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"
@@ -15,13 +15,9 @@
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="esSearchSpecDs">
+                    datasource="actionStatusDs">
             <column width="250px">
                 <field id="name"/>
-                <field id="queryType"/>
-                <field id="maxScorePercentage"/>
-                <field id="appliesToFileType"/>
-                <field id="activeFlag"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

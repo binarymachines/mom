@@ -18,6 +18,6 @@
           name="jdbc/CubaDS"
           password=""
           type="javax.sql.DataSource"
-          url="jdbc:hsqldb:hsql://localhost/actionsui"
+          url="jdbc:hsqldb:hsql://localhost/actions"
           username="sa"/>-->
 </Context>

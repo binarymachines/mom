@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://browseCaption"
-        class="com.angrysurfer.mildred.cuba.actions.web.metareasonparam.MetaReasonParamBrowse"
-        focusComponent="metaReasonParamsTable"
-        lookupComponent="metaReasonParamsTable"
-        messagesPack="com.angrysurfer.mildred.cuba.actions.web.metareasonparam">
+        class="com.angrysurfer.mildred.cuba.actions.web.vectorparam.VectorParamBrowse"
+        focusComponent="vectorParamsTable"
+        lookupComponent="vectorParamsTable"
+        messagesPack="com.angrysurfer.mildred.cuba.actions.web.vectorparam">
     <dsContext>
-        <collectionDatasource id="metaReasonParamsDs"
-                              class="com.angrysurfer.mildred.cuba.actions.entity.MetaReasonParam"
+        <collectionDatasource id="vectorParamsDs"
+                              class="com.angrysurfer.mildred.cuba.actions.entity.VectorParam"
                               view="_local">
             <query>
-                <![CDATA[select e from actionsui$MetaReasonParam e]]>
+                <![CDATA[select e from actions$VectorParam e]]>
             </query>
         </collectionDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="metaReasonParamsTable"
+    <layout expand="vectorParamsTable"
             spacing="true">
         <filter id="filter"
-                applyTo="metaReasonParamsTable"
-                datasource="metaReasonParamsDs">
+                applyTo="vectorParamsTable"
+                datasource="vectorParamsDs">
             <properties include=".*"/>
         </filter>
-        <table id="metaReasonParamsTable"
+        <table id="vectorParamsTable"
                width="100%">
             <actions>
                 <action id="create"/>
@@ -31,19 +31,18 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="vectorParamName"/>
-                <column id="metaReason"/>
+                <column id="name"/>
             </columns>
-            <rows datasource="metaReasonParamsDs"/>
+            <rows datasource="vectorParamsDs"/>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
                           alwaysVisible="true">
                 <button id="createBtn"
-                        action="metaReasonParamsTable.create"/>
+                        action="vectorParamsTable.create"/>
                 <button id="editBtn"
-                        action="metaReasonParamsTable.edit"/>
+                        action="vectorParamsTable.edit"/>
                 <button id="removeBtn"
-                        action="metaReasonParamsTable.remove"/>
+                        action="vectorParamsTable.remove"/>
             </buttonsPanel>
         </table>
     </layout>

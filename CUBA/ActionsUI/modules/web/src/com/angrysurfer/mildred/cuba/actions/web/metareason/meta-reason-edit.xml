@@ -8,54 +8,47 @@
     <dsContext>
         <datasource id="metaReasonDs"
                     class="com.angrysurfer.mildred.cuba.actions.entity.MetaReason"
-                    view="MetaReason-screen-view"/>
-        <collectionDatasource id="dispatchesDs"
-                              class="com.angrysurfer.mildred.cuba.actions.entity.ActionDispatch"
-                              view="_minimal">
-            <query>
-                <![CDATA[select e 
-from actionsui$ActionDispatch e 
-where e.category = 'condition' 
-order by e.name]]>
-            </query>
-        </collectionDatasource>
-        <collectionDatasource id="parentMetaReasonDs"
-                              class="com.angrysurfer.mildred.cuba.actions.entity.MetaReason"
-                              view="_minimal">
-            <query>
-                <![CDATA[select e from actionsui$MetaReason e order by e.name]]>
-            </query>
-        </collectionDatasource>
+                    view="MetaReason-screen-view">
+            <collectionDatasource id="vectorParamDs"
+                                  property="vectorParam"/>
+        </datasource>
     </dsContext>
-    <dialogMode forceDialog="true"
-                height="385"
-                modal="true"
-                width="400"/>
+    <dialogMode height="600"
+                width="800"/>
     <layout expand="windowActions"
-            margin="true"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="metaReasonDs">
             <column width="250px">
-                <field id="name"
-                       caption="Name"/>
-                <field id="documentType"
-                       caption="Document Type"/>
-                <field id="dispatch"
-                       caption="Condition"
-                       datasource="metaReasonDs"
-                       optionsDatasource="dispatchesDs"/>
-                <field id="expectedResult"
-                       caption="Condition Result"/>
-                <field id="weight"
-                       caption="Weight"/>
-                <field id="parentMetaReason"
-                       caption="Parent Reason"
-                       optionsDatasource="parentMetaReasonDs"/>
+                <field id="name"/>
+                <field id="parentMetaReason"/>
+                <field id="documentType"/>
+                <field id="weight"/>
+                <field id="dispatch"/>
+                <field id="expectedResult"/>
+                <field id="esSearchSpec"/>
             </column>
         </fieldGroup>
+        <groupBox id="vectorParamBox"
+                  caption="msg://com.angrysurfer.mildred.cuba.actions.entity/MetaReason.vectorParam">
+            <table id="vectorParamTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="name"/>
+                </columns>
+                <rows datasource="vectorParamDs"/>
+                <buttonsPanel>
+                    <button action="vectorParamTable.add"/>
+                    <button action="vectorParamTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <frame id="windowActions"
-               align="MIDDLE_CENTER"
                screen="editWindowActions"/>
     </layout>
 </window>

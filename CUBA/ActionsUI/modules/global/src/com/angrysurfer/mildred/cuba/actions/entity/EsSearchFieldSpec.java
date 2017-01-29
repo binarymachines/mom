@@ -12,9 +12,9 @@ import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "es_search_field_spec")
-@Entity(name = "actionsui$EsSearchFieldSpec")
+@Entity(name = "actions$EsSearchFieldSpec")
 public class EsSearchFieldSpec extends BaseIdentityIdEntity {
-    private static final long serialVersionUID = 3539653739516366065L;
+    private static final long serialVersionUID = -2446252179842742472L;
 
     @JoinTable(name = "es_search_field_jn",
         joinColumns = @JoinColumn(name = "es_search_field_spec_id"),

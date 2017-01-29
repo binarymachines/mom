@@ -20,10 +20,10 @@ buildscript {
     }
 }
 
-def globalModule = project(':mildred-global')
-def coreModule = project(':mildred-core')
-def guiModule = project(':mildred-gui')
-def webModule = project(':mildred-web')
+def globalModule = project(':app-global')
+def coreModule = project(':app-core')
+def guiModule = project(':app-gui')
+def webModule = project(':app-web')
 
 def servletApi = 'org.apache.tomcat:tomcat-servlet-api:8.0.26'
 
@@ -86,7 +86,7 @@ configure(coreModule) {
     }
 
     task cleanConf(description: 'Cleans up conf directory') << {
-        def dir = new File(cuba.tomcat.dir, '/conf/mildred-core')
+        def dir = new File(cuba.tomcat.dir, '/conf/app-core')
         if (dir.isDirectory()) {
             ant.delete(includeemptydirs: true) {
                 fileset(dir: dir, includes: '**/*', excludes: 'local.app.properties')
@@ -95,26 +95,26 @@ configure(coreModule) {
     }
 
     task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
-        appName = 'mildred-core'
-        appJars('mildred-global', 'mildred-core')
+        appName = 'app-core'
+        appJars('app-global', 'app-core')
     }
 
     task createDb(dependsOn: assembleDbScripts, description: 'Creates local database', type: CubaDbCreation) {
+        connectionParams = '?useSSL=false&allowMultiQueries=true'
         dbms = 'mysql'
         host = 'localhost'
         dbName = 'mildred_action'
         dbUser = 'root'
         dbPassword = 'steel'
-        connectionParams = '?useSSL=false&allowMultiQueries=true'
     }
 
     task updateDb(dependsOn: assembleDbScripts, description: 'Updates local database', type: CubaDbUpdate) {
+        connectionParams = '?useSSL=false&allowMultiQueries=true'
         dbms = 'mysql'
         host = 'localhost'
         dbName = 'mildred_action'
         dbUser = 'root'
         dbPassword = 'steel'
-        connectionParams = '?useSSL=false&allowMultiQueries=true'
     }
 }
 
@@ -127,7 +127,7 @@ configure(guiModule) {
     task deployConf(type: Copy) {
         from file('src')
         include "com/angrysurfer/mildred/cuba/actions/**"
-        into "$cuba.tomcat.dir/conf/mildred"
+        into "$cuba.tomcat.dir/conf/app"
     }
 }
 
@@ -155,16 +155,16 @@ configure(webModule) {
     task deployConf(type: Copy) {
         from file('src')
         include "com/angrysurfer/mildred/cuba/actions/**"
-        into "$cuba.tomcat.dir/conf/mildred"
+        into "$cuba.tomcat.dir/conf/app"
     }
 
     task clearMessagesCache(type: CubaClearMessagesCache) {
-        appName = 'mildred'
+        appName = 'app'
     }
     deployConf.dependsOn clearMessagesCache
 
     task cleanConf(description: 'Cleans up conf directory') << {
-        def dir = new File(cuba.tomcat.dir, '/conf/mildred')
+        def dir = new File(cuba.tomcat.dir, '/conf/app')
         if (dir.isDirectory()) {
             ant.delete(includeemptydirs: true) {
                 fileset(dir: dir, includes: '**/*', excludes: 'local.app.properties')
@@ -173,21 +173,21 @@ configure(webModule) {
     }
 
     task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
-        appName = 'mildred'
-        appJars('mildred-global', 'mildred-gui', 'mildred-web')
+        appName = 'app'
+        appJars('app-global', 'app-gui', 'app-web')
     }
 }
 
 
 
 
-task undeploy(type: Delete, dependsOn: ':mildred-web:cleanConf') {
+task undeploy(type: Delete, dependsOn: ':app-web:cleanConf') {
     delete("$cuba.tomcat.dir/shared")
-    delete("$cuba.tomcat.dir/webapps/mildred-core")
-    delete("$cuba.tomcat.dir/webapps/mildred")
+    delete("$cuba.tomcat.dir/webapps/app-core")
+    delete("$cuba.tomcat.dir/webapps/app")
 }
 
-task restart(dependsOn: ['stop', ':mildred-core:deploy', ':mildred-web:deploy'], description: 'Redeploys applications and restarts local Tomcat') << {
+task restart(dependsOn: ['stop', ':app-core:deploy', ':app-web:deploy'], description: 'Redeploys applications and restarts local Tomcat') << {
     ant.waitfor(maxwait: 6, maxwaitunit: 'second', checkevery: 2, checkeveryunit: 'second') {
         not {
             socket(server: 'localhost', port: '8787')

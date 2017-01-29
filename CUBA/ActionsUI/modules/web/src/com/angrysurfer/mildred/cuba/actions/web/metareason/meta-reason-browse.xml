@@ -10,7 +10,7 @@
                               class="com.angrysurfer.mildred.cuba.actions.entity.MetaReason"
                               view="MetaReason-screen-view">
             <query>
-                <![CDATA[select e from actionsui$MetaReason e]]>
+                <![CDATA[select e from actions$MetaReason e]]>
             </query>
         </collectionDatasource>
     </dsContext>
@@ -32,18 +32,12 @@
             </actions>
             <columns>
                 <column id="name"/>
-                <column id="documentType"
-                        caption="Document Type"/>
-                <column id="dispatch"
-                        caption="Condition"/>
-                <column id="expectedResult"
-                        caption="Condition Result"/>
-                <column id="esClause"
-                        caption="ES Clause"/>
-                <column id="weight"
-                        caption="Weight"/>
-                <column id="parentMetaReason"
-                        caption="Parent Reason"/>
+                <column id="parentMetaReason"/>
+                <column id="documentType"/>
+                <column id="weight"/>
+                <column id="dispatch"/>
+                <column id="expectedResult"/>
+                <column id="esSearchSpec"/>
             </columns>
             <rows datasource="metaReasonsDs"/>
             <rowsCount/>

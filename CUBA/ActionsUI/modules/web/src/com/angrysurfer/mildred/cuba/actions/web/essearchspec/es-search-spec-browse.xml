@@ -10,7 +10,7 @@
                               class="com.angrysurfer.mildred.cuba.actions.entity.EsSearchSpec"
                               view="_local">
             <query>
-                <![CDATA[select e from actionsui$EsSearchSpec e]]>
+                <![CDATA[select e from actions$EsSearchSpec e]]>
             </query>
         </collectionDatasource>
     </dsContext>

@@ -12,21 +12,24 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
-import javax.persistence.OrderBy;
-import java.util.Set;
-import javax.persistence.OneToMany;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
 @Table(name = "meta_action")
-@Entity(name = "actionsui$MetaAction")
+@Entity(name = "actions$MetaAction")
 public class MetaAction extends BaseIdentityIdEntity {
-    private static final long serialVersionUID = -3640439658179261677L;
+    private static final long serialVersionUID = 3619980187444969204L;
+
+    @JoinTable(name = "m_action_m_reason",
+        joinColumns = @JoinColumn(name = "meta_action_id"),
+        inverseJoinColumns = @JoinColumn(name = "meta_reason_id"))
+    @ManyToMany
+    protected List<MetaReason> metaReason;
 
     @Column(name = "name", nullable = false)
     protected String name;
 
-    @Column(name = "document_type", nullable = false)
+    @Column(name = "document_type", nullable = false, length = 32)
     protected String documentType;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -36,33 +39,19 @@ public class MetaAction extends BaseIdentityIdEntity {
     @Column(name = "priority", nullable = false)
     protected Integer priority;
 
-    @OrderBy("name")
-    @JoinTable(name = "m_action_m_reason",
+    @JoinTable(name = "meta_action_param",
         joinColumns = @JoinColumn(name = "meta_action_id"),
-        inverseJoinColumns = @JoinColumn(name = "meta_reason_id"))
+        inverseJoinColumns = @JoinColumn(name = "vector_param_id"))
     @ManyToMany
-    protected List<MetaReason> metaReason;
+    protected List<VectorParam> vectorParam;
 
-    @OneToMany(mappedBy = "metaAction")
-    protected Set<MetaActionParam> metaActionParam;
-
-    public DocumentTypeEnum getDocumentType() {
-        return documentType == null ? null : DocumentTypeEnum.fromId(documentType);
+    public void setMetaReason(List<MetaReason> metaReason) {
+        this.metaReason = metaReason;
     }
 
-    public void setDocumentType(DocumentTypeEnum documentType) {
-        this.documentType = documentType == null ? null : documentType.getId();
+    public List<MetaReason> getMetaReason() {
+        return metaReason;
     }
-
-
-    public void setMetaActionParam(Set<MetaActionParam> metaActionParam) {
-        this.metaActionParam = metaActionParam;
-    }
-
-    public Set<MetaActionParam> getMetaActionParam() {
-        return metaActionParam;
-    }
-
 
     public void setName(String name) {
         this.name = name;
@@ -70,6 +59,14 @@ public class MetaAction extends BaseIdentityIdEntity {
 
     public String getName() {
         return name;
+    }
+
+    public void setDocumentType(String documentType) {
+        this.documentType = documentType;
+    }
+
+    public String getDocumentType() {
+        return documentType;
     }
 
     public void setDispatch(ActionDispatch dispatch) {
@@ -88,12 +85,12 @@ public class MetaAction extends BaseIdentityIdEntity {
         return priority;
     }
 
-    public void setMetaReason(List<MetaReason> metaReason) {
-        this.metaReason = metaReason;
+    public void setVectorParam(List<VectorParam> vectorParam) {
+        this.vectorParam = vectorParam;
     }
 
-    public List<MetaReason> getMetaReason() {
-        return metaReason;
+    public List<VectorParam> getVectorParam() {
+        return vectorParam;
     }
 
 

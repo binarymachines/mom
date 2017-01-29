@@ -14,9 +14,15 @@ import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
 @Table(name = "es_search_spec")
-@Entity(name = "actionsui$EsSearchSpec")
+@Entity(name = "actions$EsSearchSpec")
 public class EsSearchSpec extends BaseIdentityIdEntity {
-    private static final long serialVersionUID = -5866632039985828107L;
+    private static final long serialVersionUID = -3567506242426526271L;
+
+    @JoinTable(name = "es_search_field_jn",
+        joinColumns = @JoinColumn(name = "es_search_spec_id"),
+        inverseJoinColumns = @JoinColumn(name = "es_search_field_spec_id"))
+    @ManyToMany
+    protected List<EsSearchFieldSpec> esSearchFieldSpec;
 
     @Column(name = "name", nullable = false, length = 128)
     protected String name;
@@ -32,12 +38,6 @@ public class EsSearchSpec extends BaseIdentityIdEntity {
 
     @Column(name = "active_flag", nullable = false)
     protected Boolean activeFlag = false;
-
-    @JoinTable(name = "es_search_field_jn",
-        joinColumns = @JoinColumn(name = "es_search_spec_id"),
-        inverseJoinColumns = @JoinColumn(name = "es_search_field_spec_id"))
-    @ManyToMany
-    protected List<EsSearchFieldSpec> esSearchFieldSpec;
 
     public void setEsSearchFieldSpec(List<EsSearchFieldSpec> esSearchFieldSpec) {
         this.esSearchFieldSpec = esSearchFieldSpec;

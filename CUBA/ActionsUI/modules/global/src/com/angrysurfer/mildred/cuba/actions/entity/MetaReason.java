@@ -12,21 +12,26 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
-import java.util.Set;
-import javax.persistence.OneToMany;
 
 @DesignSupport("{'imported':true}")
-@NamePattern("%s|name")
+@NamePattern("%s %s %s %s %s|name,dispatch,documentType,esSearchSpec,vectorParam")
 @Table(name = "meta_reason")
-@Entity(name = "actionsui$MetaReason")
+@Entity(name = "actions$MetaReason")
 public class MetaReason extends BaseIdentityIdEntity {
-    private static final long serialVersionUID = 4237002170649325012L;
+    private static final long serialVersionUID = -5821457532548542025L;
 
     @Column(name = "name", nullable = false)
     protected String name;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_meta_reason_id")
+    protected MetaReason parentMetaReason;
+
     @Column(name = "document_type", nullable = false)
     protected String documentType;
+
+    @Column(name = "weight", nullable = false)
+    protected Integer weight;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dispatch_id")
@@ -35,12 +40,9 @@ public class MetaReason extends BaseIdentityIdEntity {
     @Column(name = "expected_result", nullable = false)
     protected Boolean expectedResult = false;
 
-    @Column(name = "weight", nullable = false)
-    protected Integer weight;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_meta_reason_id")
-    protected MetaReason parentMetaReason;
+    @JoinColumn(name = "es_search_spec_id")
+    protected EsSearchSpec esSearchSpec;
 
     @JoinTable(name = "m_action_m_reason",
         joinColumns = @JoinColumn(name = "meta_reason_id"),
@@ -48,17 +50,11 @@ public class MetaReason extends BaseIdentityIdEntity {
     @ManyToMany
     protected List<MetaAction> metaAction;
 
-    @OneToMany(mappedBy = "metaReason")
-    protected Set<MetaReasonParam> metaReasonParam;
-
-    public void setMetaReasonParam(Set<MetaReasonParam> metaReasonParam) {
-        this.metaReasonParam = metaReasonParam;
-    }
-
-    public Set<MetaReasonParam> getMetaReasonParam() {
-        return metaReasonParam;
-    }
-
+    @JoinTable(name = "meta_reason_param",
+        joinColumns = @JoinColumn(name = "meta_reason_id"),
+        inverseJoinColumns = @JoinColumn(name = "vector_param_id"))
+    @ManyToMany
+    protected List<VectorParam> vectorParam;
 
     public DocumentTypeEnum getDocumentType() {
         return documentType == null ? null : DocumentTypeEnum.fromId(documentType);
@@ -68,6 +64,14 @@ public class MetaReason extends BaseIdentityIdEntity {
         this.documentType = documentType == null ? null : documentType.getId();
     }
 
+
+    public void setMetaAction(List<MetaAction> metaAction) {
+        this.metaAction = metaAction;
+    }
+
+    public List<MetaAction> getMetaAction() {
+        return metaAction;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -109,12 +113,20 @@ public class MetaReason extends BaseIdentityIdEntity {
         return expectedResult;
     }
 
-    public void setMetaAction(List<MetaAction> metaAction) {
-        this.metaAction = metaAction;
+    public void setEsSearchSpec(EsSearchSpec esSearchSpec) {
+        this.esSearchSpec = esSearchSpec;
     }
 
-    public List<MetaAction> getMetaAction() {
-        return metaAction;
+    public EsSearchSpec getEsSearchSpec() {
+        return esSearchSpec;
+    }
+
+    public void setVectorParam(List<VectorParam> vectorParam) {
+        this.vectorParam = vectorParam;
+    }
+
+    public List<VectorParam> getVectorParam() {
+        return vectorParam;
     }
 
 
