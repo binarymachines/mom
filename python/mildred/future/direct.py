@@ -13,7 +13,7 @@ class Directive:
 
     # condition = problem path, approach = add work item, objective = fix path op, resolution = do approved work item
     def add_requirement(self, description, condition, approach, objective=None, resolution=None):
-            self.requirements.append({ 'condition': condition, 'description': description,
+            self.requirements.append({ 'CONDITION': condition, 'description': description,
                 'objective': objective, 'resolution': resolution, 'approach': approach })
 
     def applies(self, target):
@@ -25,14 +25,14 @@ class Directive:
             # start = datetime.date.today() + datetime.timedelta(days)
 
         for requirement in self.requirements:
-            if requirement['condition'] and requirement['condition'](target):
+            if requirement['CONDITION'] and requirement['CONDITION'](target):
                 return True
 
         return True
 
     def apply(self, target):
         for requirement in self.requirements:
-            if requirement['condition'] and requirement['condition'](target):
+            if requirement['CONDITION'] and requirement['CONDITION'](target):
                 if requirement['approach']: requirement['approach'](target)
                 if requirement['objective']: requirement['objective'](target)
                 if requirement['resolution']: requirement['resolution'](target)

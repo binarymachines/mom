@@ -4,7 +4,7 @@ import pyorient
 
 import const
 import alchemy
-from assets import Document, Directory  
+from assets import Document, Directory
 import library
 import config
 import library
@@ -24,7 +24,8 @@ LOG = log.get_log(__name__, logging.INFO)
 ERR = log.get_log('errors', logging.WARNING)
 
 ANALYZER = 'ANALYZER'
-
+CONDITION = 'CONDITION'
+ACTION = 'ACTION'
 
 def analyze(vector):
     if ANALYZER not in vector.data:
@@ -79,17 +80,17 @@ class Analyzer(object):
         result['rid'] = oRecord._OrientRecord__rid
         for item in items:
             result[item] = oRecord.oRecordData[item]
-                
+
         return result
 
     def get_meta_reasons(self):
 
         results = ()
 
-        try: 
+        try:
             client = pyorient.OrientDB("localhost", 2424)
             session_id = client.connect( "root", "steel" )
-            client.db_open( "merlin", "root", "steel" ) 
+            client.db_open( "merlin", "root", "steel" )
 
             # reasons = client.query("select from (traverse all() from (select from MetaReason))")
             reasons = client.query("select from MetaReason")
@@ -98,8 +99,8 @@ class Analyzer(object):
                 reason_data['funcs'] = ()
                 reason_data['params'] = ()
 
-                dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'condition'" % reason_data['rid'])
-                for dispatch in dispatches: 
+                dispatches = client.query("select from (traverse all() from %s) where @class = 'Dispatch' and category = 'CONDITION'" % reason_data['rid'])
+                for dispatch in dispatches:
                     func = self.oRecord2dict(dispatch, 'id', 'package_name', 'module_name', 'class_name', 'func_name')
                     condition = introspection.get_qualified_name(func['package_name'], func['module_name'], func['func_name'])
                     if condition:
@@ -107,7 +108,7 @@ class Analyzer(object):
                         reason_data['funcs'] += condition_func,
 
                 params = client.query("select from (traverse all() from %s) where @class = 'MetaReasonParam'" % reason_data['rid'])
-                for param in params: 
+                for param in params:
                     reason_data['params'] += self.oRecord2dict(param, 'id', 'vector_param_name'),
 
                 results += reason_data,
@@ -117,7 +118,7 @@ class Analyzer(object):
         except Exception, err:
             ERR.error(err.message, exc_info=True)
             sys.exit(0)
-            
+
     def generate_reasons(self, path):
         # actions = self.retrieve_types()
         reasons = self.get_meta_reasons()
@@ -137,7 +138,7 @@ class Analyzer(object):
 
         #     # if no op record exists
         #     self.analyze_asset(reasons, directory)
- 
+
     def propose_actions(self, path):
         # action
         pass
@@ -145,8 +146,8 @@ class Analyzer(object):
         # invoke conditionals for all reasons
         # create action set
         # insert actions as proposal
-        # training data is my selection between available actions or custom selection, 
-        # including query operations performed while analyzing choice and analysis reason stamp (selectad tags match source, etc) 
+        # training data is my selection between available actions or custom selection,
+        # including query operations performed while analyzing choice and analysis reason stamp (selectad tags match source, etc)
         # as well as predicted response
 
 
