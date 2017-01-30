@@ -25,6 +25,7 @@
             <properties include=".*"/>
         </filter>
         <table id="metaReasonsTable"
+               editable="true"
                width="100%">
             <actions>
                 <action id="create"

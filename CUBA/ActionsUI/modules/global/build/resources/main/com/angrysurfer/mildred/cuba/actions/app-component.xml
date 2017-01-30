@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<app-component xmlns="http://schemas.haulmont.com/cuba/app-component.xsd"
+               dependsOn="com.haulmont.cuba">
+    <module blocks="*"
+            name="global">
+        <artifact appJar="true"
+                  name="app-global"/>
+        <property name="cuba.persistenceConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/persistence.xml"/>
+        <property name="cuba.metadataConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/metadata.xml"/>
+        <property name="cuba.viewsConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/views.xml"/>
+    </module>
+    <module blocks="core"
+            dependsOn="global"
+            name="core">
+        <artifact appJar="true"
+                  name="app-core"/>
+        <artifact classifier="db"
+                  configuration="dbscripts"
+                  ext="zip"
+                  name="app-core"/>
+        <property name="cuba.springContextConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/spring.xml"/>
+        <property name="cuba.mainMessagePack"
+                  value="+com.angrysurfer.mildred.cuba.actions.core"/>
+    </module>
+    <module blocks="web,desktop"
+            dependsOn="global"
+            name="gui">
+        <artifact appJar="true"
+                  name="app-gui"/>
+    </module>
+    <module blocks="web"
+            dependsOn="gui"
+            name="web">
+        <artifact appJar="true"
+                  name="app-web"/>
+        <artifact classifier="web"
+                  configuration="webcontent"
+                  ext="zip"
+                  name="app-web"/>
+        <property name="cuba.springContextConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/web-spring.xml"/>
+        <property name="cuba.dispatcherSpringContextConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/web-dispatcher-spring.xml"/>
+        <property name="cuba.windowConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/web-screens.xml"/>
+        <property name="cuba.menuConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/web-menu.xml"/>
+        <property name="cuba.permissionConfig"
+                  value="+com/angrysurfer/mildred/cuba/actions/web-permissions.xml"/>
+        <property name="cuba.mainMessagePack"
+                  value="+com.angrysurfer.mildred.cuba.actions.gui com.angrysurfer.mildred.cuba.actions.web"/>
+    </module>
+</app-component>

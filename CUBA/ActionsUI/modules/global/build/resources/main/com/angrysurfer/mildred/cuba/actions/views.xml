@@ -25,4 +25,12 @@
                   name="vectorParam"
                   view="_minimal"/>
     </view>
+    <view class="com.angrysurfer.mildred.cuba.actions.entity.EsSearchSpec"
+          extends="_local"
+          name="esSearchSpec-view">
+        <property name="esSearchFieldSpec"
+                  view="_minimal">
+            <property name="fieldName"/>
+        </property>
+    </view>
 </views>

@@ -13,10 +13,10 @@
               icon="icons/test-connection.png"/>
         <item id="actions$VectorParam.browse"
               icon="icons/wf-exchange.png"/>
+        <separator/>
         <item id="actions$EsSearchSpec.browse"
               icon="icons/search.png"/>
         <item id="actions$EsSearchFieldSpec.browse"
               icon="icons/category.png"/>
-        <separator/>
     </menu>
 </menu-config>

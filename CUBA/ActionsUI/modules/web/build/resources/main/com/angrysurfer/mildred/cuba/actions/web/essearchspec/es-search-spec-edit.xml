@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
-        caption="Edit ES Query"
+        caption="msg://editCaption"
         class="com.angrysurfer.mildred.cuba.actions.web.essearchspec.EsSearchSpecEdit"
         datasource="esSearchSpecDs"
         focusComponent="fieldGroup"
@@ -8,12 +8,14 @@
     <dsContext>
         <datasource id="esSearchSpecDs"
                     class="com.angrysurfer.mildred.cuba.actions.entity.EsSearchSpec"
-                    view="_local"/>
+                    view="esSearchSpec-view">
+            <collectionDatasource id="esSearchFieldSpecDs"
+                                  property="esSearchFieldSpec"/>
+        </datasource>
     </dsContext>
-    <dialogMode height="225"
-                width="425"/>
+    <dialogMode height="600"
+                width="800"/>
     <layout expand="windowActions"
-            margin="true"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="esSearchSpecDs">
@@ -25,6 +27,25 @@
                 <field id="activeFlag"/>
             </column>
         </fieldGroup>
+        <groupBox id="esSearchFieldSpecBox"
+                  caption="msg://com.angrysurfer.mildred.cuba.actions.entity/EsSearchSpec.esSearchFieldSpec">
+            <table id="esSearchFieldSpecTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="fieldName"/>
+                </columns>
+                <rows datasource="esSearchFieldSpecDs"/>
+                <buttonsPanel>
+                    <button action="esSearchFieldSpecTable.add"/>
+                    <button action="esSearchFieldSpecTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <frame id="windowActions"
                screen="editWindowActions"/>
     </layout>

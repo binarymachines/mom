@@ -12,7 +12,7 @@ import javax.persistence.ManyToMany;
 import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
 
 @DesignSupport("{'imported':true}")
-@NamePattern("%s|name")
+@NamePattern("%s %s|name,esSearchFieldSpec")
 @Table(name = "es_search_spec")
 @Entity(name = "actions$EsSearchSpec")
 public class EsSearchSpec extends BaseIdentityIdEntity {
@@ -27,7 +27,7 @@ public class EsSearchSpec extends BaseIdentityIdEntity {
     @Column(name = "name", nullable = false, length = 128)
     protected String name;
 
-    @Column(name = "query_type", nullable = false, length = 64)
+    @Column(name = "query_type", nullable = false)
     protected String queryType;
 
     @Column(name = "max_score_percentage", nullable = false)
@@ -38,6 +38,15 @@ public class EsSearchSpec extends BaseIdentityIdEntity {
 
     @Column(name = "active_flag", nullable = false)
     protected Boolean activeFlag = false;
+
+    public EsQueryTypeEnum getQueryType() {
+        return queryType == null ? null : EsQueryTypeEnum.fromId(queryType);
+    }
+
+    public void setQueryType(EsQueryTypeEnum queryType) {
+        this.queryType = queryType == null ? null : queryType.getId();
+    }
+
 
     public void setEsSearchFieldSpec(List<EsSearchFieldSpec> esSearchFieldSpec) {
         this.esSearchFieldSpec = esSearchFieldSpec;
@@ -53,14 +62,6 @@ public class EsSearchSpec extends BaseIdentityIdEntity {
 
     public String getName() {
         return name;
-    }
-
-    public void setQueryType(String queryType) {
-        this.queryType = queryType;
-    }
-
-    public String getQueryType() {
-        return queryType;
     }
 
     public void setMaxScorePercentage(Double maxScorePercentage) {
