@@ -14,11 +14,14 @@ import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
 
 @DesignSupport("{'imported':true}")
-@NamePattern("%s %s %s %s %s|name,dispatch,documentType,esSearchSpec,vectorParam")
+@NamePattern("%s %s %s %s|name,dispatch,documentType,esSearchSpec")
 @Table(name = "meta_reason")
 @Entity(name = "actions$MetaReason")
 public class MetaReason extends BaseIdentityIdEntity {
     private static final long serialVersionUID = -5821457532548542025L;
+
+    @Column(name = "document_type", nullable = false)
+    protected String documentType;
 
     @Column(name = "name", nullable = false)
     protected String name;
@@ -26,9 +29,6 @@ public class MetaReason extends BaseIdentityIdEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_meta_reason_id")
     protected MetaReason parentMetaReason;
-
-    @Column(name = "document_type", nullable = false)
-    protected String documentType;
 
     @Column(name = "weight", nullable = false)
     protected Integer weight;

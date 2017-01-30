@@ -17,7 +17,7 @@ public class ActionDispatch extends BaseIdentityIdEntity {
     @Column(name = "name", nullable = false, length = 128)
     protected String name;
 
-    @Column(name = "category")
+    @Column(name = "category", nullable = false)
     protected String category;
 
     @Column(name = "package_name", length = 128)

@@ -3,6 +3,11 @@ git status
 
 ~/dev/mildred$ bin/delpyc.sh
 
+find $M2/CUBA/ActionsUI/modules -name "*.xml"  -exec git add -f {} \;
+find $M2/CUBA/ActionsUI/modules -name "*.java"  -exec git add -f {} \;
+find $M2/CUBA/ActionsUI/modules -name "*.properties"  -exec git add -f {} \;
+find $M2/CUBA/ActionsUI/modules -name "*.sql"  -exec git add -f {} \;
+
 #git add $M2/doc/*.ods
 git add $M2/java/MildredCacheMonitor/*.xml
 git add $M2/java/MildredCacheMonitor/*.sh

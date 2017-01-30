@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
-        caption="msg://browseCaption"
+        caption="Reasons"
         class="com.angrysurfer.mildred.cuba.actions.web.metareason.MetaReasonBrowse"
         focusComponent="metaReasonsTable"
         lookupComponent="metaReasonsTable"
@@ -17,6 +17,7 @@
     <dialogMode height="600"
                 width="800"/>
     <layout expand="metaReasonsTable"
+            margin="true"
             spacing="true">
         <filter id="filter"
                 applyTo="metaReasonsTable"
@@ -24,20 +25,27 @@
             <properties include=".*"/>
         </filter>
         <table id="metaReasonsTable"
+               editable="true"
                width="100%">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
                 <action id="remove"/>
             </actions>
             <columns>
                 <column id="name"/>
-                <column id="parentMetaReason"/>
+                <column id="parentMetaReason"
+                        caption="Parent Reason"/>
                 <column id="documentType"/>
                 <column id="weight"/>
-                <column id="dispatch"/>
-                <column id="expectedResult"/>
-                <column id="esSearchSpec"/>
+                <column id="dispatch"
+                        caption="Condition Function"/>
+                <column id="expectedResult"
+                        caption="CF Returns True"/>
+                <column id="esSearchSpec"
+                        caption="Elasticsearch Query"/>
             </columns>
             <rows datasource="metaReasonsDs"/>
             <rowsCount/>

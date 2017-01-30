@@ -30,7 +30,7 @@ public class VectorParam extends BaseIdentityIdEntity {
     @ManyToMany
     protected List<MetaReason> metaReason;
 
-    @Column(name = "name", nullable = false, length = 128)
+    @Column(name = "name", nullable = false, unique = true, length = 128)
     protected String name;
 
     public void setMetaAction(List<MetaAction> metaAction) {

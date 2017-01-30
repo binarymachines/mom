@@ -25,7 +25,7 @@ public class EsSearchFieldSpec extends BaseIdentityIdEntity {
     @Column(name = "field_name", nullable = false, length = 128)
     protected String fieldName;
 
-    @Column(name = "boost", nullable = false)
+    @Column(name = "boost")
     protected Double boost;
 
     @Column(name = "bool_", length = 16)
@@ -34,17 +34,26 @@ public class EsSearchFieldSpec extends BaseIdentityIdEntity {
     @Column(name = "operator", length = 16)
     protected String operator;
 
-    @Column(name = "minimum_should_match", nullable = false)
+    @Column(name = "minimum_should_match")
     protected Double minimumShouldMatch;
 
     @Column(name = "analyzer", length = 64)
     protected String analyzer;
 
-    @Column(name = "query_section", length = 128)
+    @Column(name = "query_section")
     protected String querySection;
 
     @Column(name = "default_value", length = 128)
     protected String defaultValue;
+
+    public EsQuerySectionEnum getQuerySection() {
+        return querySection == null ? null : EsQuerySectionEnum.fromId(querySection);
+    }
+
+    public void setQuerySection(EsQuerySectionEnum querySection) {
+        this.querySection = querySection == null ? null : querySection.getId();
+    }
+
 
     public void setEsSearchSpec(List<EsSearchSpec> esSearchSpec) {
         this.esSearchSpec = esSearchSpec;
@@ -100,14 +109,6 @@ public class EsSearchFieldSpec extends BaseIdentityIdEntity {
 
     public String getAnalyzer() {
         return analyzer;
-    }
-
-    public void setQuerySection(String querySection) {
-        this.querySection = querySection;
-    }
-
-    public String getQuerySection() {
-        return querySection;
     }
 
     public void setDefaultValue(String defaultValue) {

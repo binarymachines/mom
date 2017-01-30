@@ -14,7 +14,7 @@ import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
 public class ActionStatus extends BaseIdentityIdEntity {
     private static final long serialVersionUID = -8498793563626932588L;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, unique = true)
     protected String name;
 
     public void setName(String name) {

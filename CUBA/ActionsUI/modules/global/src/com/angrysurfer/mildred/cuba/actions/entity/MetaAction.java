@@ -14,11 +14,14 @@ import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIdentityIdEntity;
 
 @DesignSupport("{'imported':true}")
-@NamePattern("%s|name")
+@NamePattern("%s %s %s %s %s|name,dispatch,metaReason,vectorParam,documentType")
 @Table(name = "meta_action")
 @Entity(name = "actions$MetaAction")
 public class MetaAction extends BaseIdentityIdEntity {
     private static final long serialVersionUID = 3619980187444969204L;
+
+    @Column(name = "document_type", nullable = false)
+    protected String documentType;
 
     @JoinTable(name = "m_action_m_reason",
         joinColumns = @JoinColumn(name = "meta_action_id"),
@@ -28,9 +31,6 @@ public class MetaAction extends BaseIdentityIdEntity {
 
     @Column(name = "name", nullable = false)
     protected String name;
-
-    @Column(name = "document_type", nullable = false, length = 32)
-    protected String documentType;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dispatch_id")
@@ -44,6 +44,15 @@ public class MetaAction extends BaseIdentityIdEntity {
         inverseJoinColumns = @JoinColumn(name = "vector_param_id"))
     @ManyToMany
     protected List<VectorParam> vectorParam;
+
+    public DocumentTypeEnum getDocumentType() {
+        return documentType == null ? null : DocumentTypeEnum.fromId(documentType);
+    }
+
+    public void setDocumentType(DocumentTypeEnum documentType) {
+        this.documentType = documentType == null ? null : documentType.getId();
+    }
+
 
     public void setMetaReason(List<MetaReason> metaReason) {
         this.metaReason = metaReason;
@@ -59,14 +68,6 @@ public class MetaAction extends BaseIdentityIdEntity {
 
     public String getName() {
         return name;
-    }
-
-    public void setDocumentType(String documentType) {
-        this.documentType = documentType;
-    }
-
-    public String getDocumentType() {
-        return documentType;
     }
 
     public void setDispatch(ActionDispatch dispatch) {

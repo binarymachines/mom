@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
+    <view class="com.angrysurfer.mildred.cuba.actions.entity.MetaAction"
+          extends="_local"
+          name="MetaAction-screen-view">
+        <property name="dispatch"
+                  view="_minimal"/>
+        <property fetch="JOIN"
+                  name="vectorParam"
+                  view="_minimal"/>
+        <property fetch="AUTO"
+                  name="metaReason"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.cuba.actions.entity.MetaReason"
+          extends="_local"
+          name="MetaReason-screen-view">
+        <property name="parentMetaReason"
+                  view="_minimal"/>
+        <property name="dispatch"
+                  view="_minimal"/>
+        <property name="esSearchSpec"
+                  view="_minimal"/>
+        <property fetch="AUTO"
+                  name="vectorParam"
+                  view="_minimal"/>
+    </view>
+</views>
