@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.primary.web.documentattribute.DocumentAttributeBrowse"
+        focusComponent="documentAttributesTable"
+        lookupComponent="documentAttributesTable"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.documentattribute">
+    <dsContext>
+        <collectionDatasource id="documentAttributesDs"
+                              class="com.angrysurfer.mildred.cuba.primary.entity.DocumentAttribute"
+                              view="_local">
+            <query>
+                <![CDATA[select e from primary$DocumentAttribute e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="documentAttributesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="documentAttributesTable"
+                datasource="documentAttributesDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="documentAttributesTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="indexName"/>
+                <column id="documentFormat"/>
+                <column id="attributeName"/>
+                <column id="activeFlag"/>
+            </columns>
+            <rows datasource="documentAttributesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="documentAttributesTable.create"/>
+                <button id="editBtn"
+                        action="documentAttributesTable.edit"/>
+                <button id="removeBtn"
+                        action="documentAttributesTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

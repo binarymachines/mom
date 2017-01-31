@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.primary.web.directoryconstant.DirectoryConstantBrowse"
+        focusComponent="directoryConstantsTable"
+        lookupComponent="directoryConstantsTable"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.directoryconstant">
+    <dsContext>
+        <collectionDatasource id="directoryConstantsDs"
+                              class="com.angrysurfer.mildred.cuba.primary.entity.DirectoryConstant"
+                              view="_local">
+            <query>
+                <![CDATA[select e from primary$DirectoryConstant e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="directoryConstantsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="directoryConstantsTable"
+                datasource="directoryConstantsDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="directoryConstantsTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="indexName"/>
+                <column id="pattern"/>
+                <column id="locationType"/>
+            </columns>
+            <rows datasource="directoryConstantsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="directoryConstantsTable.create"/>
+                <button id="editBtn"
+                        action="directoryConstantsTable.edit"/>
+                <button id="removeBtn"
+                        action="directoryConstantsTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

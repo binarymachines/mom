@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.primary.web.filehandlertype.FileHandlerTypeBrowse"
+        focusComponent="fileHandlerTypesTable"
+        lookupComponent="fileHandlerTypesTable"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.filehandlertype">
+    <dsContext>
+        <collectionDatasource id="fileHandlerTypesDs"
+                              class="com.angrysurfer.mildred.cuba.primary.entity.FileHandlerType"
+                              view="FileHandlerType-screen-view">
+            <query>
+                <![CDATA[select e from primary$FileHandlerType e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="fileHandlerTypesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="fileHandlerTypesTable"
+                datasource="fileHandlerTypesDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="fileHandlerTypesTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="fileHandler"/>
+                <column id="ext"/>
+                <column id="name"/>
+            </columns>
+            <rows datasource="fileHandlerTypesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="fileHandlerTypesTable.create"/>
+                <button id="editBtn"
+                        action="fileHandlerTypesTable.edit"/>
+                <button id="removeBtn"
+                        action="fileHandlerTypesTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

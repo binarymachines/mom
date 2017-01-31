@@ -31,6 +31,13 @@
         <property name="esSearchFieldSpec"
                   view="_minimal">
             <property name="fieldName"/>
+            <property name="boost"/>
+            <property name="bool"/>
+            <property name="operator"/>
+            <property name="minimumShouldMatch"/>
+            <property name="analyzer"/>
+            <property name="querySection"/>
+            <property name="defaultValue"/>
         </property>
     </view>
 </views>

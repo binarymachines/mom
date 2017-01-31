@@ -6,9 +6,8 @@ import javax.annotation.Nullable;
 
 
 public enum EsQueryTypeEnum implements EnumClass<String> {
-
-    match("MATCH"),
-    match_all("MATCH_ALL");
+    Match("MATCH"),
+    Match_All("MATCH_ALL");
 
     private String id;
 

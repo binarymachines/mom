@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.primary.web.alias.AliasBrowse"
+        focusComponent="aliasesTable"
+        lookupComponent="aliasesTable"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.alias">
+    <dsContext>
+        <collectionDatasource id="aliasesDs"
+                              class="com.angrysurfer.mildred.cuba.primary.entity.Alias"
+                              view="_local">
+            <query>
+                <![CDATA[select e from primary$Alias e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="aliasesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="aliasesTable"
+                datasource="aliasesDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="aliasesTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+            </columns>
+            <rows datasource="aliasesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="aliasesTable.create"/>
+                <button id="editBtn"
+                        action="aliasesTable.edit"/>
+                <button id="removeBtn"
+                        action="aliasesTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

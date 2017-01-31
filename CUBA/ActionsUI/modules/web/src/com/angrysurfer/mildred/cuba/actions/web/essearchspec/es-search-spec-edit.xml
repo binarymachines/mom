@@ -38,6 +38,13 @@
                 </actions>
                 <columns>
                     <column id="fieldName"/>
+                    <column id="boost"/>
+                    <column id="bool"/>
+                    <column id="operator"/>
+                    <column id="minimumShouldMatch"/>
+                    <column id="analyzer"/>
+                    <column id="querySection"/>
+                    <column id="defaultValue"/>
                 </columns>
                 <rows datasource="esSearchFieldSpecDs"/>
                 <buttonsPanel>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editCaption"
+        class="com.angrysurfer.mildred.cuba.primary.web.documentattribute.DocumentAttributeEdit"
+        datasource="documentAttributeDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.documentattribute">
+    <dsContext>
+        <datasource id="documentAttributeDs"
+                    class="com.angrysurfer.mildred.cuba.primary.entity.DocumentAttribute"
+                    view="_local"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="documentAttributeDs">
+            <column width="250px">
+                <field id="indexName"/>
+                <field id="documentFormat"/>
+                <field id="attributeName"/>
+                <field id="activeFlag"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

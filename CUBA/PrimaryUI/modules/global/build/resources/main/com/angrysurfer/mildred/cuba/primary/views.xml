@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
+    <view class="com.angrysurfer.mildred.cuba.primary.entity.Directory"
+          extends="_local"
+          name="Directory-screen-view">
+        <property name="fileType"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.cuba.primary.entity.FileHandlerType"
+          extends="_local"
+          name="FileHandlerType-screen-view">
+        <property name="fileHandler"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.cuba.primary.entity.MatcherField"
+          extends="_local"
+          name="MatcherField-screen-view">
+        <property name="matcher"
+                  view="_minimal"/>
+    </view>
+</views>

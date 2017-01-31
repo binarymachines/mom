@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.primary.web.filehandler.FileHandlerBrowse"
+        focusComponent="fileHandlersTable"
+        lookupComponent="fileHandlersTable"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.filehandler">
+    <dsContext>
+        <collectionDatasource id="fileHandlersDs"
+                              class="com.angrysurfer.mildred.cuba.primary.entity.FileHandler"
+                              view="_local">
+            <query>
+                <![CDATA[select e from primary$FileHandler e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="fileHandlersTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="fileHandlersTable"
+                datasource="fileHandlersDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="fileHandlersTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="_package"/>
+                <column id="module"/>
+                <column id="className"/>
+                <column id="activeFlag"/>
+            </columns>
+            <rows datasource="fileHandlersDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="fileHandlersTable.create"/>
+                <button id="editBtn"
+                        action="fileHandlersTable.edit"/>
+                <button id="removeBtn"
+                        action="fileHandlersTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

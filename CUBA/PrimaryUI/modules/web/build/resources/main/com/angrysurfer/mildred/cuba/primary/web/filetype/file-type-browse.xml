@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.primary.web.filetype.FileTypeBrowse"
+        focusComponent="fileTypesTable"
+        lookupComponent="fileTypesTable"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.filetype">
+    <dsContext>
+        <collectionDatasource id="fileTypesDs"
+                              class="com.angrysurfer.mildred.cuba.primary.entity.FileType"
+                              view="_local">
+            <query>
+                <![CDATA[select e from primary$FileType e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="fileTypesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="fileTypesTable"
+                datasource="fileTypesDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="fileTypesTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+            </columns>
+            <rows datasource="fileTypesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="fileTypesTable.create"/>
+                <button id="editBtn"
+                        action="fileTypesTable.edit"/>
+                <button id="removeBtn"
+                        action="fileTypesTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>
