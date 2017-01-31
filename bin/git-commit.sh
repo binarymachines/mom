@@ -6,6 +6,8 @@ pushd $M2
 
 find $M2/CUBA/ActionsUI/modules -name "*.pyc"  -exec rm {} \;
 
+# find $M2/CUBA -name "*.gradle"  -exec git add -f {} \;
+
 find $M2/CUBA/ActionsUI/modules -name "*.xml"  -exec git add -f {} \;
 find $M2/CUBA/ActionsUI/modules -name "*.java"  -exec git add -f {} \;
 find $M2/CUBA/ActionsUI/modules -name "*.groovy"  -exec git add -f {} \;

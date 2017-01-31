@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.cuba.primary.web.matcherfield.MatcherFieldBrowse"
+        focusComponent="matcherFieldsTable"
+        lookupComponent="matcherFieldsTable"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.matcherfield">
+    <dsContext>
+        <collectionDatasource id="matcherFieldsDs"
+                              class="com.angrysurfer.mildred.cuba.primary.entity.MatcherField"
+                              view="MatcherField-screen-view">
+            <query>
+                <![CDATA[select e from primary$MatcherField e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="matcherFieldsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="matcherFieldsTable"
+                datasource="matcherFieldsDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="matcherFieldsTable"
+               width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="indexName"/>
+                <column id="documentType"/>
+                <column id="matcher"/>
+                <column id="fieldName"/>
+                <column id="boost"/>
+                <column id="bool"/>
+                <column id="operator"/>
+                <column id="minimumShouldMatch"/>
+                <column id="analyzer"/>
+                <column id="querySection"/>
+                <column id="defaultValue"/>
+            </columns>
+            <rows datasource="matcherFieldsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="matcherFieldsTable.create"/>
+                <button id="editBtn"
+                        action="matcherFieldsTable.edit"/>
+                <button id="removeBtn"
+                        action="matcherFieldsTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

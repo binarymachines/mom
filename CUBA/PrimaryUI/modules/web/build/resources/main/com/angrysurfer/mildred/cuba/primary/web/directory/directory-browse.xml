@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="Directories"
+        class="com.angrysurfer.mildred.cuba.primary.web.directory.DirectoryBrowse"
+        focusComponent="directoriesTable"
+        lookupComponent="directoriesTable"
+        messagesPack="com.angrysurfer.mildred.cuba.primary.web.directory">
+    <dsContext>
+        <collectionDatasource id="directoriesDs"
+                              class="com.angrysurfer.mildred.cuba.primary.entity.Directory"
+                              view="Directory-screen-view">
+            <query>
+                <![CDATA[select e from primary$Directory e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="directoriesTable"
+            margin="true"
+            spacing="true">
+        <filter id="filter"
+                applyTo="directoriesTable"
+                datasource="directoriesDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="directoriesTable"
+               width="100%">
+            <actions>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"
+                        caption="Directory Name"/>
+                <column id="fileType"
+                        caption="File Type"/>
+                <column id="indexName"
+                        caption="Index"/>
+                <column id="categoryPrototypeFlag"/>
+                <column id="activeFlag"
+                        caption="Active"/>
+            </columns>
+            <rows datasource="directoriesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="directoriesTable.create"/>
+                <button id="editBtn"
+                        action="directoriesTable.edit"/>
+                <button id="removeBtn"
+                        action="directoriesTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>
