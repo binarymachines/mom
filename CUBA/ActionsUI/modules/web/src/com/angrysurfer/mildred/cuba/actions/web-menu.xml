@@ -2,8 +2,6 @@
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
     <menu id="Mildred"
           insertBefore="administration">
-        <item id="actions$MetaAction.browse"
-              icon="icons/gear.png"/>
         <item id="actions$ActionStatus.browse"
               icon="icons/ok.png"/>
         <item id="actions$MetaReason.browse"
@@ -18,5 +16,6 @@
               icon="icons/search.png"/>
         <item id="actions$EsSearchFieldSpec.browse"
               icon="icons/category.png"/>
+        <item id="actions$MetaAction.browse"/>
     </menu>
 </menu-config>

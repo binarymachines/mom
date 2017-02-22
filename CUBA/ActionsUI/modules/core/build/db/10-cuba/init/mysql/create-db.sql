@@ -717,7 +717,7 @@ create table SYS_CATEGORY(
     --
     NAME varchar(255) not null,
     SPECIAL varchar(50),
-    ENTITY_TYPE varchar(30) not null,
+    ENTITY_TYPE varchar(100) not null,
     IS_DEFAULT boolean,
     DISCRIMINATOR integer,
     --
@@ -765,6 +765,10 @@ create table SYS_CATEGORY_ATTR (
     TARGET_SCREENS varchar(4000),
     WIDTH varchar(20),
     ROWS_COUNT integer,
+    IS_COLLECTION boolean,
+    JOIN_CLAUSE varchar(4000),
+    WHERE_CLAUSE varchar(4000),
+    FILTER_XML longtext,
     --
     primary key (ID),
     constraint SYS_CATEGORY_ATTR_CATEGORY_ID foreign key (CATEGORY_ID) references SYS_CATEGORY(ID)
@@ -791,9 +795,12 @@ create table SYS_ATTR_VALUE (
     BOOLEAN_VALUE boolean,
     ENTITY_VALUE varchar(36),
     CODE varchar(100),
+    PARENT_ID varchar(32),
     --
     primary key (ID),
-    constraint SYS_ATTR_VALUE_CATEGORY_ATTR_ID foreign key (CATEGORY_ATTR_ID) references SYS_CATEGORY_ATTR(ID)
+    constraint SYS_ATTR_VALUE_CATEGORY_ATTR_ID foreign key (CATEGORY_ATTR_ID) references SYS_CATEGORY_ATTR(ID),
+    constraint SYS_ATTR_VALUE_ATTR_VALUE_PARENT_ID foreign key (PARENT_ID) references SYS_ATTR_VALUE(ID)
+
 )^
 
 /**********************************************************************************************/

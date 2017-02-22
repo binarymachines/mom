@@ -24,8 +24,8 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
-                // "--noscan"
-                // "--reset"
+                // "--nomatch"
+                "--scan"
                 // "--pattern",
                 // "skillionaire"
                 // "--path",
@@ -54,13 +54,13 @@
             ]
         },
         {
-            "name": "dmon",
+            "name": "ES Query",
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/desktop/dmon.py",
+            "program": "${workspaceRoot}/python/mildred/query2.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
@@ -77,7 +77,7 @@
             "program": "${workspaceRoot}/python/mildred/calc.py",
             "args": [
                 "--path",
-                "/media/removable/Audio/music/albums"
+                "/media/removable/Audio/music/albums/art punk"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",
@@ -96,8 +96,8 @@
             "args": [
                 // "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
                 // "--path", "/media/removable/PNY16/media/music/"
-                "--path",
-                "/media/removable/Audio/music/"
+                // "--path",
+                // "/media/removable/Audio/music/"
             ],
             "debugOptions": [
                 "WaitOnAbnormalExit",

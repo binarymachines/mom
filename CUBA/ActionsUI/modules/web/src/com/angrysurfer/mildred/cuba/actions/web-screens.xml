@@ -17,10 +17,6 @@
             template="com/angrysurfer/mildred/cuba/actions/web/essearchspec/es-search-spec-edit.xml"/>
     <screen id="actions$EsSearchSpec.browse"
             template="com/angrysurfer/mildred/cuba/actions/web/essearchspec/es-search-spec-browse.xml"/>
-    <screen id="actions$MetaAction.browse"
-            template="com/angrysurfer/mildred/cuba/actions/web/metaaction/meta-action-browse.xml"/>
-    <screen id="actions$MetaAction.edit"
-            template="com/angrysurfer/mildred/cuba/actions/web/metaaction/meta-action-edit.xml"/>
     <screen id="actions$MetaReason.edit"
             template="com/angrysurfer/mildred/cuba/actions/web/metareason/meta-reason-edit.xml"/>
     <screen id="actions$MetaReason.browse"
@@ -29,4 +25,10 @@
             template="com/angrysurfer/mildred/cuba/actions/web/vectorparam/vector-param-edit.xml"/>
     <screen id="actions$VectorParam.browse"
             template="com/angrysurfer/mildred/cuba/actions/web/vectorparam/vector-param-browse.xml"/>
+    <screen id="actions$MetaAction.browse"
+            template="com/angrysurfer/mildred/cuba/actions/web/metaaction/meta-action-browse.xml"/>
+    <screen id="actions$MetaAction.edit"
+            template="com/angrysurfer/mildred/cuba/actions/web/metaaction/meta-action-edit.xml"/>
+    <screen id="mainWindow"
+            template="com/angrysurfer/mildred/cuba/actions/web/screens/ext-mainwindow.xml"/>
 </screen-config>

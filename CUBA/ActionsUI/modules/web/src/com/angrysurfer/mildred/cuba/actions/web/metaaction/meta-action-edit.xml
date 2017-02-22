@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
-        caption="msg://editCaption"
+        caption="msg://editorCaption"
         class="com.angrysurfer.mildred.cuba.actions.web.metaaction.MetaActionEdit"
         datasource="metaActionDs"
         focusComponent="fieldGroup"
@@ -8,87 +8,20 @@
     <dsContext>
         <datasource id="metaActionDs"
                     class="com.angrysurfer.mildred.cuba.actions.entity.MetaAction"
-                    view="MetaAction-screen-view">
-            <collectionDatasource id="metaReasonDs"
-                                  property="metaReason"/>
-            <collectionDatasource id="vectorParamDs"
-                                  property="vectorParam"/>
-        </datasource>
-        <collectionDatasource id="dispatchesDs"
-                              class="com.angrysurfer.mildred.cuba.actions.entity.ActionDispatch"
-                              view="_minimal">
-            <query>
-                <![CDATA[select e from actions$ActionDispatch e
-where e.category = "ACTION"
-order by e.name]]>
-            </query>
-        </collectionDatasource>
+                    view="_local"/>
     </dsContext>
     <dialogMode height="600"
-                width="795"/>
+                width="800"/>
     <layout expand="windowActions"
-            margin="true"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="metaActionDs">
-            <column width="275px">
-                <field id="name"/>
+            <column width="250px">
                 <field id="documentType"/>
-            </column>
-            <column width="275px">
-                <field id="dispatch"
-                       caption="Action Function"
-                       optionsDatasource="dispatchesDs"/>
+                <field id="name"/>
                 <field id="priority"/>
             </column>
         </fieldGroup>
-        <groupBox id="metaReasonBox"
-                  caption="Reasons">
-            <table id="metaReasonTable"
-                   height="200px"
-                   width="100%">
-                <actions>
-                    <action id="add"
-                            openType="DIALOG"/>
-                    <action id="remove"/>
-                </actions>
-                <columns>
-                    <column id="name"/>
-                    <column id="documentType"/>
-                    <column id="dispatch"
-                            caption="Action Function"/>
-                    <column id="esSearchSpec"
-                            caption="Elasticsearch Query"/>
-                </columns>
-                <rows datasource="metaReasonDs"/>
-                <buttonsPanel>
-                    <button id="btnAddMetaReason"
-                            action="metaReasonTable.add"/>
-                    <button id="btnRemoveMetaReason"
-                            action="metaReasonTable.remove"/>
-                </buttonsPanel>
-            </table>
-        </groupBox>
-        <groupBox id="vectorParamBox"
-                  caption="Vector Parameters">
-            <table id="vectorParamTable"
-                   height="200px"
-                   width="100%">
-                <actions>
-                    <action id="add"
-                            openType="DIALOG"/>
-                    <action id="remove"/>
-                </actions>
-                <columns>
-                    <column id="name"/>
-                </columns>
-                <rows datasource="vectorParamDs"/>
-                <buttonsPanel>
-                    <button action="vectorParamTable.add"/>
-                    <button action="vectorParamTable.remove"/>
-                </buttonsPanel>
-            </table>
-        </groupBox>
         <frame id="windowActions"
                screen="editWindowActions"/>
     </layout>

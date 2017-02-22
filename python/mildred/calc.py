@@ -35,6 +35,8 @@ ERR = log.get_log('errors', logging.WARNING)
 
 def calc(vector, cycle_vector=False):
 
+    return
+    
     sql.execute_query("delete from matched where 1=1")
     sql.execute_query("delete from op_record where operation_name = 'calc'")
     sql.execute_query("delete from op_record where operation_name = 'match'")

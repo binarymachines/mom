@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
-        caption="Actions"
+        caption="msg://browseCaption"
         class="com.angrysurfer.mildred.cuba.actions.web.metaaction.MetaActionBrowse"
         focusComponent="metaActionsTable"
         lookupComponent="metaActionsTable"
         messagesPack="com.angrysurfer.mildred.cuba.actions.web.metaaction">
     <dsContext>
-        <collectionDatasource id="metaActionsDs"
-                              class="com.angrysurfer.mildred.cuba.actions.entity.MetaAction"
-                              view="MetaAction-screen-view">
+        <groupDatasource id="metaActionsDs"
+                         class="com.angrysurfer.mildred.cuba.actions.entity.MetaAction"
+                         view="_local">
             <query>
                 <![CDATA[select e from actions$MetaAction e]]>
             </query>
-        </collectionDatasource>
+        </groupDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -23,19 +23,16 @@
                 datasource="metaActionsDs">
             <properties include=".*"/>
         </filter>
-        <table id="metaActionsTable"
-               width="100%">
+        <groupTable id="metaActionsTable"
+                    width="100%">
             <actions>
-                <action id="create"
-                        openType="DIALOG"/>
-                <action id="edit"
-                        openType="DIALOG"/>
+                <action id="create"/>
+                <action id="edit"/>
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="name"/>
                 <column id="documentType"/>
-                <column id="dispatch"/>
+                <column id="name"/>
                 <column id="priority"/>
             </columns>
             <rows datasource="metaActionsDs"/>
@@ -49,6 +46,6 @@
                 <button id="removeBtn"
                         action="metaActionsTable.remove"/>
             </buttonsPanel>
-        </table>
+        </groupTable>
     </layout>
 </window>

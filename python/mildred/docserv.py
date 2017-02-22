@@ -232,13 +232,13 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def mode_is_available(self, selector, active, possible):
         ops.check_status()
-        return True
         initial_and_update_scan_complete = self.owner.scanmode.in_state(self.owner.scanmode.get_state(SCAN_MONITOR))
 
         if initial_and_update_scan_complete:
             if possible is self.owner.matchmode:
                 if self.vector.has_next(MATCH):
-                    return config.match
+                    # return config.match
+                    return False
 
         return initial_and_update_scan_complete or config.scan == False
         
@@ -429,8 +429,9 @@ class ScanModeHandler(DefaultModeHandler):
 
     def can_scan(self, selector, active, possible):
         ops.check_status()
-        if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.vector):
-            return self.scan_complete == False and config.scan
+        return True
+        # if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.vector):
+        #     return self.scan_complete == False and config.scan
 
 
     def do_scan_discover(self):
