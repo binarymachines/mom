@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             version="2.0">
+    <persistence-unit name="introspection"
+                      transaction-type="RESOURCE_LOCAL">
+        <class>com.angrysurfer.introspection.entity.DispatchFunction</class>
+        <class>com.angrysurfer.introspection.entity.Mode</class>
+        <class>com.angrysurfer.introspection.entity.ModeDefault</class>
+        <class>com.angrysurfer.introspection.entity.ModeState</class>
+        <class>com.angrysurfer.introspection.entity.ModeStateDefault</class>
+        <class>com.angrysurfer.introspection.entity.ModeStateDefaultParam</class>
+        <class>com.angrysurfer.introspection.entity.State</class>
+        <class>com.angrysurfer.introspection.entity.SwitchRule</class>
+        <class>com.angrysurfer.introspection.entity.TransitionRule</class>
+    </persistence-unit>
+</persistence>
