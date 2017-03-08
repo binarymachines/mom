@@ -37,4 +37,6 @@
             template="com/angrysurfer/introspection/web/transitionrule/transition-rule-edit.xml"/>
     <screen id="introspection$TransitionRule.browse"
             template="com/angrysurfer/introspection/web/transitionrule/transition-rule-browse.xml"/>
+    <screen id="mainWindow"
+            template="com/angrysurfer/introspection/web/screens/ext-mainwindow.xml"/>
 </screen-config>
