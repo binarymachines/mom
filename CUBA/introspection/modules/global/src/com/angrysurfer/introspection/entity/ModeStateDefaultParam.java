@@ -18,13 +18,15 @@ import com.haulmont.cuba.core.entity.Versioned;
 import com.haulmont.cuba.core.entity.SoftDelete;
 import com.haulmont.cuba.core.entity.Updatable;
 import com.haulmont.cuba.core.entity.Creatable;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
 @Table(name = "INTROSPECTION_MODE_STATE_DEFAULT_PARAM")
 @Entity(name = "introspection$ModeStateDefaultParam")
 public class ModeStateDefaultParam extends BaseUuidEntity implements Versioned, SoftDelete, Updatable, Creatable {
-    private static final long serialVersionUID = 2291894458690825226L;
+    private static final long serialVersionUID = -1768587791561792710L;
 
     @Column(name = "NAME", nullable = false)
     protected String name;
@@ -33,6 +35,7 @@ public class ModeStateDefaultParam extends BaseUuidEntity implements Versioned, 
     @Column(name = "VALUE_", nullable = false)
     protected String value;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MODE_STATE_DEFAULT_ID")
     protected ModeStateDefault modeStateDefault;

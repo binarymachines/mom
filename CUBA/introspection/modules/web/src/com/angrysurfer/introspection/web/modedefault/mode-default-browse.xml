@@ -37,6 +37,7 @@
                 <column id="incPriorityAmount"/>
                 <column id="decPriorityAmount"/>
                 <column id="errorTolerance"/>
+                <column id="mode"/>
             </columns>
             <rows datasource="modeDefaultsDs"/>
             <rowsCount/>

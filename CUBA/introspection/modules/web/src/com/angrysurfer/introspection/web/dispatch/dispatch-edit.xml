@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://editorCaption"
-        class="com.angrysurfer.introspection.web.state.StateEdit"
-        datasource="stateDs"
+        class="com.angrysurfer.introspection.web.dispatch.DispatchEdit"
+        datasource="dispatchDs"
         focusComponent="fieldGroup"
-        messagesPack="com.angrysurfer.introspection.web.state">
+        messagesPack="com.angrysurfer.introspection.web.dispatch">
     <dsContext>
-        <datasource id="stateDs"
-                    class="com.angrysurfer.introspection.entity.State"
+        <datasource id="dispatchDs"
+                    class="com.angrysurfer.introspection.entity.Dispatch"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"
@@ -15,11 +15,14 @@
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="stateDs">
+                    datasource="dispatchDs">
             <column width="250px">
                 <field id="name"/>
-                <field id="isInitialState"/>
-                <field id="isTerminalStateFlag"/>
+                <field id="category"/>
+                <field id="packageName"/>
+                <field id="moduleName"/>
+                <field id="className"/>
+                <field id="functionName"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

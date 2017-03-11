@@ -9,6 +9,27 @@
         <datasource id="modeStateDefaultDs"
                     class="com.angrysurfer.introspection.entity.ModeStateDefault"
                     view="ModeStateDefault-screen-view"/>
+        <collectionDatasource id="modesDs"
+                              class="com.angrysurfer.introspection.entity.Mode"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Mode e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="statesDs"
+                              class="com.angrysurfer.introspection.entity.State"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$State e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="effectDispatchesDs"
+                              class="com.angrysurfer.introspection.entity.Dispatch"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Dispatch e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -17,13 +38,17 @@
         <fieldGroup id="fieldGroup"
                     datasource="modeStateDefaultDs">
             <column width="250px">
-                <field id="mode"/>
-                <field id="state"/>
-                <field id="effectDispatch"/>
+                <field id="mode"
+                       optionsDatasource="modesDs"/>
+                <field id="state"
+                       optionsDatasource="statesDs"/>
+                <field id="effectDispatch"
+                       optionsDatasource="effectDispatchesDs"/>
                 <field id="errorTolerance"/>
                 <field id="decPriorityAmount"/>
                 <field id="incPriorityAmount"/>
                 <field id="timeToComplete"/>
+                <field id="priority"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

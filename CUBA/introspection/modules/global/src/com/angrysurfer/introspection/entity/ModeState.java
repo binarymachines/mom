@@ -21,7 +21,7 @@ import com.haulmont.cuba.core.entity.Creatable;
 @Table(name = "INTROSPECTION_MODE_STATE")
 @Entity(name = "introspection$ModeState")
 public class ModeState extends BaseUuidEntity implements Versioned, SoftDelete, Updatable, Creatable {
-    private static final long serialVersionUID = -6625785283513894579L;
+    private static final long serialVersionUID = 8649313734701127697L;
 
     @Column(name = "PID", length = 32)
     protected String pid;

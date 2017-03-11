@@ -6,9 +6,6 @@ import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.global.DesignSupport;
 import java.util.Date;
 import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -23,17 +20,13 @@ import com.haulmont.cuba.core.entity.Creatable;
 @Table(name = "INTROSPECTION_MODE")
 @Entity(name = "introspection$Mode")
 public class Mode extends BaseUuidEntity implements Versioned, SoftDelete, Updatable, Creatable {
-    private static final long serialVersionUID = -9146015723591549552L;
+    private static final long serialVersionUID = 4705646563480847644L;
 
     @Column(name = "NAME", nullable = false)
     protected String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DEFAULTS_ID")
-    protected ModeDefault defaults;
-
     @Column(name = "STATEFUL_FLAG")
-    protected Boolean statefulFlag;
+    protected Boolean isStateful;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATE_TS")
@@ -60,6 +53,15 @@ public class Mode extends BaseUuidEntity implements Versioned, SoftDelete, Updat
     @Column(name = "VERSION", nullable = false)
     protected Integer version;
 
+    public void setIsStateful(Boolean isStateful) {
+        this.isStateful = isStateful;
+    }
+
+    public Boolean getIsStateful() {
+        return isStateful;
+    }
+
+
     @Override
     public Boolean isDeleted() {
         return deleteTs != null;
@@ -72,22 +74,6 @@ public class Mode extends BaseUuidEntity implements Versioned, SoftDelete, Updat
 
     public String getName() {
         return name;
-    }
-
-    public void setDefaults(ModeDefault defaults) {
-        this.defaults = defaults;
-    }
-
-    public ModeDefault getDefaults() {
-        return defaults;
-    }
-
-    public void setStatefulFlag(Boolean statefulFlag) {
-        this.statefulFlag = statefulFlag;
-    }
-
-    public Boolean getStatefulFlag() {
-        return statefulFlag;
     }
 
     @Override

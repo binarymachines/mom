@@ -2,7 +2,7 @@
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
     <menu id="application"
           insertBefore="administration">
-        <item id="introspection$DispatchFunction.browse"/>
+        <item id="introspection$Dispatch.browse"/>
         <item id="introspection$Mode.browse"/>
         <item id="introspection$ModeDefault.browse"/>
         <item id="introspection$ModeState.browse"/>

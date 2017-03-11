@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://browseCaption"
-        class="com.angrysurfer.introspection.web.mode.ModeBrowse"
-        focusComponent="modesTable"
-        lookupComponent="modesTable"
-        messagesPack="com.angrysurfer.introspection.web.mode">
+        class="com.angrysurfer.introspection.web.dispatch.DispatchBrowse"
+        focusComponent="dispatchesTable"
+        lookupComponent="dispatchesTable"
+        messagesPack="com.angrysurfer.introspection.web.dispatch">
     <dsContext>
-        <groupDatasource id="modesDs"
-                         class="com.angrysurfer.introspection.entity.Mode"
+        <groupDatasource id="dispatchesDs"
+                         class="com.angrysurfer.introspection.entity.Dispatch"
                          view="_local">
             <query>
-                <![CDATA[select e from introspection$Mode e]]>
+                <![CDATA[select e from introspection$Dispatch e]]>
             </query>
         </groupDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="modesTable"
+    <layout expand="dispatchesTable"
             spacing="true">
         <filter id="filter"
-                applyTo="modesTable"
-                datasource="modesDs">
+                applyTo="dispatchesTable"
+                datasource="dispatchesDs">
             <properties include=".*"/>
         </filter>
-        <groupTable id="modesTable"
+        <groupTable id="dispatchesTable"
                     width="100%">
             <actions>
                 <action id="create"/>
@@ -32,18 +32,22 @@
             </actions>
             <columns>
                 <column id="name"/>
-                <column id="isStateful"/>
+                <column id="category"/>
+                <column id="packageName"/>
+                <column id="moduleName"/>
+                <column id="className"/>
+                <column id="functionName"/>
             </columns>
-            <rows datasource="modesDs"/>
+            <rows datasource="dispatchesDs"/>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
                           alwaysVisible="true">
                 <button id="createBtn"
-                        action="modesTable.create"/>
+                        action="dispatchesTable.create"/>
                 <button id="editBtn"
-                        action="modesTable.edit"/>
+                        action="dispatchesTable.edit"/>
                 <button id="removeBtn"
-                        action="modesTable.remove"/>
+                        action="dispatchesTable.remove"/>
             </buttonsPanel>
         </groupTable>
     </layout>

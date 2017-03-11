@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
-    <view class="com.angrysurfer.introspection.entity.Mode"
-          extends="_local"
-          name="Mode-screen-view">
-        <property name="defaults"
-                  view="_minimal"/>
-    </view>
     <view class="com.angrysurfer.introspection.entity.ModeDefault"
           extends="_local"
           name="ModeDefault-screen-view">
         <property name="effectDispatch"
+                  view="_minimal"/>
+        <property name="mode"
                   view="_minimal"/>
     </view>
     <view class="com.angrysurfer.introspection.entity.ModeState"
@@ -46,6 +42,8 @@
         <property name="beforeDispatch"
                   view="_minimal"/>
         <property name="afterDispatch"
+                  view="_minimal"/>
+        <property name="conditionDispatch"
                   view="_minimal"/>
     </view>
     <view class="com.angrysurfer.introspection.entity.TransitionRule"

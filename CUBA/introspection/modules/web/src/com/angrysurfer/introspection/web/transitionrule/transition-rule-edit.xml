@@ -9,6 +9,27 @@
         <datasource id="transitionRuleDs"
                     class="com.angrysurfer.introspection.entity.TransitionRule"
                     view="TransitionRule-screen-view"/>
+        <collectionDatasource id="modesDs"
+                              class="com.angrysurfer.introspection.entity.Mode"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Mode e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="beginStatesDs"
+                              class="com.angrysurfer.introspection.entity.State"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$State e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="endStatesDs"
+                              class="com.angrysurfer.introspection.entity.State"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$State e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -18,9 +39,12 @@
                     datasource="transitionRuleDs">
             <column width="250px">
                 <field id="name"/>
-                <field id="mode"/>
-                <field id="beginState"/>
-                <field id="endState"/>
+                <field id="mode"
+                       optionsDatasource="modesDs"/>
+                <field id="beginState"
+                       optionsDatasource="beginStatesDs"/>
+                <field id="endState"
+                       optionsDatasource="endStatesDs"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

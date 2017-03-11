@@ -2,12 +2,10 @@ package com.angrysurfer.introspection.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.global.DesignSupport;
 import java.util.Date;
 import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
@@ -16,39 +14,31 @@ import com.haulmont.cuba.core.entity.Versioned;
 import com.haulmont.cuba.core.entity.SoftDelete;
 import com.haulmont.cuba.core.entity.Updatable;
 import com.haulmont.cuba.core.entity.Creatable;
-import com.haulmont.cuba.core.entity.annotation.Lookup;
-import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
-@Table(name = "INTROSPECTION_MODE_DEFAULT")
-@Entity(name = "introspection$ModeDefault")
-public class ModeDefault extends BaseUuidEntity implements Versioned, SoftDelete, Updatable, Creatable {
-    private static final long serialVersionUID = -3471463338047773901L;
+@NamePattern("%s|name")
+@Table(name = "INTROSPECTION_DISPATCH")
+@Entity(name = "introspection$Dispatch")
+public class Dispatch extends BaseUuidEntity implements Versioned, SoftDelete, Updatable, Creatable {
+    private static final long serialVersionUID = -5053021383365946380L;
 
-    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "MODE_ID")
-    protected Mode mode;
+    @Column(name = "NAME", nullable = false)
+    protected String name;
 
-    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "EFFECT_DISPATCH_ID")
-    protected Dispatch effectDispatch;
+    @Column(name = "CATEGORY")
+    protected String category;
 
-    @Column(name = "PRIORITY", nullable = false)
-    protected Integer priority;
+    @Column(name = "PACKAGE_NAME")
+    protected String packageName;
 
-    @Column(name = "INC_PRIORITY_AMOUNT")
-    protected Integer incPriorityAmount;
+    @Column(name = "MODULE_NAME", nullable = false)
+    protected String moduleName;
 
-    @Column(name = "DEC_PRIORITY_AMOUNT")
-    protected Integer decPriorityAmount;
+    @Column(name = "CLASS_NAME")
+    protected String className;
 
-    @Column(name = "TIMES_TO_COMPLETE")
-    protected Integer timesToComplete;
-
-    @Column(name = "ERROR_TOLERANCE")
-    protected Integer errorTolerance;
+    @Column(name = "FUNC_NAME")
+    protected String functionName;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATE_TS")
@@ -75,66 +65,59 @@ public class ModeDefault extends BaseUuidEntity implements Versioned, SoftDelete
     @Column(name = "VERSION", nullable = false)
     protected Integer version;
 
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+
     @Override
     public Boolean isDeleted() {
         return deleteTs != null;
     }
 
 
-    public void setEffectDispatch(Dispatch effectDispatch) {
-        this.effectDispatch = effectDispatch;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Dispatch getEffectDispatch() {
-        return effectDispatch;
+    public String getName() {
+        return name;
     }
 
-    public void setPriority(Integer priority) {
-        this.priority = priority;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public Integer getPriority() {
-        return priority;
+    public String getCategory() {
+        return category;
     }
 
-    public void setTimesToComplete(Integer timesToComplete) {
-        this.timesToComplete = timesToComplete;
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 
-    public Integer getTimesToComplete() {
-        return timesToComplete;
+    public String getPackageName() {
+        return packageName;
     }
 
-    public void setIncPriorityAmount(Integer incPriorityAmount) {
-        this.incPriorityAmount = incPriorityAmount;
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 
-    public Integer getIncPriorityAmount() {
-        return incPriorityAmount;
+    public String getModuleName() {
+        return moduleName;
     }
 
-    public void setDecPriorityAmount(Integer decPriorityAmount) {
-        this.decPriorityAmount = decPriorityAmount;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
-    public Integer getDecPriorityAmount() {
-        return decPriorityAmount;
-    }
-
-    public void setErrorTolerance(Integer errorTolerance) {
-        this.errorTolerance = errorTolerance;
-    }
-
-    public Integer getErrorTolerance() {
-        return errorTolerance;
-    }
-
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
-
-    public Mode getMode() {
-        return mode;
+    public String getClassName() {
+        return className;
     }
 
     @Override

@@ -32,8 +32,8 @@
             </actions>
             <columns>
                 <column id="name"/>
-                <column id="initialStateFlag"/>
-                <column id="terminalStateFlag"/>
+                <column id="isInitialState"/>
+                <column id="isTerminalStateFlag"/>
             </columns>
             <rows datasource="statesDs"/>
             <rowsCount/>

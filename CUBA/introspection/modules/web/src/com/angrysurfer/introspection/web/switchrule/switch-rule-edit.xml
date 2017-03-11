@@ -9,6 +9,37 @@
         <datasource id="switchRuleDs"
                     class="com.angrysurfer.introspection.entity.SwitchRule"
                     view="SwitchRule-screen-view"/>
+        <collectionDatasource id="beginModesDs"
+                              class="com.angrysurfer.introspection.entity.Mode"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Mode e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="endModesDs"
+                              class="com.angrysurfer.introspection.entity.Mode"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Mode e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="beforeDispatchesDs"
+                              class="com.angrysurfer.introspection.entity.Dispatch"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Dispatch e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="afterDispatchesDs"
+                              class="com.angrysurfer.introspection.entity.Dispatch"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Dispatch e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="conditionDispatchesDs"
+                              class="com.angrysurfer.introspection.entity.Dispatch"
+                              view="_minimal"/>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -18,10 +49,16 @@
                     datasource="switchRuleDs">
             <column width="250px">
                 <field id="name"/>
-                <field id="beginMode"/>
-                <field id="endMode"/>
-                <field id="beforeDispatch"/>
-                <field id="afterDispatch"/>
+                <field id="beginMode"
+                       optionsDatasource="beginModesDs"/>
+                <field id="endMode"
+                       optionsDatasource="endModesDs"/>
+                <field id="conditionDispatch"
+                       optionsDatasource="conditionDispatchesDs"/>
+                <field id="beforeDispatch"
+                       optionsDatasource="beforeDispatchesDs"/>
+                <field id="afterDispatch"
+                       optionsDatasource="afterDispatchesDs"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

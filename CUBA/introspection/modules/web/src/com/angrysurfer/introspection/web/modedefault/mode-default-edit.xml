@@ -9,6 +9,20 @@
         <datasource id="modeDefaultDs"
                     class="com.angrysurfer.introspection.entity.ModeDefault"
                     view="ModeDefault-screen-view"/>
+        <collectionDatasource id="effectDispatchesDs"
+                              class="com.angrysurfer.introspection.entity.Dispatch"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Dispatch e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="modesDs"
+                              class="com.angrysurfer.introspection.entity.Mode"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from introspection$Mode e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -17,11 +31,14 @@
         <fieldGroup id="fieldGroup"
                     datasource="modeDefaultDs">
             <column width="250px">
-                <field id="effectDispatch"/>
+                <field id="mode"
+                       optionsDatasource="modesDs"/>
+                <field id="effectDispatch"
+                       optionsDatasource="effectDispatchesDs"/>
                 <field id="priority"/>
-                <field id="timesToComplete"/>
                 <field id="incPriorityAmount"/>
                 <field id="decPriorityAmount"/>
+                <field id="timesToComplete"/>
                 <field id="errorTolerance"/>
             </column>
         </fieldGroup>

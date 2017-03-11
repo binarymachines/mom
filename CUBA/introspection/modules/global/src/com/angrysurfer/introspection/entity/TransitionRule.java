@@ -17,25 +17,30 @@ import com.haulmont.cuba.core.entity.Versioned;
 import com.haulmont.cuba.core.entity.SoftDelete;
 import com.haulmont.cuba.core.entity.Updatable;
 import com.haulmont.cuba.core.entity.Creatable;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
 @Table(name = "INTROSPECTION_TRANSITION_RULE")
 @Entity(name = "introspection$TransitionRule")
 public class TransitionRule extends BaseUuidEntity implements Versioned, SoftDelete, Updatable, Creatable {
-    private static final long serialVersionUID = -3541262110054633454L;
+    private static final long serialVersionUID = 2370041538891758026L;
 
     @Column(name = "NAME", nullable = false)
     protected String name;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MODE_ID")
     protected Mode mode;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BEGIN_STATE_ID")
     protected State beginState;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "END_STATE_ID")
     protected State endState;

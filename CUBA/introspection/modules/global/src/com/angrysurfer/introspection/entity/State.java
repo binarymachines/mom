@@ -20,16 +20,16 @@ import com.haulmont.cuba.core.entity.Creatable;
 @Table(name = "INTROSPECTION_STATE")
 @Entity(name = "introspection$State")
 public class State extends BaseUuidEntity implements Versioned, SoftDelete, Updatable, Creatable {
-    private static final long serialVersionUID = -1323834688778451614L;
+    private static final long serialVersionUID = -4208536481166756865L;
 
     @Column(name = "NAME", nullable = false)
     protected String name;
 
     @Column(name = "INITIAL_STATE_FLAG")
-    protected Boolean initialStateFlag;
+    protected Boolean isInitialState;
 
     @Column(name = "TERMINAL_STATE_FLAG")
-    protected Boolean terminalStateFlag;
+    protected Boolean isTerminalStateFlag;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATE_TS")
@@ -56,6 +56,23 @@ public class State extends BaseUuidEntity implements Versioned, SoftDelete, Upda
     @Column(name = "VERSION", nullable = false)
     protected Integer version;
 
+    public void setIsInitialState(Boolean isInitialState) {
+        this.isInitialState = isInitialState;
+    }
+
+    public Boolean getIsInitialState() {
+        return isInitialState;
+    }
+
+    public void setIsTerminalStateFlag(Boolean isTerminalStateFlag) {
+        this.isTerminalStateFlag = isTerminalStateFlag;
+    }
+
+    public Boolean getIsTerminalStateFlag() {
+        return isTerminalStateFlag;
+    }
+
+
     @Override
     public Boolean isDeleted() {
         return deleteTs != null;
@@ -68,22 +85,6 @@ public class State extends BaseUuidEntity implements Versioned, SoftDelete, Upda
 
     public String getName() {
         return name;
-    }
-
-    public void setInitialStateFlag(Boolean initialStateFlag) {
-        this.initialStateFlag = initialStateFlag;
-    }
-
-    public Boolean getInitialStateFlag() {
-        return initialStateFlag;
-    }
-
-    public void setTerminalStateFlag(Boolean terminalStateFlag) {
-        this.terminalStateFlag = terminalStateFlag;
-    }
-
-    public Boolean getTerminalStateFlag() {
-        return terminalStateFlag;
     }
 
     @Override

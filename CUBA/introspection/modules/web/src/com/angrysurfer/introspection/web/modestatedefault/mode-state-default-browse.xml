@@ -38,6 +38,7 @@
                 <column id="decPriorityAmount"/>
                 <column id="incPriorityAmount"/>
                 <column id="timeToComplete"/>
+                <column id="priority"/>
             </columns>
             <rows datasource="modeStateDefaultsDs"/>
             <rowsCount/>

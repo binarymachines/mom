@@ -16,24 +16,29 @@ import com.haulmont.cuba.core.entity.Versioned;
 import com.haulmont.cuba.core.entity.SoftDelete;
 import com.haulmont.cuba.core.entity.Updatable;
 import com.haulmont.cuba.core.entity.Creatable;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "INTROSPECTION_MODE_STATE_DEFAULT")
 @Entity(name = "introspection$ModeStateDefault")
 public class ModeStateDefault extends BaseUuidEntity implements Versioned, SoftDelete, Updatable, Creatable {
-    private static final long serialVersionUID = 4722439992336425762L;
+    private static final long serialVersionUID = -1555524838784358161L;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "MODE_ID")
     protected Mode mode;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "STATE_ID")
     protected State state;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "EFFECT_DISPATCH_ID")
-    protected DispatchFunction effectDispatch;
+    protected Dispatch effectDispatch;
 
     @Column(name = "ERROR_TOLERANCE")
     protected Integer errorTolerance;
@@ -46,6 +51,9 @@ public class ModeStateDefault extends BaseUuidEntity implements Versioned, SoftD
 
     @Column(name = "TIME_TO_COMPLETE")
     protected Integer timeToComplete;
+
+    @Column(name = "PRIORITY")
+    protected Integer priority;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATE_TS")
@@ -94,11 +102,11 @@ public class ModeStateDefault extends BaseUuidEntity implements Versioned, SoftD
         return state;
     }
 
-    public void setEffectDispatch(DispatchFunction effectDispatch) {
+    public void setEffectDispatch(Dispatch effectDispatch) {
         this.effectDispatch = effectDispatch;
     }
 
-    public DispatchFunction getEffectDispatch() {
+    public Dispatch getEffectDispatch() {
         return effectDispatch;
     }
 
@@ -132,6 +140,14 @@ public class ModeStateDefault extends BaseUuidEntity implements Versioned, SoftD
 
     public Integer getTimeToComplete() {
         return timeToComplete;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public Integer getPriority() {
+        return priority;
     }
 
     @Override
