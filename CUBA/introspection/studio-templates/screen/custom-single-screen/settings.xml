@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<template icon="TEMPLATE_SINGLE_SCREEN"
+          name="Custom Entity browser/editor">
+    <description>
+        <![CDATA[Custom combined screen.]]>
+    </description>
+    <locMessages key="browseCaption">
+        <message lang="default">
+            <![CDATA[${entity.className} browser]]>
+        </message>
+    </locMessages>
+    <locMessages key="mainTab">
+        <message lang="default">
+            <![CDATA[Main]]>
+        </message>
+    </locMessages>
+    <property caption="Entity"
+              code="entity"
+              propertyType="ENTITY"
+              required="true"/>
+    <property caption="Browse view"
+              code="browseView"
+              propertyType="VIEW"
+              relatedProperty="entity"
+              required="true"/>
+    <property caption="Edit view"
+              code="editView"
+              propertyType="VIEW"
+              relatedProperty="entity"
+              required="true"/>
+    <property caption="Table type"
+              code="tableType"
+              propertyType="TABLE_TYPE"
+              relatedProperty="entity"
+              required="true"/>
+    <property caption="Menu Item"
+              code="menuItem"
+              propertyType="MENU_ITEM"/>
+    <property caption="Field column width"
+              code="fieldColumnWidth"
+              defaultValue="250px"
+              propertyType="PX_SIZE"
+              required="true"/>
+    <property caption="Table actions"
+              code="tableActions"
+              defaultValue="create,edit,remove"
+              propertyType="MULTI_OPTION">
+        <option id="create"/>
+        <option id="edit"/>
+        <option id="remove"/>
+        <option id="refresh"/>
+        <option id="add"/>
+        <option id="exclude"/>
+        <option id="excel"/>
+    </property>
+    <property advanced="true"
+              caption="Create filter"
+              code="createFilter"
+              defaultValue="true"
+              propertyType="BOOLEAN"/>
+    <property caption="Multiselect"
+              code="multiselect"
+              propertyType="BOOLEAN"/>
+    <property caption="Presentation"
+              code="presentation"
+              propertyType="BOOLEAN"/>
+    <property advanced="true"
+              caption="Use Data Grid"
+              code="useDataGrid"
+              propertyType="BOOLEAN"/>
+    <property advanced="true"
+              caption="Create Header"
+              code="createHeader"
+              defaultValue="false"
+              propertyType="BOOLEAN"/>
+    <property advanced="true"
+              caption="Create Footer"
+              code="createFooter"
+              propertyType="BOOLEAN"/>
+    <property advanced="true"
+              caption="Detail Style"
+              code="detailStyle"
+              defaultValue="Tables"
+              propertyType="OPTION">
+        <option id="Accordion"/>
+        <option id="Tabs"/>
+        <option id="Tables"/>
+    </property>
+    <source fileExt="xml"
+            name="descriptor"
+            templateFileName="${helper.generateDescriptorFileName(entity)}-browse"/>
+    <source fileExt="java"
+            name="controller"
+            templateFileName="${controllerName}"/>
+    <source fileExt="groovy"
+            name="controller"
+            templateFileName="${controllerName}"/>
+</template>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<template icon="TEMPLATE_EDITOR"
+          name="Custom Entity editor">
+    <description>
+        <![CDATA[Standard editor screen with a field group and window action buttons: <i>OK</i> and <i>Cancel</i>.
+<br>Select <b>Extended window actions</b> checkbox to create an editor that can be saved without closing the screen.
+It will have <i>Save and close</i>, <i>Save</i> and <i>Cancel</i> buttons.]]>
+    </description>
+    <locMessages key="editorCaption">
+        <message lang="default">
+            <![CDATA[${entity.className} editor]]>
+        </message>
+    </locMessages>
+    <property caption="Entity"
+              code="entity"
+              propertyType="ENTITY"
+              required="true"/>
+    <property caption="Entity view"
+              code="entityView"
+              propertyType="VIEW"
+              relatedProperty="entity"
+              required="true"/>
+    <property caption="Column width"
+              code="columnWidth"
+              defaultValue="250px"
+              propertyType="PX_SIZE"/>
+    <property caption="Modal dialog"
+              code="modalDialog"
+              propertyType="BOOLEAN"/>
+    <property caption="Extended window actions"
+              code="extendedWindowActions"
+              propertyType="BOOLEAN"/>
+    <property advanced="true"
+              caption="Create Header"
+              code="createHeader"
+              propertyType="BOOLEAN"/>
+    <property advanced="true"
+              caption="Header Left Buttons"
+              code="headerLeftButtons"
+              propertyType="MULTI_OPTION">
+        <option id="Inner"/>
+        <option id="Outer"/>
+    </property>
+    <property advanced="true"
+              caption="Header Link Property"
+              code="headerLinkProperty"
+              propertyType="STRING"/>
+    <property advanced="true"
+              caption="Header Right Buttons"
+              code="headerRightButtons"
+              propertyType="MULTI_OPTION">
+        <option id="Inner"/>
+        <option id="Outer"/>
+    </property>
+    <property advanced="true"
+              caption="Create Footer"
+              code="createFooter"
+              propertyType="BOOLEAN"/>
+    <property advanced="true"
+              caption="Create Horizontal Main Box"
+              code="createHorizontalMainBox"
+              defaultValue="false"
+              propertyType="BOOLEAN"/>
+    <property advanced="true"
+              caption="Detail Style"
+              code="detailStyle"
+              defaultValue="Tables"
+              propertyType="OPTION">
+        <option id="Accordion"/>
+        <option id="Tables"/>
+        <option id="Tabsheet"/>
+    </property>
+    <source fileExt="xml"
+            name="descriptor"
+            templateFileName="${helper.generateDescriptorFileName(entity)}-edit"/>
+    <source fileExt="java"
+            name="controller"
+            templateFileName="${controllerName}"/>
+    <source fileExt="groovy"
+            name="controller"
+            templateFileName="${controllerName}"/>
+</template>

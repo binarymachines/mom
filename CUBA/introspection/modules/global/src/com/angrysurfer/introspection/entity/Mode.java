@@ -14,6 +14,8 @@ import com.haulmont.cuba.core.entity.Versioned;
 import com.haulmont.cuba.core.entity.SoftDelete;
 import com.haulmont.cuba.core.entity.Updatable;
 import com.haulmont.cuba.core.entity.Creatable;
+import java.util.Collection;
+import javax.persistence.OneToMany;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -27,6 +29,9 @@ public class Mode extends BaseUuidEntity implements Versioned, SoftDelete, Updat
 
     @Column(name = "STATEFUL_FLAG")
     protected Boolean isStateful;
+
+    @OneToMany(mappedBy = "mode")
+    protected Collection<ModeDefault> defaults;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATE_TS")
@@ -52,6 +57,15 @@ public class Mode extends BaseUuidEntity implements Versioned, SoftDelete, Updat
     @Version
     @Column(name = "VERSION", nullable = false)
     protected Integer version;
+
+    public void setDefaults(Collection<ModeDefault> defaults) {
+        this.defaults = defaults;
+    }
+
+    public Collection<ModeDefault> getDefaults() {
+        return defaults;
+    }
+
 
     public void setIsStateful(Boolean isStateful) {
         this.isStateful = isStateful;

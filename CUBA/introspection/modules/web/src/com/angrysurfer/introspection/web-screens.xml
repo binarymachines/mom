@@ -7,8 +7,6 @@
             template="com/angrysurfer/introspection/web/dispatch/dispatch-browse.xml"/>
     <screen id="introspection$Mode.edit"
             template="com/angrysurfer/introspection/web/mode/mode-edit.xml"/>
-    <screen id="introspection$Mode.browse"
-            template="com/angrysurfer/introspection/web/mode/mode-browse.xml"/>
     <screen id="introspection$ModeDefault.browse"
             template="com/angrysurfer/introspection/web/modedefault/mode-default-browse.xml"/>
     <screen id="introspection$ModeState.edit"
@@ -27,8 +25,6 @@
             template="com/angrysurfer/introspection/web/state/state-browse.xml"/>
     <screen id="introspection$SwitchRule.browse"
             template="com/angrysurfer/introspection/web/switchrule/switch-rule-browse.xml"/>
-    <screen id="introspection$TransitionRule.browse"
-            template="com/angrysurfer/introspection/web/transitionrule/transition-rule-browse.xml"/>
     <screen id="introspection$ModeStateDefault.edit"
             template="com/angrysurfer/introspection/web/modestatedefault/mode-state-default-edit.xml"/>
     <screen id="introspection$SwitchRule.edit"
@@ -39,4 +35,8 @@
             template="com/angrysurfer/introspection/web/screens/ext-mainwindow.xml"/>
     <screen id="introspection$ModeDefault.edit"
             template="com/angrysurfer/introspection/web/modedefault/mode-default-edit.xml"/>
+    <screen id="introspection$TransitionRule.browse"
+            template="com/angrysurfer/introspection/web/transitionrule/transition-rule-browse.xml"/>
+    <screen id="introspection$Mode.browse"
+            template="com/angrysurfer/introspection/web/mode/mode-browse.xml"/>
 </screen-config>

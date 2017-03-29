@@ -1,0 +1,162 @@
+<%
+screenId = "${entity.name}.browse"
+controllerName = "${entity.className}Browse"
+
+def pluralForm = helper.pluralForm(entity.uncapitalizedClassName)
+tableId = "${pluralForm}Table"
+tableDs = entity.uncapitalizedClassName.equals(pluralForm) ? pluralForm + "CollectionDs" : pluralForm + "Ds"
+editDs = entity.uncapitalizedClassName + 'Ds'
+def nestedDatasourceProperties = helper.getEditorNestedDatasourceProperties(editView)
+def nestedCollectionDatasourceProperties = helper.getEditorNestedCollectionDatasourceProperties(editView)
+def optionsDatasources=helper.getOptionsDatasources(editView)
+collectionAttributesTablesXml = helper.getEditorCollectionAttributesTablesXml(nestedCollectionDatasourceProperties, editView)
+
+
+def printActions() {
+    tableActions.each {action ->
+        print "\n                <action id='${action}'/>";
+    }
+}
+
+def printButtons() {
+    tableActions.each { action ->
+        print "\n                <button id='${action}Btn' action='${tableId}.${action}'/>"
+    }
+}
+
+def printColumns() {
+    def browseColumns = helper.getBrowseColumns(entity, browseView)
+    browseColumns.each { column ->
+        print "\n                <column id='${column}'/>"
+    }
+}%>
+
+<window xmlns="${xmlNamespace_window}"
+        caption="msg://caption"
+        class="${packageName}.${controllerName}"
+        focusComponent="${tableId}"
+        lookupComponent="${tableId}"
+        messagesPack="${packageName}">
+        <dsContext>
+            <datasource id="${editDs}"
+                        class="${entity.fqn}"
+                        view="${editView.name}"
+            <%print ((!nestedDatasourceProperties && !nestedCollectionDatasourceProperties) ? '/>' : '>')%>
+
+            <%nestedDatasourceProperties.each{
+                print '<datasource id="' + it + 'Ds" property="' + it + '"/>\n'
+            }%>
+
+            <%nestedCollectionDatasourceProperties.each{
+                print '<collectionDatasource id="' + it + 'Ds" property="' + it + '"/>\n'
+            }%>
+
+            <%if (nestedDatasourceProperties || nestedCollectionDatasourceProperties) {%></datasource><%}%>
+
+            <${tableType.dsName} id="${tableDs}"
+                    class="${entity.fqn}"<%(tableType.dsName == 'hierarchicalDatasource') ? print("\nhierarchyProperty='${tableType_hierarchicalProperty}'") : print("") %>
+                    view="${browseView.name}">
+                <query>
+                    <![CDATA[select e from ${entity.name} e]]>
+                </query>
+            </${tableType.dsName}>
+
+            <%if (optionsDatasources) {
+                optionsDatasources.each {
+                    println it.generateXml()
+            }}%>
+        </dsContext>
+
+    <actions>
+        <action id="save" invoke="save" icon="icons/ok.png" caption="mainMsg://actions.Ok" shortcut="CTRL-ENTER"/>
+        <action id="cancel"  invoke="cancel" icon="icons/cancel.png" caption="mainMsg://actions.Cancel"/>
+    </actions>
+
+    <dialogMode height="600"
+                width="800"/>
+
+    <layout spacing="true">
+        <split id="split" height="100%" orientation="horizontal" reversePosition="true" width="100%">
+
+            <vbox id="lookupBox" expand="${tableId}" height="100%" margin="false,true,false,false" spacing="true">
+
+                <%if (createFilter) {%>
+                    <filter id="filter" applyTo="${tableId}" datasource="${tableDs}">
+                        <properties include=".*"/>
+                    </filter>
+                <%}%>
+
+                <%if (useDataGrid) {%>
+                    <groupBox id="dataGridBox" caption="data grid" height="100%" showAsPanel="true" width="100%"/>"
+
+                <%} else {%>
+                    <${tableType.xmlName} id="${tableId}" width="100%">
+                        <actions><% printActions() %>
+                        </actions>
+                        <columns><% printColumns() %>
+                        </columns>
+                        <rows datasource="${tableDs}"/>
+                        <rowsCount/>
+                        <buttonsPanel id="buttonsPanel" alwaysVisible="true"><% printButtons() %>
+                        </buttonsPanel>
+                    </${tableType.xmlName}>
+                <%}%>
+
+            </vbox>
+
+            <vbox id="detailPanel" expand="editBox" width="100%">
+                <vbox id="editBox" spacing="true" margin="false,false,false,true" height="100%" width="100%" 
+                        expand=<%(collectionAttributesTablesXml ? print("'tablesBox'") : print("'fieldGroupBox'"))%>>
+                    
+                    <%if (collectionAttributesTablesXml) {%>
+                        <groupBox id="fieldGroupBox" caption="${entity.className}" showAsPanel="true">
+                            <%print "${helper.generateFiledGroupXml(editView, fieldColumnWidth, editDs)}"%>
+                        </groupBox>
+
+                        <% if (detailStyle == 'Accordion') {%>
+                            <vbox id="tablesBox">
+                                <accordion id="tabSheet" height="100%">
+                                    <%collectionAttributesTablesXml.each{propertyName, tableXml ->
+                                        print("<tab id='${propertyName}Tab' caption='msg://${entity.packageName}/${entity.className}.${propertyName}' margin='true'>")
+                                        print("\n        $tableXml")
+                                        print('</tab>') }%>
+                                </accordion>
+                            </vbox>
+                        <%}%>
+
+                        <% if (detailStyle == 'Tabs') {%>
+                            <vbox id="tablesBox">
+                                <tabSheet id="tabSheet">
+                                    <%collectionAttributesTablesXml.each{
+                                        propertyName, tableXml ->
+                                            print("<tab id='${propertyName}Tab' caption='msg://${entity.packageName}/${entity.className}.${propertyName}' margin='true'>")
+                                            print("\n        $tableXml")
+                                            print('</tab>') 
+                                    }%>
+                                </tabSheet>
+                            </vbox>
+                        <%}%>
+
+                        <% if (detailStyle == 'Tables') {%>
+                            <vbox id="tablesBox" spacing="true">
+                                <%collectionAttributesTablesXml.each{
+                                    propertyName, tableXml -> print("\n    $tableXml")
+                                }%>
+                            </vbox>
+                        <%}%>
+                        
+                    <%} else {%>
+                        <groupBox id="fieldGroupBox" caption="${entity.className}" showAsPanel="true">
+                            <%print "        ${helper.generateFiledGroupXml(editView, fieldColumnWidth, editDs)}"%>
+                        </groupBox>
+                     <%}%>
+                    <hbox id="actionsPane" spacing="true" visible="false">
+                        <button id="saveBtn" action="save"/>
+                        <button id="cancelBtn" action="cancel"/>
+                    </hbox>
+                </vbox>
+            </vbox>
+
+        </split>
+    </layout>
+</window>

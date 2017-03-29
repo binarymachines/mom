@@ -3,7 +3,6 @@
     <menu id="application"
           insertBefore="administration">
         <item id="introspection$Dispatch.browse"/>
-        <item id="introspection$Mode.browse"/>
         <item id="introspection$ModeDefault.browse"/>
         <item id="introspection$ModeState.browse"/>
         <item id="introspection$ModeStateDefault.browse"/>
@@ -11,5 +10,6 @@
         <item id="introspection$State.browse"/>
         <item id="introspection$SwitchRule.browse"/>
         <item id="introspection$TransitionRule.browse"/>
+        <item id="introspection$Mode.browse"/>
     </menu>
 </menu-config>

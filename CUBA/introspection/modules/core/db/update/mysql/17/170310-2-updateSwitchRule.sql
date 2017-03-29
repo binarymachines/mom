@@ -1,0 +1,1 @@
+alter table INTROSPECTION_SWITCH_RULE add column CONDITION_DISPATCH_ID varchar(32) ;
