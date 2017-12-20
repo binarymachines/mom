@@ -28,7 +28,7 @@ class ActionDispatch(Base):
     __tablename__ = 'action_dispatch'
 
     id = Column(Integer, primary_key=True)
-    identifier = Column(String(128), nullable=False)
+    name = Column(String(128), nullable=False)
     category = Column(String(128))
     package_name = Column(String(128))
     module_name = Column(String(128), nullable=False)
@@ -41,11 +41,11 @@ class ActionParam(Base):
 
     id = Column(Integer, primary_key=True)
     action_id = Column(ForeignKey(u'action.id'), index=True)
-    meta_action_param_id = Column(ForeignKey(u'meta_action_param.id'), index=True)
+    vector_param_id = Column(ForeignKey(u'vector_param.id'), nullable=False, index=True)
     value = Column(String(1024))
 
     action = relationship(u'Action')
-    meta_action_param = relationship(u'MetaActionParam')
+    vector_param = relationship(u'VectorParam')
 
 
 t_action_reason = Table(
@@ -62,18 +62,15 @@ class ActionStatu(Base):
     name = Column(String(255))
 
 
-class EsClause(Base):
-    __tablename__ = 'es_clause'
+class EsSearchSpec(Base):
+    __tablename__ = 'es_search_spec'
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False)
     name = Column(String(128), nullable=False)
     query_type = Column(String(64), nullable=False)
     max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
     applies_to_file_type = Column(String(6), nullable=False, server_default=text("'*'"))
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-    effective_dt = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 t_m_action_m_reason = Table(
@@ -100,10 +97,11 @@ class MetaActionParam(Base):
     __tablename__ = 'meta_action_param'
 
     id = Column(Integer, primary_key=True)
-    vector_param_name = Column(String(128), nullable=False)
     meta_action_id = Column(ForeignKey(u'meta_action.id'), nullable=False, index=True)
+    vector_param_id = Column(ForeignKey(u'vector_param.id'), nullable=False, index=True)
 
     meta_action = relationship(u'MetaAction')
+    vector_param = relationship(u'VectorParam')
 
 
 class MetaReason(Base):
@@ -112,15 +110,14 @@ class MetaReason(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     parent_meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
-    is_sufficient_solo = Column(Integer, nullable=False, server_default=text("'0'"))
     document_type = Column(String(32), nullable=False, server_default=text("'file'"))
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
-    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
+    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
     expected_result = Column(Integer, nullable=False, server_default=text("'1'"))
-    es_clause_id = Column(ForeignKey(u'es_clause.id'), index=True)
+    es_search_spec_id = Column(ForeignKey(u'es_search_spec.id'), index=True)
 
     dispatch = relationship(u'ActionDispatch')
-    es_clause = relationship(u'EsClause')
+    es_search_spec = relationship(u'EsSearchSpec')
     parent_meta_reason = relationship(u'MetaReason', remote_side=[id])
 
 
@@ -129,9 +126,10 @@ class MetaReasonParam(Base):
 
     id = Column(Integer, primary_key=True)
     meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
-    vector_param_name = Column(String(128), nullable=False)
+    vector_param_id = Column(ForeignKey(u'vector_param.id'), nullable=False, index=True)
 
     meta_reason = relationship(u'MetaReason')
+    vector_param = relationship(u'VectorParam')
 
 
 class Reason(Base):
@@ -152,8 +150,15 @@ class ReasonParam(Base):
 
     id = Column(Integer, primary_key=True)
     reason_id = Column(ForeignKey(u'reason.id'), nullable=False, index=True)
-    meta_reason_param_id = Column(ForeignKey(u'meta_reason_param.id'), nullable=False, index=True)
+    vector_param_id = Column(ForeignKey(u'vector_param.id'), nullable=False, index=True)
     value = Column(String(1024))
 
-    meta_reason_param = relationship(u'MetaReasonParam')
     reason = relationship(u'Reason')
+    vector_param = relationship(u'VectorParam')
+
+
+class VectorParam(Base):
+    __tablename__ = 'vector_param'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)

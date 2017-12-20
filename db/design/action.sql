@@ -96,10 +96,10 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`vector_param` (
 );
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_action_param` (
-  -- `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `meta_action_id` INT(11) UNSIGNED NOT NULL,
   `vector_param_id` INT(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (`meta_action_id`, `vector_param_id`),
+  PRIMARY KEY (`id`),
   INDEX `fk_meta_action_param_vector_idx` (`vector_param_id` ASC),
   CONSTRAINT `fk_meta_action_param_vector`
     FOREIGN KEY (`vector_param_id`)
@@ -162,10 +162,10 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`m_action_m_reason` (
 
 
 CREATE TABLE IF NOT EXISTS `mildred_action`.`meta_reason_param` (
-    -- `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `meta_reason_id` int(11) UNSIGNED,
     `vector_param_id` INT(11) UNSIGNED NOT NULL,
-    PRIMARY KEY (`meta_reason_id`, `vector_param_id`),
+    PRIMARY KEY (`id`),
     CONSTRAINT `fk_m_action_meta_reason_param_meta_reason`
     FOREIGN KEY (`meta_reason_id`)
     REFERENCES `mildred_action`.`meta_reason` (`id`)

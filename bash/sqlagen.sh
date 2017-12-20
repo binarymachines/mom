@@ -3,8 +3,8 @@ clear
 
 # echo 'updating mildred'
 # mysql mildred  < $MILDRED_HOME/db/design/mildred.sql
-# echo 'updating mildred action'
-# mysql mildred_action < $MILDRED_HOME/db/design/action.sql
+echo 'updating mildred action'
+mysql mildred_action < $MILDRED_HOME/db/design/action.sql
 # echo 'updating mildred introspection'
 # mysql mildred_introspection < $MILDRED_HOME/db/design/introspection.sql
 # echo 'updating scratch'
