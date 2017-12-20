@@ -73,6 +73,7 @@ def get_paths(args):
         for p in pattern:
             for row in sql.run_query_template(GET_PATHS, p, const.DIRECTORY):
                 paths.append(row[0])
+
     return paths
 
 

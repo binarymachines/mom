@@ -1,6 +1,6 @@
 '''
    Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] 
-                    [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)]
+                    [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)] [(--map-paths <startpath>)]
 
    --path, -p                   The path to scan
 
@@ -18,6 +18,7 @@ import core.var
 import ops
 import pathutil
 import start
+import disc
 
 from core.vector import PathVector, CachedPathVector
 from core.serv import Service
@@ -39,7 +40,18 @@ def launch(args, run=True):
         # NOTE: final changes to config here 
         config.filename = config.filename if not args['--config'] else args['<filename>']
         config.start_time = datetime.datetime.now().isoformat()
+ 
+        if args['--map-paths']:
+            if not args['<startpath>']:
+                sys.exit("no start path was specified")
+            startpath = args['<startpath>']
+            disc.map(startpath)
+            # paths.append(startpath)
+    
+    
         start.execute(args)
+
+ 
 
         if config.launched:
             service =  Service()
@@ -49,6 +61,10 @@ def launch(args, run=True):
 
                 path_args = start.get_paths(args)
                 paths = pathutil.get_locations() if path_args == [] else path_args
+
+                if paths == []:
+                    sys.exit("ERROR: No paths have been configured. Restart with --map-paths option")
+                    
 
                 vector = CachedPathVector('path vector', paths)
                 vector.peep_fifo = True

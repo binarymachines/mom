@@ -1,5 +1,7 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "python.pythonPath": "/home/mpippins/.virtualenvs/mildred/bin/python",
-    "env.PYTHONPATH": "/home/mpippins/dev/m2/python/mildred"
+    "python.pythonPath": "/media/codex/Home/Workspace/venv/mildred/bin/python",
+    "env.PYTHONPATH": "/media/codex/Home/Workspace/mildred/python/mildred",
+    "python.linting.pylintEnabled": false,
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

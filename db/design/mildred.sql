@@ -1,3 +1,4 @@
+create database mildred;
 use mildred;
 
 DROP TABLE IF EXISTS `delimited_file_data`;
