@@ -1,7 +1,7 @@
 clear
 git status
 
-# ~/dev/mildred$ bin/delpyc.sh
+# ~/dev/mildred$ bash/delpyc.sh
 pushd $MILDRED_HOME
 
 find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.pyc"  -exec rm {} \;

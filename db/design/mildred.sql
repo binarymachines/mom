@@ -29,6 +29,19 @@ DROP TABLE IF EXISTS `op_record`;
 
 DROP TABLE IF EXISTS `exec_rec`;
 
+DROP TABLE IF EXISTS `document`;
+
+CREATE TABLE `document` (
+  `id` varchar(128) NOT NULL,
+  `index_name` varchar(128) NOT NULL,
+  `file_type_id` int(11) unsigned DEFAULT NULL,
+  `document_type` varchar(64) NOT NULL,
+  `absolute_path` varchar(1024) NOT NULL,
+  `effective_dt` datetime DEFAULT NULL,
+  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 CREATE TABLE `exec_rec` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `pid` varchar(32) NOT NULL,
@@ -47,7 +60,7 @@ CREATE TABLE `exec_rec` (
 --   `file_type_id` int(11) unsigned DEFAULT NULL,
 --   `document_type` varchar(64) NOT NULL,
 --   `absolute_path` varchar(1024) NOT NULL,
---   `effective_dt` datetime NOT NULL DEFAULT now(),
+--   `effective_dt` datetime DEFAULT now(),
 --   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
 --   PRIMARY KEY (`id`)
 -- );
@@ -148,7 +161,7 @@ CREATE TABLE `document_attribute` (
 --   `index_name` VARCHAR(128) CHARACTER SET 'utf8' NOT NULL,
 --   `parent_id` INT(11) UNSIGNED NULL DEFAULT NULL,
 --   `path` VARCHAR(767) NOT NULL,
---   `effective_dt` datetime NOT NULL DEFAULT now(),
+--   `effective_dt` datetime DEFAULT now(),
 --   `expiration_dt` DATETIME NULL DEFAULT '9999-12-31 23:59:59',
 --   PRIMARY KEY (`id`),
 --   UNIQUE INDEX `uk_path_hierarchy` (`index_name` ASC, `hex_key` ASC),
@@ -165,7 +178,7 @@ CREATE TABLE `document_attribute` (
 --   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
 --   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
 --   `name` varchar(767) NOT NULL,
---   `effective_dt` datetime NOT NULL DEFAULT now(),
+--   `effective_dt` datetime DEFAULT now(),
 --   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
 --   PRIMARY KEY (`id`), 
 --   UNIQUE KEY `uk_exclude_directory_name` (`index_name`,`name`)
@@ -176,7 +189,7 @@ CREATE TABLE `directory` (
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(767) NOT NULL,
   `file_type_id` int(11) unsigned not null default 0,
-  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   `category_prototype_flag` tinyint not null default 0,
   `active_flag` tinyint not null default 1,
@@ -195,7 +208,7 @@ CREATE TABLE `matcher` (
   `max_score_percentage` float NOT NULL DEFAULT '0',
   `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
-  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
@@ -213,7 +226,7 @@ CREATE TABLE `matcher_field` (
   `analyzer` varchar(64) DEFAULT NULL,
   `query_section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
   `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
-  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_matcher_field_matcher` (`matcher_id`),
@@ -227,7 +240,7 @@ CREATE TABLE `directory_amelioration` (
   `use_tag_flag` tinyint(1) DEFAULT '0',
   `replacement_tag` varchar(32) DEFAULT NULL,
   `use_parent_folder_flag` tinyint(1) DEFAULT '1',
-  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
@@ -238,7 +251,7 @@ CREATE TABLE `directory_attribute` (
   `directory_id` int(11) NOT NULL,
   `attribute_name` varchar(256) NOT NULL,
   `attribute_value` varchar(512) DEFAULT NULL,
-  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
@@ -248,7 +261,7 @@ CREATE TABLE `directory_constant` (
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `pattern` varchar(256) NOT NULL,
   `location_type` varchar(64) NOT NULL,
-  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
@@ -258,7 +271,7 @@ CREATE TABLE `document_category` (
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(256) NOT NULL,
   `document_type` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
@@ -301,7 +314,7 @@ create table `matched` (
   `percentage_of_max_score` float NOT NULL,
   `comparison_result` char(1) CHARACTER SET utf8 NOT NULL,
   `same_ext_flag` tinyint(1) NOT NULL DEFAULT '0',
-  `effective_dt` datetime NOT NULL DEFAULT now(),
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   CONSTRAINT `fk_doc_document`
     FOREIGN KEY (`doc_id`)
@@ -851,3 +864,4 @@ insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) val
 insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT1' and document_format = 'ID3v2.4.0'));
 insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT2' and document_format = 'ID3v2.4.0'));
 insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `document_attribute` where attribute_name = 'TCON' and document_format = 'ID3v2.4.0'));
+

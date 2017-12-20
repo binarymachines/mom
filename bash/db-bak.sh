@@ -15,34 +15,34 @@ rm db/setup/*.sql
 
 echo "copying tables..."
 
-./bin/copy-table-data.sh mildred directory
-./bin/copy-table-data.sh mildred directory_amelioration
-./bin/copy-table-data.sh mildred directory_attribute
-./bin/copy-table-data.sh mildred directory_constant
+./bash/copy-table-data.sh mildred directory
+./bash/copy-table-data.sh mildred directory_amelioration
+./bash/copy-table-data.sh mildred directory_attribute
+./bash/copy-table-data.sh mildred directory_constant
 
-./bin/copy-table-data.sh mildred document_category
-./bin/copy-table-data.sh mildred document_attribute
+./bash/copy-table-data.sh mildred document_category
+./bash/copy-table-data.sh mildred document_attribute
 
-./bin/copy-table-data.sh mildred file_format
-./bin/copy-table-data.sh mildred file_type
+./bash/copy-table-data.sh mildred file_format
+./bash/copy-table-data.sh mildred file_type
 
-./bin/copy-table-data.sh mildred match_discount
-./bin/copy-table-data.sh mildred match_weight
-./bin/copy-table-data.sh mildred matcher
-./bin/copy-table-data.sh mildred matcher_field
+./bash/copy-table-data.sh mildred match_discount
+./bash/copy-table-data.sh mildred match_weight
+./bash/copy-table-data.sh mildred matcher
+./bash/copy-table-data.sh mildred matcher_field
 
-./bin/copy-table-data.sh mildred_admin org
-./bin/copy-table-data.sh mildred_admin member
+./bash/copy-table-data.sh mildred_admin org
+./bash/copy-table-data.sh mildred_admin member
 
-./bin/copy-table-data.sh mildred_introspection mode
-./bin/copy-table-data.sh mildred_introspection state
-./bin/copy-table-data.sh mildred_introspection mode_state_default
-./bin/copy-table-data.sh mildred_introspection mode_state_default_param
-#./bin/copy-table-data.sh mildred_introspection error
-#./bin/copy-table-data.sh mildred_introspection error_attribute
+./bash/copy-table-data.sh mildred_introspection mode
+./bash/copy-table-data.sh mildred_introspection state
+./bash/copy-table-data.sh mildred_introspection mode_state_default
+./bash/copy-table-data.sh mildred_introspection mode_state_default_param
+#./bash/copy-table-data.sh mildred_introspection error
+#./bash/copy-table-data.sh mildred_introspection error_attribute
 
-./bin/copy-table-data.sh media artist_alias
-./bin/copy-table-data.sh media artist_amelioration
+./bash/copy-table-data.sh media artist_alias
+./bash/copy-table-data.sh media artist_amelioration
 
 echo "adding lookup tables to git."
 git add db/bak/*.sql
@@ -50,24 +50,24 @@ git add db/bak/*.sql
 # mysqldump --routines scratch > db/bak/scratch.sql
 
 echo "copying setup tables..."
-./bin/copy-table-ddl.sh mildred db/setup/setup-mildred.sql
-./bin/copy-table-ddl.sh mildred_admin db/setup/setup-mildred_admin.sql
-./bin/copy-table-ddl.sh mildred_action db/setup/setup-mildred_action.sql
-./bin/copy-table-ddl.sh mildred_introspection db/setup/setup-mildred_introspection.sql
-./bin/copy-table-ddl.sh media db/setup/setup-media.sql
-./bin/copy-table-ddl.sh scratch db/setup/backup-media-no-data.sql
+./bash/copy-table-ddl.sh mildred db/setup/setup-mildred.sql
+./bash/copy-table-ddl.sh mildred_admin db/setup/setup-mildred_admin.sql
+./bash/copy-table-ddl.sh mildred_action db/setup/setup-mildred_action.sql
+./bash/copy-table-ddl.sh mildred_introspection db/setup/setup-mildred_introspection.sql
+./bash/copy-table-ddl.sh media db/setup/setup-media.sql
+./bash/copy-table-ddl.sh scratch db/setup/backup-media-no-data.sql
 
 echo "adding setup tables to git."
 git add db/setup/*.sql
 
 echo "dumping schemas..."
 
-./bin/backup-schema.sh mildred
-./bin/backup-schema.sh mildred_admin
-./bin/backup-schema.sh mildred_action
-./bin/backup-schema.sh mildred_introspection
-./bin/backup-schema.sh media
-./bin/backup-schema.sh scratch
+./bash/backup-schema.sh mildred
+./bash/backup-schema.sh mildred_admin
+./bash/backup-schema.sh mildred_action
+./bash/backup-schema.sh mildred_introspection
+./bash/backup-schema.sh media
+./bash/backup-schema.sh scratch
 
 echo '----------------------------'
 echo 'Database backup is complete!'
