@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-pushd $M2
+pushd $MILDRED_HOME
 
 clear
 

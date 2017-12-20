@@ -337,7 +337,7 @@ def evaluate(no_pid=False):
 
     if start_requested():
         cache2.set_hash2(get_exec_key(no_pid=True), {'pid': NO_PID,'start_requested': False,  'stop_requested':False, 'reconfig_requested': False})
-        subprocess.call(["$M2/bin/run.sh"], shell=True)
+        subprocess.call(["$MILDRED_HOME/bin/run.sh"], shell=True)
 
     commands = get_exec_record_value('commands')
     if commands is not None and len(commands) > 0:

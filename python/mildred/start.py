@@ -15,7 +15,7 @@ import ops
 import search
 import sql
 
-from snap import common
+# from snap import common
 
 GET_PATHS = 'start_get_paths'
 

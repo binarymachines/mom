@@ -1,3 +1,3 @@
-pushd $M2
+pushd $MILDRED_HOME
 find . -name *.pyc -delete
 popd

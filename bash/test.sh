@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd $M2/python/test
+pushd $MILDRED_HOME/python/test
 
 clear
 
