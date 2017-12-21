@@ -45,7 +45,7 @@ class Discover(Walker):
     def before_handle_root(self, root):
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if pathutil.folder_is_media_root(root):
-                 print "%s is a media folder." % (root)
+                 print("%s is a media folder." % (root))
 
     def handle_root(self, root):
         ops.check_status()

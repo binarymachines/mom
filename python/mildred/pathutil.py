@@ -96,18 +96,32 @@ def file_type_recognized(path, extensions, recursive=False):
 
 def folder_is_media_root(path):
     
-    categories = get_document_category_names()
+    # categories = get_document_category_names()
     formats = get_active_document_formats()
     types = get_location_types()
 
+    likely = False
+    probable = False
+
     if os.path.isdir(path):
         for f in os.listdir(path):
-            # if os.path.isfile(os.path.join(path, f)):
-            if f in formats:
-                return True
+            parts = os.path.split(path)
+            
+            if parts[1] in formats:
+                probable = True
+                # print("%s is be a genre folder." % (path))
 
-            if f in categories:
-                return True
+            # if parts[1] in categories:
+            #     probable = True
+            #     print("%s might be a media folder." % (path))
+
+            for pair in types:
+                pattern = pair[0]
+                # print "testing for %s in %s" % (pattern, parts[0]) 
+                if pattern in parts[0]:
+                    likely = True
+
+        return probable and likely
             
             # for ext in extensions:
             #     if f.lower().endswith('.' + ext.lower()):
