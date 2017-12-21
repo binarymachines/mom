@@ -37,6 +37,16 @@ def get_locations():
 
     return get_sorted_items(DIRECTORY, identifier)
 
+def get_location_types():
+    # keygroup = DIRECTORY
+    # identifier = 'location'
+    # if not cache2.key_exists(DIRECTORY, identifier):
+    #     key = cache2.create_key(DIRECTORY, identifier)
+    rows = sql.retrieve_values('directory_constant', ['pattern', 'location_type'], [])
+    #     cache2.add_items2(key, [row[1] for row in rows])
+
+    # return get_sorted_items(DIRECTORY, identifier)
+    return rows
 
 # def get_excluded_locations():
 #     keygroup = DIRECTORY
@@ -88,13 +98,20 @@ def folder_is_media_root(path):
     
     categories = get_document_category_names()
     formats = get_active_document_formats()
+    types = get_location_types()
 
     if os.path.isdir(path):
         for f in os.listdir(path):
             # if os.path.isfile(os.path.join(path, f)):
-            for ext in extensions:
-                if f.lower().endswith('.' + ext.lower()):
-                    return True
+            if f in formats:
+                return True
+
+            if f in categories:
+                return True
+            
+            # for ext in extensions:
+            #     if f.lower().endswith('.' + ext.lower()):
+            #         return True
 
     # else: raise Exception('Path does not exist: "' + path + '"')
 
@@ -102,7 +119,6 @@ def folder_is_media_root(path):
 def multiple_file_types_recognized(path, extensions):
     # if self.debug: print path
     if os.path.isdir(path):
-
         found = []
         for f in os.listdir(path):
             if os.path.isfile(os.path.join(path, f)):
