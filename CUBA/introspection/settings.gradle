@@ -1,6 +1,0 @@
-rootProject.name = 'introspection'
-include(':introspection-global', ':introspection-core', ':introspection-gui', ':introspection-web')
-project(':introspection-global').projectDir = new File(settingsDir, 'modules/global')
-project(':introspection-core').projectDir = new File(settingsDir, 'modules/core')
-project(':introspection-gui').projectDir = new File(settingsDir, 'modules/gui')
-project(':introspection-web').projectDir = new File(settingsDir, 'modules/web')
