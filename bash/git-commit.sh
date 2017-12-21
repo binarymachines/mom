@@ -62,5 +62,6 @@ git add db/orientdb/*.sh
 git status
 git commit -m $1
 git status
+git push
 
 popd
