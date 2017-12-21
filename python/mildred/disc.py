@@ -60,7 +60,7 @@ class Discover(Walker):
         #     return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
+            if pathutil.folder_is_media_root(root):
                 try:
                     library.set_active(root)
                 except ElasticDataIntegrityException, err:

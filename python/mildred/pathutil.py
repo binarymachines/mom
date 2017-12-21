@@ -30,12 +30,12 @@ def get_sorted_items(keygroup, identifier):
 def get_locations():
     keygroup = DIRECTORY
     identifier = 'location'
-    if not cache2.key_exists(keygroup, identifier):
-        key = cache2.create_key(keygroup, identifier)
+    if not cache2.key_exists(DIRECTORY, identifier):
+        key = cache2.create_key(DIRECTORY, identifier)
         rows = sql.retrieve_values(DIRECTORY, ['active_flag', 'name'], ['1'])
         cache2.add_items2(key, [row[1] for row in rows])
 
-    return get_sorted_items(keygroup, identifier)
+    return get_sorted_items(DIRECTORY, identifier)
 
 
 # def get_excluded_locations():
@@ -50,7 +50,7 @@ def get_locations():
 
 
 def get_document_category_names():
-    keygroup = DOCUMENT
+    keygroup = FILE
     identifier = 'category_names'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
@@ -61,12 +61,12 @@ def get_document_category_names():
 
 
 def get_active_document_formats():
-    keygroup = DOCUMENT
-    identifier = 'formats'
+    keygroup = FILE
+    identifier = 'document_formats'
     if not cache2.key_exists(keygroup, identifier):
         key = cache2.create_key(keygroup, identifier)
-        rows = sql.retrieve_values('document_format', ['active_flag', 'ext'], ['1'])
-        cache2.add_items2(key, [row[1] for row in rows])
+        rows = sql.retrieve_values('file_type', ['name'], [])
+        cache2.add_items2(key, [row[0] for row in rows])
 
     return get_sorted_items(keygroup, identifier)
 
@@ -84,6 +84,19 @@ def file_type_recognized(path, extensions, recursive=False):
 
     # else: raise Exception('Path does not exist: "' + path + '"')
 
+def folder_is_media_root(path):
+    
+    categories = get_document_category_names()
+    formats = get_active_document_formats()
+
+    if os.path.isdir(path):
+        for f in os.listdir(path):
+            # if os.path.isfile(os.path.join(path, f)):
+            for ext in extensions:
+                if f.lower().endswith('.' + ext.lower()):
+                    return True
+
+    # else: raise Exception('Path does not exist: "' + path + '"')
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system
 def multiple_file_types_recognized(path, extensions):

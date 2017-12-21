@@ -147,6 +147,52 @@ class SQLReasonParam(ReasonParam):
     
 SQLReason.params = relationship("SQLReasonParam", order_by=SQLReasonParam.id, back_populates="reason")
 
+class SQLDirectory(Directory):
+    
+    def __repr__(self):
+        return "<SQLDirectory(index_name='%s', name='%s')>" % (
+                                self.index_name, self.name)
+
+    # @staticmethod
+    # @alchemy_operation
+    # def insert(index_name, document_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
+    #     asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path, \
+    #         effective_dt=datetime.datetime.now())
+
+    #     try:
+    #         sessions[MILDRED].add(asset)
+    #         sessions[MILDRED].commit()
+    #     except IntegrityError, err:
+    #         raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
+
+    # @staticmethod
+    # @alchemy_operation
+    # def retrieve(document_type, absolute_path=None, use_like_in_where_clause=True):
+    #     path = '%s%s' % (absolute_path, '%')
+
+    #     result = ()
+    #     if absolute_path is None:
+    #         for instance in sessions[MILDRED].query(SQLAsset).\
+    #             filter(SQLAsset.index_name == config.es_index).\
+    #             filter(SQLAsset.document_type == document_type):
+    #             # filter(SQLAsset.absolute_path.like(path)):
+    #                 result += (instance,)
+
+    #     elif use_like_in_where_clause:
+    #         for instance in sessions[MILDRED].query(SQLAsset).\
+    #             filter(SQLAsset.index_name == config.es_index).\
+    #             filter(SQLAsset.document_type == document_type).\
+    #             filter(SQLAsset.absolute_path.like(path)):
+    #                 result += (instance,)
+
+    #     else:
+    #         for instance in sessions[MILDRED].query(SQLAsset).\
+    #             filter(SQLAsset.index_name == config.es_index).\
+    #             filter(SQLAsset.document_type == document_type).\
+    #             filter(SQLAsset.absolute_path == path):
+    #                 result += (instance,)
+
+    #     return result
 
 class SQLAsset(Document):
     
