@@ -133,7 +133,7 @@ def execute_query(query, host=config.mysql_host, user=config.mysql_user, passwor
         con.commit()
     except mdb.Error, e:
         ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
-        raise Exception(e, message)
+        raise Exception(e.message)
     except TypeError, e:
         ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
         raise Exception(e.message)
@@ -176,9 +176,9 @@ def kwarg_val(kw, default_value, args):
 
     return default_value
 
-def execute_query_template(filename, *args):
+def execute_query_template(filename, *kwargs):
     print os.getcwd()
-    query = _load_query(filename, *args)
+    query = _load_query(filename, *kwargs)
 
     user = kwarg_val('user', config.mysql_user, kwargs)
     password = kwarg_val('password', config.mysql_pass, kwargs)
@@ -187,7 +187,7 @@ def execute_query_template(filename, *args):
     return execute_query(query, user=user, password=password, schema=schema)
 
 def run_query_template(filename, *args, **kwargs):
-    query = _load_query(filename, *args)
+    query = _load_query(filename, *kwargs)
 
     user = kwarg_val('user', config.mysql_user, kwargs)
     password = kwarg_val('password', config.mysql_pass, kwargs)

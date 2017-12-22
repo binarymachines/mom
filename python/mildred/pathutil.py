@@ -94,12 +94,9 @@ def file_type_recognized(path, extensions, recursive=False):
 
     # else: raise Exception('Path does not exist: "' + path + '"')
 
-def folder_is_media_root(path):
+def folder_is_media_root(path, formats, types):
     
     # categories = get_document_category_names()
-    formats = get_active_document_formats()
-    types = get_location_types()
-
     likely = False
     probable = False
 

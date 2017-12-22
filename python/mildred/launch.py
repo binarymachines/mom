@@ -52,16 +52,12 @@ def launch(args, run=True):
                 path_args = start.get_paths(args)
                 paths = pathutil.get_locations() if path_args == [] else path_args
 
-                if args['--map-paths']:
-                    if not args['<startpath>']:
-                        sys.exit("no start path was specified")
+                if paths == [] and args['--map-paths']:
                     startpath = args['<startpath>']
-                    disc.map(startpath)
-                    # paths.append(startpath)    
+                    paths = disc.map(startpath)
 
                 if paths == []:
-                    sys.exit("ERROR: No paths have been configured. Restart with --map-paths option")
-                    
+                    sys.exit("ERROR: No paths have been configured. Restart with --map-paths option")                   
 
                 vector = CachedPathVector('path vector', paths)
                 vector.peep_fifo = True

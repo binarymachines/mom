@@ -1,4 +1,5 @@
-create database mildred;
+drop schema if exists `mildred`;
+create schema mildred;
 use mildred;
 
 DROP TABLE IF EXISTS `delimited_file_data`;
@@ -20,7 +21,6 @@ DROP TABLE IF EXISTS `document_format`;
 DROP TABLE IF EXISTS `document_type`;
 DROP TABLE IF EXISTS `file_format`;
 DROP TABLE IF EXISTS `file_type`;
--- DROP TABLE IF EXISTS `document`;
 DROP TABLE IF EXISTS `file_handler_type`;
 DROP TABLE IF EXISTS `file_handler`;
 
@@ -189,7 +189,7 @@ CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(767) NOT NULL,
-  `file_type_id` int(11) unsigned not null default 0,
+  `file_type_id` int(11) unsigned not null default 1,
   `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   `category_prototype_flag` tinyint not null default 0,

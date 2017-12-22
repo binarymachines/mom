@@ -1,5 +1,5 @@
-drop database if EXISTS `mildred_action`;
-create database `mildred_action`;
+drop schema if EXISTS `mildred_action`;
+create schema `mildred_action`;
 use `mildred_action`;
 
 

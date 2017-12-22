@@ -25,6 +25,7 @@ from core.vector import Vector
 from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
+import sql
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -36,23 +37,22 @@ ERR = log.get_log('errors', logging.WARNING)
 class Discover(Walker):
     def __init__(self):
         super(Discover, self).__init__()
-
-    # Walker methods
-
-    def after_handle_root(self, root):
-        LOG.debug(root)
-
-    def before_handle_root(self, root):
-        if os.path.isdir(root) and os.access(root, os.R_OK):
-            if pathutil.folder_is_media_root(root):
-                 print("%s is a media folder." % (root))
+        self.folders = []
+        self.formats = pathutil.get_active_document_formats()
+        self.types = pathutil.get_location_types()
 
     def handle_root(self, root):
         ops.check_status()
-        
+        if os.path.isdir(root) and os.access(root, os.R_OK):
+            if pathutil.folder_is_media_root(root, self.formats, self.types):
+                print("%s is a media folder." % (root))
+                self.folders.append(root)
+                sql.insert_values('directory', ['index_name', 'name'], [config.es_index, root])        
     def handle_root_error(self, err, root):
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
 def map(startpath):
-    Discover().walk(startpath)
+    d = Discover()
+    d.walk(startpath)
+    return d.folders
