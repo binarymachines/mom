@@ -207,7 +207,8 @@ def configure(options):
 
 
 def reset():
-
+    print "RESETTING ALL DATA"
+    
     # response = raw_input("All data will be deleted, are you sure? (yes, no): ")
     # if response.lower() == 'yes':
     cache2.redis.flushall()
