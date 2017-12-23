@@ -55,6 +55,9 @@ git add $MILDRED_HOME/bash/*.sh
 git add $MILDRED_HOME/db/design/*.sql
 git add $MILDRED_HOME/db/design/*.sh
 git add $MILDRED_HOME/db/design/*.mwb
+
+git add $MILDRED_HOME/.vscode/*.json
+
 git add db/orientdb/*.json
 git add db/orientdb/*.oqsl
 git add db/orientdb/*.sh

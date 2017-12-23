@@ -222,11 +222,11 @@ def reset():
         query = 'delete from %s' % (table)
         sql.execute_query(query)
 
-    for table in ['document', 'matched']:
+    for table in ['document', 'directory', 'matched', 'op_record']:
         query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
         sql.execute_query(query)
 
-    for table in ['op_record', 'mode_state']:
+    for table in ['mode_state']:
         query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
         sql.execute_query(query, schema="mildred_introspection")
     

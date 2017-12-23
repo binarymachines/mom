@@ -25,9 +25,9 @@
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
                 // "--nomatch"
-                "--scan",
-                "--map-paths",
-                "/media/codex/Media/audio"
+                "--reset",
+                // "--map-paths",
+                // "/media/codex/Media/audio"
                 // "--pattern",
                 // "skillionaire"
                 // "--path",
