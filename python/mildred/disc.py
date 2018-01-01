@@ -45,9 +45,10 @@ class Discover(Walker):
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if pathutil.folder_is_media_root(root, self.formats, self.types):
-                print("%s is a media folder." % (root))
+                #print("%s is a media folder." % (root))
+                pathutil.add_location(root)
                 self.folders.append(root)
-                sql.insert_values('directory', ['index_name', 'name'], [config.es_index, root])        
+ 
     def handle_root_error(self, err, root):
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.

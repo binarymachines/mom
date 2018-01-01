@@ -148,7 +148,7 @@ class Scanner(Walker):
             do_expand = True
         
         if path in self.vector.paths:
-            if self.vector.get_param('all', 'expand_all'):
+            if self.vector.get_param('all', 'expand-all'):
                 do_expand = True
         
         if do_expand:

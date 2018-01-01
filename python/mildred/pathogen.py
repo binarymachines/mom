@@ -187,14 +187,13 @@ class MutagenFLAC(Pathogen):
     def read_tags(self, path, data):
         flac_data = {}
         document = FLAC(path)
-        known = filehandler.get_known_fields('flac')
         for tag in document.tags:
             if len(tag) < 2: continue
+            known = filehandler.get_known_fields('flac')
             
             key = tag[0]  #util.uu_str(tag[0])
             if key not in known:
                 filehandler.add_field('flac', key)
-                known = filehandler.get_known_fields('flac')
                 
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:

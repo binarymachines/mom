@@ -351,9 +351,13 @@ class CachedPathVector(PathVector):
 
         cached_consumer_paths = cache2.get_hash2(self.consumer_key)
         if consumer in cached_consumer_paths:
-            index = self.paths.index(cached_consumer_paths[consumer]) + 1
-            if len(self.paths) > index or self.cycle: 
-                result = True
+            try:
+                index = self.paths.index(cached_consumer_paths[consumer]) + 1
+                if len(self.paths) > index or self.cycle: 
+                    result = True
+            except ValueError, err:
+                result = False
+            
         else: 
             result = len(self.paths) > 0
 

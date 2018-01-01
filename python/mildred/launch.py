@@ -62,7 +62,11 @@ def launch(args, run=True):
                 vector = CachedPathVector('path vector', paths)
                 vector.peep_fifo = True
                 if args['--expand-all']:
-                    vector.set_param('all', 'expand_all', True)
+                    vector.set_param('all', 'expand-all', True)
+
+                if args['--map-paths']:
+                    vector.set_param('all', 'map-paths', True)
+                    vector.set_param('all', 'start-path', args['<startpath>'])
 
                 process = create_func('service process', vector, service, before=before, after=after)    
                 service.queue([process])

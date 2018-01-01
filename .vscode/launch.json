@@ -12,8 +12,7 @@
             "runtimeExecutable": "${workspaceRoot}/js/desktop/node_modules/.bin/electron",
             "runtimeArgs": [],
             "env": {},
-            "sourceMaps": false,
-            "outDir": null
+            "sourceMaps": false
         },
         {
             "name": "media hound",
@@ -25,9 +24,9 @@
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
                 // "--nomatch"
-                "--reset",
-                "--map-paths",
-                "/media/codex/Media/audio"
+                // "--reset",
+                // "--map-paths",
+                // "/media/codex/Media/audio/incoming"
                 // "--pattern",
                 // "skillionaire"
                 // "--path",
@@ -36,8 +35,6 @@
                 // "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
             ],
             "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
                 "RedirectOutput"
             ]
         },
@@ -50,8 +47,6 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/desktop/cachemon.py",
             "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
                 "RedirectOutput"
             ]
         },
@@ -64,8 +59,6 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/query2.py",
             "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
                 "RedirectOutput"
             ]
         },
@@ -82,8 +75,6 @@
                 "/media/removable/Audio/music/albums/art punk"
             ],
             "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
                 "RedirectOutput"
             ]
         },
@@ -102,8 +93,6 @@
                 // "/media/removable/Audio/music/"
             ],
             "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
                 "RedirectOutput"
             ]
         },
@@ -116,8 +105,6 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/docserv.py",
             "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
                 "RedirectOutput"
             ]
         },
@@ -130,8 +117,6 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/finder.py",
             "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
                 "RedirectOutput"
             ]
         },
@@ -144,8 +129,6 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/svalid.py",
             "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
                 "RedirectOutput"
             ]
         },
@@ -159,8 +142,7 @@
             "runtimeExecutable": "${workspaceRoot}/js/console/njs",
             "runtimeArgs": [],
             "env": {},
-            "sourceMaps": false,
-            "outDir": null
+            "sourceMaps": false
         },
         // {
         //     "name": "Python Console App",

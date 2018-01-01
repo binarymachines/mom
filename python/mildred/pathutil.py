@@ -1,23 +1,24 @@
 import logging
 import os
 
-import sql
+import config, sql
 from core import cache2, log
 
 from const import DIRECTORY, FILE
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-
-def get_directory_constants(identifier):
+def get_directory_constants(identifier, refresh=False):
     keygroup = 'directory_constants'
     if not cache2.key_exists(keygroup, identifier):
-        key = cache2.create_key(keygroup, identifier)
+        refresh = True
+
+    key = cache2.get_key(keygroup, identifier)
+    if refresh:
         rows = sql.retrieve_values('directory_constant', ['location_type', 'pattern'], [identifier.lower()])
         cache2.add_items2(key, [row[1] for row in rows])
 
     return get_sorted_items(keygroup, identifier)
-
 
 def get_sorted_items(keygroup, identifier):
     key = cache2.get_key(keygroup, identifier)
@@ -26,60 +27,63 @@ def get_sorted_items(keygroup, identifier):
     result.sort()
     return result
 
+def add_location(path):
+    sql.insert_values('directory', ['index_name', 'name'], [config.es_index, path])
+    get_locations(True)
 
-def get_locations():
+def get_locations(refresh=False):
     keygroup = DIRECTORY
     identifier = 'location'
     if not cache2.key_exists(DIRECTORY, identifier):
-        key = cache2.create_key(DIRECTORY, identifier)
-        rows = sql.retrieve_values(DIRECTORY, ['active_flag', 'name'], ['1'])
+        refresh = True
+
+    key = cache2.get_key(DIRECTORY, identifier)
+    if refresh:
+        cache2.clear_items(DIRECTORY, identifier)
+        rows = sql.retrieve_values(DIRECTORY, ['index_name', 'active_flag', 'name'], [config.es_index, '1'])
         cache2.add_items2(key, [row[1] for row in rows])
 
     return get_sorted_items(DIRECTORY, identifier)
 
-def get_location_types():
-    # keygroup = DIRECTORY
-    # identifier = 'location'
-    # if not cache2.key_exists(DIRECTORY, identifier):
-    #     key = cache2.create_key(DIRECTORY, identifier)
-    rows = sql.retrieve_values('directory_constant', ['pattern', 'location_type'], [])
-    #     cache2.add_items2(key, [row[1] for row in rows])
+def get_location_types(refresh=False):
+    keygroup = DIRECTORY
+    identifier = 'location_type'
+    if not cache2.key_exists(DIRECTORY, identifier):
+        refresh = True
 
-    # return get_sorted_items(DIRECTORY, identifier)
-    return rows
+    if refresh:
+        key = cache2.get_key(DIRECTORY, identifier)
+        rows = sql.retrieve_values('directory_constant', ['pattern', 'location_type'], [])
+        cache2.add_items2(key, [row[1] for row in rows])
 
-# def get_excluded_locations():
-#     keygroup = DIRECTORY
-#     identifier = 'exclude'
-#     if not cache2.key_exists(keygroup, identifier):
-#         key = cache2.create_key(keygroup, identifier)
-#         rows = sql.retrieve_values('exclude_directory', ['name'], [])
-#         cache2.add_items2(key, [row[0] for row in rows])
+    return get_sorted_items(DIRECTORY, identifier)
 
-#     return get_sorted_items(keygroup, identifier)
-
-
-def get_document_category_names():
+def get_document_category_names(refresh=False):
     keygroup = FILE
     identifier = 'category_names'
     if not cache2.key_exists(keygroup, identifier):
-        key = cache2.create_key(keygroup, identifier)
+        refresh = True
+
+    if refresh:
+        key = cache2.get_key(keygroup, identifier)
         rows = sql.retrieve_values('document_category', ['name'], [])
         cache2.add_items2(key, [row[0] for row in rows])
 
     return get_sorted_items(keygroup, identifier)
 
 
-def get_active_document_formats():
+def get_active_document_formats(refresh=False):
     keygroup = FILE
     identifier = 'document_formats'
     if not cache2.key_exists(keygroup, identifier):
-        key = cache2.create_key(keygroup, identifier)
+        refresh = True
+
+    if refresh:
+        key = cache2.get_key(keygroup, identifier)
         rows = sql.retrieve_values('file_type', ['name'], [])
         cache2.add_items2(key, [row[0] for row in rows])
 
     return get_sorted_items(keygroup, identifier)
-
 
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system
@@ -95,36 +99,24 @@ def file_type_recognized(path, extensions, recursive=False):
     # else: raise Exception('Path does not exist: "' + path + '"')
 
 def folder_is_media_root(path, formats, types):
-    
-    # categories = get_document_category_names()
+
+    categories = get_document_category_names()
     likely = False
     probable = False
 
     if os.path.isdir(path):
         for f in os.listdir(path):
             parts = os.path.split(path)
-            
-            if parts[1] in formats:
-                probable = True
-                # print("%s is be a genre folder." % (path))
 
-            # if parts[1] in categories:
-            #     probable = True
-            #     print("%s might be a media folder." % (path))
+            if parts[1] in categories:
+                likely = True
 
             for pair in types:
                 pattern = pair[0]
-                # print "testing for %s in %s" % (pattern, parts[0]) 
-                if pattern in parts[0]:
+                if parts[1] in formats and pattern in parts[0]:
                     likely = True
 
-        return probable and likely
-            
-            # for ext in extensions:
-            #     if f.lower().endswith('.' + ext.lower()):
-            #         return True
-
-    # else: raise Exception('Path does not exist: "' + path + '"')
+        return likely
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system
 def multiple_file_types_recognized(path, extensions):

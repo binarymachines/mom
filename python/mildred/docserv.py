@@ -13,9 +13,10 @@ import calc
 
 import sql
 import library 
+import os
 
 from core import log
-from const import SCAN, MATCH, CLEAN, ANALYZE, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INITIAL, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR, HSCAN, DEEP, USCAN
+from const import SCAN, MATCH, CLEAN, ANALYZE, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INITIAL, SCANNER, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR, HSCAN, DEEP, USCAN
 
 from core.modes import Mode
 from core.modestate import StatefulMode, ModeStateChangeHandler, DefaultModeHandler
@@ -437,7 +438,11 @@ class ScanModeHandler(DefaultModeHandler):
     def do_scan_discover(self):
         print  "discover scan starting..."
         scan.scan(self.vector)
-
+        map_paths = self.vector.get_param('all', 'map-paths')
+        if map_paths:
+            startpath = self.vector.get_param('all', 'start-path')
+            for f in os.listdir(startpath):
+                self.vector.paths.insert(0, os.path.join(startpath, f))
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
@@ -446,6 +451,7 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan(self):
         print  "update scan starting..."
+        self.vector.set_param(SCAN, DEEP, False)
         scan.scan(self.vector)
 
     def should_monitor(self, selector=None, active=None, possible=None):

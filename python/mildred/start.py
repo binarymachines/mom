@@ -26,7 +26,7 @@ ERR = log.get_log('errors', logging.WARNING)
 def execute(args):
     show_logo()
     log.start_logging()
-    
+
     if os.path.isfile(os.path.join(os.getcwd(), config.filename)):
 
         options = make_options(args)
@@ -37,13 +37,35 @@ def execute(args):
             # TODO: connect to an explicit redis database. Check for execution record. Change database if required.
             LOG.debug('connecting to Redis...')
             cache2.redis = redis.Redis(config.redis_host)
+        except Exception, err:
+            config.launched = False
+            ERR.error(err.message, exc_info=True)
+            print 'Initialization failure'
+            raise err
 
+        try:
             LOG.debug('connecting to Elasticsearch...')
             config.es = search.connect()
             if not config.es.indices.exists(config.es_index):
                 search.create_index(config.es_index)
 
-            if 'reset' in options: 
+        except Exception, err:
+            config.launched = False
+            ERR.error(err.message, exc_info=True)
+            print 'Initialization failure'
+            raise err
+
+        try:
+            LOG.debug('connecting to MySQL...')
+            load_user_info()
+        except Exception, err:
+            config.launched = False
+            ERR.error(err.message, exc_info=True)
+            print 'Initialization failure'
+            raise err
+
+        try:
+            if 'reset' in options:
                 reset()
                 ops.flush_cache(resuming=False)
             else:
@@ -51,19 +73,16 @@ def execute(args):
                 LOG.debug('clearing data from prior execution...')
                 ops.flush_cache(resuming=config.old_pid)
 
-            LOG.debug('connecting to MySQL...')
-            load_user_info()
-
-            config.display_status()
-
-            if 'exit' in options: sys.exit(0)
-
-            config.launched = True
         except Exception, err:
             config.launched = False
             ERR.error(err.message, exc_info=True)
             print 'Initialization failure'
             raise err
+
+        config.display_status()
+        config.launched = True
+        if 'exit' in options:
+            sys.exit(0)
 
 
 def get_paths(args):
@@ -95,7 +114,7 @@ def make_options(args):
     if '--nomatch' in args and args['--nomatch']: options.append('no_match')
     if '--debug-mysql' in args and args['--debug-mysql']: options.append('debug_mysql')
     if '--reset' in args and args['--reset']: options.append('reset')
-    if '--expand-all' in args and args['--expand-all']: options.append('expand_all')
+    if '--expand-all' in args and args['--expand-all']: options.append('expand-all')
     if '--exit' in args and args['--exit']: options.append('exit')
 
     # if '--workdir' in args
@@ -146,7 +165,7 @@ def configure2(options):
 
         # # if 'no_match' in options:
         # #     config.match = False
-        # # else: 
+        # # else:
         # config.match = read(parser, "Action")['match'].lower() == 'true' or 'match' in options
 
         # # cache
@@ -167,8 +186,8 @@ def configure(options):
     parser.read(config.filename)
 
     read_pid_file()
-    # TODO write pidfile_TIMESTAMP and pass filenames to command.py    
-    if not config.launched: 
+    # TODO write pidfile_TIMESTAMP and pass filenames to command.py
+    if not config.launched:
         write_pid_file()
 
     core.var.service_create_func = read(parser, 'Process')['create_proc']
@@ -208,12 +227,12 @@ def configure(options):
 
 def reset():
     print "RESETTING ALL DATA"
-    
+
     # response = raw_input("All data will be deleted, are you sure? (yes, no): ")
     # if response.lower() == 'yes':
     cache2.redis.flushall()
 
-    try: 
+    try:
         search.clear_index(config.es_index)
         search.create_index(config.es_index)
     except Exception, err:
@@ -230,7 +249,7 @@ def reset():
     for table in ['mode_state']:
         query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
         sql.execute_query(query, schema="mildred_introspection")
-    
+
 
 def show_logo():
     with open(os.path.join(os.getcwd(), 'txt','logo.txt'), 'r') as f:

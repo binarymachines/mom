@@ -15,14 +15,17 @@ ERR = log.get_log('errors', logging.WARNING)
 
 def add_field(doc_format, field_name):
     """add an attribute to document_attribute for the specified document_type"""
-    keygroup = 'fields'
-    if field_name in get_known_fields(doc_format): 
-        return
-    try:
-        sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format, field_name])
-        cache2.add_item(KNOWN, doc_format, field_name)
-    except Exception, err:
-        ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+    cache2.add_item(KNOWN, doc_format, field_name)
+    # keygroup = 'fields'
+    # if field_name in get_known_fields(doc_format, refresh=True): 
+    #     return
+    # try:
+    #     sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format, field_name])
+    #     cache2.add_item(KNOWN, doc_format, field_name)
+    #     # get_known_fields(doc_format, refresh=True)
+
+    # except Exception, err:
+    #     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 def get_fields(doc_format):
@@ -38,10 +41,15 @@ def get_fields(doc_format):
     return result
 
 
-def get_known_fields(doc_format):
+def get_known_fields(doc_format, refresh=False):
     """retrieve all attributes, including unused ones, from document_attribute for the specified document_type"""
+
     if not cache2.key_exists(KNOWN, doc_format):
-        key = cache2.create_key(KNOWN, doc_format)
+        refresh = True
+    
+    key = cache2.get_key(KNOWN, doc_format)
+    if refresh:
+        cache2.clear_items(KNOWN, doc_format)
         rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format])
         cache2.add_items(KNOWN, doc_format, [row.attribute_name for row in rows])
 
@@ -49,6 +57,8 @@ def get_known_fields(doc_format):
     # LOG.debug('get_known_fields(doc_format=%s) returns: %s' % (doc_format, str(result)))
     return result
 
+    # rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format])
+    # return rows
 
 def report_invalid_field(path, key, value):
     try:
