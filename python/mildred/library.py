@@ -9,6 +9,7 @@ import time
 
 from elasticsearch.exceptions import ConnectionError, RequestError
 
+import python.mildred.shallow
 from alchemy import SQLAsset
 import config, const
 from const import FILE, DIRECTORY, MATCH
@@ -349,7 +350,7 @@ def get_library_location(path):
     # LOG.debug("determining location for %s." % (path.split(os.path.sep)[-1]))
     possible = []
 
-    for location in pathutil.get_locations():
+    for location in python.mildred.shallow.get_locations():
         if location in path:
 	        possible.append(location)
     

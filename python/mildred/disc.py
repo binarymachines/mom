@@ -17,6 +17,7 @@ import const
 import library
 import ops
 import pathutil
+import python.mildred.shallow
 import search
 # from const import Discover, SCAN, HSCAN, READ, USCAN, DEEP
 from core import cache2
@@ -38,15 +39,15 @@ class Discover(Walker):
     def __init__(self):
         super(Discover, self).__init__()
         self.folders = []
-        self.formats = pathutil.get_active_document_formats()
-        self.types = pathutil.get_location_types()
+        self.formats = python.mildred.shallow.get_active_document_formats()
+        self.types = python.mildred.shallow.get_location_types()
 
     def handle_root(self, root):
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if pathutil.folder_is_media_root(root, self.formats, self.types):
                 #print("%s is a media folder." % (root))
-                pathutil.add_location(root)
+                python.mildred.shallow.add_location(root)
                 self.folders.append(root)
  
     def handle_root_error(self, err, root):

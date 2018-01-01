@@ -17,6 +17,7 @@ import const
 import library
 import ops
 import pathutil
+import python.mildred.shallow
 import search
 from const import SCANNER, SCAN, HSCAN, READ, USCAN, DEEP
 from core import cache2
@@ -144,7 +145,7 @@ class Scanner(Walker):
         expanded = False
         do_expand = False
 
-        if path in pathutil.get_locations():
+        if path in python.mildred.shallow.get_locations():
             do_expand = True
         
         if path in self.vector.paths:

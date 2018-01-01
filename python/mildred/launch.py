@@ -17,6 +17,7 @@ import config
 import core.var
 import ops
 import pathutil
+import python.mildred.shallow
 import start
 import disc
 
@@ -50,7 +51,7 @@ def launch(args, run=True):
                 create_func = get_process_create_func()
 
                 path_args = start.get_paths(args)
-                paths = pathutil.get_locations() if path_args == [] else path_args
+                paths = python.mildred.shallow.get_locations() if path_args == [] else path_args
 
                 if paths == [] and args['--map-paths']:
                     startpath = args['<startpath>']
