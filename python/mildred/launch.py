@@ -17,7 +17,7 @@ import config
 import core.var
 import ops
 import pathutil
-import python.mildred.shallow
+import shallow
 import start
 import disc
 
@@ -25,6 +25,7 @@ from core.vector import PathVector, CachedPathVector
 from core.serv import Service
 from core import util
 
+from shallow import get_locations
 
 def get_process_create_func():
     proc_name = core.var.service_create_func.split('.')
@@ -51,7 +52,7 @@ def launch(args, run=True):
                 create_func = get_process_create_func()
 
                 path_args = start.get_paths(args)
-                paths = python.mildred.shallow.get_locations() if path_args == [] else path_args
+                paths = get_locations() if path_args == [] else path_args
 
                 if paths == [] and args['--map-paths']:
                     startpath = args['<startpath>']

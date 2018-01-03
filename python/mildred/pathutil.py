@@ -7,7 +7,6 @@ from core import log
 
 LOG = log.get_log(__name__, logging.DEBUG)
 
-
 # TODO: Offline mode - query MySQL and ES before looking at the file system
 def file_type_recognized(path, extensions, recursive=False):
     # TODO: add 'safe mode'
@@ -20,29 +19,24 @@ def file_type_recognized(path, extensions, recursive=False):
 
     # else: raise Exception('Path does not exist: "' + path + '"')
 
+
 def folder_is_media_root(path, formats, types):
 
     categories = get_document_category_names()
-    likely = False
-    probable = False
-
     if os.path.isdir(path):
+        found = []
         for f in os.listdir(path):
-            parts = os.path.split(path)
+            if os.path.isdir(os.path.join(path, f)):
+                for name in categories:
+                    if f.lower() == name.lower():
+                        if name not in found:
+                            found.append(name)
 
-            if parts[1] in categories:
-                likely = True
+        return len(found) > 3
 
-            for pair in types:
-                pattern = pair[0]
-                if parts[1] in formats and pattern in parts[0]:
-                    likely = True
-
-        return likely
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system
 def multiple_file_types_recognized(path, extensions):
-    # if self.debug: print path
     if os.path.isdir(path):
         found = []
         for f in os.listdir(path):
@@ -54,8 +48,6 @@ def multiple_file_types_recognized(path, extensions):
 
         return len(found) > 1
 
-    else: raise Exception('Path does not exist: "' + path + '"')
-
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_has_location_name(path, names):
@@ -63,6 +55,7 @@ def path_has_location_name(path, names):
     for name in get_locations():
         if path.endswith(name):
             return True
+
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_in_album_directory(path):
@@ -76,6 +69,7 @@ def path_in_album_directory(path):
 # TODO: Offline mode - query MySQL and ES before looking at the file system
 def path_in_document_category(path):
     raise Exception('not implemented!')
+
 
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system

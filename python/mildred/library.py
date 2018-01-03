@@ -8,16 +8,15 @@ import sys
 import time
 
 from elasticsearch.exceptions import ConnectionError, RequestError
+import shallow
 
-import python.mildred.shallow
-from alchemy import SQLAsset
-import config, const
-from const import FILE, DIRECTORY, MATCH
+import config
 import ops
-import pathutil
 import search
 import sql
+from alchemy import SQLAsset
 from assets import Directory, Document
+from const import DIRECTORY, MATCH
 from core import cache2, log, util
 from errors import AssetException, ElasticDataIntegrityException
 
@@ -54,6 +53,7 @@ def get_cache_key(subset=None):
     # (else)
     return cache2.get_key(KEY_GROUP, subset, config.pid)
 
+
 def cache_directory(directory):
     clear_directory_cache()
 
@@ -62,6 +62,7 @@ def cache_directory(directory):
         data['esid'] = directory.esid
         cache2.set_hash2(get_cache_key(), data)
 
+
 def clear_directory_cache():
     cache2.delete_hash2(get_cache_key())
 
@@ -69,23 +70,16 @@ def clear_directory_cache():
 def get_cached_directory():
     return cache2.get_hash2(get_cache_key())
 
-def get_location_patterns(location_type):
-    if not cache2.key_exists(PATTERN, location_type):
-        key = cache2.create_key(PATTERN, location_type)
-        rows = sql.retrieve_values2('directory_constant', ['location_type', 'pattern'], [location_type])
-        cache2.add_items(PATTERN, location_type, [row.pattern for row in rows])
-
-    return cache2.get_items(PATTERN, location_type)
-
 
 def pattern_in_path(pattern, path):
 
-    path_fragments = get_location_patterns(pattern) 
+    path_fragments = shallow.get_location_patterns(pattern) 
     for path_fragment in path_fragments:
         if path_fragment in path:
             return True
 
     return False
+
 
 def set_active(path):
     directory = None if path is None else Directory(util.uu_str(path))
@@ -116,6 +110,7 @@ def set_active(path):
 
         cache_directory(directory)
 
+
 # document cache
 
 def cache_docs(document_type, path, flush=True):
@@ -135,16 +130,19 @@ def cache_docs(document_type, path, flush=True):
         cache2.set_hash2(key, keyvalue)
         cached_count += 1
 
+
 def clear_docs(document_type, path):
     keys = cache2.get_keys(KEY_GROUP, document_type, path)
     for key in keys:
         cache2.delete_key(key)
+
 
 def get_cached_esid(document_type, path):
     key = cache2.get_key(KEY_GROUP, document_type, path)
     values = cache2.get_hash2(key)
     if 'esid' in values:
         return values['esid']
+
 
 def get_doc_keys(document_type):
     keys = cache2.get_keys(KEY_GROUP, document_type)
@@ -155,6 +153,7 @@ def retrieve_docs(document_type, path):
     return sql.run_query_template(RETRIEVE_DOCS, config.es_index, document_type, path)
 
 # assets
+
 
 def doc_exists_for_path(document_type, path):
     return search.unique_doc_exists(document_type, 'absolute_path', path, except_on_multiples=True) if retrieve_esid(document_type, path) is None \
@@ -189,6 +188,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
         asset.doc = search.get_doc(asset.document_type, asset.esid)
 
     return asset
+
 
 def _sub_index_asset(asset, data):
     # try:
@@ -350,7 +350,7 @@ def get_library_location(path):
     # LOG.debug("determining location for %s." % (path.split(os.path.sep)[-1]))
     possible = []
 
-    for location in python.mildred.shallow.get_locations():
+    for location in get_locations():
         if location in path:
 	        possible.append(location)
     
@@ -401,6 +401,7 @@ def get_attribute_values(asset, document_format_attribute, *items):
 def get_aliases(document_format, term):
    return sql.retrieve_values2('v_alias', ['document_format', 'name', 'attribute_name'], [document_format, term])
    
+
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later
 
 def handle_asset_exception(error, path):

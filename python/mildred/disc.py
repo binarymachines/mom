@@ -17,7 +17,7 @@ import const
 import library
 import ops
 import pathutil
-import python.mildred.shallow
+import shallow
 import search
 # from const import Discover, SCAN, HSCAN, READ, USCAN, DEEP
 from core import cache2
@@ -27,6 +27,7 @@ from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
 import sql
+from shallow import get_active_document_formats, get_location_types, add_location, get_locations
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -39,15 +40,15 @@ class Discover(Walker):
     def __init__(self):
         super(Discover, self).__init__()
         self.folders = []
-        self.formats = python.mildred.shallow.get_active_document_formats()
-        self.types = python.mildred.shallow.get_location_types()
+        self.formats = get_active_document_formats()
+        self.types = get_location_types()
 
     def handle_root(self, root):
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if pathutil.folder_is_media_root(root, self.formats, self.types):
                 #print("%s is a media folder." % (root))
-                python.mildred.shallow.add_location(root)
+                add_location(root)
                 self.folders.append(root)
  
     def handle_root_error(self, err, root):

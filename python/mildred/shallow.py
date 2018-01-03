@@ -3,6 +3,11 @@ from core import cache2
 import sql, config
 
 from const import DIRECTORY, FILE
+from core import cache2
+
+from library import PATTERN
+
+import sql
 
 
 def get_sorted_items(keygroup, identifier):
@@ -55,7 +60,7 @@ def get_directory_constants(identifier, refresh=False):
 
 
 def get_locations(refresh=False):
-    keygroup = DIRECTORY
+    # keygroup = DIRECTORY
     identifier = 'location'
     if not cache2.key_exists(DIRECTORY, identifier):
         refresh = True
@@ -87,3 +92,11 @@ def get_location_types(refresh=False):
 
     return get_sorted_items(DIRECTORY, identifier)
 
+
+def get_location_patterns(location_type):
+    if not cache2.key_exists(PATTERN, location_type):
+        key = cache2.create_key(PATTERN, location_type)
+        rows = sql.retrieve_values2('directory_constant', ['location_type', 'pattern'], [location_type])
+        cache2.add_items(PATTERN, location_type, [row.pattern for row in rows])
+
+    return cache2.get_items(PATTERN, location_type)

@@ -7,3 +7,5 @@ local/
 python/log/
 python/pid
 pip-selfcheck.json
+*.class
+*.log

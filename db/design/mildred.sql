@@ -31,6 +31,8 @@ DROP TABLE IF EXISTS `op_record`;
 DROP TABLE IF EXISTS `exec_rec`;
 
 DROP TABLE IF EXISTS `document`;
+DROP TABLE IF EXISTS `directory_tags`;
+DROP TABLE IF EXISTS `tags`;
 
 CREATE TABLE `document` (
   `id` varchar(128) NOT NULL,
