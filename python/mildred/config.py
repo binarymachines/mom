@@ -1,11 +1,11 @@
 #! /usr/bin/python
 
 import os
+import ConfigParser
 
-from core import cache2
+from core import util, var
 
-filename = "config.ini"
-yaml = "mildred.conf"
+initialized = False
 launched = False
 start_time = None
 username = None
@@ -17,37 +17,60 @@ path_cache_size = None
 op_life = 90
 status_check_freq= 1
 
-redis_host = 'localhost'
+config_file = os.path.join(util.get_working_directory(), "config.ini")
+# yaml  = os.path.join(util.get_working_directory(), "mildred.conf")
 
-es = None
-es_host = 'localhost'
-es_port = 9200
-es_index = 'media'
+def read(parser, section):
+    result = {}
+    options = parser.options(section)
+    for option in options:
+        try:
+            result[option] = parser.get(section, option)
+            # if result[option] == -1:
+            #     LOG.debug("skip: %s" % option)
+        except:
+            print("exception on %s!" % option)
+            result[option] = None
+    return result
 
-mysql_host = 'localhost'
-mysql_port = 3306
-mysql_db = 'mildred'
-mysql_user = 'root'
-mysql_pass = 'steel'
+if (os.path.isfile(config_file)):
+    try:
+        parser = ConfigParser.ConfigParser()
+        parser.read(config_file)
 
-scan = True
-match = True
-deep = False
-no_scan = False
-no_match = False
+        var.service_create_func = read(parser, 'Process')['create_proc']
 
-def display_status():
-    print """Process ID: %s""" % pid
-    print 'Redis host: %s' % redis_host
-    print 'Redis dbsize: %i' % cache2.redis.dbsize()
-    print """Elasticsearch host: %s""" % es_host
-    print """Elasticsearch port: %i""" % es_port
-    print """Elasticsearch index: %s""" % es_index
-    print"""MySQL username: %s""" % mysql_user
-    print """MySQL host: %s""" % mysql_host
-    print """MySQL port: %i""" % mysql_port
-    print """MySQL schema: %s""" % mysql_db
-    print """Media Hound username: %s\n""" % username
-    
+        # elasticsearch
+        es_host = read(parser, "Elasticsearch")['host']
+        es_port = int(read(parser, "Elasticsearch")['port'])
+        es_index = read(parser, "Elasticsearch")['index']
 
+        # mysql
+        mysql_host = read(parser, "MySQL")['host']
+        mysql_db = read(parser, "MySQL")['schema']
+        mysql_user = read(parser, "MySQL")['user']
+        mysql_pass = read(parser, "MySQL")['pass']
+        mysql_port = int(read(parser, "MySQL")['port'])
 
+        # status
+        status_check_freq= int(read(parser, "Status")['check_frequency'])
+
+        # action
+        deep = read(parser, "Action")['deep_scan'].lower() == 'true'
+
+        scan = read(parser, "Action")['scan'].lower() == 'true' 
+        match = read(parser, "Action")['match'].lower() == 'true' 
+
+        # cache
+        path_cache_size = int(read(parser, "Cache")['path_cache_size'])
+        op_life = int(read(parser, "Cache")['op_life'])
+
+        # redis
+        redis_host = read(parser, "Redis")['host']
+
+        initialized = True
+    except Exception, err:
+        initialized = False
+        print(err.message)
+else:
+    print("CONFIG FILE NOT FOUND IN %s" % util.get_working_directory)

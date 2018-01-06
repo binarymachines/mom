@@ -102,7 +102,7 @@ class Document(Base):
     document_type = Column(String(64), nullable=False)
     absolute_path = Column(String(1024), nullable=False)
     effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
+    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class DocumentAttribute(Base):
@@ -227,6 +227,8 @@ class OpRecord(Base):
     status = Column(String(64), nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime)
+    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class OpRecordParam(Base):

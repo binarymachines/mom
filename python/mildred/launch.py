@@ -40,7 +40,7 @@ def get_process_create_func():
 def launch(args, run=True):
     try:
         # NOTE: final changes to config here 
-        config.filename = config.filename if not args['--config'] else args['<filename>']
+        config.config_file = config.config_file if not args['--config'] else args['<filename>']
         config.start_time = datetime.datetime.now().isoformat()
     
         start.execute(args)

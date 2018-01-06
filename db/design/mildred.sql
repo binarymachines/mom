@@ -41,7 +41,7 @@ CREATE TABLE `document` (
   `document_type` varchar(64) NOT NULL,
   `absolute_path` varchar(1024) NOT NULL,
   `effective_dt` datetime DEFAULT now(),
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

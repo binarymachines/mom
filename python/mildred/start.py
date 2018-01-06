@@ -27,11 +27,14 @@ def execute(args):
     show_logo()
     log.start_logging()
 
-    if os.path.isfile(os.path.join(os.getcwd(), config.filename)):
-
+    if (config.initialized):
+        LOG.debug("loaded configuration from %s....\n" % config.config_file)
         options = make_options(args)
-        configure(options)
-        # configure2(options)
+
+        read_pid_file()
+        # TODO write pidfile_TIMESTAMP and pass filenames to command.py
+        # if not config.launched:
+        write_pid_file()
 
         try:
             # TODO: connect to an explicit redis database. Check for execution record. Change database if required.
@@ -79,8 +82,8 @@ def execute(args):
             print 'Initialization failure'
             raise err
 
-        config.display_status()
         config.launched = True
+        display_status()
         if 'exit' in options:
             sys.exit(0)
 
@@ -123,132 +126,30 @@ def make_options(args):
     return options
 
 
-def read(parser, section):
-    result = {}
-    options = parser.options(section)
-    for option in options:
-        try:
-            result[option] = parser.get(section, option)
-            if result[option] == -1:
-                LOG.debug("skip: %s" % option)
-        except:
-            print("exception on %s!" % option)
-            result[option] = None
-    return result
-
-def configure2(options):
-    if os.path.isfile(os.path.join(os.getcwd(), config.yaml)):
-        yaml_config  = common.read_config_file(config.yaml)
-
-        # print yaml_config['globals']['create_proc']
-
-        # # elasticsearch
-        # config.es_host = yaml_config['globals']['create_proc']  read(parser, "Elasticsearch")['host']
-        # config.es_port = yaml_config['globals']['create_proc']  int(read(parser, "Elasticsearch")['port'])
-        # config.es_index = yaml_config['globals']['create_proc'] read(parser, "Elasticsearch")['index']
-
-        # # mysql
-        # config.mysql_host = read(parser, "MySQL")['host']
-        # config.mysql_db = read(parser, "MySQL")['schema']
-        # config.mysql_user = read(parser, "MySQL")['user']
-        # config.mysql_pass = read(parser, "MySQL")['pass']
-
-        # # status
-        # config.status_check_freq= int(read(parser, "Status")['check_frequency'])
-
-        # # action
-        # config.deep = read(parser, "Action")['deep_scan'].lower() == 'true'
-        # # if 'no_scan' in options:
-        # #     config.scan = False
-        # # else:
-        # config.scan = read(parser, "Action")['scan'].lower() == 'true' or 'scan' in options
-
-        # # if 'no_match' in options:
-        # #     config.match = False
-        # # else:
-        # config.match = read(parser, "Action")['match'].lower() == 'true' or 'match' in options
-
-        # # cache
-        # config.path_cache_size = int(read(parser, "Cache")['path_cache_size'])
-        # config.op_life = int(read(parser, "Cache")['op_life'])
-
-        # # redis
-        # config.redis_host = read(parser, "Redis")['host']
-
-
-    pass
-
-def configure(options):
-
-    LOG.debug("loading configuration from %s....\n" % config.filename)
-
-    parser = ConfigParser.ConfigParser()
-    parser.read(config.filename)
-
-    read_pid_file()
-    # TODO write pidfile_TIMESTAMP and pass filenames to command.py
-    if not config.launched:
-        write_pid_file()
-
-    core.var.service_create_func = read(parser, 'Process')['create_proc']
-
-    # elasticsearch
-    config.es_host = read(parser, "Elasticsearch")['host']
-    config.es_port = int(read(parser, "Elasticsearch")['port'])
-    config.es_index = read(parser, "Elasticsearch")['index']
-
-    # mysql
-    config.mysql_host = read(parser, "MySQL")['host']
-    config.mysql_db = read(parser, "MySQL")['schema']
-    config.mysql_user = read(parser, "MySQL")['user']
-    config.mysql_pass = read(parser, "MySQL")['pass']
-
-    # status
-    config.status_check_freq= int(read(parser, "Status")['check_frequency'])
-
-    # action
-    config.deep = read(parser, "Action")['deep_scan'].lower() == 'true'
-
-    config.scan = read(parser, "Action")['scan'].lower() == 'true' or 'scan' in options
-    if 'no_scan' in options:
-        config.scan = False
-
-    config.match = read(parser, "Action")['match'].lower() == 'true' or 'match' in options
-    if 'no_match' in options:
-        config.match = False
-
-    # cache
-    config.path_cache_size = int(read(parser, "Cache")['path_cache_size'])
-    config.op_life = int(read(parser, "Cache")['op_life'])
-
-    # redis
-    config.redis_host = read(parser, "Redis")['host']
-
-
 def reset():
     print "RESETTING ALL DATA"
 
-    # response = raw_input("All data will be deleted, are you sure? (yes, no): ")
-    # if response.lower() == 'yes':
-    cache2.redis.flushall()
+    response = raw_input("All data will be deleted, are you sure? (yes, no): ")
+    if response.lower() == 'yes':
+        cache2.redis.flushall()
 
-    try:
-        search.clear_index(config.es_index)
-        search.create_index(config.es_index)
-    except Exception, err:
-        ERR.WARNING(err.message)
+        try:
+            search.clear_index(config.es_index)
+            search.create_index(config.es_index)
+        except Exception, err:
+            ERR.WARNING(err.message)
 
-    for table in ['alias_document_attribute', 'alias', 'document_attribute']:
-        query = 'delete from %s' % (table)
-        sql.execute_query(query)
+        for table in ['alias_document_attribute', 'alias', 'document_attribute']:
+            query = 'delete from %s' % (table)
+            sql.execute_query(query)
 
-    for table in ['document', 'directory', 'matched', 'op_record']:
-        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
-        sql.execute_query(query)
+        for table in ['document', 'directory', 'matched', 'op_record']:
+            query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+            sql.execute_query(query)
 
-    for table in ['mode_state']:
-        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
-        sql.execute_query(query, schema="mildred_introspection")
+        for table in ['mode_state']:
+            query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+            sql.execute_query(query, schema="mildred_introspection")
 
 
 def show_logo():
@@ -270,3 +171,16 @@ def write_pid_file():
     f.write(config.pid)
     f.flush()
     f.close()
+
+def display_status():
+    print """Process ID: %s""" % config.pid
+    print 'Redis host: %s' % config.redis_host
+    print 'Redis dbsize: %i' % cache2.redis.dbsize()
+    print """Elasticsearch host: %s""" % config.es_host
+    print """Elasticsearch port: %i""" % config.es_port
+    print """Elasticsearch index: %s""" % config.es_index
+    print"""MySQL username: %s""" % config.mysql_user
+    print """MySQL host: %s""" % config.mysql_host
+    print """MySQL port: %i""" % config.mysql_port
+    print """MySQL schema: %s""" % config.mysql_db
+    print """Media Hound username: %s\n""" % config.username
