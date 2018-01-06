@@ -201,8 +201,8 @@ class SQLAsset(Document):
 
     @staticmethod
     @alchemy_operation
-    def insert(index_name, document_type, id, absolute_path):
-        asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path)
+    def insert(document_type, id, absolute_path):
+        asset = SQLAsset(id=id, index_name=config.es_index, document_type=document_type, absolute_path=absolute_path)
 
         try:
             sessions[MILDRED].add(asset)
