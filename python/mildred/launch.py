@@ -45,7 +45,7 @@ def launch(args, run=True):
     
         start.execute(args)
 
-        if config.launched:
+        if config.started:
             service =  Service()
 
             if run:

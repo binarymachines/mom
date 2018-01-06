@@ -33,7 +33,7 @@ def execute(args):
 
         read_pid_file()
         # TODO write pidfile_TIMESTAMP and pass filenames to command.py
-        # if not config.launched:
+        # if not config.started:
         write_pid_file()
 
         try:
@@ -41,7 +41,7 @@ def execute(args):
             LOG.debug('connecting to Redis...')
             cache2.redis = redis.Redis(config.redis_host)
         except Exception, err:
-            config.launched = False
+            config.started = False
             ERR.error(err.message, exc_info=True)
             print 'Initialization failure'
             raise err
@@ -53,7 +53,7 @@ def execute(args):
                 search.create_index(config.es_index)
 
         except Exception, err:
-            config.launched = False
+            config.started = False
             ERR.error(err.message, exc_info=True)
             print 'Initialization failure'
             raise err
@@ -62,7 +62,7 @@ def execute(args):
             LOG.debug('connecting to MySQL...')
             load_user_info()
         except Exception, err:
-            config.launched = False
+            config.started = False
             ERR.error(err.message, exc_info=True)
             print 'Initialization failure'
             raise err
@@ -77,12 +77,12 @@ def execute(args):
                 ops.flush_cache(resuming=config.old_pid)
 
         except Exception, err:
-            config.launched = False
+            config.started = False
             ERR.error(err.message, exc_info=True)
             print 'Initialization failure'
             raise err
 
-        config.launched = True
+        config.started = True
         display_status()
         if 'exit' in options:
             sys.exit(0)

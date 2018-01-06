@@ -9,13 +9,8 @@ initialized = False
 launched = False
 start_time = None
 username = None
-
 old_pid = None
 pid = str(os.getpid())
-path_cache_size = None
-
-op_life = 90
-status_check_freq= 1
 
 config_file = os.path.join(util.get_working_directory(), "config.ini")
 # yaml  = os.path.join(util.get_working_directory(), "mildred.conf")
