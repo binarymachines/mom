@@ -27,11 +27,9 @@ class Mode(Base):
     )
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False)
+    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
     name = Column(String(128), nullable=False)
     stateful_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class ModeDefault(Base):
@@ -46,8 +44,6 @@ class ModeDefault(Base):
     dec_priority_amount = Column(Integer, nullable=False, server_default=text("'1'"))
     inc_priority_amount = Column(Integer, nullable=False, server_default=text("'0'"))
     error_tolerance = Column(Integer, nullable=False, server_default=text("'0'"))
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     effect_dispatch = relationship(u'IntrospectionDispatchFunction')
     mode = relationship(u'Mode')
@@ -68,7 +64,7 @@ class ModeState(Base):
     status = Column(String(64), nullable=False)
     last_activated = Column(DateTime)
     last_completed = Column(DateTime)
-    effective_dt = Column(DateTime)
+    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     mode = relationship(u'Mode')
@@ -88,8 +84,6 @@ class ModeStateDefault(Base):
     dec_priority_amount = Column(Integer, nullable=False, server_default=text("'1'"))
     inc_priority_amount = Column(Integer, nullable=False, server_default=text("'0'"))
     error_tolerance = Column(Integer, nullable=False, server_default=text("'0'"))
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     effect_dispatch = relationship(u'IntrospectionDispatchFunction')
     mode = relationship(u'Mode')
@@ -104,8 +98,6 @@ class ModeStateDefaultParam(Base):
     mode_state_default_id = Column(ForeignKey(u'mode_state_default.id'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(128), nullable=False)
     value = Column(String(1024), nullable=False)
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     mode_state_default = relationship(u'ModeStateDefault')
 
@@ -121,8 +113,6 @@ class State(Base):
     name = Column(String(128), nullable=False)
     terminal_state_flag = Column(Integer, nullable=False, server_default=text("'0'"))
     initial_state_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class SwitchRule(Base):
@@ -151,6 +141,7 @@ class TransitionRule(Base):
     __tablename__ = 'transition_rule'
 
     id = Column(Integer, primary_key=True)
+    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
     name = Column(String(128), nullable=False)
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     begin_state_id = Column(ForeignKey(u'state.id'), nullable=False, index=True)
@@ -225,9 +216,7 @@ t_v_mode_state_default_dispatch = Table(
     Column('dec_priority_amount', Integer, server_default=text("'1'")),
     Column('inc_priority_amount', Integer, server_default=text("'0'")),
     Column('times_to_complete', Integer, server_default=text("'1'")),
-    Column('error_tolerance', Integer, server_default=text("'0'")),
-    Column('effective_dt', DateTime),
-    Column('expiration_dt', DateTime, server_default=text("'9999-12-31 23:59:59'"))
+    Column('error_tolerance', Integer, server_default=text("'0'"))
 )
 
 
@@ -245,9 +234,7 @@ t_v_mode_state_default_dispatch_w_id = Table(
     Column('dec_priority_amount', Integer, server_default=text("'1'")),
     Column('inc_priority_amount', Integer, server_default=text("'0'")),
     Column('times_to_complete', Integer, server_default=text("'1'")),
-    Column('error_tolerance', Integer, server_default=text("'0'")),
-    Column('effective_dt', DateTime),
-    Column('expiration_dt', DateTime, server_default=text("'9999-12-31 23:59:59'"))
+    Column('error_tolerance', Integer, server_default=text("'0'"))
 )
 
 
@@ -256,9 +243,7 @@ t_v_mode_state_default_param = Table(
     Column('mode_name', String(128)),
     Column('state_name', String(128)),
     Column('name', String(128)),
-    Column('value', String(1024)),
-    Column('effective_dt', DateTime),
-    Column('expiration_dt', DateTime, server_default=text("'9999-12-31 23:59:59'"))
+    Column('value', String(1024))
 )
 
 

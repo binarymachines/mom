@@ -72,8 +72,6 @@ class DirectoryAmelioration(Base):
     use_tag_flag = Column(Integer, server_default=text("'0'"))
     replacement_tag = Column(String(32))
     use_parent_folder_flag = Column(Integer, server_default=text("'1'"))
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class DirectoryAttribute(Base):
@@ -84,8 +82,6 @@ class DirectoryAttribute(Base):
     directory_id = Column(Integer, nullable=False)
     attribute_name = Column(String(256), nullable=False)
     attribute_value = Column(String(512))
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class DirectoryConstant(Base):
@@ -95,8 +91,6 @@ class DirectoryConstant(Base):
     index_name = Column(String(128), nullable=False)
     pattern = Column(String(256), nullable=False)
     location_type = Column(String(64), nullable=False)
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class Document(Base):
@@ -107,7 +101,7 @@ class Document(Base):
     file_type_id = Column(Integer)
     document_type = Column(String(64), nullable=False)
     absolute_path = Column(String(1024), nullable=False)
-    effective_dt = Column(DateTime)
+    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
 
@@ -131,8 +125,6 @@ class DocumentCategory(Base):
     index_name = Column(String(128), nullable=False)
     name = Column(String(256), nullable=False)
     document_type = Column(String(128), nullable=False)
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class ExecRec(Base):
@@ -186,8 +178,6 @@ class Matched(Base):
     percentage_of_max_score = Column(Float, nullable=False)
     comparison_result = Column(String(1), nullable=False)
     same_ext_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
     doc = relationship(u'Document', primaryjoin='Matched.doc_id == Document.id')
     match_doc = relationship(u'Document', primaryjoin='Matched.match_doc_id == Document.id')
@@ -203,8 +193,6 @@ class Matcher(Base):
     max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
     applies_to_file_type = Column(String(6), nullable=False, server_default=text("'*'"))
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class MatcherField(Base):
@@ -222,8 +210,6 @@ class MatcherField(Base):
     analyzer = Column(String(64))
     query_section = Column(String(128), server_default=text("'should'"))
     default_value = Column(String(128))
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
     matcher = relationship(u'Matcher')
 
@@ -241,8 +227,6 @@ class OpRecord(Base):
     status = Column(String(64), nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime)
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class OpRecordParam(Base):

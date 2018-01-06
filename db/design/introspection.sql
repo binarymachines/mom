@@ -2,6 +2,8 @@ drop schema if exists `mildred_introspection`;
 create schema `mildred_introspection`;
 use `mildred_introspection`;
 
+SET @ES_INDEX = 'media';
+
 DROP TABLE IF EXISTS `mode_state_default_param`;
 -- DROP TABLE IF EXISTS `mode_state_default_operation`;
 DROP TABLE IF EXISTS `mode_state_default`;
@@ -90,117 +92,53 @@ INSERT INTO introspection_dispatch_function (name, category, module_name, class_
 INSERT INTO introspection_dispatch_function (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.after', 'switch', 'docserv', 'ShutdownHandler', 'ended');
 INSERT INTO introspection_dispatch_function (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.condition', 'CONDITION', 'docserv', 'DocumentServiceProcessHandler', 'maybe');
 
-
--- CREATE TABLE `dispatch_target` (
---   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,s
---   `dispatch_id` int(11) UNSIGNED NOT NULL,
---   `target` varchar(128) DEFAULT NULL,
---   PRIMARY KEY (`id`),
---   KEY `fk_dispatch_target_dispatch` (`dispatch_id`),
---   CONSTRAINT `fk_dispatch_target_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `introspection_dispatch_function` (`id`)
--- );
-
--- DROP VIEW IF EXISTS `v_dispatch_target`;
-
--- create view `v_dispatch_target` as
---   select d.name, d.package_name, d.module_name, d.class_name, d.func_name, dt.target
---   from introspection_dispatch_function d, dispatch_target dt
---   where dt.dispatch_id = d.id
---   order by d.name;
-
--- CREATE TABLE `operator` (
---   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
---   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
---   `name` varchar(128) NOT NULL,
---   `effective_dt` datetime DEFAULT NULL,
---   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
---   PRIMARY KEY (`id`)
--- );
-
--- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'scan', now());
--- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'calc', now());
--- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'clean', now());
--- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'analyze', now());
--- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'fix', now());
--- INSERT INTO operator (index_name,name, effective_dt) VALUES ('media', 'report', now());
-
--- CREATE TABLE `operation` (
---   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
---   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
---   `operator_id` int(11) UNSIGNED NOT NULL,
---   `name` varchar(128) NOT NULL,
---   `effective_dt` datetime DEFAULT NULL,
---   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
---   PRIMARY KEY (`id`),
---   KEY `fk_operation_operator` (`operator_id`),
---   CONSTRAINT `fk_operation_operator` FOREIGN KEY (`operator_id`) REFERENCES `operator` (`id`)
--- );
-
--- INSERT INTO operation (index_name,name, operator, effective_dt) VALUES ('media', 'scan', (select id from operator where name = 'scan'), now());
--- INSERT INTO operation (index_name,name, operator_id, effective_dt) VALUES ('media', 'discover', (select id from operator where name = 'scan'), now());
--- INSERT INTO operation (index_name,name, operator_id, effective_dt) VALUES ('media', 'update', (select id from operator where name = 'scan'), now());
--- INSERT INTO operation (index_name,name, operator_id, effective_dt) VALUES ('media', 'monitor', (select id from operator where name = 'scan'), now());
--- INSERT INTO operation (index_name,name, operator, effective_dt) VALUES ('media', 'fix', (select id from operator where name = 'fix'), now());
--- INSERT INTO operation (index_name,name, operator, effective_dt) VALUES ('media', 'analyze', (select id from operator where name = 'analyze'), now());
--- INSERT INTO operation (index_name,name, operator, effective_dt) VALUES ('media', 'clean', (select id from operator where name = 'clean'), now());
-
--- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'clean', now());
--- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'analyze', now());
--- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'fix', now());
--- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'match', now());
--- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'scan', now());
--- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'sync', now());
--- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'report', now());
--- INSERT INTO operation (index_name,name, effective_dt) VALUES ('media', 'requests', now());
-
-
 CREATE TABLE `mode` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `stateful_flag` boolean NOT NULL DEFAULT False,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   `effective_dt` datetime DEFAULT now(),
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
 );
 
 SET @NONE = 'None';
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', @NONE, now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'startup', now());
-INSERT INTO mode (index_name,name, stateful_flag, effective_dt) VALUES ('media', 'scan', True, now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'match', now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'analyze', now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'fix', now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'clean', now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'sync', now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'requests', now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'report', now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'sleep', now());
-INSERT INTO mode (index_name,name, effective_dt) VALUES ('media', 'shutdown', now());
+INSERT INTO mode (name) VALUES (@NONE);
+INSERT INTO mode (name) VALUES ('startup');
+INSERT INTO mode (name, stateful_flag) VALUES ('scan', True);
+INSERT INTO mode (name) VALUES ('match');
+INSERT INTO mode (name) VALUES ('analyze');
+INSERT INTO mode (name) VALUES ('fix');
+INSERT INTO mode (name) VALUES ('clean');
+INSERT INTO mode (name) VALUES ('sync');
+INSERT INTO mode (name) VALUES ('requests');
+INSERT INTO mode (name) VALUES ('report');
+INSERT INTO mode (name) VALUES ('sleep');
+INSERT INTO mode (name) VALUES ('shutdown');
 
 CREATE TABLE `state` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `terminal_state_flag` tinyint(1) NOT NULL DEFAULT '0',
   `initial_state_flag` tinyint(1) NOT NULL DEFAULT '0',
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+--   `effective_dt` datetime DEFAULT now(),
+--   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_state_name` (`index_name`,`name`)
 );
 
-INSERT INTO state(index_name,name, effective_dt, initial_state_flag) VALUES ('media', 'initial', now(), 1);
-INSERT INTO state(index_name,name, effective_dt, initial_state_flag) VALUES ('media', 'discover', now(), 1);
-INSERT INTO state(index_name,name, effective_dt) VALUES ('media', 'update', now());
-INSERT INTO state(index_name,name, effective_dt) VALUES ('media', 'monitor', now());
-INSERT INTO state(index_name,name, effective_dt, initial_state_flag) VALUES ('media', 'terminal', now(), 2);
+INSERT INTO state(name, initial_state_flag) VALUES ('initial', 1);
+INSERT INTO state(name, initial_state_flag) VALUES ('discover', 1);
+INSERT INTO state(name) VALUES ('update');
+INSERT INTO state(name) VALUES ('monitor');
+INSERT INTO state(name, terminal_state_flag) VALUES ('terminal', 2);
 
 
 CREATE TABLE `transition_rule` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  -- `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `mode_id` int(11) UNSIGNED NOT NULL,
   `begin_state_id` int(11) UNSIGNED NOT NULL,
@@ -223,7 +161,7 @@ CREATE TABLE `transition_rule` (
 
 CREATE TABLE `switch_rule` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `begin_mode_id` int(11) UNSIGNED NOT NULL,
   `end_mode_id` int(11) UNSIGNED NOT NULL,
@@ -296,7 +234,7 @@ INSERT INTO transition_rule(name, mode_id, begin_state_id, end_state_id, conditi
 
 CREATE TABLE `mode_state` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `pid` varchar(32) NOT NULL,
   `mode_id` int(11) UNSIGNED NOT NULL,
   `state_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -307,7 +245,7 @@ CREATE TABLE `mode_state` (
   `status` varchar(64) NOT NULL,
   `last_activated` datetime DEFAULT NULL,
   `last_completed` datetime DEFAULT NULL,
-  `effective_dt` datetime DEFAULT NULL,
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_mode` (`mode_id`),
@@ -319,7 +257,7 @@ CREATE TABLE `mode_state` (
 
 CREATE TABLE `mode_default` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `mode_id` int(11) UNSIGNED NOT NULL,
   `priority` int(3) UNSIGNED NOT NULL DEFAULT '0',
   `effect_dispatch_id` int(11) UNSIGNED,
@@ -327,23 +265,23 @@ CREATE TABLE `mode_default` (
   `dec_priority_amount` int(3) UNSIGNED NOT NULL DEFAULT '1',
   `inc_priority_amount` int(3) UNSIGNED NOT NULL DEFAULT '0',
   `error_tolerance` int(3) UNSIGNED NOT NULL DEFAULT '0',
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   `effective_dt` datetime DEFAULT now(),
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_default_dispatch` (`effect_dispatch_id`),
   CONSTRAINT `fk_mode_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `introspection_dispatch_function` (`id`),
   KEY `fk_mode_default_mode` (`mode_id`),
   CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`));
 
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'startup'), (select id from introspection_dispatch_function where name = 'startup'),now(), 0);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'analyze'), (select id from introspection_dispatch_function where name = 'analyze'),now(), 3);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'match'), (select id from introspection_dispatch_function where name = 'match'),now(), 5);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from introspection_dispatch_function where name = 'scan'),now(), 5);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'fix'), (select id from introspection_dispatch_function where name = 'fix'),now(), 1);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'clean'), (select id from introspection_dispatch_function where name = 'clean'),now(), 1);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'requests'), (select id from introspection_dispatch_function where name = 'requests'),now(), 2);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'report'), (select id from introspection_dispatch_function where name = 'report'),now(), 2);
-INSERT INTO mode_default(mode_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'shutdown'), (select id from introspection_dispatch_function where name = 'shutdown'),now(), 0);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'startup'), (select id from introspection_dispatch_function where name = 'startup'), 0);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'analyze'), (select id from introspection_dispatch_function where name = 'analyze'), 3);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'match'), (select id from introspection_dispatch_function where name = 'match'), 5);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'scan'), (select id from introspection_dispatch_function where name = 'scan'), 5);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'fix'), (select id from introspection_dispatch_function where name = 'fix'), 1);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'clean'), (select id from introspection_dispatch_function where name = 'clean'), 1);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'requests'), (select id from introspection_dispatch_function where name = 'requests'), 2);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'report'), (select id from introspection_dispatch_function where name = 'report'), 2);
+INSERT INTO mode_default(mode_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'shutdown'), (select id from introspection_dispatch_function where name = 'shutdown'), 0);
 
 create view `v_mode_default_dispatch` as
   select m.name, d.package_name, d.module_name, d.class_name, d.func_name, md.priority, md.dec_priority_amount, md.inc_priority_amount, md.times_to_complete, md.error_tolerance
@@ -360,7 +298,7 @@ create view `v_mode_default_dispatch_w_id` as
 
 CREATE TABLE `mode_state_default` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `mode_id` int(11) UNSIGNED NOT NULL,
   `state_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `priority` int(3) UNSIGNED NOT NULL DEFAULT '0',
@@ -370,8 +308,8 @@ CREATE TABLE `mode_state_default` (
   `inc_priority_amount` int(3) UNSIGNED NOT NULL DEFAULT '0',
   `error_tolerance` int(3) UNSIGNED NOT NULL DEFAULT '0',
   -- `status` varchar(64) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   `effective_dt` datetime DEFAULT now(),
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   -- UNIQUE KEY `mode_state_default_status` (`index_name`,`status`),
   KEY `fk_mode_state_default_dispatch` (`effect_dispatch_id`),
@@ -382,9 +320,9 @@ CREATE TABLE `mode_state_default` (
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
 );
 
-INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'discover'), (select id from introspection_dispatch_function where name = 'scan.discover'),now(), 5);
-INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'update'), (select id from introspection_dispatch_function where name = 'scan.update'),now(), 5);
-INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, effective_dt, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'monitor'), (select id from introspection_dispatch_function where name = 'scan.monitor'),now(), 5);
+INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'discover'), (select id from introspection_dispatch_function where name = 'scan.discover'), 5);
+INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'update'), (select id from introspection_dispatch_function where name = 'scan.update'), 5);
+INSERT INTO mode_state_default(mode_id, state_id, effect_dispatch_id, priority) VALUES ((select id from mode where name = 'scan'), (select id from state where name = 'monitor'), (select id from introspection_dispatch_function where name = 'scan.monitor'), 5);
 
 create view `v_mode_state_default_transition_rule_dispatch` as
     select tr.name, m.name mode, s1.name begin_state, s2.name end_state,
@@ -569,6 +507,7 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
         (select id from introspection_dispatch_function where name = 'requests.switch.before'),
         (select id from introspection_dispatch_function where name = 'requests.switch.after')
     );
+COMMIT;
 
 INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id, before_dispatch_id, after_dispatch_id)
     VALUES('analyze.requests',
@@ -621,25 +560,25 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
 
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `mode_state_default_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `name` varchar(128) NOT NULL,
   `value` varchar(1024) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   `effective_dt` datetime DEFAULT now(),
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_default_param` (`mode_state_default_id`),
   CONSTRAINT `fk_mode_state_default_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
 );
 
-INSERT INTO mode_state_default_param(mode_state_default_id,name, value, effective_dt) VALUES
-  ((select id from mode_state_default where state_id = (select id from state where name = 'discover')), 'high.level.scan', 'true', now());
+INSERT INTO mode_state_default_param(mode_state_default_id,name, value) VALUES
+  ((select id from mode_state_default where state_id = (select id from state where name = 'discover')), 'high.level.scan', 'true');
 
-INSERT INTO mode_state_default_param(mode_state_default_id,name, value, effective_dt) VALUES
-  ((select id from mode_state_default where state_id = (select id from state where name = 'update')), 'update.scan', 'true', now());
+INSERT INTO mode_state_default_param(mode_state_default_id,name, value) VALUES
+  ((select id from mode_state_default where state_id = (select id from state where name = 'update')), 'update.scan', 'true');
 
-INSERT INTO mode_state_default_param(mode_state_default_id,name, value, effective_dt) VALUES
-  ((select id from mode_state_default where state_id = (select id from state where name = 'monitor')), 'deep.scan', 'true', now());
+INSERT INTO mode_state_default_param(mode_state_default_id,name, value) VALUES
+  ((select id from mode_state_default where state_id = (select id from state where name = 'monitor')), 'deep.scan', 'true');
 
 
 -- CREATE TABLE `mode_state_default_operation` (
@@ -658,8 +597,8 @@ INSERT INTO mode_state_default_param(mode_state_default_id,name, value, effectiv
 
 
 CREATE VIEW `v_mode_state_default_dispatch` AS
-  SELECT m.name mode_name, s.name state_name, d.name, d.package_name, d.module_name, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance,
-    ms.effective_dt, ms.expiration_dt
+  SELECT m.name mode_name, s.name state_name, d.name, d.package_name, d.module_name, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance
+    -- , ms.effective_dt, ms.expiration_dt
   FROM mode m, state s, mode_state_default ms, introspection_dispatch_function d
   WHERE ms.state_id = s.id
     AND ms.effect_dispatch_id = d.id
@@ -669,8 +608,8 @@ CREATE VIEW `v_mode_state_default_dispatch` AS
 
 
 CREATE VIEW `v_mode_state_default_dispatch_w_id` AS
-  SELECT m.id mode_id, s.id state_id, s.name state_name, d.name, d.package_name, d.module_name, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance,
-    ms.effective_dt, ms.expiration_dt
+  SELECT m.id mode_id, s.id state_id, s.name state_name, d.name, d.package_name, d.module_name, d.class_name, d.func_name, ms.priority, ms.dec_priority_amount, ms.inc_priority_amount, ms.times_to_complete, ms.error_tolerance
+    -- , ms.effective_dt, ms.expiration_dt
   FROM mode m, state s, mode_state_default ms, introspection_dispatch_function d
   WHERE ms.state_id = s.id
     AND ms.effect_dispatch_id = d.id
@@ -682,7 +621,8 @@ CREATE VIEW `v_mode_state_default_dispatch_w_id` AS
 DROP VIEW IF EXISTS `v_mode_state_default_param`;
 
 CREATE VIEW `v_mode_state_default_param` AS
-  SELECT m.name mode_name, s.name state_name, msp.name, msp.value, msp.effective_dt, msp.expiration_dt
+  SELECT m.name mode_name, s.name state_name, msp.name, msp.value
+    -- , msp.effective_dt, msp.expiration_dt
     FROM mode m, state s, mode_state_default ms, mode_state_default_param msp
     WHERE ms.state_id = s.id
       AND ms.mode_id = m.id
@@ -700,6 +640,8 @@ CREATE VIEW `v_mode_state` AS
     AND ms.mode_id = m.id
     AND ms.index_name = 'media'
   ORDER BY ms.effective_dt;
+
+COMMIT;
 
 
 -- DROP TABLE IF EXISTS `error_attribute_value`;
@@ -734,4 +676,67 @@ CREATE VIEW `v_mode_state` AS
 --   CONSTRAINT `fk_eav_ea` FOREIGN KEY (`error_attribute_id`) REFERENCES `error_attribute` (`id`)
 -- );
 
-COMMIT;
+
+-- CREATE TABLE `dispatch_target` (
+--   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,s
+--   `dispatch_id` int(11) UNSIGNED NOT NULL,
+--   `target` varchar(128) DEFAULT NULL,
+--   PRIMARY KEY (`id`),
+--   KEY `fk_dispatch_target_dispatch` (`dispatch_id`),
+--   CONSTRAINT `fk_dispatch_target_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `introspection_dispatch_function` (`id`)
+-- );'media', 
+
+-- DROP VIEW IF EXISTS `v_dispatch_target`;
+
+-- create view `v_dispatch_target` as
+--   select d.name, d.package_name, d.module_name, d.class_name, d.func_name, dt.target
+--   from introspection_dispatch_function d, dispatch_target dt
+--   where dt.dispatch_id = d.id
+--   order by d.name;
+
+-- CREATE TABLE `operator` (
+--   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+--   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+--   `name` varchar(128) NOT NULL,
+--   `effective_dt` datetime DEFAULT NULL,
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`)
+-- );
+
+-- INSERT INTO operator (name) VALUES ('scan');
+-- INSERT INTO operator (name) VALUES ('calc');
+-- INSERT INTO operator (name) VALUES ('clean');index_name,name
+-- INSERT INTO operator (name) VALUES ('analyze');
+-- INSERT INTO operator (name) VALUES ('fix');
+-- INSERT INTO operator (name) VALUES ('report');
+
+-- CREATE TABLE `operation` (
+--   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+--   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+--   `operator_id` int(11) UNSIGNED NOT NULL,
+--   `module_name` varchar(128) NOT NULL,
+--   `name` varchar(128) NOT NULL,
+--   `effective_dt` datetime DEFAULT NULL,
+--   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+--   PRIMARY KEY (`id`),
+--   KEY `fk_operation_operator` (`operator_id`),
+--   CONSTRAINT `fk_operation_operator` FOREIGN KEY (`operator_id`) REFERENCES `operator` (`id`)
+-- );
+
+-- INSERT INTO operation (name, operator) VALUES ('scan', (select id from operator where name = 'scan'));
+-- INSERT INTO operation (name, operator_id) VALUES ('discover', (select id from operator where name = 'scan'));
+-- INSERT INTO operation (name, operator_id) VALUES ('update', (select id from operator where name = 'scan'));
+-- INSERT INTO operation (name, operator_id) VALUES ('monitor', (select id from operator where name = 'scan'));
+-- INSERT INTO operation (name, operator) VALUES ('fix', (select id from operator where name = 'fix'));
+-- INSERT INTO operation (name, operator) VALUES ('analyze', (select id from operator where name = 'analyze'));
+-- INSERT INTO operation (name, operator) VALUES ('clean', (select id from operator where name = 'clean'));
+
+-- INSERT INTO operation (name) VALUES ('clean');
+-- INSERT INTO operation (name) VALUES ('analyze');
+-- INSERT INTO operation (name) VALUES ('fix');
+-- INSERT INTO operation (name) VALUES ('match');
+-- INSERT INTO operation (name) VALUES ('scan');
+-- INSERT INTO operation (name) VALUES ('sync');
+-- INSERT INTO operation (name) VALUES ('report');
+-- INSERT INTO operation (name) VALUES ('requests');
+

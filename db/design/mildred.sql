@@ -40,7 +40,7 @@ CREATE TABLE `document` (
   `file_type_id` int(11) unsigned DEFAULT NULL,
   `document_type` varchar(64) NOT NULL,
   `absolute_path` varchar(1024) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
+  `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -57,16 +57,6 @@ CREATE TABLE `exec_rec` (
   PRIMARY KEY (`id`)
 );
 
--- CREATE TABLE `document` (
---   `id` varchar(128) NOT NULL,
---   `index_name` varchar(128) NOT NULL,
---   `file_type_id` int(11) unsigned DEFAULT NULL,
---   `document_type` varchar(64) NOT NULL,
---   `absolute_path` varchar(1024) NOT NULL,
---   `effective_dt` datetime DEFAULT now(),
---   -- `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
---   PRIMARY KEY (`id`)
--- );
 
 CREATE TABLE IF NOT EXISTS `op_record` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,

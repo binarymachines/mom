@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Table, text
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -15,8 +15,6 @@ class Action(Base):
     meta_action_id = Column(ForeignKey(u'meta_action.id'), index=True)
     action_status_id = Column(ForeignKey(u'action_status.id'), index=True)
     parent_action_id = Column(ForeignKey(u'action.id'), index=True)
-    effective_dt = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     action_status = relationship(u'ActionStatu')
     meta_action = relationship(u'MetaAction')
@@ -138,8 +136,6 @@ class Reason(Base):
     id = Column(Integer, primary_key=True)
     meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
     parent_reason_id = Column(ForeignKey(u'reason.id'), index=True)
-    effective_dt = Column(DateTime, nullable=False, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))
 
     meta_reason = relationship(u'MetaReason')
     parent_reason = relationship(u'Reason', remote_side=[id])

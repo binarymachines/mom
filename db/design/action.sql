@@ -185,8 +185,8 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`action` (
     `meta_action_id` int(11) UNSIGNED,
     `action_status_id` int(11) UNSIGNED,
     `parent_action_id` int(11) UNSIGNED,
-    `effective_dt` datetime NOT NULL DEFAULT now(),
-    `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+   --  `effective_dt` datetime NOT NULL DEFAULT now(),
+   --  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
     PRIMARY KEY (`id`),
     FOREIGN KEY (`meta_action_id`)
         REFERENCES `meta_action` (`id`),
@@ -201,8 +201,8 @@ CREATE TABLE IF NOT EXISTS `mildred_action`.`reason` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `meta_reason_id` int(11) UNSIGNED,
     `parent_reason_id` int(11) UNSIGNED,
-    `effective_dt` datetime NOT NULL DEFAULT now(),
-    `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
+   --  `+` datetime NOT NULL DEFAULT now(),
+   --  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
     PRIMARY KEY (`id`),
     FOREIGN KEY (`meta_reason_id`)
         REFERENCES `meta_reason` (`id`),
