@@ -1,10 +1,12 @@
 #! /usr/bin/python
 
 import os
+import datetime
 import ConfigParser
 
 from core import util, var
 
+start_time = datetime.datetime.now().isoformat()
 initialized = False
 launched = False
 start_time = None
