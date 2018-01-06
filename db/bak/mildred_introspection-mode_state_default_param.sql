@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
 --
 -- Host: localhost    Database: mildred_introspection
 -- ------------------------------------------------------
--- Server version	5.7.17
+-- Server version	5.7.20-0ubuntu0.17.04.1
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -19,12 +19,10 @@ DROP TABLE IF EXISTS `mode_state_default_param`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `mode_state_default_id` int(11) unsigned NOT NULL DEFAULT '0',
   `name` varchar(128) NOT NULL,
   `value` varchar(1024) NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   KEY `fk_mode_state_default_param` (`mode_state_default_id`),
   CONSTRAINT `fk_mode_state_default_param` FOREIGN KEY (`mode_state_default_id`) REFERENCES `mode_state_default` (`id`)
@@ -35,9 +33,9 @@ CREATE TABLE `mode_state_default_param` (
 -- Dumping data for table `mode_state_default_param`
 --
 
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (1,'media',1,'high.level.scan','true','2017-01-16 04:19:57','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (2,'media',2,'update.scan','true','2017-01-16 04:19:58','9999-12-31 23:59:59');
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`, `effective_dt`, `expiration_dt`) VALUES (3,'media',3,'deep.scan','true','2017-01-16 04:19:58','9999-12-31 23:59:59');
+INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`) VALUES (1,'media',1,'high.level.scan','true');
+INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`) VALUES (2,'media',2,'update.scan','true');
+INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`) VALUES (3,'media',3,'deep.scan','true');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
 --
 -- Host: localhost    Database: mildred
 -- ------------------------------------------------------
--- Server version	5.7.17
+-- Server version	5.7.20-0ubuntu0.17.04.1
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -34,11 +34,11 @@ INSERT INTO `file_type` (`id`, `name`) VALUES (3,'ape');
 INSERT INTO `file_type` (`id`, `name`) VALUES (4,'flac');
 INSERT INTO `file_type` (`id`, `name`) VALUES (5,'ogg');
 INSERT INTO `file_type` (`id`, `name`) VALUES (6,'oga');
-INSERT INTO `file_type` (`id`, `name`) VALUES (7,'m4a');
-INSERT INTO `file_type` (`id`, `name`) VALUES (8,'mpc');
-INSERT INTO `file_type` (`id`, `name`) VALUES (9,'mp3');
-INSERT INTO `file_type` (`id`, `name`) VALUES (10,'wav');
-INSERT INTO `file_type` (`id`, `name`) VALUES (11,'iso');
+INSERT INTO `file_type` (`id`, `name`) VALUES (7,'iso');
+INSERT INTO `file_type` (`id`, `name`) VALUES (8,'m4a');
+INSERT INTO `file_type` (`id`, `name`) VALUES (9,'mpc');
+INSERT INTO `file_type` (`id`, `name`) VALUES (10,'mp3');
+INSERT INTO `file_type` (`id`, `name`) VALUES (11,'wav');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

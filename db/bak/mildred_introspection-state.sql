@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
 --
 -- Host: localhost    Database: mildred_introspection
 -- ------------------------------------------------------
--- Server version	5.7.17
+-- Server version	5.7.20-0ubuntu0.17.04.1
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -19,12 +19,10 @@ DROP TABLE IF EXISTS `state`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `state` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL DEFAULT 'media',
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `terminal_state_flag` tinyint(1) NOT NULL DEFAULT '0',
   `initial_state_flag` tinyint(1) NOT NULL DEFAULT '0',
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_state_name` (`index_name`,`name`)
 );
@@ -34,11 +32,11 @@ CREATE TABLE `state` (
 -- Dumping data for table `state`
 --
 
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (1,'media','initial',0,1,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (2,'media','discover',0,1,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (3,'media','update',0,0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (4,'media','monitor',0,0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','terminal',0,2,'2017-01-16 04:19:54','9999-12-31 23:59:59');
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (1,'media','initial',0,1);
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (2,'media','discover',0,1);
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (3,'media','update',0,0);
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (4,'media','monitor',0,0);
+INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (5,'media','terminal',2,0);
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

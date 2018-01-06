@@ -350,7 +350,7 @@ def get_library_location(path):
     # LOG.debug("determining location for %s." % (path.split(os.path.sep)[-1]))
     possible = []
 
-    for location in get_locations():
+    for location in shallow.get_locations():
         if location in path:
 	        possible.append(location)
     

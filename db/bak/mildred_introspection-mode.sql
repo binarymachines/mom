@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.17, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
 --
 -- Host: localhost    Database: mildred_introspection
 -- ------------------------------------------------------
--- Server version	5.7.17
+-- Server version	5.7.20-0ubuntu0.17.04.1
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -19,11 +19,9 @@ DROP TABLE IF EXISTS `mode`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `stateful_flag` tinyint(1) NOT NULL DEFAULT '0',
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
 );
@@ -33,18 +31,18 @@ CREATE TABLE `mode` (
 -- Dumping data for table `mode`
 --
 
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (1,'media','None',0,'2017-01-16 04:19:53','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (2,'media','startup',0,'2017-01-16 04:19:53','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (3,'media','scan',1,'2017-01-16 04:19:53','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (4,'media','match',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (5,'media','analyze',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (6,'media','fix',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (7,'media','clean',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (8,'media','sync',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (9,'media','requests',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (10,'media','report',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (11,'media','sleep',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
-INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`, `effective_dt`, `expiration_dt`) VALUES (12,'media','shutdown',0,'2017-01-16 04:19:54','9999-12-31 23:59:59');
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (1,'media','None',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (2,'media','startup',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (3,'media','scan',1);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (4,'media','match',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (5,'media','analyze',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (6,'media','fix',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (7,'media','clean',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (8,'media','sync',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (9,'media','requests',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (10,'media','report',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (11,'media','sleep',0);
+INSERT INTO `mode` (`id`, `index_name`, `name`, `stateful_flag`) VALUES (12,'media','shutdown',0);
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

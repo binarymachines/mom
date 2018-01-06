@@ -69,7 +69,7 @@ def get_locations(refresh=False):
     if refresh:
         cache2.clear_items(DIRECTORY, identifier)
         rows = sql.retrieve_values(DIRECTORY, ['index_name', 'active_flag', 'name'], [config.es_index, '1'])
-        cache2.add_items2(key, [row[1] for row in rows])
+        cache2.add_items2(key, [row[2] for row in rows])
 
     return get_sorted_items(DIRECTORY, identifier)
 

@@ -155,9 +155,8 @@ class SQLDirectory(Directory):
 
     # @staticmethod
     # @alchemy_operation
-    # def insert(index_name, document_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
-    #     asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path, \
-    #         effective_dt=datetime.datetime.now())
+    # def insert(index_name, document_type, id, absolute_path):
+    #     asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path)
 
     #     try:
     #         sessions[MILDRED].add(asset)
@@ -202,9 +201,8 @@ class SQLAsset(Document):
 
     @staticmethod
     @alchemy_operation
-    def insert(index_name, document_type, id, absolute_path, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max):
-        asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path, \
-            effective_dt=datetime.datetime.now())
+    def insert(index_name, document_type, id, absolute_path):
+        asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path)
 
         try:
             sessions[MILDRED].add(asset)
@@ -222,7 +220,8 @@ class SQLAsset(Document):
             for instance in sessions[MILDRED].query(SQLAsset).\
                 filter(SQLAsset.index_name == config.es_index).\
                 filter(SQLAsset.document_type == document_type):
-                # filter(SQLAsset.absolute_path.like(path)):
+                filter(SQLAsset.effective_dt < datetime.datetime.now()). \
+                filter(SQLAsset.expiration_dt > datetime.datetime.now()). \
                     result += (instance,)
 
         elif use_like_in_where_clause:
@@ -230,6 +229,8 @@ class SQLAsset(Document):
                 filter(SQLAsset.index_name == config.es_index).\
                 filter(SQLAsset.document_type == document_type).\
                 filter(SQLAsset.absolute_path.like(path)):
+                filter(SQLAsset.effective_dt < datetime.datetime.now()). \
+                filter(SQLAsset.expiration_dt > datetime.datetime.now()). \
                     result += (instance,)
 
         else:
@@ -237,6 +238,8 @@ class SQLAsset(Document):
                 filter(SQLAsset.index_name == config.es_index).\
                 filter(SQLAsset.document_type == document_type).\
                 filter(SQLAsset.absolute_path == path):
+                filter(SQLAsset.effective_dt < datetime.datetime.now()). \
+                filter(SQLAsset.expiration_dt > datetime.datetime.now()). \
                     result += (instance,)
 
         return result
@@ -376,7 +379,7 @@ class SQLMode(AlchemyMode):
     @staticmethod
     @alchemy_operation
     def insert(name):
-        mode_rec = SQLMode(name=name, index_name=config.es_index, effective_dt=datetime.datetime.now(), expiration_dt=datetime.datetime.max)
+        mode_rec = SQLMode(name=name, index_name=config.es_index)
         try:
             sessions[INTROSPECTION].add(mode_rec)
             sessions[INTROSPECTION].commit()
@@ -400,8 +403,6 @@ class SQLMode(AlchemyMode):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
             filter(SQLMode.index_name == config.es_index). \
-            filter(SQLMode.effective_dt < datetime.datetime.now()). \
-            filter(SQLMode.expiration_dt > datetime.datetime.now()). \
             filter(SQLMode.name == name):
                 result += (instance,)
 
@@ -436,8 +437,6 @@ class SQLState(AlchemyState):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLState).\
             filter(SQLState.index_name == config.es_index). \
-            filter(SQLState.effective_dt < datetime.datetime.now()). \
-            filter(SQLState.expiration_dt > datetime.datetime.now()). \
             filter(SQLState.name == name):
                 result += (instance,)
 
@@ -458,7 +457,7 @@ class SQLModeState(AlchemyModeState):
         sqlstate = SQLState.retrieve(mode.get_state())
         mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, index_name=config.es_index, times_activated=mode.times_activated, \
             times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, status=mode.get_state().name, \
-            effective_dt=datetime.datetime.now(), pid=str(config.pid))
+            pid=str(config.pid))
 
         try:
             sessions[INTROSPECTION].add(mode_state_rec)
