@@ -13,7 +13,7 @@ from errors import SQLIntegrityError
 # FileFormat,
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
-from db.generated.sqla_mildred import ExecRec, OpRecord, Document, Directory, FileHandler, FileHandlerType, FileType, Matcher, MatcherField, MatchRecord
+from db.generated.sqla_mildred import ExecRec, OpRecord, Document, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileHandlerType, FileType, Matcher, MatcherField, MatchRecord
 from db.generated.sqla_introspection import ModeDefault, ModeStateDefault, ModeStateDefaultParam
 from db.generated.sqla_introspection import Mode as AlchemyMode
 from db.generated.sqla_introspection import State as AlchemyState
@@ -130,6 +130,7 @@ class SQLMetaReasonParam(MetaReasonParam):
     
 SQLMetaReason.params = relationship("SQLMetaReasonParam", order_by=SQLMetaReasonParam.id, back_populates="meta_reason")
 
+        # cache2.add_items2(key, [row[2] for row in rows])
 
 class SQLReason(Reason):
     
@@ -153,45 +154,82 @@ class SQLDirectory(Directory):
         return "<SQLDirectory(index_name='%s', name='%s')>" % (
                                 self.index_name, self.name)
 
-    # @staticmethod
-    # @alchemy_operation
-    # def insert(index_name, document_type, id, absolute_path):
-    #     asset = SQLAsset(id=id, index_name=index_name, document_type=document_type, absolute_path=absolute_path)
+    @staticmethod
+    @alchemy_operation
+    def insert(absolute_path):
+        directory = SQLDirectory(index_name=config.es_index, name=absolute_path)
 
-    #     try:
-    #         sessions[MILDRED].add(asset)
-    #         sessions[MILDRED].commit()
-    #     except IntegrityError, err:
-    #         raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
+        try:
+            sessions[MILDRED].add(directory)
+            sessions[MILDRED].commit()
+        except IntegrityError, err:
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
-    # @staticmethod
-    # @alchemy_operation
-    # def retrieve(document_type, absolute_path=None, use_like_in_where_clause=True):
-    #     path = '%s%s' % (absolute_path, '%')
+    @staticmethod
+    @alchemy_operation
+    def retrieve_all():
 
-    #     result = ()
-    #     if absolute_path is None:
-    #         for instance in sessions[MILDRED].query(SQLAsset).\
-    #             filter(SQLAsset.index_name == config.es_index).\
-    #             filter(SQLAsset.document_type == document_type):
-    #             # filter(SQLAsset.absolute_path.like(path)):
-    #                 result += (instance,)
+        result = ()
+        for instance in sessions[MILDRED].query(SQLDirectory). \
+            filter(SQLDirectory.index_name == config.es_index). \
+            filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
+            filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
+                result += (instance,)
 
-    #     elif use_like_in_where_clause:
-    #         for instance in sessions[MILDRED].query(SQLAsset).\
-    #             filter(SQLAsset.index_name == config.es_index).\
-    #             filter(SQLAsset.document_type == document_type).\
-    #             filter(SQLAsset.absolute_path.like(path)):
-    #                 result += (instance,)
+        return result
 
-    #     else:
-    #         for instance in sessions[MILDRED].query(SQLAsset).\
-    #             filter(SQLAsset.index_name == config.es_index).\
-    #             filter(SQLAsset.document_type == document_type).\
-    #             filter(SQLAsset.absolute_path == path):
-    #                 result += (instance,)
+class SQLDirectoryConstant(DirectoryConstant):
+    
+    def __repr__(self):
+        return "<SQLDirectoryConstant(index_name='%s', name='%s')>" % (
+                                self.index_name, self.name)
 
-    #     return result
+    @staticmethod
+    @alchemy_operation
+    def insert(pattern, location_type):
+        directory_constant = SQLDirectoryConstant(index_name=config.es_index, pattern=pattern, location_type=location_type)
+
+        try:
+            sessions[MILDRED].add(directory_constant)
+            sessions[MILDRED].commit()
+        except IntegrityError, err:
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
+
+    @staticmethod
+    @alchemy_operation
+    def retrieve_all():
+
+        result = ()
+        for instance in sessions[MILDRED].query(SQLDirectoryConstant). \
+            filter(SQLDirectoryConstant.index_name == config.es_index):
+                result += (instance,)
+
+        return result
+
+    @staticmethod
+    @alchemy_operation
+    def retrieve_for_pattern(pattern):
+
+        result = ()
+        for instance in sessions[MILDRED].query(SQLDirectoryConstant). \
+            filter(SQLDirectoryConstant.index_name == config.es_index). \
+            filter(SQLDirectoryConstant.pattern == pattern):
+                result += (instance,)
+
+        return result
+
+    @staticmethod
+    @alchemy_operation
+    def retrieve_for_location_type(location_type):
+
+        result = ()
+        for instance in sessions[MILDRED].query(SQLDirectoryConstant). \
+            filter(SQLDirectoryConstant.index_name == config.es_index). \
+            filter(SQLDirectoryConstant.location_type == location_type):
+                result += (instance,)
+
+        return result
+
 
 class SQLAsset(Document):
     
@@ -217,34 +255,45 @@ class SQLAsset(Document):
 
         result = ()
         if absolute_path is None:
-            for instance in sessions[MILDRED].query(SQLAsset).\
-                filter(SQLAsset.index_name == config.es_index).\
-                filter(SQLAsset.document_type == document_type):
+            for instance in sessions[MILDRED].query(SQLAsset). \
+                filter(SQLAsset.index_name == config.es_index). \
+                filter(SQLAsset.document_type == document_type). \
                 filter(SQLAsset.effective_dt < datetime.datetime.now()). \
-                filter(SQLAsset.expiration_dt > datetime.datetime.now()). \
+                filter(SQLAsset.expiration_dt > datetime.datetime.now()):
                     result += (instance,)
 
         elif use_like_in_where_clause:
-            for instance in sessions[MILDRED].query(SQLAsset).\
-                filter(SQLAsset.index_name == config.es_index).\
-                filter(SQLAsset.document_type == document_type).\
-                filter(SQLAsset.absolute_path.like(path)):
+            for instance in sessions[MILDRED].query(SQLAsset). \
+                filter(SQLAsset.index_name == config.es_index). \
+                filter(SQLAsset.document_type == document_type). \
+                filter(SQLAsset.absolute_path.like(path)). \
                 filter(SQLAsset.effective_dt < datetime.datetime.now()). \
-                filter(SQLAsset.expiration_dt > datetime.datetime.now()). \
+                filter(SQLAsset.expiration_dt > datetime.datetime.now()):
                     result += (instance,)
 
         else:
-            for instance in sessions[MILDRED].query(SQLAsset).\
-                filter(SQLAsset.index_name == config.es_index).\
-                filter(SQLAsset.document_type == document_type).\
-                filter(SQLAsset.absolute_path == path):
+            for instance in sessions[MILDRED].query(SQLAsset). \
+                filter(SQLAsset.index_name == config.es_index). \
+                filter(SQLAsset.document_type == document_type). \
+                filter(SQLAsset.absolute_path == path). \
                 filter(SQLAsset.effective_dt < datetime.datetime.now()). \
-                filter(SQLAsset.expiration_dt > datetime.datetime.now()). \
+                filter(SQLAsset.expiration_dt > datetime.datetime.now()):
                     result += (instance,)
 
         return result
 
 
+class SQLDocumentCategory(DocumentCategory):
+    @staticmethod
+    @alchemy_operation
+    def retrieve_all():
+        result = ()
+        for instance in sessions[MILDRED].query(SQLDocumentCategory). \
+            filter(SQLDocumentCategory.index_name == config.es_index):
+            result += (instance,)
+
+        return result
+    
 class SQLExecutionRecord(ExecRec):
 
     @staticmethod
@@ -316,6 +365,15 @@ class SQLFileHandlerType(FileHandlerType):
 
 SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileHandlerType.id, back_populates="file_handler")
 
+class SQLFileType(FileType):
+    @staticmethod
+    @alchemy_operation
+    def retrieve_all():
+        result = ()
+        for instance in sessions[MILDRED].query(SQLFileType):
+            result += (instance,)
+    
+        return result
 
 class SQLMatcher(Matcher):
 

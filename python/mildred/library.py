@@ -282,12 +282,13 @@ def retrieve_esid(document_type, absolute_path):
     cached = get_cached_esid(document_type, absolute_path)
     if cached: return cached
 
-    rows = sql.retrieve_values2('document', ['index_name', 'document_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
+    # rows = sql.retrieve_values2('document', ['index_name', 'document_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
+    rows = SQLAsset.retrieve(document_type, absolute_path)
     # rows = sql.run_query("select index_name, document_type, absolute_path")
     if len(rows) == 0: 
         return None
     if len(rows) == 1: 
-        return rows[0]['id']
+        return rows[0].id
     elif len(rows) >1: 
         raise ElasticDataIntegrityException(document_type, 'absolute_path', absolute_path)
     # AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)

@@ -47,7 +47,7 @@ class Discover(Walker):
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if pathutil.folder_is_media_root(root, self.formats, self.types):
-                #print("%s is a media folder." % (root))
+                print("adding %s to media paths." % (root))
                 add_location(root)
                 self.folders.append(root)
  
