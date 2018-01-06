@@ -197,7 +197,7 @@ def _sub_index_asset(asset, data):
         asset.esid = res['_id']
         try:
             # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-            insert_asset(config.es_index, asset.document_type, asset.esid, asset.absolute_path)
+            insert_asset(asset.document_type, asset.esid, asset.absolute_path)
         except Exception, err:
             config.es.delete(config.es_index, asset.document_type, asset.esid)
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -274,8 +274,8 @@ def index_asset(asset, data):
     return True        
 
 
-def insert_asset(index_name, document_type, elasticsearch_id, absolute_path):
-    SQLAsset.insert(index_name, document_type, elasticsearch_id, absolute_path)
+def insert_asset(document_type, elasticsearch_id, absolute_path):
+    SQLAsset.insert(document_type, elasticsearch_id, absolute_path)
 
 
 def retrieve_esid(document_type, absolute_path):

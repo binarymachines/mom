@@ -15,13 +15,8 @@ import ops
 import search
 import sql
 
-# from snap import common
-
-GET_PATHS = 'start_get_paths'
-
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
-
 
 def execute(args):
     show_logo()
@@ -88,6 +83,9 @@ def execute(args):
             sys.exit(0)
 
 
+GET_PATHS = 'start_get_paths'
+
+
 def get_paths(args):
     paths = [] if not args['--path'] else args['<path>']
     pattern = None if not args['--pattern'] else args['<pattern>']
@@ -129,27 +127,27 @@ def make_options(args):
 def reset():
     print "RESETTING ALL DATA"
 
-    response = raw_input("All data will be deleted, are you sure? (yes, no): ")
-    if response.lower() == 'yes':
-        cache2.redis.flushall()
+    # response = raw_input("All data will be deleted, are you sure? (yes, no): ")
+    # if response.lower() == 'yes':
+    cache2.redis.flushall()
 
-        try:
-            search.clear_index(config.es_index)
-            search.create_index(config.es_index)
-        except Exception, err:
-            ERR.WARNING(err.message)
+    try:
+        search.clear_index(config.es_index)
+        search.create_index(config.es_index)
+    except Exception, err:
+        ERR.WARNING(err.message)
 
-        for table in ['alias_document_attribute', 'alias', 'document_attribute']:
-            query = 'delete from %s' % (table)
-            sql.execute_query(query)
+    for table in ['alias_document_attribute', 'alias', 'document_attribute']:
+        query = 'delete from %s' % (table)
+        sql.execute_query(query)
 
-        for table in ['document', 'directory', 'matched', 'op_record']:
-            query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
-            sql.execute_query(query)
+    for table in ['document', 'directory', 'matched', 'op_record']:
+        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+        sql.execute_query(query)
 
-        for table in ['mode_state']:
-            query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
-            sql.execute_query(query, schema="mildred_introspection")
+    for table in ['mode_state']:
+        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+        sql.execute_query(query, schema="mildred_introspection")
 
 
 def show_logo():
