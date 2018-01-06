@@ -168,8 +168,8 @@ class FileType(Base):
     name = Column(String(25), nullable=False)
 
 
-class Matched(Base):
-    __tablename__ = 'matched'
+class MatchRecord(Base):
+    __tablename__ = 'match_record'
 
     index_name = Column(String(128), nullable=False)
     doc_id = Column(ForeignKey(u'document.id'), primary_key=True, nullable=False)
@@ -179,8 +179,8 @@ class Matched(Base):
     comparison_result = Column(String(1), nullable=False)
     same_ext_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
-    doc = relationship(u'Document', primaryjoin='Matched.doc_id == Document.id')
-    match_doc = relationship(u'Document', primaryjoin='Matched.match_doc_id == Document.id')
+    doc = relationship(u'Document', primaryjoin='MatchRecord.doc_id == Document.id')
+    match_doc = relationship(u'Document', primaryjoin='MatchRecord.match_doc_id == Document.id')
 
 
 class Matcher(Base):
@@ -268,8 +268,8 @@ t_v_file_handler = Table(
 )
 
 
-t_v_matched = Table(
-    'v_matched', metadata,
+t_v_match_record = Table(
+    'v_match_record', metadata,
     Column('document_path', Text),
     Column('comparison_result', String(1)),
     Column('match_path', Text),

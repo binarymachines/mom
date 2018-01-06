@@ -4,7 +4,7 @@ use mildred;
 
 DROP TABLE IF EXISTS `delimited_file_data`;
 DROP TABLE IF EXISTS `delimited_file_info`;
-DROP TABLE IF EXISTS `matched`;
+DROP TABLE IF EXISTS `match_record`;
 DROP TABLE IF EXISTS `matcher_field`;
 DROP TABLE IF EXISTS `matcher`;
 DROP TABLE IF EXISTS `directory`;
@@ -299,7 +299,7 @@ create view `v_file_handler` as
   order by fh.package, fh.module, fh.class_name;
   
 
-create table `matched` (
+create table `match_record` (
   `index_name` varchar(128) NOT NULL,
   `doc_id` varchar(128) NOT NULL,
   `match_doc_id` varchar(128) NOT NULL,
@@ -318,17 +318,17 @@ create table `matched` (
   PRIMARY KEY (`doc_id`,`match_doc_id`)
 );
 
-drop view if exists `v_matched`;
+drop view if exists `v_match_record`;
 
-create view `v_matched` as
+create view `v_match_record` as
 
 select d1.absolute_path document_path, m.comparison_result, d2.absolute_path match_path, m.percentage_of_max_score pct, m.same_ext_flag
-from document d1, document d2, matched m
+from document d1, document d2, match_record m
 where m.doc_id = d1.id and
     m.match_doc_id = d2.id
 union
 select d2.absolute_path document_path, m.comparison_result, d1.absolute_path match_path, m.percentage_of_max_score pct, m.same_ext_flag
-from document d1, document d2, matched m
+from document d1, document d2, match_record m
 where m.doc_id = d2.id and
     m.match_doc_id = d1.id;
 

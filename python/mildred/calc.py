@@ -37,10 +37,10 @@ def calc(vector, cycle_vector=False):
 
     return
     
-    sql.execute_query("delete from matched where 1=1")
+    sql.execute_query("delete from match_record where 1=1")
     sql.execute_query("delete from op_record where operation_name = 'calc'")
     sql.execute_query("delete from op_record where operation_name = 'match'")
-    sql.execute_query("commit");
+    sql.execute_query("commit")
 
     # MAX_RECORDS = ...
     matchers = match.get_matchers()
@@ -89,7 +89,7 @@ def calc(vector, cycle_vector=False):
 def main(args):
     import redis
 
-    # sql.execute_query("delete from matched")
+    # sql.execute_query("delete from match_record")
     # sql.execute_query("delete from op_record where operation_name = 'calc'")
     # sql.execute_query("delete from op_record where operation_name = 'match'")
     # sql.execute_query("commit");

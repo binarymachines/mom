@@ -13,7 +13,7 @@ from errors import SQLIntegrityError
 # FileFormat,
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
-from db.generated.sqla_mildred import ExecRec, OpRecord, Document, Directory, FileHandler, FileHandlerType, FileType, Matcher, MatcherField, Matched
+from db.generated.sqla_mildred import ExecRec, OpRecord, Document, Directory, FileHandler, FileHandlerType, FileType, Matcher, MatcherField, MatchRecord
 from db.generated.sqla_introspection import ModeDefault, ModeStateDefault, ModeStateDefaultParam
 from db.generated.sqla_introspection import Mode as AlchemyMode
 from db.generated.sqla_introspection import State as AlchemyState
@@ -348,7 +348,7 @@ class SQLMatcherField(MatcherField):
 SQLMatcher.match_fields = relationship("SQLMatcherField", order_by=SQLMatcherField.id, back_populates="matcher")
 
 
-class SQLMatch(Matched):
+class SQLMatch(MatchRecord):
 
     @staticmethod
     @alchemy_operation

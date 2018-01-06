@@ -279,13 +279,13 @@ CREATE TABLE `file_type` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `matched`
+-- Table structure for table `match_record`
 --
 
-DROP TABLE IF EXISTS `matched`;
+DROP TABLE IF EXISTS `match_record`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `matched` (
+CREATE TABLE `match_record` (
   `index_name` varchar(128) NOT NULL,
   `doc_id` varchar(128) NOT NULL,
   `match_doc_id` varchar(128) NOT NULL,
@@ -432,14 +432,14 @@ SET character_set_client = utf8;
 SET character_set_client = @saved_cs_client;
 
 --
--- Temporary table structure for view `v_matched`
+-- Temporary table structure for view `v_match_record`
 --
 
-DROP TABLE IF EXISTS `v_matched`;
-/*!50001 DROP VIEW IF EXISTS `v_matched`*/;
+DROP TABLE IF EXISTS `v_match_record`;
+/*!50001 DROP VIEW IF EXISTS `v_match_record`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `v_matched` AS SELECT 
+/*!50001 CREATE VIEW `v_match_record` AS SELECT 
  1 AS `document_path`,
  1 AS `comparison_result`,
  1 AS `match_path`,
@@ -484,10 +484,10 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
--- Final view structure for view `v_matched`
+-- Final view structure for view `v_match_record`
 --
 
-/*!50001 DROP VIEW IF EXISTS `v_matched`*/;
+/*!50001 DROP VIEW IF EXISTS `v_match_record`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
 /*!50001 SET @saved_col_connection     = @@collation_connection */;
@@ -496,7 +496,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_matched` AS select `d1`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d2`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `matched` `m`) where ((`m`.`doc_id` = `d1`.`id`) and (`m`.`match_doc_id` = `d2`.`id`)) union select `d2`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d1`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `matched` `m`) where ((`m`.`doc_id` = `d2`.`id`) and (`m`.`match_doc_id` = `d1`.`id`)) */;
+/*!50001 VIEW `v_match_record` AS select `d1`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d2`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `match_record` `m`) where ((`m`.`doc_id` = `d1`.`id`) and (`m`.`match_doc_id` = `d2`.`id`)) union select `d2`.`absolute_path` AS `document_path`,`m`.`comparison_result` AS `comparison_result`,`d1`.`absolute_path` AS `match_path`,`m`.`percentage_of_max_score` AS `pct`,`m`.`same_ext_flag` AS `same_ext_flag` from ((`document` `d1` join `document` `d2`) join `match_record` `m`) where ((`m`.`doc_id` = `d2`.`id`) and (`m`.`match_doc_id` = `d1`.`id`)) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
