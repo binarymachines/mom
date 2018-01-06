@@ -69,8 +69,8 @@ CREATE TABLE IF NOT EXISTS `op_record` (
   `status` VARCHAR(64) NOT NULL,
   `start_time` DATETIME NOT NULL,
   `end_time` DATETIME NULL DEFAULT NULL,
-  -- `effective_dt` DATETIME NULL DEFAULT now(),
-  -- `expiration_dt` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
+  `effective_dt` DATETIME NULL DEFAULT now(),
+  `expiration_dt` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
 );
 
@@ -164,7 +164,7 @@ CREATE TABLE `document_attribute` (
 --     REFERENCES `mildred`.`path_hierarchy` (`id`)
 -- );
 
--- CREATE TRIGGER `path_hierarchy_effective_dt` BEFORE INSERT ON  `path_hierarchy` 
+-- CREATE TRIGGER `path_hierarchy_effective_dt` BEFORE INSERT ON effective_dt `path_hierarchy` 
 -- FOR EACH ROW SET NEW.effective_dt = IFNULL(NEW.effective_dt, NOW();
 
 -- CREATE TABLE `exclude_directory` (
