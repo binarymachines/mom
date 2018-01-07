@@ -197,7 +197,7 @@ def _sub_index_asset(asset, data, file_type=None):
         asset.esid = res['_id']
         try:
             # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-            SQLAsset.insert(document_type, elasticsearch_id, absolute_path, file_type)
+            SQLAsset.insert(asset.document_type, asset.esid, asset.absolute_path, file_type)
         except Exception, err:
             config.es.delete(config.es_index, asset.document_type, asset.esid)
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -278,9 +278,7 @@ def retrieve_esid(document_type, absolute_path):
     cached = get_cached_esid(document_type, absolute_path)
     if cached: return cached
 
-    # rows = sql.retrieve_values2('document', ['index_name', 'document_type', 'absolute_path', 'id'], [config.es_index, document_type, absolute_path])
     rows = SQLAsset.retrieve(document_type, absolute_path)
-    # rows = sql.run_query("select index_name, document_type, absolute_path")
     if len(rows) == 0: 
         return None
     if len(rows) == 1: 

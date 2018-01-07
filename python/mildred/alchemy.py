@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.declarative import declarative_base
 
 from errors import SQLIntegrityError
 # FileFormat,
@@ -237,9 +238,12 @@ class SQLAsset(Document):
         return "<SQLAsset(index_name='%s', document_type='%s', absolute_path='%s')>" % (
                                 self.index_name, self.document_type, self.absolute_path)
 
+    file_type = relationship(u'FileType', enable_typechecks=False)
+
     @staticmethod
     @alchemy_operation
     def insert(document_type, id, absolute_path, file_type):
+        # file_type=SQLFileType.retrieve(file_type.ext) if file_type is not None else None
         asset = SQLAsset(id=id, index_name=config.es_index, document_type=document_type, absolute_path=absolute_path, file_type=file_type)
 
         try:
@@ -377,14 +381,11 @@ class SQLFileType(FileType):
 
     @staticmethod
     @alchemy_operation
-    def retrieve(name):
-        path = '%s%s' % (absolute_path, '%')
-
+    def retrieve(ext):
         result = ()
-        if absolute_path is None:
-            for instance in sessions[MILDRED].query(SQLFileType). \
-                filter(SQLFileType.name == name):
-                    result += (instance,)
+        for instance in sessions[MILDRED].query(SQLFileType). \
+            filter(SQLFileType.ext == ext):
+                result += (instance,)
     
         return result[0] if len(result) == 1 else None
 

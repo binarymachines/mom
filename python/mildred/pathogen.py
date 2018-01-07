@@ -31,7 +31,7 @@ class Pathogen(FileHandler):
         read_failed = False
 
         try:
-            ops.record_op_begin(const.READ, self.name, path)            
+            ops.record_op_begin(const.READ, self.name, path, esid=data['esid'])            
             self.read_tags(path, data)
 
             return True
@@ -85,7 +85,7 @@ class Pathogen(FileHandler):
             read_failed = True
 
         finally:
-            ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed)
+            ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed, esid=data['esid'])
 
 
     def read_tags(self, path, data):

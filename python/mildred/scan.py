@@ -67,7 +67,7 @@ class Scanner(Walker):
             return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if pathutil.file_type_recognized(root, self.reader.extensions()):
+            if pathutil.file_type_recognized(root, self.reader.extensions):
                 try:
                     library.set_active(root)
                 except ElasticDataIntegrityException, err:
@@ -117,15 +117,26 @@ class Scanner(Walker):
 
                     data = asset.to_dictionary()
                     data['directory'] = directory['esid']
-                    self.reader.read(os.path.join(root, filename), data)
-                    file_was_read = True
 
                     existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
-                    if existing_esid:
+                    if existing_esid == None:
+                        library.index_asset(asset, data, self.reader.get_file_type_for(filename))
+
+                    if asset.esid:
+                        data['esid'] = asset.esid
+                        self.reader.read(os.path.join(root, filename), data)
+                        file_was_read = True
                         if len(data['attributes']) > 0:
                             library.update_asset(asset, data)
-                    else:
-                        library.index_asset(asset, data, self.reader.get_file_type_for(filename))
+
+                    # existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
+                    # if existing_esid:
+                    #     if len(data['attributes']) > 0:
+                    #         library.update_asset(asset, data)
+                    # else:
+                    #     library.index_asset(asset, data, self.reader.get_file_type_for(filename))
+
+                        #    ops.mark_operation_invalid(path, const.READ, file_handler.name)
                 except Exception, err:
                     #TODO: record library update error instead of read error
                     if file_was_read:

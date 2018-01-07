@@ -15,17 +15,17 @@ ERR = log.get_log('errors', logging.WARNING)
 
 def add_field(doc_format, field_name):
     """add an attribute to document_attribute for the specified document_type"""
-    cache2.add_item(KNOWN, doc_format, field_name)
-    # keygroup = 'fields'
-    # if field_name in get_known_fields(doc_format, refresh=True): 
-    #     return
-    # try:
-    #     sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format, field_name])
-    #     cache2.add_item(KNOWN, doc_format, field_name)
-    #     # get_known_fields(doc_format, refresh=True)
+    # cache2.add_item(KNOWN, doc_format, field_name)
+    keygroup = 'fields'
+    if field_name in get_known_fields(doc_format, refresh=True): 
+        return
+    try:
+        sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format, field_name])
+        cache2.add_item(KNOWN, doc_format, field_name)
+        # get_known_fields(doc_format, refresh=True)
 
-    # except Exception, err:
-    #     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+    except Exception, err:
+        ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
 def get_fields(doc_format):

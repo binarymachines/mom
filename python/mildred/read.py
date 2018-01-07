@@ -21,7 +21,10 @@ class Reader:
         self.document_type = const.FILE
         self.extensions = ()
         self.file_handlers = ()
-        self.file_types = SQLFileType.retrieve_all()
+        self.file_types = ()
+        for file_type in SQLFileType.retrieve_all():
+            self.file_types += file_type,
+
         self.initialize_file_handlers()
 
 
@@ -54,7 +57,7 @@ class Reader:
 
     def get_file_type_for(self, filename):
         for file_type in self.file_types:
-            if filename.lower().endswith(file_type.ext):
+            if file_type.ext is not None and filename.lower().endswith(file_type.ext):
                 return file_type
 
     def has_handler_for(self, filename):
@@ -74,12 +77,12 @@ class Reader:
 
     def read(self, path, data, file_handler_name=None, force_read=False):
         for file_handler in self.file_handlers:
+            if ops.operation_in_cache(path, const.READ, file_handler.name) and force_read == False:
+                continue
+
             if file_handler_name is None or file_handler.name == file_handler_name:
                 for extension in file_handler.extensions:
                     if path.lower().endswith(extension) or '*' in file_handler.extensions or force_read:
-                        if ops.operation_in_cache(path, const.READ, file_handler.name):
-                            continue
-                        else: 
-                            return file_handler.handle_file(path, data)
+                        return file_handler.handle_file(path, data)
 
 
