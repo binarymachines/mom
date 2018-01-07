@@ -3,7 +3,8 @@ git status
 
 # ~/dev/mildred$ bash/delpyc.sh
 pushd $MILDRED_HOME
-
+echo "adding files..."
+echo
 find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.pyc"  -exec rm {} \;
 
 # find $MILDRED_HOME/CUBA -name "*.gradle"  -exec git add -f {} \;
@@ -62,9 +63,15 @@ git add db/orientdb/*.json
 git add db/orientdb/*.oqsl
 git add db/orientdb/*.sh
 
+echo
 git status
+echo "commiting changes: $1"
+echo
 git commit -m $1
+echo
 git status
+echo "pushing commit..."
+echo
 git push
 
 popd
