@@ -1,10 +1,10 @@
+pushd $MILDRED_HOME >> /dev/null
 clear
 find $MILDRED_HOME -name "*.pyc"  -exec rm {} \;
 echo
 git status
 
 # ~/dev/mildred$ bash/delpyc.sh
-pushd $MILDRED_HOME >> /dev/null
 echo "adding files..."
 echo
 
@@ -30,9 +30,16 @@ git add $MILDRED_HOME/db/orientdb/*.json
 
 echo
 git status
-echo "commiting changes: $1"
 echo
-git commit -m $1
+if [ "$#" -ne 1 ];
+then
+    echo "commiting snapshot"
+    git commit -m snapshot
+else    
+    echo "commiting changes: $1"
+    git commit -m $1
+fi
+
 echo
 git status
 echo "pushing commit..."

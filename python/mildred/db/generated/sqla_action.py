@@ -60,6 +60,29 @@ class ActionStatu(Base):
     name = Column(String(255))
 
 
+t_es_search_field_jn = Table(
+    'es_search_field_jn', metadata,
+    Column('es_search_spec_id', ForeignKey(u'es_search_spec.id'), primary_key=True, nullable=False),
+    Column('es_search_field_spec_id', ForeignKey(u'es_search_field_spec.id'), primary_key=True, nullable=False, index=True)
+)
+
+
+class EsSearchFieldSpec(Base):
+    __tablename__ = 'es_search_field_spec'
+
+    id = Column(Integer, primary_key=True)
+    field_name = Column(String(128), nullable=False)
+    boost = Column(Float, nullable=False, server_default=text("'0'"))
+    bool_ = Column(String(16))
+    operator = Column(String(16))
+    minimum_should_match = Column(Float, nullable=False, server_default=text("'0'"))
+    analyzer = Column(String(64))
+    query_section = Column(String(128), server_default=text("'should'"))
+    default_value = Column(String(128))
+
+    es_search_specs = relationship(u'EsSearchSpec', secondary='es_search_field_jn')
+
+
 class EsSearchSpec(Base):
     __tablename__ = 'es_search_spec'
 
@@ -151,6 +174,48 @@ class ReasonParam(Base):
 
     reason = relationship(u'Reason')
     vector_param = relationship(u'VectorParam')
+
+
+t_v_m_action_m_reasons = Table(
+    'v_m_action_m_reasons', metadata,
+    Column('meta_action', String(255)),
+    Column('action_priority', Integer, server_default=text("'10'")),
+    Column('action_dispatch_name', String(128)),
+    Column('action_dispatch_category', String(128)),
+    Column('action_dispatch_module', String(128)),
+    Column('action_dispatch_class', String(128)),
+    Column('action_dispatch_func', String(128)),
+    Column('reason', String(255)),
+    Column('reason_weight', Integer, server_default=text("'10'")),
+    Column('conditional_dispatch_name', String(128)),
+    Column('conditional_dispatch_category', String(128)),
+    Column('conditional_dispatch_module', String(128)),
+    Column('conditional_dispatch_class', String(128)),
+    Column('conditional_dispatch_func', String(128))
+)
+
+
+t_v_m_action_m_reasons_w_ids = Table(
+    'v_m_action_m_reasons_w_ids', metadata,
+    Column('meta_action_id', Integer, server_default=text("'0'")),
+    Column('meta_action', String(255)),
+    Column('action_priority', Integer, server_default=text("'10'")),
+    Column('action_dispatch_id', Integer, server_default=text("'0'")),
+    Column('action_dispatch_name', String(128)),
+    Column('action_dispatch_category', String(128)),
+    Column('action_dispatch_module', String(128)),
+    Column('action_dispatch_class', String(128)),
+    Column('action_dispatch_func', String(128)),
+    Column('meta_reason_id', Integer, server_default=text("'0'")),
+    Column('reason', String(255)),
+    Column('reason_weight', Integer, server_default=text("'10'")),
+    Column('conditional_dispatch_id', Integer, server_default=text("'0'")),
+    Column('conditional_dispatch_name', String(128)),
+    Column('conditional_dispatch_category', String(128)),
+    Column('conditional_dispatch_module', String(128)),
+    Column('conditional_dispatch_class', String(128)),
+    Column('conditional_dispatch_func', String(128))
+)
 
 
 class VectorParam(Base):
