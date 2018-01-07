@@ -35,12 +35,12 @@ class MediaMatcher(object):
     # TODO: assign weights to various matchers.
     def match_recorded(self, media_id, match_id):
 
-        rows = sql.retrieve_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, config.es_index])
+        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [media_id, match_id, self.name, config.es_index])
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = sql.retrieve_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, config.es_index])
+        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, media_id, self.name, config.es_index])
         if len(rows) == 1:
             return True
 
@@ -53,13 +53,13 @@ class MediaMatcher(object):
     def match_extensions_match(self, orig, match):
         return 1 if orig['_source']['file_ext'] == match['_source']['file_ext'] else 0
 
-    def record_match(self, media_id, match_id, matcher_name, index_name, matched_fields, match_score, comparison_result, same_ext_flag):
+    def record_match(self, media_id, match_id, matcher_name, index_name, match_record_fields, match_score, comparison_result, same_ext_flag):
         if self.match_recorded(media_id, match_id) is False and self.match_recorded(match_id, media_id):
             LOG.info('match record for  %s ::: %s already exists.' % (media_id, match_id))
         else:
             LOG.info('recording match: %s ::: %s' % (media_id, match_id))
-            sql.insert_values('matched', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'matched_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
-                              [media_id, match_id, matcher_name, index_name, str(matched_fields), str(match_score), comparison_result, same_ext_flag])
+            sql.insert_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name', 'match_record_fields', 'match_score', 'comparison_result', 'same_ext_flag'],
+                              [media_id, match_id, matcher_name, index_name, str(match_record_fields), str(match_score), comparison_result, same_ext_flag])
 
 
 class ElasticSearchMatcher(MediaMatcher):
@@ -148,12 +148,12 @@ class ElasticSearchMatcher(MediaMatcher):
                 LOG.info('eliminating: \t%s' % (match['_source']['absolute_path']))
                 continue
 
-            matched_fields = []
+            match_record_fields = []
             for field in self.comparison_fields:
                     if field in match['_source'] and field in media.doc['_source']:
-                        matched_fields += [field]
+                        match_record_fields += [field]
 
-            self.record_match(media.esid,  match['_id'], self.name, config.es_index, matched_fields, match['_score'],
+            self.record_match(media.esid,  match['_id'], self.name, config.es_index, match_record_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
             # scratch.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)

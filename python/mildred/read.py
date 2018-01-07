@@ -8,7 +8,7 @@ import config
 import const
 import library
 import ops
-from alchemy import SQLFileHandler
+from alchemy import SQLFileHandler, SQLFileType
 
 from core import log
 
@@ -21,7 +21,7 @@ class Reader:
         self.document_type = const.FILE
         self.extensions = ()
         self.file_handlers = ()
-
+        # self.file_types = SQLFileType.retrieve_all()
         self.initialize_file_handlers()
 
 
