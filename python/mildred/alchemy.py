@@ -375,6 +375,19 @@ class SQLFileType(FileType):
     
         return result
 
+    @staticmethod
+    @alchemy_operation
+    def retrieve(name):
+        path = '%s%s' % (absolute_path, '%')
+
+        result = ()
+        if absolute_path is None:
+            for instance in sessions[MILDRED].query(SQLFileType). \
+                filter(SQLFileType.name == name):
+                    result += (instance,)
+    
+        return result[0] if len(result) == 1 else None
+
 class SQLMatcher(Matcher):
 
     @staticmethod

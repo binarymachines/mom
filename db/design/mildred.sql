@@ -34,16 +34,41 @@ DROP TABLE IF EXISTS `document`;
 DROP TABLE IF EXISTS `directory_tags`;
 DROP TABLE IF EXISTS `tags`;
 
+CREATE TABLE IF NOT EXISTS `file_type` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
 CREATE TABLE `document` (
   `id` varchar(128) NOT NULL,
   `index_name` varchar(128) NOT NULL,
-  `file_type_id` int(11) unsigned DEFAULT NULL,
+  `file_type_id` int(11) unsigned,
   `document_type` varchar(64) NOT NULL,
   `absolute_path` varchar(1024) NOT NULL,
   `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  CONSTRAINT `fk_document_file_type`
+    FOREIGN KEY (`file_type_id`)
+    REFERENCES `mildred`.`file_type` (`id`),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `directory` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `name` varchar(767) NOT NULL,
+  `file_type_id` int(11) unsigned default 1,
+  `effective_dt` datetime DEFAULT now(),
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  `category_prototype_flag` tinyint not null default 0,
+  `active_flag` tinyint not null default 1,
+  CONSTRAINT `fk_directory_file_type`
+    FOREIGN KEY (`file_type_id`)
+    REFERENCES `mildred`.`file_type` (`id`),
+  PRIMARY KEY (`id`), 
+  UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
+);
 
 CREATE TABLE `exec_rec` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -95,12 +120,6 @@ CREATE TABLE IF NOT EXISTS `op_record_param` (
   CONSTRAINT `fk_op_record_param`
     FOREIGN KEY (`op_record_id`)
     REFERENCES `op_record` (`id`)
-);
-
-CREATE TABLE IF NOT EXISTS `file_type` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(25) NOT NULL,
-  PRIMARY KEY (`id`)
 );
 
 -- CREATE TABLE IF NOT EXISTS `file_format` (
@@ -176,22 +195,6 @@ CREATE TABLE `document_attribute` (
 --   PRIMARY KEY (`id`), 
 --   UNIQUE KEY `uk_exclude_directory_name` (`index_name`,`name`)
 -- );
-
-CREATE TABLE `directory` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  `name` varchar(767) NOT NULL,
-  `file_type_id` int(11) unsigned not null default 1,
-  `effective_dt` datetime DEFAULT now(),
-  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  `category_prototype_flag` tinyint not null default 0,
-  `active_flag` tinyint not null default 1,
-  CONSTRAINT `fk_directory_file_type`
-    FOREIGN KEY (`file_type_id`)
-    REFERENCES `mildred`.`file_type` (`id`),
-  PRIMARY KEY (`id`), 
-  UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
-);
 
 CREATE TABLE `matcher` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -332,6 +335,7 @@ from document d1, document d2, match_record m
 where m.doc_id = d2.id and
     m.match_doc_id = d1.id;
 
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("dir");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("*");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("aac");
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("ape");

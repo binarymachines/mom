@@ -54,7 +54,7 @@ class Directory(Base):
     id = Column(Integer, primary_key=True)
     index_name = Column(String(128), nullable=False)
     name = Column(String(767), nullable=False)
-    file_type_id = Column(ForeignKey(u'file_type.id'), nullable=False, index=True, server_default=text("'1'"))
+    file_type_id = Column(ForeignKey(u'file_type.id'), index=True, server_default=text("'1'"))
     effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
     category_prototype_flag = Column(Integer, nullable=False, server_default=text("'0'"))
@@ -98,11 +98,13 @@ class Document(Base):
 
     id = Column(String(128), primary_key=True)
     index_name = Column(String(128), nullable=False)
-    file_type_id = Column(Integer)
+    file_type_id = Column(ForeignKey(u'file_type.id'), index=True)
     document_type = Column(String(64), nullable=False)
     absolute_path = Column(String(1024), nullable=False)
     effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
+
+    file_type = relationship(u'FileType')
 
 
 class DocumentAttribute(Base):
