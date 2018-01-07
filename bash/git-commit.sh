@@ -1,10 +1,10 @@
 pushd $MILDRED_HOME >> /dev/null
 clear
-find $MILDRED_HOME -name "*.pyc"  -exec rm {} \;
 echo
 git status
 
-# ~/dev/mildred$ bash/delpyc.sh
+find $MILDRED_HOME -name "*.pyc"  -exec rm {} \;
+
 echo "adding files..."
 echo
 
