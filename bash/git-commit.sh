@@ -1,8 +1,9 @@
 clear
+echo
 git status
 
 # ~/dev/mildred$ bash/delpyc.sh
-pushd $MILDRED_HOME
+pushd $MILDRED_HOME >> /dev/null
 echo "adding files..."
 echo
 find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.pyc"  -exec rm {} \;
@@ -74,4 +75,4 @@ echo "pushing commit..."
 echo
 git push
 
-popd
+popd >> /dev/null
