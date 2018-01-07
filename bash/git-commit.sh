@@ -30,6 +30,7 @@ git add $MILDRED_HOME/db/orientdb/*.json
 
 echo
 git status
+
 echo
 if [ "$#" -ne 1 ];
 then
