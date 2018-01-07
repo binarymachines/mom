@@ -1,4 +1,5 @@
 clear
+find $MILDRED_HOME/*/python -name "*.pyc"  -exec rm {} \;
 echo
 git status
 
@@ -6,39 +7,27 @@ git status
 pushd $MILDRED_HOME >> /dev/null
 echo "adding files..."
 echo
-find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.pyc"  -exec rm {} \;
 
 # find $MILDRED_HOME/CUBA -name "*.gradle"  -exec git add -f {} \;
-
-# find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.xml"  -exec git add -f {} \;
-# find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.java"  -exec git add -f {} \;
-# find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.groovy"  -exec git add -f {} \;
-# find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.properties"  -exec git add -f {} \;
-# find $MILDRED_HOME/CUBA/ActionsUI/modules -name "*.sql"  -exec git add -f {} \;
-
-# find $MILDRED_HOME/CUBA/PrimaryUI/modules -name "*.xml"  -exec git add -f {} \;
-# find $MILDRED_HOME/CUBA/PrimaryUI/modules -name "*.java"  -exec git add -f {} \;
-# find $MILDRED_HOME/CUBA/PrimaryUI/modules -name "*.groovy"  -exec git add -f {} \;
-# find $MILDRED_HOME/CUBA/PrimaryUI/modules -name "*.properties"  -exec git add -f {} \;
-# find $MILDRED_HOME/CUBA/PrimaryUI/modules -name "*.sql"  -exec git add -f {} \;
+# find $MILDRED_HOME/CUBA/*/modules -name "*.xml"  -exec git add -f {} \;
+# find $MILDRED_HOME/CUBA/*/modules -name "*.java"  -exec git add -f {} \;
+# find $MILDRED_HOME/CUBA/*/modules -name "*.groovy"  -exec git add -f {} \;
+# find $MILDRED_HOME/CUBA/*/modules -name "*.properties"  -exec git add -f {} \;
+# find $MILDRED_HOME/CUBA/*/modules -name "*.sql"  -exec git add -f {} \;
 
 find $MILDRED_HOME/java -name "*.java"  -exec git add -f {} \;
 find $MILDRED_HOME/java -name "*.sh"  -exec git add -f {} \;
 find $MILDRED_HOME/java -name "*.xml"  -exec git add -f {} \;
 find $MILDRED_HOME/java -name "*.groovy"  -exec git add -f {} \;
 find $MILDRED_HOME/java -name "*.fxml"  -exec git add -f {} \;
-# find $MILDRED_HOME/java -name "*.xml"  -exec git add -f {} \;
-# find $MILDRED_HOME/java -name "*.xml"  -exec git add -f {} \;
 
-#git add $MILDRED_HOME/doc/*.ods
-# git add $MILDRED_HOME/java/MildredCacheMonitor/*.xml
-# git add $MILDRED_HOME/java/MildredCacheMonitor/*.sh
-# git add $MILDRED_HOME/java/MildredCacheMonitor/*.xml
-# git add $MILDRED_HOME/java/MildredCacheMonitor/src/main/java/com/angrysurfer/mildred/redis/*.java
-# git add $MILDRED_HOME/java/MildredCacheMonitor/src/main/java/com/angrysurfer/mildred/ui/*.java
-# git add $MILDRED_HOME/java/MildredCacheMonitor/src/main/java/com/angrysurfer/mildred/ui/swing/*.java
-# git add $MILDRED_HOME/java/MildredCacheMonitor/src/main/java/com/angrysurfer/mildred/ui/javafx/*.java
-# git add $MILDRED_HOME/java/MildredCacheMonitor/src/main/resources/com/angrysurfer/mildred/ui/javafx/*.fxml
+# git add $MILDRED_HOME/doc/*.ods
+
+# git add $MILDRED_HOME/java/*/*.xml
+# git add $MILDRED_HOME/java/*/*.sh
+# git add $MILDRED_HOME/java/*/*.xml
+# git add $MILDRED_HOME/java/*/*.java
+# git add $MILDRED_HOME/java/*/*.fxml
 
 # find $MILDRED_HOME/python -name "*.py"  -exec git add -f {} \;
 git add $MILDRED_HOME/python/test/*.py
