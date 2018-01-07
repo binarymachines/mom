@@ -1,6 +1,6 @@
 from core import cache2
 
-import sql, config, alchemy
+import config, alchemy
 
 from const import DIRECTORY, FILE
 from core import cache2
@@ -94,7 +94,6 @@ def get_location_types(refresh=False):
 def get_location_patterns(location_type):
     if not cache2.key_exists(PATTERN, location_type):
         key = cache2.create_key(PATTERN, location_type)
-        # rows = sql.retrieve_values2('directory_constant', ['location_type', 'pattern'], [location_type])
         rows = alchemy.SQLDirectoryConstant.retrieve_for_location_type(location_type)
         cache2.add_items(PATTERN, location_type, [row.pattern for row in rows])
 

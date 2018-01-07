@@ -21,7 +21,7 @@ EXEC = 'exec'
 OP_RECORD = { 'pid': str(config.pid), 'operation_name': None, 'start_time': config.start_time, 'end_time': None, \
     'target_esid': None, 'target_path': None, 'status': None, 'persisted': False  }
 
-EXEC_RECORD = { 'id': None, 'pid': str(os.getpid()), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
+EXEC_RECORD = { 'id': None, 'pid': None, 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
     'effective_dt': datetime.datetime.now(), 'expiration_dt': None, 'halt_requested':False, \
     'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
 
@@ -268,6 +268,7 @@ def record_exec():
     values = EXEC_RECORD 
 
     values['status'] = 'initializing'
+    values['pid'] = str(os.getpid())
     exec_key = get_exec_key()
 
     cache2.set_hash2(exec_key, values)

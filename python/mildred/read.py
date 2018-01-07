@@ -21,7 +21,7 @@ class Reader:
         self.document_type = const.FILE
         self.extensions = ()
         self.file_handlers = ()
-        # self.file_types = SQLFileType.retrieve_all()
+        self.file_types = SQLFileType.retrieve_all()
         self.initialize_file_handlers()
 
 
@@ -52,6 +52,10 @@ class Reader:
             
             self.file_handlers += instance,
 
+    def get_file_type_for(self, filename):
+        for file_type in self.file_types:
+            if filename.lower().endswith(file_type.ext):
+                return file_type
 
     def has_handler_for(self, filename):
         if filename.lower().startswith('incomplete~') or filename.lower().startswith('~incomplete'):

@@ -125,7 +125,7 @@ class Scanner(Walker):
                         if len(data['attributes']) > 0:
                             library.update_asset(asset, data)
                     else:
-                        library.index_asset(asset, data)
+                        library.index_asset(asset, data, self.reader.get_file_type_for(filename))
                 except Exception, err:
                     #TODO: record library update error instead of read error
                     if file_was_read:

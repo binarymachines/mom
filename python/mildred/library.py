@@ -190,14 +190,14 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
     return asset
 
 
-def _sub_index_asset(asset, data):
+def _sub_index_asset(asset, data, file_type=None):
     # try:
     res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
     if res['_shards']['successful'] == 1:
         asset.esid = res['_id']
         try:
             # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-            insert_asset(asset.document_type, asset.esid, asset.absolute_path)
+            SQLAsset.insert(document_type, elasticsearch_id, absolute_path, file_type)
         except Exception, err:
             config.es.delete(config.es_index, asset.document_type, asset.esid)
             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
@@ -209,10 +209,10 @@ def _sub_index_asset(asset, data):
         # raise AssetException(err, asset)
 
 
-def index_asset(asset, data):
+def index_asset(asset, data, file_type=None):
     # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
     try:
-        _sub_index_asset(asset, data)
+        _sub_index_asset(asset, data, file_type)
     except RequestError, err:
         ERR.error(err.__class__.__name__, exc_info=True)
         
@@ -272,10 +272,6 @@ def index_asset(asset, data):
         raise err
                 
     return True        
-
-
-def insert_asset(document_type, elasticsearch_id, absolute_path):
-    SQLAsset.insert(document_type, elasticsearch_id, absolute_path)
 
 
 def retrieve_esid(document_type, absolute_path):
@@ -424,23 +420,24 @@ def handle_asset_exception(error, path):
 
 
 
-def backup_assets():
-    ops.update_listeners('querying...', 'library', '')
-    docs = sql.retrieve_values2('document', ['id', 'document_type', 'absolute_path'], []) 
-    count = len(docs)
-    for doc in docs:
-        ops.check_status()
-        try:
-            es_doc = search.get_doc(doc.document_type, doc.id)
-            if search.backup_exists(es_doc):
-                ops.update_listeners('backup exists, skipping file %i/%i' % (doc.rownum, count), 'library', doc.absolute_path)
-                continue
-            ops.update_listeners('copying file %i/%i to backup folder' % (doc.rownum, count), 'library', doc.absolute_path)
-            search.backup_doc(es_doc)
-        except ElasticDataIntegrityException, err:
-            LOG.info('Duplicate documents found for %s' % doc.absolute_path)
-            handle_asset_exception(err, doc.absolute_path)
-        except Exception, err:
-            ERR.error(err.message, exc_info=True)
+# def backup_assets():
+#     ops.update_listeners('querying...', 'library', '')
 
-    sys.exit('backup complete')
+#     docs = sql.retrieve_values2('document', ['id', 'document_type', 'absolute_path'], []) 
+#     count = len(docs)
+#     for doc in docs:
+#         ops.check_status()
+#         try:
+#             es_doc = search.get_doc(doc.document_type, doc.id)
+#             if search.backup_exists(es_doc):
+#                 ops.update_listeners('backup exists, skipping file %i/%i' % (doc.rownum, count), 'library', doc.absolute_path)
+#                 continue
+#             ops.update_listeners('copying file %i/%i to backup folder' % (doc.rownum, count), 'library', doc.absolute_path)
+#             search.backup_doc(es_doc)
+#         except ElasticDataIntegrityException, err:
+#             LOG.info('Duplicate documents found for %s' % doc.absolute_path)
+#             handle_asset_exception(err, doc.absolute_path)
+#         except Exception, err:
+#             ERR.error(err.message, exc_info=True)
+
+#     sys.exit('backup complete')
