@@ -67,7 +67,7 @@ class Scanner(Walker):
             return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if pathutil.file_type_recognized(root, self.reader.get_supported_extensions()):
+            if pathutil.file_type_recognized(root, self.reader.extensions()):
                 try:
                     library.set_active(root)
                 except ElasticDataIntegrityException, err:
@@ -127,6 +127,7 @@ class Scanner(Walker):
                     else:
                         library.index_asset(asset, data)
                 except Exception, err:
+                    #TODO: record library update error instead of read error
                     if file_was_read:
                         self.reader.invalidate_read_ops(asset)
 

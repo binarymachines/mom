@@ -21,7 +21,7 @@ EXEC = 'exec'
 OP_RECORD = { 'pid': str(config.pid), 'operation_name': None, 'start_time': config.start_time, 'end_time': None, \
     'target_esid': None, 'target_path': None, 'status': None, 'persisted': False  }
 
-EXEC_RECORD = { 'id': None, 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
+EXEC_RECORD = { 'id': None, 'pid': str(os.getpid()), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
     'effective_dt': datetime.datetime.now(), 'expiration_dt': None, 'halt_requested':False, \
     'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
 

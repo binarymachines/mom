@@ -24,9 +24,9 @@
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
                 // "--nomatch"
-                // "--reset",
-                // "--map-paths",
-                // "/media/codex/Media/audio/"
+                "--reset",
+                "--map-paths",
+                "/media/codex/Media/audio/"
                 // "--exit"
                 // "--pattern",
                 // "skillionaire"
@@ -34,6 +34,21 @@
                 // "/media/removable/Audio/music/albums/hip-hop"
                 // "--expand-all"
                 // "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
+            ],
+            "debugOptions": [
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "halt media hound",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config:python.pythonPath}",
+            "cwd": "${workspaceRoot}/python",
+            "program": "${workspaceRoot}/python/mildred/control.py",
+            "args": [
+                "--halt"
             ],
             "debugOptions": [
                 "RedirectOutput"

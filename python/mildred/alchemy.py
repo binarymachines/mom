@@ -13,7 +13,7 @@ from errors import SQLIntegrityError
 # FileFormat,
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
-from db.generated.sqla_mildred import ExecRec, OpRecord, Document, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileHandlerType, FileType, Matcher, MatcherField, MatchRecord
+from db.generated.sqla_mildred import ExecRec, OpRecord, Document, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
 from db.generated.sqla_introspection import ModeDefault, ModeStateDefault, ModeStateDefaultParam
 from db.generated.sqla_introspection import Mode as AlchemyMode
 from db.generated.sqla_introspection import State as AlchemyState
@@ -358,12 +358,12 @@ class SQLFileHandler(FileHandler):
         return result
 
 
-class SQLFileHandlerType(FileHandlerType): 
+class SQLFileHandlerRegistration(FileHandlerRegistration): 
 
     # replacing relationship in parent class
-    file_handler = relationship("SQLFileHandler", back_populates="file_types")
+    file_handler = relationship("SQLFileHandler", back_populates="registrations")
 
-SQLFileHandler.file_types = relationship("SQLFileHandlerType", order_by=SQLFileHandlerType.id, back_populates="file_handler")
+SQLFileHandler.registrations = relationship("SQLFileHandlerRegistration", order_by=SQLFileHandlerRegistration.id, back_populates="file_handler")
 
 class SQLFileType(FileType):
     @staticmethod

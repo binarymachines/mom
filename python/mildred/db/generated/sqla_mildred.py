@@ -152,22 +152,24 @@ class FileHandler(Base):
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
-class FileHandlerType(Base):
-    __tablename__ = 'file_handler_type'
+class FileHandlerRegistration(Base):
+    __tablename__ = 'file_handler_registration'
 
     id = Column(Integer, primary_key=True)
-    file_handler_id = Column(ForeignKey(u'file_handler.id'), nullable=False, index=True)
-    ext = Column(String(128))
     name = Column(String(128), nullable=False)
+    file_handler_id = Column(ForeignKey(u'file_handler.id'), nullable=False, index=True)
+    file_type_id = Column(ForeignKey(u'file_type.id'), nullable=False, index=True)
 
     file_handler = relationship(u'FileHandler')
+    file_type = relationship(u'FileType')
 
 
 class FileType(Base):
     __tablename__ = 'file_type'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(25), nullable=False)
+    name = Column(String(25))
+    ext = Column(String(5))
 
 
 class MatchRecord(Base):
@@ -258,15 +260,6 @@ t_v_alias = Table(
     Column('document_format', String(32)),
     Column('name', String(25)),
     Column('attribute_name', String(128))
-)
-
-
-t_v_file_handler = Table(
-    'v_file_handler', metadata,
-    Column('package', String(128)),
-    Column('module', String(128)),
-    Column('class_name', String(128)),
-    Column('ext', String(128))
 )
 
 

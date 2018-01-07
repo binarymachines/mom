@@ -247,20 +247,20 @@ CREATE TABLE `file_handler` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `file_handler_type`
+-- Table structure for table `file_handler_registration`
 --
 
-DROP TABLE IF EXISTS `file_handler_type`;
+DROP TABLE IF EXISTS `file_handler_registration`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `file_handler_type` (
+CREATE TABLE `file_handler_registration` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `file_handler_id` int(11) unsigned NOT NULL,
   `ext` varchar(128) DEFAULT NULL,
   `name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
-  CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
+  KEY `fk_file_handler_registration_file_handler` (`file_handler_id`),
+  CONSTRAINT `fk_file_handler_registration_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -478,7 +478,7 @@ SET character_set_client = @saved_cs_client;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
 /*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `v_file_handler` AS select `fh`.`package` AS `package`,`fh`.`module` AS `module`,`fh`.`class_name` AS `class_name`,`ft`.`ext` AS `ext` from (`file_handler` `fh` join `file_handler_type` `ft`) where (`ft`.`file_handler_id` = `fh`.`id`) order by `fh`.`package`,`fh`.`module`,`fh`.`class_name` */;
+/*!50001 VIEW `v_file_handler` AS select `fh`.`package` AS `package`,`fh`.`module` AS `module`,`fh`.`class_name` AS `class_name`,`ft`.`ext` AS `ext` from (`file_handler` `fh` join `file_handler_registration` `ft`) where (`ft`.`file_handler_id` = `fh`.`id`) order by `fh`.`package`,`fh`.`module`,`fh`.`class_name` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;

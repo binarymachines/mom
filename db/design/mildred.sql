@@ -21,7 +21,7 @@ DROP TABLE IF EXISTS `document_format`;
 DROP TABLE IF EXISTS `document_type`;
 DROP TABLE IF EXISTS `file_format`;
 DROP TABLE IF EXISTS `file_type`;
-DROP TABLE IF EXISTS `file_handler_type`;
+DROP TABLE IF EXISTS `file_handler_registration`;
 DROP TABLE IF EXISTS `file_handler`;
 
 DROP TABLE IF EXISTS `op_record_param`;
@@ -36,10 +36,11 @@ DROP TABLE IF EXISTS `tags`;
 
 CREATE TABLE IF NOT EXISTS `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(25) NOT NULL,
+  `name` varchar(25),
+  `ext`varchar(5),
   PRIMARY KEY (`id`)
 );
-
+  
 CREATE TABLE `document` (
   `id` varchar(128) NOT NULL,
   `index_name` varchar(128) NOT NULL,
@@ -282,24 +283,30 @@ CREATE TABLE `file_handler` (
 );
 
 
-CREATE TABLE `file_handler_type` (
+CREATE TABLE `file_handler_registration` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `file_handler_id` int(11) unsigned NOT NULL,
-  `ext` varchar(128) DEFAULT NULL,
   `name` varchar(128) NOT NULL,
+  `file_handler_id` int(11) unsigned NOT NULL,
+  -- `ext` varchar(128) DEFAULT NULL,
+  `file_type_id` int(11) unsigned NOT NULL,
+  CONSTRAINT `fk_file_handler_file_type`
+    FOREIGN KEY (`file_type_id`)
+    REFERENCES `mildred`.`file_type` (`id`),
   PRIMARY KEY (`id`),
-  KEY `fk_file_handler_type_file_handler` (`file_handler_id`),
-  CONSTRAINT `fk_file_handler_type_file_handler` FOREIGN KEY (`file_handler_id`) REFERENCES `file_handler` (`id`)
+  KEY `fk_file_handler_registration_file_handler` (`file_handler_id`),
+  CONSTRAINT `fk_file_handler_registration_file_handler` 
+    FOREIGN KEY (`file_handler_id`) 
+    REFERENCES `file_handler` (`id`)
 );
 
 
-drop view if exists `v_file_handler`;
+-- drop view if exists `v_file_handler`;
 
-create view `v_file_handler` as
-  select fh.package, fh.module, fh.class_name, ft.ext 
-  from file_handler fh, file_handler_type ft
-  where ft.file_handler_id = fh.id
-  order by fh.package, fh.module, fh.class_name;
+-- create view `v_file_handler` as
+--   select fh.package, fh.module, fh.class_name, ft.ext 
+--   from file_handler fh, file_handler_registration ft
+--   where ft.file_handler_id = fh.id
+--   order by fh.package, fh.module, fh.class_name;
   
 
 create table `match_record` (
@@ -335,24 +342,24 @@ from document d1, document d2, match_record m
 where m.doc_id = d2.id and
     m.match_doc_id = d1.id;
 
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("dir");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("*");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("aac");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("ape");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("flac");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("ogg");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("oga");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("iso");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("m4a");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("mpc");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("mp3");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("wav");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("pdf");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("txt");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("jpg");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("mp4");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("avi");
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("mkv");
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("directory");
+INSERT INTO `mildred`.`file_type` (`name`, `ext`) VALUES ("wildcard", "*");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("aac");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("ape");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("flac");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("ogg");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("oga");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("iso");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("m4a");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mpc");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mp3");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("wav");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("pdf");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("txt");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("jpg");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mp4");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("avi");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mkv");
 -- INSERT INTO `mildred`.`file_type` (`name`) VALUES ("...");
 
 
@@ -390,19 +397,32 @@ insert into file_handler (module, class_name, active_flag) values ('pathogen', '
 insert into file_handler (module, class_name, active_flag) values ('funambulist', 'PyPDF2FileHandler', 1);
 
 # TODO: apply names from database in FileHandler constructor
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenAAC'), 'aac', 'mutagen-aac');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenAPEv2'), 'ape', 'mutagen-ape');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenAPEv2'), 'mpc', 'mutagen-mpc');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenFLAC'), 'flac', 'mutagen-flac');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenID3'), 'mp3', 'mutagen-id3-mp3');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenID3'), 'flac', 'mutagen-id3-flac');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenMP4'), 'mp4', 'mutagen-mp4');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenMP4'), 'm4a', 'mutagen-m4a');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'ogg', 'mutagen-ogg');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggFlac'), 'flac', 'mutagen-ogg-flac');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'ogg', 'mutagen-ogg-vorbis');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'MutagenOggVorbis'), 'oga', 'mutagen-ogg-oga');
-insert into file_handler_type (file_handler_id, ext, name) values ((select id from file_handler where class_name = 'PyPDF2FileHandler'), 'pdf', 'pypdf2');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenAAC'), (select id from file_type where ext = 'aac'), 'mutagen-aac');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+    (select id from file_handler where class_name = 'MutagenAPEv2'), (select id from file_type where ext = 'ape'), 'mutagen-ape');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenAPEv2'), (select id from file_type where ext = 'mpc'), 'mutagen-mpc');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenFLAC'), (select id from file_type where ext = 'flac'), 'mutagen-flac');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenID3'), (select id from file_type where ext = 'mp3'), 'mutagen-id3-mp3');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenID3'), (select id from file_type where ext = 'flac'), 'mutagen-id3-flac');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenMP4'), (select id from file_type where ext = 'mp4'), 'mutagen-mp4');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenMP4'), (select id from file_type where ext = 'm4a'), 'mutagen-m4a');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenOggFlac'), (select id from file_type where ext = 'ogg'), 'mutagen-ogg');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenOggFlac'), (select id from file_type where ext = 'flac'), 'mutagen-ogg-flac');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenOggVorbis'), (select id from file_type where ext = 'ogg'), 'mutagen-ogg-vorbis');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'MutagenOggVorbis'), (select id from file_type where ext = 'oga'), 'mutagen-ogg-oga');
+insert into file_handler_registration (file_handler_id, file_type_id, name) values (
+  (select id from file_handler where class_name = 'PyPDF2FileHandler'), (select id from file_type where ext = 'pdf'), 'pypdf2');
 
 
 INSERT INTO `document_attribute` (`index_name`, `document_format`, `attribute_name`, `active_flag`) VALUES ('media', 'ID3v2.3.0', 'TPE1',1);
