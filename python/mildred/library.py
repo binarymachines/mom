@@ -106,7 +106,7 @@ def set_active(path):
             data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
             data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
 
-            index_asset(directory, data)
+            create_asset(directory, data)
 
         cache_directory(directory)
 
@@ -190,29 +190,19 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
     return asset
 
 
-def _sub_index_asset(asset, data, file_type=None):
-    # try:
+def index_asset(asset, data, file_type):
     res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
     if res['_shards']['successful'] == 1:
-        asset.esid = res['_id']
-        try:
-            # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-            SQLAsset.insert(asset.document_type, asset.esid, asset.absolute_path, file_type)
-        except Exception, err:
-            config.es.delete(config.es_index, asset.document_type, asset.esid)
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-            raise err
-            # raise AssetException(err, asset)
-    # except Exception, err:
-    #     ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-    #     sys.exit(0)
-        # raise AssetException(err, asset)
+        return res['_id']
 
 
-def index_asset(asset, data, file_type=None):
+def create_asset(asset, data, file_type=None):
     # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
     try:
-        _sub_index_asset(asset, data, file_type)
+        esid = index_asset(asset, data, file_type)
+        LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
+        SQLAsset.insert(asset.document_type, esid, asset.absolute_path, file_type)
+        return esid
     except RequestError, err:
         ERR.error(err.__class__.__name__, exc_info=True)
         
@@ -241,7 +231,7 @@ def index_asset(asset, data, file_type=None):
                         props[error_field] = None
                         data[ATTRIBUTES][index] = props
 
-                        return index_asset(asset, data)
+                        return create_asset(asset, data)
  
         raise Exception(err, err.message)
 
@@ -256,7 +246,7 @@ def index_asset(asset, data, file_type=None):
             try:
                 config.es = search.connect()
                 if config.es.indices.exists(config.es_index):
-                    _sub_index_asset(asset, data)
+                    index_asset(asset, data)
                     es_avail = True
                     print "resuming..." 
             # except RequestError
@@ -268,6 +258,7 @@ def index_asset(asset, data, file_type=None):
         raise err
 
     except Exception, err:
+        config.es.delete(config.es_index, asset.document_type, asset.esid)
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
         raise err
                 
@@ -309,7 +300,7 @@ def update_asset(asset, data):
             except Exception, err:
                 print err.message
         else:
-            index_asset(asset, data)
+            create_asset(asset, data)
     except ElasticDataIntegrityException, err:
         handle_asset_exception(err, asset.absolute_path)
         update_asset(asset, data)

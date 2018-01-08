@@ -238,7 +238,7 @@ class SQLAsset(Document):
         return "<SQLAsset(index_name='%s', document_type='%s', absolute_path='%s')>" % (
                                 self.index_name, self.document_type, self.absolute_path)
 
-    file_type = relationship(u'FileType', enable_typechecks=False)
+    file_type = relationship(u'SQLFileType', enable_typechecks=True)
 
     @staticmethod
     @alchemy_operation

@@ -26,12 +26,12 @@ class Pathogen(FileHandler):
     def __init__(self, name):
         super(Pathogen, self).__init__(name)
 
-    def handle_file(self, path, data):
+    def handle_file(self, path, data, esid):
         # LOG.info("%s reading file: %s" % (self.name, path))
         read_failed = False
 
         try:
-            ops.record_op_begin(const.READ, self.name, path, esid=data['esid'])            
+            ops.record_op_begin(const.READ, self.name, path, esid)            
             self.read_tags(path, data)
 
             return True
@@ -85,7 +85,7 @@ class Pathogen(FileHandler):
             read_failed = True
 
         finally:
-            ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed, esid=data['esid'])
+            ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed, esid=esid)
 
 
     def read_tags(self, path, data):

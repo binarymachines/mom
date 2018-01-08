@@ -21,10 +21,6 @@ class Reader:
         self.document_type = const.FILE
         self.extensions = ()
         self.file_handlers = ()
-        self.file_types = ()
-        for file_type in SQLFileType.retrieve_all():
-            self.file_types += file_type,
-
         self.initialize_file_handlers()
 
 
@@ -55,10 +51,10 @@ class Reader:
             
             self.file_handlers += instance,
 
-    def get_file_type_for(self, filename):
-        for file_type in self.file_types:
-            if file_type.ext is not None and filename.lower().endswith(file_type.ext):
-                return file_type
+    # def get_file_type_for(self, filename):
+    #     for file_type in self.file_types:
+    #         if file_type.ext is not None and filename.lower().endswith(file_type.ext):
+    #             return file_type
 
     def has_handler_for(self, filename):
         if filename.lower().startswith('incomplete~') or filename.lower().startswith('~incomplete'):
@@ -75,7 +71,7 @@ class Reader:
                ops.mark_operation_invalid(path, const.READ, file_handler.name)
 
 
-    def read(self, path, data, file_handler_name=None, force_read=False):
+    def read(self, path, data, file_handler_name=None, force_read=False, esid=None):
         for file_handler in self.file_handlers:
             if ops.operation_in_cache(path, const.READ, file_handler.name) and force_read == False:
                 continue
@@ -83,6 +79,6 @@ class Reader:
             if file_handler_name is None or file_handler.name == file_handler_name:
                 for extension in file_handler.extensions:
                     if path.lower().endswith(extension) or '*' in file_handler.extensions or force_read:
-                        return file_handler.handle_file(path, data)
+                        return file_handler.handle_file(path, data, esid=esid)
 
 

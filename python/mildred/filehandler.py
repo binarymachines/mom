@@ -76,7 +76,7 @@ class FileHandler(object):
     def handle_exception(self, exception, path, data):
         raise Exception
 
-    def handle_file(self, path, data):
+    def handle_file(self, path, data, esid):
         raise BaseClassException(FileHandler)
 
 

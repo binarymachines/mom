@@ -9,6 +9,7 @@
 
 import logging
 import os
+import time
 
 from docopt import docopt
 
@@ -26,6 +27,7 @@ from core.vector import Vector
 from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
+from alchemy import SQLFileType
 
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
@@ -44,6 +46,10 @@ class Scanner(Walker):
         self.update_scan = self.vector.get_param(SCAN, USCAN)
         
         self.reader = Reader()
+        self.file_types = {}
+        for file_type in SQLFileType.retrieve_all():
+            if file_type.ext is not None and file_type.ext is not "*":
+                self.file_types[file_type.ext] = file_type
         
     # Walker methods
 
@@ -103,40 +109,37 @@ class Scanner(Walker):
             
         for filename in os.listdir(root):
             if self.reader.has_handler_for(filename):
-
                 file_was_read = False
+               
                 try:
                     asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
+                    
                     if asset is None or asset.available is False: 
                         continue
 
-                    existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
-                    if self.high_scan and existing_esid:
+                    ext = filename.split('.')[-1]
+                    if ext is None:
+                        continue
+
+                    file_type = self.file_types[ext]
+                    if file_type is None:
+                        continue
+
+                    if asset.esid and self.high_scan:
                         ops.update_listeners('skipping read', SCANNER, asset.absolute_path)
                         continue
 
                     data = asset.to_dictionary()
                     data['directory'] = directory['esid']
 
-                    existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
-                    if existing_esid == None:
-                        library.index_asset(asset, data, self.reader.get_file_type_for(filename))
+                    if asset.esid is None:
+                        time.sleep(1)
+                        asset.esid = library.create_asset(asset, data, file_type)
+                    
+                    file_was_read = self.reader.read(os.path.join(root, filename), data, esid=asset.esid)
+                    if file_was_read:
+                        library.update_asset(asset, data)
 
-                    if asset.esid:
-                        data['esid'] = asset.esid
-                        self.reader.read(os.path.join(root, filename), data)
-                        file_was_read = True
-                        if len(data['attributes']) > 0:
-                            library.update_asset(asset, data)
-
-                    # existing_esid = library.get_cached_esid(asset.document_type, asset.absolute_path)
-                    # if existing_esid:
-                    #     if len(data['attributes']) > 0:
-                    #         library.update_asset(asset, data)
-                    # else:
-                    #     library.index_asset(asset, data, self.reader.get_file_type_for(filename))
-
-                        #    ops.mark_operation_invalid(path, const.READ, file_handler.name)
                 except Exception, err:
                     #TODO: record library update error instead of read error
                     if file_was_read:
@@ -223,8 +226,10 @@ class Scanner(Walker):
             ops.update_listeners('skipping scan', SCANNER, path)
             return True
 
-    # TODO: individual paths in the directory vector should have their own scan configuration
+        # TODO: individual paths in the directory vector should have their own scan configuration
+
     def scan(self):
+
         self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
         self.high_scan = self.vector.get_param(SCAN, HSCAN)
         self.update_scan = self.vector.get_param(SCAN, USCAN)

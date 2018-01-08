@@ -23,14 +23,15 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
+                // "--reset"
+                // , "--map-paths"
+                // , "/media/codex/Media/audio/incoming"
+                // , "--exit"
+
                 // "--nomatch"
-                "--reset",
-                "--map-paths",
-                "/media/codex/Media/audio/"
-                // "--exit"
-                // "--pattern",
+                // , "--pattern",
                 // "skillionaire"
-                // "--path",
+                // "--path"
                 // "/media/removable/Audio/music/albums/hip-hop"
                 // "--expand-all"
                 // "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
