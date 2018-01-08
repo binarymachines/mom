@@ -133,17 +133,18 @@ class Scanner(Walker):
                     data['directory'] = directory['esid']
 
                     if asset.esid is None:
-                        time.sleep(1)
                         asset.esid = library.create_asset(asset, data, file_type)
+                    try:
+                        file_was_read = self.reader.read(os.path.join(root, filename), data, esid=asset.esid)
+                    except UnicodeDecodeError, err:
+                        print("Unicode error in %s" % os.path.join(root, filename))
                     
-                    file_was_read = self.reader.read(os.path.join(root, filename), data, esid=asset.esid)
-                    if file_was_read:
-                        library.update_asset(asset, data)
+                    library.update_asset(asset, data)
 
                 except Exception, err:
                     #TODO: record library update error instead of read error
                     if file_was_read:
-                        self.reader.invalidate_read_ops(asset)
+                        self.reader.invalidate_read_ops(os.path.join(root, filename))
 
         ops.record_op_complete(SCAN, SCANNER, directory['absolute_path'], directory['esid'])
         LOG.debug('done scanning : %s' % (root))

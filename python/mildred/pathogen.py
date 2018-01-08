@@ -25,7 +25,10 @@ ERR = log.get_log('errors', logging.WARNING)
 class Pathogen(FileHandler):
     def __init__(self, name):
         super(Pathogen, self).__init__(name)
-
+        self.tags = {}
+    
+    
+    #TODO: decorate this method with error handling that will deal properly with trapping UnicodeDecodeError 
     def handle_file(self, path, data, esid):
         # LOG.info("%s reading file: %s" % (self.name, path))
         read_failed = False
@@ -33,44 +36,54 @@ class Pathogen(FileHandler):
         try:
             ops.record_op_begin(const.READ, self.name, path, esid)            
             self.read_tags(path, data)
-
             return True
 
         except ID3NoHeaderError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except UnicodeEncodeError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except UnicodeDecodeError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except FLACNoHeaderError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except FLACVorbisError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except APENoHeaderError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except OggVorbisHeaderError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except MP4MetadataError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except MP4MetadataValueError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except MP4StreamInfoError, err:
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         except MutagenError, err:
             ERR.error(err.__class__.__name__, exc_info=True)
             if isinstance(err.args[0], IOError):
                 fs_avail = False
                 while fs_avail is False:
+                    #TODO: add a timeout to recovery attempts
                     ops.check_status()
                     print "file system offline, retrying in 5 seconds..." 
                     time.sleep(5)
@@ -83,10 +96,14 @@ class Pathogen(FileHandler):
         except Exception, err:
             ERR.error(err.message, exc_info=True)
             read_failed = True
+            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
 
         finally:
             ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed, esid=esid)
-
+            if read_failed:
+                self.tags['_reader'] = self.name
+                data['attributes'].append(self.tags)
+                return False
 
     def read_tags(self, path, data):
         raise BaseClassException(Pathogen)
@@ -107,7 +124,6 @@ class MutagenMP4(Pathogen):
         super(MutagenMP4, self).__init__('mutagen-mp4')
 
     def read_tags(self, path, data):
-        mp4_data = {}
         document = MP4(path)
         for item in document.items():
             if len(item) < 2: 
@@ -135,13 +151,13 @@ class MutagenMP4(Pathogen):
                 # filehandler.report_invalid_field(path, key, value)
                 continue
 
-            mp4_data[key] = util.uu_str(value)
+            self.tags[key] = util.uu_str(value)
 
-        if len(mp4_data) > 0:
-            mp4_data['_document_format'] = 'm4a'
-            mp4_data['_reader'] = self.name
-            mp4_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['attributes'].append(mp4_data)
+        if len(self.tags) > 0:
+            self.tags['_document_format'] = 'm4a'
+            self.tags['_reader'] = self.name
+            self.tags['_read_date'] = datetime.datetime.now().isoformat()
+            data['attributes'].append(self.tags)
 
 
 class MutagenOggFlac(Pathogen):
@@ -154,7 +170,6 @@ class MutagenAPEv2(Pathogen):
         super(MutagenAPEv2, self).__init__('mutagen-apev2')
 
     def read_tags(self, path, data):
-        ape_data = {}
         document = APEv2(path)
         for item in document.items():
             if len(item) < 2: continue
@@ -171,13 +186,13 @@ class MutagenAPEv2(Pathogen):
                 # filehandler.report_invalid_field(path, key, value)
                 continue
 
-            ape_data[key] = value
+            self.tags[key] = value
 
-        if len(ape_data) > 0:
-            ape_data['_document_format'] = 'apev2'
-            ape_data['_reader'] = self.name
-            ape_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['attributes'].append(ape_data)
+        if len(self.tags) > 0:
+            self.tags['_document_format'] = 'apev2'
+            self.tags['_reader'] = self.name
+            self.tags['_read_date'] = datetime.datetime.now().isoformat()
+            data['attributes'].append(self.tags)
 
 
 class MutagenFLAC(Pathogen):
@@ -185,13 +200,12 @@ class MutagenFLAC(Pathogen):
         super(MutagenFLAC, self).__init__('mutagen-flac')
 
     def read_tags(self, path, data):
-        flac_data = {}
         document = FLAC(path)
         for tag in document.tags:
             if len(tag) < 2: continue
             known = filehandler.get_known_fields('flac')
             
-            key = tag[0]  #util.uu_str(tag[0])
+            key = tag[0].lower()  #util.uu_str(tag[0])
             if key not in known:
                 filehandler.add_field('flac', key)
                 
@@ -199,11 +213,11 @@ class MutagenFLAC(Pathogen):
             if len(value) > MAX_DATA_LENGTH:
                 # filehandler.report_invalid_field(path, key, value)
                 continue
-            flac_data[key] = value
+            self.tags[key] = value
 
 
         for tag in document.vc:
-            key = util.uu_str(tag[0])
+            key = util.uu_str(tag[0].lower())
             if key not in filehandler.get_known_fields('flac'):
                 filehandler.add_field('flac', key)
 
@@ -212,14 +226,14 @@ class MutagenFLAC(Pathogen):
                 # filehandler.report_invalid_field(path, key, value)
                 continue
 
-            if key not in flac_data:
-                flac_data[key] = value
+            if key not in self.tags:
+                self.tags[key] = value
 
-        if len(flac_data) > 0:
-            flac_data['_document_format'] = 'flac'
-            flac_data['_reader'] = self.name
-            flac_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['attributes'].append(flac_data)
+        if len(self.tags) > 0:
+            self.tags['_document_format'] = 'flac'
+            self.tags['_reader'] = self.name
+            self.tags['_read_date'] = datetime.datetime.now().isoformat()
+            data['attributes'].append(self.tags)
 
 
 class MutagenID3(Pathogen):
@@ -234,7 +248,7 @@ class MutagenID3(Pathogen):
         metadata = document.pprint() # gets all metadata
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
-        id3_data = {}
+        self.tags = {}
         for tag in tags:
             if len(tag) < 2: 
                 continue
@@ -256,12 +270,12 @@ class MutagenID3(Pathogen):
                 continue
             
             if key == u"TXXX":
-                if not key in id3_data:
-                    # id3_data[key] = []   
-                    id3_data[key] = {}   
+                if not key in self.tags:
+                    # self.tags[key] = []   
+                    self.tags[key] = {}   
 
                 subtags = value.split('=')
-                subkey = util.uu_str(subtags[0].replace(' ', '_'))#.upper()
+                subkey = util.uu_str(subtags[0].replace('"', '').replace(' ', '_'))
                 if '.' in subkey: 
                     continue
                 
@@ -272,24 +286,23 @@ class MutagenID3(Pathogen):
                     except Exception, err:
                         continue
 
-                id3_data[key][subkey] = util.uu_str(subtags[1])
+                self.tags[key][subkey] = util.uu_str(subtags[1])
 
             else:
                 # if key in filehandler.get_fields(document_format):
-                id3_data[key] = util.uu_str(value)
+                self.tags[key] = util.uu_str(value)
 
-        if len(id3_data) > 0:
-            id3_data['_document_format'] = document_format
-            id3_data['_reader'] = self.name
-            id3_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['attributes'].append(id3_data)
+        if len(self.tags) > 0:
+            self.tags['_document_format'] = document_format
+            self.tags['_reader'] = self.name
+            self.tags['_read_date'] = datetime.datetime.now().isoformat()
+            data['attributes'].append(self.tags)
 
 class MutagenOggVorbis(Pathogen):
     def __init__(self):
         super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis')
 
     def read_tags(self, path, data):
-        ogg_data = {}
         document = OggVorbis(path)
         for tag in document.tags:
             if len(tag) < 2: continue
@@ -306,12 +319,12 @@ class MutagenOggVorbis(Pathogen):
                 # filehandler.report_invalid_field(path, key, value)
                 continue
 
-            ogg_data[key] = value
+            self.tags[key] = value
 
-        if len(ogg_data) > 0:
-            ogg_data['_document_format'] = 'ogg'
-            ogg_data['_reader'] = self.name
-            ogg_data['_read_date'] = datetime.datetime.now().isoformat()
-            data['attributes'].append(ogg_data)
+        if len(self.tags) > 0:
+            self.tags['_document_format'] = 'ogg'
+            self.tags['_reader'] = self.name
+            self.tags['_read_date'] = datetime.datetime.now().isoformat()
+            data['attributes'].append(self.tags)
 
 

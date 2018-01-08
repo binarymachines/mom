@@ -141,7 +141,11 @@ def reset():
         query = 'delete from %s' % (table)
         sql.execute_query(query)
 
-    for table in ['document', 'directory', 'match_record', 'op_record']:
+    # for table in ['directory':
+    #     query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+    #     sql.execute_query(query)
+
+    for table in ['document', 'match_record', 'op_record']:
         query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
         sql.execute_query(query)
 
