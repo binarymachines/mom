@@ -135,7 +135,10 @@ def push_operation(operation, operator, path):
 
 
 def record_op_begin(operation, operator, path, esid=None):
-    LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
+    try:
+        LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
+    except UnicodeDecodeError, err: 
+        print(err.message)
     
     op_record = OP_RECORD
     op_record['operation_name'] = operation
@@ -156,7 +159,11 @@ def record_op_begin(operation, operator, path, esid=None):
     update_listeners(operation, operator, path)
 
 def record_op_complete(operation, operator, path, esid=None, op_failed=False):
-    LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
+    
+    try:
+        LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
+    except UnicodeDecodeError, err: 
+        print(err.message)
 
     op_key = get_op_key(operation, operator, path)
     values = cache2.get_hash2(op_key)
@@ -225,11 +232,12 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
         if record['status'] == 'INCOMPLETE':
             record['end_time'] = datetime.datetime.now().isoformat()
 
+
         # TODO: if esids were cached after document has been indexed, they COULD be inserted HERE instead of using update_ops_data() post-ipso
         update_listeners('writing %s' % record['operation_name'], record['operator_name'], record['target_path'])
 
         SQLOperationRecord.insert(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
-                                 target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
+            target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
 
     LOG.info('%s operations have been updated for %s in MySQL' % (operation, path))
 
