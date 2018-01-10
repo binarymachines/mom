@@ -278,10 +278,12 @@ class SQLAsset(Document):
     @staticmethod
     @alchemy_operation
     def insert(document_type, id, absolute_path, file_type):
+        if file_type is None and document_type == const.DIRECTORY:
+            file_type=SQLFileType.retrieve(None) 
+
         if file_type is None and document_type == const.FILE:
-            #time.sleep(1)
             ext = absolute_path.split('.')[-1].lower()
-            if ext is not None:
+            if ext is not None and len(ext) < 9:
                 file_type=SQLFileType.retrieve(ext) 
         
         asset = SQLAsset(id=id, index_name=config.es_index, document_type=document_type, absolute_path=absolute_path, file_type=file_type)

@@ -57,7 +57,6 @@ def cache_directory(directory):
 
     if directory:
         data = directory.to_dictionary()
-        data['esid'] = directory.esid
         cache2.set_hash2(get_cache_key(), data)
 
 
@@ -91,7 +90,7 @@ def set_active(path):
         else:
             directory.location = get_library_location(path)
             data = directory.to_dictionary()
-    
+            data['esid'] = create_asset(directory, data)   
             data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
             data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
             data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
@@ -103,8 +102,6 @@ def set_active(path):
             data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
             data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
             data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
-
-            create_asset(directory, data)
 
         cache_directory(directory)
 
@@ -401,20 +398,13 @@ def get_aliases(document_format, term):
 
 def handle_asset_exception(error, path):
     if isinstance(error, ElasticDataIntegrityException):
-        docs = search.find_docs(error.document_type, error.attribute, error.data)
-        keepdoc = docs[0]
-        for doc in docs:
-            if doc is not keepdoc:
-                search.delete_doc(doc)
-
-    # if error.message.lower().startswith('multiple'):
-    #     for item in  error.data:
-    #         sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], [item[0], item[1], item[3], error.message])
-    # # elif error.message.lower().startswith('unable'):
-    # # elif error.message.lower().startswith('NO FILE'):
-    # else:
-    #     sql.insert_values('problem_esid', ['index_name', 'document_type', 'esid', 'problem_description'], \
-    #                       [config.es_index, error.data.document_type, error.data.esid, error.message])
+        if error.message.lower().startswith('multiple documents found for'):
+            docs = search.find_docs(error.document_type, error.attribute, error.data)
+            #TODO: preserve most recent document version
+            keepdoc = docs[0]
+            for doc in docs:
+                if doc is not keepdoc:
+                    search.delete_doc(doc)
 
 
 

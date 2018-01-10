@@ -68,6 +68,7 @@ class Document(Asset):
     def to_dictionary(self):
         
         data = {
+        'esid': self.esid,
         'absolute_path': self.absolute_path,
         'file_ext': self.ext,
         'file_name': self.file_name,
@@ -100,6 +101,7 @@ class Directory(Asset):
     def to_dictionary(self):
 
         data = {    
+                    'esid': self.esid,
                     'absolute_path': self.absolute_path,
                     'has_errors': self.has_errors,
                     'latest_error': self.latest_error,

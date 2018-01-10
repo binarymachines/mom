@@ -86,6 +86,10 @@ class Reader:
                         try:
                             if file_handler.handle_file(path, data, esid):
                                 file_was_read = True
+                        except UnicodeDecodeError, err:
+                            ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                            print("%s caused a %s:" % (err.object, err.__class__.__name__))
+                            print("filename could not be coverted to %s - %s" % (err.encoding, err.reason))
                         except Exception, err:
                             ERR.error(err.message, exc_info=True)
 
