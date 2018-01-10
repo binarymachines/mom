@@ -35,7 +35,6 @@ ERR = log.get_log('errors', logging.WARNING)
 PERSIST = 'scan.persist'
 ACTIVE = 'active.scan.path'
 
-
 class Scanner(Walker):
     def __init__(self, vector):
         super(Scanner, self).__init__()
@@ -48,7 +47,11 @@ class Scanner(Walker):
         self.reader = Reader()
         self.file_types = {}
         for file_type in SQLFileType.retrieve_all():
-            if file_type.ext is not None and file_type.ext is not "*":
+            if file_type.ext is None:
+                self.file_types[const.DIRECTORY] = file_type
+            elif file_type.ext is "*":
+                self.file_types[const.FILE] = file_type
+            else:
                 self.file_types[file_type.ext] = file_type
         
     # Walker methods
@@ -108,41 +111,41 @@ class Scanner(Walker):
         ops.record_op_begin(SCAN, SCANNER, directory['absolute_path'], directory['esid'])
             
         for filename in os.listdir(root):
-            if self.reader.has_handler_for(filename):
-                file_was_read = False
-               
+            if (os.path.isfile(os.path.join(root, filename))):
                 try:
-                    asset = library.get_document_asset(os.path.join(root, filename), fail_on_fs_missing=True)
-                    
-                    if asset is None or asset.available is False: 
-                        continue
-
-                    ext = filename.split('.')[-1]
+                    file_was_read = False
+                    ext = filename.split('.')[-1].lower()
                     if ext is None:
                         continue
 
-                    file_type = self.file_types[ext]
-                    if file_type is None:
+                    asset = library.get_document_asset(os.path.join(root, filename), check_cache=True, check_db=True, fail_on_fs_missing=True)
+                   
+                    if asset is None or asset.available is False: 
                         continue
 
                     if asset.esid and self.high_scan:
                         ops.update_listeners('skipping read', SCANNER, asset.absolute_path)
                         continue
 
+                    file_type = self.file_types[ext] if ext in self.file_types else None
+                    if file_type is None and len(ext) < 9:
+                        file_type = SQLFileType.insert(ext, ext)
+                        self.file_types[ext] = file_type
+
                     data = asset.to_dictionary()
                     data['directory'] = directory['esid']
 
                     if asset.esid is None:
                         asset.esid = library.create_asset(asset, data, file_type)
-                    try:
+
+                    if self.reader.has_handler_for(filename):
                         file_was_read = self.reader.read(os.path.join(root, filename), data, esid=asset.esid)
-                    except UnicodeDecodeError, err:
-                        print("Unicode error in %s" % os.path.join(root, filename))
                     
                     library.update_asset(asset, data)
 
                 except Exception, err:
                     #TODO: record library update error instead of read error
+                    ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                     if file_was_read:
                         self.reader.invalidate_read_ops(os.path.join(root, filename))
 

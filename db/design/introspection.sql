@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS `mode`;
 -- DROP TABLE IF EXISTS `operator`;
 DROP TABLE IF EXISTS `dispatch_target`;
 DROP TABLE IF EXISTS `service_dispatch`;
+DROP TABLE IF EXISTS `service_profile`;
 
 DROP VIEW IF EXISTS `v_mode_default_dispatch`;
 DROP VIEW IF EXISTS `v_mode_default_dispatch_w_id`;
@@ -28,6 +29,13 @@ DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
 DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`;
 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch`;
 DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch_w_id`;
+
+CREATE TABLE `service_profile` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
 
 CREATE TABLE `service_dispatch` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,

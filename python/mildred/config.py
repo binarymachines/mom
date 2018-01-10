@@ -7,11 +7,11 @@ import ConfigParser
 from core import util, var
 
 start_time = datetime.datetime.now().isoformat()
+pid = str(os.getpid())
 initialized = False
 launched = False
 username = None
 old_pid = None
-pid = str(os.getpid())
 
 config_file = os.path.join(util.get_working_directory(), "config.ini")
 # yaml  = os.path.join(util.get_working_directory(), "mildred.conf")

@@ -67,11 +67,15 @@ class Reader:
 
     def invalidate_read_ops(self, path):
         for file_handler in self.file_handlers:
-           if ops.operation_in_cache(path, const.READ, file_handler.name):
-               ops.mark_operation_invalid(path, const.READ, file_handler.name)
-
+            if ops.operation_in_cache(path, const.READ, file_handler.name):
+                try:
+                    ops.mark_operation_invalid(path, const.READ, file_handler.name)
+                except Exception, err:
+                    ERR.error(err.message, exc_info=True)
 
     def read(self, path, data, file_handler_name=None, force_read=False, esid=None):
+        file_was_read = False
+
         for file_handler in self.file_handlers:
             if ops.operation_in_cache(path, const.READ, file_handler.name) and force_read == False:
                 continue
@@ -79,6 +83,11 @@ class Reader:
             if file_handler_name is None or file_handler.name == file_handler_name:
                 for extension in file_handler.extensions:
                     if path.lower().endswith(extension) or '*' in file_handler.extensions or force_read:
-                        return file_handler.handle_file(path, data, esid=esid)
+                        try:
+                            if file_handler.handle_file(path, data, esid):
+                                file_was_read = True
+                        except Exception, err:
+                            ERR.error(err.message, exc_info=True)
 
 
+        return file_was_read

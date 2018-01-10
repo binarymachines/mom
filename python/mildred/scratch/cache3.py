@@ -27,8 +27,8 @@ def str_clean4key(input):
 
 def key_name(key_group, *identifier):
     """get a compound key name for a given identifier and a specified record type"""
-    keyname = DELIM.join([config.pid, key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
-        else DELIM.join([config.pid, key_group, DELIM.join(identifier)])
+    keyname = DELIM.join([PID, key_group, identifier]) if isinstance(identifier, basestring) or isinstance(identifier, unicode) \
+        else DELIM.join([PID, key_group, DELIM.join(identifier)])
 
     result = str_clean4key(keyname)
     # LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)

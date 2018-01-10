@@ -5,7 +5,7 @@ import redis
 import config
 from scratch import cache3
 
-KEYGROUP = cache3.DELIM.join([config.pid, 'tests-suite'])
+KEYGROUP = cache3.DELIM.join([os.getpid(), 'tests-suite'])
 
 #TODO: This unit tests does not account for Redis' dislike of key names containing spaces
 

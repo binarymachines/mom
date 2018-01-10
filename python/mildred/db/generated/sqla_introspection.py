@@ -102,6 +102,13 @@ class ServiceDispatch(Base):
     func_name = Column(String(128))
 
 
+class ServiceProfile(Base):
+    __tablename__ = 'service_profile'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128))
+
+
 class State(Base):
     __tablename__ = 'state'
     __table_args__ = (

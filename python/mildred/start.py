@@ -141,9 +141,9 @@ def reset():
         query = 'delete from %s' % (table)
         sql.execute_query(query)
 
-    # for table in ['directory':
-    #     query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
-    #     sql.execute_query(query)
+    for table in ['directory']:
+        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+        sql.execute_query(query)
 
     for table in ['document', 'match_record', 'op_record']:
         query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
@@ -170,7 +170,7 @@ def read_pid_file():
 
 def write_pid_file():
     f = open('pid', 'wt')
-    f.write(config.pid)
+    f.write(str(config.pid))
     f.flush()
     f.close()
 

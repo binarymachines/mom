@@ -31,7 +31,7 @@
 
 # def insert_interupted_operation_record(operation_name, operator_name, target_esid, target_path, start_time, status):
 #     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time,status))
-#     op_rec = SQLInterruptedOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
+#     op_rec = SQLInterruptedOperationRecord(pid=os.getpid(), index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
 #         target_esid=target_esid, target_path=target_path, start_time=start_time, status=status, effective_dt=datetime.datetime.now())
 
 #     session.add(op_rec)

@@ -169,7 +169,7 @@ class FileType(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(25))
-    ext = Column(String(5))
+    ext = Column(String(11))
 
 
 class MatchRecord(Base):

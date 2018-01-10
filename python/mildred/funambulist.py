@@ -21,7 +21,7 @@ class PyPDF2FileHandler(MildredFileHandler):
     def __init__(self):
         super(PyPDF2FileHandler, self).__init__('pypdf2')
 
-    def handle_file(self, path, data):
+    def handle_file(self, path, data, esid):
         # LOG.info("%s reading file: %s" % (self.name, path))
         read_failed = False
 

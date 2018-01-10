@@ -126,9 +126,9 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
 def execute_query(query, host=config.mysql_host, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db):
     con = None
     try:
+        LOG.info(query)
         con = mdb.connect(host, user, password, schema)
         cur = con.cursor()
-        LOG.info(query)
         cur.execute(query)
         con.commit()
     except mdb.Error, e:
@@ -148,6 +148,7 @@ def run_query(query, host=config.mysql_host, user=config.mysql_user, password=co
     con = None
     rows = []
     try:
+        LOG.info(query)
         con = mdb.connect(host, user, password, schema)
         cur = con.cursor()
         LOG.info(query)
@@ -155,7 +156,7 @@ def run_query(query, host=config.mysql_host, user=config.mysql_user, password=co
         rows = cur.fetchall()
     except mdb.Error, e:
         ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
-        raise Exception(e, message)
+        raise Exception(e, e.message)
     except TypeError, e:
         ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
         raise Exception(e.message)
@@ -187,7 +188,7 @@ def execute_query_template(filename, *kwargs):
     return execute_query(query, user=user, password=password, schema=schema)
 
 def run_query_template(filename, *args, **kwargs):
-    query = _load_query(filename, *kwargs)
+    query = _load_query(filename, *args)
 
     user = kwarg_val('user', config.mysql_user, kwargs)
     password = kwarg_val('password', config.mysql_pass, kwargs)
@@ -197,21 +198,26 @@ def run_query_template(filename, *args, **kwargs):
 
 
 def _load_query(filename, *args):
-    newargs = ()
-    for arg in args:
-        newargs += (arg,) #.replace('"', "'"),)
-
+    newargs = [quote_if_string(value) for value in args],
     try:
         query = ""
         with open('%s/%s.sql' % (var.sqldir, filename), 'r') as f:
             for line in f:
                 if line.startswith('--'):
-                    LOG.info(line.replace('\n', ''))
+                    # line.replace('\n', '')
                     continue
                 query += line
             f.close()
+            
         # substitute wildcard and escape single quotes
-        return str(query % newargs).replace('*', WILD).replace("'", "\'")#.replace('\n', ' ')
+        argstup = ()
+        for arg in newargs:
+            argstup += (arg,)
+
+        query = str(query % argstup)
+        query = query.replace('*', WILD)
+
+        return query 
     except IOError, e:
         ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
         # raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename), exc_info=True)

@@ -14,7 +14,7 @@ from errors import ElasticDataIntegrityException
 LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
-def get_backup_folder(document_id, target_folder=var.snapshotdir):
+def get_backup_folder(doc_id, target_folder=var.snapshotdir):
     return os.path.join(target_folder, util.expand_str_to_path(doc_id))
     
 def backup_doc(doc, target_folder=var.snapshotdir):
@@ -92,7 +92,10 @@ def delete_doc(doc):
     doc_id = doc['_id']
     document_type = doc['_type']
     if backup_doc(doc, target_folder=var.outqueuedir):
-        config.es.delete(config.es_index, document_type, doc_id)
+        try:
+            config.es.delete(config.es_index, document_type, doc_id)
+        except Exception, err:
+            LOG.error(err.message)
 
 
 def delete_docs(document_type, attribute, value):

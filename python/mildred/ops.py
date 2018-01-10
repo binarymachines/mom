@@ -268,7 +268,7 @@ def record_exec():
     values = EXEC_RECORD 
 
     values['status'] = 'initializing'
-    values['pid'] = str(os.getpid())
+    values['pid'] = str(config.pid)
     exec_key = get_exec_key()
 
     cache2.set_hash2(exec_key, values)

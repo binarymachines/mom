@@ -40,43 +40,43 @@ class Pathogen(FileHandler):
 
         except ID3NoHeaderError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except UnicodeEncodeError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except UnicodeDecodeError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except FLACNoHeaderError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except FLACVorbisError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except APENoHeaderError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except OggVorbisHeaderError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except MP4MetadataError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except MP4MetadataValueError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except MP4StreamInfoError, err:
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except MutagenError, err:
             ERR.error(err.__class__.__name__, exc_info=True)
@@ -96,7 +96,7 @@ class Pathogen(FileHandler):
         except Exception, err:
             ERR.error(err.message, exc_info=True)
             read_failed = True
-            self.tags['_ERROR'] = join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         finally:
             ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed, esid=esid)
@@ -129,7 +129,7 @@ class MutagenMP4(Pathogen):
             if len(item) < 2: 
                 continue
 
-            key = util.uu_str(item[0])
+            key = util.uu_str(item[0]).replace(u'\xa9', '')
 
             if '.' in key: 
                 continue
@@ -279,7 +279,7 @@ class MutagenID3(Pathogen):
                 if '.' in subkey: 
                     continue
                 
-                txxkey = '.'.join([key, subkey])
+                txxkey = '.'.join([key, subkey]).lower()
                 if txxkey not in filehandler.get_known_fields(document_format):
                     try:
                         filehandler.add_field(document_format, txxkey)

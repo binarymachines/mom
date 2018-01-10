@@ -20,7 +20,6 @@ DROP TABLE IF EXISTS `alias`;
 DROP TABLE IF EXISTS `document_format`;
 DROP TABLE IF EXISTS `document_type`;
 DROP TABLE IF EXISTS `file_format`;
-DROP TABLE IF EXISTS `file_type`;
 DROP TABLE IF EXISTS `file_handler_registration`;
 DROP TABLE IF EXISTS `file_handler`;
 
@@ -34,10 +33,12 @@ DROP TABLE IF EXISTS `document`;
 DROP TABLE IF EXISTS `directory_tags`;
 DROP TABLE IF EXISTS `tags`;
 
+DROP TABLE IF EXISTS `file_type`;
+
 CREATE TABLE IF NOT EXISTS `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(25),
-  `ext`varchar(5),
+  `ext`varchar(11),
   PRIMARY KEY (`id`)
 );
   

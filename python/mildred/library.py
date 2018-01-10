@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import json
 import logging
 import os
@@ -24,7 +23,6 @@ LOG = log.get_log(__name__, logging.DEBUG)
 ERR = log.get_log('errors', logging.WARNING)
 
 KEY_GROUP = 'library'
-PATH_IN_DB = 'lib_path_in_db'
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'
 
@@ -176,6 +174,7 @@ def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=Fal
     asset.file_name = filename
     asset.location = get_library_location(absolute_path)
     asset.ext = extension
+    asset.esid = esid
 
     # check cache for esid
     if asset.esid is None and check_cache and path_in_cache(asset.document_type, absolute_path):
@@ -202,6 +201,7 @@ def create_asset(asset, data, file_type=None):
         esid = index_asset(asset, data, file_type)
         LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
         SQLAsset.insert(asset.document_type, esid, asset.absolute_path, file_type)
+        
         return esid
     except RequestError, err:
         ERR.error(err.__class__.__name__, exc_info=True)
@@ -295,10 +295,19 @@ def update_asset(asset, data):
                     data['attributes'].append(old_data[index])
 
             new_doc = json.dumps({'doc': data})
+
             try:
                 res = config.es.update(index=config.es_index, doc_type=asset.document_type, id=esid, body=new_doc)
+
+            except RequestError, err:
+                ERR.error(err.__class__.__name__, exc_info=True)
+                print 'Error encountered handling %s:\n' % (asset.absolute_path)
+                pp.pprint(err.args[2])
+                raise Exception(err)
+
             except Exception, err:
-                print err.message
+                raise Exception(err)
+
         else:
             create_asset(asset, data)
     except ElasticDataIntegrityException, err:
@@ -359,8 +368,8 @@ def path_in_cache(document_type, path):
 
 
 def path_in_db(document_type, path):
-    return len(sql.run_query_template(PATH_IN_DB, config.es_index, document_type, path)) is 1
-
+    rows = SQLAsset.retrieve(document_type, absolute_path=path)
+    return len(rows) > 0
     
 def get_attribute_values(asset, document_format_attribute, *items):
     result = {}

@@ -1,4 +1,5 @@
 import sys
+import time
 import datetime
 import logging
 
@@ -21,6 +22,7 @@ from db.generated.sqla_introspection import State as AlchemyState
 from db.generated.sqla_introspection import ModeState as AlchemyModeState
 
 import config
+import const
 
 LOG = log.get_log(__name__, logging.DEBUG)  
 ERR = log.get_log('errors', logging.WARNING)
@@ -232,18 +234,56 @@ class SQLDirectoryConstant(DirectoryConstant):
         return result
 
 
-class SQLAsset(Document):
+class SQLFileType(FileType):
+
+    @staticmethod
+    @alchemy_operation
+    def insert(name, ext):
+        ft = SQLFileType(name=name, ext=ext)
+        try:
+            sessions[MILDRED].add(ft);
+            return ft
+        except IntegrityError, err:
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
+
+
+    @staticmethod
+    @alchemy_operation
+    def retrieve_all():
+        result = ()
+        for instance in sessions[MILDRED].query(SQLFileType):
+            result += (instance,)
     
+        return result
+
+    @staticmethod
+    @alchemy_operation
+    def retrieve(ext):
+        result = ()
+        for instance in sessions[MILDRED].query(SQLFileType). \
+            filter(SQLFileType.ext == ext):
+                result += (instance,)
+    
+        return result[0] if len(result) == 1 else None
+
+
+class SQLAsset(Document):
+
+    file_type = relationship(u'SQLFileType', enable_typechecks=True)
+
     def __repr__(self):
         return "<SQLAsset(index_name='%s', document_type='%s', absolute_path='%s')>" % (
                                 self.index_name, self.document_type, self.absolute_path)
 
-    file_type = relationship(u'SQLFileType', enable_typechecks=True)
-
     @staticmethod
     @alchemy_operation
     def insert(document_type, id, absolute_path, file_type):
-        # file_type=SQLFileType.retrieve(file_type.ext) if file_type is not None else None
+        if file_type is None and document_type == const.FILE:
+            #time.sleep(1)
+            ext = absolute_path.split('.')[-1].lower()
+            if ext is not None:
+                file_type=SQLFileType.retrieve(ext) 
+        
         asset = SQLAsset(id=id, index_name=config.es_index, document_type=document_type, absolute_path=absolute_path, file_type=file_type)
 
         try:
@@ -254,7 +294,7 @@ class SQLAsset(Document):
 
     @staticmethod
     @alchemy_operation
-    def retrieve(document_type, absolute_path=None, use_like_in_where_clause=True):
+    def retrieve(document_type, absolute_path=None, use_like_in_where_clause=False):
         path = '%s%s' % (absolute_path, '%')
 
         result = ()
@@ -286,7 +326,7 @@ class SQLAsset(Document):
 
         return result
 
-
+    
 class SQLDocumentCategory(DocumentCategory):
     @staticmethod
     @alchemy_operation
@@ -315,7 +355,7 @@ class SQLExecutionRecord(ExecRec):
 
     @staticmethod
     def retrieve(pid=None):
-        pid = config.pid if pid is None else pid
+        pid=config.pid if pid is None else pid
 
         result = ()
         for instance in sessions[MILDRED].query(SQLExecutionRecord).\
@@ -368,26 +408,6 @@ class SQLFileHandlerRegistration(FileHandlerRegistration):
     file_handler = relationship("SQLFileHandler", back_populates="registrations")
 
 SQLFileHandler.registrations = relationship("SQLFileHandlerRegistration", order_by=SQLFileHandlerRegistration.id, back_populates="file_handler")
-
-class SQLFileType(FileType):
-    @staticmethod
-    @alchemy_operation
-    def retrieve_all():
-        result = ()
-        for instance in sessions[MILDRED].query(SQLFileType):
-            result += (instance,)
-    
-        return result
-
-    @staticmethod
-    @alchemy_operation
-    def retrieve(ext):
-        result = ()
-        for instance in sessions[MILDRED].query(SQLFileType). \
-            filter(SQLFileType.ext == ext):
-                result += (instance,)
-    
-        return result[0] if len(result) == 1 else None
 
 class SQLMatcher(Matcher):
 
