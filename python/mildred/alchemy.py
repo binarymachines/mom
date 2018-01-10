@@ -650,7 +650,7 @@ class SQLOperationRecord(OpRecord):
     def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
         op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
-                                    target_esid=target_esid, target_path=target_path, start_time=start_time, status=status)
+                                    target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status)
 
         try:
             sessions[MILDRED].add(op_rec)
