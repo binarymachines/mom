@@ -47,7 +47,7 @@ class PyPDF2FileHandler(MildredFileHandler):
 
         info = document.getDocumentInfo()
         for key in info:
-            key = util.uu_str(key)
+            key = util.uu_str(key.lower())
             if key not in filehandler.get_known_fields('pdf'):
                 try:
                     filehandler.add_field('pdf', key)
