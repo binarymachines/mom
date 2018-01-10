@@ -300,7 +300,7 @@ def update_asset(asset, data):
                 ERR.error(err.__class__.__name__, exc_info=True)
                 print 'Error encountered handling %s:\n' % (asset.absolute_path)
                 pp.pprint(err.args[2])
-                raise Exception(err)
+                # raise Exception(err)
 
             except Exception, err:
                 raise Exception(err)
@@ -406,7 +406,8 @@ def handle_asset_exception(error, path):
                 if doc is not keepdoc:
                     search.delete_doc(doc)
 
-
+    if isinstance(error, RequestError):
+        print(error.message)
 
 # def backup_assets():
 #     ops.update_listeners('querying...', 'library', '')

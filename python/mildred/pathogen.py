@@ -129,7 +129,7 @@ class MutagenMP4(Pathogen):
             if len(item) < 2: 
                 continue
 
-            key = util.uu_str(item[0]).replace(u'\xa9', '')
+            key = util.uu_str(item[0].lower()).replace(u'\xa9', '')
 
             if '.' in key: 
                 continue
@@ -174,7 +174,7 @@ class MutagenAPEv2(Pathogen):
         for item in document.items():
             if len(item) < 2: continue
 
-            key = util.uu_str(item[0])
+            key = util.uu_str(item[0].lower())
             if key not in filehandler.get_known_fields('apev2'):
                 try:
                     filehandler.add_field('apev2', key)
@@ -253,7 +253,7 @@ class MutagenID3(Pathogen):
             if len(tag) < 2: 
                 continue
 
-            key = util.uu_str(tag[0])
+            key = util.uu_str(tag[0].lower())
             if len(key) == 4 and key not in filehandler.get_known_fields(document_format) and key != "TXXX":
                 try:
                     filehandler.add_field(document_format, key)
@@ -275,7 +275,7 @@ class MutagenID3(Pathogen):
                     self.tags[key] = {}   
 
                 subtags = value.split('=')
-                subkey = util.uu_str(subtags[0].replace('"', '').replace(' ', '_'))
+                subkey = util.uu_str(subtags[0].replace('"', '').replace(' ', '_').lower())
                 if '.' in subkey: 
                     continue
                 
@@ -307,7 +307,7 @@ class MutagenOggVorbis(Pathogen):
         for tag in document.tags:
             if len(tag) < 2: continue
 
-            key = util.uu_str(tag[0])
+            key = util.uu_str(tag[0].lower())
             if key not in filehandler.get_known_fields('ogg'):
                 try:
                     filehandler.add_field('ogg', key)
