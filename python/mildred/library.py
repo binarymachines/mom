@@ -214,21 +214,22 @@ def create_asset(asset, data, file_type=None):
         ATTRIBUTES = 'attributes'
         FAILED_TO_PARSE = 'failed to parse'
         if error_string.startswith(FAILED_TO_PARSE):
+            try:
+                error_field = error_string.replace(FAILED_TO_PARSE, '').replace('[', '').replace(']', '').strip()
+                error_type = err.args[2]['error']['type']
+                error_cause =  err.args[2]['error']['caused_by']['reason']
+ 
+                if error_field.startswith(ATTRIBUTES):
+                    error_field = error_field.replace('%s.' % ATTRIBUTES, '').strip()
+                    for index in range(len(data[ATTRIBUTES])):
+                        props = data[ATTRIBUTES][index]
+                        if props[error_field] == error_cause:
+                            props[error_field] = None
+                            data[ATTRIBUTES][index] = props
 
-            error_field = error_string.replace(FAILED_TO_PARSE, '').replace('[', '').replace(']', '').strip()
-            error_type = err.args[2]['error']['type']
-            error_cause =  err.args[2]['error']['caused_by']['reason']
-            error_value = error_cause.split('"')[1]
-
-            if error_field.startswith(ATTRIBUTES):
-                error_field = error_field.replace('%s.' % ATTRIBUTES, '').strip()
-                for index in range(len(data[ATTRIBUTES])):
-                    props = data[ATTRIBUTES][index]
-                    if props[error_field] == error_value:
-                        props[error_field] = None
-                        data[ATTRIBUTES][index] = props
-
-                        return create_asset(asset, data)
+                            return create_asset(asset, data)
+            except Exception, err3:
+                ERR.error("LOGGING ERROR %s" % err3.args[0])
  
         raise Exception(err, err.message)
 
@@ -237,6 +238,7 @@ def create_asset(asset, data, file_type=None):
         print "Elasticsearch connectivity error, retrying in 5 seconds..." 
         es_avail = False
         while es_avail is False:
+
             ERR.error(err.__class__.__name__, exc_info=True)
             ops.check_status()
             time.sleep(5)
