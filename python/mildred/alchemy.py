@@ -15,7 +15,7 @@ from errors import SQLIntegrityError
 # FileFormat,
 from core import log
 from db.generated.sqla_action import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
-from db.generated.sqla_mildred import ExecRec, OpRecord, Document, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
+from db.generated.sqla_mildred import ExecRec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
 from db.generated.sqla_introspection import ModeDefault, ModeStateDefault, ModeStateDefaultParam
 from db.generated.sqla_introspection import Mode as AlchemyMode
 from db.generated.sqla_introspection import State as AlchemyState
@@ -328,7 +328,29 @@ class SQLAsset(Document):
 
         return result
 
+class SQLDocumentAttribute(DocumentAttribute):
+    @staticmethod
+    @alchemy_operation
+    def retrieve_all():
+        result = ()
+        for instance in sessions[MILDRED].query(SQLDocumentAttribute). \
+            filter(SQLDocumentAttribute.index_name == config.es_index):
+            result += (instance,)
+
+        return result
     
+
+    @staticmethod
+    @alchemy_operation
+    def insert(document_format, attribute_name):
+        attribute = SQLDocumentAttribute(index_name=config.es_index, document_format=document_format, attribute_name=attribute_name) 
+        try:
+            sessions[MILDRED].add(attribute)
+            sessions[MILDRED].commit()
+        except IntegrityError, err:
+            raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
+
+
 class SQLDocumentCategory(DocumentCategory):
     @staticmethod
     @alchemy_operation
@@ -649,7 +671,11 @@ class SQLOperationRecord(OpRecord):
     @alchemy_operation
     def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
-        op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
+        if end_time is None or end_time == 'None':
+            op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
+                                        target_esid=target_esid, target_path=target_path, start_time=start_time, status=status)
+        else:
+            op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
                                     target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status)
 
         try:

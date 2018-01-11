@@ -8,6 +8,7 @@ from core import cache2, util
 import sql
 import config
 
+from alchemy import SQLDocumentAttribute
 DELIM = ','
 
 LOG = log.get_log(__name__, logging.DEBUG)
@@ -20,7 +21,8 @@ def add_field(doc_format, field_name):
     if field_name in get_known_fields(doc_format, refresh=True): 
         return
     try:
-        sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format, field_name])
+        SQLDocumentAttribute.insert(doc_format, field_name)
+        # sql.insert_values(METADATA, ['index_name', 'document_format', 'attribute_name'], [config.es_index, doc_format, field_name])
         cache2.add_item(KNOWN, doc_format, field_name)
         # get_known_fields(doc_format, refresh=True)
 

@@ -57,6 +57,18 @@ def cache_directory(directory):
 
     if directory:
         data = directory.to_dictionary()
+        data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
+        data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
+        data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
+        data['is_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
+        data['is_live'] = pattern_in_path(LIVE, directory.absolute_path)
+        data['is_new'] = pattern_in_path(NEW, directory.absolute_path)
+        data['is_random'] = pattern_in_path(RANDOM, directory.absolute_path)
+        data['is_recent'] = pattern_in_path(RECENT, directory.absolute_path)
+        data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
+        data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
+        data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
+
         cache2.set_hash2(get_cache_key(), data)
 
 
@@ -89,19 +101,7 @@ def set_active(path):
             # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
             directory.location = get_library_location(path)
-            data = directory.to_dictionary()
-            data['esid'] = create_asset(directory, data)   
-            data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
-            data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
-            data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
-            data['is_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
-            data['is_live'] = pattern_in_path(LIVE, directory.absolute_path)
-            data['is_new'] = pattern_in_path(NEW, directory.absolute_path)
-            data['is_random'] = pattern_in_path(RANDOM, directory.absolute_path)
-            data['is_recent'] = pattern_in_path(RECENT, directory.absolute_path)
-            data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
-            data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
-            data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
+            directory.esid = create_asset(directory, directory.to_dictionary())
 
         cache_directory(directory)
 
