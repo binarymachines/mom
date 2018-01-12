@@ -24,10 +24,6 @@ ERR = log.get_log('errors', logging.WARNING)
 
 pp = pprint.PrettyPrinter(indent=4)
 
-# def clean_str(string):
-#     return string.lower().replace(', ', ' ').replace('_', ' ').replace(':', ' ').replace(' ', '')
-
-
 def all_matchers_have_run(matchers, asset):
     skip_entirely = True
     for matcher in matchers:
@@ -62,14 +58,13 @@ def path_expands(path, vector):
 
 def do_match_op(esid, absolute_path, matchers):
     
-    asset = library.get_document_asset(absolute_path, esid=esid, attach_doc=True)
+    asset = library.retrieve_asset(absolute_path, esid=esid, attach_doc=True)
 
     if asset.doc and all_matchers_have_run(matchers, asset):
         LOG.debug('calc: skipping all match operations on %s, %s' % (asset.esid, asset.absolute_path))
         return
 
     elif asset.doc:
-        # if library.doc_exists_for_path(asset.document_type, asset.absolute_path):
         for matcher in matchers:
             message = 'calc: skipping %s operation on %s' % (matcher.name, asset.absolute_path) \
                 if  ops.operation_in_cache(asset.absolute_path, MATCH, matcher.name)  \
@@ -79,22 +74,17 @@ def do_match_op(esid, absolute_path, matchers):
             
             try:
                 matcher.match(asset)
-                # ops.write_ops_data(asset.absolute_path, MATCH, matcher.name)
-
             except AssetException, err:
                 ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                 library.handle_asset_exception(err, asset.absolute_path)
 
             except UnicodeDecodeError, u:
-                # library.record_error(u)
                 ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
 
             except UnicodeEncodeError, u:
-                # library.record_error(u)
                 ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
 
             except Exception, err:
-                # library.record_error(err)
                 ERR.warning(': '.join([err.__class__.__name__, err.message, asset.absolute_path]), exc_info=True)
 
 

@@ -111,20 +111,21 @@ class Scanner(Walker):
         ops.record_op_begin(SCAN, SCANNER, directory['absolute_path'], directory['esid'])
             
         for filename in os.listdir(root):
-            if (os.path.isfile(os.path.join(root, filename))):
+            path = os.path.join(root, filename)
+            if (os.path.isfile(path)):
                 try:
                     file_was_read = False
                     ext = filename.split('.')[-1].lower()
                     if ext is None:
                         continue
 
-                    asset = library.get_document_asset(os.path.join(root, filename), check_cache=True, check_db=True, fail_on_fs_missing=True)
+                    asset = library.retrieve_asset(path, check_cache=True, check_db=True, fail_on_fs_missing=True)
                    
                     if asset is None or asset.available is False: 
                         continue
 
                     if asset.esid and self.high_scan:
-                        ops.update_listeners('skipping read', SCANNER, asset.absolute_path)
+                        ops.update_listeners('skipping read', SCANNER, path)
                         continue
 
                     file_type = self.file_types[ext] if ext in self.file_types else None
@@ -139,8 +140,12 @@ class Scanner(Walker):
                         asset.esid = library.create_asset(asset, data, file_type)
 
                     if self.reader.has_handler_for(filename):
-                        file_was_read = self.reader.read(os.path.join(root, filename), data, esid=asset.esid)
-                    
+                        file_was_read = self.reader.read(path, data, esid=asset.esid)
+
+                    #TODO: eliminate esid from filehandler code, update op-records post-read 
+                    # if file_was_read:
+                    #     ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
+                            
                     library.update_asset(asset, data)
 
                 except Exception, err:
@@ -212,7 +217,6 @@ class Scanner(Walker):
             ops.write_ops_data(path, HSCAN, SCANNER)
 
         # if update_ops: 
-        ops.update_ops_data()
 
         library.clear_docs(const.FILE, path)
         self.vector.set_param(PERSIST, ACTIVE, None)

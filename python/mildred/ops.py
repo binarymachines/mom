@@ -190,14 +190,22 @@ def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
 
     return rows
 
-def update_ops_data():
-    # update_listeners(OPS, get_exec_key(), + 'updating ops records')
-    # TODO: add params to this query (index_name, date range, etc)
+def update_ops_data(path, key, value, operation=None, operator=None):
+
     try:
         LOG.debug('updating operation records')
-        # sql.execute_query_template('ops_update_op_record')
     except Exception, err:
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+
+    operator = '*' if operator is None else operator
+    operation = '*' if operation is None else operation
+
+    op_keys = cache2.get_keys(config.pid, OPS, operation, operator, path)
+    for op_key in op_keys:
+        record = cache2.get_hash2(op_key)
+        if len(record) > 0:
+            record[key] = value
+            cache2.set_hash2(op_key, record)
 
 
 def write_ops_data(path, operation=None, operator=None, this_pid_only=False, resuming=False):

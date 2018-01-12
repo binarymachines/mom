@@ -23,7 +23,7 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
-                "--reset"
+                // "--reset"
                 // , "--map-paths"
                 // , "/media/codex/Media/audio/"
                 // , "--exit"

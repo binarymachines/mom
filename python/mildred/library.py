@@ -5,6 +5,7 @@ import os
 import pprint
 import sys
 import time
+import copy
 
 from elasticsearch.exceptions import ConnectionError, RequestError
 import shallow
@@ -98,7 +99,6 @@ def set_active(path):
         ops.update_listeners('syncing metadata', 'library', path)
         if search.unique_doc_exists(DIRECTORY, 'absolute_path', directory.absolute_path, except_on_multiples=True):
             directory.esid = search.unique_doc_id(DIRECTORY, 'absolute_path', directory.absolute_path)
-            # directory.doc = search.get_doc(directory.document_type, directory.esid)
         else:
             directory.location = get_library_location(path)
             directory.esid = create_asset(directory, directory.to_dictionary())
@@ -155,7 +155,7 @@ def doc_exists_for_path(document_type, path):
         else True
 
 
-def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
+def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
     """return a document instance"""
     fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
     if fail_on_fs_missing and not fs_avail:
@@ -193,12 +193,12 @@ def index_asset(asset, data, file_type):
 
 
 def create_asset(asset, data, file_type=None):
-    # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
     try:
-        esid = index_asset(asset, data, file_type)
-        LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-        SQLAsset.insert(asset.document_type, esid, asset.absolute_path, file_type)
-        
+        # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
+        esid = index_asset(asset, strip_esid(data), file_type)
+        if esid:
+            # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
+            SQLAsset.insert(asset.document_type, esid, asset.absolute_path, file_type)
         return esid
     except RequestError, err:
         ERR.error(err.__class__.__name__, exc_info=True)
@@ -277,12 +277,19 @@ def retrieve_esid(document_type, absolute_path):
         raise ElasticDataIntegrityException(document_type, 'absolute_path', absolute_path)
     # AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
+def strip_esid(values):
+    result = copy.deepcopy(values)
+    try:
+        del result['esid']
+    except KeyError:
+        pass
+
+    return result
 
 def update_asset(asset, data):
     try:
-        if search.unique_doc_exists(asset.document_type, 'absolute_path', asset.absolute_path, except_on_multiples=True):
-            esid = search.unique_doc_id(asset.document_type, 'absolute_path', asset.absolute_path)
-            old_doc = search.get_doc(asset.document_type, esid)
+        if asset.esid:
+            old_doc = search.get_doc(asset.document_type, asset.esid)
             old_data = old_doc['_source']['attributes']
 
             updated_reads = []
@@ -293,11 +300,10 @@ def update_asset(asset, data):
                 if old_data[index]['_reader'] not in updated_reads:
                     data['attributes'].append(old_data[index])
 
-            new_doc = json.dumps({'doc': data})
+            new_doc = json.dumps({'doc': strip_esid(data)})
 
             try:
-                res = config.es.update(index=config.es_index, doc_type=asset.document_type, id=esid, body=new_doc)
-
+                res = config.es.update(index=config.es_index, doc_type=asset.document_type, id=asset.esid, body=new_doc)
             except RequestError, err:
                 ERR.error(err.__class__.__name__, exc_info=True)
                 print 'Error encountered handling %s:\n' % (asset.absolute_path)
@@ -306,13 +312,13 @@ def update_asset(asset, data):
 
             except Exception, err:
                 raise Exception(err)
-
         else:
-            create_asset(asset, data)
+            asset.esid = create_asset(asset, data)  
     except ElasticDataIntegrityException, err:
         handle_asset_exception(err, asset.absolute_path)
         update_asset(asset, data)
-        
+
+
 # matched files
 
 def cache_matches(path):
@@ -352,6 +358,7 @@ def get_library_location(path):
     	return possible[0]
 
     result = None
+    LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
 
     if len(possible) > 1:
       result = possible[0]
