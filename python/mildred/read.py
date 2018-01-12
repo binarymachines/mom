@@ -73,7 +73,7 @@ class Reader:
                 except Exception, err:
                     ERR.error(err.message, exc_info=True)
 
-    def read(self, path, data, file_handler_name=None, force_read=False, esid=None):
+    def read(self, path, data, file_handler_name=None, force_read=False):
         file_was_read = False
 
         for file_handler in self.file_handlers:
@@ -84,7 +84,7 @@ class Reader:
                 for extension in file_handler.extensions:
                     if path.lower().endswith(extension) or '*' in file_handler.extensions or force_read:
                         try:
-                            if file_handler.handle_file(path, data, esid):
+                            if file_handler.handle_file(path, data):
                                 file_was_read = True
                         except UnicodeDecodeError, err:
                             ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)

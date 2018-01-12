@@ -118,7 +118,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
     # TODO: use res['hits']['max_score'] and percentage of max score to determine best matches
     def match(self, media):
-        ops.record_op_begin('match', self.name, media.absolute_path, media.esid)
+        ops.record_op_begin(media.absolute_path, 'match', self.name, media.esid)
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
         previous_matches = library.get_matches(self.name, media.esid)
@@ -164,7 +164,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 
-        ops.record_op_complete('match', self.name, media.absolute_path, media.esid)
+        ops.record_op_complete(media.absolute_path, 'match', self.name, media.esid)
 
 
 class FolderNameMatcher(MediaMatcher):

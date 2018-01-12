@@ -25,11 +25,11 @@ EXEC_RECORD = { 'id': None, 'pid': None, 'index_name': config.es_index, 'start_t
     'effective_dt': datetime.datetime.now(), 'expiration_dt': None, 'halt_requested':False, \
     'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False  }
 
-def create_op_key(operation, operator, path):
+def create_op_key(path, operation, operator):
     return cache2.create_key(config.pid, OPS, operation, operator, path)
 
 
-def get_op_key(operation, operator, path):
+def get_op_key(path, operation, operator):
     return cache2.get_key(config.pid, OPS, operation, operator, path)
 
 
@@ -57,7 +57,7 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
 
 
 def clear_cached_operation(path, operation, operator=None):
-    op_key = get_op_key(operation, operator, path)
+    op_key = get_op_key(path, operation, operator)
     cache2.delete_hash2(op_key)
     cache2.delete_key(op_key)
 
@@ -69,10 +69,10 @@ def flush_cache(resuming=False):
         core.cache2.redis.flushdb()
 
 
-def mark_operation_invalid(operation, operator, path):
+def mark_operation_invalid(path, operation, operator):
     LOG.debug("marking operation invalid: %s:::%s - path %s " % (operator, operation, path))
 
-    op_get_op_key(operation, operator, path)
+    op_key = get_op_key(path, operation, operator)
     values = cache2.get_hash2(op_key)
     values['status'] = 'INVALID'
     cache2.set_hash2(key, values)
@@ -93,7 +93,7 @@ def operation_completed(path, operation, operator=None):
 
 
 def operation_in_cache(path, operation, operator=None):
-    op_key = get_op_key(operation, operator, path)
+    op_key = get_op_key(path, operation, operator)
     values = cache2.get_hash2(op_key)
     return 'persisted' in values and values['persisted'] == 'True'
     #LOG.debug('operation_in_cache(path=%s, operation=%s) returns %s' % (path, operation, str(result)))
@@ -126,15 +126,15 @@ def pop_operation():
         ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 
 
-def push_operation(operation, operator, path):
-    op_key = get_op_key(operation, operator, path)
+def push_operation(path, operation, operator):
+    op_key = get_op_key(path, operation, operator)
     stack_key = cache2.get_key(config.pid, OPS, 'op-stack')
     cache2.lpush(stack_key, op_key)
 
     update_listeners(operation, operator, path)
 
 
-def record_op_begin(operation, operator, path, esid=None):
+def record_op_begin(path, operation, operator, esid=None):
     try:
         LOG.debug("recording operation beginning: %s:::%s on %s" % (operator, operation, path))
     except UnicodeDecodeError, err: 
@@ -144,10 +144,11 @@ def record_op_begin(operation, operator, path, esid=None):
     op_record['operation_name'] = operation
     op_record['operator_name'] = operator
     op_record['start_time'] = datetime.datetime.now().isoformat()
-    op_record['target_esid'] = esid
+    if esid:
+        op_record['target_esid'] = esid
     op_record['target_path'] = path
     op_record['status'] = 'ACTIVE'
-    cache2.set_hash2(create_op_key(operation, operator, path), op_record)
+    cache2.set_hash2(create_op_key(path, operation, operator), op_record)
 
     exec_rec = cache2.get_hash2(get_exec_key())
     exec_rec['current_operation'] = operation
@@ -155,17 +156,17 @@ def record_op_begin(operation, operator, path, esid=None):
     exec_rec['operation_status'] = 'ACTIVE'
     cache2.set_hash2(get_exec_key(), exec_rec)
 
-    push_operation(operation, operator, path)
+    push_operation(path, operation, operator)
     update_listeners(operation, operator, path)
 
-def record_op_complete(operation, operator, path, esid=None, op_failed=False):
+def record_op_complete(path, operation, operator, esid=None, op_failed=False):
     
     try:
         LOG.debug("recording operation complete: %s:::%s on %s - path %s " % (operator, operation, esid, path))
     except UnicodeDecodeError, err: 
         print(err.message)
 
-    op_key = get_op_key(operation, operator, path)
+    op_key = get_op_key(path, operation, operator)
     values = cache2.get_hash2(op_key)
 
     if len(values) > 0:

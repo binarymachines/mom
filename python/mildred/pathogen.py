@@ -26,15 +26,14 @@ class Pathogen(FileHandler):
     def __init__(self, name):
         super(Pathogen, self).__init__(name)
         self.tags = {}
-    
-    
+        
     #TODO: decorate this method with error handling that will deal properly with trapping UnicodeDecodeError 
-    def handle_file(self, path, data, esid):
+    def handle_file(self, path, data):
         # LOG.info("%s reading file: %s" % (self.name, path))
         read_failed = False
 
         try:
-            ops.record_op_begin(const.READ, self.name, path, esid)            
+            ops.record_op_begin(path, const.READ, self.name)            
             self.read_tags(path, data)
             return True
 
@@ -99,7 +98,7 @@ class Pathogen(FileHandler):
             self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         finally:
-            ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed, esid=esid)
+            ops.record_op_complete(path, const.READ, self.name, op_failed=read_failed)
             if read_failed:
                 self.tags['_reader'] = self.name
                 data['attributes'].append(self.tags)
@@ -297,6 +296,7 @@ class MutagenID3(Pathogen):
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
+
 
 class MutagenOggVorbis(Pathogen):
     def __init__(self):

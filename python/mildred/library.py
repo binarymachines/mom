@@ -186,8 +186,8 @@ def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False, 
     return asset
 
 
-def index_asset(asset, data, file_type):
-    res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(data))
+def index_asset(asset, data):
+    res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(strip_esid(data)))
     if res['_shards']['successful'] == 1:
         return res['_id']
 
@@ -195,7 +195,7 @@ def index_asset(asset, data, file_type):
 def create_asset(asset, data, file_type=None):
     try:
         # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
-        esid = index_asset(asset, strip_esid(data), file_type)
+        esid = index_asset(asset, data)
         if esid:
             # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
             SQLAsset.insert(asset.document_type, esid, asset.absolute_path, file_type)

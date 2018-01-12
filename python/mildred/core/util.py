@@ -83,24 +83,18 @@ def get_kivy_directory():
 
         return kivydir
 
+
 # TODO:	use start mode to store working directories in the vector         
 def get_working_directory():
     if var.workdir is None:
         coredir = os.path.abspath(os.path.join(__file__, os.pardir))
         pydir = os.path.abspath(os.path.join(coredir, os.pardir))
         nominalresult = os.path.abspath(os.path.join(pydir, os.pardir))
-
-        # cwd = os.getcwd()
-        # if cwd != nominalresult:
-        #     response = raw_input('Do you want to run application in %s? (yes, no): ' % cwd)
-        #     if response.lower() == 'no':
-        #         var.workdir = nominalresult
-        # else:
-
-        prep_work_dir(nominalresult)    
         var.workdir = nominalresult
-
+        prep_work_dir(nominalresult)    
+        
     return var.workdir
+
 
 def mkdirs(directory):
     if not os.path.exists(directory):

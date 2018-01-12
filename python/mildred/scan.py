@@ -108,7 +108,7 @@ class Scanner(Walker):
 
         LOG.debug('scanning %s' % (root))
         ops.update_listeners('scanning', SCANNER, root)
-        ops.record_op_begin(SCAN, SCANNER, directory['absolute_path'], directory['esid'])
+        ops.record_op_begin(directory['absolute_path'], SCAN, SCANNER, directory['esid'])
             
         for filename in os.listdir(root):
             path = os.path.join(root, filename)
@@ -136,32 +136,30 @@ class Scanner(Walker):
                     data = asset.to_dictionary()
                     data['directory'] = directory['esid']
 
+                    if self.reader.has_handler_for(filename):
+                        file_was_read = self.reader.read(path, data)
+
                     if asset.esid is None:
                         asset.esid = library.create_asset(asset, data, file_type)
+                    else:
+                        library.update_asset(asset, data)
 
-                    if self.reader.has_handler_for(filename):
-                        file_was_read = self.reader.read(path, data, esid=asset.esid)
-
-                    #TODO: eliminate esid from filehandler code, update op-records post-read 
-                    # if file_was_read:
-                    #     ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
-                            
-                    library.update_asset(asset, data)
-
+                    if file_was_read:
+                        ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
+                    
                 except Exception, err:
                     #TODO: record library update error instead of read error
                     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
                     if file_was_read:
                         self.reader.invalidate_read_ops(os.path.join(root, filename))
 
-        ops.record_op_complete(SCAN, SCANNER, directory['absolute_path'], directory['esid'])
+        ops.record_op_complete(directory['absolute_path'], SCAN, SCANNER, directory['esid'])
         LOG.debug('done scanning : %s' % (root))
 
 
     def handle_root_error(self, err, root):
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
-
 
     # utility
 
@@ -202,7 +200,7 @@ class Scanner(Walker):
             ops.cache_ops(path, READ, op_status='FAIL')
 
         if self.high_scan:
-            ops.record_op_begin(HSCAN, SCANNER, path)
+            ops.record_op_begin(path, HSCAN, SCANNER)
 
         # if self.deep_scan == False:
 
@@ -213,7 +211,7 @@ class Scanner(Walker):
         ops.write_ops_data(path, READ)
 
         if self.high_scan:
-            ops.record_op_complete(HSCAN, SCANNER, path)
+            ops.record_op_complete(path, HSCAN, SCANNER)
             ops.write_ops_data(path, HSCAN, SCANNER)
 
         # if update_ops: 
@@ -260,7 +258,6 @@ class Scanner(Walker):
 
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 # if self.high_scan and self.vector.path_in_fifo(path, SCAN) == False:
-
                 should_cache = last_expanded_path is None
                 if self.high_scan:
                     if last_expanded_path:
@@ -296,7 +293,7 @@ class Scanner(Walker):
                     self._post_scan(path, start_read_cache_size != end_read_cache_size)
                 except Exception, err:
                     if self.high_scan:
-                        ops.record_op_complete(HSCAN, SCANNER, path, op_failed=True)
+                        ops.record_op_complete(path, HSCAN, SCANNER, op_failed=True)
 
                     LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
 

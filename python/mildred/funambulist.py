@@ -21,12 +21,12 @@ class PyPDF2FileHandler(MildredFileHandler):
     def __init__(self):
         super(PyPDF2FileHandler, self).__init__('pypdf2')
 
-    def handle_file(self, path, data, esid):
+    def handle_file(self, path, data):
         # LOG.info("%s reading file: %s" % (self.name, path))
         read_failed = False
 
         try:
-            ops.record_op_begin(const.READ, self.name, path)            
+            ops.record_op_begin(path, const.READ, self.name)            
             self.read_tags(path, data)
 
             return True
@@ -35,7 +35,7 @@ class PyPDF2FileHandler(MildredFileHandler):
             read_failed = True
 
         finally:
-            ops.record_op_complete(const.READ, self.name, path, op_failed=read_failed)
+            ops.record_op_complete(path, const.READ, self.name, op_failed=read_failed)
 
 
     def read_tags(self, path, data):

@@ -36,8 +36,7 @@ def all_matchers_have_run(matchers, asset):
 
 def cache_match_ops(matchers, path):
     LOG.debug('caching match ops for %s...' % path)
-    for matcher in matchers:
-        ops.cache_ops(path, MATCH, matcher, apply_lifespan=True)
+    ops.cache_ops(path, MATCH, operator=None, apply_lifespan=True)
 
 
 # use paths expanded by scan ops to segment dataset for matching operations
@@ -226,7 +225,7 @@ class ElasticSearchMatcher(MediaMatcher):
 
 
     def match(self, media):
-        ops.record_op_begin('match', self.name, media.absolute_path, media.esid)
+        ops.record_op_begin( media.absolute_path, 'match', self.name,media.esid)
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
         previous_matches = library.get_matches(self.name, media.esid)
@@ -256,4 +255,4 @@ class ElasticSearchMatcher(MediaMatcher):
 
             SQLMatch.insert(media.esid, match['_id'], self.name, match_percentage, compresult, extflag)
 
-        ops.record_op_complete('match', self.name, media.absolute_path, media.esid)
+        ops.record_op_complete(media.absolute_path, 'match', self.name, media.esid)

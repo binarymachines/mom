@@ -81,8 +81,8 @@ def record_matches_as_ops():
         media.absolute_path = r[2]
 
         if ops.operation_completed(media.absolute_path, matcher_name, 'match') is False:
-            ops.record_op_begin(matcher_name, 'match', media.absolute_path, media.esid)
-            ops.record_op_complete(matcher_name, 'match', media.absolute_path, media.esid)
+            ops.record_op_begin(media.absolute_path, matcher_name, 'match', media.esid)
+            ops.record_op_complete(media.absolute_path, matcher_name, 'match', media.esid)
 
 
 # def transform_docs():
