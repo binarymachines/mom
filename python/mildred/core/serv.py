@@ -157,6 +157,7 @@ class Service(object):
 
                     rec[self.name].completed = True
 
+
     def queue(self, *process):
         for process in process:
             self.active.append(self.create_record(*process))

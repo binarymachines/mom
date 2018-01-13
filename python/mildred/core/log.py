@@ -26,9 +26,8 @@ def setup_log(file_name, log_name, logging_level):
 def start_logging():
     if var.logging_started:
         return
-
+    
     var.logging_started = True
-    # logging.basicConfig(level=logging.DEBUG, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
 
     # console handler
     clog = 'console'

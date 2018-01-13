@@ -105,6 +105,7 @@ class DocumentServiceProcess(SingleSelectorServiceProcess):
 
                     staterecs = sql.retrieve_values2('v_mode_state_default_dispatch_w_id', ['mode_id', 'state_id', 'state_name', 'package_name', 'module_name', 'class_name', 'func_name'], \
                         [str(result.id)], schema='mildred_introspection') 
+                        
                     for rec in staterecs:
                         state = result.get_state(rec.state_name)
                         state.action = self._create_func(rec.package_name, rec.module_name, rec.class_name, rec.func_name)
