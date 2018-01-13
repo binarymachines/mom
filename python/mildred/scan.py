@@ -162,6 +162,7 @@ class Scanner(Walker):
         ops.record_op_begin(directory['absolute_path'], SCAN, SCANNER, directory['esid'])
             
         for filename in os.listdir(root):
+            ops.check_status()
             path = os.path.join(root, filename)
             if (os.path.isfile(path)):
                 self.process_file(path)
