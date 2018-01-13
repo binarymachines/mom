@@ -6,7 +6,7 @@ import logging
 import util
 import log
 
-LOG = log.get_log(__name__, logging.INFO)
+LOG = log.get_safe_log(__name__, logging.INFO)
 
 LIST = 'list'
 HASH = 'hashset'

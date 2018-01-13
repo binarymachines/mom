@@ -12,9 +12,7 @@ class Asset(object):
         # self.active = True
         self.absolute_path = absolute_path
         self.available = os.access(absolute_path, os.R_OK)
-        # self.data = None
         self.deleted = False
-        self.doc = None
         self.document_type = document_type
         self.errors = []
         self.esid = esid

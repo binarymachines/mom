@@ -9,8 +9,8 @@ from spec import Specification
 
 from errors import ModeDestinationException, ModeConfigException
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 
 # TODO: use times_to_complete to enforce a minimum run count (ex: scan has multiple submodes, each needs to complete for scan to be complete)

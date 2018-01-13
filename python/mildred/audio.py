@@ -3,6 +3,7 @@ import sys, os
 import const
 import sql, core.cache2
 import library
+import search
 
 def apply_tags_to_filename(asset):
     pass
@@ -16,7 +17,8 @@ def expunge(asset):
 #  def folder_in_folder_that_contains_media(asset):
 
 def get_category_filed_as(asset):
-    data = asset.doc['_source']    
+    doc = search.get_doc(asset.document_type, asset.esid)
+    data = doc['_source']    
     if has_location(asset) and is_filed(asset):
          return data['absolute_path'].split(os.pathsep)[get_path_depth(data['location'])]
 
@@ -29,7 +31,8 @@ def has_category(asset):
     pass
 
 def has_location(asset):
-    data = asset.doc['_source']
+    doc = search.get_doc(asset.document_type, asset.esid)
+    data = doc['_source']
     return 'location' in data and data['location']
 
 def has_lossless_dupe(asset):

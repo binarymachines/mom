@@ -18,8 +18,8 @@ from core import log, util
 from core.errors import BaseClassException
 
 
-LOG = log.get_log(__name__, logging.INFO)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.INFO)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 
 class Pathogen(FileHandler):

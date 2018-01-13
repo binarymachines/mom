@@ -20,8 +20,8 @@ from core.vector import PathVectorScanner, ACTIVE_FILE, ACTIVE_PATH, PERSIST
 
 from alchemy import SQLMetaAction, SQLMetaReason, SQLMetaReasonParam, SQLAction, SQLReason, SQLReasonParam
 
-LOG = log.get_log(__name__, logging.INFO)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.INFO)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 ANALYZER = 'ANALYZER'
 CONDITION = 'CONDITION'
@@ -125,7 +125,7 @@ class Analyzer(object):
 
         for file_ in SQLAsset.retrieve(const.FILE, path, use_like_in_where_clause=True):
             document = Document(file_.absolute_path, esid=file_.id)
-            document.doc = search.get_doc(const.FILE, document.esid)
+            # esdoc = search.get_doc(const.FILE, document.esid)
             # document.data = document.to_dictionary()
 
             # if no op record exists
@@ -133,7 +133,7 @@ class Analyzer(object):
 
         # for folder in SQLAsset.retrieve(const.DIRECTORY, path, use_like_in_where_clause=True):
         #     directory = Directory(folder.absolute_path, esid=folder.id)
-        #     directory.doc = search.get_doc(const.DIRECTORY, directory.esid)
+        #     esdoc = search.get_doc(const.DIRECTORY, directory.esid)
         #     directory.data = directory.to_dictionary()
 
         #     # if no op record exists

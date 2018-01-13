@@ -11,8 +11,8 @@ from const import FILE
 from core import log, var, util
 from errors import ElasticDataIntegrityException
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 def get_backup_folder(doc_id, target_folder=var.snapshotdir):
     return os.path.join(target_folder, util.expand_str_to_path(doc_id))

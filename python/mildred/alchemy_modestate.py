@@ -8,7 +8,7 @@ from core.modestate import StatefulMode, ModeStateReader, ModeStateWriter
 from core.states import State
 from core.errors import ModeConfigException
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 class AlchemyModeStateWriter(ModeStateWriter):
     def __init__(self, mode_rec=None):

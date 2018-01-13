@@ -4,8 +4,8 @@ import sys, os, logging
 import cache2, log
 from introspection import dynamic_func
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 class Vector(object):
     """vector is a container for state that is accessible to different parts of a process or application"""

@@ -11,11 +11,13 @@ from core import log
 import library
 import ops
 import sql
+import search
+
 from core.errors import BaseClassException
 from query import Builder
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 pp = pprint.PrettyPrinter(indent=4)
 

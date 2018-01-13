@@ -8,7 +8,7 @@ import search
 import sql
 from assets import Asset, Document
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 
 def clear_bad_entries():

@@ -6,7 +6,7 @@ from python import BaseClassException
 from python import Walker
 from python import log
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 
 class DirectoryWalker(Walker):

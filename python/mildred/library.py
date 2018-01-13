@@ -20,8 +20,8 @@ from const import DIRECTORY, MATCH
 from core import cache2, log, util
 from errors import AssetException, ElasticDataIntegrityException
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 KEY_GROUP = 'library'
 CACHE_MATCHES = 'cache_cache_matches'
@@ -159,12 +159,8 @@ def doc_exists_for_path(document_type, path):
         else True
 
 
-def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):
+def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False):
     """return a document instance"""
-    fs_avail = os.path.isfile(absolute_path) and os.access(absolute_path, os.R_OK)
-    if fail_on_fs_missing and not fs_avail:
-        ERR.warning("File %s is missing or is not readable" % absolute_path)
-        return None
     
     asset = Document(util.uu_str(absolute_path), esid=esid)
     filename = os.path.split(absolute_path)[1]
@@ -172,20 +168,18 @@ def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False, 
     filename = filename.replace(extension, '')
     extension = extension.replace('.', '')
 
+    asset.esid = esid
+    asset.ext = extension
     asset.file_name = filename
     asset.location = get_library_location(absolute_path)
-    asset.ext = extension
-    asset.esid = esid
 
     # check cache for esid
     if asset.esid is None and check_cache and path_in_cache(absolute_path, asset.document_type):
         asset.esid = get_cached_esid(asset.document_type, absolute_path)
 
+    # check db for esid
     if asset.esid is None and check_db and path_in_db(absolute_path, asset.document_type):
         asset.esid = retrieve_esid(asset.document_type, absolute_path)
-
-    if asset.esid and attach_doc:
-        asset.doc = search.get_doc(asset.document_type, asset.esid)
 
     return asset
 
@@ -282,6 +276,7 @@ def retrieve_esid(document_type, absolute_path):
         raise ElasticDataIntegrityException(document_type, 'absolute_path', absolute_path)
     # AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
+
 def strip_esid(values):
     result = copy.deepcopy(values)
     try:
@@ -291,10 +286,11 @@ def strip_esid(values):
 
     return result
 
+
 def update_asset(data):
     try:
         if data['esid']:
-            old_doc = search.get_doc(asset.document_type, data['esid'])
+            old_doc = search.get_doc(data['document_type'], data['esid'])
             old_data = old_doc['_source']['attributes']
 
             updated_reads = []
@@ -307,6 +303,8 @@ def update_asset(data):
 
             try:
                 res = config.es.update(index=config.es_index, doc_type=data['document_type'], id=data['esid'], body=json.dumps({'doc': strip_esid(data)}))
+                if res['_shards']['successful'] == 1:
+                    return res['_id']
             except RequestError, err:
                 ERR.error(err.__class__.__name__, exc_info=True)
                 print 'RequestError encountered handling %s:' % (data['absolute_path'])
@@ -314,8 +312,8 @@ def update_asset(data):
                 # raise Exception(err)
             except Exception, err:
                 raise Exception(err)
-        # else:
-        #     asset.esid = create_asset(data)  
+        else:
+            return create_asset(data)  
     except ElasticDataIntegrityException, err:
         handle_asset_exception(err, data['absolute_path'])
         update_asset(data)
@@ -378,11 +376,12 @@ def path_in_cache(path, document_type):
 def path_in_db(path, document_type):
     rows = SQLAsset.retrieve(document_type, absolute_path=path)
     return len(rows) > 0
+
     
 def get_attribute_values(asset, document_format_attribute, *items):
     result = {}
-    
-    data = asset.doc['_source']
+    doc = search.get_doc(asset.document_type, asset.esid)
+    data = doc['_source']
     attributes = {}
     if 'attributes' in data:
         for attribute_group in data['attributes']:

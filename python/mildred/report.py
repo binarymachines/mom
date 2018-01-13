@@ -24,7 +24,7 @@ import sql
 import start
 from assets import Document
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 pp = pprint.PrettyPrinter(indent=4)
 

@@ -29,8 +29,8 @@ from read import Reader
 from walk import Walker
 from alchemy import SQLFileType
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 PERSIST = 'scan.persist'
 ACTIVE = 'active.scan.path'
@@ -53,7 +53,58 @@ class Scanner(Walker):
                 self.file_types[const.FILE] = file_type
             else:
                 self.file_types[file_type.ext] = file_type
-        
+
+    def get_file_type(self, path):
+        try:
+            ext = path.split('.')[-1].lower()
+            if ext is None:
+                return None
+
+            file_type = self.file_types[ext] if ext in self.file_types else None
+            if file_type is None and len(ext) < 9:
+                file_type = SQLFileType.insert(ext, ext)
+                self.file_types[ext] = file_type
+
+            return file_type
+
+        except Exception, err:
+            ERR.warning(err.message)
+
+    def process_file(self, path):
+        directory = library.get_cached_directory()
+        try:           
+            asset = library.retrieve_asset(path, check_cache=True, check_db=True)
+            if asset.available is False: 
+                return
+
+            if asset.esid and self.high_scan:
+                ops.update_listeners('skipping read', SCANNER, path)
+                return
+
+            # ordering dependencies begin - 
+            file_was_read = False
+            data = asset.to_dictionary()
+            
+            if self.reader.has_handler_for(path):
+                file_was_read = self.reader.read(path, data)
+
+            if asset.esid is None:
+                data['directory'] = directory['esid']
+                asset.esid = library.create_asset(data, self.get_file_type(path))
+            else:
+                library.update_asset(data)
+            # ordering dependencies end
+
+            if file_was_read:
+                ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
+            
+        except Exception, err:
+            #TODO: record library update error instead of read error
+            ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            if file_was_read:
+                self.reader.invalidate_read_ops(os.path.join(root, filename))
+
+
     # Walker methods
 
     def after_handle_root(self, root):
@@ -113,45 +164,7 @@ class Scanner(Walker):
         for filename in os.listdir(root):
             path = os.path.join(root, filename)
             if (os.path.isfile(path)):
-                try:
-                    file_was_read = False
-                    ext = filename.split('.')[-1].lower()
-                    if ext is None:
-                        continue
-
-                    asset = library.retrieve_asset(path, check_cache=True, check_db=True, fail_on_fs_missing=True)
-                   
-                    if asset is None or asset.available is False: 
-                        continue
-
-                    if asset.esid and self.high_scan:
-                        ops.update_listeners('skipping read', SCANNER, path)
-                        continue
-
-                    file_type = self.file_types[ext] if ext in self.file_types else None
-                    if file_type is None and len(ext) < 9:
-                        file_type = SQLFileType.insert(ext, ext)
-                        self.file_types[ext] = file_type
-
-                    data = asset.to_dictionary()
-
-                    if self.reader.has_handler_for(filename):
-                        file_was_read = self.reader.read(path, data)
-
-                    if asset.esid is None:
-                        data['directory'] = directory['esid']
-                        asset.esid = library.create_asset(data, file_type)
-                    else:
-                        library.update_asset(data)
-
-                    if file_was_read:
-                        ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
-                    
-                except Exception, err:
-                    #TODO: record library update error instead of read error
-                    ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
-                    if file_was_read:
-                        self.reader.invalidate_read_ops(os.path.join(root, filename))
+                self.process_file(path)
 
         ops.record_op_complete(directory['absolute_path'], SCAN, SCANNER, directory['esid'])
         LOG.debug('done scanning : %s' % (root))

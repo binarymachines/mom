@@ -11,8 +11,8 @@ import config
 from alchemy import SQLDocumentAttribute
 DELIM = ','
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 def add_field(doc_format, field_name):
     """add an attribute to document_attribute for the specified document_type"""

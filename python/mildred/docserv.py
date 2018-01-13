@@ -27,7 +27,7 @@ from core.serv import SingleSelectorServiceProcess
 from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
 from core import introspection
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 
 class DocumentServiceProcess(SingleSelectorServiceProcess):

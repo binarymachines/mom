@@ -5,7 +5,7 @@ from shallow import get_locations, get_document_category_names
 
 from core import log
 
-LOG = log.get_log(__name__, logging.DEBUG)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system
 def file_type_recognized(path, extensions, recursive=False):

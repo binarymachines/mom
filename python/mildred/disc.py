@@ -29,8 +29,8 @@ from walk import Walker
 import sql
 from shallow import get_active_document_formats, get_location_types, add_location, get_locations
 
-LOG = log.get_log(__name__, logging.DEBUG)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.DEBUG)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 # PERSIST = 'scan.persist'
 # ACTIVE = 'active.scan.path'

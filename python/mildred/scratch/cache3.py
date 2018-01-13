@@ -9,7 +9,7 @@ import core.util
 import core.log
 import core.var
 
-LOG = core.log.get_log(__name__, logging.DEBUG)
+LOG = core.get_safe_log(__name__, logging.DEBUG)
 
 LIST = 'list'
 HASH = 'hashset'

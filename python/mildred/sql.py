@@ -9,8 +9,8 @@ import config
 from errors import SQLConnectError
 from core import log, var
 
-LOG = log.get_log(__name__, logging.INFO)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.INFO)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 WILD = '%'
 

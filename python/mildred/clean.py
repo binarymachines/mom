@@ -5,8 +5,8 @@ from const import CLEAN, FILE
 from errors import ElasticDataIntegrityException
 from core import log
 
-LOG = log.get_log(__name__, logging.INFO)
-ERR = log.get_log('errors', logging.WARNING)
+LOG = log.get_safe_log(__name__, logging.INFO)
+ERR = log.get_safe_log('errors', logging.WARNING)
 
 def clean(vector):
     clear_dupes_from_es(vector)

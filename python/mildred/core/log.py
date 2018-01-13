@@ -6,8 +6,43 @@ import var
 
 FORMAT = '%(asctime)s %(levelname)s %(filename)s %(funcName)s : %(message)s ' #, datefmt='%m/%d/%Y %I:%M:%S %p')
 
+LOGS = {}
 
+class Safety(object):
+    def __init__(self, name, logging_level):
+        self.name = name
+        self.log = get_log(name, logging_level)
 
+    def debug(self, *args):
+        try:
+            self.log.debug(*args)
+        except Exception, err:
+            print(err.message)
+
+    def error(self, *args):
+        try:
+            self.log.error(*args)
+        except Exception, err:
+            print(err.message)
+
+    def info(self, *args):
+        try:
+            self.log.info(*args)
+        except Exception, err:
+            print(err.message)
+
+    def warning(self, *args):
+        try:
+            self.log.warning(*args)
+        except Exception, err:
+            print(err.message)
+
+def get_safe_log(log_name, logging_level): 
+    if log_name in LOGS:
+        return LOGS[log_name]
+
+    LOGS[log_name] = Safety(log_name, logging_level)
+    return LOGS[log_name]
 
 def get_log(log_name, logging_level):
     if var.logging_started is False:
