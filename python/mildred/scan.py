@@ -134,15 +134,15 @@ class Scanner(Walker):
                         self.file_types[ext] = file_type
 
                     data = asset.to_dictionary()
-                    data['directory'] = directory['esid']
 
                     if self.reader.has_handler_for(filename):
                         file_was_read = self.reader.read(path, data)
 
                     if asset.esid is None:
-                        asset.esid = library.create_asset(asset, data, file_type)
+                        data['directory'] = directory['esid']
+                        asset.esid = library.create_asset(data, file_type)
                     else:
-                        library.update_asset(asset, data)
+                        library.update_asset(data)
 
                     if file_was_read:
                         ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 

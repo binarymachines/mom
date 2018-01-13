@@ -126,7 +126,7 @@ class Analyzer(object):
         for file_ in SQLAsset.retrieve(const.FILE, path, use_like_in_where_clause=True):
             document = Document(file_.absolute_path, esid=file_.id)
             document.doc = search.get_doc(const.FILE, document.esid)
-            document.data = document.to_dictionary()
+            # document.data = document.to_dictionary()
 
             # if no op record exists
             self.analyze_asset(reasons, document)

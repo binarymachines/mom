@@ -105,7 +105,7 @@ def set_active(path):
         else:
             directory.location = get_library_location(path)
             data = directory_attribs(directory)
-            directory.esid = create_asset(directory, data)
+            directory.esid = create_asset(data)
 
         cache_directory(directory)
 
@@ -190,26 +190,26 @@ def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False, 
     return asset
 
 
-def index_asset(asset, data):
-    res = config.es.index(index=config.es_index, doc_type=asset.document_type, body=json.dumps(strip_esid(data)))
+def index_asset(data):
+    res = config.es.index(index=config.es_index, doc_type=data['document_type'], body=json.dumps(strip_esid(data)))
     if res['_shards']['successful'] == 1:
         return res['_id']
 
 
-def create_asset(asset, data, file_type=None):
+def create_asset(data, file_type=None):
     try:
         # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
-        esid = index_asset(asset, data)
+        esid = index_asset(data)
         if esid:
             # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-            SQLAsset.insert(asset.document_type, esid, asset.absolute_path, file_type)
+            SQLAsset.insert(data['document_type'], esid, data['absolute_path'], file_type)
         return esid
     except RequestError, err:
         ERR.error(err.__class__.__name__, exc_info=True)
         
         try:
-            ERR.error(asset.absolute_path)
-            print 'Error encountered handling %s:' % (asset.absolute_path)
+            # ERR.error(data['absolute_path'])
+            print ('Error encountered handling %s:' % (data['absolute_path']))
             pp.pprint(err.args[2])
         except Exception, err2:
             ERR.error("LOGGING ERROR %s" % err2.message)
@@ -232,7 +232,7 @@ def create_asset(asset, data, file_type=None):
                             props[error_field] = None
                             data[ATTRIBUTES][index] = props
 
-                            return create_asset(asset, data)
+                            return create_asset(data)
             except Exception, err3:
                 ERR.error("LOGGING ERROR %s" % err3.args[0])
  
@@ -250,7 +250,7 @@ def create_asset(asset, data, file_type=None):
             try:
                 config.es = search.connect()
                 if config.es.indices.exists(config.es_index):
-                    index_asset(asset, data)
+                    return create_asset(data)
                     es_avail = True
                     print "resuming..." 
             # except RequestError
@@ -291,10 +291,10 @@ def strip_esid(values):
 
     return result
 
-def update_asset(asset, data):
+def update_asset(data):
     try:
-        if asset.esid:
-            old_doc = search.get_doc(asset.document_type, asset.esid)
+        if data['esid']:
+            old_doc = search.get_doc(asset.document_type, data['esid'])
             old_data = old_doc['_source']['attributes']
 
             updated_reads = []
@@ -305,23 +305,20 @@ def update_asset(asset, data):
                 if old_data[index]['_reader'] not in updated_reads:
                     data['attributes'].append(old_data[index])
 
-            new_doc = json.dumps({'doc': strip_esid(data)})
-
             try:
-                res = config.es.update(index=config.es_index, doc_type=asset.document_type, id=asset.esid, body=new_doc)
+                res = config.es.update(index=config.es_index, doc_type=data['document_type'], id=data['esid'], body=json.dumps({'doc': strip_esid(data)}))
             except RequestError, err:
                 ERR.error(err.__class__.__name__, exc_info=True)
-                print 'Error encountered handling %s:' % (asset.absolute_path)
+                print 'RequestError encountered handling %s:' % (data['absolute_path'])
                 pp.pprint(err.args[2])
                 # raise Exception(err)
-
             except Exception, err:
                 raise Exception(err)
-        else:
-            asset.esid = create_asset(asset, data)  
+        # else:
+        #     asset.esid = create_asset(data)  
     except ElasticDataIntegrityException, err:
-        handle_asset_exception(err, asset.absolute_path)
-        update_asset(asset, data)
+        handle_asset_exception(err, data['absolute_path'])
+        update_asset(data)
 
 
 # matched files
