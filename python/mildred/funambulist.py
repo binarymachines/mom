@@ -47,10 +47,10 @@ class PyPDF2FileHandler(MildredFileHandler):
 
         info = document.getDocumentInfo()
         for key in info:
-            key = util.uu_str(key.lower())
-            if key not in filehandler.get_known_fields('pdf'):
+            # key = util.uu_str(key)
+            if util.uu_str(key.lower()) not in filehandler.get_known_fields('pdf'):
                 try:
-                    filehandler.add_field('pdf', key)
+                    filehandler.add_field('pdf', util.uu_str(key.lower()))
                 except Exception, err:
                     continue
                     
@@ -59,7 +59,7 @@ class PyPDF2FileHandler(MildredFileHandler):
                 # filehandler.report_invalid_field(path, key, value)
                 continue
 
-            pdf_data[key] = value
+            pdf_data[util.uu_str(key.lower())] = value
 
         if len(pdf_data) > 0:
             pdf_data['_document_format'] = 'pdf'

@@ -34,6 +34,7 @@ DROP TABLE IF EXISTS `directory_tags`;
 DROP TABLE IF EXISTS `tags`;
 
 DROP TABLE IF EXISTS `file_type`;
+DROP TABLE IF EXISTS `directory_type`;
 
 CREATE TABLE IF NOT EXISTS `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -41,7 +42,34 @@ CREATE TABLE IF NOT EXISTS `file_type` (
   `ext`varchar(11),
   PRIMARY KEY (`id`)
 );
+
+INSERT INTO `mildred`.`file_type` (`name`) VALUES ("directory");
+INSERT INTO `mildred`.`file_type` (`name`, `ext`) VALUES ("wildcard", "*");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("aac");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("ape");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("flac");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("ogg");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("oga");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("iso");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("m4a");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mpc");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mp3");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("wav");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("pdf");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("txt");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("jpg");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mp4");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("avi");
+INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mkv");
   
+CREATE TABLE IF NOT EXISTS `directory_type` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(75),
+  PRIMARY KEY (`id`)
+);
+
+-- INSERT INTO `mildred`.`directory_type` (`default`) VALUES ("mkv");
+
 CREATE TABLE `document` (
   `id` varchar(128) NOT NULL,
   `index_name` varchar(128) NOT NULL,
@@ -343,24 +371,6 @@ from document d1, document d2, match_record m
 where m.doc_id = d2.id and
     m.match_doc_id = d1.id;
 
-INSERT INTO `mildred`.`file_type` (`name`) VALUES ("directory");
-INSERT INTO `mildred`.`file_type` (`name`, `ext`) VALUES ("wildcard", "*");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("aac");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("ape");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("flac");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("ogg");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("oga");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("iso");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("m4a");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mpc");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mp3");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("wav");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("pdf");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("txt");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("jpg");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mp4");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("avi");
-INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mkv");
 -- INSERT INTO `mildred`.`file_type` (`name`) VALUES ("...");
 
 

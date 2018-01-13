@@ -52,24 +52,27 @@ def get_cache_key(subset=None):
     # (else)
     return cache2.get_key(KEY_GROUP, subset, config.pid)
 
+def directory_attribs(directory):
+    data = directory.to_dictionary()
+    data['filed_as_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
+    data['filed_as_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
+    data['filed_as_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
+    data['filed_as_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
+    data['filed_as_live'] = pattern_in_path(LIVE, directory.absolute_path)
+    data['filed_as_new'] = pattern_in_path(NEW, directory.absolute_path)
+    data['filed_as_random'] = pattern_in_path(RANDOM, directory.absolute_path)
+    data['filed_as_recent'] = pattern_in_path(RECENT, directory.absolute_path)
+    data['filed_as_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
+    data['filed_as_album'] = pattern_in_path(ALBUM, directory.absolute_path)
+    data['filed_as_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
+
+    return data
 
 def cache_directory(directory):
     clear_directory_cache()
 
     if directory:
-        data = directory.to_dictionary()
-        data['is_no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
-        data['is_compilation'] = pattern_in_path(COMPILATION, directory.absolute_path)
-        data['is_extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
-        data['is_incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
-        data['is_live'] = pattern_in_path(LIVE, directory.absolute_path)
-        data['is_new'] = pattern_in_path(NEW, directory.absolute_path)
-        data['is_random'] = pattern_in_path(RANDOM, directory.absolute_path)
-        data['is_recent'] = pattern_in_path(RECENT, directory.absolute_path)
-        data['is_side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
-        data['is_album'] = pattern_in_path(ALBUM, directory.absolute_path)
-        data['is_unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
-
+        data = directory_attribs(directory)
         cache2.set_hash2(get_cache_key(), data)
 
 
@@ -101,7 +104,8 @@ def set_active(path):
             directory.esid = search.unique_doc_id(DIRECTORY, 'absolute_path', directory.absolute_path)
         else:
             directory.location = get_library_location(path)
-            directory.esid = create_asset(directory, directory.to_dictionary())
+            data = directory_attribs(directory)
+            directory.esid = create_asset(directory, data)
 
         cache_directory(directory)
 
@@ -174,10 +178,10 @@ def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False, 
     asset.esid = esid
 
     # check cache for esid
-    if asset.esid is None and check_cache and path_in_cache(asset.document_type, absolute_path):
+    if asset.esid is None and check_cache and path_in_cache(absolute_path, asset.document_type):
         asset.esid = get_cached_esid(asset.document_type, absolute_path)
 
-    if asset.esid is None and check_db and path_in_db(asset.document_type, absolute_path):
+    if asset.esid is None and check_db and path_in_db(absolute_path, asset.document_type):
         asset.esid = retrieve_esid(asset.document_type, absolute_path)
 
     if asset.esid and attach_doc:
@@ -205,7 +209,8 @@ def create_asset(asset, data, file_type=None):
         
         try:
             ERR.error(asset.absolute_path)
-            print 'Error encountered handling %s:\n %s' % (asset.absolute_path, err.args[2])
+            print 'Error encountered handling %s:' % (asset.absolute_path)
+            pp.pprint(err.args[2])
         except Exception, err2:
             ERR.error("LOGGING ERROR %s" % err2.message)
 
@@ -306,7 +311,7 @@ def update_asset(asset, data):
                 res = config.es.update(index=config.es_index, doc_type=asset.document_type, id=asset.esid, body=new_doc)
             except RequestError, err:
                 ERR.error(err.__class__.__name__, exc_info=True)
-                print 'Error encountered handling %s:\n' % (asset.absolute_path)
+                print 'Error encountered handling %s:' % (asset.absolute_path)
                 pp.pprint(err.args[2])
                 # raise Exception(err)
 
@@ -369,11 +374,11 @@ def get_library_location(path):
     return result
 
 
-def path_in_cache(document_type, path):
+def path_in_cache(path, document_type):
     return get_cached_esid(document_type, path)
 
 
-def path_in_db(document_type, path):
+def path_in_db(path, document_type):
     rows = SQLAsset.retrieve(document_type, absolute_path=path)
     return len(rows) > 0
     
