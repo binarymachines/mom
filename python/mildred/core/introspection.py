@@ -30,7 +30,7 @@ def dynamic_func(function):
         try:
             return function(*args, **kwargs)
         except MildredException, err:
-            ERR.error(err.message, exc_info=True)
+            ERR.error(err.message)
             # raise err
 
     return wrapper

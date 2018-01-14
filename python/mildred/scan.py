@@ -73,7 +73,7 @@ class Scanner(Walker):
     def process_file(self, path):
         directory = library.get_cached_directory()
         try:           
-            asset = library.retrieve_asset(path, check_cache=True, check_db=True)
+            asset = library.retrieve_asset(path, check_db=False)
             if asset.available is False: 
                 return
 
@@ -90,7 +90,7 @@ class Scanner(Walker):
 
             if asset.esid is None:
                 data['directory'] = directory['esid']
-                asset.esid = library.create_asset(data, self.get_file_type(path))
+                asset.esid = library.create_asset_metadata(data, self.get_file_type(path))
             else:
                 library.update_asset(data)
             # ordering dependencies end
@@ -100,7 +100,7 @@ class Scanner(Walker):
             
         except Exception, err:
             #TODO: record library update error instead of read error
-            ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            ERR.warning(': '.join([err.__class__.__name__, err.message]))
             if file_was_read:
                 self.reader.invalidate_read_ops(os.path.join(root, filename))
 
@@ -118,12 +118,9 @@ class Scanner(Walker):
         # LOG.debug('Considering %s...' % root)
         ops.check_status()
 
-        if ops.operation_in_cache(root, SCAN, SCANNER): #and not self.deep_scan:
+        if ops.operation_in_cache(root, SCAN, SCANNER) or self.scan_should_skip(root): #and not self.deep_scan:
             LOG.debug('skipping %s' % root)
             ops.update_listeners('skipping scan', SCANNER, root)
-            return
-
-        if self.scan_should_skip(root):
             return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
@@ -131,14 +128,14 @@ class Scanner(Walker):
                 try:
                     library.set_active(root)
                 except ElasticDataIntegrityException, err:
-                    ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                    ERR.warning(': '.join([err.__class__.__name__, err.message]))
                     library.handle_asset_exception(err, root)
                     self.vector.rpush_fifo(SCAN, root)
                     
                 # # except TransportError:
                 # except Exception, err:
                 #     # attempts += 1
-                #     ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                #     ERR.warning(': '.join([err.__class__.__name__, err.message]))
                 #     # self.vector.push_fifo(SCAN, root)
                 #     # ops.invalid
                 #     raise err
@@ -207,12 +204,13 @@ class Scanner(Walker):
         LOG.debug('caching data for %s...' % path)
         library.cache_docs(const.FILE, path)
 
-        ops.cache_ops(path, SCAN)
+        ops.cache_ops(path, SCAN, op_status='COMPLETE')
 
         if self.update_scan:
             ops.cache_ops(path, READ)
-            ops.cache_ops(path, READ, op_status='FAIL')
-
+        else:
+            ops.cache_ops(path, READ, op_status='COMPLETE')
+            
         if self.high_scan:
             ops.record_op_begin(path, HSCAN, SCANNER)
 
@@ -309,7 +307,7 @@ class Scanner(Walker):
                     if self.high_scan:
                         ops.record_op_complete(path, HSCAN, SCANNER, op_failed=True)
 
-                    LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                    LOG.error(': '.join([err.__class__.__name__, err.message]))
 
             elif not os.access(path, os.R_OK):
                 #TODO: parrot behavior for IOError as seen in read.py 

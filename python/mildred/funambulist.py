@@ -31,7 +31,7 @@ class PyPDF2FileHandler(MildredFileHandler):
 
             return True
         except Exception, err:
-            ERR.error(err.message, exc_info=True)
+            ERR.error(err.message)
             read_failed = True
 
         finally:

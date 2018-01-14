@@ -33,7 +33,7 @@ def get_op_key(path, operation, operator):
     return cache2.get_key(config.pid, OPS, operation, operator, path)
 
 
-def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='COMPLETE'):
+def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status=None):
     if operator is None:
         LOG.debug('%s retrieving %s operations (%s)...' % (OPS, operation, op_status))
     else:
@@ -41,7 +41,10 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status='C
 
     update_listeners('retrieving %s ops (%s)...' % (operation, op_status), operator, path)
 
-    rows = SQLOperationRecord.retrieve(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
+    if op_status is None:
+        rows = SQLOperationRecord.retrieve(path, operation, operator, apply_lifespan=apply_lifespan) 
+    else:
+        rows =SQLOperationRecord.retrieve(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
 
     count = len(rows)
     cached_count = 0
@@ -123,7 +126,7 @@ def pop_operation():
             update_listeners(op_rec['operation_name'], op_rec['operator_name'], op_rec['target_path'])
 
     except Exception, err:
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
 
 
 def push_operation(path, operation, operator):
@@ -196,7 +199,7 @@ def update_ops_data(path, key, value, operation=None, operator=None):
     try:
         LOG.debug('updating operation records')
     except Exception, err:
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
 
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation
@@ -319,7 +322,7 @@ def check_status(opcount=None):
 
     values = cache2.get_hash2(get_exec_key())
     if 'pid' not in values:
-        ERR.error('NO PID!!!', exc_info=True)
+        ERR.error('NO PID!!!')
         
     if opcount is not None and opcount % config.status_check_freq!= 0: return
 
@@ -388,7 +391,7 @@ def reconfig_requested():
         try:
             return values['pid'] == config.pid and values['reconfig_requested'] == 'True'
         except KeyError, ke:
-            ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
+            ERR.error(': '.join([ke.__class__.__name__, ke.message]))
 
 
 def stop_requested():
@@ -397,7 +400,7 @@ def stop_requested():
         if len(values) > 0:
             return values['pid'] == config.pid and values['stop_requested'] == 'True'
     except KeyError, ke:
-        ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
+        ERR.error(': '.join([ke.__class__.__name__, ke.message]))
 
 def halt_requested():
     values = cache2.get_hash2(get_exec_key())
@@ -405,7 +408,7 @@ def halt_requested():
         if len(values) > 0:
             return values['pid'] == config.pid and values['halt_requested'] == 'True'
     except KeyError, ke:
-        ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
+        ERR.error(': '.join([ke.__class__.__name__, ke.message]))
 
 def start_requested():
     try:
@@ -413,7 +416,7 @@ def start_requested():
         if len(values) > 0:
             return values['pid'] == NO_PID and values['start_requested'] == 'True'
     except KeyError, ke:
-        ERR.error(': '.join([ke.__class__.__name__, ke.message]), exc_info=True)
+        ERR.error(': '.join([ke.__class__.__name__, ke.message]))
 
 
 # redis pub/sub

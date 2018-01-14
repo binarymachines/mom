@@ -160,7 +160,7 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
             pp.pprint(records[item])
 
     except Exception, err:
-        LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        LOG.error(': '.join([err.__class__.__name__, err.message]))
 
 def new_record(path):
     return { '_path': path, 'files': [], 'matches': [], 'discount': 0, 'weight': 0, 'delete': 0, 'keep': 0, 'promote': 0,

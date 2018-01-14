@@ -109,7 +109,7 @@ class Rule(object):
             func = _parse_func_info(self.condition)
             return self.condition(selector, active, possible)
         except Exception, err:
-            ERR.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name), exc_info=True)
+            ERR.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name))
             raise err
 
 
@@ -309,7 +309,7 @@ class Selector:
                 func_name = _parse_func_info(func)
                 ERR.error('%s while applying %s -> %s from %s in %s.switch()' %  (err.message, previousmode, func_name, activemode, self.name))
             except Exception, logging_error:
-                ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                ERR.error(': '.join([err.__class__.__name__, err.message]))
             raise err
 
 
@@ -414,7 +414,7 @@ class Engine:
                         selector.switch(selector.previous, True)
                     else: raise error
                 except Exception, error:
-                    ERR.error("%s Handling error '%s' in selector %s" % (self.name, error.message, selector.name), exc_info=True)
+                    ERR.error("%s Handling error '%s' in selector %s" % (self.name, error.message, selector.name))
 
                     selector.error_state = True
                     self.inactive.append(selector)
@@ -473,7 +473,7 @@ def _parse_func_info(func):
         func_name = '.'.join([func_desc, func_strings[1].split('<')[1], func_strings[1].split('<')[0].replace(' of ', '()')])
         return func_name
     except Exception, err:
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
         return str(func)
 
 

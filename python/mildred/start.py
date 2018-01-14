@@ -37,7 +37,7 @@ def execute(args):
             cache2.redis = redis.Redis(config.redis_host)
         except Exception, err:
             config.started = False
-            ERR.error(err.message, exc_info=True)
+            ERR.error(err.message)
             print 'Initialization failure'
             raise err
 
@@ -49,7 +49,7 @@ def execute(args):
 
         except Exception, err:
             config.started = False
-            ERR.error(err.message, exc_info=True)
+            ERR.error(err.message)
             print 'Initialization failure'
             raise err
 
@@ -58,7 +58,7 @@ def execute(args):
             load_user_info()
         except Exception, err:
             config.started = False
-            ERR.error(err.message, exc_info=True)
+            ERR.error(err.message)
             print 'Initialization failure'
             raise err
 
@@ -73,7 +73,7 @@ def execute(args):
 
         except Exception, err:
             config.started = False
-            ERR.error(err.message, exc_info=True)
+            ERR.error(err.message)
             print 'Initialization failure'
             raise err
 

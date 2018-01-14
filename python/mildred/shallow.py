@@ -19,10 +19,10 @@ def get_sorted_items(keygroup, identifier):
 def get_active_document_formats(refresh=False):
     keygroup = FILE
     identifier = 'document_formats'
-    if not cache2.key_exists(keygroup, identifier):
-        refresh = True
 
-    if refresh:
+    items = cache2.get_items(keygroup, identifier)
+    if len(items) == 0 or refresh:
+        cache2.clear_items(keygroup, identifier)
         key = cache2.get_key(keygroup, identifier)
         rows = alchemy.SQLFileType.retrieve_all()
         cache2.add_items2(key, [filetype.name for filetype in rows])
@@ -33,10 +33,10 @@ def get_active_document_formats(refresh=False):
 def get_document_category_names(refresh=False):
     keygroup = FILE
     identifier = 'category_names'
-    if not cache2.key_exists(keygroup, identifier):
-        refresh = True
 
-    if refresh:
+    items = cache2.get_items(keygroup, identifier)
+    if len(items) == 0 or refresh:
+        cache2.clear_items(keygroup, identifier)
         key = cache2.get_key(keygroup, identifier)
         rows = alchemy.SQLDocumentCategory.retrieve_all()
         cache2.add_items2(key, [category.name for category in rows])
@@ -44,32 +44,18 @@ def get_document_category_names(refresh=False):
     return get_sorted_items(keygroup, identifier)
 
 
-# def get_directory_constants(identifier, refresh=False):
-#     keygroup = 'directory_constants'
-#     if not cache2.key_exists(keygroup, identifier):
-#         refresh = True
-
-#     key = cache2.get_key(keygroup, identifier)
-#     if refresh:
-#         rows = sql.retrieve_values('directory_constant', ['location_type', 'pattern'], [identifier.lower()])
-#         cache2.add_items2(key, [row[1] for row in rows])
-
-#     return get_sorted_items(keygroup, identifier)
-
-
 def get_locations(refresh=False):
-    # keygroup = DIRECTORY
+    keygroup = DIRECTORY
     identifier = 'location'
-    if not cache2.key_exists(DIRECTORY, identifier):
-        refresh = True
 
-    key = cache2.get_key(DIRECTORY, identifier)
-    if refresh:
-        cache2.clear_items(DIRECTORY, identifier)
+    items = cache2.get_items(keygroup, identifier)
+    if len(items) == 0 or refresh:
+        cache2.clear_items(keygroup, identifier)
+        key = cache2.get_key(keygroup, identifier)
         rows = alchemy.SQLDirectory.retrieve_all()
         cache2.add_items2(key, [directory.name for directory in rows])
 
-    return get_sorted_items(DIRECTORY, identifier)
+    return get_sorted_items(keygroup, identifier)
 
 
 def add_location(path):
@@ -80,21 +66,25 @@ def add_location(path):
 def get_location_types(refresh=False):
     keygroup = DIRECTORY
     identifier = 'location_type'
-    if not cache2.key_exists(DIRECTORY, identifier):
-        refresh = True
 
-    if refresh:
-        key = cache2.get_key(DIRECTORY, identifier)
+    items = cache2.get_items(keygroup, identifier)
+    if len(items) == 0 or refresh:
+        cache2.clear_items(keygroup, identifier)
+        key = cache2.get_key(keygroup, identifier)
         rows = alchemy.SQLDirectoryConstant.retrieve_all()
         cache2.add_items2(key, [dc.location_type for dc in rows])
 
-    return get_sorted_items(DIRECTORY, identifier)
+    return get_sorted_items(keygroup, identifier)
 
 
-def get_location_patterns(location_type):
-    if not cache2.key_exists(PATTERN, location_type):
+def get_location_patterns(location_type, refresh=False):
+
+    items = cache2.get_items(PATTERN, location_type)
+    if len(items) == 0 or refresh:
+        cache2.clear_items(keygroup, identifier)
         key = cache2.create_key(PATTERN, location_type)
         rows = alchemy.SQLDirectoryConstant.retrieve_for_location_type(location_type)
         cache2.add_items(PATTERN, location_type, [row.pattern for row in rows])
+        items = cache2.get_items(PATTERN, location_type)
 
-    return cache2.get_items(PATTERN, location_type)
+    return get_sorted_items(PATTERN, location_type)

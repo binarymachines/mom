@@ -78,7 +78,7 @@ class Pathogen(FileHandler):
             self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except MutagenError, err:
-            ERR.error(err.__class__.__name__, exc_info=True)
+            ERR.error(err.__class__.__name__)
             if isinstance(err.args[0], IOError):
                 fs_avail = False
                 while fs_avail is False:
@@ -93,7 +93,7 @@ class Pathogen(FileHandler):
                 return True
 
         except Exception, err:
-            ERR.error(err.message, exc_info=True)
+            ERR.error(err.message)
             read_failed = True
             self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 

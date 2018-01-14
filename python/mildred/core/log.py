@@ -21,13 +21,13 @@ class Safety(object):
 
     def error(self, *args):
         try:
-            self.log.error(*args)
+            self.log.error(*args, exc_info=True)
         except Exception, err:
             print(err.message)
 
     def info(self, *args):
         try:
-            self.log.info(*args)
+            self.log.info(*args)     
         except Exception, err:
             print(err.message)
 

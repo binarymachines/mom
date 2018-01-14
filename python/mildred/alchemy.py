@@ -64,20 +64,22 @@ class SQLAlchemyIntegrityError(SQLIntegrityError):
 def alchemy_operation(function):
     def wrapper(*args, **kwargs):
         try:
+            func_info = 'calling %s ' % (function.func_name)
+            LOG.debug(func_info)
+
             return function(*args, **kwargs)
-
         except RuntimeWarning, warn:
-
-            ERR.warning(': '.join([warn.__class__.__name__, warn.message]), exc_info=True)
+            ERR.warning(': '.join([warn.__class__.__name__, warn.message]))
 
         except SQLAlchemyIntegrityError, err:
-            print err.__class__.__name__
+            for c in err.cause:
+                print(c)
             err.session.rollback()
 
             raise Exception(err.cause)     
 
         except Exception, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            ERR.error(': '.join([err.__class__.__name__, err.message]))
             raise err
 
     return wrapper

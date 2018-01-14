@@ -68,7 +68,7 @@ def purge_problem_esids():
                 try:
                     config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
                 except Exception, err:
-                    LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                    LOG.error(': '.join([err.__class__.__name__, err.message]))
 
 
 def record_matches_as_ops():

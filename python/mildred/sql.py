@@ -132,13 +132,13 @@ def execute_query(query, host=config.mysql_host, user=config.mysql_user, passwor
         cur.execute(query)
         con.commit()
     except mdb.Error, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        ERR.error(': '.join([e.__class__.__name__, e.message]))
         raise Exception(e.message)
     except TypeError, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        ERR.error(': '.join([e.__class__.__name__, e.message]))
         raise Exception(e.message)
     except Exception, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        ERR.error(': '.join([e.__class__.__name__, e.message]))
         raise Exception(e.message)
     finally:
         if con: con.close()
@@ -155,13 +155,13 @@ def run_query(query, host=config.mysql_host, user=config.mysql_user, password=co
         cur.execute(query)
         rows = cur.fetchall()
     except mdb.Error, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        ERR.error(': '.join([e.__class__.__name__, e.message]))
         raise Exception(e, e.message)
     except TypeError, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        ERR.error(': '.join([e.__class__.__name__, e.message]))
         raise Exception(e.message)
     except Exception, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
+        ERR.error(': '.join([e.__class__.__name__, e.message]))
         raise Exception(e.message)
     finally:
         if con: con.close()
@@ -219,6 +219,6 @@ def _load_query(filename, *args):
 
         return query 
     except IOError, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]), exc_info=True)
-        # raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename), exc_info=True)
+        ERR.error(': '.join([e.__class__.__name__, e.message]))
+        # raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename))
         sys.exit(0)

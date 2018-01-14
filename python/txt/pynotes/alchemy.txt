@@ -61,7 +61,7 @@
 #                     print 'adding %s to MariaDB...' % (artist)
 #                     thread.start_new_thread( sql.insert_values, ( 'artist', ['name'], [artist], ) )
 #                 except Exception, err:
-#                    ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+#                    ERR.error(': '.join([err.__class__.__name__, err.message]))
 
 #             # sql.insert_values('artist', ['name'], [artist])
 #             #     rows = sql.retrieve_values('artist', ['name', 'id'], [artist])
@@ -75,7 +75,7 @@
 #             #         sql.insert_values('album', ['name', 'artist_id'], [album, artistid])
 
 #         except Exception, err:
-#             ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+#             ERR.error(': '.join([err.__class__.__name__, err.message]))
 
 
 

@@ -162,7 +162,7 @@ class ElasticSearchMatcher(MediaMatcher):
             # try:
             #     thread.start_new_thread(scratch.ensure, (self.document_type, match['_id'], match['_source']['absolute_path'],))
             # except Exception, err:
-            #     ERR.error(err.message, exc_info=True)
+            #     ERR.error(err.message)
 
             # if config.matcher_debug: self.print_match_query_debug_footer(media, query, match)
 

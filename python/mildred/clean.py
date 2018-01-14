@@ -26,7 +26,7 @@ def clear_dupes_from_es(vector):
                     LOG.info('Duplicate documents found for %s' % row[0])
                     library.handle_asset_exception(err, row[0])
                 except Exception, err:
-                    ERR.error(err.message, exc_info=True)
+                    ERR.error(err.message)
         except Exception, err:
-            ERR.error(err.message, exc_info=True)
+            ERR.error(err.message)
 

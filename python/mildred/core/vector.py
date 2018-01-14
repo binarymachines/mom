@@ -498,4 +498,4 @@ class PathVectorScanner(object):
 
             except Exception, err:
                 self.handle_error(err, path)
-                LOG.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                LOG.error(': '.join([err.__class__.__name__, err.message]))

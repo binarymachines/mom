@@ -76,17 +76,17 @@ def do_match_op(esid, absolute_path, matchers):
             try:
                 matcher.match(asset, doc)
             except AssetException, err:
-                ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                ERR.warning(': '.join([err.__class__.__name__, err.message]))
                 library.handle_asset_exception(err, asset.absolute_path)
 
             except UnicodeDecodeError, u:
-                ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
+                ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]))
 
             except UnicodeEncodeError, u:
-                ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]), exc_info=True)
+                ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]))
 
             except Exception, err:
-                ERR.warning(': '.join([err.__class__.__name__, err.message, asset.absolute_path]), exc_info=True)
+                ERR.warning(': '.join([err.__class__.__name__, err.message, asset.absolute_path]))
 
 
 def get_matchers():

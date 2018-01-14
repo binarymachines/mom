@@ -27,37 +27,36 @@ def add_field(doc_format, field_name):
         # get_known_fields(doc_format, refresh=True)
 
     except Exception, err:
-        ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.warning(': '.join([err.__class__.__name__, err.message]))
 
 
 def get_fields(doc_format):
     """get attributes from document_attribute for the specified document_type"""
     keygroup = 'fields'
-    if not cache2.key_exists(keygroup, doc_format):
-        key = cache2.get_key(keygroup, doc_format)
+
+    items = cache2.get_items(keygroup, doc_format)
+    if len(items) == 0 or refresh:
+        cache2.clear_items(keygroup, doc_format)
         rows = sql.retrieve_values2('document_attribute', ['active_flag', 'document_format', 'attribute_name'], ['1', doc_format])
         cache2.add_items(keygroup, doc_format, [row.attribute_name for row in rows])
+        items = cache2.get_items(keygroup, doc_format)
 
-    result = cache2.get_items(keygroup, doc_format)
-    # LOG.debug('get_fields(doc_format=%s) returns: %s' % (doc_format, str(result)))
-    return result
+    # LOG.debug('get_fields(doc_format=%s) returns: %s' % (doc_format, str(items)))
+    return items
 
 
 def get_known_fields(doc_format, refresh=False):
     """retrieve all attributes, including unused ones, from document_attribute for the specified document_type"""
 
-    if not cache2.key_exists(KNOWN, doc_format):
-        refresh = True
-    
-    key = cache2.get_key(KNOWN, doc_format)
-    if refresh:
+    items = cache2.get_items(KNOWN, doc_format)
+    if len(items) == 0 or refresh:
         cache2.clear_items(KNOWN, doc_format)
         rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format])
         cache2.add_items(KNOWN, doc_format, [row.attribute_name for row in rows])
+        items = cache2.get_items(KNOWN, doc_format)
 
-    result = cache2.get_items(KNOWN, doc_format)
-    # LOG.debug('get_known_fields(doc_format=%s) returns: %s' % (doc_format, str(result)))
-    return result
+    # LOG.debug('get_known_fields(doc_format=%s) returns: %s' % (doc_format, str(items)))
+    return items
 
     # rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format])
     # return rows

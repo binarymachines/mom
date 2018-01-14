@@ -44,7 +44,7 @@ class SingleSelectorServiceProcess(ServiceProcess):
             if after is not None:
                 after(self)
         except Exception, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            ERR.error(': '.join([err.__class__.__name__, err.message]))
             if self.restart_on_fail:
                 self.error_count += 1
                 self.initialize()
@@ -133,7 +133,7 @@ class Service(object):
 
             self.handle_processes()
         except Exception, err:
-            ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+            ERR.error(': '.join([err.__class__.__name__, err.message]))
 
 
     def handle_processes(self):

@@ -71,7 +71,7 @@ class Reader:
                 try:
                     ops.mark_operation_invalid(path, const.READ, file_handler.name)
                 except Exception, err:
-                    ERR.error(err.message, exc_info=True)
+                    ERR.error(err.message)
 
     def read(self, path, data, file_handler_name=None, force_read=False):
         file_was_read = False
@@ -87,11 +87,11 @@ class Reader:
                             if file_handler.handle_file(path, data):
                                 file_was_read = True
                         except UnicodeDecodeError, err:
-                            ERR.warning(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+                            ERR.warning(': '.join([err.__class__.__name__, err.message]))
                             print("%s caused a %s:" % (err.object, err.__class__.__name__))
                             print("filename could not be coverted to %s - %s" % (err.encoding, err.reason))
                         except Exception, err:
-                            ERR.error(err.message, exc_info=True)
+                            ERR.error(err.message)
 
 
         return file_was_read

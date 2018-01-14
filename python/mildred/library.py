@@ -105,7 +105,7 @@ def set_active(path):
         else:
             directory.location = get_library_location(path)
             data = directory_attribs(directory)
-            directory.esid = create_asset(data)
+            directory.esid = create_asset_metadata(data)
 
         cache_directory(directory)
 
@@ -159,7 +159,7 @@ def doc_exists_for_path(document_type, path):
         else True
 
 
-def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False):
+def retrieve_asset(absolute_path, esid=None, check_cache=True, check_db=True):
     """return a document instance"""
     
     asset = Document(util.uu_str(absolute_path), esid=esid)
@@ -174,11 +174,11 @@ def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False):
     asset.location = get_library_location(absolute_path)
 
     # check cache for esid
-    if asset.esid is None and check_cache and path_in_cache(absolute_path, asset.document_type):
+    if check_cache and asset.esid is None and path_in_cache(absolute_path, asset.document_type):
         asset.esid = get_cached_esid(asset.document_type, absolute_path)
 
     # check db for esid
-    if asset.esid is None and check_db and path_in_db(absolute_path, asset.document_type):
+    if check_db and asset.esid is None and path_in_db(absolute_path, asset.document_type):
         asset.esid = retrieve_esid(asset.document_type, absolute_path)
 
     return asset
@@ -190,7 +190,7 @@ def index_asset(data):
         return res['_id']
 
 
-def create_asset(data, file_type=None):
+def create_asset_metadata(data, file_type=None):
     try:
         # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
         esid = index_asset(data)
@@ -199,16 +199,10 @@ def create_asset(data, file_type=None):
             SQLAsset.insert(data['document_type'], esid, data['absolute_path'], file_type)
         return esid
     except RequestError, err:
-        ERR.error(err.__class__.__name__, exc_info=True)
-        
-        try:
-            # ERR.error(data['absolute_path'])
-            print ('Error encountered handling %s:' % (data['absolute_path']))
-            pp.pprint(err.args[2])
-        except Exception, err2:
-            ERR.error("LOGGING ERROR %s" % err2.message)
-
-        
+        ERR.error(err.__class__.__name__)
+        print ('Error encountered handling %s:' % (data['absolute_path']))
+        pp.pprint(err.args[2])
+       
         error_string = err.args[2]['error']['reason']
         ATTRIBUTES = 'attributes'
         FAILED_TO_PARSE = 'failed to parse'
@@ -226,7 +220,7 @@ def create_asset(data, file_type=None):
                             props[error_field] = None
                             data[ATTRIBUTES][index] = props
 
-                            return create_asset(data)
+                            return create_asset_metadata(data)
             except Exception, err3:
                 ERR.error("LOGGING ERROR %s" % err3.args[0])
  
@@ -238,13 +232,13 @@ def create_asset(data, file_type=None):
         es_avail = False
         while es_avail is False:
 
-            ERR.error(err.__class__.__name__, exc_info=True)
+            ERR.error(err.__class__.__name__)
             ops.check_status()
             time.sleep(5)
             try:
                 config.es = search.connect()
                 if config.es.indices.exists(config.es_index):
-                    return create_asset(data)
+                    return create_asset_metadata(data)
                     es_avail = True
                     print "resuming..." 
             # except RequestError
@@ -257,7 +251,7 @@ def create_asset(data, file_type=None):
 
     except Exception, err:
         config.es.delete(config.es_index, asset.document_type, asset.esid)
-        ERR.error(': '.join([err.__class__.__name__, err.message]), exc_info=True)
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
         raise err
                 
     return True        
@@ -306,14 +300,14 @@ def update_asset(data):
                 if res['_shards']['successful'] == 1:
                     return res['_id']
             except RequestError, err:
-                ERR.error(err.__class__.__name__, exc_info=True)
+                ERR.error(err.__class__.__name__)
                 print 'RequestError encountered handling %s:' % (data['absolute_path'])
                 pp.pprint(err.args[2])
                 # raise Exception(err)
             except Exception, err:
                 raise Exception(err)
         else:
-            return create_asset(data)  
+            return create_asset_metadata(data)  
     except ElasticDataIntegrityException, err:
         handle_asset_exception(err, data['absolute_path'])
         update_asset(data)
@@ -437,6 +431,6 @@ def handle_asset_exception(error, path):
 #             LOG.info('Duplicate documents found for %s' % doc.absolute_path)
 #             handle_asset_exception(err, doc.absolute_path)
 #         except Exception, err:
-#             ERR.error(err.message, exc_info=True)
+#             ERR.error(err.message)
 
 #     sys.exit('backup complete')
