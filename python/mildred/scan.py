@@ -28,6 +28,7 @@ from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
 from alchemy import SQLFileType
+from ops import ops_func
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
@@ -70,6 +71,7 @@ class Scanner(Walker):
         except Exception, err:
             ERR.warning(err.message)
 
+    @ops_func
     def process_file(self, path):
         directory = library.get_cached_directory()
         try:           
@@ -111,13 +113,13 @@ class Scanner(Walker):
         library.set_active(None)
 
 
-    #TODO: parrot behavior for IOError as seen in read.py 
+    #TODO: parrot behavior for IOError as seen in read.py
+    @ops_func
     def before_handle_root(self, root):
         # MAX_RETRIES = 10
         # attempts = 1s
-        # LOG.debug('Considering %s...' % root)
-        ops.check_status()
-
+        LOG.info('Considering %s...' % root)
+ 
         if ops.operation_in_cache(root, SCAN, SCANNER) or self.scan_should_skip(root): #and not self.deep_scan:
             LOG.debug('skipping %s' % root)
             ops.update_listeners('skipping scan', SCANNER, root)
@@ -148,8 +150,8 @@ class Scanner(Walker):
             
 
     #TODO: parrot behavior for IOError as seen in read.py 
+    @ops_func
     def handle_root(self, root):
-        ops.check_status()
         directory = library.get_cached_directory()
         if len(directory) == 0:
             return 
@@ -159,7 +161,6 @@ class Scanner(Walker):
         ops.record_op_begin(directory['absolute_path'], SCAN, SCANNER, directory['esid'])
             
         for filename in os.listdir(root):
-            ops.check_status()
             path = os.path.join(root, filename)
             if (os.path.isfile(path)):
                 self.process_file(path)
@@ -198,6 +199,7 @@ class Scanner(Walker):
         return expanded
 
 
+    @ops_func
     def _pre_scan(self, path):
         self.vector.set_param(PERSIST, ACTIVE, path)
 
@@ -217,6 +219,7 @@ class Scanner(Walker):
         # if self.deep_scan == False:
 
 
+    @ops_func
     def _post_scan(self, path, update_ops):
 
         ops.write_ops_data(path, SCAN)
@@ -246,6 +249,7 @@ class Scanner(Walker):
 
         # TODO: individual paths in the directory vector should have their own scan configuration
 
+    @ops_func
     def scan(self):
 
         self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
@@ -256,9 +260,7 @@ class Scanner(Walker):
         path_restored = path is not None and path != 'None'
         last_expanded_path = None
 
-        while self.vector.has_next(SCAN, use_fifo=True):
-            ops.check_status()            
-            
+        while self.vector.has_next(SCAN, use_fifo=True):           
             path = path if path_restored else self.vector.get_next(SCAN, True) 
             path_restored = False
             self.vector.set_param(PERSIST, ACTIVE, path)
@@ -291,6 +293,7 @@ class Scanner(Walker):
                 if self.scan_should_skip(path): 
                     continue
 
+                print('scanning %s' % path)
                 ops.update_listeners('scanning', SCANNER, path)
                 
                 try:

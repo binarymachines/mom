@@ -20,6 +20,7 @@ from const import DIRECTORY, MATCH
 from core import cache2, log, util
 from errors import AssetException, ElasticDataIntegrityException
 import pprint
+from ops import ops_func
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
@@ -69,6 +70,7 @@ def directory_attribs(directory):
 
     return data
 
+@ops_func
 def cache_directory(directory):
     clear_directory_cache()
 
@@ -94,7 +96,7 @@ def pattern_in_path(pattern, path):
 
     return False
 
-
+@ops_func
 def set_active(path):
     directory = None if path is None else Directory(util.uu_str(path))
 
@@ -113,8 +115,10 @@ def set_active(path):
 
 # document cache
 
+@ops_func
 def cache_docs(document_type, path, flush=True):
-    if flush: clear_docs(document_type, os.path.sep)
+    if flush: 
+        clear_docs(document_type, os.path.sep)
     ops.update_listeners('retrieving documents', 'library', path)
     LOG.debug('retrieving %s records for %s...' % (document_type, path))
     rows = SQLAsset.retrieve(document_type, path)
@@ -123,12 +127,15 @@ def cache_docs(document_type, path, flush=True):
     cached_count = 0
 
     for sql_asset in rows:
-        # ops.check_status()
-        ops.update_listeners('caching %i %s records...' % (count - cached_count, document_type), 'library', path)
-        key = cache2.create_key(KEY_GROUP, sql_asset.document_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
-        keyvalue = {'absolute_path': sql_asset.absolute_path, 'esid': sql_asset.id}
-        cache2.set_hash2(key, keyvalue)
+        ops.update_listeners('caching %i of %i %s records...' % (count, cached_count, sql_asset.document_type), 'library', sql_asset.absolute_path)
+        cache_sql_asset(sql_asset)
         cached_count += 1
+
+@ops_func
+def cache_sql_asset(sql_asset):
+    key = cache2.create_key(KEY_GROUP, sql_asset.document_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
+    keyvalue = {'absolute_path': sql_asset.absolute_path, 'esid': sql_asset.id}
+    cache2.set_hash2(key, keyvalue)
 
 
 def clear_docs(document_type, path):
@@ -190,7 +197,6 @@ def index_asset(data):
     if res['_shards']['successful'] == 1:
         return res['_id']
 
-
 def create_asset_metadata(data, file_type=None):
     try:
         # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
@@ -228,23 +234,7 @@ def create_asset_metadata(data, file_type=None):
         raise Exception(err, err.message)
 
     except ConnectionError, err:
-        # TODO: if ES doesn't become available after alloted time or number of retries, INVALIDATE ALL READ OPERATIONS FOR THIS ASSET
-        print "Elasticsearch connectivity error, retrying in 5 seconds..." 
-        es_avail = False
-        while es_avail is False:
-
-            ERR.error(err.__class__.__name__)
-            ops.check_status()
-            time.sleep(5)
-            try:
-                config.es = search.connect()
-                if config.es.indices.exists(config.es_index):
-                    es_avail = True
-                    print "resuming..." 
-                    return create_asset_metadata(data)
-            # except RequestError
-            except ConnectionError, err:
-                print "Elasticsearch connectivity error, retrying in 5 seconds..."
+        return wait_and_resubmit_asset(err, data)
 
     except AssetException, err:
         handle_asset_exception(err, data['absolute_path'])
@@ -257,6 +247,27 @@ def create_asset_metadata(data, file_type=None):
                 
     return True        
 
+@ops_func
+def wait_and_resubmit_asset(err, data):
+    # TODO: if ES doesn't become available after alloted time or number of retries, INVALIDATE ALL READ OPERATIONS FOR THIS ASSET
+    print "Elasticsearch connectivity error, retrying in 5 seconds..." 
+    es_avail = False
+    while es_avail is False:
+        ERR.error(err.__class__.__name__)
+        time.sleep(5)
+        return resubmit_asset(data)
+    
+@ops_func
+def resubmit_asset(data):
+    try:
+        config.es = search.connect()
+        if config.es.indices.exists(config.es_index):
+            es_avail = True
+            print "resuming..." 
+            return create_asset_metadata(data)
+    # except RequestError
+    except ConnectionError, err:
+        print("Elasticsearch connectivity error, retrying in 5 seconds...")
 
 def retrieve_esid(document_type, absolute_path):
     cached = get_cached_esid(document_type, absolute_path)
@@ -316,16 +327,20 @@ def update_asset(data):
 
 # matched files
 
+@ops_func
 def cache_matches(path):
     LOG.debug('caching matches for %s...' % path)
     rows = sql.run_query_template(CACHE_MATCHES, path, path)
     for row in rows:
-        ops.check_status()
-        doc_id = row[0]
-        match_doc_id = row[1]
-        matcher_name = row[2]
-        key = cache2.get_key(MATCH, matcher_name, doc_id)
-        cache2.add_item2(key, match_doc_id)
+        cache_match(row)
+
+@ops_func
+def cache_match(row):
+    doc_id = row[0]
+    match_doc_id = row[1]
+    matcher_name = row[2]
+    key = cache2.get_key(MATCH, matcher_name, doc_id)
+    cache2.add_item2(key, match_doc_id)
 
 
 def get_matches(matcher_name, esid):
@@ -420,7 +435,6 @@ def handle_asset_exception(error, path):
 #     docs = sql.retrieve_values2('document', ['id', 'document_type', 'absolute_path'], []) 
 #     count = len(docs)
 #     for doc in docs:
-#         ops.check_status()
 #         try:
 #             es_doc = search.get_doc(doc.document_type, doc.id)
 #             if search.backup_exists(es_doc):

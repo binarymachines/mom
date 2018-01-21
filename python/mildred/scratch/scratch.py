@@ -38,7 +38,6 @@ import sys, os
 #     keys = []
 #     esids = []
 #     for key in config.redis.scan_iter(search):
-#         ops.check_status()
 #         values = config.redis.hgetall(key)
 #         keys.append(key)
 #         if 'absolute_path' in values:

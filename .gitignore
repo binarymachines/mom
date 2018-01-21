@@ -9,3 +9,8 @@ python/pid
 pip-selfcheck.json
 *.class
 *.log
+python/jsondocs/*
+tags
+.gitignore
+.vscode/settings.json
+tags

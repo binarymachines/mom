@@ -26,8 +26,9 @@
                 // "--clearmem"
                 // // "--exit"
                 // "--reset"
-                "--map-paths"
-                , "/media/codex/Media/audio/music/incoming"
+                // "--map-paths"
+                // , "/media/codex/Media/audio/music"
+                "--clearmem"
                 // , "--exit"
 
                 // "--nomatch"

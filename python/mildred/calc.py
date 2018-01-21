@@ -95,7 +95,7 @@ def main(args):
     # sql.execute_query("commit");
 
     config.es = search.connect()
-    cache2.redis = redis.Redis('localhost')
+    cache2.datastore = redis.Redis('localhost')
     log.start_logging()
     paths = None if not args['--path'] else args['<path>']
     vector = PathVector('_path_vector_', paths)

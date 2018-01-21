@@ -34,8 +34,8 @@ def execute(args):
         try:
             # TODO: connect to an explicit redis database. Check for execution record. Change database if required.
             LOG.debug('connecting to Redis...')
-            cache2.rediskey = redis.Redis(config.redis_host, db=0)
-            cache2.redis = redis.Redis(config.redis_host, db=1)
+            cache2.keystore = redis.Redis(config.redis_host, db=0)
+            cache2.datastore = redis.Redis(config.redis_host, db=1)
 
         except Exception, err:
             config.started = False
@@ -130,7 +130,7 @@ def reset():
 
     # response = raw_input("All data will be deleted, are you sure? (yes, no): ")
     # if response.lower() == 'yes':
-    cache2.redis.flushall()
+    cache2.datastore.flushall()
 
     try:
         search.clear_index(config.es_index)
@@ -178,7 +178,8 @@ def write_pid_file():
 def display_status():
     print """Process ID: %s""" % config.pid
     print 'Redis host: %s' % config.redis_host
-    print 'Redis dbsize: %i' % cache2.redis.dbsize()
+    print 'Redis keystore dbsize: %i' % cache2.keystore.dbsize()
+    print 'Redis datastore dbsize: %i' % cache2.datastore.dbsize()
     print """Elasticsearch host: %s""" % config.es_host
     print """Elasticsearch port: %i""" % config.es_port
     print """Elasticsearch index: %s""" % config.es_index

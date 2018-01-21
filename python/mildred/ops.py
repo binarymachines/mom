@@ -25,6 +25,20 @@ EXEC_RECORD = {'id': None, 'pid': str(config.pid), 'index_name': config.es_index
     'effective_dt': datetime.datetime.now(), 'expiration_dt': None, 'halt_requested':False, \
     'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False}
 
+def ops_func(function):
+    def wrapper(*args, **kwargs):
+        try:
+            func_info = 'calling %s' % (function.func_name)
+            LOG.debug(func_info)
+            check_status()
+            return function(*args, **kwargs)
+        except RuntimeWarning, warn:
+            ERR.warning(': '.join([warn.__class__.__name__, warn.message]))
+        except Exception, err:
+            ERR.error(': '.join([err.__class__.__name__, err.message]))
+            raise err
+    return wrapper
+
 def create_op_key(path, operation, operator):
     return cache2.create_key(OPS, config.pid, operation, operator, path)
 
@@ -33,6 +47,7 @@ def get_op_key(path, operation, operator):
     return cache2.get_key(OPS, config.pid, operation, operator, path)
 
 
+@ops_func
 def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status=None):
     if operator is None:
         LOG.debug('%s retrieving %s operations (%s)...' % (OPS, operation, op_status))
@@ -69,7 +84,7 @@ def flush_cache(resuming=False):
     write_ops_data(os.path.sep, resuming=resuming)
     if resuming is False:
         LOG.info('flushing redis database')
-        core.cache2.redis.flushdb()
+        core.cache2.datastore.flushdb()
 
 
 def mark_operation_invalid(path, operation, operator):
@@ -218,7 +233,8 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
                 skip = True
                 break
 
-        if skip or record['persisted'] == 'True' or record['status'] == 'INVALID': continue
+        if skip or record['persisted'] == 'True' or record['status'] == 'INVALID': 
+            continue
 
         if record['end_time'] == 'None':
             record['status'] = 'INCOMPLETE' if resuming is False else 'INTERRUPTED'
@@ -310,7 +326,8 @@ def check_status(opcount=None):
         ERR.error('NO PID!!!')
         sys.exit(1)
         
-    if opcount is not None and opcount % config.status_check_freq!= 0: return
+    if opcount is not None and opcount % config.status_check_freq != 0: 
+        return
 
     # update_listeners(OPS, get_exec_key(), 'checking status')
 
@@ -343,6 +360,7 @@ def check_status(opcount=None):
 
         sys.exit(0)
 
+@ops_func
 def evaluate(no_pid=False):
     exec_rec = get_exec_record(no_pid=no_pid)
 
@@ -353,8 +371,6 @@ def evaluate(no_pid=False):
     commands = get_exec_record_value('commands')
     if commands is not None and len(commands) > 0:
         eval_commands()
-
-    check_status()
 
 
 def eval_commands():
@@ -416,6 +432,6 @@ def update_listeners(operation, operator, target):
     # name = 'OPS'
     # channel = 'OPS'
     # message = '%s*%s*%s' % (operation, operator, target)
-    cache2.redis.publish('operation', operation)
-    cache2.redis.publish('operator', operator)
-    cache2.redis.publish('target', target)
+    cache2.datastore.publish('operation', operation)
+    cache2.datastore.publish('operator', operator)
+    cache2.datastore.publish('target', target)

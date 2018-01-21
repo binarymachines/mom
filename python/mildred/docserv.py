@@ -28,6 +28,8 @@ from core.serv import SingleSelectorServiceProcess
 from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
 from core import introspection
 
+from ops import ops_func
+
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 
@@ -218,23 +220,21 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     # generic rule callbacks
 
+    @ops_func
     def after(self):
         mode = self.selector.active
         LOG.debug("%s after '%s'" % (self.name, mode.name))
-        ops.check_status()
-
-
+    
+    @ops_func
     def before(self):
-        ops.check_status()
         mode = self.selector.next
         LOG.debug("%s before '%s'" % (self.name, mode.name))
         if mode.active_rule is not None:
             LOG.debug("%s: %s follows '%s', because of '%s'" % \
                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
-
+    @ops_func
     def mode_is_available(self, selector, active, possible):
-        ops.check_status()
         initial_and_update_scan_complete = self.owner.scanmode.in_state(self.owner.scanmode.get_state(SCAN_MONITOR))
 
         if initial_and_update_scan_complete:
@@ -411,6 +411,7 @@ class ScanModeHandler(DefaultModeHandler):
         super(ScanModeHandler, self).__init__(owner, vector)
         self.scan_complete = False
 
+    @ops_func
     def before_scan(self):
         if self.owner.scanmode.just_restored():
             self.owner.scanmode.set_restored(False)
@@ -422,7 +423,7 @@ class ScanModeHandler(DefaultModeHandler):
             value = str(params[key])
             print '[%s = %s parameter found in vector]' % (key.replace('.', ' '), value)
 
-
+    @ops_func
     def after_scan(self):
         self.scan_complete = self.owner.scanmode.get_state() is self.owner.scanmode.get_state(SCAN_MONITOR)
         self.owner.scanmode.expire_state()
@@ -430,9 +431,8 @@ class ScanModeHandler(DefaultModeHandler):
         self.vector.set_param('scan.persist', 'active.scan.path', None)
         self.owner.scanmode.go_next(self.vector)
 
-
+    @ops_func
     def can_scan(self, selector, active, possible):
-        ops.check_status()
         return True
         # if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.vector):
         #     return self.scan_complete == False and config.scan
@@ -444,16 +444,21 @@ class ScanModeHandler(DefaultModeHandler):
             return startpath
 
 
+    @ops_func
     def do_scan_discover(self):
         startpath = self.path_to_map()
         if startpath:
-            print("discover scan starting...")
+            print("discover scan starting in %s..." % startpath)
             paths = disc.discover(startpath)
             if paths is None or len(paths) == 0:
                 print('No media folders were found in discovery scan.')
             else:
                 self.vector.paths.extend(paths)
+                self.vector.clear_param('all', 'map-paths')
+                self.vector.clear_param('all', 'start-path')
+            
 
+    @ops_func
     def do_scan_monitor(self):
         if self.path_to_map():
             self.do_scan_discover()
@@ -462,6 +467,7 @@ class ScanModeHandler(DefaultModeHandler):
         scan.scan(self.vector)
 
 
+    @ops_func
     def do_scan(self):
         if self.path_to_map():
             self.do_scan_discover()

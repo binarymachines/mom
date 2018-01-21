@@ -256,6 +256,21 @@ class CachedPathVector(PathVector):
             cache2.rpush(key, value)
 
     # Params
+    #TODO: rewrite this function using HDEL somewhere in Cache2
+    def clear_param(self, consumer, param, transient=False):
+        if transient:
+            pass
+            #TODO: fill in the blank
+        else:
+            consumer_key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
+            values = cache2.get_hash2(consumer_key)
+            new_values = {}
+            for key in values:
+                if key is not param:
+                    new_values[key] =values[key]
+
+            cache2.set_hash2(consumer_key, new_values)            
+
 
     def clear_params(self, consumer, transient=False):
         if transient:

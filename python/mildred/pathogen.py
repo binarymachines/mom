@@ -17,6 +17,7 @@ from const import MAX_DATA_LENGTH
 from core import log, util
 from core.errors import BaseClassException
 
+from ops import ops_func
 
 LOG = log.get_safe_log(__name__, logging.INFO)
 ERR = log.get_safe_log('errors', logging.WARNING)
@@ -28,6 +29,7 @@ class Pathogen(FileHandler):
         self.tags = {}
         
     #TODO: decorate this method with error handling that will deal properly with trapping UnicodeDecodeError 
+    @ops_func
     def handle_file(self, path, data):
         # LOG.info("%s reading file: %s" % (self.name, path))
         read_failed = False
@@ -83,7 +85,6 @@ class Pathogen(FileHandler):
                 fs_avail = False
                 while fs_avail is False:
                     #TODO: add a timeout to recovery attempts
-                    ops.check_status()
                     print "file system offline, retrying in 5 seconds..." 
                     time.sleep(5)
                     fs_avail = os.access(path, os.R_OK) 

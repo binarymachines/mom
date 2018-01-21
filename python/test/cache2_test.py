@@ -1,7 +1,7 @@
 import redis
 import unittest
 
-from mildred.core import cache2
+from core import cache2
 
 KEYGROUP = 'tests-suite'
 
@@ -10,10 +10,11 @@ KEYGROUP = 'tests-suite'
 class TestCache2(unittest.TestCase):
     """Redis must be running for these tests to run"""
     def setUp(self):
-        cache2.rediskey = redis.Redis('localhost', db=0)
-        cache2.rediskey.flushall()
-        cache2.redis = redis.Redis('localhost', db=1)
-        cache2.redis.flushall()
+        cache2.keystore = redis.Redis('localhost', db=3)
+        cache2.datastore = redis.Redis('localhost', db=4)
+
+        cache2.keystore.flushdb()
+        cache2.datastore.flushdb()
         self.identifiers = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
         self.identifier = cache2.DELIM.join([KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'])
         self.test_vals = ['a', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog']
@@ -28,23 +29,23 @@ class TestCache2(unittest.TestCase):
         key = cache2.create_key(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', value='tests')
         self.assertEquals(key, self.identifier, 'error in key name')
 
-        testkey = cache2.redis.keys(self.identifier)
+        testkey = cache2.datastore.keys(self.identifier)
         self.assertTrue(testkey  == [self.identifier], 'no key returned for "%s"' % self.identifier)
 
     def test_create_key_no_values(self):
         key = cache2.create_key(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i')
         self.assertEquals(key, self.identifier, 'error in key name')
 
-        testkey = cache2.rediskey.keys(self.identifier)
+        testkey = cache2.keystore.keys(self.identifier)
         self.assertTrue(testkey  == [self.identifier], 'no key returned for "%s"' % self.identifier)
 
     def test_delete_key(self):
         key = cache2.DELIM.join([KEYGROUP, cache2.DELIM.join(self.identifiers)])
 
-        cache2.redis.rpush(key, self.identifiers)
+        cache2.datastore.rpush(key, self.identifiers)
 
         cache2.delete_key(key)
-        testkey = cache2.rediskey.keys(key)
+        testkey = cache2.keystore.keys(key)
         self.assertEquals(testkey, [], 'delete_key fails')
 
     def test_delete_key_group(self):
@@ -61,7 +62,7 @@ class TestCache2(unittest.TestCase):
         keys = []
         for val in self.test_vals:
             key = cache2.DELIM.join([KEYGROUP, val])
-            cache2.rediskey.rpush(key, val)
+            cache2.keystore.rpush(key, val)
             keys.append(key)
 
         # get all of the keys in a group
@@ -77,7 +78,7 @@ class TestCache2(unittest.TestCase):
         # get keys using *params
         for val in self.test_vals:
             key = cache2.DELIM.join([KEYGROUP, 'multi-args', val])
-            cache2.rediskey.rpush(key, val)
+            cache2.keystore.rpush(key, val)
             testkeys = cache2.get_keys(KEYGROUP, 'multi-args', val)
             self.assertEquals(testkeys, [key], 'get_keys: keygroup + *identifier retrieval fails')
 
@@ -100,7 +101,7 @@ class TestCache2(unittest.TestCase):
             cache2.add_item(KEYGROUP, keyname, item)
 
         listkey = cache2.DELIM.join([cache2.LIST, KEYGROUP, keyname])
-        items = cache2.redis.smembers(listkey)
+        items = cache2.datastore.smembers(listkey)
         self.assertItemsEqual(items, self.identifiers, 'add_item fails')
 
 
@@ -111,7 +112,7 @@ class TestCache2(unittest.TestCase):
             cache2.add_item2(key, item)
 
         listkey = cache2.DELIM.join([cache2.LIST, key])
-        items = cache2.redis.smembers(listkey)
+        items = cache2.datastore.smembers(listkey)
         self.assertItemsEqual(items, self.identifiers, 'add_item2 fails')
 
 
@@ -119,11 +120,11 @@ class TestCache2(unittest.TestCase):
         keyname = 'clear_items'
         listkey = cache2.DELIM.join([cache2.LIST, KEYGROUP, keyname])
         for item in self.test_vals:
-            cache2.redis.sadd(listkey, item)
+            cache2.datastore.sadd(listkey, item)
 
         cache2.clear_items(KEYGROUP, keyname)
 
-        items = cache2.redis.smembers(listkey)
+        items = cache2.datastore.smembers(listkey)
         self.assertItemsEqual(items, [], 'clear_items fails')
 
 
@@ -134,7 +135,7 @@ class TestCache2(unittest.TestCase):
         cache2.clear_items2(key)
 
         listkey = cache2.DELIM.join([cache2.LIST, key])
-        items = cache2.redis.smembers(listkey)
+        items = cache2.datastore.smembers(listkey)
         self.assertItemsEqual(items, [], 'clear_items2 fails')
 
 
@@ -142,7 +143,7 @@ class TestCache2(unittest.TestCase):
         keyname = 'get_items'
         listkey = cache2.DELIM.join([cache2.LIST, KEYGROUP, keyname])
         for item in self.test_vals:
-            cache2.redis.sadd(listkey, item)
+            cache2.datastore.sadd(listkey, item)
 
         items = cache2.get_items(KEYGROUP, keyname)
         self.assertItemsEqual(items, self.test_vals, 'get_items fails')
@@ -154,7 +155,7 @@ class TestCache2(unittest.TestCase):
     #     listkey = cache2.DELIM.join([cache2.LIST, key])
     #
     #     for item in self.test_vals:
-    #         cache2.redis.sadd(listkey, item)
+    #         cache2.datastore.sadd(listkey, item)
     #
     #
     #     items = cache2.get_items2(listkey)
@@ -171,10 +172,10 @@ class TestCache2(unittest.TestCase):
         self.assertEquals(pa, 'a')
         self.assertEquals(pd, 'd')
 
-        a = cache2.redis.rpop(KEYGROUP)
-        b = cache2.redis.rpop(KEYGROUP)
-        c = cache2.redis.rpop(KEYGROUP)
-        d = cache2.redis.rpop(KEYGROUP)
+        a = cache2.datastore.rpop(KEYGROUP)
+        b = cache2.datastore.rpop(KEYGROUP)
+        c = cache2.datastore.rpop(KEYGROUP)
+        d = cache2.datastore.rpop(KEYGROUP)
 
         self.assertEquals(a, 'a')
         self.assertEquals(b, 'b')
@@ -190,10 +191,10 @@ class TestCache2(unittest.TestCase):
         self.assertEquals(pa, 'a')
         self.assertEquals(pd, 'd')
 
-        a = cache2.redis.lpop(KEYGROUP)
-        b = cache2.redis.lpop(KEYGROUP)
-        c = cache2.redis.lpop(KEYGROUP)
-        d = cache2.redis.lpop(KEYGROUP)
+        a = cache2.datastore.lpop(KEYGROUP)
+        b = cache2.datastore.lpop(KEYGROUP)
+        c = cache2.datastore.lpop(KEYGROUP)
+        d = cache2.datastore.lpop(KEYGROUP)
 
         self.assertEquals(a, 'a')
         self.assertEquals(b, 'b')
@@ -207,11 +208,11 @@ class TestCache2(unittest.TestCase):
         hash = {'operation': 'scan', 'operator': 'id3v2'}
         hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
 
-        cache2.redis.hmset(hashkey, hash)
+        cache2.datastore.hmset(hashkey, hash)
 
         cache2.delete_hash(KEYGROUP, keyname)
 
-        testhash = cache2.redis.hgetall(hashkey)
+        testhash = cache2.datastore.hgetall(hashkey)
         self.assertDictEqual(testhash, {}, 'delete_hash fails')
 
 
@@ -220,7 +221,7 @@ class TestCache2(unittest.TestCase):
         hash = {'operation': 'scan', 'operator': 'id3v2'}
         hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
 
-        cache2.redis.hmset(hashkey, hash)
+        cache2.datastore.hmset(hashkey, hash)
 
         testhash = cache2.get_hash(KEYGROUP, keyname)
         self.assertDictEqual(hash, testhash, 'get_hash fails')
@@ -236,8 +237,8 @@ class TestCache2(unittest.TestCase):
         hashkey1 = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
         hashkey2 = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname + '2'])
 
-        cache2.redis.hmset(hashkey1, hashes[0])
-        cache2.redis.hmset(hashkey2, hashes[1])
+        cache2.datastore.hmset(hashkey1, hashes[0])
+        cache2.datastore.hmset(hashkey2, hashes[1])
 
         # get all hashes in keygroup
         testhashes = cache2.get_hashes(KEYGROUP)
@@ -257,7 +258,7 @@ class TestCache2(unittest.TestCase):
         cache2.set_hash(KEYGROUP, keyname, hash)
 
         hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
-        testhash = cache2.redis.hgetall(hashkey)
+        testhash = cache2.datastore.hgetall(hashkey)
         self.assertDictEqual(hash, testhash)
 
     # def test_set_hash2(self):
@@ -267,7 +268,7 @@ class TestCache2(unittest.TestCase):
     #     cache2.set_hash2(keyname, hash)
 
     #     hashkey = cache2.DELIM.join([KEYGROUP, cache2.HASH, keyname])
-    #     testhash = cache2.redis.hgetall(hashkey)
+    #     testhash = cache2.datastore.hgetall(hashkey)
     #     self.assertDictEqual(hash, testhash)
 
     # Lists of hashsets

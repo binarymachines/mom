@@ -224,7 +224,7 @@ IsInArtistAlbum	../python/mildred/scratch/dirwalk.py	/^class IsInArtistAlbum(Dir
 IsInGenrePath	../python/mildred/scratch/dirwalk.py	/^class IsInGenrePath(DirectoryHandler):$/;"	kind:class	line:82
 IsInMediaTypePath	../python/mildred/scratch/dirwalk.py	/^class IsInMediaTypePath(DirectoryHandler):$/;"	kind:class	line:79
 JinjaTemplateManager	../python/mildred/snap/common.py	/^class JinjaTemplateManager:$/;"	kind:class	line:74
-KEYGROUP	../python/mildred/scratch/cache3_test.py	/^KEYGROUP = cache3.DELIM.join([config.pid, 'tests-suite'])$/;"	kind:variable	line:8
+KEYGROUP	../python/mildred/scratch/cache3_test.py	/^KEYGROUP = cache3.DELIM.join([os.getpid(), 'tests-suite'])$/;"	kind:variable	line:8
 KEYGROUP	../python/test/cache2_test.py	/^KEYGROUP = 'tests-suite'$/;"	kind:variable	line:6
 KEY_GROUP	../python/mildred/library.py	/^KEY_GROUP = 'library'$/;"	kind:variable	line:26
 KNOWN	../python/mildred/const.py	/^KNOWN = 'known_fields'$/;"	kind:variable	line:33
@@ -475,7 +475,7 @@ SQLConnectError	../python/mildred/errors.py	/^class SQLConnectError(SQLError):$/
 SQLError	../python/mildred/errors.py	/^class SQLError(MildredException):$/;"	kind:class	line:38
 SQLExecutionRecord	../python/mildred/alchemy.py	/^class SQLExecutionRecord(ExecRec):$/;"	kind:class	line:199
 SQLFileHandler	../python/mildred/alchemy.py	/^class SQLFileHandler(FileHandler):$/;"	kind:class	line:241
-SQLFileHandlerType	../python/mildred/alchemy.py	/^class SQLFileHandlerType(FileHandlerType): $/;"	kind:class	line:263
+SQLFileHandlerRegistration	../python/mildred/alchemy.py	/^class SQLFileHandlerRegistration(FileHandlerType): $/;"	kind:class	line:263
 SQLIntegrityError	../python/mildred/errors.py	/^class SQLIntegrityError(SQLError):$/;"	kind:class	line:44
 SQLMatch	../python/mildred/alchemy.py	/^class SQLMatch(Matched):$/;"	kind:class	line:302
 SQLMatcher	../python/mildred/alchemy.py	/^class SQLMatcher(Matcher):$/;"	kind:class	line:271
@@ -891,7 +891,7 @@ __tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__
 __tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__ = 'exec_rec'$/;"	kind:variable	line:134
 __tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__ = 'file_format'$/;"	kind:variable	line:147
 __tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__ = 'file_handler'$/;"	kind:variable	line:159
-__tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__ = 'file_handler_type'$/;"	kind:variable	line:169
+__tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__ = 'file_handler_registration'$/;"	kind:variable	line:169
 __tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__ = 'file_type'$/;"	kind:variable	line:180
 __tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__ = 'matched'$/;"	kind:variable	line:187
 __tablename__	../python/mildred/db/generated/sqla_mildred.py	/^    __tablename__ = 'matcher'$/;"	kind:variable	line:204
@@ -1032,7 +1032,7 @@ _showwarning	../python/mildred/third/PyPDF2/pdf.py	/^            def _showwarnin
 _string_to_bytearr	../python/mildred/third/PyPDF2-1.26.0/PyPDF2/filters.py	/^    def _string_to_bytearr(buf):$/;"	kind:function	line:60
 _string_to_bytearr	../python/mildred/third/PyPDF2/filters.py	/^    def _string_to_bytearr(buf):$/;"	kind:function	line:60
 _sub_execute	../python/mildred/core/modes.py	/^    def _sub_execute(self):$/;"	kind:member	line:399
-_sub_index_asset	../python/mildred/library.py	/^def _sub_index_asset(asset, data):$/;"	kind:function	line:192
+_sub_create_asset	../python/mildred/library.py	/^def _sub_create_asset(asset, data):$/;"	kind:function	line:192
 _sweepIndirectReferences	../python/mildred/third/PyPDF2-1.26.0/PyPDF2/pdf.py	/^    def _sweepIndirectReferences(self, externMap, data):$/;"	kind:member	line:541
 _sweepIndirectReferences	../python/mildred/third/PyPDF2/pdf.py	/^    def _sweepIndirectReferences(self, externMap, data):$/;"	kind:member	line:541
 _test_converter_date	../python/mildred/third/PyPDF2-1.26.0/PyPDF2/xmp.py	/^    _test_converter_date = staticmethod(_converter_date)$/;"	kind:variable	line:118
@@ -1843,7 +1843,7 @@ get_discounts	../python/mildred/report.py	/^def get_discounts():$/;"	kind:functi
 get_doc	../python/mildred/search.py	/^def get_doc(document_type, esid):$/;"	kind:function	line:124
 get_doc_id	../python/mildred/search.py	/^def get_doc_id(document_type, attribute, value):$/;"	kind:function	line:132
 get_doc_keys	../python/mildred/library.py	/^def get_doc_keys(document_type):$/;"	kind:function	line:148
-get_document_asset	../python/mildred/library.py	/^def get_document_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):$/;"	kind:function	line:163
+retrieve_asset	../python/mildred/library.py	/^def retrieve_asset(absolute_path, esid=None, check_cache=False, check_db=False, attach_doc=False, fail_on_fs_missing=False):$/;"	kind:function	line:163
 get_document_category_names	../python/mildred/pathutil.py	/^def get_document_category_names():$/;"	kind:function	line:52
 get_documents	../python/mildred/report.py	/^def get_documents(path, reverse=False, union=False):$/;"	kind:function	line:287
 get_error_code	../python/mildred/snap/core.py	/^    def get_error_code(self):$/;"	kind:member	line:162
@@ -2050,7 +2050,7 @@ inch	../python/mildred/third/PyPDF2-1.26.0/Sample_Code/makesimple.py	/^inch = 72
 incorrect_name	../python/mildred/db/generated/sqla_media.py	/^    incorrect_name = Column(String(128), nullable=False)$/;"	kind:variable	line:22
 indent	../python/mildred/scratch/gen-test.py	/^def indent():$/;"	kind:function	line:20
 indent	../python/mildred/third/recipe-553262-1.py	/^def indent():$/;"	kind:function	line:20
-index_asset	../python/mildred/library.py	/^def index_asset(asset, data):$/;"	kind:function	line:211
+create_asset	../python/mildred/library.py	/^def create_asset(asset, data):$/;"	kind:function	line:211
 index_name	../python/mildred/db/generated/sqla_action.py	/^    index_name = Column(String(128), nullable=False)$/;"	kind:variable	line:69
 index_name	../python/mildred/db/generated/sqla_introspection.py	/^    index_name = Column(String(128), nullable=False)$/;"	kind:variable	line:42
 index_name	../python/mildred/db/generated/sqla_introspection.py	/^    index_name = Column(String(128), nullable=False, server_default=text("'media'"))$/;"	kind:variable	line:115

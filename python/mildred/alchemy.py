@@ -61,7 +61,7 @@ class SQLAlchemyIntegrityError(SQLIntegrityError):
         super(SQLAlchemyIntegrityError, self).__init__(cause, message)
 
 
-def alchemy_operation(function):
+def alchemy_func(function):
     def wrapper(*args, **kwargs):
         try:
             func_info = 'calling %s ' % (function.func_name)
@@ -94,7 +94,7 @@ def get_session(name):
 class SQLAction(Action):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[ACTION].query(SQLAction):
@@ -109,7 +109,7 @@ class SQLMetaAction(MetaAction):
     # meta_reasons = relationship(u'SQLMetaReason', secondary='action_reason')
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[ACTION].query(MetaAction):
@@ -120,7 +120,7 @@ class SQLMetaAction(MetaAction):
 class SQLMetaReason(MetaReason):
     
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[ACTION].query(MetaReason):
@@ -140,7 +140,7 @@ SQLMetaReason.params = relationship("SQLMetaReasonParam", order_by=SQLMetaReason
 class SQLReason(Reason):
     
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[ACTION].query(SQLReason):
@@ -160,7 +160,7 @@ class SQLDirectory(Directory):
                                 self.index_name, self.name)
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(absolute_path):
         directory = SQLDirectory(index_name=config.es_index, name=absolute_path)
 
@@ -171,7 +171,7 @@ class SQLDirectory(Directory):
             raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
 
         result = ()
@@ -190,7 +190,7 @@ class SQLDirectoryConstant(DirectoryConstant):
                                 self.index_name, self.name)
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(pattern, location_type):
         directory_constant = SQLDirectoryConstant(index_name=config.es_index, pattern=pattern, location_type=location_type)
 
@@ -201,7 +201,7 @@ class SQLDirectoryConstant(DirectoryConstant):
             raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
 
         result = ()
@@ -212,7 +212,7 @@ class SQLDirectoryConstant(DirectoryConstant):
         return result
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_for_pattern(pattern):
 
         result = ()
@@ -224,7 +224,7 @@ class SQLDirectoryConstant(DirectoryConstant):
         return result
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_for_location_type(location_type):
 
         result = ()
@@ -239,7 +239,7 @@ class SQLDirectoryConstant(DirectoryConstant):
 class SQLFileType(FileType):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(name, ext):
         ft = SQLFileType(name=name, ext=ext)
         try:
@@ -250,7 +250,7 @@ class SQLFileType(FileType):
 
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[MILDRED].query(SQLFileType):
@@ -259,7 +259,7 @@ class SQLFileType(FileType):
         return result
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve(ext):
         result = ()
         for instance in sessions[MILDRED].query(SQLFileType). \
@@ -278,7 +278,7 @@ class SQLAsset(Document):
                                 self.index_name, self.document_type, self.absolute_path)
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(document_type, id, absolute_path, file_type):
         if file_type is None and document_type == const.DIRECTORY:
             file_type=SQLFileType.retrieve(None) 
@@ -297,7 +297,7 @@ class SQLAsset(Document):
             raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve(document_type, absolute_path=None, use_like_in_where_clause=False):
         path = '%s%s' % (absolute_path, '%')
 
@@ -332,7 +332,7 @@ class SQLAsset(Document):
 
 class SQLDocumentAttribute(DocumentAttribute):
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[MILDRED].query(SQLDocumentAttribute). \
@@ -343,7 +343,7 @@ class SQLDocumentAttribute(DocumentAttribute):
     
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(document_format, attribute_name):
         attribute = SQLDocumentAttribute(index_name=config.es_index, document_format=document_format, attribute_name=attribute_name) 
         try:
@@ -355,7 +355,7 @@ class SQLDocumentAttribute(DocumentAttribute):
 
 class SQLDocumentCategory(DocumentCategory):
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[MILDRED].query(SQLDocumentCategory). \
@@ -367,7 +367,7 @@ class SQLDocumentCategory(DocumentCategory):
 class SQLExecutionRecord(ExecRec):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(kwargs):
         rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_dt=config.start_time, status=kwargs['status'])
 
@@ -392,7 +392,7 @@ class SQLExecutionRecord(ExecRec):
             return result[0]
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def update(kwargs):
         
         try:
@@ -409,7 +409,7 @@ class SQLExecutionRecord(ExecRec):
 class SQLFileHandler(FileHandler):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_active():
         result = ()
         for instance in sessions[MILDRED].query(SQLFileHandler).\
@@ -419,7 +419,7 @@ class SQLFileHandler(FileHandler):
         return result
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[MILDRED].query(SQLFileHandler):
@@ -438,7 +438,7 @@ SQLFileHandler.registrations = relationship("SQLFileHandlerRegistration", order_
 class SQLMatcher(Matcher):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_active():
         result = ()
         for instance in sessions[MILDRED].query(SQLMatcher).\
@@ -448,7 +448,7 @@ class SQLMatcher(Matcher):
         return result
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[MILDRED].query(SQLMatcher). \
@@ -469,7 +469,7 @@ SQLMatcher.match_fields = relationship("SQLMatcherField", order_by=SQLMatcherFie
 class SQLMatch(MatchRecord):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
         # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
         match_rec = SQLMatch(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
@@ -485,7 +485,7 @@ class SQLMatch(MatchRecord):
 class SQLMode(AlchemyMode):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
@@ -495,7 +495,7 @@ class SQLMode(AlchemyMode):
         return result
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(name):
         mode_rec = SQLMode(name=name, index_name=config.es_index)
         try:
@@ -506,7 +506,7 @@ class SQLMode(AlchemyMode):
             raise SQLAlchemyIntegrityError(err, sessions[INTROSPECTION], message=err.message)
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve(mode):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
@@ -516,7 +516,7 @@ class SQLMode(AlchemyMode):
         return result[0] if len(result) == 1 else None
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_by_name(name):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
@@ -530,7 +530,7 @@ class SQLMode(AlchemyMode):
 class SQLState(AlchemyState):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_all():
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLState).\
@@ -540,7 +540,7 @@ class SQLState(AlchemyState):
         return result
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve(state):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLState). \
@@ -550,7 +550,7 @@ class SQLState(AlchemyState):
         return result[0] if len(result) == 1 else None
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_by_name(name):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLState).\
@@ -569,7 +569,7 @@ class SQLModeState(AlchemyModeState):
     state = relationship(u'SQLState')
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(mode):
         sqlmode = SQLMode.retrieve(mode)
         sqlstate = SQLState.retrieve(mode.get_state())
@@ -586,7 +586,7 @@ class SQLModeState(AlchemyModeState):
 
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_active(mode):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLModeState).\
@@ -597,7 +597,7 @@ class SQLModeState(AlchemyModeState):
         return result[0] if len(result) == 1 else None
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve_previous(mode):
         result = ()
 
@@ -623,7 +623,7 @@ class SQLModeState(AlchemyModeState):
 
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def update(mode, expire=False):
 
         if mode.mode_state_id:
@@ -670,7 +670,7 @@ SQLModeStateDefault.default_params = relationship("SQLModeStateDefaultParam", or
 class SQLOperationRecord(OpRecord):
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
         if end_time is None or end_time == 'None':
@@ -688,7 +688,7 @@ class SQLOperationRecord(OpRecord):
 
 
     @staticmethod
-    @alchemy_operation
+    @alchemy_func
     def retrieve(path, operation, operator=None, apply_lifespan=False, op_status=None):
         # path = '%s%s%s' % (path, os.path.sep, '%') if not path.endswith(os.path.sep) else
         path = '%s%s' % (path, '%')
