@@ -14,8 +14,6 @@ from core import var
 # responding to commands by restarting it
 # an alternative implementation could involve implementing sleep at the selector level
 
-def _connect_to_redis():
-    return redis.Redis('localhost')
 
 
 def _set_field_value(pid, field, value, check_status=False):
@@ -23,9 +21,10 @@ def _set_field_value(pid, field, value, check_status=False):
     import ops
     from core import cache2
 
-    cache2.redis = _connect_to_redis()
-    key =  cache2.get_key(pid, ops.OPS, ops.EXEC)
+    cache2.rediskey = redis.Redis('localhost', db=0)
+    cache2.redis = redis.Redis('localhost', db=1)
 
+    key =  cache2.get_key(pid, ops.OPS, ops.EXEC)
     values = cache2.get_hash2(key)
     values[field] = value
     cache2.set_hash2(key, values)

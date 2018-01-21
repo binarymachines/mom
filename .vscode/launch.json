@@ -25,9 +25,9 @@
             "args": [
                 // "--clearmem"
                 // // "--exit"
-                "--reset"
-                , "--map-paths"
-                , "/media/codex/Media/audio/incoming"
+                // "--reset"
+                "--map-paths"
+                , "/media/codex/Media/audio/music/incoming"
                 // , "--exit"
 
                 // "--nomatch"

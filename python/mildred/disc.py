@@ -27,6 +27,7 @@ from errors import ElasticDataIntegrityException
 from read import Reader
 from walk import Walker
 import sql
+import shallow
 from shallow import get_active_document_formats, get_location_types, add_location, get_locations
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
@@ -46,10 +47,11 @@ class Discover(Walker):
     def handle_root(self, root):
         ops.check_status()
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if pathutil.folder_is_media_root(root, self.formats, self.types):
-                print("adding %s to media paths." % (root))
-                add_location(root)
-                self.folders.append(root)
+            if root not in shallow.get_locations():
+                if pathutil.folder_is_media_root(root, self.formats, self.types):
+                    print("adding %s to media paths." % (root))
+                    add_location(root)
+                    self.folders.append(root)
  
     def handle_root_error(self, err, root):
         library.set_active(None)

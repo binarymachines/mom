@@ -437,25 +437,36 @@ class ScanModeHandler(DefaultModeHandler):
         # if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scanmode.can_go_next(self.vector):
         #     return self.scan_complete == False and config.scan
 
-
-    def do_scan_discover(self):
-        print  "discover scan starting..."
-        # scan.scan(self.vector)
+    def path_to_map(self):
         map_paths = self.vector.get_param('all', 'map-paths')
         if map_paths:
             startpath = self.vector.get_param('all', 'start-path')
-            if startpath:
-                paths = disc.discover(startpath)
-                if paths:
-                    self.vector.paths.extend(paths)
+            return startpath
+
+
+    def do_scan_discover(self):
+        startpath = self.path_to_map()
+        if startpath:
+            print("discover scan starting...")
+            paths = disc.discover(startpath)
+            if paths is None or len(paths) == 0:
+                print('No media folders were found in discovery scan.')
+            else:
+                self.vector.paths.extend(paths)
 
     def do_scan_monitor(self):
-        print  "monitor scan starting..."
+        if self.path_to_map():
+            self.do_scan_discover()
+
+        print("monitor scan starting...")
         scan.scan(self.vector)
 
 
     def do_scan(self):
-        print  "scan starting..."
+        if self.path_to_map():
+            self.do_scan_discover()
+
+        print("scan starting...")
         self.vector.set_param(SCAN, DEEP, False)
         scan.scan(self.vector)
 
