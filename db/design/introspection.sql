@@ -51,53 +51,53 @@ CREATE TABLE `service_dispatch` (
 # service process
 INSERT INTO service_dispatch (name, category, module_name, func_name) VALUES ('create_service_process', 'process', 'docserv', 'create_service_process');
 INSERT INTO service_dispatch (name, category, module_name, class_name) VALUES ('handle_service_process', 'process.handler', 'docserv', 'DocumentServiceProcessHandler');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('service_process_before_switch', 'process.before', 'docserv', 'DocumentServiceProcessHandler', 'before_switch');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('service_process_after_switch', 'process.after', 'docserv', 'DocumentServiceProcessHandler', 'after_switch');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('service_process_before_switch', 'process.before', 'docservmodes', 'DocumentServiceProcessHandler', 'before_switch');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('service_process_after_switch', 'process.after', 'docservmodes', 'DocumentServiceProcessHandler', 'after_switch');
 
 # modes
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup', 'effect', 'docserv', 'StartupHandler', 'start');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup', 'effect', 'docservmodes', 'StartupHandler', 'start');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup.switch.condition', 'CONDITION', 'docserv', 'DocumentServiceProcessHandler', 'definitely');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup.switch.before', 'switch', 'docserv', 'StartupHandler', 'starting');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup.switch.after', 'switch', 'docserv', 'StartupHandler', 'started');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup.switch.before', 'switch', 'docservmodes', 'StartupHandler', 'starting');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('startup.switch.after', 'switch', 'docservmodes', 'StartupHandler', 'started');
 
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('analyze', 'effect', 'docserv', 'AnalyzeModeHandler', 'do_analyze');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('analyze', 'effect', 'docservmodes', 'AnalyzeModeHandler', 'do_analyze');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('analyze.switch.condition', 'CONDITION', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('analyze.switch.before', 'switch', 'docserv', 'AnalyzeModeHandler', 'before_analyze');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('analyze.switch.after', 'switch', 'docserv', 'AnalyzeModeHandler', 'after_analyze');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('analyze.switch.before', 'switch', 'docservmodes', 'AnalyzeModeHandler', 'before_analyze');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('analyze.switch.after', 'switch', 'docservmodes', 'AnalyzeModeHandler', 'after_analyze');
 
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.update.condition', 'CONDITION', 'docserv', 'ScanModeHandler', 'should_update');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor.condition', 'CONDITION', 'docserv', 'ScanModeHandler', 'should_monitor');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.condition', 'CONDITION', 'docserv', 'ScanModeHandler', 'can_scan');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan', 'effect', 'docserv', 'ScanModeHandler', 'do_scan');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.discover', 'ACTION', 'docserv', 'ScanModeHandler', 'do_scan_discover');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.update', 'ACTION', 'docserv', 'ScanModeHandler', 'do_scan');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor', 'ACTION', 'docserv', 'ScanModeHandler', 'do_scan_monitor');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.before', 'switch', 'docserv', 'ScanModeHandler', 'before_scan');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.after', 'switch', 'docserv', 'ScanModeHandler', 'after_scan');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.update.condition', 'CONDITION', 'docservmodes', 'ScanModeHandler', 'should_update');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor.condition', 'CONDITION', 'docservmodes', 'ScanModeHandler', 'should_monitor');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.condition', 'CONDITION', 'docservmodes', 'ScanModeHandler', 'can_scan');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan', 'effect', 'docservmodes', 'ScanModeHandler', 'do_scan');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.discover', 'ACTION', 'docservmodes', 'ScanModeHandler', 'do_scan_discover');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.update', 'ACTION', 'docservmodes', 'ScanModeHandler', 'do_scan');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor', 'ACTION', 'docservmodes', 'ScanModeHandler', 'do_scan_monitor');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.before', 'switch', 'docservmodes', 'ScanModeHandler', 'before_scan');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.after', 'switch', 'docservmodes', 'ScanModeHandler', 'after_scan');
 
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('match', 'effect', 'docserv', 'MatchModeHandler', 'do_match');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('match', 'effect', 'docservmodes', 'MatchModeHandler', 'do_match');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('match.switch.condition', 'CONDITION', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('match.switch.before', 'switch', 'docserv', 'MatchModeHandler', 'before_match');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('match.switch.after', 'switch', 'docserv', 'MatchModeHandler', 'after_match');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('match.switch.before', 'switch', 'docservmodes', 'MatchModeHandler', 'before_match');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('match.switch.after', 'switch', 'docservmodes', 'MatchModeHandler', 'after_match');
 
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix.switch.condition', 'CONDITION', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix', 'effect', 'docserv', 'FixModeHandler', 'do_fix');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix.switch.before', 'switch', 'docserv', 'FixModeHandler', 'before_fix');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix.switch.after', 'switch', 'docserv', 'FixModeHandler', 'after_fix');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix', 'effect', 'docservmodes', 'FixModeHandler', 'do_fix');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix.switch.before', 'switch', 'docservmodes', 'FixModeHandler', 'before_fix');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('fix.switch.after', 'switch', 'docservmodes', 'FixModeHandler', 'after_fix');
 
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('report.switch.condition', 'CONDITION', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('report', 'effect', 'docserv', 'ReportModeHandler', 'do_report');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('report', 'effect', 'docservmodes', 'ReportModeHandler', 'do_report');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('report.switch.before', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'before');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('report.switch.after', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'after');
 
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests', 'effect', 'docserv', 'RequestsModeHandler', 'do_reqs');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests', 'effect', 'docservmodes', 'RequestsModeHandler', 'do_reqs');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests.switch.condition', 'CONDITION', 'docserv', 'DocumentServiceProcessHandler', 'mode_is_available');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests.switch.before', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'before');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('requests.switch.after', 'switch', 'docserv', 'DocumentServiceProcessHandler', 'after');
 
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown', 'effect', 'docserv', 'ShutdownHandler', 'end');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.before', 'switch', 'docserv', 'ShutdownHandler', 'ending');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.after', 'switch', 'docserv', 'ShutdownHandler', 'ended');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown', 'effect', 'docservmodes', 'ShutdownHandler', 'end');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.before', 'switch', 'docservmodes', 'ShutdownHandler', 'ending');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.after', 'switch', 'docservmodes', 'ShutdownHandler', 'ended');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('shutdown.switch.condition', 'CONDITION', 'docserv', 'DocumentServiceProcessHandler', 'maybe');
 
 CREATE TABLE `mode` (

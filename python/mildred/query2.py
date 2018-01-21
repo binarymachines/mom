@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 import os, sys
 import json, pprint
+import logging
 
 from elasticsearch import Elasticsearch
 
 import const
+import config
+from core import log
 
 FILTER = 'filter'
 QUERY = 'query'
@@ -23,20 +26,16 @@ OPERATOR = 'operator'
 MINIMUM_SHOULD_MATCH = 'minimum_should_match'
 PATH = 'path'
 
-es_host = 'localhost'
-es_port = 9200
-es_index = 'media'
+LOG = log.get_safe_log(__name__, logging.DEBUG)
 
-pp = pprint.PrettyPrinter(indent=2)
-
-def connect(hostname=es_host, port_num=es_port):
-    # LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
+def connect(hostname=config.es_host, port_num=config.es_port):
+    LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
     return Elasticsearch([{'host': hostname, 'port': port_num}])
 
 
 def execute(doc_type, query): 
     try:
-        return connect().search(index=es_index, doc_type=doc_type, body=query)
+        return connect().search(index=config.es_index, doc_type=doc_type, body=query)
     except Exception, err:
         print err.message
     
@@ -172,6 +171,7 @@ class Response(object):
             
 
 def main():
+    pp = pprint.PrettyPrinter(indent=2)
 
     # filepath = Clause(MATCH, field="absolute_path", value="Agallah", must=True)
     # song = Clause(MATCH, field="contents", value="Telemundo.mp3", must=True)
