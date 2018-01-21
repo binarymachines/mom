@@ -103,7 +103,7 @@ class Pathogen(FileHandler):
             if read_failed:
                 self.tags['_reader'] = self.name
                 data['attributes'].append(self.tags)
-                return False
+                
 
     def read_tags(self, path, data):
         raise BaseClassException(Pathogen)
@@ -130,7 +130,6 @@ class MutagenMP4(Pathogen):
                 continue
 
             key = util.uu_str(item[0].lower()).replace(u'\xa9', '')
-
             if '.' in key: 
                 continue
             
@@ -306,22 +305,24 @@ class MutagenOggVorbis(Pathogen):
 
     def read_tags(self, path, data):
         document = OggVorbis(path)
-        for tag in document.tags:
-            if len(tag) < 2: continue
+        tags = document.tags.as_dict()
+        for tag in tags:
+            if len(tag) < 2:
+                continue
 
-            key = util.uu_str(tag[0].lower())
+            key = util.uu_str(tag.lower())
             if key not in filehandler.get_known_fields('ogg'):
                 try:
                     filehandler.add_field('ogg', key)
                 except Exception, err:
                     continue
 
-            value = util.uu_str(tag[1])
+            value = util.uu_str(tags[tag])
             if len(value) > MAX_DATA_LENGTH:
                 # filehandler.report_invalid_field(path, key, value)
                 continue
 
-            self.tags[key] = value
+            self.tags[key] = value[0]
 
         if len(self.tags) > 0:
             self.tags['_document_format'] = 'ogg'
