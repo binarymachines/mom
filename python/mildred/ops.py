@@ -66,12 +66,15 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status=No
 
     LOG.debug('%s caching %i %s operations (%s)...' % (operator, count, operation, op_status))
     for op_record in rows:
-        check_status()
         update_listeners('caching %i %s operations  (%s)...' % (count - cached_count, operation, op_status), operator, path)
-        key = cache2.create_key(OPS, config.pid, op_record.operation_name, op_record.operator_name, op_record.target_path, value=path)
-        cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
-            'target_path': op_record.target_path})
+        cache_op(op_record)
         cached_count += 1
+
+@ops_func 
+def cache_op(op_record):
+    key = cache2.create_key(OPS, config.pid, op_record.operation_name, op_record.operator_name, op_record.target_path, value=op_record.target_path)
+    cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
+        'target_path': op_record.target_path})
 
 
 def clear_cached_operation(path, operation, operator=None):
