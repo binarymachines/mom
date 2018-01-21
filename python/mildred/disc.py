@@ -55,7 +55,11 @@ class Discover(Walker):
         library.set_active(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
-def map(startpath):
+    def assess(self):
+        # apply a set of rules to eliminating redundant media folders.
+        pass
+
+def discover(startpath):
     d = Discover()
     d.walk(startpath)
     return d.folders

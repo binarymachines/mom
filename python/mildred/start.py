@@ -34,7 +34,9 @@ def execute(args):
         try:
             # TODO: connect to an explicit redis database. Check for execution record. Change database if required.
             LOG.debug('connecting to Redis...')
-            cache2.redis = redis.Redis(config.redis_host)
+            cache2.rediskey = redis.Redis(config.redis_host, db=0)
+            cache2.redis = redis.Redis(config.redis_host, db=1)
+
         except Exception, err:
             config.started = False
             ERR.error(err.message)
@@ -65,9 +67,8 @@ def execute(args):
         try:
             if 'reset' in options:
                 reset()
-                ops.flush_cache(resuming=False)
-            else:
-                # if 'clearmem' in options:
+            
+            if 'clearmem' in options:
                 LOG.debug('clearing data from prior execution...')
                 ops.flush_cache(resuming=config.old_pid)
 
@@ -141,9 +142,9 @@ def reset():
         query = 'delete from %s' % (table)
         sql.execute_query(query)
 
-    # for table in ['directory']:
-    #     query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
-    #     sql.execute_query(query)
+    for table in ['directory']:
+        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+        sql.execute_query(query)
 
     for table in ['document', 'match_record', 'op_record']:
         query = 'delete from %s where index_name = "%s"' % (table, config.es_index)

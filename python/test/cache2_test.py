@@ -10,7 +10,9 @@ KEYGROUP = 'tests-suite'
 class TestCache2(unittest.TestCase):
     """Redis must be running for these tests to run"""
     def setUp(self):
-        cache2.redis = redis.Redis('localhost')
+        cache2.rediskey = redis.Redis('localhost', db=0)
+        cache2.rediskey.flushall()
+        cache2.redis = redis.Redis('localhost', db=1)
         cache2.redis.flushall()
         self.identifiers = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
         self.identifier = cache2.DELIM.join([KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'])
@@ -29,13 +31,20 @@ class TestCache2(unittest.TestCase):
         testkey = cache2.redis.keys(self.identifier)
         self.assertTrue(testkey  == [self.identifier], 'no key returned for "%s"' % self.identifier)
 
+    def test_create_key_no_values(self):
+        key = cache2.create_key(KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i')
+        self.assertEquals(key, self.identifier, 'error in key name')
+
+        testkey = cache2.rediskey.keys(self.identifier)
+        self.assertTrue(testkey  == [self.identifier], 'no key returned for "%s"' % self.identifier)
+
     def test_delete_key(self):
         key = cache2.DELIM.join([KEYGROUP, cache2.DELIM.join(self.identifiers)])
 
         cache2.redis.rpush(key, self.identifiers)
 
         cache2.delete_key(key)
-        testkey = cache2.redis.keys(key)
+        testkey = cache2.rediskey.keys(key)
         self.assertEquals(testkey, [], 'delete_key fails')
 
     def test_delete_key_group(self):
@@ -52,7 +61,7 @@ class TestCache2(unittest.TestCase):
         keys = []
         for val in self.test_vals:
             key = cache2.DELIM.join([KEYGROUP, val])
-            cache2.redis.rpush(key, val)
+            cache2.rediskey.rpush(key, val)
             keys.append(key)
 
         # get all of the keys in a group
@@ -68,7 +77,7 @@ class TestCache2(unittest.TestCase):
         # get keys using *params
         for val in self.test_vals:
             key = cache2.DELIM.join([KEYGROUP, 'multi-args', val])
-            cache2.redis.rpush(key, val)
+            cache2.rediskey.rpush(key, val)
             testkeys = cache2.get_keys(KEYGROUP, 'multi-args', val)
             self.assertEquals(testkeys, [key], 'get_keys: keygroup + *identifier retrieval fails')
 

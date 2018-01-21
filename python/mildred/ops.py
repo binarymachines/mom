@@ -151,7 +151,8 @@ def record_op_begin(path, operation, operator, esid=None):
         op_record['target_esid'] = esid
     op_record['target_path'] = path
     op_record['status'] = 'ACTIVE'
-    cache2.set_hash2(create_op_key(path, operation, operator), op_record)
+    op_key = create_op_key(path, operation, operator)
+    cache2.set_hash2(op_key, op_record)
 
     exec_rec = cache2.get_hash2(get_exec_key())
     exec_rec['current_operation'] = operation
@@ -170,14 +171,15 @@ def record_op_complete(path, operation, operator, esid=None, op_failed=False):
         print(err.message)
 
     op_key = get_op_key(path, operation, operator)
-    values = cache2.get_hash2(op_key)
+    record = cache2.get_hash2(op_key)
 
-    if len(values) > 0:
-        values['status'] = "FAIL" if op_failed else 'COMPLETE'
-        values['end_time'] = datetime.datetime.now().isoformat()
-        cache2.set_hash2(op_key, values)
+    if len(record) > 0:
+        record['status'] = "FAIL" if op_failed else 'COMPLETE'
+        record['end_time'] = datetime.datetime.now().isoformat()
+        cache2.set_hash2(op_key, record)
 
         pop_operation()
+
 
 def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
     if apply_lifespan:
@@ -323,6 +325,7 @@ def check_status(opcount=None):
     values = cache2.get_hash2(get_exec_key())
     if 'pid' not in values:
         ERR.error('NO PID!!!')
+        sys.exit(1)
         
     if opcount is not None and opcount % config.status_check_freq!= 0: return
 

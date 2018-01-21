@@ -45,6 +45,14 @@ class DelimitedFileInfo(Base):
     column_count = Column(Integer, nullable=False)
 
 
+class DirType(Base):
+    __tablename__ = 'dir_type'
+
+    id = Column(Integer, primary_key=True)
+    desc = Column(String(255))
+    name = Column(String(25), unique=True)
+
+
 class Directory(Base):
     __tablename__ = 'directory'
     __table_args__ = (
@@ -54,13 +62,12 @@ class Directory(Base):
     id = Column(Integer, primary_key=True)
     index_name = Column(String(128), nullable=False)
     name = Column(String(767), nullable=False)
-    file_type_id = Column(ForeignKey(u'file_type.id'), index=True, server_default=text("'1'"))
+    dir_type_id = Column(ForeignKey(u'dir_type.id'), index=True, server_default=text("'1'"))
     effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
-    category_prototype_flag = Column(Integer, nullable=False, server_default=text("'0'"))
     active_flag = Column(Integer, nullable=False, server_default=text("'1'"))
 
-    file_type = relationship(u'FileType')
+    dir_type = relationship(u'DirType')
 
 
 class DirectoryAmelioration(Base):
@@ -168,8 +175,9 @@ class FileType(Base):
     __tablename__ = 'file_type'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(25))
+    desc = Column(String(255))
     ext = Column(String(11))
+    name = Column(String(25), unique=True)
 
 
 class MatchRecord(Base):

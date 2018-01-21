@@ -38,9 +38,11 @@ DROP TABLE IF EXISTS `directory_type`;
 
 CREATE TABLE IF NOT EXISTS `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(25),
+  `desc`varchar(255),
   `ext`varchar(11),
-  PRIMARY KEY (`id`)
+  `name` varchar(25),
+  PRIMARY KEY (`id`), 
+  UNIQUE KEY `uk_file_type` (`name`)
 );
 
 INSERT INTO `mildred`.`file_type` (`name`) VALUES ("directory");
@@ -62,12 +64,6 @@ INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mp4");
 INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("avi");
 INSERT INTO `mildred`.`file_type` (`ext`) VALUES ("mkv");
   
-CREATE TABLE IF NOT EXISTS `directory_type` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(75),
-  PRIMARY KEY (`id`)
-);
-
 -- INSERT INTO `mildred`.`directory_type` (`default`) VALUES ("mkv");
 
 CREATE TABLE `document` (
@@ -84,18 +80,28 @@ CREATE TABLE `document` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE IF NOT EXISTS `dir_type` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `desc`varchar(255),
+  `name` varchar(25),
+  PRIMARY KEY (`id`), 
+  UNIQUE KEY `uk_dir_type` (`name`)
+);
+
+INSERT INTO `mildred`.`dir_type` (`name`) VALUES ("default");
+
 CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
   `name` varchar(767) NOT NULL,
-  `file_type_id` int(11) unsigned default 1,
+  `dir_type_id` int(11) unsigned default 1,
   `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  `category_prototype_flag` tinyint not null default 0,
+  -- `category_prototype_flag` tinyint not null default 0,
   `active_flag` tinyint not null default 1,
-  CONSTRAINT `fk_directory_file_type`
-    FOREIGN KEY (`file_type_id`)
-    REFERENCES `mildred`.`file_type` (`id`),
+  CONSTRAINT `fk_directory_dir_type`
+    FOREIGN KEY (`dir_type_id`)
+    REFERENCES `mildred`.`dir_type` (`id`),
   PRIMARY KEY (`id`), 
   UNIQUE KEY `uk_directory_name` (`index_name`,`name`)
 );

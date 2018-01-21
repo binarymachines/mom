@@ -81,7 +81,7 @@ def get_location_patterns(location_type, refresh=False):
 
     items = cache2.get_items(PATTERN, location_type)
     if len(items) == 0 or refresh:
-        cache2.clear_items(keygroup, identifier)
+        cache2.clear_items(PATTERN, location_type)
         key = cache2.create_key(PATTERN, location_type)
         rows = alchemy.SQLDirectoryConstant.retrieve_for_location_type(location_type)
         cache2.add_items(PATTERN, location_type, [row.pattern for row in rows])

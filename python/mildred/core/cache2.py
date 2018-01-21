@@ -7,13 +7,14 @@ import util
 import log
 
 LOG = log.get_safe_log(__name__, logging.INFO)
-
+KEY = 'key'
 LIST = 'list'
 HASH = 'hashset'
 DELIM = ':'
 WILDCARD = '*'
 PID = str(os.getpid())
 
+rediskey = None
 redis = None
 
 # these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
@@ -37,10 +38,11 @@ def key_name(key_group, *identifier):
 
 def create_key(key_group, *identifier, **values):
     """create a new compound key"""
-    key = key_name(key_group, *identifier)
+    key = key_name(key_group, *identifier)   
+    rediskey.rpush(key, None)
     for name in values:
         val = values[name]
-        result = redis.rpush(key, val)
+        redis.rpush(key, val)
 
     # LOG.debug('create_key(key_group=%s, identifier=%s) returns %s' % (key, identifier, result))
     return key
@@ -48,14 +50,14 @@ def create_key(key_group, *identifier, **values):
 
 # def delete_key(key, delete_list=False, delete_hash=False):
 def delete_key(key):
-    result = redis.delete(key)
+    result = rediskey.delete(key)
     # LOG.debug('redis.delete(key=%s) returns: %s' % (key, str(result)))
 
 
 def delete_key_group(key_group):
     # LOG.debug('delete_key_group(key_group=%s)' % key_group)
     search = key_group + WILDCARD
-    for key in redis.keys(search):
+    for key in rediskey.keys(search):
         delete_key(key)
 
 
@@ -82,7 +84,7 @@ def get_key_value(key_group, *identifier):
 
 def get_keys(key_group, *identifier):
     search = key_group + WILDCARD if identifier is () else key_name(key_group, *identifier) + WILDCARD
-    result = redis.keys(str_clean4key(search))
+    result = rediskey.keys(str_clean4key(search))
     # result = config.redis.scan(str_clean4key(search), 0, -1)
     # LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
@@ -90,11 +92,11 @@ def get_keys(key_group, *identifier):
 
 def key_exists(key_group, *identifier):
      key = key_name(key_group, *identifier)
-     return redis.exists(key)
+     return rediskey.exists(key)
 
 
 def key_exists2(key):
-    return redis.exists(key)
+    return rediskey.exists(key)
 
 
 # ordered list functions for compound keys and key groups

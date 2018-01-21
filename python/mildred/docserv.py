@@ -10,6 +10,7 @@ import search
 import analyze
 import scan
 import calc
+import disc
 
 import sql
 import library 
@@ -405,6 +406,7 @@ class RequestsModeHandler(DefaultModeHandler):
 # scan mode
 
 class ScanModeHandler(DefaultModeHandler):
+
     def __init__(self, owner, vector):
         super(ScanModeHandler, self).__init__(owner, vector)
         self.scan_complete = False
@@ -438,12 +440,14 @@ class ScanModeHandler(DefaultModeHandler):
 
     def do_scan_discover(self):
         print  "discover scan starting..."
-        scan.scan(self.vector)
+        # scan.scan(self.vector)
         map_paths = self.vector.get_param('all', 'map-paths')
         if map_paths:
             startpath = self.vector.get_param('all', 'start-path')
-            for f in os.listdir(startpath):
-                self.vector.paths.insert(0, os.path.join(startpath, f))
+            if startpath:
+                paths = disc.discover(startpath)
+                if paths:
+                    self.vector.paths.extend(paths)
 
     def do_scan_monitor(self):
         print  "monitor scan starting..."
@@ -451,12 +455,14 @@ class ScanModeHandler(DefaultModeHandler):
 
 
     def do_scan(self):
-        print  "update scan starting..."
+        print  "scan starting..."
         self.vector.set_param(SCAN, DEEP, False)
         scan.scan(self.vector)
 
+
     def should_monitor(self, selector=None, active=None, possible=None):
         return True
+
 
     def should_update(self, selector=None, active=None, possible=None):
         return True
