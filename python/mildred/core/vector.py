@@ -243,14 +243,14 @@ class CachedPathVector(PathVector):
 
     def push_fifo(self, consumer, value, transient=False):
         if transient:
-            super(CachedPathVector, self).push_fifo(consumer)
+            super(CachedPathVector, self).push_fifo(consumer, value)
         else:
             key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
             cache2.lpush(key, value)
 
     def rpush_fifo(self, consumer, value, transient=False):
         if transient:
-            super(CachedPathVector, self).rpush_fifo(consumer)
+            super(CachedPathVector, self).rpush_fifo(consumer, value)
         else:
             key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
             cache2.rpush(key, value)
@@ -283,7 +283,7 @@ class CachedPathVector(PathVector):
 
     def set_param(self, consumer, param, value, transient=False):
         if transient:
-            super(CachedPathVector, self).set_param(consumer, param)
+            super(CachedPathVector, self).set_param(consumer, param, value)
         else:
             key = cache2.get_key(CACHED_PATH_VECTOR, consumer)
             values = cache2.get_hash2(key)

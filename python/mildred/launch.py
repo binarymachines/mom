@@ -71,7 +71,7 @@ def launch(args, run=True):
 
             return service
 
-        else: raise Exception('unable to initialize with current configuration in %s.' % config.filename)
+        else: raise Exception('unable to initialize with current configuration.')
     except Exception, err:
         traceback.print_exc()
         sys.exit(err.message)

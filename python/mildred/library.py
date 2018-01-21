@@ -19,6 +19,7 @@ from assets import Directory, Document
 from const import DIRECTORY, MATCH
 from core import cache2, log, util
 from errors import AssetException, ElasticDataIntegrityException
+import pprint
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
@@ -238,19 +239,19 @@ def create_asset_metadata(data, file_type=None):
             try:
                 config.es = search.connect()
                 if config.es.indices.exists(config.es_index):
-                    return create_asset_metadata(data)
                     es_avail = True
                     print "resuming..." 
+                    return create_asset_metadata(data)
             # except RequestError
             except ConnectionError, err:
                 print "Elasticsearch connectivity error, retrying in 5 seconds..."
 
     except AssetException, err:
-        handle_asset_exception(err, asset.absolute_path)
+        handle_asset_exception(err, data['absolute_path'])
         raise err
 
     except Exception, err:
-        config.es.delete(config.es_index, asset.document_type, asset.esid)
+        config.es.delete(config.es_index, data['document_type'], data['esid'])
         ERR.error(': '.join([err.__class__.__name__, err.message]))
         raise err
                 
@@ -352,7 +353,7 @@ def get_library_location(path):
     	return possible[0]
 
     result = None
-    LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
+    LOG.debug("indexing %s" % (path))
 
     if len(possible) > 1:
       result = possible[0]
@@ -395,7 +396,7 @@ def get_attribute_values(asset, document_format_attribute, *items):
 
 
 def get_aliases(document_format, term):
-   return sql.retrieve_values2('v_alias', ['document_format', 'name', 'attribute_name'], [document_format, term])
+    return sql.retrieve_values2('v_alias', ['document_format', 'name', 'attribute_name'], [document_format, term])
    
 
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later

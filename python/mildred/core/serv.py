@@ -8,7 +8,7 @@ import log
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
 
-SERVICE_NAME = '::\`]'
+SERVICE_NAME = ']]`Media Hound`]]'
 
 class ServiceProcess(object):
     def __init__(self, name, owner=None):
@@ -64,7 +64,9 @@ class SingleSelectorServiceProcess(ServiceProcess):
     def initialize(self):
         self.halted = False
         self.engine = Engine("_engine_", self.stop_on_errors);
-        self.selector = Selector("_selector_", before_switch=self.before_switch, after_switch=self.after_switch)
+        self.selector = Selector("_selector_")
+        #TODO: either use before_switch externally using these parameters or remove them and whatever plumbing supports them
+        # self.selector = Selector("_selector_", before_switch=self.before_switch, after_switch=self.after_switch)
 
         try:
             self.setup()

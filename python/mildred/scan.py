@@ -102,7 +102,7 @@ class Scanner(Walker):
             #TODO: record library update error instead of read error
             ERR.warning(': '.join([err.__class__.__name__, err.message]))
             if file_was_read:
-                self.reader.invalidate_read_ops(os.path.join(root, filename))
+                self.reader.invalidate_read_ops(path)
 
 
     # Walker methods

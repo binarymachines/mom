@@ -1,7 +1,7 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "python.pythonPath": "/media/codex/Home/Workspace/venv/m2/bin/python2.7",
-    "env.PYTHONPATH": "/media/codex/Home/Workspace/mildred/python/mildred",
-    "python.linting.pylintEnabled": false,
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "python.linting.pylintEnabled": true,
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "files.autoSave": "onFocusChange"
 }

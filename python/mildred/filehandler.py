@@ -30,7 +30,7 @@ def add_field(doc_format, field_name):
         ERR.warning(': '.join([err.__class__.__name__, err.message]))
 
 
-def get_fields(doc_format):
+def get_fields(doc_format, refresh=False):
     """get attributes from document_attribute for the specified document_type"""
     keygroup = 'fields'
 
@@ -104,7 +104,7 @@ class GenericText(FileHandler):
 
 class DelimitedText(GenericText):
     def __init__(self, DELIM_char=DELIM):
-        super(GenericText, self).__init__('mildred-delimited', 'csv')
+        super(DelimitedText, self).__init__('mildred-delimited', 'csv')
         self.DELIM = DELIM_char
 
     def handle_file(self, path, data):

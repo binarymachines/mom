@@ -69,9 +69,9 @@ class Pathogen(FileHandler):
             read_failed = True
             self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
-        except MP4MetadataValueError, err:
-            read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+        # except MP4MetadataValueError, err:
+        #     read_failed = True
+        #     self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
 
         except MP4StreamInfoError, err:
             read_failed = True
@@ -171,7 +171,8 @@ class MutagenAPEv2(Pathogen):
     def read_tags(self, path, data):
         document = APEv2(path)
         for item in document.items():
-            if len(item) < 2: continue
+            if len(item) < 2: 
+                continue
 
             key = util.uu_str(item[0].lower())
             if key not in filehandler.get_known_fields('apev2'):

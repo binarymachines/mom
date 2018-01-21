@@ -27,7 +27,7 @@
                 // // "--exit"
                 "--reset"
                 , "--map-paths"
-                , "/media/codex/Media/audio/music/"
+                , "/media/codex/Media/audio/incoming"
                 // , "--exit"
 
                 // "--nomatch"

@@ -1,7 +1,7 @@
 import redis
 import unittest
 
-from core import cache2
+from mildred.core import cache2
 
 KEYGROUP = 'tests-suite'
 

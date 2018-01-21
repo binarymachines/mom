@@ -91,4 +91,3 @@ class AlchemyModeStateReader(ModeStateReader):
                 mode.inc_priority_amount = default.inc_priority_amount
                 mode.error_tolerance = default.error_tolerance
                 break
-
