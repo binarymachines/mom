@@ -156,13 +156,13 @@ SQLReason.params = relationship("SQLReasonParam", order_by=SQLReasonParam.id, ba
 class SQLDirectory(Directory):
     
     def __repr__(self):
-        return "<SQLDirectory(index_name='%s', name='%s')>" % (
-                                self.index_name, self.name)
+        return "<SQLDirectory(name='%s')>" % (
+                                self.name)
 
     @staticmethod
     @alchemy_func
     def insert(absolute_path):
-        directory = SQLDirectory(index_name=config.es_index, name=absolute_path)
+        directory = SQLDirectory(name=absolute_path)
 
         try:
             sessions[MILDRED].add(directory)
@@ -176,23 +176,21 @@ class SQLDirectory(Directory):
 
         result = ()
         for instance in sessions[MILDRED].query(SQLDirectory). \
-            filter(SQLDirectory.index_name == config.es_index). \
             filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
             filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
-                result += (instance,)
+            result += (instance,)
 
         return result
 
 class SQLDirectoryConstant(DirectoryConstant):
     
     def __repr__(self):
-        return "<SQLDirectoryConstant(index_name='%s', name='%s')>" % (
-                                self.index_name, self.name)
+        return "<SQLDirectoryConstant(name='%s')>" % (self.name)
 
     @staticmethod
     @alchemy_func
     def insert(pattern, location_type):
-        directory_constant = SQLDirectoryConstant(index_name=config.es_index, pattern=pattern, location_type=location_type)
+        directory_constant = SQLDirectoryConstant(pattern=pattern, location_type=location_type)
 
         try:
             sessions[MILDRED].add(directory_constant)
@@ -205,9 +203,8 @@ class SQLDirectoryConstant(DirectoryConstant):
     def retrieve_all():
 
         result = ()
-        for instance in sessions[MILDRED].query(SQLDirectoryConstant). \
-            filter(SQLDirectoryConstant.index_name == config.es_index):
-                result += (instance,)
+        for instance in sessions[MILDRED].query(SQLDirectoryConstant):
+            result += (instance,)
 
         return result
 
@@ -217,9 +214,8 @@ class SQLDirectoryConstant(DirectoryConstant):
 
         result = ()
         for instance in sessions[MILDRED].query(SQLDirectoryConstant). \
-            filter(SQLDirectoryConstant.index_name == config.es_index). \
             filter(SQLDirectoryConstant.pattern == pattern):
-                result += (instance,)
+            result += (instance,)
 
         return result
 
@@ -229,9 +225,8 @@ class SQLDirectoryConstant(DirectoryConstant):
 
         result = ()
         for instance in sessions[MILDRED].query(SQLDirectoryConstant). \
-            filter(SQLDirectoryConstant.index_name == config.es_index). \
             filter(SQLDirectoryConstant.location_type == location_type):
-                result += (instance,)
+            result += (instance,)
 
         return result
 
@@ -243,7 +238,7 @@ class SQLFileType(FileType):
     def insert(name, ext):
         ft = SQLFileType(name=name, ext=ext)
         try:
-            sessions[MILDRED].add(ft);
+            sessions[MILDRED].add(ft)
             return ft
         except IntegrityError, err:
             raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
@@ -264,7 +259,7 @@ class SQLFileType(FileType):
         result = ()
         for instance in sessions[MILDRED].query(SQLFileType). \
             filter(SQLFileType.ext == ext):
-                result += (instance,)
+            result += (instance,)
     
         return result[0] if len(result) == 1 else None
 
@@ -274,8 +269,7 @@ class SQLAsset(Document):
     file_type = relationship(u'SQLFileType', enable_typechecks=True)
 
     def __repr__(self):
-        return "<SQLAsset(index_name='%s', document_type='%s', absolute_path='%s')>" % (
-                                self.index_name, self.document_type, self.absolute_path)
+        return "<SQLAsset(document_type='%s', absolute_path='%s')>" % (self.document_type, self.absolute_path)
 
     @staticmethod
     @alchemy_func
@@ -288,7 +282,7 @@ class SQLAsset(Document):
             if ext is not None and len(ext) < 9:
                 file_type=SQLFileType.retrieve(ext) 
         
-        asset = SQLAsset(id=id, index_name=config.es_index, document_type=document_type, absolute_path=absolute_path, file_type=file_type)
+        asset = SQLAsset(id=id, document_type=document_type, absolute_path=absolute_path, file_type=file_type)
 
         try:
             sessions[MILDRED].add(asset)
@@ -304,29 +298,26 @@ class SQLAsset(Document):
         result = ()
         if absolute_path is None:
             for instance in sessions[MILDRED].query(SQLAsset). \
-                filter(SQLAsset.index_name == config.es_index). \
                 filter(SQLAsset.document_type == document_type). \
                 filter(SQLAsset.effective_dt < datetime.datetime.now()). \
                 filter(SQLAsset.expiration_dt > datetime.datetime.now()):
-                    result += (instance,)
+                result += (instance,)
 
         elif use_like_in_where_clause:
             for instance in sessions[MILDRED].query(SQLAsset). \
-                filter(SQLAsset.index_name == config.es_index). \
                 filter(SQLAsset.document_type == document_type). \
                 filter(SQLAsset.absolute_path.like(path)). \
                 filter(SQLAsset.effective_dt < datetime.datetime.now()). \
                 filter(SQLAsset.expiration_dt > datetime.datetime.now()):
-                    result += (instance,)
+                result += (instance,)
 
         else:
             for instance in sessions[MILDRED].query(SQLAsset). \
-                filter(SQLAsset.index_name == config.es_index). \
                 filter(SQLAsset.document_type == document_type). \
                 filter(SQLAsset.absolute_path == path). \
                 filter(SQLAsset.effective_dt < datetime.datetime.now()). \
                 filter(SQLAsset.expiration_dt > datetime.datetime.now()):
-                    result += (instance,)
+                result += (instance,)
 
         return result
 
@@ -335,8 +326,7 @@ class SQLDocumentAttribute(DocumentAttribute):
     @alchemy_func
     def retrieve_all():
         result = ()
-        for instance in sessions[MILDRED].query(SQLDocumentAttribute). \
-            filter(SQLDocumentAttribute.index_name == config.es_index):
+        for instance in sessions[MILDRED].query(SQLDocumentAttribute):
             result += (instance,)
 
         return result
@@ -345,7 +335,7 @@ class SQLDocumentAttribute(DocumentAttribute):
     @staticmethod
     @alchemy_func
     def insert(document_format, attribute_name):
-        attribute = SQLDocumentAttribute(index_name=config.es_index, document_format=document_format, attribute_name=attribute_name) 
+        attribute = SQLDocumentAttribute(document_format=document_format, attribute_name=attribute_name) 
         try:
             sessions[MILDRED].add(attribute)
             sessions[MILDRED].commit()
@@ -358,8 +348,7 @@ class SQLDocumentCategory(DocumentCategory):
     @alchemy_func
     def retrieve_all():
         result = ()
-        for instance in sessions[MILDRED].query(SQLDocumentCategory). \
-            filter(SQLDocumentCategory.index_name == config.es_index):
+        for instance in sessions[MILDRED].query(SQLDocumentCategory):
             result += (instance,)
 
         return result
@@ -369,7 +358,7 @@ class SQLExecutionRecord(ExecRec):
     @staticmethod
     @alchemy_func
     def insert(kwargs):
-        rec_exec = SQLExecutionRecord(pid=config.pid, index_name=config.es_index, start_dt=config.start_time, status=kwargs['status'])
+        rec_exec = SQLExecutionRecord(pid=config.pid, start_dt=config.start_time, status=kwargs['status'])
 
         try:
             sessions[MILDRED].add(rec_exec)
@@ -386,7 +375,7 @@ class SQLExecutionRecord(ExecRec):
         result = ()
         for instance in sessions[MILDRED].query(SQLExecutionRecord).\
             filter(SQLExecutionRecord.pid == pid):
-                result += (instance,)
+            result += (instance,)
 
         if len(result) == 1:
             return result[0]
@@ -453,7 +442,7 @@ class SQLMatcher(Matcher):
         result = ()
         for instance in sessions[MILDRED].query(SQLMatcher). \
             filter(SQLMatcher.active_flag == True):
-                result += (instance,)
+            result += (instance,)
 
         return result
 
@@ -472,7 +461,7 @@ class SQLMatch(MatchRecord):
     @alchemy_func
     def insert(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
         # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
-        match_rec = SQLMatch(index_name=config.es_index, doc_id=doc_id, match_doc_id=match_doc_id, \
+        match_rec = SQLMatch(doc_id=doc_id, match_doc_id=match_doc_id, \
                              matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
 
         try:
@@ -488,16 +477,15 @@ class SQLMode(AlchemyMode):
     @alchemy_func
     def retrieve_all():
         result = ()
-        for instance in sessions[INTROSPECTION].query(SQLMode).\
-            filter(SQLMode.index_name == config.es_index):
-                result += (instance,)
+        for instance in sessions[INTROSPECTION].query(SQLMode):
+            result += (instance,)
 
         return result
 
     @staticmethod
     @alchemy_func
     def insert(name):
-        mode_rec = SQLMode(name=name, index_name=config.es_index)
+        mode_rec = SQLMode(name=name)
         try:
             sessions[INTROSPECTION].add(mode_rec)
             sessions[INTROSPECTION].commit()
@@ -511,7 +499,7 @@ class SQLMode(AlchemyMode):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
             filter(SQLMode.id == mode.id):
-                result += (instance,)
+            result += (instance,)
 
         return result[0] if len(result) == 1 else None
 
@@ -520,9 +508,8 @@ class SQLMode(AlchemyMode):
     def retrieve_by_name(name):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLMode).\
-            filter(SQLMode.index_name == config.es_index). \
             filter(SQLMode.name == name):
-                result += (instance,)
+            result += (instance,)
 
         return result[0] if len(result) == 1 else None
 
@@ -533,9 +520,8 @@ class SQLState(AlchemyState):
     @alchemy_func
     def retrieve_all():
         result = ()
-        for instance in sessions[INTROSPECTION].query(SQLState).\
-            filter(SQLState.index_name == config.es_index):
-                result += (instance,)
+        for instance in sessions[INTROSPECTION].query(SQLState):
+            result += (instance,)
 
         return result
 
@@ -554,9 +540,8 @@ class SQLState(AlchemyState):
     def retrieve_by_name(name):
         result = ()
         for instance in sessions[INTROSPECTION].query(SQLState).\
-            filter(SQLState.index_name == config.es_index). \
             filter(SQLState.name == name):
-                result += (instance,)
+            result += (instance,)
 
         return result[0] if len(result) == 1 else None
 
@@ -573,7 +558,7 @@ class SQLModeState(AlchemyModeState):
     def insert(mode):
         sqlmode = SQLMode.retrieve(mode)
         sqlstate = SQLState.retrieve(mode.get_state())
-        mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, index_name=config.es_index, times_activated=mode.times_activated, \
+        mode_state_rec = SQLModeState(mode_id=sqlmode.id, state_id=sqlstate.id, times_activated=mode.times_activated, \
             times_completed=mode.times_completed, error_count=mode.error_count, cum_error_count=0, status=mode.get_state().name, \
             pid=str(config.pid))
 
@@ -592,7 +577,7 @@ class SQLModeState(AlchemyModeState):
         for instance in sessions[INTROSPECTION].query(SQLModeState).\
             filter(SQLModeState.id == mode.mode_state_id).\
             filter(SQLModeState.pid == config.pid):
-                result += (instance,)
+            result += (instance,)
 
         return result[0] if len(result) == 1 else None
 
@@ -674,10 +659,10 @@ class SQLOperationRecord(OpRecord):
     def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
         if end_time is None or end_time == 'None':
-            op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
+            op_rec = SQLOperationRecord(pid=config.pid, operation_name=operation_name, operator_name=operator_name, \
                                         target_esid=target_esid, target_path=target_path, start_time=start_time, status=status)
         else:
-            op_rec = SQLOperationRecord(pid=config.pid, index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
+            op_rec = SQLOperationRecord(pid=config.pid, operation_name=operation_name, operator_name=operator_name, \
                                     target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status)
 
         try:
@@ -697,14 +682,12 @@ class SQLOperationRecord(OpRecord):
         result = ()
         if operator is None:
             for instance in sessions[MILDRED].query(SQLOperationRecord).\
-                filter(SQLOperationRecord.index_name == config.es_index).\
                 filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
                 filter(SQLOperationRecord.operation_name == operation).\
                 filter(SQLOperationRecord.status == op_status):
                     result += (instance,)
         else:
             for instance in sessions[MILDRED].query(SQLOperationRecord).\
-                filter(SQLOperationRecord.index_name == config.es_index).\
                 filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
                 filter(SQLOperationRecord.operation_name == operation).\
                 filter(SQLOperationRecord.operator_name == operator).\

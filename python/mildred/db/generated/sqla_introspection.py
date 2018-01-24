@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, ForeignKey, Index, Integer, String, Table, text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -10,13 +10,9 @@ metadata = Base.metadata
 
 class Mode(Base):
     __tablename__ = 'mode'
-    __table_args__ = (
-        Index('uk_mode_name', 'index_name', 'name', unique=True),
-    )
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
-    name = Column(String(128), nullable=False)
+    name = Column(String(128), nullable=False, unique=True)
     stateful_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
@@ -24,7 +20,6 @@ class ModeDefault(Base):
     __tablename__ = 'mode_default'
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'0'"))
     effect_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), index=True)
@@ -41,7 +36,6 @@ class ModeState(Base):
     __tablename__ = 'mode_state'
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
     pid = Column(String(32), nullable=False)
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     state_id = Column(ForeignKey(u'state.id'), nullable=False, index=True, server_default=text("'0'"))
@@ -63,7 +57,6 @@ class ModeStateDefault(Base):
     __tablename__ = 'mode_state_default'
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     state_id = Column(ForeignKey(u'state.id'), nullable=False, index=True, server_default=text("'0'"))
     priority = Column(Integer, nullable=False, server_default=text("'0'"))
@@ -82,7 +75,6 @@ class ModeStateDefaultParam(Base):
     __tablename__ = 'mode_state_default_param'
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
     mode_state_default_id = Column(ForeignKey(u'mode_state_default.id'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(128), nullable=False)
     value = Column(String(1024), nullable=False)
@@ -111,26 +103,18 @@ class ServiceProfile(Base):
 
 class State(Base):
     __tablename__ = 'state'
-    __table_args__ = (
-        Index('uk_state_name', 'index_name', 'name', unique=True),
-    )
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
-    name = Column(String(128), nullable=False)
+    name = Column(String(128), nullable=False, unique=True)
     terminal_state_flag = Column(Integer, nullable=False, server_default=text("'0'"))
     initial_state_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
 class SwitchRule(Base):
     __tablename__ = 'switch_rule'
-    __table_args__ = (
-        Index('uk_switch_rule_name', 'index_name', 'name', unique=True),
-    )
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
-    name = Column(String(128), nullable=False)
+    name = Column(String(128), nullable=False, unique=True)
     begin_mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     end_mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     before_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), nullable=False, index=True)
@@ -148,7 +132,6 @@ class TransitionRule(Base):
     __tablename__ = 'transition_rule'
 
     id = Column(Integer, primary_key=True)
-    index_name = Column(String(128), nullable=False, server_default=text("'media'"))
     name = Column(String(128), nullable=False)
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     begin_state_id = Column(ForeignKey(u'state.id'), nullable=False, index=True)

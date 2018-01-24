@@ -335,3 +335,4 @@ def flush_all():
     LOG.info('flushing redis database')
     keystore.flushdb()
     datastore.flushdb()
+    

@@ -1,6 +1,6 @@
 '''
    Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] 
-                    [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)] [(--map-paths <startpath>)]
+                    [--clearmem] [--checkforbugs] [(--reset <reset>...)] [--exit] [--expand-all] [(--workdir <directory>)] [(--map-paths <startpath>)]
 
    --path, -p                   The path to scan
 
@@ -44,7 +44,7 @@ def launch(args, run=True):
         start.execute(args)
 
         if config.started:
-            service =  Service()
+            service = Service()
 
             if run:
                 create_func = get_process_create_func()

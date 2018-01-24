@@ -2,8 +2,6 @@ drop schema if exists `mildred_introspection`;
 create schema `mildred_introspection`;
 use `mildred_introspection`;
 
-SET @ES_INDEX = 'media';
-
 DROP TABLE IF EXISTS `mode_state_default_param`;
 -- DROP TABLE IF EXISTS `mode_state_default_operation`;
 DROP TABLE IF EXISTS `mode_state_default`;
@@ -102,13 +100,12 @@ INSERT INTO service_dispatch (name, category, module_name, class_name, func_name
 
 CREATE TABLE `mode` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `stateful_flag` boolean NOT NULL DEFAULT False,
 --   `effective_dt` datetime DEFAULT now(),
 --   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_mode_name` (`index_name`,`name`)
+  UNIQUE KEY `uk_mode_name` (`name`)
 );
 
 SET @NONE = 'None';
@@ -127,14 +124,13 @@ INSERT INTO mode (name) VALUES ('shutdown');
 
 CREATE TABLE `state` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `terminal_state_flag` tinyint(1) NOT NULL DEFAULT '0',
   `initial_state_flag` tinyint(1) NOT NULL DEFAULT '0',
 --   `effective_dt` datetime DEFAULT now(),
 --   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_state_name` (`index_name`,`name`)
+  UNIQUE KEY `uk_state_name` (`name`)
 );
 
 INSERT INTO state(name, initial_state_flag) VALUES ('initial', 1);
@@ -146,7 +142,6 @@ INSERT INTO state(name, terminal_state_flag) VALUES ('terminal', 2);
 
 CREATE TABLE `transition_rule` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `mode_id` int(11) UNSIGNED NOT NULL,
   `begin_state_id` int(11) UNSIGNED NOT NULL,
@@ -163,13 +158,11 @@ CREATE TABLE `transition_rule` (
   CONSTRAINT `fk_transition_rule_end_state` FOREIGN KEY (`end_state_id`) REFERENCES `state` (`id`),
   KEY `fk_transition_rule_condition_dispatch` (`condition_dispatch_id`),
   CONSTRAINT `fk_transition_rule_condition_dispatch` FOREIGN KEY (`condition_dispatch_id`) REFERENCES `service_dispatch` (`id`)
-  -- UNIQUE KEY `uk_rule_name` (`index_name`,`name`)
 );
 
 
 CREATE TABLE `switch_rule` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
   `begin_mode_id` int(11) UNSIGNED NOT NULL,
   `end_mode_id` int(11) UNSIGNED NOT NULL,
@@ -195,7 +188,7 @@ CREATE TABLE `switch_rule` (
   KEY `fk_switch_rule_after_dispatch` (`after_dispatch_id`),
     CONSTRAINT `c_switch_rule_after_dispatch` FOREIGN KEY (`after_dispatch_id`) REFERENCES `service_dispatch` (`id`),
 
-  UNIQUE KEY `uk_switch_rule_name` (`index_name`,`name`)
+  UNIQUE KEY `uk_switch_rule_name` (`name`)
 );
 
 create view `v_mode_switch_rule_dispatch` as
@@ -242,7 +235,6 @@ INSERT INTO transition_rule(name, mode_id, begin_state_id, end_state_id, conditi
 
 CREATE TABLE `mode_state` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `pid` varchar(32) NOT NULL,
   `mode_id` int(11) UNSIGNED NOT NULL,
   `state_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
@@ -265,7 +257,6 @@ CREATE TABLE `mode_state` (
 
 CREATE TABLE `mode_default` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `mode_id` int(11) UNSIGNED NOT NULL,
   `priority` int(3) UNSIGNED NOT NULL DEFAULT '0',
   `effect_dispatch_id` int(11) UNSIGNED,
@@ -306,7 +297,6 @@ create view `v_mode_default_dispatch_w_id` as
 
 CREATE TABLE `mode_state_default` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `mode_id` int(11) UNSIGNED NOT NULL,
   `state_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `priority` int(3) UNSIGNED NOT NULL DEFAULT '0',
@@ -319,7 +309,6 @@ CREATE TABLE `mode_state_default` (
 --   `effective_dt` datetime DEFAULT now(),
 --   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
-  -- UNIQUE KEY `mode_state_default_status` (`index_name`,`status`),
   KEY `fk_mode_state_default_dispatch` (`effect_dispatch_id`),
   CONSTRAINT `fk_mode_state_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `service_dispatch` (`id`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
@@ -568,7 +557,6 @@ INSERT INTO switch_rule(name, begin_mode_id, end_mode_id, condition_dispatch_id,
 
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `mode_state_default_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
   `name` varchar(128) NOT NULL,
   `value` varchar(1024) NOT NULL,
@@ -591,7 +579,6 @@ INSERT INTO mode_state_default_param(mode_state_default_id,name, value) VALUES
 
 -- CREATE TABLE `mode_state_default_operation` (
 --   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
---   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL default 'media',
 --   `mode_state_default_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
 --   `operation_id` int(11) UNSIGNED NOT NULL DEFAULT '0',
 --   `effective_dt` datetime DEFAULT NULL,
@@ -611,7 +598,6 @@ CREATE VIEW `v_mode_state_default_dispatch` AS
   WHERE ms.state_id = s.id
     AND ms.effect_dispatch_id = d.id
     AND ms.mode_id = m.id
-    AND ms.index_name = 'media'
   ORDER BY m.name, s.id;
 
 
@@ -622,7 +608,6 @@ CREATE VIEW `v_mode_state_default_dispatch_w_id` AS
   WHERE ms.state_id = s.id
     AND ms.effect_dispatch_id = d.id
     AND ms.mode_id = m.id
-    AND ms.index_name = 'media'
   ORDER BY m.name, s.id;
 
 
@@ -635,7 +620,6 @@ CREATE VIEW `v_mode_state_default_param` AS
     WHERE ms.state_id = s.id
       AND ms.mode_id = m.id
       AND msp.mode_state_default_id = ms.id
-      AND ms.index_name = 'media'
     ORDER BY m.name, s.id;
 
 DROP VIEW IF EXISTS `v_mode_state`;
@@ -646,7 +630,6 @@ CREATE VIEW `v_mode_state` AS
   FROM mode m, state s, mode_state ms
   WHERE ms.state_id = s.id
     AND ms.mode_id = m.id
-    AND ms.index_name = 'media'
   ORDER BY ms.effective_dt;
 
 COMMIT;
@@ -692,7 +675,7 @@ COMMIT;
 --   PRIMARY KEY (`id`),
 --   KEY `fk_dispatch_target_dispatch` (`dispatch_id`),
 --   CONSTRAINT `fk_dispatch_target_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `service_dispatch` (`id`)
--- );'media', 
+-- ); 
 
 -- DROP VIEW IF EXISTS `v_dispatch_target`;
 
@@ -704,7 +687,6 @@ COMMIT;
 
 -- CREATE TABLE `operator` (
 --   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
---   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
 --   `name` varchar(128) NOT NULL,
 --   `effective_dt` datetime DEFAULT NULL,
 --   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
@@ -713,14 +695,13 @@ COMMIT;
 
 -- INSERT INTO operator (name) VALUES ('scan');
 -- INSERT INTO operator (name) VALUES ('calc');
--- INSERT INTO operator (name) VALUES ('clean');index_name,name
+-- INSERT INTO operator (name) VALUES ('clean');
 -- INSERT INTO operator (name) VALUES ('analyze');
 -- INSERT INTO operator (name) VALUES ('fix');
 -- INSERT INTO operator (name) VALUES ('report');
 
 -- CREATE TABLE `operation` (
 --   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
---   `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
 --   `operator_id` int(11) UNSIGNED NOT NULL,
 --   `module_name` varchar(128) NOT NULL,
 --   `name` varchar(128) NOT NULL,

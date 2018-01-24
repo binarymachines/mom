@@ -18,7 +18,7 @@ import sys, os
 #     esidforpath = get_cached_esid(document_type, path)
 #     if esidforpath is None:
 #         key = DELIM.join(['ensure', esid])
-#         values = { 'index_name': config.es_index, 'document_type': document_type, 'absolute_path': path, 'esid': esid }
+#         values = { 'document_type': document_type, 'absolute_path': path, 'esid': esid }
 #         config.redis.hmset(key, values)
 #
 #

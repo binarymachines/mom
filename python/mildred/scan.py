@@ -9,9 +9,6 @@
 
 import logging
 import os
-import time
-
-from docopt import docopt
 
 import config
 import const
@@ -118,10 +115,10 @@ class Scanner(Walker):
     def before_handle_root(self, root):
         # MAX_RETRIES = 10
         # attempts = 1s
-        LOG.info('Considering %s...' % root)
+        # LOG.info('Considering %s...' % root)
  
         if ops.operation_in_cache(root, SCAN, SCANNER) or self.scan_should_skip(root): #and not self.deep_scan:
-            LOG.debug('skipping %s' % root)
+            # LOG.debug('skipping %s' % root)
             ops.update_listeners('skipping scan', SCANNER, root)
             return
 
@@ -162,7 +159,7 @@ class Scanner(Walker):
             
         for filename in os.listdir(root):
             path = os.path.join(root, filename)
-            if (os.path.isfile(path)):
+            if os.path.isfile(path):
                 self.process_file(path)
 
         ops.record_op_complete(directory['absolute_path'], SCAN, SCANNER, directory['esid'])
@@ -190,8 +187,8 @@ class Scanner(Walker):
             # or pathutil.is_curated(path):
             dirs = os.listdir(path)
             dirs.sort(reverse=True)
-            for dir in dirs:
-                sub_path = os.path.join(path, dir)
+            for d in dirs:
+                sub_path = os.path.join(path, d)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
                     self.vector.push_fifo(SCAN, sub_path)
                     expanded = True
@@ -207,11 +204,7 @@ class Scanner(Walker):
         library.cache_docs(const.FILE, path)
 
         ops.cache_ops(path, SCAN, op_status='COMPLETE')
-
-        if self.update_scan:
-            ops.cache_ops(path, READ)
-        else:
-            ops.cache_ops(path, READ, op_status='COMPLETE')
+        ops.cache_ops(path, READ, op_status=None if self.update_scan else 'COMPLETE')
             
         if self.high_scan:
             ops.record_op_begin(path, HSCAN, SCANNER)
@@ -222,14 +215,15 @@ class Scanner(Walker):
     @ops_func
     def _post_scan(self, path, update_ops):
 
-        ops.write_ops_data(path, SCAN)
         ops.write_ops_data(path, READ)
+        ops.write_ops_data(path, SCAN)
 
         if self.high_scan:
             ops.record_op_complete(path, HSCAN, SCANNER)
             ops.write_ops_data(path, HSCAN, SCANNER)
 
-        # if update_ops: 
+        if update_ops: 
+            pass
 
         library.clear_docs(const.FILE, path)
         self.vector.set_param(PERSIST, ACTIVE, None)
@@ -254,7 +248,7 @@ class Scanner(Walker):
 
         self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
         self.high_scan = self.vector.get_param(SCAN, HSCAN)
-        self.update_scan = self.vector.get_param(SCAN, USCAN)
+        self.update_scan = False  #self.vector.get_param(SCAN, USCAN)
 
         path = self.vector.get_param(PERSIST, ACTIVE)
         path_restored = path is not None and path != 'None'
@@ -283,14 +277,14 @@ class Scanner(Walker):
                         ops.cache_ops(path, HSCAN, SCANNER)
 
                 # if self.deep_scan or self.path_has_handlers(path) or self.vector.path_in_fifos(path, SCAN):
+                if self.scan_should_skip(path): 
+                    continue
+
                 if self.path_expands(path):
                     LOG.debug('expanded %s...' % path)
                     ops.update_listeners('expanded', SCANNER, path)
                     # self.vector.clear_active(SCAN)
                     last_expanded_path = path
-                    continue
-
-                if self.scan_should_skip(path): 
                     continue
 
                 print('scanning %s' % path)

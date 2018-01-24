@@ -19,7 +19,6 @@ DROP TABLE IF EXISTS `mode_state_default_param`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode_state_default_param` (
   `id` int(11) unsigned NOT NULL,
-  `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `mode_state_default_id` int(11) unsigned NOT NULL DEFAULT '0',
   `name` varchar(128) NOT NULL,
   `value` varchar(1024) NOT NULL,
@@ -33,9 +32,9 @@ CREATE TABLE `mode_state_default_param` (
 -- Dumping data for table `mode_state_default_param`
 --
 
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`) VALUES (1,'media',1,'high.level.scan','true');
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`) VALUES (2,'media',2,'update.scan','true');
-INSERT INTO `mode_state_default_param` (`id`, `index_name`, `mode_state_default_id`, `name`, `value`) VALUES (3,'media',3,'deep.scan','true');
+INSERT INTO `mode_state_default_param` (`id`, `mode_state_default_id`, `name`, `value`) VALUES (1, 1,'high.level.scan','true');
+INSERT INTO `mode_state_default_param` (`id`, `mode_state_default_id`, `name`, `value`) VALUES (2, 2,'update.scan','true');
+INSERT INTO `mode_state_default_param` (`id`, `mode_state_default_id`, `name`, `value`) VALUES (3, 3,'deep.scan','true');
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

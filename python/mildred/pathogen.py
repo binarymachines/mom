@@ -135,7 +135,10 @@ class MutagenMP4(Pathogen):
             
             known = filehandler.get_known_fields('m4a')
             if key not in known:
-                filehandler.add_field('m4a', key)
+                try:
+                    filehandler.add_field('m4a', key)
+                except Exception, err:
+                    continue
 
             if isinstance(item[1], bool):
                 value = item[1]
@@ -207,7 +210,10 @@ class MutagenFLAC(Pathogen):
             
             key = tag[0].lower()  #util.uu_str(tag[0])
             if key not in known:
-                filehandler.add_field('flac', key)
+                try:
+                    filehandler.add_field('flac', key)
+                except Exception, err:
+                    continue
                 
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
@@ -219,7 +225,10 @@ class MutagenFLAC(Pathogen):
         for tag in document.vc:
             key = util.uu_str(tag[0].lower())
             if key not in filehandler.get_known_fields('flac'):
-                filehandler.add_field('flac', key)
+                try:
+                    filehandler.add_field('flac', key)
+                except Exception, err:
+                    continue
 
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:

@@ -6,9 +6,7 @@ import sys
 
 from alchemy import SQLOperationRecord, SQLExecutionRecord
 import config
-import core.cache2
 import sql
-import start
 from core import cache2, log
 
 
@@ -21,10 +19,11 @@ EXEC = 'exec'
 OP_RECORD = {'pid': str(config.pid), 'operation_name': None, 'start_time': config.start_time, 'end_time': None, \
     'target_esid': None, 'target_path': None, 'status': None, 'persisted': False}
 
-EXEC_RECORD = {'id': None, 'pid': str(config.pid), 'index_name': config.es_index, 'start_time': config.start_time, 'end_time': None, \
+EXEC_RECORD = {'id': None, 'pid': str(config.pid), 'start_time': config.start_time, 'end_time': None, \
     'effective_dt': datetime.datetime.now(), 'expiration_dt': None, 'halt_requested':False, \
     'stop_requested':False, 'reconfig_requested': False, 'status': 'starting', 'commands': [], 'persisted': False}
 
+#TODO: move this decorator to introspection and apply to all functions as exception_trap
 def ops_func(function):
     def wrapper(*args, **kwargs):
         try:
@@ -59,7 +58,7 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status=No
     if op_status is None:
         rows = SQLOperationRecord.retrieve(path, operation, operator, apply_lifespan=apply_lifespan) 
     else:
-        rows =SQLOperationRecord.retrieve(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
+        rows = SQLOperationRecord.retrieve(path, operation, operator, apply_lifespan=apply_lifespan, op_status=op_status)
 
     count = len(rows)
     cached_count = 0
@@ -86,8 +85,8 @@ def clear_cached_operation(path, operation, operator=None):
 def flush_cache(resuming=False):
     write_ops_data(os.path.sep, resuming=resuming)
     if resuming is False:
-        LOG.info('flushing redis database')
-        core.cache2.datastore.flushdb()
+        LOG.info('flushing redis datastore, keys remain')
+        cache2.datastore.flushdb()
 
 
 def mark_operation_invalid(path, operation, operator):
@@ -368,7 +367,7 @@ def evaluate(no_pid=False):
     exec_rec = get_exec_record(no_pid=no_pid)
 
     if start_requested():
-        cache2.set_hash2(get_exec_key(no_pid=True), {'pid': NO_PID,'start_requested': False,  'stop_requested':False, 'reconfig_requested': False})
+        cache2.set_hash2(get_exec_key(no_pid=True), {'pid': NO_PID, 'start_requested': False, 'stop_requested':False, 'reconfig_requested': False})
         subprocess.call(["$MILDRED_HOME/bin/run.sh"], shell=True)
 
     commands = get_exec_record_value('commands')
@@ -395,8 +394,8 @@ def reconfig_requested():
     if len(values) > 0:
         try:
             return values['pid'] == config.pid and values['reconfig_requested'] == 'True'
-        except KeyError, ke:
-            ERR.error(': '.join([ke.__class__.__name__, ke.message]))
+        except KeyError, kerr:
+            ERR.error(': '.join([kerr.__class__.__name__, kerr.message]))
 
 
 def stop_requested():
@@ -404,24 +403,24 @@ def stop_requested():
     try:
         if len(values) > 0:
             return values['pid'] == config.pid and values['stop_requested'] == 'True'
-    except KeyError, ke:
-        ERR.error(': '.join([ke.__class__.__name__, ke.message]))
+    except KeyError, kerr:
+        ERR.error(': '.join([kerr.__class__.__name__, kerr.message]))
 
 def halt_requested():
     values = cache2.get_hash2(get_exec_key())
     try:
         if len(values) > 0:
             return values['pid'] == config.pid and values['halt_requested'] == 'True'
-    except KeyError, ke:
-        ERR.error(': '.join([ke.__class__.__name__, ke.message]))
+    except KeyError, kerr:
+        ERR.error(': '.join([kerr.__class__.__name__, kerr.message]))
 
 def start_requested():
     try:
         values = cache2.get_hash2(get_exec_key(no_pid=True))
         if len(values) > 0:
             return values['pid'] == NO_PID and values['start_requested'] == 'True'
-    except KeyError, ke:
-        ERR.error(': '.join([ke.__class__.__name__, ke.message]))
+    except KeyError, kerr:
+        ERR.error(': '.join([kerr.__class__.__name__, kerr.message]))
 
 
 # redis pub/sub

@@ -66,7 +66,7 @@ def purge_problem_esids():
                 sql.execute_query(query)
 
                 try:
-                    config.es.delete(index=config.es_index,doc_type=a.document_type,id=esid)
+                    config.es.delete(index=const.DIRECTORY, doc_type=a.document_type,id=esid)
                 except Exception, err:
                     LOG.error(': '.join([err.__class__.__name__, err.message]))
 

@@ -24,11 +24,11 @@
             "program": "${workspaceRoot}/python/mildred/launch.py",
             "args": [
                 // "--clearmem"
-                // // "--exit"
-                // "--reset"
-                // "--map-paths"
-                // , "/media/codex/Media/audio/music"
-                "--clearmem"
+                // , "--exit"
+                // "--reset", "mode_state", "exec_rec", "op_record", "match_record", "document"
+                "--map-paths"
+                , "/media/codex/Media/audio/music/incoming"
+                // , "--clearmem"
                 // , "--exit"
 
                 // "--nomatch"

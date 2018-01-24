@@ -18,8 +18,6 @@ CREATE TABLE `es_search_spec` (
 
 CREATE TABLE `es_search_field_spec` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  -- `index_name` varchar(128) CHARACTER SET utf8 NOT NULL,
-  -- `document_type` varchar(64) NOT NULL DEFAULT 'media_file',
   -- `es_clause_id` int(11) unsigned NOT NULL,
   `field_name` varchar(128) NOT NULL,
   `boost` float NOT NULL DEFAULT '0',

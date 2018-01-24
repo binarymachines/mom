@@ -120,12 +120,12 @@ class MediaMatcher(object):
     # TODO: assign weights to various matchers.
     def match_recorded(self, asset_id, match_id):
 
-        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [asset_id, match_id, self.name, config.es_index])
+        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name'], [asset_id, match_id, self.name])
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name', 'index_name'], [match_id, asset_id, self.name, config.es_index])
+        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name'], [match_id, asset_id, self.name])
         if len(rows) == 1:
             return True
 
@@ -234,7 +234,7 @@ class ElasticSearchMatcher(MediaMatcher):
         LOG.info('%s seeking matches for %s - %s' % (self.name, asset.esid, asset.absolute_path))
         previous_matches = library.get_matches(self.name, asset.esid)
 
-        res = config.es.search(index=config.es_index, doc_type=const.FILE, body=self.get_query(asset))
+        res = config.es.search(index=config.es_file_index, doc_type=const.FILE, body=self.get_query(asset))
         max_score = res['hits']['max_score']
         for match in res['hits']['hits']:
             if match['_id'] == doc['_id'] or match['_id'] in previous_matches:

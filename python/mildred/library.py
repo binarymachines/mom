@@ -157,7 +157,7 @@ def get_doc_keys(document_type):
     
 
 def retrieve_docs(document_type, path):
-    return sql.run_query_template(RETRIEVE_DOCS, config.es_index, document_type, path)
+    return sql.run_query_template(RETRIEVE_DOCS, document_type, path)
 
 # assets
 
@@ -193,9 +193,12 @@ def retrieve_asset(absolute_path, esid=None, check_cache=True, check_db=True):
 
 
 def index_asset(data):
-    res = config.es.index(index=config.es_index, doc_type=data['document_type'], body=json.dumps(strip_esid(data)))
+    res = config.es.index(index=data['document_type'], doc_type=data['document_type'], body=json.dumps(strip_esid(data)))
     if res['_shards']['successful'] == 1:
         return res['_id']
+
+ATTRIBUTES = 'attributes'
+FAILED_TO_PARSE = 'failed to parse'
 
 def create_asset_metadata(data, file_type=None):
     try:
@@ -211,28 +214,25 @@ def create_asset_metadata(data, file_type=None):
         pp.pprint(err.args[2])
        
         error_string = err.args[2]['error']['reason']
-        ATTRIBUTES = 'attributes'
-        FAILED_TO_PARSE = 'failed to parse'
         if error_string.startswith(FAILED_TO_PARSE):
-            try:
-                error_field = error_string.replace(FAILED_TO_PARSE, '').replace('[', '').replace(']', '').strip()
-                error_type = err.args[2]['error']['type']
-                error_cause =  err.args[2]['error']['caused_by']['reason']
- 
-                if error_field.startswith(ATTRIBUTES):
-                    error_field = error_field.replace('%s.' % ATTRIBUTES, '').strip()
-                    for index in range(len(data[ATTRIBUTES])):
-                        props = data[ATTRIBUTES][index]
-                        if props[error_field] == error_cause:
-                            props[error_field] = None
-                            data[ATTRIBUTES][index] = props
+            # try:
+            error_field = error_string.replace(FAILED_TO_PARSE, '').replace('[', '').replace(']', '').strip()
+            error_type = err.args[2]['error']['type']
+            error_cause =  err.args[2]['error']['caused_by']['reason']
 
-                            return create_asset_metadata(data)
-            except Exception, err3:
-                ERR.error("LOGGING ERROR %s" % err3.args[0])
- 
+            if error_field.startswith(ATTRIBUTES):
+                error_field = error_field.replace('%s.' % ATTRIBUTES, '').strip()
+                for index in range(len(data[ATTRIBUTES])):
+                    props = data[ATTRIBUTES][index]
+                    if props[error_field] == error_cause:
+                        props[error_field] = None
+                        data[ATTRIBUTES][index] = props
+
+                        return create_asset_metadata(data)
+            # except Exception, err3:
+            #     ERR.error("LOGGING ERROR %s" % err3.args[0])
         raise Exception(err, err.message)
-
+        
     except ConnectionError, err:
         return wait_and_resubmit_asset(err, data)
 
@@ -241,7 +241,7 @@ def create_asset_metadata(data, file_type=None):
         raise err
 
     except Exception, err:
-        config.es.delete(config.es_index, data['document_type'], data['esid'])
+        config.es.delete(data['document_type'], data['document_type'], data['esid'])
         ERR.error(': '.join([err.__class__.__name__, err.message]))
         raise err
                 
@@ -255,14 +255,14 @@ def wait_and_resubmit_asset(err, data):
     while es_avail is False:
         ERR.error(err.__class__.__name__)
         time.sleep(5)
-        return resubmit_asset(data)
+        if resubmit_asset(data):
+            return True 
     
 @ops_func
 def resubmit_asset(data):
     try:
         config.es = search.connect()
-        if config.es.indices.exists(config.es_index):
-            es_avail = True
+        if config.es.indices.exists(data['document_type']):
             print "resuming..." 
             return create_asset_metadata(data)
     # except RequestError
@@ -308,7 +308,7 @@ def update_asset(data):
                     data['attributes'].append(old_data[index])
 
             try:
-                res = config.es.update(index=config.es_index, doc_type=data['document_type'], id=data['esid'], body=json.dumps({'doc': strip_esid(data)}))
+                res = config.es.update(index=data['document_type'], doc_type=data['document_type'], id=data['esid'], body=json.dumps({'doc': strip_esid(data)}))
                 if res['_shards']['successful'] == 1:
                     return res['_id']
             except RequestError, err:

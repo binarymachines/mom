@@ -19,7 +19,7 @@ class Result:
         self.__dict__ = kwargs
 
     def set_value(self, name, value):
-        self.__dict__[name]  = value
+        self.__dict__[name] = value
 
 def quote_if_string(value):
     if isinstance(value, basestring):
@@ -131,17 +131,18 @@ def execute_query(query, host=config.mysql_host, user=config.mysql_user, passwor
         cur = con.cursor()
         cur.execute(query)
         con.commit()
-    except mdb.Error, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]))
-        raise Exception(e.message)
-    except TypeError, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]))
-        raise Exception(e.message)
-    except Exception, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]))
-        raise Exception(e.message)
+    # except mdb.Error, e:
+    #     ERR.error(': '.join([e.__class__.__name__, e.message]))
+    #     raise Exception(e.message)
+    except TypeError, err:
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
+        raise Exception(err.message)
+    except Exception, err:
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
+        raise Exception(err.message)
     finally:
-        if con: con.close()
+        if con: 
+            con.close()
 
 
 def run_query(query, host=config.mysql_host, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db):
@@ -154,15 +155,15 @@ def run_query(query, host=config.mysql_host, user=config.mysql_user, password=co
         LOG.info(query)
         cur.execute(query)
         rows = cur.fetchall()
-    except mdb.Error, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]))
-        raise Exception(e, e.message)
-    except TypeError, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]))
-        raise Exception(e.message)
-    except Exception, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]))
-        raise Exception(e.message)
+    # except mdb.Error, e:
+    #     ERR.error(': '.join([e.__class__.__name__, e.message]))
+    #     raise Exception(e, e.message)
+    except TypeError, err:
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
+        raise Exception(err.message)
+    except Exception, err:
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
+        raise Exception(err.message)
     finally:
         if con: con.close()
 
@@ -201,13 +202,13 @@ def _load_query(filename, *args):
     newargs = [quote_if_string(value) for value in args],
     try:
         query = ""
-        with open('%s/%s.sql' % (var.sqldir, filename), 'r') as f:
-            for line in f:
+        with open('%s/%s.sql' % (var.sqldir, filename), 'r') as file:
+            for line in file:
                 if line.startswith('--'):
                     # line.replace('\n', '')
                     continue
                 query += line
-            f.close()
+            file.close()
             
         # substitute wildcard and escape single quotes
         argstup = ()
@@ -218,7 +219,8 @@ def _load_query(filename, *args):
         query = query.replace('*', WILD)
 
         return query 
-    except IOError, e:
-        ERR.error(': '.join([e.__class__.__name__, e.message]))
+    except IOError, err:
+        ERR.error(': '.join([err.__class__.__name__, err.message]))
         # raise Exception("IOError: %s when loading py/sql/%s.sql" % (e.args[1], filename))
         sys.exit(0)
+        

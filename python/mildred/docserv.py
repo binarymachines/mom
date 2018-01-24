@@ -177,7 +177,7 @@ def create_service_process(identifier, vector, owner=None, before=None, after=No
     return alternative(identifier, vector)
 
 class ServiceModeInitializer(object):
-        pass
+    pass
 
 class DecisionHandler(object):
 
@@ -190,7 +190,8 @@ class DecisionHandler(object):
     def possibly(self, selector, active, possible):
         count = 0
         for mode in selector.modes:
-             if bool(random.getrandbits(1)): count += 1
+            if bool(random.getrandbits(1)): 
+                count += 1
         return count > 3
 
 
@@ -232,7 +233,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
         initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
 
         if initial_and_update_scan_complete:
-            if possible is self.owner.matchmode:
+            if possible is self.owner.match:
                 if self.vector.has_next(MATCH):
                     # return config.match
                     return False

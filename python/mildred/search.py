@@ -64,21 +64,6 @@ def create_index(index):
             "settings" : {
                 "number_of_shards": 1,
                 "number_of_replicas": 0
-            },
-            "mappings": {
-                FILE: {
-                    "date_detection": False,
-                    "properties":{
-                        "attributes":{
-                            "type" : "nested",
-                            "properties":{
-                                "TXXX":{
-                                    "type" : "nested"
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
         res = config.es.indices.create(index, request_body)
@@ -93,7 +78,7 @@ def delete_doc(doc):
     document_type = doc['_type']
     if backup_doc(doc, target_folder=var.outqueuedir):
         try:
-            config.es.delete(config.es_index, document_type, doc_id)
+            config.es.delete(document_type, document_type, doc_id)
         except Exception, err:
             LOG.error(err.message)
 
@@ -108,7 +93,7 @@ def delete_docs(document_type, attribute, value):
 # find documents with matching top-level attribute, (doc['_source']['attribute'])
 def find_docs(document_type, attribute, value):
     result = ()
-    res = config.es.search(config.es_index, doc_type=document_type, body={ "query": { "match" : { "%s" % attribute: value }}})
+    res = config.es.search(document_type, doc_type=document_type, body={ "query": { "match" : { "%s" % attribute: value }}})
     for doc in res['hits']['hits']:
         try:
             if doc['_source'][attribute] == value:
@@ -121,12 +106,12 @@ def find_docs(document_type, attribute, value):
 
 def find_docs_missing_attribute(document_type, attribute, max_results=1000):
     query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : attribute }}}}}
-    return config.es.search(config.es_index, document_type, query, size=max_results)
+    return config.es.search(document_type, document_type, query, size=max_results)
 
 
 def get_doc(document_type, esid):
     try:
-        return config.es.get(index=config.es_index, doc_type=document_type, id=esid)
+        return config.es.get(index=document_type, doc_type=document_type, id=esid)
     except Exception, err:
         LOG.error(err.message)
         raise Exception('DOC NOT FOUND FOR ID: %s' % esid)

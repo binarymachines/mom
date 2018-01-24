@@ -259,7 +259,7 @@ def get_directories(path):
 
     q = """SELECT id, absolute_path FROM document
             WHERE index_name = '%s' and document_type = 'media_'
-              and absolute_path like '%s%s%s' ORDER BY absolute_path""" % (config.es_index, '%', path, '%')
+              and absolute_path like '%s%s' ORDER BY absolute_path""" % ('%', path, '%')
 
     return sql.run_query(q)
 
@@ -267,14 +267,14 @@ def get_matches(esid, reverse=False, union=False):
 
     query = {'match': """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result
                            FROM match_record m, document es
-                         WHERE es.index_name = '%s' and es.id = m.match_doc_id and m.doc_id = '%s'
-                         """ % (config.es_index, esid) }
+                         WHERE es.id = m.match_doc_id and m.doc_id = '%s'
+                         """ % (esid) }
 
 
     query['reverse'] = """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result
                                   FROM match_record m, document es
-                                WHERE es.index_name = '%s' and es.id = m.doc_id and m.match_doc_id = '%s'
-                                """ % (config.es_index, esid)
+                                WHERE es.id = m.doc_id and m.match_doc_id = '%s'
+                                """ % (esid)
 
     query['union'] = query['match'] + ' union ' + query['reverse']
 
@@ -289,14 +289,12 @@ def get_documents(path, reverse=False, union=False):
     print 'retrieving mediafiles for path: "%s"' % (path)
 
     query = {'match':  """SELECT es.id, es.absolute_path FROM document es
-                        WHERE index_name = '%s'
-                            and es.absolute_path LIKE "%s%s"
-                            and es.id IN (SELECT doc_id FROM match_record) ORDER BY es.absolute_path""" % (config.es_index, path, '%') }
+                        WHERE es.absolute_path LIKE "%s%s"
+                            and es.id IN (SELECT doc_id FROM match_record) ORDER BY es.absolute_path""" % (path, '%') }
 
     query['reverse'] = """SELECT es.id, es.absolute_path FROM document es
-                WHERE index_name = '%s'
-                    and es.absolute_path LIKE "%s%s"
-                    and es.id IN (SELECT match_doc_id FROM match_record) ORDER BY es.absolute_path""" % (config.es_index, path, '%')
+                WHERE es.absolute_path LIKE "%s%s"
+                    and es.id IN (SELECT match_doc_id FROM match_record) ORDER BY es.absolute_path""" % (path, '%')
 
     query['union'] = query['match'] + ' union ' + query['reverse']
 

@@ -46,8 +46,10 @@ def execute(args):
         try:
             LOG.debug('connecting to Elasticsearch...')
             config.es = search.connect()
-            if not config.es.indices.exists(config.es_index):
-                search.create_index(config.es_index)
+            if not config.es.indices.exists(config.es_dir_index):
+                search.create_index(config.es_dir_index)
+            if not config.es.indices.exists(config.es_file_index):
+                search.create_index(config.es_file_index)
 
         except Exception, err:
             config.started = False
@@ -66,7 +68,7 @@ def execute(args):
 
         try:
             if 'reset' in options:
-                reset()
+                reset(args)
             
             if 'clearmem' in options:
                 LOG.debug('clearing data from prior execution...')
@@ -125,33 +127,36 @@ def make_options(args):
     return options
 
 
-def reset():
-    print "RESETTING ALL DATA"
+def reset(args):
+    print(" ********************** RESETTING DATA **********************")
 
-    # response = raw_input("All data will be deleted, are you sure? (yes, no): ")
-    # if response.lower() == 'yes':
+    cache2.keystore.flushall()
     cache2.datastore.flushall()
 
     try:
-        search.clear_index(config.es_index)
-        search.create_index(config.es_index)
+        search.create_index(config.es_dir_index)
+        search.create_index(config.es_file_index)
     except Exception, err:
         ERR.WARNING(err.message)
 
-    for table in ['alias_document_attribute', 'alias', 'document_attribute']:
+    for table in ['exec_rec', 'op_record', 'match_record', 'document']:
         query = 'delete from %s' % (table)
         sql.execute_query(query)
 
+    # stores = [] if not args['--reset'] else args['<reset>']
+    # for store in stores:
+        # pass
+
     for table in ['directory']:
-        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+        query = 'delete from %s' % (table)
         sql.execute_query(query)
 
-    for table in ['document', 'match_record', 'op_record']:
-        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
-        sql.execute_query(query)
+    # for table in []:
+    #     query = 'delete from %s' % (table)
+    #     sql.execute_query(query)
 
     for table in ['mode_state']:
-        query = 'delete from %s where index_name = "%s"' % (table, config.es_index)
+        query = 'delete from %s where' % (table)
         sql.execute_query(query, schema="mildred_introspection")
 
 
@@ -182,7 +187,6 @@ def display_status():
     print 'Redis datastore dbsize: %i' % cache2.datastore.dbsize()
     print """Elasticsearch host: %s""" % config.es_host
     print """Elasticsearch port: %i""" % config.es_port
-    print """Elasticsearch index: %s""" % config.es_index
     print"""MySQL username: %s""" % config.mysql_user
     print """MySQL host: %s""" % config.mysql_host
     print """MySQL port: %i""" % config.mysql_port
