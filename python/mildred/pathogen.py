@@ -133,12 +133,7 @@ class MutagenMP4(Pathogen):
             if '.' in key: 
                 continue
             
-            known = filehandler.get_known_fields('m4a')
-            if key not in known:
-                try:
-                    filehandler.add_field('m4a', key)
-                except Exception, err:
-                    continue
+            self.handle_attribute('m4a', key)
 
             if isinstance(item[1], bool):
                 value = item[1]
@@ -150,7 +145,7 @@ class MutagenMP4(Pathogen):
 
 
             if isinstance(value, unicode) and len(value) > MAX_DATA_LENGTH:
-                # filehandler.report_invalid_field(path, key, value)
+                # filehandler.report_invalid_attribute(path, key, value)
                 continue
 
             self.tags[key] = util.uu_str(value)
@@ -178,15 +173,11 @@ class MutagenAPEv2(Pathogen):
                 continue
 
             key = util.uu_str(item[0].lower())
-            if key not in filehandler.get_known_fields('apev2'):
-                try:
-                    filehandler.add_field('apev2', key)
-                except Exception, err:
-                    continue
+            self.handle_attribute('apev2', key)
                     
             value = util.uu_str(item[1].value)
             if len(value) > MAX_DATA_LENGTH:
-                # filehandler.report_invalid_field(path, key, value)
+                # filehandler.report_invalid_attribute(path, key, value)
                 continue
 
             self.tags[key] = value
@@ -206,33 +197,25 @@ class MutagenFLAC(Pathogen):
         document = FLAC(path)
         for tag in document.tags:
             if len(tag) < 2: continue
-            known = filehandler.get_known_fields('flac')
+            known = filehandler.get_attributes('flac')
             
             key = tag[0].lower()  #util.uu_str(tag[0])
-            if key not in known:
-                try:
-                    filehandler.add_field('flac', key)
-                except Exception, err:
-                    continue
+            self.handle_attribute('flac', key)
                 
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
-                # filehandler.report_invalid_field(path, key, value)
+                # filehandler.report_invalid_attribute(path, key, value)
                 continue
             self.tags[key] = value
 
 
         for tag in document.vc:
             key = util.uu_str(tag[0].lower())
-            if key not in filehandler.get_known_fields('flac'):
-                try:
-                    filehandler.add_field('flac', key)
-                except Exception, err:
-                    continue
+            self.handle_attribute('flac', key)
 
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
-                # filehandler.report_invalid_field(path, key, value)
+                # filehandler.report_invalid_attribute(path, key, value)
                 continue
 
             if key not in self.tags:
@@ -263,18 +246,15 @@ class MutagenID3(Pathogen):
                 continue
 
             key = util.uu_str(tag[0].lower())
-            if len(key) == 4 and key not in filehandler.get_known_fields(document_format) and key != "TXXX":
-                try:
-                    filehandler.add_field(document_format, key)
-                except Exception, err:
-                    continue
+            if len(key) == 4 and key != "TXXX":
+                self.handle_attribute(document_format, key)
 
             value = util.uu_str(tag[1])
             if value is None:
                 continue
 
             if len(value) > MAX_DATA_LENGTH:
-                # filehandler.report_invalid_field(path, key, value)
+                # filehandler.report_invalid_attribute(path, key, value)
                 # LOG.info(value)
                 continue
             
@@ -289,16 +269,11 @@ class MutagenID3(Pathogen):
                     continue
                 
                 txxkey = '.'.join([key, subkey]).lower()
-                if txxkey not in filehandler.get_known_fields(document_format):
-                    try:
-                        filehandler.add_field(document_format, txxkey)
-                    except Exception, err:
-                        continue
-
+                self.handle_attribute(document_format, txxkey)
                 self.tags[key][subkey] = util.uu_str(subtags[1])
 
             else:
-                # if key in filehandler.get_fields(document_format):
+                # if key in filehandler.get_attributes(document_format):
                 self.tags[key] = util.uu_str(value)
 
         if len(self.tags) > 0:
@@ -309,7 +284,7 @@ class MutagenID3(Pathogen):
 
 
 class MutagenOggVorbis(Pathogen):
-    def __init__(self):
+    def __init__(self):                
         super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis')
 
     def read_tags(self, path, data):
@@ -320,15 +295,11 @@ class MutagenOggVorbis(Pathogen):
                 continue
 
             key = util.uu_str(tag.lower())
-            if key not in filehandler.get_known_fields('ogg'):
-                try:
-                    filehandler.add_field('ogg', key)
-                except Exception, err:
-                    continue
+            self.handle_attribute('ogg', key)
 
             value = util.uu_str(tags[tag])
             if len(value) > MAX_DATA_LENGTH:
-                # filehandler.report_invalid_field(path, key, value)
+                # filehandler.report_invalid_attribute(path, key, value)
                 continue
 
             self.tags[key] = value[0]

@@ -271,7 +271,8 @@ def resubmit_asset(data):
 
 def retrieve_esid(document_type, absolute_path):
     cached = get_cached_esid(document_type, absolute_path)
-    if cached: return cached
+    if cached: 
+        return cached
 
     rows = SQLAsset.retrieve(document_type, absolute_path)
     if len(rows) == 0: 

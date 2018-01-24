@@ -134,6 +134,8 @@ def reset(args):
     cache2.datastore.flushall()
 
     try:
+        search.clear_index(config.es_dir_index)
+        search.clear_index(config.es_file_index)
         search.create_index(config.es_dir_index)
         search.create_index(config.es_file_index)
     except Exception, err:
@@ -147,16 +149,16 @@ def reset(args):
     # for store in stores:
         # pass
 
-    for table in ['directory']:
-        query = 'delete from %s' % (table)
-        sql.execute_query(query)
+    # for table in ['directory']:
+    #     query = 'delete from %s' % (table)
+    #     sql.execute_query(query)
 
     # for table in []:
     #     query = 'delete from %s' % (table)
     #     sql.execute_query(query)
 
     for table in ['mode_state']:
-        query = 'delete from %s where' % (table)
+        query = 'delete from %s' % (table)
         sql.execute_query(query, schema="mildred_introspection")
 
 

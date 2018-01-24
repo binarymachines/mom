@@ -60,12 +60,37 @@ def create_index(index):
     try:
         LOG.debug("creating '%s' index..." % index)
         # since we are running locally, use one shard and no replicas
-        request_body = {
-            "settings" : {
-                "number_of_shards": 1,
-                "number_of_replicas": 0
-            }
+        if index == const.FILE:
+             request_body = {
+           "settings" : {
+               "number_of_shards": 1,
+               "number_of_replicas": 0
+           },
+           "mappings": {
+               FILE: {
+                   "date_detection": False,
+                   "properties":{
+                       "attributes":{
+                           "type" : "nested",
+                           "properties":{
+                               "TXXX":{
+                                   "type" : "nested"
+                               }
+                           }
+                       }
+                   }
+               }
+           }
         }
+
+        else:
+            request_body = {
+                "settings" : {
+                    "number_of_shards": 1,
+                    "number_of_replicas": 0
+                }
+            }
+        
         res = config.es.indices.create(index, request_body)
         LOG.debug("response: '%s'" % res)
     

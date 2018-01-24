@@ -14,29 +14,16 @@ DELIM = ','
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
 
-def add_field(doc_format, field_name):
+def add_attribute(doc_format, attribute):
     """add an attribute to document_attribute for the specified document_type"""
-    if field_name not in get_known_fields(doc_format, refresh=True): 
-        SQLDocumentAttribute.insert(doc_format, field_name)
-        cache2.add_item(KNOWN, doc_format, field_name)
+    try: 
+        SQLDocumentAttribute.insert(doc_format, attribute.lower())
+        cache2.add_item(KNOWN, doc_format, attribute)
+    except Exception, err:
+        pass
 
 
-def get_fields(doc_format, refresh=False):
-    """get attributes from document_attribute for the specified document_type"""
-    keygroup = 'fields'
-
-    items = cache2.get_items(keygroup, doc_format)
-    if len(items) == 0 or refresh:
-        cache2.clear_items(keygroup, doc_format)
-        rows = sql.retrieve_values2('document_attribute', ['active_flag', 'document_format', 'attribute_name'], ['1', doc_format])
-        cache2.add_items(keygroup, doc_format, [row.attribute_name for row in rows])
-        items = cache2.get_items(keygroup, doc_format)
-
-    # LOG.debug('get_fields(doc_format=%s) returns: %s' % (doc_format, str(items)))
-    return items
-
-
-def get_known_fields(doc_format, refresh=False):
+def get_attributes(doc_format, refresh=False):
     """retrieve all attributes, including unused ones, from document_attribute for the specified document_type"""
 
     items = cache2.get_items(KNOWN, doc_format)
@@ -46,15 +33,15 @@ def get_known_fields(doc_format, refresh=False):
         cache2.add_items(KNOWN, doc_format, [row.attribute_name for row in rows])
         items = cache2.get_items(KNOWN, doc_format)
 
-    # LOG.debug('get_known_fields(doc_format=%s) returns: %s' % (doc_format, str(items)))
+    # LOG.debug('get_attributes(doc_format=%s) returns: %s' % (doc_format, str(items)))
     return items
 
     # rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format])
     # return rows
 
-def report_invalid_field(path, key, value):
+def report_invalid_attribute(path, key, value):
     try:
-        LOG.debug('Field %s in %s contains too much data.' % (key, path))
+        LOG.debug('Attribute %s in %s contains too much data.' % (key, path))
         LOG.debug(value)
     except UnicodeDecodeError, err:
         pass
@@ -64,6 +51,14 @@ class FileHandler(object):
     def __init__(self, name):
         self.name = name
         self.extensions = ()
+
+    def handle_attribute(self, doc_format, attribute):
+        attribs = get_attributes(doc_format)
+        if attribute not in attribs and \
+            attribute.upper() not in attribs and \
+            attribute.lower() not in attribs:
+            
+            add_attribute(doc_format, attribute)
 
     def handle_exception(self, exception, path, data):
         raise Exception

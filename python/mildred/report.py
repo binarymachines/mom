@@ -316,11 +316,11 @@ def get_media_meta_data(es, esid, media_data):
         media_data['file_size'] = doc['_source']['file_size']
 
         tag_data = {}
-        for field in read.get_fields('id3v2'): # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in read.get_attributes('id3v2'): # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
 
-        for field in read.get_fields('id3v2.txxx'): # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
+        for field in read.get_attributes('id3v2.txxx'): # ['TPE1', 'TPE2', 'TENC', 'TALB', 'TFLT', 'TIT1', 'TIT2', 'TRCK']:
             if field in doc['_source']:
                 tag_data[field] = doc['_source'][field]
 

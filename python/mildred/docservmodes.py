@@ -230,15 +230,17 @@ class ScanModeHandler(DefaultModeHandler):
 
     @ops_func
     def do_scan_discover(self):
-        startpath = self.path_to_map()
-        if startpath:
+        startpath = self.path_to_map()        
+        if startpath and self.vector.get_param('all', 'map-paths').lower() == 'true':
             print("discover scan starting in %s..." % startpath)
             paths = disc.discover(startpath)
             if paths is None or len(paths) == 0:
                 print('No media folders were found in discovery scan.')
+                self.vector.set_param('all', 'map-paths', False)
+                self.vector.clear_param('all', 'start-path')
             else:
                 self.vector.paths.extend(paths)
-                self.vector.clear_param('all', 'map-paths')
+                self.vector.set_param('all', 'map-paths', False)
                 self.vector.clear_param('all', 'start-path')
             
 

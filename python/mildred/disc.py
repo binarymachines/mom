@@ -47,6 +47,7 @@ class Discover(Walker):
 
     @ops_func
     def handle_root(self, root):
+        LOG.info("Considering %s" % root)
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if root not in shallow.get_locations():
                 if pathutil.folder_is_media_root(root, self.formats, self.types):
