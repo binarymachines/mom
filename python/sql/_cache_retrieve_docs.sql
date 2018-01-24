@@ -3,7 +3,6 @@
 --
 SELECT absolute_path, id
   FROM document
- WHERE index_name = '%s'
-   AND document_type = '%s'
+ WHERE document_type = '%s'
    AND absolute_path LIKE '%s*'
  ORDER BY absolute_path
