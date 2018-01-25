@@ -123,7 +123,7 @@ class Analyzer(object):
         # actions = self.retrieve_types()
         reasons = self.get_meta_reasons()
 
-        for file_ in SQLAsset.retrieve(const.FILE, path, use_like_in_where_clause=True):
+        for file_ in SQLAsset.retrieve(const.FILE, path, use_like=True):
             document = Document(file_.absolute_path, esid=file_.id)
             # esdoc = search.get_doc(const.FILE, document.esid)
             # document.data = document.to_dictionary()
@@ -131,7 +131,7 @@ class Analyzer(object):
             # if no op record exists
             self.analyze_asset(reasons, document)
 
-        # for folder in SQLAsset.retrieve(const.DIRECTORY, path, use_like_in_where_clause=True):
+        # for folder in SQLAsset.retrieve(const.DIRECTORY, path, use_like=True):
         #     directory = Directory(folder.absolute_path, esid=folder.id)
         #     esdoc = search.get_doc(const.DIRECTORY, directory.esid)
         #     directory.data = directory.to_dictionary()

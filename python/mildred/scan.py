@@ -72,7 +72,7 @@ class Scanner(Walker):
     def process_file(self, path):
         directory = library.get_cached_directory()
         try:           
-            asset = library.retrieve_asset(path, check_db=False)
+            asset = library.retrieve_asset(path, check_db=True)
             if asset.available is False: 
                 return
 

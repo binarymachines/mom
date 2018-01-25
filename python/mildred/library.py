@@ -121,7 +121,7 @@ def cache_docs(document_type, path, flush=True):
         clear_docs(document_type, os.path.sep)
     ops.update_listeners('retrieving documents', 'library', path)
     LOG.debug('retrieving %s records for %s...' % (document_type, path))
-    rows = SQLAsset.retrieve(document_type, path)
+    rows = SQLAsset.retrieve(document_type, path, use_like=True)
 
     count = len(rows)
     cached_count = 0

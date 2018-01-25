@@ -25,7 +25,7 @@
             "args": [
                 // "--clearmem"
                 // , "--exit"
-                "--reset",
+                // "--reset",
                 //  "mode_state", "exec_rec", "op_record", "match_record", "document",
                 // "--map-paths"
                 // , "/media/codex/Cache/unsorted/audio/"

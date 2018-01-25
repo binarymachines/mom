@@ -292,31 +292,25 @@ class SQLAsset(Document):
 
     @staticmethod
     @alchemy_func
-    def retrieve(document_type, absolute_path=None, use_like_in_where_clause=False):
+    def retrieve(document_type, absolute_path=None, use_like=False):
         path = '%s%s' % (absolute_path, '%')
 
         result = ()
         if absolute_path is None:
             for instance in sessions[MILDRED].query(SQLAsset). \
-                filter(SQLAsset.document_type == document_type). \
-                filter(SQLAsset.effective_dt < datetime.datetime.now()). \
-                filter(SQLAsset.expiration_dt > datetime.datetime.now()):
+                filter(SQLAsset.document_type == document_type):
                 result += (instance,)
 
-        elif use_like_in_where_clause:
+        elif use_like:
             for instance in sessions[MILDRED].query(SQLAsset). \
                 filter(SQLAsset.document_type == document_type). \
-                filter(SQLAsset.absolute_path.like(path)). \
-                filter(SQLAsset.effective_dt < datetime.datetime.now()). \
-                filter(SQLAsset.expiration_dt > datetime.datetime.now()):
+                filter(SQLAsset.absolute_path.like(path)):
                 result += (instance,)
 
         else:
             for instance in sessions[MILDRED].query(SQLAsset). \
                 filter(SQLAsset.document_type == document_type). \
-                filter(SQLAsset.absolute_path == path). \
-                filter(SQLAsset.effective_dt < datetime.datetime.now()). \
-                filter(SQLAsset.expiration_dt > datetime.datetime.now()):
+                filter(SQLAsset.absolute_path == path):
                 result += (instance,)
 
         return result
