@@ -298,19 +298,25 @@ class SQLAsset(Document):
         result = ()
         if absolute_path is None:
             for instance in sessions[MILDRED].query(SQLAsset). \
-                filter(SQLAsset.document_type == document_type):
+                filter(SQLAsset.document_type == document_type). \
+                filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
+                filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
                 result += (instance,)
 
         elif use_like:
             for instance in sessions[MILDRED].query(SQLAsset). \
                 filter(SQLAsset.document_type == document_type). \
-                filter(SQLAsset.absolute_path.like(path)):
+                filter(SQLAsset.absolute_path.like(path)). \
+                filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
+                filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
                 result += (instance,)
 
         else:
             for instance in sessions[MILDRED].query(SQLAsset). \
                 filter(SQLAsset.document_type == document_type). \
-                filter(SQLAsset.absolute_path == path):
+                filter(SQLAsset.absolute_path == path). \
+                filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
+                filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
                 result += (instance,)
 
         return result
