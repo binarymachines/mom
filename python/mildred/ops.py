@@ -221,10 +221,12 @@ def write_ops_data(path, operation=None, operator=None, this_pid_only=False, res
     operator = '*' if operator is None else operator
     operation = '*' if operation is None else operation
 
-    if resuming and config.old_pid:
-        keys = cache2.get_keys(OPS, config.old_pid, operation, operator, path)
-    else:
-        keys = cache2.get_keys(OPS, config.pid, operation, operator, path)
+    # if resuming and config.old_pid:
+    #     keys = cache2.get_keys(OPS, config.old_pid, operation, operator, path)
+    # else:
+    #     keys = cache2.get_keys(OPS, config.pid, operation, operator, path)
+
+    keys = cache2.get_keys(OPS, "*", operation, operator, path)
 
     for key in keys:
         record = cache2.get_hash2(key)

@@ -35,7 +35,8 @@ class Pathogen(FileHandler):
         read_failed = False
 
         try:
-            ops.record_op_begin(path, const.READ, self.name)            
+            ops.record_op_begin(path, const.READ, self.name)
+            self.tags = {}
             self.read_tags(path, data)
             return True
 
@@ -153,6 +154,7 @@ class MutagenMP4(Pathogen):
         if len(self.tags) > 0:
             self.tags['_document_format'] = 'm4a'
             self.tags['_reader'] = self.name
+            #TODO: store read_date in same format as file ctime and mtime
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
 
@@ -240,7 +242,6 @@ class MutagenID3(Pathogen):
         metadata = document.pprint() # gets all metadata
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
-        self.tags = {}
         for tag in tags:
             if len(tag) < 2: 
                 continue

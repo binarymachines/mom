@@ -20,9 +20,9 @@ def _set_field_value(pid, field, value, check_status=False):
 
     import ops
     from core import cache2
+    import start
 
-    cache2.keystore = redis.Redis('localhost', db=0)
-    cache2.datastore = redis.Redis('localhost', db=1)
+    start.initialize_cache2('localhost')
 
     key =  cache2.get_key(pid, ops.OPS, ops.EXEC)
     values = cache2.get_hash2(key)
@@ -30,7 +30,7 @@ def _set_field_value(pid, field, value, check_status=False):
     cache2.set_hash2(key, values)
 
     if check_status:
-        ops.check_status()
+        ops.check_smtatus()
 
 
 def request_start():

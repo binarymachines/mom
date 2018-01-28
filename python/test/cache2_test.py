@@ -1,7 +1,9 @@
 import redis
 import unittest
 
+import start
 from core import cache2
+
 
 KEYGROUP = 'tests-suite'
 
@@ -10,11 +12,9 @@ KEYGROUP = 'tests-suite'
 class TestCache2(unittest.TestCase):
     """Redis must be running for these tests to run"""
     def setUp(self):
-        cache2.keystore = redis.Redis('localhost', db=3)
-        cache2.datastore = redis.Redis('localhost', db=4)
+        start.initialize_cache2('localhost', key_db=10, data_db=11, hash_db=12, list_db=13, ord_list_db=14)
+        cache2.flush_all()
 
-        cache2.keystore.flushdb()
-        cache2.datastore.flushdb()
         self.identifiers = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']
         self.identifier = cache2.DELIM.join([KEYGROUP, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'])
         self.test_vals = ['a', 'quick', 'brown', 'fox', 'jumps', 'over', 'the', 'lazy', 'dog']
@@ -208,11 +208,11 @@ class TestCache2(unittest.TestCase):
         hash = {'operation': 'scan', 'operator': 'id3v2'}
         hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
 
-        cache2.datastore.hmset(hashkey, hash)
+        cache2.hashstore.hmset(hashkey, hash)
 
         cache2.delete_hash(KEYGROUP, keyname)
 
-        testhash = cache2.datastore.hgetall(hashkey)
+        testhash = cache2.hashstore.hgetall(hashkey)
         self.assertDictEqual(testhash, {}, 'delete_hash fails')
 
 
@@ -221,7 +221,7 @@ class TestCache2(unittest.TestCase):
         hash = {'operation': 'scan', 'operator': 'id3v2'}
         hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
 
-        cache2.datastore.hmset(hashkey, hash)
+        cache2.hashstore.hmset(hashkey, hash)
 
         testhash = cache2.get_hash(KEYGROUP, keyname)
         self.assertDictEqual(hash, testhash, 'get_hash fails')
@@ -237,8 +237,8 @@ class TestCache2(unittest.TestCase):
         hashkey1 = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
         hashkey2 = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname + '2'])
 
-        cache2.datastore.hmset(hashkey1, hashes[0])
-        cache2.datastore.hmset(hashkey2, hashes[1])
+        cache2.hashstore.hmset(hashkey1, hashes[0])
+        cache2.hashstore.hmset(hashkey2, hashes[1])
 
         # get all hashes in keygroup
         testhashes = cache2.get_hashes(KEYGROUP)
@@ -258,7 +258,7 @@ class TestCache2(unittest.TestCase):
         cache2.set_hash(KEYGROUP, keyname, hash)
 
         hashkey = cache2.DELIM.join([cache2.HASH, KEYGROUP, keyname])
-        testhash = cache2.datastore.hgetall(hashkey)
+        testhash = cache2.hashstore.hgetall(hashkey)
         self.assertDictEqual(hash, testhash)
 
     # def test_set_hash2(self):

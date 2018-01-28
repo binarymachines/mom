@@ -29,7 +29,8 @@ class StatefulMode(Mode):
 
         self._state = state
         self._states = {}
-
+        self.effect = None
+        
         self.data = data
         self.mode_state_id = mode_state_id
         self._restored = restored
@@ -70,9 +71,11 @@ class StatefulMode(Mode):
     def in_state(self, state):
         return self._state == state
 
+
     def add_state(self, state):
         self._states[state.name] = state
         return self
+
 
     def get_state(self, name=None):
         if name is None:
@@ -94,6 +97,7 @@ class StatefulMode(Mode):
 
 
     def reset_state(self):
+        self.effect = None
         if self._states:
             for state in self._states:
                 if self._states[state].is_initial_state:
@@ -104,12 +108,11 @@ class StatefulMode(Mode):
     def set_state(self, state):
         LOG.info('%s => set_state(%s)' % (self.name, "None" if state is None else state.name ))
 
-        self._state = state
         self.effect = None
-        if state:
+        self._state = state
+        if self._reader and self._state:
             self.effect = state.action
-            if self._reader:
-                self._reader.initialize_mode_from_defaults(self)
+            self._reader.initialize_mode_from_defaults(self)
 
 
     def save_state(self):

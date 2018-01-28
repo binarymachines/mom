@@ -6,8 +6,11 @@ import logging
 import util
 import log
 
+import redis
+
 LOG = log.get_safe_log(__name__, logging.INFO)
 KEY = 'key'
+DATA = 'data'
 LIST = 'list'
 HASH = 'hashset'
 DELIM = ':'
@@ -16,6 +19,9 @@ PID = str(os.getpid())
 
 keystore = None
 datastore = None
+hashstore = None
+liststore = None
+orderedliststore = None
 
 # these compound (key_group + identifier) keys occupy sorted lists, and are used as indexes for other sets of data
 # identifier is an arbitrary list which will be separated by DELIM
@@ -43,7 +49,7 @@ def create_key(key_group, *identifier, **values):
 
     for name in values:
         val = values[name]
-        datastore.rpush(key, val)
+        orderedliststore.rpush(key, val)
 
     # LOG.debug('create_key(key_group=%s, identifier=%s) returns %s' % (key, identifier, result))
     return key
@@ -52,6 +58,19 @@ def create_key(key_group, *identifier, **values):
 # def delete_key(key, delete_list=False, delete_hash=False):
 def delete_key(key):
     result = keystore.delete(key)
+   
+    # remove hash values for key (delete_hash2)
+    identifier = DELIM.join([HASH, key])
+    hkeys = hashstore.hkeys(identifier)
+    for hkey in hkeys:
+        hashstore.hdel(identifier, hkey)
+
+    # remove list values for key (clear_items2)
+    identifier = DELIM.join([LIST, key])
+    values = liststore.smembers(identifier)
+    for value in values:
+        result = liststore.srem(identifier, value)
+
     # LOG.debug('datastore.delete(key=%s) returns: %s' % (key, str(result)))
 
 
@@ -78,7 +97,7 @@ def get_key(key_group, *identifier):
 
 def get_key_value(key_group, *identifier):
     key = get_key(key_group, *identifier)
-    value = datastore.lrange(key, 0, 1)
+    value = orderedliststore.lrange(key, 0, 1)
     if len(value) == 1:
         return value[0]
 
@@ -108,8 +127,8 @@ def lpeek(key_group, *identifier):
 
 
 def lpeek2(key):
-    if datastore.llen(key) > 0:
-        result = datastore.lrange(key, 0, 0)
+    if orderedliststore.llen(key) > 0:
+        result = orderedliststore.lrange(key, 0, 0)
         return result[0]
 
 
@@ -119,8 +138,8 @@ def lpop(key_group, *identifier):
 
 
 def lpop2(key):
-    if datastore.llen(key) > 0:
-        return datastore.lpop(key)
+    if orderedliststore.llen(key) > 0:
+        return orderedliststore.lpop(key)
 
 
 # def lpush(key_group, *identifier, **value):
@@ -131,7 +150,7 @@ def lpop2(key):
 
 def lpush(key, *values):
     for val in values:
-        datastore.lpush(key, val)
+        orderedliststore.lpush(key, val)
 
 
 def rpeek(key_group, *identifier):
@@ -140,8 +159,8 @@ def rpeek(key_group, *identifier):
 
 
 def rpeek2(key):
-    if datastore.llen(key) > 0:
-        result = datastore.lrange(key, -1, -1)
+    if orderedliststore.llen(key) > 0:
+        result = orderedliststore.lrange(key, -1, -1)
         return result[0]
 
 
@@ -151,8 +170,8 @@ def rpop(key_group, *identifier):
 
 
 def rpop2(key):
-    if datastore.llen(key) > 0:
-        return datastore.rpop(key)
+    if orderedliststore.llen(key) > 0:
+        return orderedliststore.rpop(key)
 
 # def rpush(key_group, *identifier, **value):
 #     key = key_name(key_group, *identifier)
@@ -162,35 +181,35 @@ def rpop2(key):
 
 def rpush(key, *values):
     for val in values:
-        datastore.rpush(key, val)
+        orderedliststore.rpush(key, val)
 
 
 # hashsets
 
 def delete_hash(key_group, identifier):
     key = DELIM.join([HASH, key_group, identifier])
-    hkeys = datastore.hkeys(key)
+    hkeys = hashstore.hkeys(key)
     for hkey in hkeys:
-        datastore.hdel(key, hkey)
+        hashstore.hdel(key, hkey)
 
 
 def delete_hash2(key):
     identifier = DELIM.join([HASH, key])
-    hkeys = datastore.hkeys(identifier)
+    hkeys = hashstore.hkeys(identifier)
     for hkey in hkeys:
-        datastore.hdel(identifier, hkey)
+        hashstore.hdel(identifier, hkey)
 
 
 def get_hash(key_group, identifier):
     key = DELIM.join([HASH, key_group, identifier])
-    result = datastore.hgetall(key)
+    result = hashstore.hgetall(key)
     # LOG.debug('get_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
 def get_hash2(key):
     identifier = DELIM.join([HASH, key])
-    result = datastore.hgetall(identifier)
+    result = hashstore.hgetall(identifier)
     # LOG.debug('get_hash2(key=%s) returns %s' % (key, result))
     return result
 
@@ -199,13 +218,13 @@ def get_hashes(key_group, *identifier):
     result = ()
     if identifier is ():
         for key in get_keys(DELIM.join([HASH, key_group])):
-            ahash = datastore.hgetall(key)
+            ahash = hashstore.hgetall(key)
             if ahash is not None:
                 result += (ahash,)
     #(else)
     for keyname in identifier:
         key = DELIM.join([HASH, key_group, keyname])
-        ahash = datastore.hgetall(key)
+        ahash = hashstore.hgetall(key)
         if ahash is not None:
             result += (ahash,)
 
@@ -216,7 +235,7 @@ def get_hashes(key_group, *identifier):
 def set_hash(key_group, identifier, values):
     key = DELIM.join([HASH, key_group, identifier])
     if len(values) > 0:
-        result = datastore.hmset(key, values)
+        result = hashstore.hmset(key, values)
         # LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
 
 
@@ -224,20 +243,20 @@ def set_hash2(key, values):
     identifier = DELIM.join([HASH, key])
     delete_hash2(key)
     if len(values) > 0:
-        result = datastore.hmset(identifier, values)
+        result = hashstore.hmset(identifier, values)
         # LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
 
 # lists
 
 def add_item(key_group, identifier, item):
     key = DELIM.join([LIST, key_group, identifier])
-    result = datastore.sadd(key, item)
+    result = liststore.sadd(key, item)
     # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def add_item2(key, item):
     key = DELIM.join([LIST, key])
-    result = datastore.sadd(key, item)
+    result = liststore.sadd(key, item)
     # LOG.debug('add_item(key=%s,item=%s) returns: %s' % (key, item, str(result)))
 
 
@@ -252,36 +271,36 @@ def add_items(key_group, identifier, items):
 def add_items2(key, items):
     key = DELIM.join([LIST, key])
     for item in items:
-        result = datastore.sadd(key, item)
+        result = liststore.sadd(key, item)
         # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def clear_items(key_group, identifier):
     key = DELIM.join([LIST, key_group, identifier])
-    values = datastore.smembers(key)
+    values = liststore.smembers(key)
     for value in values:
-        result = datastore.srem(key, value)
+        result = liststore.srem(key, value)
         # LOG.debug('datastore.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def clear_items2(key):
     key = DELIM.join([LIST, key])
-    values = datastore.smembers(key)
+    values = liststore.smembers(key)
     for value in values:
-        result = datastore.srem(key, value)
+        result = liststore.srem(key, value)
         # LOG.debug('datastore.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def get_items(key_group, identifier):
     key = DELIM.join([LIST, key_group, identifier])
-    result = datastore.smembers(key)
+    result = liststore.smembers(key)
     # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
     return result
 
 
 def get_items2(key):
     key = DELIM.join([LIST, key])
-    result = datastore.smembers(key)
+    result = liststore.smembers(key)
     # LOG.debug('get_items(key=%s) returns: %s' % (key, str(result)))
     return result
 
@@ -335,4 +354,7 @@ def flush_all():
     LOG.info('flushing redis database')
     keystore.flushdb()
     datastore.flushdb()
+    hashstore.flushdb()
+    liststore.flushdb()
+    orderedliststore.flushdb()
     

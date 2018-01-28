@@ -27,6 +27,8 @@ from walk import Walker
 from alchemy import SQLFileType
 from ops import ops_func
 
+import start
+
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
 
@@ -77,6 +79,7 @@ class Scanner(Walker):
                 return
 
             if asset.esid and self.high_scan:
+                LOG.info('skipping %s' % path)
                 ops.update_listeners('skipping read', SCANNER, path)
                 return
 
@@ -108,7 +111,7 @@ class Scanner(Walker):
 
     def after_handle_root(self, root):
         library.set_active(None)
-
+        
 
     #TODO: parrot behavior for IOError as seen in read.py
     @ops_func
@@ -118,7 +121,7 @@ class Scanner(Walker):
         # LOG.info('Considering %s...' % root)
  
         if ops.operation_in_cache(root, SCAN, SCANNER) or self.scan_should_skip(root): #and not self.deep_scan:
-            # LOG.debug('skipping %s' % root)
+            LOG.debug('skipping %s' % root)
             ops.update_listeners('skipping scan', SCANNER, root)
             return
 
@@ -225,9 +228,10 @@ class Scanner(Walker):
         if update_ops: 
             pass
 
-        library.clear_docs(const.FILE, path)
+        library.clear_docs(const.FILE, os.path.sep)
         self.vector.set_param(PERSIST, ACTIVE, None)
     
+        start.display_redis_status()
     
     def scan_should_skip(self, path):
         # update vector params based on path
@@ -254,6 +258,8 @@ class Scanner(Walker):
         path_restored = path is not None and path != 'None'
         last_expanded_path = None
 
+        library.clear_docs(const.FILE, os.path.sep)
+
         while self.vector.has_next(SCAN, use_fifo=True):           
             path = path if path_restored else self.vector.get_next(SCAN, True) 
             path_restored = False
@@ -263,7 +269,6 @@ class Scanner(Walker):
                 continue
 
             ops.update_listeners('evaluating', SCANNER, path)
-
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 # if self.high_scan and self.vector.path_in_fifo(path, SCAN) == False:
                 should_cache = last_expanded_path is None

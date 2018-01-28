@@ -19,7 +19,6 @@ from assets import Directory, Document
 from const import DIRECTORY, MATCH
 from core import cache2, log, util
 from errors import AssetException, ElasticDataIntegrityException
-import pprint
 from ops import ops_func
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
@@ -50,9 +49,9 @@ NO_SCAN = 'no_scan'
 
 def get_cache_key(subset=None):
     if subset is None:
-        return cache2.get_key(KEY_GROUP, config.pid)
-    # (else)
+        return cache2.get_key(KEY_GROUP)
     return cache2.get_key(KEY_GROUP, subset, config.pid)
+
 
 def directory_attribs(directory):
     data = directory.to_dictionary()
@@ -119,6 +118,7 @@ def set_active(path):
 def cache_docs(document_type, path, flush=True):
     if flush: 
         clear_docs(document_type, os.path.sep)
+
     ops.update_listeners('retrieving documents', 'library', path)
     LOG.debug('retrieving %s records for %s...' % (document_type, path))
     rows = SQLAsset.retrieve(document_type, path, use_like=True)
@@ -127,7 +127,7 @@ def cache_docs(document_type, path, flush=True):
     cached_count = 0
 
     for sql_asset in rows:
-        ops.update_listeners('caching %i of %i %s records...' % (count, cached_count, sql_asset.document_type), 'library', sql_asset.absolute_path)
+        ops.update_listeners('caching %i of %i %s records...' % (cached_count, count, sql_asset.document_type), 'library', sql_asset.absolute_path)
         cache_sql_asset(sql_asset)
         cached_count += 1
 
@@ -141,7 +141,9 @@ def cache_sql_asset(sql_asset):
 def clear_docs(document_type, path):
     keys = cache2.get_keys(KEY_GROUP, document_type, path)
     for key in keys:
+        data = cache2.get_hash2(key)
         cache2.delete_key(key)
+
 
 
 def get_cached_esid(document_type, path):

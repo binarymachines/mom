@@ -34,8 +34,7 @@ def execute(args):
         try:
             # TODO: connect to an explicit redis database. Check for execution record. Change database if required.
             LOG.debug('connecting to Redis...')
-            cache2.keystore = redis.Redis(config.redis_host, db=0)
-            cache2.datastore = redis.Redis(config.redis_host, db=1)
+            initialize_cache2(config.redis_host)
 
         except Exception, err:
             config.started = False
@@ -185,12 +184,28 @@ def write_pid_file():
 def display_status():
     print """Process ID: %s""" % config.pid
     print 'Redis host: %s' % config.redis_host
-    print 'Redis keystore dbsize: %i' % cache2.keystore.dbsize()
-    print 'Redis datastore dbsize: %i' % cache2.datastore.dbsize()
     print """Elasticsearch host: %s""" % config.es_host
     print """Elasticsearch port: %i""" % config.es_port
-    print"""MySQL username: %s""" % config.mysql_user
+    print """MySQL username: %s""" % config.mysql_user
     print """MySQL host: %s""" % config.mysql_host
     print """MySQL port: %i""" % config.mysql_port
     print """MySQL schema: %s""" % config.mysql_db
     print """Media Hound username: %s\n""" % config.username
+
+    display_redis_status()
+
+def display_redis_status():
+    print 'Redis key store dbsize: %i' % cache2.keystore.dbsize()
+    print 'Redis data store dbsize: %i' % cache2.datastore.dbsize()
+    print 'Redis hash store dbsize: %i' % cache2.hashstore.dbsize()
+    print 'Redis list store dbsize: %i' % cache2.liststore.dbsize()
+    print 'Redis ordered list store dbsize: %i' % cache2.orderedliststore.dbsize()
+    print
+    
+
+def initialize_cache2(host, key_db=0, data_db=1, hash_db=2, list_db=3, ord_list_db=4):
+    cache2.keystore = redis.Redis(host, db=key_db)
+    cache2.datastore = redis.Redis(host, db=data_db)
+    cache2.hashstore = redis.Redis(host, db=hash_db)
+    cache2.liststore = redis.Redis(host, db=list_db)
+    cache2.orderedliststore = redis.Redis(host, db=ord_list_db)
