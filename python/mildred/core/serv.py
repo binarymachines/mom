@@ -63,7 +63,7 @@ class SingleSelectorServiceProcess(ServiceProcess):
 
     def initialize(self):
         self.halted = False
-        self.engine = Engine("_engine_", self.stop_on_errors);
+        self.engine = Engine("_engine_", self.stop_on_errors)
         self.selector = Selector("_selector_")
         #TODO: either use before_switch externally using these parameters or remove them and whatever plumbing supports them
         # self.selector = Selector("_selector_", before_switch=self.before_switch, after_switch=self.after_switch)

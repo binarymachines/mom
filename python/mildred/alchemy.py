@@ -471,6 +471,18 @@ class SQLMatch(MatchRecord):
             raise SQLAlchemyIntegrityError(err, sessions[MILDRED], message=err.message)
 
 
+    # @staticmethod
+    # @alchemy_func
+    # def retrieve(doc_id=doc_id, match_doc_id=match_doc_id):
+    #     result = ()
+    #     for instance in sessions[MILDRED].query(SQLMatch). \
+    #         filter(SQLMatch.doc_id == doc_id). \
+    #         filter(SQLMatch.match_doc_id == match_doc_id):
+    #         result += (instance,)
+
+    #     return result
+
+
 class SQLMode(AlchemyMode):
 
     @staticmethod

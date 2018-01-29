@@ -199,7 +199,7 @@ def run_query_template(filename, *args, **kwargs):
 
 
 def _load_query(filename, *args):
-    newargs = [quote_if_string(value) for value in args],
+    newargs = [value for value in args]
     try:
         query = ""
         with open('%s/%s.sql' % (var.sqldir, filename), 'r') as file:

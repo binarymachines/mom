@@ -20,6 +20,8 @@ from query2 import Clause, BooleanClause, NestedClause, Request, Response
 import alchemy
 from alchemy import SQLMatch, SQLMatcher, SQLOperationRecord
 
+import shallow
+
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
 
@@ -48,12 +50,15 @@ def path_expands(path, vector):
     for op_record in op_records:
         if op_record.target_path not in expanded:
             expanded.append(op_record.target_path)
-
+            
+    if path in shallow.get_locations():
+        expanded.extend([os.path.join(path, directory) for directory in os.listdir(path)]) 
+        
     for xp in expanded:
         # TODO: count(expath pathsep) == count (path pathsep) + 1
         vector.push_fifo(MATCH, xp)
 
-    return len(expanded) > 0
+    return len(expanded) > 0 and len(path) < 128 
 
 
 def do_match_op(esid, absolute_path, matchers):
@@ -136,7 +141,7 @@ class MediaMatcher(object):
 
     # TODO: Oh, come on, you wrote this?
     def match_extensions_match(self, orig, match):
-        return 1 if orig['_source']['file_ext'] == match['_source']['file_ext'] else 0
+        return 1 if orig['_source']['ext'] == match['_source']['ext'] else 0
 
 
 TOP = 'top'

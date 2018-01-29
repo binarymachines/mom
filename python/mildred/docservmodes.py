@@ -158,7 +158,7 @@ class MatchModeHandler(DefaultModeHandler):
         except Exception, err:
             # self.selector.handle_error(err)
             LOG.debug(err.message)
-            
+
             
 # report mode
 
@@ -178,8 +178,10 @@ class ReportModeHandler(DefaultModeHandler):
 #requests mode
 
 class RequestsModeHandler(DefaultModeHandler):
+
     def __init__(self, owner, vector):
         super(RequestsModeHandler, self).__init__(owner, vector)
+
 
     def do_reqs(self):
         print("handling requests...\n")
@@ -207,6 +209,7 @@ class ScanModeHandler(DefaultModeHandler):
             value = str(params[key])
             print '[%s = %s parameter found in vector]' % (key.replace('.', ' '), value)
 
+
     @ops_func
     def after_scan(self):
         self.scan_complete = self.owner.scan.get_state() is self.owner.scan.get_state(SCAN_MONITOR)
@@ -215,11 +218,13 @@ class ScanModeHandler(DefaultModeHandler):
         self.vector.set_param('scan.persist', 'active.scan.path', None)
         self.owner.scan.go_next(self.vector)
 
+
     @ops_func
     def can_scan(self, selector, active, possible):
-        return True
-        # if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector):
-        #     return self.scan_complete == False and config.scan
+        if self.scan_complete == False:
+            if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector):
+                return config.scan
+
 
     def path_to_map(self):
         map_paths = self.vector.get_param('all', 'map-paths')

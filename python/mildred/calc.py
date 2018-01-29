@@ -23,7 +23,6 @@ from core.vector import Vector, PathVector, CachedPathVector, PathVectorScanner
 from core.states import State, StateVector
 
 from errors import AssetException
-from match import ElasticSearchMatcher
 
 import alchemy, match
 
@@ -34,8 +33,6 @@ ERR = log.get_safe_log('errors', logging.WARNING)
 
 
 def calc(vector, cycle_vector=False):
-
-    return
     
     sql.execute_query("delete from match_record where 1=1")
     sql.execute_query("delete from op_record where operation_name = 'calc'")
@@ -45,7 +42,7 @@ def calc(vector, cycle_vector=False):
     # MAX_RECORDS = ...
     matchers = match.get_matchers()
     opcount = 0
-
+    vector.reset(MATCH)  
     while vector.has_next(MATCH, use_fifo=True):
         # ops.check_status()
         location = vector.get_next(MATCH, use_fifo=True)
@@ -53,7 +50,7 @@ def calc(vector, cycle_vector=False):
         if location is None: continue
 
         # this should never be true, but a test
-        if location[-1] != os.path.sep: location += os.path.sep
+        # if location[-1] != os.path.sep: location += os.path.sep
 
         if match.path_expands(location, vector): 
             continue

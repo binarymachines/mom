@@ -181,7 +181,8 @@ class ServiceModeInitializer(object):
 
 class DecisionHandler(object):
 
-    def definitely(self, selector=None, active=None, possible=None): return True
+    def definitely(self, selector=None, active=None, possible=None): 
+        return True
 
     def maybe(self, selector, active, possible):
         result = bool(random.getrandbits(1))
@@ -220,6 +221,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
         mode = self.selector.active
         LOG.debug("%s after '%s'" % (self.name, mode.name))
     
+
     @ops_func
     def before(self):
         mode = self.selector.next
@@ -228,6 +230,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
             LOG.debug("%s: %s follows '%s', because of '%s'" % \
                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
+    #TODO: move this mode-specific stuff into docservmodes in preparation for docservmodes to be parametarized
     @ops_func
     def mode_is_available(self, selector, active, possible):
         initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
@@ -235,7 +238,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
         if initial_and_update_scan_complete:
             if possible is self.owner.match:
                 if self.vector.has_next(MATCH):
-                    # return config.match
-                    return False
+                    return config.match
+                    
 
         return initial_and_update_scan_complete or config.scan == False

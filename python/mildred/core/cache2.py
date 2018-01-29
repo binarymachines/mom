@@ -9,6 +9,8 @@ import log
 import redis
 
 LOG = log.get_safe_log(__name__, logging.INFO)
+ERR = log.get_safe_log('errors', logging.WARNING)
+
 KEY = 'key'
 DATA = 'data'
 LIST = 'list'
@@ -38,20 +40,20 @@ def key_name(key_group, *identifier):
         else DELIM.join([key_group, DELIM.join(identifier)])
 
     result = str_clean4key(keyname)
-    # LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
+    LOG.debug('key_name(key_group=%s, identifier=%s) returns %s', key_group, identifier, result)
     return result
 
 
 def create_key(key_group, *identifier, **values):
     """create a new compound key"""
     key = key_name(key_group, *identifier)   
-    keystore.rpush(key, None)
+    result = keystore.rpush(key, None)
 
     for name in values:
         val = values[name]
         orderedliststore.rpush(key, val)
 
-    # LOG.debug('create_key(key_group=%s, identifier=%s) returns %s' % (key, identifier, result))
+    LOG.debug('create_key(key_group=%s, identifier=%s) returns %s' % (key, identifier, result))
     return key
 
 
@@ -77,11 +79,11 @@ def delete_key(key):
     while rpeek2(key):
         rpop2(key)
 
-    # LOG.debug('datastore.delete(key=%s) returns: %s' % (key, str(result)))
+    LOG.debug('datastore.delete(key=%s) returns: %s' % (key, str(result)))
 
 
 def delete_key_group(key_group):
-    # LOG.debug('delete_key_group(key_group=%s)' % key_group)
+    LOG.debug('delete_key_group(key_group=%s)' % key_group)
     search = key_group + WILDCARD
     for key in keystore.keys(search):
         delete_key(key)
@@ -94,7 +96,7 @@ def delete_keys(key_group, *identifier):
 
 def get_key(key_group, *identifier):
     result = get_keys(key_group, *identifier)
-    # LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+    LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     if len(result) is 1:
         return result[0]
     # (else)
@@ -105,7 +107,7 @@ def get_keys(key_group, *identifier):
     search = key_group + WILDCARD if identifier is () else key_name(key_group, *identifier) + WILDCARD
     result = keystore.keys(str_clean4key(search))
     # result = config.datastore.scan(str_clean4key(search), 0, -1)
-    # LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+    LOG.debug('get_keys(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
@@ -202,14 +204,14 @@ def delete_hash2(key):
 def get_hash(key_group, identifier):
     key = DELIM.join([HASH, key_group, identifier])
     result = hashstore.hgetall(key)
-    # LOG.debug('get_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+    LOG.debug('get_hash(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
 def get_hash2(key):
     identifier = DELIM.join([HASH, key])
     result = hashstore.hgetall(identifier)
-    # LOG.debug('get_hash2(key=%s) returns %s' % (key, result))
+    LOG.debug('get_hash2(key=%s) returns %s' % (key, result))
     return result
 
 
@@ -227,7 +229,7 @@ def get_hashes(key_group, *identifier):
         if ahash is not None:
             result += (ahash,)
 
-    # LOG.debug('get_hashes(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
+    LOG.debug('get_hashes(key_group=%s, identifier=%s) returns %s' % (key_group, identifier, result))
     return result
 
 
@@ -235,7 +237,7 @@ def set_hash(key_group, identifier, values):
     key = DELIM.join([HASH, key_group, identifier])
     if len(values) > 0:
         result = hashstore.hmset(key, values)
-        # LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
+        LOG.debug('set_hash(key_group=%s, identifier=%s, values=%s) returns: %s' % (key_group, identifier, values, str(result)))
 
 
 def set_hash2(key, values):
@@ -243,20 +245,20 @@ def set_hash2(key, values):
     delete_hash2(key)
     if len(values) > 0:
         result = hashstore.hmset(identifier, values)
-        # LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
+        LOG.debug('set_hash2(key=%s, values=%s) returns: %s' % (key, values, str(result)))
 
 # lists
 
 def add_item(key_group, identifier, item):
     key = DELIM.join([LIST, key_group, identifier])
     result = liststore.sadd(key, item)
-    # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+    LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def add_item2(key, item):
     key = DELIM.join([LIST, key])
     result = liststore.sadd(key, item)
-    # LOG.debug('add_item(key=%s,item=%s) returns: %s' % (key, item, str(result)))
+    LOG.debug('add_item(key=%s,item=%s) returns: %s' % (key, item, str(result)))
 
 
 def add_items(key_group, identifier, items):
@@ -264,14 +266,14 @@ def add_items(key_group, identifier, items):
         add_item(key_group, identifier, item)
         # key = DELIM.join([LIST, key_group, identifier])
         # result = config.datastore.sadd(key, item)
-        # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+        LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def add_items2(key, items):
     key = DELIM.join([LIST, key])
     for item in items:
         result = liststore.sadd(key, item)
-        # LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+        LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
 
 
 def clear_items(key_group, identifier):
@@ -279,7 +281,7 @@ def clear_items(key_group, identifier):
     values = liststore.smembers(key)
     for value in values:
         result = liststore.srem(key, value)
-        # LOG.debug('datastore.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
+        LOG.debug('datastore.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def clear_items2(key):
@@ -287,20 +289,20 @@ def clear_items2(key):
     values = liststore.smembers(key)
     for value in values:
         result = liststore.srem(key, value)
-        # LOG.debug('datastore.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
+        LOG.debug('datastore.srem(key_group=%s, identifier=%s) returns: %s' % (key, value, str(result)))
 
 
 def get_items(key_group, identifier):
     key = DELIM.join([LIST, key_group, identifier])
     result = liststore.smembers(key)
-    # LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
+    LOG.debug('get_items(key_group=%s, identifier=%s) returns: %s' % (key_group, identifier, str(result)))
     return result
 
 
 def get_items2(key):
     key = DELIM.join([LIST, key])
     result = liststore.smembers(key)
-    # LOG.debug('get_items(key=%s) returns: %s' % (key, str(result)))
+    LOG.debug('get_items(key=%s) returns: %s' % (key, str(result)))
     return result
 
 
