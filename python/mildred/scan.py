@@ -118,10 +118,9 @@ class Scanner(Walker):
     def before_handle_root(self, root):
         # MAX_RETRIES = 10
         # attempts = 1s
-        # LOG.info('Considering %s...' % root)
+        LOG.info('evaluating %s...' % root)
  
         if self.scan_should_skip(root): #and not self.deep_scan:
-            LOG.debug('skipping %s' % root)
             ops.update_listeners('skipping scan', SCANNER, root)
             assets.set_active_directory(None)
             return
@@ -147,7 +146,7 @@ class Scanner(Walker):
             # self.vector.push_fifo(SCAN, root)
             # raise Exception("%s isn't currently available." % (root))
             if root is not None:
-                print "%s isn't currently available." % (root)
+                print("%s isn't currently available." % root)
             
 
     #TODO: parrot behavior for IOError as seen in read.py 
