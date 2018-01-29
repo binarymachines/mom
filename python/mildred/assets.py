@@ -245,9 +245,7 @@ def clear_docs(document_type, path):
     LOG.info('clearing %s document cache' % path)
     keys = cache2.get_keys(KEY_GROUP, document_type, path)
     for key in keys:
-        data = cache2.get_hash2(key)
         cache2.delete_key(key)
-
 
 
 def get_cached_esid(document_type, path):
