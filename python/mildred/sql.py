@@ -126,7 +126,7 @@ def update_values(table_name, update_field_names, update_field_values, where_fie
 def execute_query(query, host=config.mysql_host, user=config.mysql_user, password=config.mysql_pass, schema=config.mysql_db):
     con = None
     try:
-        LOG.info(query)
+        LOG.debug(query)
         con = mdb.connect(host, user, password, schema)
         cur = con.cursor()
         cur.execute(query)
@@ -149,10 +149,10 @@ def run_query(query, host=config.mysql_host, user=config.mysql_user, password=co
     con = None
     rows = []
     try:
-        LOG.info(query)
+        LOG.debug(query)
         con = mdb.connect(host, user, password, schema)
         cur = con.cursor()
-        LOG.info(query)
+        LOG.debug(query)
         cur.execute(query)
         rows = cur.fetchall()
     # except mdb.Error, e:

@@ -73,12 +73,12 @@ def start_logging():
     logging.basicConfig(filename=CONSOLE, filemode="w", level=logging.INFO, format=FORMAT, datefmt='%m/%d/%Y %I:%M:%S %p')
 
     console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
+    console.setLevel(logging.INFO)
 
     log = logging.getLogger(clog)
     log.addHandler(console)
     # log.debug("console logging started.")
     
-    setup_log('elasticsearch', 'elasticsearch.trace', logging.INFO)
-    setup_log('sqlalchemy.engine', 'sqlalchemy.trace', logging.INFO)
+    setup_log('elasticsearch', 'elasticsearch.trace', logging.DEBUG)
+    setup_log('sqlalchemy.engine', 'sqlalchemy.trace', logging.DEBUG)
 ## 'sqlalchemy.engine'
