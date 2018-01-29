@@ -13,7 +13,7 @@ import docopt
 
 import config
 from const import FILE, HSCAN, MATCH
-import library
+import assets
 import ops
 import search
 import sql
@@ -59,11 +59,11 @@ def calc(vector, cycle_vector=False):
             continue
 
         LOG.debug('calc: matching files in %s' % (location))
-        library.cache_docs(FILE, location)
+        assets.cache_docs(FILE, location)
         ops.cache_ops(location, MATCH, apply_lifespan=True)
-        library.cache_matches(location)
+        assets.cache_matches(location)
 
-        for key in library.get_doc_keys(FILE):
+        for key in assets.get_doc_keys(FILE):
             opcount += 1
             # ops.check_status(opcount)
 
@@ -77,10 +77,10 @@ def calc(vector, cycle_vector=False):
             except Exception, err:
                 print err.message
 
-        library.clear_docs(FILE, location)
+        assets.clear_docs(FILE, location)
         for matcher in matchers:
             ops.write_ops_data(location, MATCH, matcher.name)
-            library.clear_matches(matcher.name, location)
+            assets.clear_matches(matcher.name, location)
  
 
 

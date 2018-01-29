@@ -57,9 +57,7 @@ def calculate_suggestion(media_data, match_data, comparison_result):
 
 def calculate_discount(path, discounts):
     result = 0
-    media = Document()
-    media.absolute_path = path
-
+    media = Document(path)
     for value in discounts:
         try:
             func = getattr(media, value)

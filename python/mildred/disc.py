@@ -14,7 +14,7 @@ from docopt import docopt
 
 import config
 import const
-import library
+import assets
 import ops
 import pathutil
 import shallow
@@ -56,7 +56,7 @@ class Discover(Walker):
                     self.folders.append(root)
     
     def handle_root_error(self, err, root):
-        library.set_active(None)
+        assets.set_active_directory(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
     @ops_func

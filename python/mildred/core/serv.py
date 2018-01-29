@@ -103,14 +103,14 @@ class SingleSelectorServiceProcess(ServiceProcess):
         mode.priority -= mode.dec_priority_amount if inc_amount is None else inc_amount
 
 
-    def dec_mode_priority(self, mode, dec_amount=None):
-        mode.priority -= mode.dec_priority_amount if dec_amount is None else dec_amount
+    def inc_mode_priority(self, mode, inc_amount=None):
+        mode.priority += mode.inc_priority_amount if inc_amount is None else inc_amount
 
 
 class Service(object):
     def __init__(self, name=None):
         self.name = SERVICE_NAME if name is None else name
-        LOG.info('%s starting...' % self.name)
+        LOG.info('%s starting...\n' % self.name)
         self.active = []
         self.inactive = []
 

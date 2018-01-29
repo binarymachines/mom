@@ -64,7 +64,7 @@ import sys, os
 #                         if path['esid'] not in cached_paths:
 #                             # if config.sql_debug: print('Updating MySQL...')
 #                             try:
-#                                 library.insert_asset(path['document_type'], path['esid'], path['absolute_path'])
+#                                 assets.insert_asset(path['document_type'], path['esid'], path['absolute_path'])
 #                             except Exception, e:
 #                                 print e.message
 #

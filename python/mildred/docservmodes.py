@@ -13,7 +13,7 @@ import calc
 import disc
 
 import sql
-import library 
+import assets 
 import os
 
 from core import log
@@ -64,7 +64,7 @@ class ShutdownHandler(DefaultModeHandler):
             LOG.debug("%s process has ended" % self.owner.name)
 
     def ending(self):
-        print  "shutting down..."
+        print("shutting down...")
         if self.owner:
             LOG.debug("%s process will end" % self.owner.name)
 
@@ -88,7 +88,7 @@ class CleaningModeHandler(DefaultModeHandler):
         LOG.debug('%s preparing to clean'  % self.owner.name)
 
     def do_clean(self):
-        print  "clean mode starting..."
+        print("clean mode starting...\n")
         LOG.debug('%s clean' % self.owner.name)
         time.sleep(1)
         # clean.clean(self.vector)
@@ -103,7 +103,7 @@ class AnalyzeModeHandler(DefaultModeHandler):
         return True
 
     def do_analyze(self):
-        print  "entering analysis mode..."
+        print("entering analysis mode...\n")
         LOG.debug('%s evaluating' % self.owner.name)
         analyze.analyze(self.vector)
 
@@ -123,7 +123,7 @@ class FixModeHandler(DefaultModeHandler):
         LOG.debug('%s preparing to fix'  % self.owner.name)
 
     def do_fix(self): 
-        print  "fix mode starting..."
+        print("fix mode starting...\n")
         LOG.debug('%s fixing' % self.owner.name)
         time.sleep(1)
 
@@ -149,7 +149,7 @@ class MatchModeHandler(DefaultModeHandler):
 
 
     def do_match(self):
-        print  "match mode starting..."
+        print("match mode starting...\n")
         # dir = self.vector.get_active (MATCH)
         # LOG.debug('%s matching in %s...' % (self.owner.name, dir))
         try:
@@ -182,7 +182,7 @@ class RequestsModeHandler(DefaultModeHandler):
         super(RequestsModeHandler, self).__init__(owner, vector)
 
     def do_reqs(self):
-        print  "handling requests..."
+        print("handling requests...\n")
         LOG.debug('%s handling requests...' % self.owner.name)
         time.sleep(1)
 
@@ -232,10 +232,10 @@ class ScanModeHandler(DefaultModeHandler):
     def do_scan_discover(self):
         startpath = self.path_to_map()        
         if startpath and self.vector.get_param('all', 'map-paths').lower() == 'true':
-            print("discover scan starting in %s..." % startpath)
+            print("discover scan starting in %s...\n" % startpath)
             paths = disc.discover(startpath)
             if paths is None or len(paths) == 0:
-                print('No media folders were found in discovery scan.')
+                print('No media folders were found in discovery scan.\n')
                 self.vector.set_param('all', 'map-paths', False)
                 self.vector.clear_param('all', 'start-path')
             else:
@@ -249,7 +249,7 @@ class ScanModeHandler(DefaultModeHandler):
         if self.path_to_map():
             self.do_scan_discover()
 
-        print("monitor scan starting...")
+        print("monitor scan starting...\n")
         scan.scan(self.vector)
 
 
@@ -258,7 +258,7 @@ class ScanModeHandler(DefaultModeHandler):
         if self.path_to_map():
             self.do_scan_discover()
 
-        print("scan starting...")
+        print("scan starting...\n")
         self.vector.set_param(SCAN, DEEP, False)
         scan.scan(self.vector)
 

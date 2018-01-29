@@ -5,9 +5,8 @@ import pyorient
 import const
 import alchemy
 from assets import Document, Directory
-import library
+import assets
 import config
-import library
 import json
 import ops
 import pathutil
@@ -126,7 +125,7 @@ class Analyzer(object):
         for file_ in SQLAsset.retrieve(const.FILE, path, use_like=True):
             document = Document(file_.absolute_path, esid=file_.id)
             # esdoc = search.get_doc(const.FILE, document.esid)
-            # document.data = document.to_dictionary()
+            # document.data = document.to_dictionary()Glob
 
             # if no op record exists
             self.analyze_asset(reasons, document)

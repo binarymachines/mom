@@ -8,7 +8,7 @@ import config
 import const
 from const import FILE, HSCAN, MATCH
 from core import log
-import library
+import assets
 import ops
 import sql
 import search
@@ -58,7 +58,7 @@ def path_expands(path, vector):
 
 def do_match_op(esid, absolute_path, matchers):
     
-    asset = library.retrieve_asset(absolute_path, esid=esid)
+    asset = assets.retrieve_asset(absolute_path, esid=esid)
     doc = search.get_doc(asset.document_type, asset.esid)
 
     if doc and all_matchers_have_run(matchers, asset):
@@ -77,7 +77,7 @@ def do_match_op(esid, absolute_path, matchers):
                 matcher.match(asset, doc)
             except AssetException, err:
                 ERR.warning(': '.join([err.__class__.__name__, err.message]))
-                library.handle_asset_exception(err, asset.absolute_path)
+                assets.handle_asset_exception(err, asset.absolute_path)
 
             except UnicodeDecodeError, u:
                 ERR.warning(': '.join([u.__class__.__name__, u.message, asset.absolute_path]))
@@ -232,7 +232,7 @@ class ElasticSearchMatcher(MediaMatcher):
         ops.record_op_begin( asset.absolute_path, 'match', self.name,asset.esid)
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, asset.esid, asset.absolute_path))
-        previous_matches = library.get_matches(self.name, asset.esid)
+        previous_matches = assets.get_matches(self.name, asset.esid)
 
         res = config.es.search(index=config.es_file_index, doc_type=const.FILE, body=self.get_query(asset))
         max_score = res['hits']['max_score']

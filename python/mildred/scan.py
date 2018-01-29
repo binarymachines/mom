@@ -12,7 +12,7 @@ import os
 
 import config
 import const
-import library
+import assets
 import ops
 import pathutil
 from shallow import get_locations
@@ -72,13 +72,13 @@ class Scanner(Walker):
 
     @ops_func
     def process_file(self, path):
-        directory = library.get_cached_directory()
+        directory = assets.get_cached_directory()
         try:           
-            asset = library.retrieve_asset(path, check_db=True)
+            asset = assets.retrieve_asset(path, check_db=True)
             if asset.available is False: 
                 return
 
-            if asset.esid and self.high_scan:
+            if asset.esid and self.update_scan:
                 LOG.info('skipping %s' % path)
                 ops.update_listeners('skipping read', SCANNER, path)
                 return
@@ -92,16 +92,16 @@ class Scanner(Walker):
 
             if asset.esid is None:
                 data['directory'] = directory['esid']
-                asset.esid = library.create_asset_metadata(data, self.get_file_type(path))
+                asset.esid = assets.create_asset_metadata(data, self.get_file_type(path))
             else:
-                library.update_asset(data)
+                assets.update_asset(data)
             # ordering dependencies end
 
             if file_was_read:
                 ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
             
         except Exception, err:
-            #TODO: record library update error instead of read error
+            #TODO: record assets update error instead of read error
             ERR.warning(': '.join([err.__class__.__name__, err.message]))
             if file_was_read:
                 self.reader.invalidate_read_ops(path)
@@ -110,7 +110,7 @@ class Scanner(Walker):
     # Walker methods
 
     def after_handle_root(self, root):
-        library.set_active(None)
+        assets.set_active_directory(None)
         
 
     #TODO: parrot behavior for IOError as seen in read.py
@@ -123,15 +123,16 @@ class Scanner(Walker):
         if ops.operation_in_cache(root, SCAN, SCANNER) or self.scan_should_skip(root): #and not self.deep_scan:
             LOG.debug('skipping %s' % root)
             ops.update_listeners('skipping scan', SCANNER, root)
+            assets.set_active_directory(None)
             return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if pathutil.file_type_recognized(root, self.reader.extensions):
                 try:
-                    library.set_active(root)
+                    assets.set_active_directory(root)
                 except ElasticDataIntegrityException, err:
                     ERR.warning(': '.join([err.__class__.__name__, err.message]))
-                    library.handle_asset_exception(err, root)
+                    assets.handle_asset_exception(err, root)
                     self.vector.rpush_fifo(SCAN, root)
                     
                 # # except TransportError:
@@ -152,7 +153,7 @@ class Scanner(Walker):
     #TODO: parrot behavior for IOError as seen in read.py 
     @ops_func
     def handle_root(self, root):
-        directory = library.get_cached_directory()
+        directory = assets.get_cached_directory()
         if len(directory) == 0:
             return 
 
@@ -170,7 +171,7 @@ class Scanner(Walker):
 
 
     def handle_root_error(self, err, root):
-        library.set_active(None)
+        assets.set_active_directory(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
     # utility
@@ -201,10 +202,11 @@ class Scanner(Walker):
 
     @ops_func
     def _pre_scan(self, path):
+        start.display_redis_status()
         self.vector.set_param(PERSIST, ACTIVE, path)
 
         LOG.debug('caching data for %s...' % path)
-        library.cache_docs(const.FILE, path)
+        assets.cache_docs(const.FILE, path)
 
         ops.cache_ops(path, SCAN, op_status='COMPLETE')
         ops.cache_ops(path, READ, op_status=None if self.update_scan else 'COMPLETE')
@@ -217,21 +219,21 @@ class Scanner(Walker):
 
     @ops_func
     def _post_scan(self, path, update_ops):
+        start.display_redis_status()
+        # ops.write_ops_data(path, SCAN)
 
-        ops.write_ops_data(path, READ)
-        ops.write_ops_data(path, SCAN)
+        if update_ops:
+            ops.write_ops_data(path)
 
         if self.high_scan:
             ops.record_op_complete(path, HSCAN, SCANNER)
             ops.write_ops_data(path, HSCAN, SCANNER)
 
-        if update_ops: 
-            pass
 
-        library.clear_docs(const.FILE, os.path.sep)
+        assets.clear_docs(const.FILE, os.path.sep)
         self.vector.set_param(PERSIST, ACTIVE, None)
     
-        start.display_redis_status()
+        ops.discard_ops(path)
     
     def scan_should_skip(self, path):
         # update vector params based on path
@@ -240,7 +242,7 @@ class Scanner(Walker):
             ops.update_listeners('skipping high level scan', SCANNER, path)
             return True
 
-        if self.high_scan and ops.operation_in_cache(path, SCAN, SCANNER):
+        if ops.operation_in_cache(path, SCAN, SCANNER):
             LOG.debug('skipping %s...' % path)
             ops.update_listeners('skipping scan', SCANNER, path)
             return True
@@ -252,13 +254,13 @@ class Scanner(Walker):
 
         self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
         self.high_scan = self.vector.get_param(SCAN, HSCAN)
-        self.update_scan = False  #self.vector.get_param(SCAN, USCAN)
+        self.update_scan = self.vector.get_param(SCAN, USCAN)
 
         path = self.vector.get_param(PERSIST, ACTIVE)
         path_restored = path is not None and path != 'None'
         last_expanded_path = None
 
-        library.clear_docs(const.FILE, os.path.sep)
+        assets.clear_docs(const.FILE, os.path.sep)
 
         while self.vector.has_next(SCAN, use_fifo=True):           
             path = path if path_restored else self.vector.get_next(SCAN, True) 
@@ -292,13 +294,12 @@ class Scanner(Walker):
                     last_expanded_path = path
                     continue
 
-                print('scanning %s' % path)
                 ops.update_listeners('scanning', SCANNER, path)
                 
                 try:
                     self._pre_scan(path)
-
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
+                    print('scanning %s\n' % path)
                     LOG.debug("scanning %s..." % path)
                     ops.update_listeners('scanning', SCANNER, path)
                     self.walk(path)
@@ -316,6 +317,36 @@ class Scanner(Walker):
                 ERR.warning("%s isn't currently available." % (path))
                 print("%s isn't currently available." % (path))
 
+        start.display_redis_status()
+
+    # TODO: use _handle_dir and handle_file instead of whatever the hell it is that you're doing above
+    # def walk(self, start):
+    #     for root, dirs, files in os.walk(start, topdown=True, followlinks=False):
+    #         try:
+    #             self.before_handle_root(root)
+    #             self.current_root = root
+    #             self.handle_root(root)
+    #             self.after_handle_root(root)
+    #         except Exception, err:
+    #             self.handle_root_error(err, root)
+
+    #         try:
+    #             for directory in dirs:
+    #                 self.before_handle_dir(directory)
+    #                 self.current_dir = directory
+    #                 self.handle_dir(directory)
+    #                 self.after_handle_dir(directory)
+    #         except Exception, err:
+    #             self.handle_dir_error(err, directory)
+
+    #         try:
+    #             for filename in files:
+    #                 self.before_handle_file(filename)
+    #                 self.current_filename = filename
+    #                 self.handle_file(filename)
+    #                 self.after_handle_file(filename)
+    #         except Exception, err:
+    #             self.handle_file_error(err, filename)
 
 def scan(vector):
     if SCANNER not in vector.data:

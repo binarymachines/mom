@@ -1,6 +1,6 @@
 import logging
 
-import search, sql, library, ops
+import search, sql, assets, ops
 from const import CLEAN, FILE
 from errors import ElasticDataIntegrityException
 from core import log
@@ -30,7 +30,7 @@ def clear_dupes_for_rows:
             search.unique_doc_exists(row[1],'absolute_path', row[0], except_on_multiples=True)
         except ElasticDataIntegrityException, err:
             LOG.info('Duplicate documents found for %s' % row[0])
-            library.handle_asset_exception(err, row[0])
+            assets.handle_asset_exception(err, row[0])
         except Exception, err:
             ERR.error(err.message)
 

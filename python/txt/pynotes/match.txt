@@ -123,7 +123,7 @@ class ElasticSearchMatcher(MediaMatcher):
         ops.record_op_begin(media.absolute_path, 'match', self.name, media.esid)
 
         LOG.info('%s seeking matches for %s - %s' % (self.name, media.esid, media.absolute_path))
-        previous_matches = library.get_matches(self.name, media.esid)
+        previous_matches = assets.get_matches(self.name, media.esid)
 
         query = self.get_query(media)
         # query_printed = False

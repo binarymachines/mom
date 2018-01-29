@@ -70,8 +70,21 @@ def cache_ops(path, operation, operator=None, apply_lifespan=False, op_status=No
         cached_count += 1
 
 @ops_func 
+def discard_ops(path, operation=None, operator=None):
+    LOG.debug('discarding op records...')
+
+    operator = '*' if operator is None else operator
+    operation = '*' if operation is None else operation
+
+    keys = cache2.get_keys(OPS, "*", operation, operator, path)
+
+    for key in keys:
+        record = cache2.get_hash2(key)
+        cache2.delete_key(key)
+
+@ops_func 
 def cache_op(op_record):
-    key = cache2.create_key(OPS, config.pid, op_record.operation_name, op_record.operator_name, op_record.target_path, value=op_record.target_path)
+    key = cache2.create_key(OPS, config.pid, op_record.operation_name, op_record.operator_name, op_record.target_path)
     cache2.set_hash2(key, {'persisted': True, 'operation_name':  op_record.operation_name, 'operator_name':  op_record.operator_name, \
         'target_path': op_record.target_path})
 
@@ -87,6 +100,9 @@ def flush_cache(resuming=False):
     if resuming is False:
         LOG.info('flushing redis datastore, keys remain')
         cache2.datastore.flushdb()
+        cache2.hashstore.flushdb()
+        cache2.liststore.flushdb()
+        cache2.orderedliststore.flushdb()
 
 
 def mark_operation_invalid(path, operation, operator):
@@ -215,7 +231,7 @@ def update_ops_data(path, key, value, operation=None, operator=None):
             cache2.set_hash2(op_key, record)
 
 
-def write_ops_data(path, operation=None, operator=None, this_pid_only=False, resuming=False):
+def write_ops_data(path, operation=None, operator=None, resuming=False):
     LOG.debug('writing op records...')
 
     operator = '*' if operator is None else operator

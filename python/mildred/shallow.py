@@ -5,7 +5,7 @@ import config, alchemy
 from const import DIRECTORY, FILE
 from core import cache2
 
-from library import PATTERN
+from assets import PATTERN
 
 
 def get_sorted_items(keygroup, identifier):

@@ -75,14 +75,13 @@ def record_matches_as_ops():
 
     rows = sql.retrieve_values('temp', ['doc_id', 'matcher_name', 'absolute_path'], [])
     for r in rows:
-        media = Document()
         matcher_name = r[1]
-        media.esid = r[0]
-        media.absolute_path = r[2]
+        esid = r[0]
+        absolute_path = r[2]
 
-        if ops.operation_completed(media.absolute_path, matcher_name, 'match') is False:
-            ops.record_op_begin(media.absolute_path, matcher_name, 'match', media.esid)
-            ops.record_op_complete(media.absolute_path, matcher_name, 'match', media.esid)
+        if ops.operation_completed(absolute_path, matcher_name, 'match') is False:
+            ops.record_op_begin(absolute_path, matcher_name, 'match', esid)
+            ops.record_op_complete(absolute_path, matcher_name, 'match', esid)
 
 
 # def transform_docs():
@@ -117,7 +116,7 @@ def record_matches_as_ops():
 #             doc_type = f[1]
 
 #             try:
-#                 esid = library.retrieve_esid(document_type, filename)
+#                 esid = assets.retrieve_esid(document_type, filename)
 #                 if esid is not None:
 #                     print ','.join([esid, filename])
 #                 else:

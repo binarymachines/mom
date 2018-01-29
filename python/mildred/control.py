@@ -30,7 +30,7 @@ def _set_field_value(pid, field, value, check_status=False):
     cache2.set_hash2(key, values)
 
     if check_status:
-        ops.check_smtatus()
+        ops.check_status()
 
 
 def request_start():

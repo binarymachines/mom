@@ -64,7 +64,7 @@ def launch(args, run=True):
                     vector.set_param('all', 'map-paths', True)
                     vector.set_param('all', 'start-path', args['<startpath>'])
 
-                process = create_func('service process', vector, service, before=before, after=after)    
+                process = create_func('Media Hound', vector, service, before=before, after=after)    
                 service.queue([process])
                 # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
                 service.handle_processes()

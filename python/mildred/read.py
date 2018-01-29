@@ -6,7 +6,7 @@ from pydoc import locate
 
 import config
 import const
-import library
+import assets
 import ops
 from alchemy import SQLFileHandler, SQLFileType
 

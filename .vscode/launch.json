@@ -31,7 +31,6 @@
                 // , "/media/codex/Cache/unsorted/audio/"
                 // , "--clearmem"
                 // , "--exit"
-
                 // "--nomatch"
                 // , "--pattern",
                 // "skillionaire"
@@ -54,6 +53,21 @@
             "program": "${workspaceRoot}/python/mildred/control.py",
             "args": [
                 "--halt"
+            ],
+            "debugOptions": [
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "stop media hound",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${config:python.pythonPath}",
+            "cwd": "${workspaceRoot}/python",
+            "program": "${workspaceRoot}/python/mildred/control.py",
+            "args": [
+                "--stop"
             ],
             "debugOptions": [
                 "RedirectOutput"

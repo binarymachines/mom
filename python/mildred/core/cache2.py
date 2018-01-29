@@ -71,6 +71,12 @@ def delete_key(key):
     for value in values:
         result = liststore.srem(identifier, value)
 
+    while lpeek2(key):
+        lpop2(key)
+
+    while rpeek2(key):
+        rpop2(key)
+
     # LOG.debug('datastore.delete(key=%s) returns: %s' % (key, str(result)))
 
 
@@ -93,13 +99,6 @@ def get_key(key_group, *identifier):
         return result[0]
     # (else)
     return create_key(key_group, *identifier)
-
-
-def get_key_value(key_group, *identifier):
-    key = get_key(key_group, *identifier)
-    value = orderedliststore.lrange(key, 0, 1)
-    if len(value) == 1:
-        return value[0]
 
 
 def get_keys(key_group, *identifier):

@@ -1,6 +1,6 @@
 import logging
 
-import library
+import assets
 from const import KNOWN, METADATA
 from core.errors import BaseClassException
 from core import log
