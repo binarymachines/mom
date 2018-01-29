@@ -120,7 +120,7 @@ class Scanner(Walker):
         # attempts = 1s
         # LOG.info('Considering %s...' % root)
  
-        if ops.operation_in_cache(root, SCAN, SCANNER) or self.scan_should_skip(root): #and not self.deep_scan:
+        if self.scan_should_skip(root): #and not self.deep_scan:
             LOG.debug('skipping %s' % root)
             ops.update_listeners('skipping scan', SCANNER, root)
             assets.set_active_directory(None)
