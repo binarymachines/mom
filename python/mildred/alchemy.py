@@ -459,10 +459,10 @@ class SQLMatch(MatchRecord):
 
     @staticmethod
     @alchemy_func
-    def insert(doc_id, match_doc_id, matcher_name, percentage_of_max_score, comparison_result, same_ext_flag):
+    def insert(doc_id, match_doc_id, matcher_name, score, min_score, max_score, comparison_result, same_ext_flag):
         # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
         match_rec = SQLMatch(doc_id=doc_id, match_doc_id=match_doc_id, \
-                             matcher_name=matcher_name, percentage_of_max_score=percentage_of_max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
+                             matcher_name=matcher_name, score=score, min_score=min_score, max_score=max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
 
         try:
             sessions[MILDRED].add(match_rec)

@@ -251,17 +251,17 @@ class ElasticSearchMatcher(MediaMatcher):
             if match_parent == orig_parent:
                 continue
 
-            match_score = float(match['_score'])
-            minimum_match_score = self.max_score_percentage * max_score * 0.01
+            score = float(match['_score'])
+            min_score = self.max_score_percentage * max_score * 0.01
 
-            if match_score < minimum_match_score:
+            if score < min_score:
                 LOG.debug('eliminating: \t%s' % (match['_source']['absolute_path']))
                 continue
 
-            match_percentage = match_score / max_score * 100
+            match_percentage = score / max_score * 100
             compresult = self.match_comparison_result(doc, match)
             extflag = str(self.match_extensions_match(doc, match))
 
-            SQLMatch.insert(asset.esid, match['_id'], self.name, match_percentage, compresult, extflag)
+            SQLMatch.insert(asset.esid, match['_id'], self.name, score, min_score, max_score, compresult, extflag)
 
         ops.record_op_complete(asset.absolute_path, 'match', self.name, asset.esid)

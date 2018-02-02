@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer, String, Table, Text, text
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -175,9 +175,15 @@ class MatchRecord(Base):
     doc_id = Column(ForeignKey(u'document.id'), primary_key=True, nullable=False)
     match_doc_id = Column(ForeignKey(u'document.id'), primary_key=True, nullable=False, index=True)
     matcher_name = Column(String(128), nullable=False)
-    percentage_of_max_score = Column(Float, nullable=False)
-    comparison_result = Column(String(1), nullable=False)
     same_ext_flag = Column(Integer, nullable=False, server_default=text("'0'"))
+    score = Column(Float)
+    max_score = Column(Float)
+    min_score = Column(Float)
+    comparison_result = Column(String(1), nullable=False)
+    file_parent = Column(String(256))
+    file_name = Column(String(256))
+    match_parent = Column(String(256))
+    match_file_name = Column(String(256))
 
     doc = relationship(u'Document', primaryjoin='MatchRecord.doc_id == Document.id')
     match_doc = relationship(u'Document', primaryjoin='MatchRecord.match_doc_id == Document.id')
@@ -252,14 +258,4 @@ t_v_alias = Table(
     Column('document_format', String(32)),
     Column('name', String(25)),
     Column('attribute_name', String(128))
-)
-
-
-t_v_match_record = Table(
-    'v_match_record', metadata,
-    Column('document_path', Text),
-    Column('comparison_result', String(1)),
-    Column('match_path', Text),
-    Column('pct', Float, server_default=text("'0'")),
-    Column('same_ext_flag', Integer, server_default=text("'0'"))
 )

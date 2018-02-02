@@ -273,7 +273,7 @@ def add_items2(key, items):
     key = DELIM.join([LIST, key])
     for item in items:
         result = liststore.sadd(key, item)
-        LOG.debug('add_item(key_group=%s, identifier=%s, item=%s) returns: %s' % (key_group, identifier, item, str(result)))
+        LOG.debug('add_item2(key=%s, item=%s) returns: %s' % (key, item, str(result)))
 
 
 def clear_items(key_group, identifier):

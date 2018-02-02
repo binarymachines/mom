@@ -334,7 +334,6 @@ create table `match_record` (
   `doc_id` varchar(128) NOT NULL,
   `match_doc_id` varchar(128) NOT NULL,
   `matcher_name` varchar(128) NOT NULL,
-  `percentage_of_max_score` float NOT NULL,
   `comparison_result` char(1) CHARACTER SET utf8 NOT NULL,
   `same_ext_flag` tinyint(1) NOT NULL DEFAULT '0',
   -- `effective_dt` datetime DEFAULT now(),
@@ -348,24 +347,29 @@ create table `match_record` (
   PRIMARY KEY (`doc_id`,`match_doc_id`)
 );
 
+ALTER TABLE `mildred`.`match_record` 
+CHANGE COLUMN `same_ext_flag` `same_ext_flag` TINYINT(1) NOT NULL DEFAULT '0' AFTER `matcher_name`,
+ADD COLUMN `score` FLOAT NULL AFTER `same_ext_flag`,
+ADD COLUMN `min_score` FLOAT NULL AFTER `score`,
+ADD COLUMN `max_score` FLOAT NULL AFTER `score`,
+ADD COLUMN `file_parent` VARCHAR(256) NULL AFTER `comparison_result`,
+ADD COLUMN `file_name` VARCHAR(256) NULL AFTER `file_parent`,
+ADD COLUMN `match_parent` VARCHAR(256) NULL AFTER `file_name`,
+ADD COLUMN `match_file_name` VARCHAR(256) NULL AFTER `match_parent`;
+
 drop view if exists `v_match_record`;
 
 create view `v_match_record` as
 
-select d1.absolute_path document_path, m.comparison_result, d2.absolute_path match_path, m.percentage_of_max_score pct, m.same_ext_flag
+select d1.absolute_path document_path, m.comparison_result, d2.absolute_path match_path, m.same_ext_flag
 from document d1, document d2, match_record m
 where m.doc_id = d1.id and
     m.match_doc_id = d2.id
 union
-select d2.absolute_path document_path, m.comparison_result, d1.absolute_path match_path, m.percentage_of_max_score pct, m.same_ext_flag
+select d2.absolute_path document_path, m.comparison_result, d1.absolute_path match_path, m.same_ext_flag
 from document d1, document d2, match_record m
 where m.doc_id = d2.id and
     m.match_doc_id = d1.id;
-
--- INSERT INTO `mildred`.`file_type` (`name`) VALUES ("...");
-
-
--- INSERT INTO `directory` (`name`, `file_type_id`, `active_flag`) VALUES ('/home/mpippins/google-drive/books', 'pdf'), 0);
 
 
 INSERT INTO `matcher` (`id`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `applies_to_file_type`) VALUES (1, 'filename_match_matcher', 'match',75,1, '*');

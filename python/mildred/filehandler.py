@@ -17,10 +17,11 @@ ERR = log.get_safe_log('errors', logging.WARNING)
 def add_attribute(doc_format, attribute):
     """add an attribute to document_attribute for the specified document_type"""
     try: 
-        SQLDocumentAttribute.insert(doc_format, attribute.lower())
-        cache2.add_item(KNOWN, doc_format, attribute)
+        SQLDocumentAttribute.insert(doc_format, attribute)
     except Exception, err:
         pass
+
+    cache2.add_item(KNOWN, doc_format, attribute)
 
 
 def get_attributes(doc_format, refresh=False):
@@ -54,11 +55,8 @@ class FileHandler(object):
 
     def handle_attribute(self, doc_format, attribute):
         attribs = get_attributes(doc_format)
-        if attribute not in attribs and \
-            attribute.upper() not in attribs and \
-            attribute.lower() not in attribs:
-            
-            add_attribute(doc_format, attribute)
+        if attribute.lower() not in attribs:
+           add_attribute(doc_format, attribute.lower())
 
     def handle_exception(self, exception, path, data):
         raise Exception

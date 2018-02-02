@@ -28,7 +28,7 @@ def ops_func(function):
     def wrapper(*args, **kwargs):
         try:
             func_info = 'calling %s.%s' % (function.func_code.co_filename, function.func_code.co_name)
-            LOG.info(func_info)
+            LOG.debug(func_info)
             check_status()
             return function(*args, **kwargs)
         except RuntimeWarning, warn:
