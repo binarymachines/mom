@@ -2,39 +2,39 @@ drop schema if exists `mildred`;
 create schema mildred;
 use mildred;
 
-DROP TABLE IF EXISTS `delimited_file_data`;
-DROP TABLE IF EXISTS `delimited_file_info`;
-DROP TABLE IF EXISTS `match_record`;
-DROP TABLE IF EXISTS `matcher_field`;
-DROP TABLE IF EXISTS `matcher`;
-DROP TABLE IF EXISTS `directory`;
-DROP TABLE IF EXISTS `directory_amelioration`;
-DROP TABLE IF EXISTS `directory_attribute`;
-DROP TABLE IF EXISTS `directory_constant`;
-DROP TABLE IF EXISTS `document_category`;
-DROP TABLE IF EXISTS `path_hierarchy`;
-DROP TABLE IF EXISTS `exclude_directory`;
-DROP TABLE IF EXISTS `alias_document_attribute`;
-DROP TABLE IF EXISTS `document_attribute`;
-DROP TABLE IF EXISTS `alias`;
-DROP TABLE IF EXISTS `document_format`;
-DROP TABLE IF EXISTS `document_type`;
-DROP TABLE IF EXISTS `file_format`;
-DROP TABLE IF EXISTS `file_handler_registration`;
-DROP TABLE IF EXISTS `file_handler`;
+-- DROP TABLE IF EXISTS `delimited_file_data`;
+-- DROP TABLE IF EXISTS `delimited_file_info`;
+-- DROP TABLE IF EXISTS `match_record`;
+-- DROP TABLE IF EXISTS `matcher_field`;
+-- DROP TABLE IF EXISTS `matcher`;
+-- DROP TABLE IF EXISTS `directory`;
+-- DROP TABLE IF EXISTS `directory_amelioration`;
+-- DROP TABLE IF EXISTS `directory_attribute`;
+-- DROP TABLE IF EXISTS `directory_constant`;
+-- DROP TABLE IF EXISTS `document_category`;
+-- DROP TABLE IF EXISTS `path_hierarchy`;
+-- DROP TABLE IF EXISTS `exclude_directory`;
+-- DROP TABLE IF EXISTS `alias_document_attribute`;
+-- DROP TABLE IF EXISTS `document_attribute`;
+-- DROP TABLE IF EXISTS `alias`;
+-- DROP TABLE IF EXISTS `document_format`;
+-- DROP TABLE IF EXISTS `document_type`;
+-- DROP TABLE IF EXISTS `file_format`;
+-- DROP TABLE IF EXISTS `file_handler_registration`;
+-- DROP TABLE IF EXISTS `file_handler`;
 
-DROP TABLE IF EXISTS `op_record_param`;
-DROP TABLE IF EXISTS `op_record_param_type`;
-DROP TABLE IF EXISTS `op_record`;
+-- DROP TABLE IF EXISTS `op_record_param`;
+-- DROP TABLE IF EXISTS `op_record_param_type`;
+-- DROP TABLE IF EXISTS `op_record`;
 
-DROP TABLE IF EXISTS `exec_rec`;
+-- DROP TABLE IF EXISTS `exec_rec`;
 
-DROP TABLE IF EXISTS `document`;
-DROP TABLE IF EXISTS `directory_tags`;
-DROP TABLE IF EXISTS `tags`;
+-- DROP TABLE IF EXISTS `document`;
+-- DROP TABLE IF EXISTS `directory_tags`;
+-- DROP TABLE IF EXISTS `tags`;
 
-DROP TABLE IF EXISTS `file_type`;
-DROP TABLE IF EXISTS `directory_type`;
+-- DROP TABLE IF EXISTS `file_type`;
+-- DROP TABLE IF EXISTS `directory_type`;
 
 CREATE TABLE IF NOT EXISTS `file_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

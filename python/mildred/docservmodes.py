@@ -30,10 +30,73 @@ from ops import ops_func
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 
-#startup mode
+class DecisionHandler(object):
 
+    def definitely(self, selector=None, active=None, possible=None): 
+        return True
+
+    def maybe(self, selector, active, possible):
+        result = bool(random.getrandbits(1))
+        return result
+
+    def possibly(self, selector, active, possible):
+        count = 0
+        for mode in selector.modes:
+            if bool(random.getrandbits(1)): 
+                count += 1
+        return count > 3
+
+
+class DocumentServiceProcessHandler(DecisionHandler):
+    def __init__(self, owner, name, selector, vector):
+        super(DocumentServiceProcessHandler, self).__init__()
+        self.vector = vector
+        self.owner = owner
+        self.name = name
+        self.selector = selector
+
+        random.seed()
+
+    # selector callbacks
+
+    def after_switch(self, selector, mode):
+        pass
+
+    def before_switch(self, selector, mode):
+        pass
+
+    # generic rule callbacks
+
+    @ops_func
+    def after(self):
+        mode = self.selector.active
+        LOG.debug("%s after '%s'" % (self.name, mode.name))
+    
+
+    @ops_func
+    def before(self):
+        mode = self.selector.next
+        LOG.debug("%s before '%s'" % (self.name, mode.name))
+        if mode.active_rule is not None:
+            LOG.debug("%s: %s follows '%s', because of '%s'" % \
+                (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
+
+    #TODO: move this mode-specific stuff into docservmodes in preparation for docservmodes to be paramaterized
+    @ops_func
+    def mode_is_available(self, selector, active, possible):
+        initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
+
+        if initial_and_update_scan_complete:
+            if possible is self.owner.match:
+                if self.vector.has_next(MATCH):
+                    return config.match
+                    
+
+        return initial_and_update_scan_complete or config.scan == False
+
+#startup mode
 class StartupHandler(DefaultModeHandler):
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(StartupHandler, self).__init__(owner, vector)
 
     def started(self):
@@ -56,7 +119,7 @@ class StartupHandler(DefaultModeHandler):
 # shutdown mode
 
 class ShutdownHandler(DefaultModeHandler):
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(ShutdownHandler, self).__init__(owner, vector)
 
     def ended(self):
@@ -76,7 +139,7 @@ class ShutdownHandler(DefaultModeHandler):
 # cleaning mode
 
 class CleaningModeHandler(DefaultModeHandler):
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(CleaningModeHandler, self).__init__(owner, vector)
 
     def after_clean(self):
@@ -96,7 +159,7 @@ class CleaningModeHandler(DefaultModeHandler):
 # eval mode
 
 class AnalyzeModeHandler(DefaultModeHandler):
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(AnalyzeModeHandler, self).__init__(owner, vector)
 
     def can_analyze(self, selector, active, possible):
@@ -111,7 +174,7 @@ class AnalyzeModeHandler(DefaultModeHandler):
 # fix mode
 
 class FixModeHandler(DefaultModeHandler):
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(FixModeHandler, self).__init__(owner, vector)
 
     def after_fix(self): 
@@ -131,7 +194,7 @@ class FixModeHandler(DefaultModeHandler):
 # match mode
 
 class MatchModeHandler(DefaultModeHandler):
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(MatchModeHandler, self).__init__(owner, vector)
 
 
@@ -163,11 +226,11 @@ class MatchModeHandler(DefaultModeHandler):
 # report mode
 
 class ReportModeHandler(DefaultModeHandler):
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(ReportModeHandler, self).__init__(owner, vector)
 
     def do_report(self):
-        print  "reporting..."
+        print("reporting...")
         LOG.debug('%s generating report' % self.owner.name)
         LOG.debug('%s took %i steps.' % (self.owner.selector.name, self.owner.selector.step_count))
         for mode in self.owner.selector.modes:
@@ -179,7 +242,7 @@ class ReportModeHandler(DefaultModeHandler):
 
 class RequestsModeHandler(DefaultModeHandler):
 
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(RequestsModeHandler, self).__init__(owner, vector)
 
 
@@ -193,7 +256,7 @@ class RequestsModeHandler(DefaultModeHandler):
 
 class ScanModeHandler(DefaultModeHandler):
 
-    def __init__(self, owner, vector):
+    def __init__(self, owner, name, selector, vector):
         super(ScanModeHandler, self).__init__(owner, vector)
         self.scan_complete = False
 
@@ -207,7 +270,7 @@ class ScanModeHandler(DefaultModeHandler):
         params = self.vector.get_params(SCAN)
         for key in params:
             value = str(params[key])
-            print '[%s = %s parameter found in vector]' % (key.replace('.', ' '), value)
+            print('[%s = %s parameter found in vector]' % (key.replace('.', ' '), value))
 
 
     @ops_func

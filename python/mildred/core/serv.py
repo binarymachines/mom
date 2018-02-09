@@ -8,18 +8,12 @@ import log
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
 
-SERVICE_NAME = ']]`Media Hound`]]'
+SERVICE_NAME = 'Media Hound'
 
-class ServiceProcess(object):
-    def __init__(self, name, owner=None):
+class ServiceHost(object):
+    def __init__(self, name, vector, owner=None, stop_on_errors=True, before=None, after=None, restart_on_fail=False, threaded=False):
         self.name = name
         self.owner = owner
-
-
-class SingleSelectorServiceProcess(ServiceProcess):
-
-    def __init__(self, name, vector, owner=None, stop_on_errors=True, before=None, after=None, restart_on_fail=False, threaded=False):
-        super(SingleSelectorServiceProcess, self).__init__(name, owner=owner)
         self.vector = vector
         self.threaded = threaded
 
@@ -54,11 +48,11 @@ class SingleSelectorServiceProcess(ServiceProcess):
 
     def halt(self):
         self.halted = True
-        self.handle_halt_process()
+        self.handle_halt_service()
 
 
-    def handle_halt_process(self):
-        raise BaseClassException(SingleSelectorServiceProcess)
+    def handle_halt_service(self):
+        raise BaseClassException(ServiceHost)
 
 
     def initialize(self):
@@ -69,15 +63,20 @@ class SingleSelectorServiceProcess(ServiceProcess):
         # self.selector = Selector("_selector_", before_switch=self.before_switch, after_switch=self.after_switch)
 
         try:
+            LOG.info("setting up...")
             self.setup()
+            self.post_setup()
             self.selector.initialize()
             self.engine.add_selector(self.selector)
+            LOG.info("setup complete.")
         except ModeConfigException, err:
             sys.exit(err.message)
 
     def setup(self):
-        raise BaseClassException(SingleSelectorServiceProcess)
+        raise BaseClassException(ServiceHost)
 
+    def post_setup(self):
+        raise BaseClassException(ServiceHost)
 
     # selector management
     def step(self, before=None, after=None):
@@ -114,31 +113,31 @@ class Service(object):
         self.active = []
         self.inactive = []
 
-    def create_record(self, process):
-        return { self.name: process, 'before': process.before, 'after': process.after }
+    def create_record(self, service):
+        return { self.name: service, 'before': service.before, 'after': service.after }
 
-    def get_record(self, process):
+    def get_record(self, service):
         for rec in self.active:
-            if rec[self.name] == process: return rec
+            if rec[self.name] == service: return rec
         for rec in self.inactive:
-            if rec[self.name] == process: return rec
+            if rec[self.name] == service: return rec
 
     # this is entirely sketchy
-    def run(self, process, cycle=True, before=None, after=None):
-        print "%s running process '%s'..." % (self.name, process.name)
+    def run(self, service, cycle=True, before=None, after=None):
+        LOG.info("%s running service '%s'..." % (self.name, service.name))
         try:
-            process.owner = self
-            self.active.append(self.create_record(process))
+            service.owner = self
+            self.active.append(self.create_record(service))
             if cycle:
-                process.threaded = True
-                thread.start_new_thread( process.run, ( before, after, ) )
+                service.threaded = True
+                thread.start_new_thread( service.run, ( before, after, ) )
 
-            self.handle_processes()
+            self.handle_services()
         except Exception, err:
             ERR.error(': '.join([err.__class__.__name__, err.message]))
 
 
-    def handle_processes(self):
+    def handle_services(self):
         while len(self.active) > 0:
             for rec in self.active:
                 if rec[self.name].selector.complete or rec[self.name].selector.error_state:
@@ -160,6 +159,6 @@ class Service(object):
                     rec[self.name].completed = True
 
 
-    def queue(self, *process):
-        for process in process:
-            self.active.append(self.create_record(*process))
+    def queue(self, *service):
+        for service in service:
+            self.active.append(self.create_record(*service))
