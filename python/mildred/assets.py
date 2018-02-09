@@ -205,7 +205,7 @@ def set_active_directory(path):
 
     if directory is not None:
         LOG.debug('syncing metadata for %s' % directory.absolute_path)
-        ops.update_listeners('syncing metadata', 'library', path)
+        ops.update_listeners('syncing metadata', 'assets', path)
         if search.unique_doc_exists(DIRECTORY, 'absolute_path', directory.absolute_path, except_on_multiples=True):
             directory.esid = search.unique_doc_id(DIRECTORY, 'absolute_path', directory.absolute_path)
         else:
@@ -223,7 +223,7 @@ def cache_docs(document_type, path, flush=True):
     if flush: 
         clear_docs(document_type, os.path.sep)
 
-    ops.update_listeners('retrieving documents', 'library', path)
+    ops.update_listeners('retrieving documents', 'assets', path)
     LOG.debug('retrieving %s records for %s...' % (document_type, path))
     rows = SQLAsset.retrieve(document_type, path, use_like=True)
 
@@ -231,7 +231,7 @@ def cache_docs(document_type, path, flush=True):
     cached_count = 0
 
     for sql_asset in rows:
-        ops.update_listeners('caching %i of %i %s records...' % (cached_count, count, sql_asset.document_type), 'library', sql_asset.absolute_path)
+        ops.update_listeners('caching %i of %i %s records...' % (cached_count, count, sql_asset.document_type), 'assets', sql_asset.absolute_path)
         cache_sql_asset(sql_asset)
         cached_count += 1
 
@@ -535,7 +535,7 @@ def handle_asset_exception(error, path):
         print(error.message)
 
 # def backup_assets():
-#     ops.update_listeners('querying...', 'library', '')
+#     ops.update_listeners('querying...', 'assets', '')
 
 #     docs = sql.retrieve_values2('document', ['id', 'document_type', 'absolute_path'], []) 
 #     count = len(docs)
@@ -543,9 +543,9 @@ def handle_asset_exception(error, path):
 #         try:
 #             es_doc = search.get_doc(doc.document_type, doc.id)
 #             if search.backup_exists(es_doc):
-#                 ops.update_listeners('backup exists, skipping file %i/%i' % (doc.rownum, count), 'library', doc.absolute_path)
+#                 ops.update_listeners('backup exists, skipping file %i/%i' % (doc.rownum, count), 'assets', doc.absolute_path)
 #                 continue
-#             ops.update_listeners('copying file %i/%i to backup folder' % (doc.rownum, count), 'library', doc.absolute_path)
+#             ops.update_listeners('copying file %i/%i to backup folder' % (doc.rownum, count), 'assets', doc.absolute_path)
 #             search.backup_doc(es_doc)
 #         except ElasticDataIntegrityException, err:
 #             LOG.info('Duplicate documents found for %s' % doc.absolute_path)

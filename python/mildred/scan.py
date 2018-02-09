@@ -201,7 +201,6 @@ class Scanner(Walker):
 
     @ops_func
     def _pre_scan(self, path):
-        start.display_redis_status()
         self.vector.set_param(PERSIST, ACTIVE, path)
 
         LOG.debug('caching data for %s...' % path)
@@ -218,7 +217,6 @@ class Scanner(Walker):
 
     @ops_func
     def _post_scan(self, path, update_ops):
-        start.display_redis_status()
         # ops.write_ops_data(path, SCAN)
 
         if update_ops:
@@ -298,7 +296,7 @@ class Scanner(Walker):
                 try:
                     self._pre_scan(path)
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
-                    print('scanning %s\n' % path)
+                    print('scanning %s' % path)
                     LOG.debug("scanning %s..." % path)
                     ops.update_listeners('scanning', SCANNER, path)
                     self.walk(path)
@@ -315,8 +313,6 @@ class Scanner(Walker):
                 #TODO: parrot behavior for IOError as seen in read.py 
                 ERR.warning("%s isn't currently available." % (path))
                 print("%s isn't currently available." % (path))
-
-        start.display_redis_status()
 
     # TODO: use _handle_dir and handle_file instead of whatever the hell it is that you're doing above
     # def walk(self, start):
@@ -351,3 +347,5 @@ def scan(vector):
     if SCANNER not in vector.data:
         vector.data[SCANNER] = Scanner(vector)
     vector.data[SCANNER].scan()
+    start.show_logo()
+    start.display_redis_status()

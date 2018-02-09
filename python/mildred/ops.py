@@ -358,31 +358,27 @@ def check_status(opcount=None):
     #     clear_reconfig_request()
 
     if stop_requested():
-        print 'STOP requested, terminating...'
+        print 'STOP requested. Stopping...'
         LOG.debug('STOP requested, terminating...')
         update_listeners(OPS, get_exec_key(), 'terminating')
         flush_cache()
         # cache.flush_cache()
-        LOG.debug('system stopped')
-
-        insert_exec_complete_record()
-
         show_logo()
         display_status()
+        insert_exec_complete_record()
+        LOG.debug('system stopped')
         sys.exit(0)
 
     if halt_requested():
-        print 'HALT requested, terminating...'
+        print 'HALT requested. Halting...'
         LOG.debug('HALT requested, terminating...')
         update_listeners(OPS, get_exec_key(), 'terminating')
         # flush_cache()
         # cache.flush_cache()
-        LOG.debug('system halted')
-
-        insert_exec_complete_record()
-
         show_logo()
         display_status()
+        insert_exec_complete_record()
+        LOG.debug('system halted')
         sys.exit(0)
 
 @ops_func
