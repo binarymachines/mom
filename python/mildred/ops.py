@@ -9,6 +9,7 @@ import config
 import sql
 from core import cache2, log
 
+from start import show_logo, display_status
 
 LOG = log.get_safe_log(__name__, logging.INFO)
 ERR = log.get_safe_log('errors', logging.WARNING)
@@ -366,6 +367,8 @@ def check_status(opcount=None):
 
         insert_exec_complete_record()
 
+        show_logo()
+        display_status()
         sys.exit(0)
 
     if halt_requested():
@@ -378,6 +381,8 @@ def check_status(opcount=None):
 
         insert_exec_complete_record()
 
+        show_logo()
+        display_status()
         sys.exit(0)
 
 @ops_func

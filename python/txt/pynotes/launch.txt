@@ -29,8 +29,8 @@ def main(args):
 
             service.queue(a)
 
-            # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
-            service.handle_processes()
+            # TODO: a call to service.handle_services() should NOT be required here or anywhere else outside of the service process
+            service.handle_services()
 
             # TODO: tests with threaded services reveals design/implementation flaws
             # service.run(create_func('Threaded worker', context), True, before, after)

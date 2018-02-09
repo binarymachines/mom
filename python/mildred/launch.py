@@ -66,8 +66,8 @@ def launch(args, run=True):
 
                 process = create_func('Media Hound', vector, service, before=before, after=after)    
                 service.queue([process])
-                # TODO: a call to service.handle_processes() should NOT be required here or anywhere else outside of the service process
-                service.handle_processes()
+                # TODO: a call to service.handle_services() should NOT be required here or anywhere else outside of the service process
+                service.handle_services()
 
             return service
 
