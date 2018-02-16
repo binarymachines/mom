@@ -37,7 +37,7 @@ def execute(doc_type, query):
     try:
         return connect().search(index=doc_type, doc_type=doc_type, body=query)
     except Exception, err:
-        print err.message
+        print(err.message)
     
 
 def set_key_if_value(values, key, value):

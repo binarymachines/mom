@@ -27,8 +27,8 @@
                 // , "--exit"
                 // "--reset",
                 //  "mode_state", "exec_rec", "op_record", "match_record", "document",
-                // "--map-paths"
-                // , "/media/codex/Cache/unsorted/audio/"
+                // "--scan-path"
+                // , "/media/codex/Media/audio/music/recently downloaded/albums"
                 // , "--clearmem"
                 // , "--exit"
                 // "--nomatch"
@@ -36,7 +36,7 @@
                 // "skillionaire"
                 // "--path"
                 // "/media/removable/Audio/music/albums/hip-hop"
-                // "--expand-all"
+                // , "--expand-all"
                 // "/media/removable/SG932/media/music/incoming/complete/Jhene Aiko/Souled Out Deluxe Edition/"
             ],
             "debugOptions": [

@@ -54,7 +54,7 @@ class CacheMonitor(App):
                         self.op_target_lbl.text = message[2]
 
         except Exception, err:
-            print err.message
+            print(err.message)
 
 if __name__ == '__main__':
     CacheMonitor().run()

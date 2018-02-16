@@ -15,15 +15,15 @@ def clear_bad_entries():
 
     data = []
     rows  = sql.retrieve_values('problem_esid', ['distinct esid', 'index_name', 'document_type'], [])
-    print "%i rows retrieved" % (len(rows))
+    print("%i rows retrieved" % (len(rows)))
 
     es = search.connect()
     for row in rows:
-        print row[0]
+        print(row[0])
         try:
             es.delete(index=row[1],doc_type=row[2],id=row[0])
         except Exception, err:
-            print ': '.join([err.__class__.__name__, err.message])
+            print(': '.join([err.__class__.__name__, err.message]))
 
 
 def delete_docs_for_path( indexname, document_type, path):
@@ -53,7 +53,7 @@ def purge_problem_esids():
         problem = row[3]
 
         if a.document_type == const.DIRECTORY and problem.lower().startswith('mult'):
-            print '%s, %s' % (a.esid, a.absolute_path)
+            print('%s, %s' % (a.esid, a.absolute_path))
             docs = sql.retrieve_values('document', ['absolute_path', 'id'], [a.absolute_path])
             for doc in docs:
                 esid = doc[1]

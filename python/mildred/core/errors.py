@@ -1,8 +1,8 @@
 class MildredException(Exception):
     def __init__(self, message):
         super(MildredException, self).__init__(message)
-        print '\a'
-        print message
+        print('\a')
+        print(message)
 
 # api
 

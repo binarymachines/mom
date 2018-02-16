@@ -58,7 +58,7 @@ def str_to_class(self, objectTypeName):
 
 # compare source and targets, remove files from source that exist in target
 def delta(source, target, remove_source_files=False):
-    print source
+    print(source)
     for f in os.listdir(source):
         source_path = os.path.join(source, f)
         target_path = os.path.join(target, f)
@@ -66,12 +66,12 @@ def delta(source, target, remove_source_files=False):
         if os.path.isfile(source_path):
             if os.path.exists(target_path):
                 if remove_source_files:
-                    print 'deleting: %s' % (source_path)
+                    print('deleting: %s' % (source_path))
                     os.remove(source_path)
-                else: print 'file: %s also exists in %s' % (f, target)
+                else: print('file: %s also exists in %s' % (f, target))
 
         elif os.path.isdir(source_path):
-            print ': %s' % (source_path)
+            print(': %s' % (source_path))
             if os.path.exists(target_path):
                delta(source_path, target_path, remove_source_files)
 

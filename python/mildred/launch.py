@@ -1,6 +1,6 @@
 '''
    Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] 
-                    [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)] [(--map-paths <startpath>)]
+                    [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)] [(--map-paths <startpath>)] [(--scan-path) <scanpath>]
 
    --path, -p                   The path to scan
 
@@ -49,8 +49,11 @@ def launch(args, run=True):
             if run:
                 create_func = get_process_create_func()
 
-                path_args = start.get_paths(args)
-                paths = get_locations() if path_args == [] else path_args
+                if args['--scan-path']:
+                    paths = [args['<scanpath>']]
+                else:
+                    path_args = start.get_paths(args)
+                    paths = get_locations() if path_args == [] else path_args
 
                 # if paths == []:
                 #     sys.exit("ERROR: No paths have been configured. Restart with --map-paths option")                   

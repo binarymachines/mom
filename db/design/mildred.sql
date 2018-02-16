@@ -431,40 +431,40 @@ insert into file_handler_registration (file_handler_id, file_type_id, name) valu
   (select id from file_handler where class_name = 'PyPDF2FileHandler'), (select id from file_type where ext = 'pdf'), 'pypdf2');
 
 
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TPE1',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TPE2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TIT1',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TIT2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TALB',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe1',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe2',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit1',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit2',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'talb',1);
 
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'TPE1',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'TPE2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'TIT1',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'TIT2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'TALB',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tpe1',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tpe2',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tit1',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tit2',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'talb',1);
 
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'COMM',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'MCDI',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'PRIV',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TCOM',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TCON',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TDRC',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TLEN',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TPUB',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TRCK',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TDOR',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TMED',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TPOS',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TSO2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TSOP',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'UFID',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'APIC',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TIPL',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TENC',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TLAN',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TIT3',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TPE3',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'TPE4',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'comm',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'mcdi',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'priv',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tcom',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tcon',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tdrc',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tlen',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpub',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'trck',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tdor',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tmed',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpos',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tso2',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tsop',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'ufid',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'apic',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tipl',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tenc',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tlan',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit3',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe3',1);
+INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe4',1);
 -- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (14, 'ID3v2.3.0', 'POPM',1);
 -- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (20, 'ID3v2.3.0', 'TXXX',1);
 -- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (39, 'ID3v2.3.0', 'TDRL',1);
@@ -842,17 +842,17 @@ create view `v_alias` as
   
 insert into `alias` (name) values ('artist'), ('album'), ('song'), ('track_id'), ('genre');
 
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'TALB' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE1' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE2' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT1' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT2' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `document_attribute` where attribute_name = 'TCON' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'talb' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe1' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe2' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit1' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit2' and document_format = 'ID3v2.3.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `document_attribute` where attribute_name = 'tcon' and document_format = 'ID3v2.3.0'));
 
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'TALB' and document_format = 'ID3v2.4.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE1' and document_format = 'ID3v2.4.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'TPE2' and document_format = 'ID3v2.4.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT1' and document_format = 'ID3v2.4.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'TIT2' and document_format = 'ID3v2.4.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'talb' and document_format = 'ID3v2.4.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe1' and document_format = 'ID3v2.4.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe2' and document_format = 'ID3v2.4.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit1' and document_format = 'ID3v2.4.0'));
+insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit2' and document_format = 'ID3v2.4.0'));
 -- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `document_attribute` where attribute_name = 'TCON' and document_format = 'ID3v2.4.0'));
 

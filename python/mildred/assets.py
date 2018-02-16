@@ -314,7 +314,7 @@ def create_asset_metadata(data, file_type=None):
         return esid
     except RequestError, err:
         ERR.error(err.__class__.__name__)
-        print ('Error encountered handling %s:' % (data['absolute_path']))
+        print('Error encountered handling %s:' % (data['absolute_path']))
         pp.pprint(err.args[2])
        
         error_string = err.args[2]['error']['reason']
@@ -354,7 +354,7 @@ def create_asset_metadata(data, file_type=None):
 @ops_func
 def wait_and_resubmit_asset(err, data):
     # TODO: if ES doesn't become available after alloted time or number of retries, INVALIDATE ALL READ OPERATIONS FOR THIS ASSET
-    print "Elasticsearch connectivity error, retrying in 5 seconds..." 
+    print("Elasticsearch connectivity error, retrying in 5 seconds...") 
     es_avail = False
     while es_avail is False:
         ERR.error(err.__class__.__name__)
@@ -367,7 +367,7 @@ def resubmit_asset(data):
     try:
         config.es = search.connect()
         if config.es.indices.exists(data['document_type']):
-            print "resuming..." 
+            print("resuming...") 
             return create_asset_metadata(data)
     # except RequestError
     except ConnectionError, err:
@@ -418,7 +418,7 @@ def update_asset(data):
                     return res['_id']
             except RequestError, err:
                 ERR.error(err.__class__.__name__)
-                print 'RequestError encountered handling %s:' % (data['absolute_path'])
+                print('RequestError encountered handling %s:' % (data['absolute_path']))
                 pp.pprint(err.args[2])
                 # raise Exception(err)
             except Exception, err:

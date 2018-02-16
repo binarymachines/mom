@@ -95,7 +95,8 @@ def create_index(index):
         LOG.debug("response: '%s'" % res)
     
     except Exception, err:
-        print err.message
+        LOG.error(err.message)
+        print(err.message)
         sys.exit(1)
 
 def delete_doc(doc):

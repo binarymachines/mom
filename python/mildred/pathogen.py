@@ -28,6 +28,10 @@ class Pathogen(FileHandler):
         super(Pathogen, self).__init__(name)
         self.tags = {}
         
+    def key_is_invalid(self, key):
+        if '.' in key or len(key) == 0: 
+            return True
+
     #TODO: decorate this method with error handling that will deal properly with trapping UnicodeDecodeError 
     @ops_func
     def handle_file(self, path, data):
@@ -42,43 +46,43 @@ class Pathogen(FileHandler):
 
         except ID3NoHeaderError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         except UnicodeEncodeError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         except UnicodeDecodeError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         except FLACNoHeaderError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         except FLACVorbisError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         except APENoHeaderError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         except OggVorbisHeaderError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         except MP4MetadataError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         # except MP4MetadataValueError, err:
         #     read_failed = True
-        #     self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+        #     self.tags['_ERROR'] = err.__class__.__name__
 
         except MP4StreamInfoError, err:
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         except MutagenError, err:
             ERR.error(err.__class__.__name__)
@@ -86,18 +90,18 @@ class Pathogen(FileHandler):
                 fs_avail = False
                 while fs_avail is False:
                     #TODO: add a timeout to recovery attempts
-                    print "file system offline, retrying in 5 seconds..." 
+                    print("file system offline, retrying in 5 seconds...") 
                     time.sleep(5)
                     fs_avail = os.access(path, os.R_OK) 
 
-                print "resuming..." 
+                print("resuming...") 
                 self.read_tags(path, data)
                 return True
 
         except Exception, err:
             ERR.error(err.message)
             read_failed = True
-            self.tags['_ERROR'] = ':'.join([err.__class__.__name__, err.message])
+            self.tags['_ERROR'] = err.__class__.__name__
 
         finally:
             ops.record_op_complete(path, const.READ, self.name, op_failed=read_failed)
@@ -131,7 +135,7 @@ class MutagenMP4(Pathogen):
                 continue
 
             key = util.uu_str(item[0].lower()).replace(u'\xa9', '')
-            if '.' in key: 
+            if self.key_is_invalid(key): 
                 continue
             
             self.handle_attribute('m4a', key)
@@ -175,6 +179,9 @@ class MutagenAPEv2(Pathogen):
                 continue
 
             key = util.uu_str(item[0].lower())
+            if self.key_is_invalid(key): 
+                continue
+
             self.handle_attribute('apev2', key)
                     
             value = util.uu_str(item[1].value)
@@ -199,9 +206,11 @@ class MutagenFLAC(Pathogen):
         document = FLAC(path)
         for tag in document.tags:
             if len(tag) < 2: continue
-            known = filehandler.get_attributes('flac')
             
             key = tag[0].lower()  #util.uu_str(tag[0])
+            if self.key_is_invalid(key): 
+                continue
+            
             self.handle_attribute('flac', key)
                 
             value = util.uu_str(tag[1])
@@ -213,6 +222,9 @@ class MutagenFLAC(Pathogen):
 
         for tag in document.vc:
             key = util.uu_str(tag[0].lower())
+            if self.key_is_invalid(key): 
+                continue
+
             self.handle_attribute('flac', key)
 
             value = util.uu_str(tag[1])
@@ -247,6 +259,9 @@ class MutagenID3(Pathogen):
                 continue
 
             key = util.uu_str(tag[0].lower())
+            if self.key_is_invalid(key): 
+                continue
+
             if len(key) == 4 and key != "TXXX":
                 self.handle_attribute(document_format, key)
 
@@ -266,7 +281,7 @@ class MutagenID3(Pathogen):
 
                 subtags = value.split('=')
                 subkey = util.uu_str(subtags[0].replace('"', '').replace(' ', '_').lower())
-                if '.' in subkey: 
+                if self.key_is_invalid(subkey): 
                     continue
                 
                 txxkey = '.'.join([key, subkey]).lower()
@@ -296,6 +311,9 @@ class MutagenOggVorbis(Pathogen):
                 continue
 
             key = util.uu_str(tag.lower())
+            if self.key_is_invalid(key): 
+                continue
+
             self.handle_attribute('ogg', key)
 
             value = util.uu_str(tags[tag])

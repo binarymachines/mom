@@ -21,7 +21,6 @@ def add_attribute(doc_format, attribute):
     except Exception, err:
         pass
 
-    cache2.add_item(KNOWN, doc_format, attribute)
 
 
 def get_attributes(doc_format, refresh=False):
@@ -46,7 +45,6 @@ def report_invalid_attribute(path, key, value):
         LOG.debug(value)
     except UnicodeDecodeError, err:
         pass
-        # print "Logging Error: %s" % err.message
 
 class FileHandler(object):
     def __init__(self, name):
@@ -54,9 +52,11 @@ class FileHandler(object):
         self.extensions = ()
 
     def handle_attribute(self, doc_format, attribute):
-        attribs = get_attributes(doc_format)
-        if attribute.lower() not in attribs:
-           add_attribute(doc_format, attribute.lower())
+        if attribute is not None and attribute != "":
+            attribs = get_attributes(doc_format)
+            if attribute.lower() not in attribs:
+                cache2.add_item(KNOWN, doc_format, attribute.lower())
+                add_attribute(doc_format, attribute.lower())
 
     def handle_exception(self, exception, path, data):
         raise Exception

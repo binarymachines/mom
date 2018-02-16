@@ -179,7 +179,6 @@ def kwarg_val(kw, default_value, args):
     return default_value
 
 def execute_query_template(filename, *kwargs):
-    print os.getcwd()
     query = _load_query(filename, *kwargs)
 
     user = kwarg_val('user', config.mysql_user, kwargs)

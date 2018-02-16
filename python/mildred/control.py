@@ -34,7 +34,7 @@ def _set_field_value(pid, field, value, check_status=False):
 
 
 def request_start():
-    print 'submitting start request...'
+    print('submitting start request...')
 
     import ops
 
@@ -44,16 +44,16 @@ def request_start():
 
 
 def request_halt(pid):
-    print 'submitting HALT request for %s...' % (pid)
+    print('submitting HALT request for %s...' % (pid))
     _set_field_value(pid, 'halt_requested', True)
 
 def request_stop(pid):
-    print 'submitting STOP request for %s...' % (pid)
+    print('submitting STOP request for %s...' % (pid))
     _set_field_value(pid, 'stop_requested', True)
 
 
 def request_reconfig(pid):
-    print 'submitting RECONFIG request for %s...' % (pid)
+    print('submitting RECONFIG request for %s...' % (pid))
     _set_field_value(pid, 'reconfig_requested', True)
 
 

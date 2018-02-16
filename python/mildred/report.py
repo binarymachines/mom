@@ -64,7 +64,7 @@ def calculate_discount(path, discounts):
             if func():
                 result += discounts[value]
         except Exception, err:
-            print err.message
+            print(err.message)
 
     return result
 
@@ -168,7 +168,7 @@ def post_process_record(source_file, matched_file, records):
 
     if source_file[DIRECTORY] not in records:
         records[source_file[DIRECTORY]] = new_record(source_file[DIRECTORY])
-        print 'adding %s to records' % (source_file[DIRECTORY])
+        print('adding %s to records' % (source_file[DIRECTORY]))
 
     source = records[source_file[DIRECTORY]]
 
@@ -185,7 +185,7 @@ def post_process_record(source_file, matched_file, records):
 
     if matched_file[MATCH_DIRECTORY] not in records:
         records[matched_file[MATCH_DIRECTORY]] = new_record(matched_file[MATCH_DIRECTORY])
-        print 'adding %s to records' % (matched_file[MATCH_DIRECTORY])
+        print('adding %s to records' % (matched_file[MATCH_DIRECTORY]))
 
     match = records[matched_file[MATCH_DIRECTORY]]
 
@@ -253,7 +253,7 @@ def post_process__data(data, exclude_ignore, records):
                 # data[RESULTS][FILE_LIST].remove(files)
 
 def get_directories(path):
-    print 'retrieving s matching pattern: "%s"' % (path)
+    print('retrieving s matching pattern: "%s"' % (path))
 
     q = """SELECT id, absolute_path FROM document
             WHERE index_name = '%s' and document_type = 'media_'
@@ -284,7 +284,7 @@ def get_matches(esid, reverse=False, union=False):
 
 def get_documents(path, reverse=False, union=False):
 
-    print 'retrieving mediafiles for path: "%s"' % (path)
+    print('retrieving mediafiles for path: "%s"' % (path))
 
     query = {'match':  """SELECT es.id, es.absolute_path FROM document es
                         WHERE es.absolute_path LIKE "%s%s"
@@ -364,17 +364,17 @@ def get_matches_for(pattern):
             try:
                 generate_match_doc(path, False, False, output)
             except Exception, err:
-                print err.message
+                print(err.message)
 
 
 def handle_results(results, outputfile, append_existing, show_in_subl):
     if outputfile is not None:
-        print 'writing output...'
+        print('writing output...')
         write_method = 'at' if append_existing else 'wt'
         with open(outputfile, write_method) as out:
             pprint.pprint(results, stream=out)
             out.close()
-        print 'done.'
+        print('done.')
         if show_in_subl:
             subprocess.call(['subl', outputfile])
 

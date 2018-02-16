@@ -72,7 +72,7 @@ import sys, os
 
 
 def test_func():
-    print 'tests'
+    print('tests')
 
 def main():
     # index = 'media'

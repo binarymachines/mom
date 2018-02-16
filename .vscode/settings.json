@@ -1,6 +1,6 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "python.pythonPath": "/media/codex/Home/Workspace/venv/m2/bin/python2.7",
+    "python.pythonPath": "/media/codex/Home/workspace/venv/m2/bin/python2.7",
     "python.linting.pylintEnabled": true,
     "java.configuration.updateBuildConfiguration": "interactive",
     "files.autoSave": "onFocusChange"

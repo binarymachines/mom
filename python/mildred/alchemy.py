@@ -614,7 +614,7 @@ class SQLModeState(AlchemyModeState):
             if record.effective_dt > output.effective_dt: #and record.expiration_dt >= output.expiration_dt
                 output = record
 
-        print "%s mode will resume in %s state" % (mode.name, output.status)
+        print("%s mode will resume in %s state" % (mode.name, output.status))
 
         return output
 

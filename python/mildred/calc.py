@@ -72,7 +72,7 @@ def calc(vector, cycle_vector=False):
             try:
                 match.do_match_op(values['esid'], values['absolute_path'], matchers)
             except Exception, err:
-                print err.message
+                print(err.message)
 
         assets.clear_docs(FILE, location)
         for matcher in matchers:

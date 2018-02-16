@@ -71,7 +71,7 @@ def main():
     document = PdfFileReader(open("logic.pdf", "rb"))
     info = document.getDocumentInfo()
     for key in info:
-        print ('%s = %s' % (key, info[key]))
+        print('%s = %s' % (key, info[key]))
 
     outlines = document.getOutlines()
     if outlines:

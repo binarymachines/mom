@@ -293,7 +293,7 @@ def insert_exec_record():
     try:
         return SQLExecutionRecord.insert(values)
     except Exception, err:
-        print err.message
+        ERR.error(err.message) 
 
 
 def insert_exec_complete_record():
@@ -302,7 +302,7 @@ def insert_exec_complete_record():
     try:
         return SQLExecutionRecord.update(values)
     except Exception, err:
-        print err.message
+        ERR.error(err.message) 
 
 
 # TODO: use execution record to select redis db
@@ -358,7 +358,7 @@ def check_status(opcount=None):
     #     clear_reconfig_request()
 
     if stop_requested():
-        print 'STOP requested. Stopping...'
+        print('STOP requested. Stopping...')
         LOG.debug('STOP requested, terminating...')
         update_listeners(OPS, get_exec_key(), 'terminating')
         flush_cache()
@@ -370,7 +370,7 @@ def check_status(opcount=None):
         sys.exit(0)
 
     if halt_requested():
-        print 'HALT requested. Halting...'
+        print( 'HALT requested. Halting...')
         LOG.debug('HALT requested, terminating...')
         update_listeners(OPS, get_exec_key(), 'terminating')
         # flush_cache()

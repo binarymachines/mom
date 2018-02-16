@@ -39,7 +39,7 @@ def execute(args):
         except Exception, err:
             config.started = False
             ERR.error(err.message)
-            print 'Initialization failure'
+            print('Initialization failure')
             raise err
 
         try:
@@ -53,7 +53,7 @@ def execute(args):
         except Exception, err:
             config.started = False
             ERR.error(err.message)
-            print 'Initialization failure'
+            print('Initialization failure')
             raise err
 
         try:
@@ -62,7 +62,7 @@ def execute(args):
         except Exception, err:
             config.started = False
             ERR.error(err.message)
-            print 'Initialization failure'
+            print('Initialization failure')
             raise err
 
         try:
@@ -76,7 +76,7 @@ def execute(args):
         except Exception, err:
             config.started = False
             ERR.error(err.message)
-            print 'Initialization failure'
+            print('Initialization failure')
             raise err
 
         config.started = True
@@ -106,9 +106,11 @@ def load_user_info():
     #     config.username = rows[0][1]
 
 
+#    Usage: launch.py [(--config <filename>)] [(--path <path>...) | (--pattern <pattern>...)] [(--scan | --noscan)][(--match | --nomatch)] [--debug-mysql] [--noflush] 
+#                     [--clearmem] [--checkforbugs] [--reset] [--exit] [--expand-all] [(--workdir <directory>)] [(--map-paths <startpath>)] [(--scan-path) <scanpath>]
 def make_options(args):
     options = []
-
+    
     if '--clearmem' in args and args['--clearmem']: options.append('clearmem')
     if '--noflush' in args and args['--noflush']: options.append('noflush')
     if '--scan' in args and args['--scan']: options.append('scan')
@@ -163,7 +165,7 @@ def reset(args):
 
 def show_logo():
     with open(os.path.join(os.getcwd(), 'txt','logo.txt'), 'r') as f:
-        print f.read()
+        print(f.read())
         f.close()
 
 # pids
@@ -182,25 +184,25 @@ def write_pid_file():
     f.close()
 
 def display_status():
-    print """Process ID: %s""" % config.pid
-    print 'Redis host: %s' % config.redis_host
-    print """Elasticsearch host: %s""" % config.es_host
-    print """Elasticsearch port: %i""" % config.es_port
-    print """MySQL username: %s""" % config.mysql_user
-    print """MySQL host: %s""" % config.mysql_host
-    print """MySQL port: %i""" % config.mysql_port
-    print """MySQL schema: %s""" % config.mysql_db
-    print """Media Hound username: %s\n""" % config.username
+    print("Process ID: %s" % config.pid)
+    print('Redis host: %s' % config.redis_host)
+    print("Elasticsearch host: %s" % config.es_host)
+    print("Elasticsearch port: %i" % config.es_port)
+    print("MySQL username: %s" % config.mysql_user)
+    print("MySQL host: %s" % config.mysql_host)
+    print("MySQL port: %i" % config.mysql_port)
+    print("MySQL schema: %s" % config.mysql_db)
+    print("Media Hound username: %s\n" % config.username)
 
     display_redis_status()
 
 def display_redis_status():
-    print 'Redis key store dbsize: %i' % cache2.keystore.dbsize()
-    print 'Redis data store dbsize: %i' % cache2.datastore.dbsize()
-    print 'Redis hash store dbsize: %i' % cache2.hashstore.dbsize()
-    print 'Redis list store dbsize: %i' % cache2.liststore.dbsize()
-    print 'Redis ordered list store dbsize: %i' % cache2.orderedliststore.dbsize()
-    print
+    print('Redis key store dbsize: %i' % cache2.keystore.dbsize())
+    print('Redis data store dbsize: %i' % cache2.datastore.dbsize())
+    print('Redis hash store dbsize: %i' % cache2.hashstore.dbsize())
+    print('Redis list store dbsize: %i' % cache2.liststore.dbsize())
+    print('Redis ordered list store dbsize: %i' % cache2.orderedliststore.dbsize())
+    print('')
     
 
 def initialize_cache2(host, key_db=0, data_db=1, hash_db=2, list_db=3, ord_list_db=4):

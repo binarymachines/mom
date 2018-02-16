@@ -37,7 +37,7 @@ class Reader:
             qname = '.'.join(qualified)
             clazz = locate(qname)
             if clazz is None:
-                print "%s not found." % qname
+                print("%s not found." % qname)
                 continue
 
             instance = clazz()
