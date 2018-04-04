@@ -1,5 +1,5 @@
 # clear
-rm $MILDRED_HOME/python/mildred/db/generated/*.p*
+rm $MILDRED_HOME/python/mildred/db/generated/sqla_*.p*
 
 touch $MILDRED_HOME/python/mildred/db/__init__.py
 touch $MILDRED_HOME/python/mildred/db/generated/__init__.py
