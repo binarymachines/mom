@@ -53,8 +53,9 @@ def clear_index(index):
 
 def connect(hostname=config.es_host, port_num=config.es_port):
     LOG.debug('Connecting to Elasticsearch at %s on port %i...'% (hostname, port_num))
-    return Elasticsearch([{'host': hostname, 'port': port_num}])
-
+    es = Elasticsearch([{'host': hostname, 'port': port_num}])
+    LOG.debug('returning %s'% (es))
+    return es
 
 def create_index(index):
     try:
@@ -170,3 +171,12 @@ def unique_doc_id(document_type, attribute, value):
     if len(docs) is 1:
         return docs[0]['_id']
     # else
+
+def main():
+    config.es = connect('localhost', 9200)
+    clear_index('media')
+    create_index('media')
+
+# main
+if __name__ == '__main__':
+    main()
