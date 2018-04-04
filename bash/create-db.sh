@@ -1,8 +1,8 @@
 clear
-#rm $MILDRED_HOME/python/mildred/db/generated/*.p*
+rm $MILDRED_HOME/python/mildred/db/generated/*.p*
 
-#echo 'updating mildred'
-#mysql cuba  < $MILDRED_HOME/db/design/mildred.sql
+echo 'updating mildred'
+mysql cuba  < $MILDRED_HOME/db/design/mildred.sql
 echo 'updating mildred action'
 mysql cuba < $MILDRED_HOME/db/design/action.sql
 echo 'updating mildred introspection'

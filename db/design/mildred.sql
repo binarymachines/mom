@@ -80,27 +80,27 @@ CREATE TABLE `document` (
   UNIQUE KEY `uk_document_absolute_path` (`absolute_path`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE IF NOT EXISTS `dir_type` (
+CREATE TABLE IF NOT EXISTS `directory_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `desc`varchar(255),
   `name` varchar(25),
   PRIMARY KEY (`id`), 
-  UNIQUE KEY `uk_dir_type` (`name`)
+  UNIQUE KEY `uk_directory_type` (`name`)
 );
 
-INSERT INTO `mildred`.`dir_type` (`name`) VALUES ("default");
+INSERT INTO `mildred`.`directory_type` (`name`) VALUES ("default");
 
 CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(767) NOT NULL,
-  `dir_type_id` int(11) unsigned default 1,
+  `directory_type_id` int(11) unsigned default 1,
   `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   -- `category_prototype_flag` tinyint not null default 0,
   `active_flag` tinyint not null default 1,
-  CONSTRAINT `fk_directory_dir_type`
-    FOREIGN KEY (`dir_type_id`)
-    REFERENCES `mildred`.`dir_type` (`id`),
+  CONSTRAINT `fk_directory_directory_type`
+    FOREIGN KEY (`directory_type_id`)
+    REFERENCES `mildred`.`directory_type` (`id`),
   PRIMARY KEY (`id`), 
   UNIQUE KEY `uk_directory_name` (`name`)
 );
@@ -825,12 +825,26 @@ CREATE TABLE IF NOT EXISTS `mildred`.`alias_document_attribute` (
     REFERENCES `mildred`.`document_attribute` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_alias_document_attribute_alias1`
+  CONSTRAINT `fk_alias_document_attribute_alias`
     FOREIGN KEY (`alias_id`)
     REFERENCES `mildred`.`alias` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 );
+
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'talb' and document_format = 'ID3v2.3.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe1' and document_format = 'ID3v2.3.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe2' and document_format = 'ID3v2.3.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit1' and document_format = 'ID3v2.3.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit2' and document_format = 'ID3v2.3.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `document_attribute` where attribute_name = 'tcon' and document_format = 'ID3v2.3.0'));
+
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'talb' and document_format = 'ID3v2.4.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe1' and document_format = 'ID3v2.4.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe2' and document_format = 'ID3v2.4.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit1' and document_format = 'ID3v2.4.0'));
+-- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit2' and document_format = 'ID3v2.4.0'));
+--     ON DELETE NO ACTION
+--     ON UPDATE NO ACTION
+-- );
 
 drop view if exists `v_alias`;
 

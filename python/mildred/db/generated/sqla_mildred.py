@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer, String, Table, text
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer, String, Table, Text, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -45,25 +45,17 @@ class DelimitedFileInfo(Base):
     column_count = Column(Integer, nullable=False)
 
 
-class DirType(Base):
-    __tablename__ = 'dir_type'
-
-    id = Column(Integer, primary_key=True)
-    desc = Column(String(255))
-    name = Column(String(25), unique=True)
-
-
 class Directory(Base):
     __tablename__ = 'directory'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(767), nullable=False, unique=True)
-    dir_type_id = Column(ForeignKey(u'dir_type.id'), index=True, server_default=text("'1'"))
+    directory_type_id = Column(ForeignKey(u'directory_type.id'), index=True, server_default=text("'1'"))
     effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
     active_flag = Column(Integer, nullable=False, server_default=text("'1'"))
 
-    dir_type = relationship(u'DirType')
+    directory_type = relationship(u'DirectoryType')
 
 
 class DirectoryAmelioration(Base):
@@ -91,6 +83,14 @@ class DirectoryConstant(Base):
     id = Column(Integer, primary_key=True)
     pattern = Column(String(256), nullable=False)
     location_type = Column(String(64), nullable=False)
+
+
+class DirectoryType(Base):
+    __tablename__ = 'directory_type'
+
+    id = Column(Integer, primary_key=True)
+    desc = Column(String(255))
+    name = Column(String(25), unique=True)
 
 
 class Document(Base):
@@ -258,4 +258,13 @@ t_v_alias = Table(
     Column('document_format', String(32)),
     Column('name', String(25)),
     Column('attribute_name', String(128))
+)
+
+
+t_v_match_record = Table(
+    'v_match_record', metadata,
+    Column('document_path', Text),
+    Column('comparison_result', String(1)),
+    Column('match_path', Text),
+    Column('same_ext_flag', Integer, server_default=text("'0'"))
 )
