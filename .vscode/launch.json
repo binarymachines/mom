@@ -21,14 +21,14 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/launch.py",
+            "program": "${workspaceRoot}/python/server/launch.py",
             "args": [
                 // "--clearmem"
                 // , "--exit"
-                // "--reset",
-                //  "mode_state", "exec_rec", "op_record", "match_record", "document",
-                // "--scan-path"
-                // , "/media/codex/Media/audio/music/recently downloaded/albums"
+                "--reset"
+                //  "mode_state", "exec_rec", "op_record", "match_record", "document"
+                //"--scan-path"
+                , "--map-paths", "/media/codex/Media/audio/music/recently downloaded/"
                 // , "--clearmem"
                 // , "--exit"
                 // "--nomatch"
@@ -50,7 +50,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/control.py",
+            "program": "${workspaceRoot}/python/server/control.py",
             "args": [
                 "--halt"
             ],
@@ -65,7 +65,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/control.py",
+            "program": "${workspaceRoot}/python/server/control.py",
             "args": [
                 "--stop"
             ],
@@ -80,7 +80,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/desktop/cachemon.py",
+            "program": "${workspaceRoot}/python/server/desktop/cachemon.py",
             "debugOptions": [
                 "RedirectOutput"
             ]
@@ -92,7 +92,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/query2.py",
+            "program": "${workspaceRoot}/python/server/query2.py",
             "debugOptions": [
                 "RedirectOutput"
             ]
@@ -104,7 +104,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/calc.py",
+            "program": "${workspaceRoot}/python/server/calc.py",
             "args": [
                 "--path",
                 "/media/removable/Audio/music/albums/art punk"
@@ -120,7 +120,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/scan.py",
+            "program": "${workspaceRoot}/python/server/scan.py",
             "args": [
                 // "--path", "/media/removable/SEAGATE 932/Media/music/incoming/complete"
                 // "--path", "/media/removable/PNY16/media/music/"
@@ -138,7 +138,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/docserv.py",
+            "program": "${workspaceRoot}/python/server/docserv.py",
             "debugOptions": [
                 "RedirectOutput"
             ]
@@ -150,7 +150,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/finder.py",
+            "program": "${workspaceRoot}/python/server/finder.py",
             "debugOptions": [
                 "RedirectOutput"
             ]
@@ -162,7 +162,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config:python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/svalid.py",
+            "program": "${workspaceRoot}/python/server/svalid.py",
             "debugOptions": [
                 "RedirectOutput"
             ]

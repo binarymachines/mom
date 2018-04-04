@@ -8,7 +8,7 @@
             "stopOnEntry": false,
             "pythonPath": "${config.python.pythonPath}",
             "cwd": "${workspaceRoot}/python",
-            "program": "${workspaceRoot}/python/mildred/launch.py",
+            "program": "${workspaceRoot}/python/server/launch.py",
             "args": [
                 // "--noscan"
                 // "--reset",

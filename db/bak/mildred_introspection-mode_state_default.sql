@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
 --
--- Host: localhost    Database: mildred_introspection
+-- Host: localhost    Database: service
 -- ------------------------------------------------------
 -- Server version	5.7.20-0ubuntu0.17.04.1
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;

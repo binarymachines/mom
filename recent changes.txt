@@ -5,23 +5,23 @@ Changes to be committed:
 
 	modified:   .vscode/launch.json
 	modified:   bash/halt.sh
-	modified:   python/mildred/core/vector.py
-	modified:   python/mildred/disc.py
-	modified:   python/mildred/docserv.py
-	modified:   python/mildred/filehandler.py
-	modified:   python/mildred/launch.py
-	modified:   python/mildred/ops.py
-	modified:   python/mildred/pathogen.py
-	modified:   python/mildred/pathutil.py
-	modified:   python/mildred/scan.py
-	modified:   python/mildred/start.py
+	modified:   python/server/core/vector.py
+	modified:   python/server/disc.py
+	modified:   python/server/docserv.py
+	modified:   python/server/filehandler.py
+	modified:   python/server/launch.py
+	modified:   python/server/ops.py
+	modified:   python/server/pathogen.py
+	modified:   python/server/pathutil.py
+	modified:   python/server/scan.py
+	modified:   python/server/start.py
 
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
   (use "git checkout -- <file>..." to discard changes in working directory)
 
-	modified:   python/mildred/pathutil.py
-	modified:   python/mildred/start.py
+	modified:   python/server/pathutil.py
+	modified:   python/server/start.py
 	modified:   python/requirements.txt
 	modified:   python/txt/pynotes/launch.txt
 
@@ -33,10 +33,10 @@ Untracked files:
 	java/MildredCacheMonitor/.classpath
 	java/MildredCacheMonitor/.project
 	java/MildredCacheMonitor/.settings/
-	java/MildredCacheMonitor/target/classes/com/angrysurfer/mildred/redis/
-	java/MildredCacheMonitor/target/classes/com/angrysurfer/mildred/ui/JMildredCacheMonitorFrame.java~
-	java/MildredCacheMonitor/target/classes/com/angrysurfer/mildred/ui/javafx/MildredMonitorStage.class
-	java/MildredCacheMonitor/target/classes/com/angrysurfer/mildred/ui/swing/
+	java/MildredCacheMonitor/target/classes/com/angrysurfer/media/redis/
+	java/MildredCacheMonitor/target/classes/com/angrysurfer/media/ui/JMildredCacheMonitorFrame.java~
+	java/MildredCacheMonitor/target/classes/com/angrysurfer/media/ui/javafx/MildredMonitorStage.class
+	java/MildredCacheMonitor/target/classes/com/angrysurfer/media/ui/swing/
 	recent changes.txt
 	sketchiness.txt
 

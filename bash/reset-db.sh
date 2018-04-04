@@ -1,1 +1,1 @@
-clear && redis-cli flushall && mysql mildred_introspection < $MILDRED_HOME/db/design/introspection.sql
+clear && redis-cli flushall && mysql service < $MILDRED_HOME/db/design/introspection.sql

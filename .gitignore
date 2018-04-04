@@ -14,3 +14,4 @@ tags
 .gitignore
 .vscode/settings.json
 tags
+*.jar

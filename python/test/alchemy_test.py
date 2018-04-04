@@ -1,12 +1,12 @@
 import unittest
 
-from mildred import alchemy, sql
+from media import alchemy, sql
 
 
 class TestAlchemy(unittest.TestCase):
     def test_load_states(self):
         state_data = sql.run_query('select id, name, initial_state_flag, terminal_state_flag from state',
-                                   schema='mildred_introspection')
+                                   schema='service')
         if len(state_data) == 0:
             raise Exception('invalid data for tests')
 
@@ -16,7 +16,7 @@ class TestAlchemy(unittest.TestCase):
             self.assertEquals(sqlstate.id, state_id)
 
     def test_load_modes(self):
-        mode_data = sql.run_query('select name from mode', schema='mildred_introspection')
+        mode_data = sql.run_query('select name from mode', schema='service')
         if len(mode_data) == 0:
             raise Exception('invalid data for tests')
 
@@ -28,7 +28,7 @@ class TestAlchemy(unittest.TestCase):
     def test_load_state_defaults(self):
         init_state_data = sql.run_query(
             "select id, name, initial_state_flag, terminal_state_flag from state where name = 'initial'",
-            schema='mildred_introspection')
+            schema='service')
 
         if len(init_state_data) == 1:
             state_id = init_state_data[0][0]
@@ -39,18 +39,18 @@ class TestAlchemy(unittest.TestCase):
         else: raise Exception('invalid data for tests')
 
     def test_load_state_params(self):
-        scan_mode_data = sql.run_query("select id, name from mode where name = 'scan'", schema='mildred_introspection')
+        scan_mode_data = sql.run_query("select id, name from mode where name = 'scan'", schema='service')
         if len(scan_mode_data) == 1:
             sqlmode = alchemy.retrieve_mode_by_name(scan_mode_data[0][1])
 
             state_data = sql.run_query(
                 "select status from mode_state_default where mode_id = '%s'" % (scan_mode_data[0][0]),
-                schema='mildred_introspection')
+                schema='service')
 
 
             # state_param_data = sql.run_query(
             #     "select name, initial_state_flag, terminal_state_flag from state where name = 'initial'",
-            #     schema='mildred_introspection')
+            #     schema='service')
 
 
             pass

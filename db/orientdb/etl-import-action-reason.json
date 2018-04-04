@@ -4,7 +4,7 @@
   },
   "extractor" : {
     "jdbc": { "driver": "com.mysql.jdbc.Driver",
-              "url": "jdbc:mysql://localhost/mildred_action",
+              "url": "jdbc:mysql://localhost/analysis",
               "userName": "root",
               "userPassword": "steel",
               "query": "select meta_action_id, meta_reason_id from m_action_m_reason" }
