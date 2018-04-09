@@ -2,6 +2,7 @@ import sys
 import time
 import datetime
 import logging
+import pprint
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float, Boolean, and_, or_
 from sqlalchemy.ext.declarative import declarative_base
@@ -744,9 +745,24 @@ class SQLOperationRecord(OpRecord):
 #     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # self.stop_on_errors = stop_on_errors
 
+def exportToJSON(datatype):
+    reasons = datatype.retrieve_all()
+    results =  []
+    for reason in reasons:
+        result = {}
+        for attribute in reason.__dict__:
+            if (not attribute.startswith('_')):
+                value = reason.__dict__[attribute]
+                if isinstance(value, long):
+                    value = int(value)
+                result[attribute] = value
+        results.append(result)
+    return results
 
 def main():
-    pass
+    pp = pprint.PrettyPrinter(indent=4)
+    results = exportToJSON(SQLState)
+    pp.pprint(results)
 
 if __name__ == '__main__':
     main()
