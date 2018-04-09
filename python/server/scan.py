@@ -72,6 +72,7 @@ class Scanner(Walker):
 
     @ops_func
     def process_file(self, path):
+
         directory = assets.get_cached_directory()
         try:           
             asset = assets.retrieve_asset(path, check_db=True)
@@ -99,7 +100,12 @@ class Scanner(Walker):
 
             if file_was_read:
                 ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
-            
+                x = os.system('clear')
+                start.show_logo()
+                start.display_redis_status()
+                print('adding %s' % path)
+
+
         except Exception, err:
             #TODO: record assets update error instead of read error
             ERR.warning(': '.join([err.__class__.__name__, err.message]))
@@ -217,6 +223,7 @@ class Scanner(Walker):
 
     @ops_func
     def _post_scan(self, path, update_ops):
+
         # ops.write_ops_data(path, SCAN)
         ops.write_ops_data(path)
         
@@ -261,6 +268,7 @@ class Scanner(Walker):
         assets.clear_docs(const.FILE, os.path.sep)
 
         while self.vector.has_next(SCAN, use_fifo=True):           
+
             path = path if path_restored else self.vector.get_next(SCAN, True) 
             path_restored = False
             self.vector.set_param(PERSIST, ACTIVE, path)
@@ -348,5 +356,6 @@ def scan(vector):
     if SCANNER not in vector.data:
         vector.data[SCANNER] = Scanner(vector)
     vector.data[SCANNER].scan()
+    x = os.system('clear')
     start.show_logo()
     start.display_redis_status()

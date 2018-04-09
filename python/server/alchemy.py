@@ -2,7 +2,7 @@ import sys
 import time
 import datetime
 import logging
-import pprint
+from pprint import pprint
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float, Boolean, and_, or_
 from sqlalchemy.ext.declarative import declarative_base
@@ -745,7 +745,7 @@ class SQLOperationRecord(OpRecord):
 #     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # self.stop_on_errors = stop_on_errors
 
-def exportToJSON(datatype):
+def tableToJSON(datatype):
     items = datatype.retrieve_all()
     results =  []
     for item in items:
@@ -759,10 +759,21 @@ def exportToJSON(datatype):
         results.append(result)
     return results
 
+def exportJSONFile(datatype):
+        name = datatype.__name__
+        print 'exporting to %s.json' % name
+        results = {"_class": name, "_table": datatype.__tablename__}
+        results["data"] = tableToJSON(datatype)    
+        filename = '%s.json' % name
+        with open(filename, 'wt') as out:
+            pprint(results, stream=out)
+    
 def main():
-    pp = pprint.PrettyPrinter(indent=4)
-    results = exportToJSON(SQLState)
-    pp.pprint(results)
+    # for clazz in [MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch, ExecRec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
+    #     try:
+    exportJSONFile(SQLMode)
+        # except Exception, err:
+        #     print(err[0])
 
 if __name__ == '__main__':
     main()

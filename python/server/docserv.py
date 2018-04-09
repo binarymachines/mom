@@ -26,6 +26,8 @@ from core import introspection
 from ops import ops_func
 from service import ServiceProcess
 
+from start import show_logo, display_redis_status
+
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 
@@ -84,7 +86,8 @@ class DocumentServiceProcessHandler(DecisionHandler):
     # selector callbacks
 
     def after_switch(self, selector, mode):
-        pass
+        show_logo()
+        display_redis_status()
 
     def before_switch(self, selector, mode):
         pass

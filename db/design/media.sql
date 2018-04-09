@@ -296,8 +296,8 @@ CREATE TABLE `document_category` (
 
 CREATE TABLE `file_handler` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `package` varchar(128) DEFAULT NULL,
-  `module` varchar(128) NOT NULL,
+  `package_name` varchar(128) DEFAULT NULL,
+  `module_name` varchar(128) NOT NULL,
   `class_name` varchar(128) DEFAULT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
@@ -324,10 +324,10 @@ CREATE TABLE `file_handler_registration` (
 -- drop view if exists `v_file_handler`;
 
 -- create view `v_file_handler` as
---   select fh.package, fh.module, fh.class_name, ft.ext 
+--   select fh.package_name, fh.module_name, fh.class_name, ft.ext 
 --   from file_handler fh, file_handler_registration ft
 --   where ft.file_handler_id = fh.id
---   order by fh.package, fh.module, fh.class_name;
+--   order by fh.package_name, fh.module_name, fh.class_name;
   
 
 create table `match_record` (
@@ -393,14 +393,14 @@ INSERT INTO `matcher_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `
 INSERT INTO `matcher_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`, `matcher_id`) VALUES (13, 'attributes.TPE2',0, NULL,NULL,0, NULL, '', 'should',5);
 
 # file handlers
-insert into file_handler (module, class_name) values ('pathogen', 'MutagenAAC');
-insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenAPEv2', 1);
-insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenFLAC', 1);
-insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenID3', 1);
-insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenMP4', 1);
-insert into file_handler (module, class_name) values ('pathogen', 'MutagenOggFlac');
-insert into file_handler (module, class_name, active_flag) values ('pathogen', 'MutagenOggVorbis', 1);
-insert into file_handler (module, class_name, active_flag) values ('funambulist', 'PyPDF2FileHandler', 1);
+insert into file_handler (module_name, class_name) values ('pathogen', 'MutagenAAC');
+insert into file_handler (module_name, class_name, active_flag) values ('pathogen', 'MutagenAPEv2', 1);
+insert into file_handler (module_name, class_name, active_flag) values ('pathogen', 'MutagenFLAC', 1);
+insert into file_handler (module_name, class_name, active_flag) values ('pathogen', 'MutagenID3', 1);
+insert into file_handler (module_name, class_name, active_flag) values ('pathogen', 'MutagenMP4', 1);
+insert into file_handler (module_name, class_name) values ('pathogen', 'MutagenOggFlac');
+insert into file_handler (module_name, class_name, active_flag) values ('pathogen', 'MutagenOggVorbis', 1);
+insert into file_handler (module_name, class_name, active_flag) values ('funambulist', 'PyPDF2FileHandler', 1);
 
 # TODO: apply names from database in FileHandler constructor
 insert into file_handler_registration (file_handler_id, file_type_id, name) values (

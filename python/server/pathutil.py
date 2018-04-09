@@ -32,7 +32,7 @@ def folder_is_media_root(path, formats, types):
                         if name not in found:
                             found.append(name)
 
-        return len(found) > 3
+        return len(found) > 0
 
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system

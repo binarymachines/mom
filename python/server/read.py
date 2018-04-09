@@ -28,10 +28,10 @@ class Reader:
         handlers = SQLFileHandler.retrieve_active()
         for handler in handlers:
             qualified = []
-            if handler.package: 
-                qualified.append(handler.package)
+            if handler.package_name: 
+                qualified.append(handler.package_name)
                 
-            qualified.append(handler.module)            
+            qualified.append(handler.module_name)            
             qualified.append(handler.class_name)            
 
             qname = '.'.join(qualified)

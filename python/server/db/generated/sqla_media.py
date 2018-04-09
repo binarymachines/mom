@@ -142,8 +142,8 @@ class FileHandler(Base):
     __tablename__ = 'file_handler'
 
     id = Column(Integer, primary_key=True)
-    package = Column(String(128))
-    module = Column(String(128), nullable=False)
+    package_name = Column(String(128))
+    module_name = Column(String(128), nullable=False)
     class_name = Column(String(128))
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
