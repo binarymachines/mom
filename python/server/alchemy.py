@@ -746,13 +746,13 @@ class SQLOperationRecord(OpRecord):
     # self.stop_on_errors = stop_on_errors
 
 def exportToJSON(datatype):
-    reasons = datatype.retrieve_all()
+    items = datatype.retrieve_all()
     results =  []
-    for reason in reasons:
+    for item in items:
         result = {}
-        for attribute in reason.__dict__:
+        for attribute in item.__dict__:
             if (not attribute.startswith('_')):
-                value = reason.__dict__[attribute]
+                value = item.__dict__[attribute]
                 if isinstance(value, long):
                     value = int(value)
                 result[attribute] = value
