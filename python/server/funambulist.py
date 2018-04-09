@@ -48,11 +48,7 @@ class PyPDF2FileHandler(MildredFileHandler):
         info = document.getDocumentInfo()
         for key in info:
             es_key = util.uu_str(key.lower().replace('/', '').replace('\\', ''))
-            if es_key not in filehandler.get_attributes('pdf'):
-                try:
-                    filehandler.add_attribute('pdf', es_key)
-                except Exception, err:
-                    continue
+            self.handle_attribute('pdf', es_key)
                     
             value = util.uu_str(info[key])
             if len(value) > MAX_DATA_LENGTH:

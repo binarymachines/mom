@@ -208,7 +208,7 @@ class Scanner(Walker):
 
         ops.cache_ops(path, SCAN, op_status='COMPLETE')
         ops.cache_ops(path, READ, op_status=None if self.update_scan else 'COMPLETE')
-            
+
         if self.high_scan:
             ops.record_op_begin(path, HSCAN, SCANNER)
 
@@ -218,9 +218,10 @@ class Scanner(Walker):
     @ops_func
     def _post_scan(self, path, update_ops):
         # ops.write_ops_data(path, SCAN)
-
-        if update_ops:
-            ops.write_ops_data(path)
+        ops.write_ops_data(path)
+        
+        # if update_ops:
+        #     ops.write_ops_data(path)
 
         if self.high_scan:
             ops.record_op_complete(path, HSCAN, SCANNER)

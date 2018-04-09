@@ -3,5 +3,6 @@
     "python.pythonPath": "/media/codex/Home/workspace/venv/m2/bin/python2.7",
     "python.linting.pylintEnabled": true,
     "java.configuration.updateBuildConfiguration": "interactive",
-    "files.autoSave": "onFocusChange"
+    "files.autoSave": "onFocusChange",
+    "python.linting.enabled": false
 }

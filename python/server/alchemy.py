@@ -744,3 +744,9 @@ class SQLOperationRecord(OpRecord):
 #     expiration_dt = Column('expiration_dt', DateTime, nullable=True)
     # self.stop_on_errors = stop_on_errors
 
+
+def main():
+    pass
+
+if __name__ == '__main__':
+    main()
