@@ -30,6 +30,7 @@ import sql
 import shallow
 from shallow import get_active_document_formats, get_location_types, add_location, get_locations
 from ops import ops_func
+import assets
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
@@ -50,6 +51,7 @@ class Discover(Walker):
         LOG.info("Considering %s" % root)
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if root not in shallow.get_locations():
+                self.process(root);
                 if pathutil.folder_is_media_root(root, self.formats, self.types):
                     print("adding %s to media paths." % (root))
                     add_location(root)
@@ -63,6 +65,11 @@ class Discover(Walker):
     def assess(self):
         # apply a set of rules to eliminating redundant media folders.
         pass
+
+    @ops_func
+    def process(self, folder):
+        directory = assets.get_cached_directory()
+        
 
 def discover(startpath):
     d = Discover()

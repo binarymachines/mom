@@ -5,7 +5,7 @@ from media import alchemy, sql
 
 class TestAlchemy(unittest.TestCase):
     def test_load_states(self):
-        state_data = sql.run_query('select id, name, initial_state_flag, terminal_state_flag from state',
+        state_data = sql.run_query('select id, name, is_initial_state, is_terminal_state from state',
                                    schema='service')
         if len(state_data) == 0:
             raise Exception('invalid data for tests')
@@ -27,7 +27,7 @@ class TestAlchemy(unittest.TestCase):
 
     def test_load_state_defaults(self):
         init_state_data = sql.run_query(
-            "select id, name, initial_state_flag, terminal_state_flag from state where name = 'initial'",
+            "select id, name, is_initial_state, is_terminal_state from state where name = 'initial'",
             schema='service')
 
         if len(init_state_data) == 1:
@@ -49,7 +49,7 @@ class TestAlchemy(unittest.TestCase):
 
 
             # state_param_data = sql.run_query(
-            #     "select name, initial_state_flag, terminal_state_flag from state where name = 'initial'",
+            #     "select name, is_initial_state, is_terminal_state from state where name = 'initial'",
             #     schema='service')
 
 

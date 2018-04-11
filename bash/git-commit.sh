@@ -30,6 +30,7 @@ git add $MILDRED_HOME/db/orientdb/*.json
 
 echo
 git status
+. $MILDRED_HOME/bash/commit-cuba.sh $MILDRED_HOME/cuba/
 
 echo
 if [ "$#" -ne 1 ];

@@ -64,24 +64,3 @@ def path_in_album_directory(path):
         raise Exception('Path does not exist: "' + path + '"')
 
     raise Exception('not implemented!')
-
-
-# TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_in_document_category(path):
-    raise Exception('not implemented!')
-
-
-
-# TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_in_location_directory(path):
-    raise Exception('not implemented!')
-
-
-# TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_is_document_category(path):
-    raise Exception('not implemented!')
-
-
-# TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_is_location_directory(path):
-    raise Exception('not implemented!')

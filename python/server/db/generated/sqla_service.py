@@ -106,8 +106,8 @@ class State(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False, unique=True)
-    terminal_state_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-    initial_state_flag = Column(Integer, nullable=False, server_default=text("'0'"))
+    is_terminal_state = Column(Integer, nullable=False, server_default=text("'0'"))
+    is_initial_state = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
 class SwitchRule(Base):

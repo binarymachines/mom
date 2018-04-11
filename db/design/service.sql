@@ -125,19 +125,19 @@ INSERT INTO mode (name) VALUES ('shutdown');
 CREATE TABLE `state` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
-  `terminal_state_flag` tinyint(1) NOT NULL DEFAULT '0',
-  `initial_state_flag` tinyint(1) NOT NULL DEFAULT '0',
+  `is_terminal_state` tinyint(1) NOT NULL DEFAULT '0',
+  `is_initial_state` tinyint(1) NOT NULL DEFAULT '0',
 --   `effective_dt` datetime DEFAULT now(),
 --   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_state_name` (`name`)
 );
 
-INSERT INTO state(name, initial_state_flag) VALUES ('initial', 1);
-INSERT INTO state(name, initial_state_flag) VALUES ('discover', 1);
+INSERT INTO state(name, is_initial_state) VALUES ('initial', 1);
+INSERT INTO state(name, is_initial_state) VALUES ('discover', 1);
 INSERT INTO state(name) VALUES ('update');
 INSERT INTO state(name) VALUES ('monitor');
-INSERT INTO state(name, terminal_state_flag) VALUES ('terminal', 2);
+INSERT INTO state(name, is_terminal_state) VALUES ('terminal', 2);
 
 
 CREATE TABLE `transition_rule` (

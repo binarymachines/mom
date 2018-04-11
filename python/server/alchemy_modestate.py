@@ -59,8 +59,8 @@ class AlchemyModeStateReader(ModeStateReader):
             LOG.info('initializing states for %s' % mode.name)
             for default in alchemy_mode.mode_defaults:
                 state = State(default.state.name, data=default, id=default.state_id)
-                state.is_initial_state = default.state.initial_state_flag
-                state.is_terminal_state = default.state.terminal_state_flag
+                state.is_initial_state = default.state.is_initial_state
+                state.is_terminal_state = default.state.is_terminal_state
 
                 state.params = ()
                 for param in default.default_params:

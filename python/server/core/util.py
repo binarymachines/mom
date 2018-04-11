@@ -29,16 +29,6 @@ import var
 #     raise Exception("could not find caller directory")
 
 def str_to_class(self, objectTypeName):
-    """A rudimentary class loader function.
-
-    Arguments:
-    objectTypeName -- a fully qualified name for the class to be loaded,
-    in the form 'packagename.classname'.
-
-    Returns:
-    a Python Class object.
-    """
-
     if objectTypeName.count('.') == 0:
         moduleName = __name__
         typeName = objectTypeName
@@ -156,8 +146,7 @@ def uu_str(value):
 
 
 def expand_str_to_path(input):
-    ar = list(input)
-    return os.path.sep.join(ar)
+    return os.path.sep.join(list(input))
 
 def main(args):
     if args['--delta']:

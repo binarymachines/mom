@@ -63,7 +63,7 @@ class DirectoryAmelioration(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False)
-    use_tag_flag = Column(Integer, server_default=text("'0'"))
+    use_tag = Column(Integer, server_default=text("'0'"))
     replacement_tag = Column(String(32))
     use_parent_folder_flag = Column(Integer, server_default=text("'1'"))
 
@@ -175,7 +175,7 @@ class MatchRecord(Base):
     doc_id = Column(ForeignKey(u'document.id'), primary_key=True, nullable=False)
     match_doc_id = Column(ForeignKey(u'document.id'), primary_key=True, nullable=False, index=True)
     matcher_name = Column(String(128), nullable=False)
-    same_ext_flag = Column(Integer, nullable=False, server_default=text("'0'"))
+    is_ext_match = Column(Integer, nullable=False, server_default=text("'0'"))
     score = Column(Float)
     max_score = Column(Float)
     min_score = Column(Float)
@@ -266,5 +266,5 @@ t_v_match_record = Table(
     Column('document_path', Text),
     Column('comparison_result', String(1)),
     Column('match_path', Text),
-    Column('same_ext_flag', Integer, server_default=text("'0'"))
+    Column('is_ext_match', Integer, server_default=text("'0'"))
 )

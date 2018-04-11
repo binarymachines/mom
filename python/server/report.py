@@ -336,7 +336,7 @@ def get_matches_for(pattern):
     directories = []
     q = """select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match'
              from match_record m, document es1, document es2
-            where m.same_ext_flag = 1
+            where m.is_ext_match = 1
               and m.matcher_name = 'match_artist_album_song'
               and es1.id = m.doc_id
               and es2.id = m.match_doc_id
@@ -344,7 +344,7 @@ def get_matches_for(pattern):
            UNION
            select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match'
              from match_record m, document es1, document es2
-            where m.same_ext_flag = 1
+            where m.is_ext_match = 1
               and m.matcher_name = 'match_artist_album_song'
               and es2.id = m.doc_id
               and es1.id = m.match_doc_id

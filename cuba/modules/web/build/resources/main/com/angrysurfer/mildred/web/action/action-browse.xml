@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.action.ActionBrowse"
+        focusComponent="actionsTable"
+        lookupComponent="actionsTable"
+        messagesPack="com.angrysurfer.mildred.web.action">
+    <dsContext>
+        <groupDatasource id="actionsDs"
+                         class="com.angrysurfer.mildred.entity.Action"
+                         view="Action-screen-view">
+            <query>
+                <![CDATA[select e from mildred$Action e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="actionsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="actionsTable"
+                datasource="actionsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="actionsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="metaAction"/>
+                <column id="actionStatus"/>
+                <column id="parentAction"/>
+            </columns>
+            <rows datasource="actionsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="actionsTable.create"/>
+                <button id="editBtn"
+                        action="actionsTable.edit"/>
+                <button id="removeBtn"
+                        action="actionsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

@@ -460,10 +460,10 @@ class SQLMatch(MatchRecord):
 
     @staticmethod
     @alchemy_func
-    def insert(doc_id, match_doc_id, matcher_name, score, min_score, max_score, comparison_result, same_ext_flag):
+    def insert(doc_id, match_doc_id, matcher_name, score, min_score, max_score, comparison_result, is_ext_match):
         # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
         match_rec = SQLMatch(doc_id=doc_id, match_doc_id=match_doc_id, \
-                             matcher_name=matcher_name, score=score, min_score=min_score, max_score=max_score, comparison_result=comparison_result, same_ext_flag=same_ext_flag)
+                             matcher_name=matcher_name, score=score, min_score=min_score, max_score=max_score, comparison_result=comparison_result, is_ext_match=is_ext_match)
 
         try:
             sessions[MEDIA].add(match_rec)
@@ -768,12 +768,13 @@ def exportJSONFile(datatype):
         with open(filename, 'wt') as out:
             pprint(results, stream=out)
     
+
 def main():
-    # for clazz in [MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch, ExecRec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
-    #     try:
-    exportJSONFile(SQLMode)
-        # except Exception, err:
-        #     print(err[0])
+    for clazz in [SQLAction, SQLState, SQLMode, SQLMatcher, SQLFileHandler, SQLFileHandlerRegistration, SQLFileType]:  #[MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch, ExecRec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
+        try:
+            exportJSONFile(clazz)
+        except Exception, err:
+            print(err[0])
 
 if __name__ == '__main__':
     main()

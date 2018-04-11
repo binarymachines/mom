@@ -21,8 +21,8 @@ CREATE TABLE `state` (
   `id` int(11) unsigned NOT NULL,
   `index_name` varchar(128) NOT NULL DEFAULT 'media',
   `name` varchar(128) NOT NULL,
-  `terminal_state_flag` tinyint(1) NOT NULL DEFAULT '0',
-  `initial_state_flag` tinyint(1) NOT NULL DEFAULT '0',
+  `is_terminal_state` tinyint(1) NOT NULL DEFAULT '0',
+  `is_initial_state` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_state_name` (`index_name`,`name`)
 );
@@ -32,11 +32,11 @@ CREATE TABLE `state` (
 -- Dumping data for table `state`
 --
 
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (1,'media','initial',0,1);
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (2,'media','discover',0,1);
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (3,'media','update',0,0);
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (4,'media','monitor',0,0);
-INSERT INTO `state` (`id`, `index_name`, `name`, `terminal_state_flag`, `initial_state_flag`) VALUES (5,'media','terminal',2,0);
+INSERT INTO `state` (`id`, `index_name`, `name`, `is_terminal_state`, `is_initial_state`) VALUES (1,'media','initial',0,1);
+INSERT INTO `state` (`id`, `index_name`, `name`, `is_terminal_state`, `is_initial_state`) VALUES (2,'media','discover',0,1);
+INSERT INTO `state` (`id`, `index_name`, `name`, `is_terminal_state`, `is_initial_state`) VALUES (3,'media','update',0,0);
+INSERT INTO `state` (`id`, `index_name`, `name`, `is_terminal_state`, `is_initial_state`) VALUES (4,'media','monitor',0,0);
+INSERT INTO `state` (`id`, `index_name`, `name`, `is_terminal_state`, `is_initial_state`) VALUES (5,'media','terminal',2,0);
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
