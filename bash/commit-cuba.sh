@@ -18,5 +18,5 @@ git status
 #git commit -m "snapshot"
 #git push
 #git status
-git diff HEAD $1/build.gradle
-git diff HEAD $1/modules/core/web/META-INF/context.xml
+#git diff HEAD $1/build.gradle
+#git diff HEAD $1/modules/core/web/META-INF/context.xml
