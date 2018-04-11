@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.modedefault.ModeDefaultBrowse"
+        focusComponent="modeDefaultsTable"
+        lookupComponent="modeDefaultsTable"
+        messagesPack="com.company.mildred.web.modedefault">
+    <dsContext>
+        <groupDatasource id="modeDefaultsDs"
+                         class="com.company.mildred.entity.ModeDefault"
+                         view="ModeDefault-screen-view">
+            <query>
+                <![CDATA[select e from mildred$ModeDefault e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="modeDefaultsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="modeDefaultsTable"
+                datasource="modeDefaultsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="modeDefaultsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="mode"/>
+                <column id="priority"/>
+                <column id="effectDispatch"/>
+                <column id="timesToComplete"/>
+                <column id="decPriorityAmount"/>
+                <column id="incPriorityAmount"/>
+                <column id="errorTolerance"/>
+            </columns>
+            <rows datasource="modeDefaultsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="modeDefaultsTable.create"/>
+                <button id="editBtn"
+                        action="modeDefaultsTable.edit"/>
+                <button id="removeBtn"
+                        action="modeDefaultsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

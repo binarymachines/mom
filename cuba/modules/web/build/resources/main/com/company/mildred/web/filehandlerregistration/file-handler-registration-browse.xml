@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.filehandlerregistration.FileHandlerRegistrationBrowse"
+        focusComponent="fileHandlerRegistrationsTable"
+        lookupComponent="fileHandlerRegistrationsTable"
+        messagesPack="com.company.mildred.web.filehandlerregistration">
+    <dsContext>
+        <groupDatasource id="fileHandlerRegistrationsDs"
+                         class="com.company.mildred.entity.FileHandlerRegistration"
+                         view="FileHandlerRegistration-screen-view">
+            <query>
+                <![CDATA[select e from mildred$FileHandlerRegistration e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="fileHandlerRegistrationsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="fileHandlerRegistrationsTable"
+                datasource="fileHandlerRegistrationsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="fileHandlerRegistrationsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="fileHandler"/>
+                <column id="fileType"/>
+            </columns>
+            <rows datasource="fileHandlerRegistrationsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="fileHandlerRegistrationsTable.create"/>
+                <button id="editBtn"
+                        action="fileHandlerRegistrationsTable.edit"/>
+                <button id="removeBtn"
+                        action="fileHandlerRegistrationsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

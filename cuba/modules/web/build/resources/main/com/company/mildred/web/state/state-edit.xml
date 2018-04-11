@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.company.mildred.web.state.StateEdit"
+        datasource="stateDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.company.mildred.web.state">
+    <dsContext>
+        <datasource id="stateDs"
+                    class="com.company.mildred.entity.State"
+                    view="_local"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="stateDs">
+            <column width="250px">
+                <field property="name"/>
+                <field property="isTerminalState"/>
+                <field property="isInitialState"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

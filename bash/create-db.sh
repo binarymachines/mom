@@ -1,13 +1,16 @@
 clear
+cd $MILDRED_HOME/bash
 rm $MILDRED_HOME/python/server/db/generated/*.p*
 
-echo 'updating media'
+echo 'creating cuba db...'
+mysql cuba  < $MILDRED_HOME/db/design/cuba.sql
+echo 'creating media db...'
 mysql cuba  < $MILDRED_HOME/db/design/media.sql
-echo 'updating media action'
+echo 'creating action db...'
 mysql cuba < $MILDRED_HOME/db/design/analysis.sql
-echo 'updating media introspection'
+echo 'creating service db...'
 mysql cuba < $MILDRED_HOME/db/design/service.sql
-echo 'updating scratch'
+echo 'creating scratch db...'
 mysql cuba < $MILDRED_HOME/db/design/scratch.sql
 
 touch $MILDRED_HOME/python/server/db/__init__.py

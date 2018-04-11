@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.transitionrule.TransitionRuleBrowse"
+        focusComponent="transitionRulesTable"
+        lookupComponent="transitionRulesTable"
+        messagesPack="com.company.mildred.web.transitionrule">
+    <dsContext>
+        <groupDatasource id="transitionRulesDs"
+                         class="com.company.mildred.entity.TransitionRule"
+                         view="TransitionRule-screen-view">
+            <query>
+                <![CDATA[select e from mildred$TransitionRule e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="transitionRulesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="transitionRulesTable"
+                datasource="transitionRulesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="transitionRulesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="mode"/>
+                <column id="beginState"/>
+                <column id="endState"/>
+                <column id="conditionDispatch"/>
+            </columns>
+            <rows datasource="transitionRulesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="transitionRulesTable.create"/>
+                <button id="editBtn"
+                        action="transitionRulesTable.edit"/>
+                <button id="removeBtn"
+                        action="transitionRulesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

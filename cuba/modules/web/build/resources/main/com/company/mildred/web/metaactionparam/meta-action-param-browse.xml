@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.metaactionparam.MetaActionParamBrowse"
+        focusComponent="metaActionParamsTable"
+        lookupComponent="metaActionParamsTable"
+        messagesPack="com.company.mildred.web.metaactionparam">
+    <dsContext>
+        <groupDatasource id="metaActionParamsDs"
+                         class="com.company.mildred.entity.MetaActionParam"
+                         view="MetaActionParam-screen-view">
+            <query>
+                <![CDATA[select e from mildred$MetaActionParam e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="metaActionParamsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="metaActionParamsTable"
+                datasource="metaActionParamsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="metaActionParamsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="metaAction"/>
+                <column id="vectorParam"/>
+            </columns>
+            <rows datasource="metaActionParamsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="metaActionParamsTable.create"/>
+                <button id="editBtn"
+                        action="metaActionParamsTable.edit"/>
+                <button id="removeBtn"
+                        action="metaActionParamsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

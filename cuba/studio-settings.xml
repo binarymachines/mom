@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<studio>
+    <settings>
+        <hotDeployMapping>modules/global/src:conf/mildred-core</hotDeployMapping>
+        <hotDeployMapping>modules/core/src:conf/mildred-core</hotDeployMapping>
+        <hotDeployMapping>modules/global/src:conf/mildred</hotDeployMapping>
+        <hotDeployMapping>modules/web/src:conf/mildred</hotDeployMapping>
+        <hotDeployMapping>modules/gui/src:conf/mildred</hotDeployMapping>
+    </settings>
+</studio>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.company.mildred.web.metareason.MetaReasonEdit"
+        datasource="metaReasonDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.company.mildred.web.metareason">
+    <dsContext>
+        <datasource id="metaReasonDs"
+                    class="com.company.mildred.entity.MetaReason"
+                    view="MetaReason-screen-view"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="metaReasonDs">
+            <column width="250px">
+                <field property="name"/>
+                <field property="parentMetaReason"/>
+                <field property="documentType"/>
+                <field property="weight"/>
+                <field property="dispatch"/>
+                <field property="expectedResult"/>
+                <field property="esSearchSpec"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

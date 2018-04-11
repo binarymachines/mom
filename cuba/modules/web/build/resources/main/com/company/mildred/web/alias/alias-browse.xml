@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.alias.AliasBrowse"
+        focusComponent="aliasesTable"
+        lookupComponent="aliasesTable"
+        messagesPack="com.company.mildred.web.alias">
+    <dsContext>
+        <groupDatasource id="aliasesDs"
+                         class="com.company.mildred.entity.Alias"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$Alias e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="aliasesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="aliasesTable"
+                datasource="aliasesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="aliasesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+            </columns>
+            <rows datasource="aliasesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="aliasesTable.create"/>
+                <button id="editBtn"
+                        action="aliasesTable.edit"/>
+                <button id="removeBtn"
+                        action="aliasesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

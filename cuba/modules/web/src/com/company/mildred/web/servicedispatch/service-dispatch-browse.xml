@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.servicedispatch.ServiceDispatchBrowse"
+        focusComponent="serviceDispatchesTable"
+        lookupComponent="serviceDispatchesTable"
+        messagesPack="com.company.mildred.web.servicedispatch">
+    <dsContext>
+        <groupDatasource id="serviceDispatchesDs"
+                         class="com.company.mildred.entity.ServiceDispatch"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$ServiceDispatch e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="serviceDispatchesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="serviceDispatchesTable"
+                datasource="serviceDispatchesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="serviceDispatchesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="category"/>
+                <column id="packageName"/>
+                <column id="moduleName"/>
+                <column id="className"/>
+                <column id="funcName"/>
+            </columns>
+            <rows datasource="serviceDispatchesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="serviceDispatchesTable.create"/>
+                <button id="editBtn"
+                        action="serviceDispatchesTable.edit"/>
+                <button id="removeBtn"
+                        action="serviceDispatchesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

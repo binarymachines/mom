@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
+    <view class="com.company.mildred.entity.Action"
+          extends="_local"
+          name="Action-screen-view">
+        <property name="metaAction"
+                  view="_minimal"/>
+        <property name="actionStatus"
+                  view="_minimal"/>
+        <property name="parentAction"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.ActionParam"
+          extends="_local"
+          name="ActionParam-screen-view">
+        <property name="action"
+                  view="_minimal"/>
+        <property name="vectorParam"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.MetaAction"
+          extends="_local"
+          name="MetaAction-screen-view">
+        <property name="dispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.MetaActionParam"
+          extends="_local"
+          name="MetaActionParam-screen-view">
+        <property name="metaAction"
+                  view="_minimal"/>
+        <property name="vectorParam"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.MetaReason"
+          extends="_local"
+          name="MetaReason-screen-view">
+        <property name="parentMetaReason"
+                  view="_minimal"/>
+        <property name="dispatch"
+                  view="_minimal"/>
+        <property name="esSearchSpec"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.MetaReasonParam"
+          extends="_local"
+          name="MetaReasonParam-screen-view">
+        <property name="metaReason"
+                  view="_minimal"/>
+        <property name="vectorParam"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.Reason"
+          extends="_local"
+          name="Reason-screen-view">
+        <property name="metaReason"
+                  view="_minimal"/>
+        <property name="parentReason"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.ReasonParam"
+          extends="_local"
+          name="ReasonParam-screen-view">
+        <property name="reason"
+                  view="_minimal"/>
+        <property name="vectorParam"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.DelimitedFileData"
+          extends="_local"
+          name="DelimitedFileData-screen-view">
+        <property name="delimitedFile"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.Directory"
+          extends="_local"
+          name="Directory-screen-view">
+        <property name="directoryType"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.Document"
+          extends="_local"
+          name="Document-screen-view">
+        <property name="fileType"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.FileHandlerRegistration"
+          extends="_local"
+          name="FileHandlerRegistration-screen-view">
+        <property name="fileHandler"
+                  view="_minimal"/>
+        <property name="fileType"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.MatcherField"
+          extends="_local"
+          name="MatcherField-screen-view">
+        <property name="matcher"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.OpRecordParam"
+          extends="_local"
+          name="OpRecordParam-screen-view">
+        <property name="paramType"
+                  view="_minimal"/>
+        <property name="opRecord"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.TransitionRule"
+          extends="_local"
+          name="TransitionRule-screen-view">
+        <property name="mode"
+                  view="_minimal"/>
+        <property name="beginState"
+                  view="_minimal"/>
+        <property name="endState"
+                  view="_minimal"/>
+        <property name="conditionDispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.SwitchRule"
+          extends="_local"
+          name="SwitchRule-screen-view">
+        <property name="beginMode"
+                  view="_minimal"/>
+        <property name="endMode"
+                  view="_minimal"/>
+        <property name="beforeDispatch"
+                  view="_minimal"/>
+        <property name="afterDispatch"
+                  view="_minimal"/>
+        <property name="conditionDispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.ModeStateDefaultParam"
+          extends="_local"
+          name="ModeStateDefaultParam-screen-view">
+        <property name="modeStateDefault"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.ModeStateDefault"
+          extends="_local"
+          name="ModeStateDefault-screen-view">
+        <property name="mode"
+                  view="_minimal"/>
+        <property name="state"
+                  view="_minimal"/>
+        <property name="effectDispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.ModeState"
+          extends="_local"
+          name="ModeState-screen-view">
+        <property name="mode"
+                  view="_minimal"/>
+        <property name="state"
+                  view="_minimal"/>
+    </view>
+    <view class="com.company.mildred.entity.ModeDefault"
+          extends="_local"
+          name="ModeDefault-screen-view">
+        <property name="mode"
+                  view="_minimal"/>
+        <property name="effectDispatch"
+                  view="_minimal"/>
+    </view>
+</views>

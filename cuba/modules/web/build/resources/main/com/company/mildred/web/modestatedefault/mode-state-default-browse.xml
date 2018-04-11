@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.modestatedefault.ModeStateDefaultBrowse"
+        focusComponent="modeStateDefaultsTable"
+        lookupComponent="modeStateDefaultsTable"
+        messagesPack="com.company.mildred.web.modestatedefault">
+    <dsContext>
+        <groupDatasource id="modeStateDefaultsDs"
+                         class="com.company.mildred.entity.ModeStateDefault"
+                         view="ModeStateDefault-screen-view">
+            <query>
+                <![CDATA[select e from mildred$ModeStateDefault e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="modeStateDefaultsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="modeStateDefaultsTable"
+                datasource="modeStateDefaultsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="modeStateDefaultsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="mode"/>
+                <column id="state"/>
+                <column id="priority"/>
+                <column id="effectDispatch"/>
+                <column id="timesToComplete"/>
+                <column id="decPriorityAmount"/>
+                <column id="incPriorityAmount"/>
+                <column id="errorTolerance"/>
+            </columns>
+            <rows datasource="modeStateDefaultsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="modeStateDefaultsTable.create"/>
+                <button id="editBtn"
+                        action="modeStateDefaultsTable.edit"/>
+                <button id="removeBtn"
+                        action="modeStateDefaultsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

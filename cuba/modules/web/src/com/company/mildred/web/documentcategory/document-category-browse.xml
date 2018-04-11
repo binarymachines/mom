@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.documentcategory.DocumentCategoryBrowse"
+        focusComponent="documentCategoriesTable"
+        lookupComponent="documentCategoriesTable"
+        messagesPack="com.company.mildred.web.documentcategory">
+    <dsContext>
+        <groupDatasource id="documentCategoriesDs"
+                         class="com.company.mildred.entity.DocumentCategory"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$DocumentCategory e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="documentCategoriesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="documentCategoriesTable"
+                datasource="documentCategoriesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="documentCategoriesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="documentType"/>
+            </columns>
+            <rows datasource="documentCategoriesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="documentCategoriesTable.create"/>
+                <button id="editBtn"
+                        action="documentCategoriesTable.edit"/>
+                <button id="removeBtn"
+                        action="documentCategoriesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

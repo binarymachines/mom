@@ -1,15 +1,21 @@
 clear
+
+cd $MILDRED_HOME/bash
 rm $MILDRED_HOME/python/server/db/generated/*.p*
 
-echo 'updating media'
-mysql -u root -p cuba  < $MILDRED_HOME/db/design/media.sql
-echo 'updating media action'
-mysql -u root -p cuba < $MILDRED_HOME/db/design/analysis.sql
-echo 'updating media introspection'
-mysql -u root -p cuba < $MILDRED_HOME/db/design/service.sql
-echo 'updating scratch'
-mysql -u root -p cuba < $MILDRED_HOME/db/design/scratch.sql
+echo 'creating cuba db...'
+mysql -u root  < $MILDRED_HOME/db/design/cuba.sql
+echo 'creating media db...'
+mysql -u root  < $MILDRED_HOME/db/design/media.sql
+echo 'creating action db...'
+mysql -u root < $MILDRED_HOME/db/design/analysis.sql
+echo 'creating service db...'
+mysql -u root < $MILDRED_HOME/db/design/service.sql
+echo 'creating scratch db...'
+mysql -u root < $MILDRED_HOME/db/design/scratch.sql
 
+echo 'updating SQLAlchemy classes...'
+[[ -f $MILDRED_HOME/python/server/db/generated/*.p* ]] && rm $MILDRED_HOME/python/server/db/generated/*.p*
 touch $MILDRED_HOME/python/server/db/__init__.py
 touch $MILDRED_HOME/python/server/db/generated/__init__.py
 sqlacodegen mysql://root:arecibo@localhost/media > $MILDRED_HOME/python/server/db/generated/sqla_media.py

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.directoryamelioration.DirectoryAmeliorationBrowse"
+        focusComponent="directoryAmeliorationsTable"
+        lookupComponent="directoryAmeliorationsTable"
+        messagesPack="com.company.mildred.web.directoryamelioration">
+    <dsContext>
+        <groupDatasource id="directoryAmeliorationsDs"
+                         class="com.company.mildred.entity.DirectoryAmelioration"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$DirectoryAmelioration e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="directoryAmeliorationsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="directoryAmeliorationsTable"
+                datasource="directoryAmeliorationsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="directoryAmeliorationsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="useTag"/>
+                <column id="replacementTag"/>
+                <column id="useParentFolderFlag"/>
+            </columns>
+            <rows datasource="directoryAmeliorationsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="directoryAmeliorationsTable.create"/>
+                <button id="editBtn"
+                        action="directoryAmeliorationsTable.edit"/>
+                <button id="removeBtn"
+                        action="directoryAmeliorationsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

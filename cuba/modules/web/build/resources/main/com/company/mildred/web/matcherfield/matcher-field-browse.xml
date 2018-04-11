@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.matcherfield.MatcherFieldBrowse"
+        focusComponent="matcherFieldsTable"
+        lookupComponent="matcherFieldsTable"
+        messagesPack="com.company.mildred.web.matcherfield">
+    <dsContext>
+        <groupDatasource id="matcherFieldsDs"
+                         class="com.company.mildred.entity.MatcherField"
+                         view="MatcherField-screen-view">
+            <query>
+                <![CDATA[select e from mildred$MatcherField e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="matcherFieldsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="matcherFieldsTable"
+                datasource="matcherFieldsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="matcherFieldsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="matcher"/>
+                <column id="fieldName"/>
+                <column id="boost"/>
+                <column id="bool"/>
+                <column id="operator"/>
+                <column id="minimumShouldMatch"/>
+                <column id="analyzer"/>
+                <column id="querySection"/>
+                <column id="defaultValue"/>
+            </columns>
+            <rows datasource="matcherFieldsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="matcherFieldsTable.create"/>
+                <button id="editBtn"
+                        action="matcherFieldsTable.edit"/>
+                <button id="removeBtn"
+                        action="matcherFieldsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>
