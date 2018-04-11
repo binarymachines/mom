@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.reasonparam.ReasonParamBrowse"
+        focusComponent="reasonParamsTable"
+        lookupComponent="reasonParamsTable"
+        messagesPack="com.angrysurfer.mildred.web.reasonparam">
+    <dsContext>
+        <groupDatasource id="reasonParamsDs"
+                         class="com.angrysurfer.mildred.entity.ReasonParam"
+                         view="ReasonParam-screen-view">
+            <query>
+                <![CDATA[select e from mildred$ReasonParam e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="reasonParamsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="reasonParamsTable"
+                datasource="reasonParamsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="reasonParamsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="reason"/>
+                <column id="vectorParam"/>
+                <column id="value"/>
+            </columns>
+            <rows datasource="reasonParamsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="reasonParamsTable.create"/>
+                <button id="editBtn"
+                        action="reasonParamsTable.edit"/>
+                <button id="removeBtn"
+                        action="reasonParamsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>
