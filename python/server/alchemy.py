@@ -15,9 +15,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from errors import SQLIntegrityError
 # FileFormat,
 from core import log
-from db.generated.sqla_analysis import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch
-from db.generated.sqla_media import ExecRec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
-from db.generated.sqla_service import ModeDefault, ModeStateDefault, ModeStateDefaultParam
+from db.generated.sqla_analysis import MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, \
+    Reason, ActionParam, ReasonParam, ActionDispatch
+
+from db.generated.sqla_media import Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, \
+    FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
+
+from db.generated.sqla_service import ExecRec, OpRecord, ModeDefault, ModeStateDefault, ModeStateDefaultParam
 from db.generated.sqla_service import Mode as AlchemyMode
 from db.generated.sqla_service import State as AlchemyState
 from db.generated.sqla_service import ModeState as AlchemyModeState
@@ -37,20 +41,18 @@ MEDIA = 'media'
 INTROSPECTION = 'introspection'
 ADMIN = 'admin'
 ACTION = 'action'
-MEDIA = 'media'
 SCRATCH = 'scratch'
 
 media = (MEDIA, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, config.mysql_db))
 introspection = (INTROSPECTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'service'))
 admin = (ADMIN, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'admin'))
 action = (ACTION, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, 'analysis'))
-media = (MEDIA, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, MEDIA))
 scratch = (SCRATCH, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, SCRATCH))
 
 engines = {}
 sessions = {}
 
-for dbconf in (media, introspection, admin, action, media, scratch):
+for dbconf in (media, introspection, admin, action, scratch):
     engine = create_engine(dbconf[1])
     engines[dbconf[0]] = engine
     sessions[dbconf[0]] = sessionmaker(bind=engine)()
@@ -362,11 +364,11 @@ class SQLExecutionRecord(ExecRec):
         rec_exec = SQLExecutionRecord(pid=config.pid, start_dt=config.start_time, status=kwargs['status'])
 
         try:
-            sessions[MEDIA].add(rec_exec)
+            sessions[INTROSPECTION].add(rec_exec)
             sessions[INTROSPECTION].commit()
             return rec_exec
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, sessions[MEDIA], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[INTROSPECTION], message=err.message)
 
 
     @staticmethod
@@ -374,7 +376,7 @@ class SQLExecutionRecord(ExecRec):
         pid=config.pid if pid is None else pid
 
         result = ()
-        for instance in sessions[MEDIA].query(SQLExecutionRecord).\
+        for instance in sessions[INTROSPECTION].query(SQLExecutionRecord).\
             filter(SQLExecutionRecord.pid == pid):
             result += (instance,)
 
@@ -389,11 +391,11 @@ class SQLExecutionRecord(ExecRec):
             exec_rec=SQLExecutionRecord.retrieve()
             exec_rec.status = 'terminated'
             exec_rec.expiration_dt = datetime.datetime.now()
-            sessions[MEDIA].add(exec_rec)
-            sessions[MEDIA].commit()
+            sessions[INTROSPECTION].add(exec_rec)
+            sessions[INTROSPECTION].commit()
             return exec_rec
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, sessions[MEDIA], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[INTROSPECTION], message=err.message)
 
 
 class SQLFileHandler(FileHandler):
@@ -679,10 +681,10 @@ class SQLOperationRecord(OpRecord):
                                     target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status)
 
         try:
-            sessions[MEDIA].add(op_rec)
-            sessions[MEDIA].commit()
+            sessions[INTROSPECTION].add(op_rec)
+            sessions[INTROSPECTION].commit()
         except IntegrityError, err:
-            raise SQLAlchemyIntegrityError(err, sessions[MEDIA], message=err.message)
+            raise SQLAlchemyIntegrityError(err, sessions[INTROSPECTION], message=err.message)
 
 
     @staticmethod
@@ -694,13 +696,13 @@ class SQLOperationRecord(OpRecord):
 
         result = ()
         if operator is None:
-            for instance in sessions[MEDIA].query(SQLOperationRecord).\
+            for instance in sessions[INTROSPECTION].query(SQLOperationRecord).\
                 filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
                 filter(SQLOperationRecord.operation_name == operation).\
                 filter(SQLOperationRecord.status == op_status):
                     result += (instance,)
         else:
-            for instance in sessions[MEDIA].query(SQLOperationRecord).\
+            for instance in sessions[INTROSPECTION].query(SQLOperationRecord).\
                 filter(SQLOperationRecord.target_path.like('%s%s' % (path, '%'))).\
                 filter(SQLOperationRecord.operation_name == operation).\
                 filter(SQLOperationRecord.operator_name == operator).\

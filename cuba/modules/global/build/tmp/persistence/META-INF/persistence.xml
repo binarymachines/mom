@@ -64,6 +64,8 @@
     <class>com.company.mildred.entity.Reason</class>
     <class>com.company.mildred.entity.ReasonParam</class>
     <class>com.company.mildred.entity.VectorParam</class>
+    <class>com.company.mildred.entity.key.VMActionMReasonsCompKey</class>
+    <class>com.company.mildred.entity.VMActionMReasons</class>
     <class>com.company.mildred.entity.key.MatchRecordCompKey</class>
     <class>com.company.mildred.entity.Alias</class>
     <class>com.company.mildred.entity.DelimitedFileData</class>
@@ -76,16 +78,12 @@
     <class>com.company.mildred.entity.Document</class>
     <class>com.company.mildred.entity.DocumentAttribute</class>
     <class>com.company.mildred.entity.DocumentCategory</class>
-    <class>com.company.mildred.entity.ExecRec</class>
     <class>com.company.mildred.entity.FileHandler</class>
     <class>com.company.mildred.entity.FileHandlerRegistration</class>
     <class>com.company.mildred.entity.FileType</class>
     <class>com.company.mildred.entity.MatchRecord</class>
     <class>com.company.mildred.entity.Matcher</class>
     <class>com.company.mildred.entity.MatcherField</class>
-    <class>com.company.mildred.entity.OpRecord</class>
-    <class>com.company.mildred.entity.OpRecordParam</class>
-    <class>com.company.mildred.entity.OpRecordParamType</class>
     <class>com.company.mildred.entity.TransitionRule</class>
     <class>com.company.mildred.entity.Mode</class>
     <class>com.company.mildred.entity.ServiceDispatch</class>
@@ -96,6 +94,10 @@
     <class>com.company.mildred.entity.ModeStateDefault</class>
     <class>com.company.mildred.entity.ModeState</class>
     <class>com.company.mildred.entity.ModeDefault</class>
+    <class>com.company.mildred.entity.ExecRec</class>
+    <class>com.company.mildred.entity.OpRecord</class>
+    <class>com.company.mildred.entity.OpRecordParam</class>
+    <class>com.company.mildred.entity.OpRecordParamType</class>
     <class>com.haulmont.cuba.core.entity.EmbeddableEntity</class>
     <properties>
       <property name="eclipselink.weaving" value="static"/>

@@ -133,5 +133,8 @@
         <entity class="com.company.mildred.entity.ModeDefault">
             <include re=".*"/>
         </entity>
+        <entity class="com.company.mildred.entity.VMActionMReasons">
+            <include re=".*"/>
+        </entity>
     </entities>
 </fts-config>

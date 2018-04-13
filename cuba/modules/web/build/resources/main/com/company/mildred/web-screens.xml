@@ -177,4 +177,10 @@
             template="com/company/mildred/web/modedefault/mode-default-browse.xml"/>
     <screen id="mildred$ModeDefault.edit"
             template="com/company/mildred/web/modedefault/mode-default-edit.xml"/>
+    <screen id="mainWindow"
+            template="com/company/mildred/web/screens/ext-mainwindow.xml"/>
+    <screen id="mildred$VMActionMReasons.browse"
+            template="com/company/mildred/web/vmactionmreasons/vm-action-m-reasons-browse.xml"/>
+    <screen id="mildred$VMActionMReasons.edit"
+            template="com/company/mildred/web/vmactionmreasons/vm-action-m-reasons-edit.xml"/>
 </screen-config>

@@ -16,5 +16,7 @@
         <class>com.company.mildred.entity.Reason</class>
         <class>com.company.mildred.entity.ReasonParam</class>
         <class>com.company.mildred.entity.VectorParam</class>
+        <class>com.company.mildred.entity.key.VMActionMReasonsCompKey</class>
+        <class>com.company.mildred.entity.VMActionMReasons</class>
     </persistence-unit>
 </persistence>

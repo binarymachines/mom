@@ -142,7 +142,7 @@ def reset(args):
     except Exception, err:
         ERR.WARNING(err.message)
 
-    for table in ['exec_rec', 'op_record', 'match_record', 'document']:
+    for table in ['match_record', 'document']:
         query = 'delete from %s' % (table)
         sql.execute_query(query)
 
@@ -158,7 +158,7 @@ def reset(args):
     #     query = 'delete from %s' % (table)
     #     sql.execute_query(query)
 
-    for table in ['mode_state']:
+    for table in ['exec_rec', 'op_record', 'mode_state']:
         query = 'delete from %s' % (table)
         sql.execute_query(query, schema="service")
 

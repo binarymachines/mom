@@ -15,6 +15,7 @@
         <item screen="mildred$Reason.browse"/>
         <item screen="mildred$ReasonParam.browse"/>
         <item screen="mildred$VectorParam.browse"/>
+        <item screen="mildred$VMActionMReasons.browse"/>
     </menu>
     <menu id="media">
         <item screen="mildred$Alias.browse"/>
@@ -28,27 +29,36 @@
         <item screen="mildred$Document.browse"/>
         <item screen="mildred$DocumentAttribute.browse"/>
         <item screen="mildred$DocumentCategory.browse"/>
-        <item screen="mildred$ExecRec.browse"/>
         <item screen="mildred$FileHandler.browse"/>
         <item screen="mildred$FileHandlerRegistration.browse"/>
         <item screen="mildred$FileType.browse"/>
         <item screen="mildred$MatchRecord.browse"/>
         <item screen="mildred$Matcher.browse"/>
         <item screen="mildred$MatcherField.browse"/>
-        <item screen="mildred$OpRecord.browse"/>
-        <item screen="mildred$OpRecordParam.browse"/>
-        <item screen="mildred$OpRecordParamType.browse"/>
     </menu>
     <menu id="service">
-        <item screen="mildred$TransitionRule.browse"/>
-        <item screen="mildred$Mode.browse"/>
-        <item screen="mildred$ServiceDispatch.browse"/>
-        <item screen="mildred$State.browse"/>
-        <item screen="mildred$SwitchRule.browse"/>
         <item screen="mildred$ServiceProfile.browse"/>
-        <item screen="mildred$ModeStateDefaultParam.browse"/>
-        <item screen="mildred$ModeStateDefault.browse"/>
-        <item screen="mildred$ModeState.browse"/>
-        <item screen="mildred$ModeDefault.browse"/>
+        <item screen="mildred$ServiceDispatch.browse"/>
+        <menu id="modes">
+            <item screen="mildred$Mode.browse"/>
+            <item screen="mildred$ModeDefault.browse"/>
+            <item screen="mildred$SwitchRule.browse"/>
+        </menu>
+        <menu id="states">
+            <item screen="mildred$State.browse"/>
+            <item screen="mildred$TransitionRule.browse"/>
+        </menu>
+        <menu id="mode-states">
+            <item screen="mildred$ModeState.browse"/>
+            <item screen="mildred$ModeStateDefault.browse"/>
+            <item screen="mildred$ModeStateDefaultParam.browse"/>
+        </menu>
+        <separator/>
+        <menu id="operations">
+            <item screen="mildred$ExecRec.browse"/>
+            <item screen="mildred$OpRecord.browse"/>
+            <item screen="mildred$OpRecordParam.browse"/>
+            <item screen="mildred$OpRecordParamType.browse"/>
+        </menu>
     </menu>
 </menu-config>

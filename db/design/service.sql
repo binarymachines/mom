@@ -2,38 +2,61 @@ drop schema if exists `service`;
 create schema `service`;
 use `service`;
 
-DROP TABLE IF EXISTS `mode_state_default_param`;
--- DROP TABLE IF EXISTS `mode_state_default_operation`;
-DROP TABLE IF EXISTS `mode_state_default`;
-DROP TABLE IF EXISTS `mode_default`;
-DROP TABLE IF EXISTS `mode_state_param`;
-DROP TABLE IF EXISTS `mode_state`;
-DROP TABLE IF EXISTS `transition_rule`;
-DROP TABLE IF EXISTS `switch_rule`;
-DROP TABLE IF EXISTS `state`;
-DROP TABLE IF EXISTS `mode`;
--- DROP TABLE IF EXISTS `operation`;
--- DROP TABLE IF EXISTS `operator`;
-DROP TABLE IF EXISTS `dispatch_target`;
-DROP TABLE IF EXISTS `service_dispatch`;
-DROP TABLE IF EXISTS `service_profile`;
+CREATE TABLE `exec_rec` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` varchar(32) NOT NULL,
+  `status` varchar(128) NOT NULL,
+  `start_dt` datetime NOT NULL,
+  `end_dt` datetime DEFAULT NULL,
+  `effective_dt` datetime DEFAULT now(),
+  `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`)
+);
 
-DROP VIEW IF EXISTS `v_mode_default_dispatch`;
-DROP VIEW IF EXISTS `v_mode_default_dispatch_w_id`;
-DROP VIEW IF EXISTS `v_mode_dispatch`;
-DROP VIEW IF EXISTS `v_mode_state_default_dispatch`;
-DROP VIEW IF EXISTS `v_mode_state_default_dispatch_w_id`;
-DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch`;
-DROP VIEW IF EXISTS `v_mode_state_default_transition_rule_dispatch_w_id`;
-DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch`;
-DROP VIEW IF EXISTS `v_mode_switch_rule_dispatch_w_id`;
+
+CREATE TABLE IF NOT EXISTS `op_record` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pid` VARCHAR(32) NOT NULL,
+  `operator_name` VARCHAR(64) NOT NULL,
+  `operation_name` VARCHAR(64) NOT NULL,
+  `target_esid` VARCHAR(64) NOT NULL,
+  `target_path` VARCHAR(1024) NOT NULL,
+  `status` VARCHAR(64) NOT NULL,
+  `start_time` DATETIME NOT NULL,
+  `end_time` DATETIME NULL DEFAULT NULL,
+  `effective_dt` DATETIME NULL DEFAULT now(),
+  `expiration_dt` DATETIME NOT NULL DEFAULT '9999-12-31 23:59:59',
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `op_record_param_type` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `vector_param_name` VARCHAR(128) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS `op_record_param` (
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `param_type_id` int(11) UNSIGNED NOT NULL,
+  `op_record_id` INT(11) UNSIGNED NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  `value` VARCHAR(1024) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_op_record_param_type_idx` (`param_type_id` ASC),
+  CONSTRAINT `fk_op_record_param_type`
+    FOREIGN KEY (`param_type_id`)
+    REFERENCES `op_record_param_type` (`id`),
+  INDEX `fk_op_record_param` (`op_record_id` ASC),
+  CONSTRAINT `fk_op_record_param`
+    FOREIGN KEY (`op_record_id`)
+    REFERENCES `op_record` (`id`)
+);
 
 CREATE TABLE `service_profile` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
-
 
 CREATE TABLE `service_dispatch` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -45,6 +68,7 @@ CREATE TABLE `service_dispatch` (
   `func_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
+
 
 # service process
 INSERT INTO service_dispatch (name, category, module_name, func_name) VALUES ('create_service_process', 'process', 'docserv', 'create_service_process');
