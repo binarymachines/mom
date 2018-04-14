@@ -164,4 +164,16 @@
         <property name="effectDispatch"
                   view="_minimal"/>
     </view>
+    <view class="com.company.mildred.entity.MetaReason"
+          extends="MetaReason-screen-view"
+          name="metaReason-metaAction-view">
+        <property name="metaAction"
+                  view="_local"/>
+    </view>
+    <view class="com.company.mildred.entity.MetaAction"
+          extends="MetaAction-screen-view"
+          name="metaAction-metaReason-view">
+        <property name="metaReason"
+                  view="_local"/>
+    </view>
 </views>

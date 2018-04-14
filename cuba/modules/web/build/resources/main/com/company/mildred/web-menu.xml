@@ -8,14 +8,14 @@
         <item screen="mildred$ActionStatus.browse"/>
         <item screen="mildred$EsSearchFieldSpec.browse"/>
         <item screen="mildred$EsSearchSpec.browse"/>
-        <item screen="mildred$MetaAction.browse"/>
         <item screen="mildred$MetaActionParam.browse"/>
-        <item screen="mildred$MetaReason.browse"/>
         <item screen="mildred$MetaReasonParam.browse"/>
         <item screen="mildred$Reason.browse"/>
         <item screen="mildred$ReasonParam.browse"/>
         <item screen="mildred$VectorParam.browse"/>
         <item screen="mildred$VMActionMReasons.browse"/>
+        <item screen="mildred$MetaReason.browse"/>
+        <item screen="mildred$MetaAction.browse"/>
     </menu>
     <menu id="media">
         <item screen="mildred$Alias.browse"/>

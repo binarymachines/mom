@@ -8,7 +8,10 @@
     <dsContext>
         <datasource id="metaReasonDs"
                     class="com.company.mildred.entity.MetaReason"
-                    view="MetaReason-screen-view"/>
+                    view="metaReason-metaAction-view">
+            <collectionDatasource id="metaActionDs"
+                                  property="metaAction"/>
+        </datasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -26,6 +29,27 @@
                 <field property="esSearchSpec"/>
             </column>
         </fieldGroup>
+        <groupBox id="metaActionBox"
+                  caption="msg://com.company.mildred.entity/MetaReason.metaAction">
+            <table id="metaActionTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="name"/>
+                    <column id="documentType"/>
+                    <column id="priority"/>
+                </columns>
+                <rows datasource="metaActionDs"/>
+                <buttonsPanel>
+                    <button action="metaActionTable.add"/>
+                    <button action="metaActionTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <frame id="windowActions"
                screen="editWindowActions"/>
     </layout>

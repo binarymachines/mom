@@ -8,7 +8,7 @@
     <dsContext>
         <groupDatasource id="metaActionsDs"
                          class="com.company.mildred.entity.MetaAction"
-                         view="MetaAction-screen-view">
+                         view="metaAction-metaReason-view">
             <query>
                 <![CDATA[select e from mildred$MetaAction e]]>
             </query>

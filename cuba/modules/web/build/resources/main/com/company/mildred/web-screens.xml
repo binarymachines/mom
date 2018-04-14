@@ -25,16 +25,10 @@
             template="com/company/mildred/web/essearchspec/es-search-spec-browse.xml"/>
     <screen id="mildred$EsSearchSpec.edit"
             template="com/company/mildred/web/essearchspec/es-search-spec-edit.xml"/>
-    <screen id="mildred$MetaAction.browse"
-            template="com/company/mildred/web/metaaction/meta-action-browse.xml"/>
-    <screen id="mildred$MetaAction.edit"
-            template="com/company/mildred/web/metaaction/meta-action-edit.xml"/>
     <screen id="mildred$MetaActionParam.browse"
             template="com/company/mildred/web/metaactionparam/meta-action-param-browse.xml"/>
     <screen id="mildred$MetaActionParam.edit"
             template="com/company/mildred/web/metaactionparam/meta-action-param-edit.xml"/>
-    <screen id="mildred$MetaReason.browse"
-            template="com/company/mildred/web/metareason/meta-reason-browse.xml"/>
     <screen id="mildred$MetaReason.edit"
             template="com/company/mildred/web/metareason/meta-reason-edit.xml"/>
     <screen id="mildred$MetaReasonParam.browse"
@@ -183,4 +177,10 @@
             template="com/company/mildred/web/vmactionmreasons/vm-action-m-reasons-browse.xml"/>
     <screen id="mildred$VMActionMReasons.edit"
             template="com/company/mildred/web/vmactionmreasons/vm-action-m-reasons-edit.xml"/>
+    <screen id="mildred$MetaReason.browse"
+            template="com/company/mildred/web/metareason/meta-reason-browse.xml"/>
+    <screen id="mildred$MetaAction.edit"
+            template="com/company/mildred/web/metaaction/meta-action-edit.xml"/>
+    <screen id="mildred$MetaAction.browse"
+            template="com/company/mildred/web/metaaction/meta-action-browse.xml"/>
 </screen-config>
