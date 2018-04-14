@@ -1,2 +1,10 @@
 drop schema if exists `cuba`;
 create schema `cuba`;
+drop schema if EXISTS `suggestion`;
+create schema `suggestion`;
+drop schema if exists `media`;
+create schema media;
+drop schema if EXISTS `analysis`;
+create schema `analysis`;
+drop schema if exists `service`;
+create schema `service`;

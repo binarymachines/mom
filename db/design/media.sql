@@ -1,5 +1,3 @@
-drop schema if exists `media`;
-create schema media;
 use media;
 
 CREATE TABLE IF NOT EXISTS `file_type` (

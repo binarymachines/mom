@@ -12,13 +12,12 @@ class Action(Base):
     __tablename__ = 'action'
 
     id = Column(Integer, primary_key=True)
-    meta_action_id = Column(ForeignKey(u'meta_action.id'), index=True)
-    action_status_id = Column(ForeignKey(u'action_status.id'), index=True)
-    parent_action_id = Column(ForeignKey(u'action.id'), index=True)
+    name = Column(String(255), nullable=False)
+    document_type = Column(String(32), nullable=False, server_default=text("'file'"))
+    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
+    priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
-    action_status = relationship(u'ActionStatu')
-    meta_action = relationship(u'MetaAction')
-    parent_action = relationship(u'Action', remote_side=[id])
+    dispatch = relationship(u'ActionDispatch')
     reasons = relationship(u'Reason', secondary='action_reason')
 
 
@@ -38,9 +37,8 @@ class ActionParam(Base):
     __tablename__ = 'action_param'
 
     id = Column(Integer, primary_key=True)
-    action_id = Column(ForeignKey(u'action.id'), index=True)
+    action_id = Column(ForeignKey(u'action.id'), nullable=False, index=True)
     vector_param_id = Column(ForeignKey(u'vector_param.id'), nullable=False, index=True)
-    value = Column(String(1024))
 
     action = relationship(u'Action')
     vector_param = relationship(u'VectorParam')
@@ -48,7 +46,7 @@ class ActionParam(Base):
 
 t_action_reason = Table(
     'action_reason', metadata,
-    Column('action_id', ForeignKey(u'action.id'), primary_key=True, nullable=False, index=True),
+    Column('action_id', ForeignKey(u'action.id'), primary_key=True, nullable=False),
     Column('reason_id', ForeignKey(u'reason.id'), primary_key=True, nullable=False, index=True)
 )
 
@@ -94,43 +92,12 @@ class EsSearchSpec(Base):
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
-t_m_action_m_reason = Table(
-    'm_action_m_reason', metadata,
-    Column('meta_action_id', ForeignKey(u'meta_action.id'), primary_key=True, nullable=False),
-    Column('meta_reason_id', ForeignKey(u'meta_reason.id'), primary_key=True, nullable=False, index=True)
-)
-
-
-class MetaAction(Base):
-    __tablename__ = 'meta_action'
+class Reason(Base):
+    __tablename__ = 'reason'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
-    document_type = Column(String(32), nullable=False, server_default=text("'file'"))
-    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
-    priority = Column(Integer, nullable=False, server_default=text("'10'"))
-
-    dispatch = relationship(u'ActionDispatch')
-    meta_reasons = relationship(u'MetaReason', secondary='m_action_m_reason')
-
-
-class MetaActionParam(Base):
-    __tablename__ = 'meta_action_param'
-
-    id = Column(Integer, primary_key=True)
-    meta_action_id = Column(ForeignKey(u'meta_action.id'), nullable=False, index=True)
-    vector_param_id = Column(ForeignKey(u'vector_param.id'), nullable=False, index=True)
-
-    meta_action = relationship(u'MetaAction')
-    vector_param = relationship(u'VectorParam')
-
-
-class MetaReason(Base):
-    __tablename__ = 'meta_reason'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    parent_meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
+    parent_reason_id = Column(ForeignKey(u'reason.id'), index=True)
     document_type = Column(String(32), nullable=False, server_default=text("'file'"))
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
@@ -139,28 +106,6 @@ class MetaReason(Base):
 
     dispatch = relationship(u'ActionDispatch')
     es_search_spec = relationship(u'EsSearchSpec')
-    parent_meta_reason = relationship(u'MetaReason', remote_side=[id])
-
-
-class MetaReasonParam(Base):
-    __tablename__ = 'meta_reason_param'
-
-    id = Column(Integer, primary_key=True)
-    meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
-    vector_param_id = Column(ForeignKey(u'vector_param.id'), nullable=False, index=True)
-
-    meta_reason = relationship(u'MetaReason')
-    vector_param = relationship(u'VectorParam')
-
-
-class Reason(Base):
-    __tablename__ = 'reason'
-
-    id = Column(Integer, primary_key=True)
-    meta_reason_id = Column(ForeignKey(u'meta_reason.id'), index=True)
-    parent_reason_id = Column(ForeignKey(u'reason.id'), index=True)
-
-    meta_reason = relationship(u'MetaReason')
     parent_reason = relationship(u'Reason', remote_side=[id])
 
 
@@ -168,54 +113,11 @@ class ReasonParam(Base):
     __tablename__ = 'reason_param'
 
     id = Column(Integer, primary_key=True)
-    reason_id = Column(ForeignKey(u'reason.id'), nullable=False, index=True)
+    reason_id = Column(ForeignKey(u'reason.id'), index=True)
     vector_param_id = Column(ForeignKey(u'vector_param.id'), nullable=False, index=True)
-    value = Column(String(1024))
 
     reason = relationship(u'Reason')
     vector_param = relationship(u'VectorParam')
-
-
-t_v_m_action_m_reasons = Table(
-    'v_m_action_m_reasons', metadata,
-    Column('meta_action', String(255)),
-    Column('action_priority', Integer, server_default=text("'10'")),
-    Column('action_dispatch_name', String(128)),
-    Column('action_dispatch_category', String(128)),
-    Column('action_dispatch_module', String(128)),
-    Column('action_dispatch_class', String(128)),
-    Column('action_dispatch_func', String(128)),
-    Column('reason', String(255)),
-    Column('reason_weight', Integer, server_default=text("'10'")),
-    Column('conditional_dispatch_name', String(128)),
-    Column('conditional_dispatch_category', String(128)),
-    Column('conditional_dispatch_module', String(128)),
-    Column('conditional_dispatch_class', String(128)),
-    Column('conditional_dispatch_func', String(128))
-)
-
-
-t_v_m_action_m_reasons_w_ids = Table(
-    'v_m_action_m_reasons_w_ids', metadata,
-    Column('meta_action_id', Integer, server_default=text("'0'")),
-    Column('meta_action', String(255)),
-    Column('action_priority', Integer, server_default=text("'10'")),
-    Column('action_dispatch_id', Integer, server_default=text("'0'")),
-    Column('action_dispatch_name', String(128)),
-    Column('action_dispatch_category', String(128)),
-    Column('action_dispatch_module', String(128)),
-    Column('action_dispatch_class', String(128)),
-    Column('action_dispatch_func', String(128)),
-    Column('meta_reason_id', Integer, server_default=text("'0'")),
-    Column('reason', String(255)),
-    Column('reason_weight', Integer, server_default=text("'10'")),
-    Column('conditional_dispatch_id', Integer, server_default=text("'0'")),
-    Column('conditional_dispatch_name', String(128)),
-    Column('conditional_dispatch_category', String(128)),
-    Column('conditional_dispatch_module', String(128)),
-    Column('conditional_dispatch_class', String(128)),
-    Column('conditional_dispatch_func', String(128))
-)
 
 
 class VectorParam(Base):

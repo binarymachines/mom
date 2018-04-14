@@ -1,5 +1,3 @@
-drop schema if exists `service`;
-create schema `service`;
 use `service`;
 
 CREATE TABLE `exec_rec` (
@@ -91,9 +89,9 @@ INSERT INTO service_dispatch (name, category, module_name, class_name, func_name
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor.condition', 'CONDITION', 'docservmodes', 'ScanModeHandler', 'should_monitor');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.condition', 'CONDITION', 'docservmodes', 'ScanModeHandler', 'can_scan');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan', 'effect', 'docservmodes', 'ScanModeHandler', 'do_scan');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.discover', 'ACTION', 'docservmodes', 'ScanModeHandler', 'do_scan_discover');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.update', 'ACTION', 'docservmodes', 'ScanModeHandler', 'do_scan');
-INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor', 'ACTION', 'docservmodes', 'ScanModeHandler', 'do_scan_monitor');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.discover', 'ANALYSIS', 'docservmodes', 'ScanModeHandler', 'do_scan_discover');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.update', 'ANALYSIS', 'docservmodes', 'ScanModeHandler', 'do_scan');
+INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.monitor', 'ANALYSIS', 'docservmodes', 'ScanModeHandler', 'do_scan_monitor');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.before', 'switch', 'docservmodes', 'ScanModeHandler', 'before_scan');
 INSERT INTO service_dispatch (name, category, module_name, class_name, func_name) VALUES ('scan.switch.after', 'switch', 'docservmodes', 'ScanModeHandler', 'after_scan');
 
