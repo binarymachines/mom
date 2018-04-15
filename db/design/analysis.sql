@@ -1,50 +1,50 @@
 use `analysis`;
 
-CREATE TABLE `es_search_spec` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  -- `index_name` varchar(128) NOT NULL,
-  `name` varchar(128) NOT NULL,
-  `query_type` varchar(64) NOT NULL,
-  `max_score_percentage` float NOT NULL DEFAULT '0',
-  `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
-  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-);
+-- CREATE TABLE `doc_query` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   -- `index_name` varchar(128) NOT NULL,
+--   `name` varchar(128) NOT NULL,
+--   `query_type` varchar(64) NOT NULL,
+--   `max_score_percentage` float NOT NULL DEFAULT '0',
+--   `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
+--   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
+--   PRIMARY KEY (`id`)
+-- );
 
-CREATE TABLE `es_search_field_spec` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  -- `es_clause_id` int(11) unsigned NOT NULL,
-  `field_name` varchar(128) NOT NULL,
-  `boost` float NOT NULL DEFAULT '0',
-  `bool_` varchar(16) DEFAULT NULL,
-  `operator` varchar(16) DEFAULT NULL,
-  `minimum_should_match` float NOT NULL DEFAULT '0',
-  `analyzer` varchar(64) DEFAULT NULL,
-  `query_section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
-  `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
-  PRIMARY KEY (`id`)
-  -- ,
-  -- KEY `fk_clause_field_es_clause` (`es_clause_id`),
-  -- CONSTRAINT `fk_clause_field_es_clause` FOREIGN KEY (`es_clause_id`) REFERENCES `es_clause` (`id`)
-);
+-- CREATE TABLE `doc_query_field` (
+--   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+--   -- `es_clause_id` int(11) unsigned NOT NULL,
+--   `field_name` varchar(128) NOT NULL,
+--   `boost` float NOT NULL DEFAULT '0',
+--   `bool_` varchar(16) DEFAULT NULL,
+--   `operator` varchar(16) DEFAULT NULL,
+--   `minimum_should_match` float NOT NULL DEFAULT '0',
+--   `analyzer` varchar(64) DEFAULT NULL,
+--   `query_section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
+--   `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
+--   PRIMARY KEY (`id`)
+--   -- ,
+--   -- KEY `fk_clause_field_es_clause` (`es_clause_id`),
+--   -- CONSTRAINT `fk_clause_field_es_clause` FOREIGN KEY (`es_clause_id`) REFERENCES `es_clause` (`id`)
+-- );
 
 
-CREATE TABLE IF NOT EXISTS `analysis`.`es_search_field_jn` (
-  `es_search_spec_id` INT(11) UNSIGNED NOT NULL,
-  `es_search_field_spec_id` INT(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (`es_search_spec_id`, `es_search_field_spec_id`),
-  -- INDEX `fk_action_reason_reason_idx` (`reason_id` ASC),
-  CONSTRAINT `fk_es_search_spec_id`
-    FOREIGN KEY (`es_search_spec_id`)
-    REFERENCES `analysis`.`es_search_spec` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_es_search_field_spec_id`
-    FOREIGN KEY (`es_search_field_spec_id`)
-    REFERENCES `analysis`.`es_search_field_spec` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
+-- CREATE TABLE IF NOT EXISTS `analysis`.`doc_query_field_jn` (
+--   `doc_query_id` INT(11) UNSIGNED NOT NULL,
+--   `doc_query_field_id` INT(11) UNSIGNED NOT NULL,
+--   PRIMARY KEY (`doc_query_id`, `doc_query_field_id`),
+--   -- INDEX `fk_action_reason_reason_idx` (`reason_id` ASC),
+--   CONSTRAINT `fk_doc_query_id`
+--     FOREIGN KEY (`doc_query_id`)
+--     REFERENCES `analysis`.`doc_query` (`id`)
+--     ON DELETE NO ACTION
+--     ON UPDATE NO ACTION,
+--   CONSTRAINT `fk_doc_query_field_id`
+--     FOREIGN KEY (`doc_query_field_id`)
+--     REFERENCES `analysis`.`doc_query_field` (`id`)
+--     ON DELETE NO ACTION
+--     ON UPDATE NO ACTION
+-- );
 
 CREATE TABLE IF NOT EXISTS `analysis`.`action_dispatch` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -114,11 +114,11 @@ CREATE TABLE IF NOT EXISTS `analysis`.`reason` (
   `weight` INT(3) NOT NULL DEFAULT '10',
   `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
   `expected_result` TINYINT(1) NOT NULL DEFAULT '1',
-  `es_search_spec_id` INT(11) UNSIGNED NULL DEFAULT NULL,
+   `doc_query_id` INT(11) UNSIGNED NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_reason_dispatch_idx` (`dispatch_id` ASC),
   INDEX `parent_reason_id` (`parent_reason_id` ASC),
-  INDEX `fk_reason_es_search_spec1_idx` (`es_search_spec_id` ASC),
+   INDEX `fk_reason_doc_query1_idx` (`doc_query_id` ASC),
   CONSTRAINT `fk_reason_dispatch`
     FOREIGN KEY (`dispatch_id`)
     REFERENCES `analysis`.`action_dispatch` (`id`)
@@ -126,13 +126,19 @@ CREATE TABLE IF NOT EXISTS `analysis`.`reason` (
     ON UPDATE NO ACTION,
   CONSTRAINT `reason_ibfk_1`
     FOREIGN KEY (`parent_reason_id`)
-    REFERENCES `analysis`.`reason` (`id`),
-  CONSTRAINT `fk_reason_es_search_spec1`
-    FOREIGN KEY (`es_search_spec_id`)
-    REFERENCES `analysis`.`es_search_spec` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    REFERENCES `analysis`.`reason` (`id`)
+    -- ,
+--   CONSTRAINT `fk_reason_doc_query1`
+--     FOREIGN KEY (`doc_query_id`)
+--     REFERENCES `analysis`.`doc_query` (`id`)
+    -- ON DELETE NO ACTION
+    -- ON UPDATE NO ACTION
 );
+
+
+ALTER TABLE `reason` 
+ADD foreign key fk_reason_doc_query_idx(`doc_query_id`)
+REFERENCES elastic.doc_query(`id`);
 
 CREATE TABLE IF NOT EXISTS `analysis`.`action_reason` (
   `action_id` INT(11) UNSIGNED NOT NULL,

@@ -58,40 +58,6 @@ class ActionStatu(Base):
     name = Column(String(255))
 
 
-t_es_search_field_jn = Table(
-    'es_search_field_jn', metadata,
-    Column('es_search_spec_id', ForeignKey(u'es_search_spec.id'), primary_key=True, nullable=False),
-    Column('es_search_field_spec_id', ForeignKey(u'es_search_field_spec.id'), primary_key=True, nullable=False, index=True)
-)
-
-
-class EsSearchFieldSpec(Base):
-    __tablename__ = 'es_search_field_spec'
-
-    id = Column(Integer, primary_key=True)
-    field_name = Column(String(128), nullable=False)
-    boost = Column(Float, nullable=False, server_default=text("'0'"))
-    bool_ = Column(String(16))
-    operator = Column(String(16))
-    minimum_should_match = Column(Float, nullable=False, server_default=text("'0'"))
-    analyzer = Column(String(64))
-    query_section = Column(String(128), server_default=text("'should'"))
-    default_value = Column(String(128))
-
-    es_search_specs = relationship(u'EsSearchSpec', secondary='es_search_field_jn')
-
-
-class EsSearchSpec(Base):
-    __tablename__ = 'es_search_spec'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(128), nullable=False)
-    query_type = Column(String(64), nullable=False)
-    max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
-    applies_to_file_type = Column(String(6), nullable=False, server_default=text("'*'"))
-    active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-
-
 class Reason(Base):
     __tablename__ = 'reason'
 
@@ -102,10 +68,10 @@ class Reason(Base):
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
     dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
     expected_result = Column(Integer, nullable=False, server_default=text("'1'"))
-    es_search_spec_id = Column(ForeignKey(u'es_search_spec.id'), index=True)
+    doc_query_id = Column(ForeignKey(u'elastic.doc_query.id'), index=True)
 
     dispatch = relationship(u'ActionDispatch')
-    es_search_spec = relationship(u'EsSearchSpec')
+    doc_query = relationship(u'DocQuery')
     parent_reason = relationship(u'Reason', remote_side=[id])
 
 
@@ -125,3 +91,15 @@ class VectorParam(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False)
+
+
+class DocQuery(Base):
+    __tablename__ = 'doc_query'
+    __table_args__ = {u'schema': 'elastic'}
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)
+    query_type = Column(String(64), nullable=False)
+    max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
+    applies_to_file_type = Column(String(6), nullable=False, server_default=text("'*'"))
+    active_flag = Column(Integer, nullable=False, server_default=text("'0'"))

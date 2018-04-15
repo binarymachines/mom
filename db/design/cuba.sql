@@ -6,5 +6,7 @@ drop schema if exists `media`;
 create schema media;
 drop schema if EXISTS `analysis`;
 create schema `analysis`;
+drop schema if EXISTS `elastic`;
+create schema `elastic`;
 drop schema if exists `service`;
 create schema `service`;

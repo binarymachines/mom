@@ -4,16 +4,18 @@ cd $MILDRED_HOME/bash
 
 echo 'creating cuba db...'
 mysql -u root  < $MILDRED_HOME/db/design/cuba.sql
+echo 'creating elastic db...'
+mysql -u root < $MILDRED_HOME/db/design/elastic.sql
 echo 'creating analysis db...'
 mysql -u root < $MILDRED_HOME/db/design/analysis.sql
-echo 'creating scratch db...'
-mysql -u root < $MILDRED_HOME/db/design/scratch.sql
 echo 'creating media db...'
 mysql -u root  < $MILDRED_HOME/db/design/media.sql
 echo 'creating service db...'
 mysql -u root < $MILDRED_HOME/db/design/service.sql
 echo 'creating suggestion db...'
 mysql -u root < $MILDRED_HOME/db/design/suggestion.sql
+echo 'creating scratch db...'
+mysql -u root < $MILDRED_HOME/db/design/scratch.sql
 
 echo 'updating SQLAlchemy classes...'
 [[ -f $MILDRED_HOME/python/server/db/generated/*.p* ]] && rm $MILDRED_HOME/python/server/db/generated/*.p*

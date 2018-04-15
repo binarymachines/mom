@@ -15,16 +15,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from errors import SQLIntegrityError
 # FileFormat,
 from core import log
-from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam, \
-    ActionParam, ReasonParam, ActionDispatch
+from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam, ActionDispatch
 
 from db.generated.sqla_media import Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, \
     FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
 
 from db.generated.sqla_service import ExecRec, OpRecord, ModeDefault, ModeStateDefault, ModeStateDefaultParam
-from db.generated.sqla_service import Mode as AlchemyMode
-from db.generated.sqla_service import State as AlchemyState
-from db.generated.sqla_service import ModeState as AlchemyModeState
+from db.generated.sqla_service import Mode as AlchemyMode, State as AlchemyState, ModeState as AlchemyModeState
 
 import config
 import const
