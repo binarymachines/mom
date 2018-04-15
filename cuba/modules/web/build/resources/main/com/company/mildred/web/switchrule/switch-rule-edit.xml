@@ -16,7 +16,7 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="switchRuleDs">
-            <column width="250px">
+            <column width="550px">
                 <field property="name"/>
                 <field property="beginMode"/>
                 <field property="endMode"/>

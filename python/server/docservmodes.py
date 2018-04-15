@@ -285,21 +285,15 @@ class ScanModeHandler(DefaultModeHandler):
         if self.scan_complete == False:
             if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector):
                 return config.scan
-        
-        return True
 
-            
+        return True    
 
     def path_to_map(self):
-        map_paths = self.vector.get_param('all', 'map-paths')
-        if map_paths:
-            startpath = self.vector.get_param('all', 'start-path')
-            print 'returning %s' % startpath 
-            return startpath
-
+        return self.vector.get_param('all', 'start-path')
+        
     @ops_func
     def do_scan_discover(self):
-        startpath = self.path_to_map()        
+        startpath = self.path_to_map()
         if startpath and self.vector.get_param('all', 'map-paths').lower() == 'true':
             print("discover scan starting in %s...\n" % startpath)
             paths = disc.discover(startpath)
@@ -309,29 +303,28 @@ class ScanModeHandler(DefaultModeHandler):
                 # self.vector.clear_param('all', 'start-path')
             else:
                 self.vector.paths.extend(paths)
-                self.vector.set_param('all', 'map-paths', False)
-                self.vector.clear_param('all', 'start-path')
+                # self.vector.set_param('all', 'map-paths', False)
+                # self.vector.clear_param('all', 'start-path')
 
-        self.vector.paths.extend([startpath])
 
     @ops_func
     def do_scan_monitor(self):
-        if self.path_to_map():
-            self.do_scan_discover()
-
         print("monitor scan starting...\n")
+        self.vector.reset(SCAN)
         scan.scan(self.vector)
 
 
     @ops_func
     def do_scan(self):
         if self.path_to_map():
-            self.vector.paths.append(self.path_to_map())
             self.do_scan_discover()
 
-        print("scan starting...\n")
+        print("update scan starting...\n")
         self.vector.set_param(SCAN, DEEP, False)
         if self.vector.has_next(SCAN, use_fifo=True):
+            scan.scan(self.vector)
+        elif self.path_to_map(): 
+            self.vector.paths.append(self.path_to_map())
             scan.scan(self.vector)
 
     def should_monitor(self, selector=None, active=None, possible=None):
