@@ -16,7 +16,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "mode_state")
 @Entity(name = "mildred$ModeState")
 public class ModeState extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -6818560828055145266L;
+    private static final long serialVersionUID = 8585357835675836115L;
 
     @Column(name = "pid", nullable = false, length = 32)
     protected String pid;

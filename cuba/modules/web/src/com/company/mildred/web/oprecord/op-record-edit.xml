@@ -17,26 +17,16 @@
         <fieldGroup id="fieldGroup"
                     datasource="opRecordDs">
             <column width="250px">
-                <field caption="msg://pid"
-                       property="pid"/>
-                <field caption="msg://operatorName"
-                       property="operatorName"/>
-                <field caption="msg://operationName"
-                       property="operationName"/>
-                <field caption="msg://targetEsid"
-                       property="targetEsid"/>
-                <field caption="msg://targetPath"
-                       property="targetPath"/>
-                <field caption="msg://status"
-                       property="status"/>
-                <field caption="msg://startTime"
-                       property="startTime"/>
-                <field caption="msg://endTime"
-                       property="endTime"/>
-                <field caption="msg://effectiveDt"
-                       property="effectiveDt"/>
-                <field caption="msg://expirationDt"
-                       property="expirationDt"/>
+                <field property="pid"/>
+                <field property="operatorName"/>
+                <field property="operationName"/>
+                <field property="targetEsid"/>
+                <field property="targetPath"/>
+                <field property="status"/>
+                <field property="startTime"/>
+                <field property="endTime"/>
+                <field property="effectiveDt"/>
+                <field property="expirationDt"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

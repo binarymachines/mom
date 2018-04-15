@@ -13,7 +13,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "mode_default")
 @Entity(name = "mildred$ModeDefault")
 public class ModeDefault extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -5251169587820163460L;
+    private static final long serialVersionUID = -5653835928996214637L;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mode_id")

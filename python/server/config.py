@@ -37,7 +37,7 @@ if (os.path.isfile(config_file)):
     parser = ConfigParser.ConfigParser()
     parser.read(config_file)
 
-    var.service_create_func = read(parser, 'Process')['create_proc']
+    var.profile = read(parser, 'Process')['profile']
 
     # elasticsearch
     es_host = read(parser, "Elasticsearch")['host']

@@ -10,7 +10,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "op_record_param_type")
 @Entity(name = "mildred$OpRecordParamType")
 public class OpRecordParamType extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -7392321204621299310L;
+    private static final long serialVersionUID = -3148947941058441437L;
 
     @Column(name = "vector_param_name", nullable = false, length = 128)
     protected String vectorParamName;

@@ -13,7 +13,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "op_record")
 @Entity(name = "mildred$OpRecord")
 public class OpRecord extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -3954144322830780705L;
+    private static final long serialVersionUID = 7762390414857156030L;
 
     @Column(name = "pid", nullable = false, length = 32)
     protected String pid;

@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <studio>
     <settings>
-        <freeDbmsKeywords>value</freeDbmsKeywords>
         <hotDeployMapping>modules/global/src:conf/mildred-core</hotDeployMapping>
         <hotDeployMapping>modules/core/src:conf/mildred-core</hotDeployMapping>
         <hotDeployMapping>modules/global/src:conf/mildred</hotDeployMapping>
         <hotDeployMapping>modules/web/src:conf/mildred</hotDeployMapping>
         <hotDeployMapping>modules/gui/src:conf/mildred</hotDeployMapping>
     </settings>
-    <functionalitySettings>
-        <functionality id="oneToOneIndex"
-                       state="ENABLE"/>
-    </functionalitySettings>
 </studio>

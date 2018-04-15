@@ -12,7 +12,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "state")
 @Entity(name = "mildred$State")
 public class State extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -4814252918927713685L;
+    private static final long serialVersionUID = -7500501293460179260L;
 
     @Column(name = "name", nullable = false, length = 128)
     protected String name;

@@ -6,7 +6,7 @@
     <context-param>
         <description>Web resources version for correct caching in browser</description>
         <param-name>webResourcesTs</param-name>
-        <param-value>2018_04_13_14_58</param-value>
+        <param-value>2018_04_15_00_54</param-value>
     </context-param>
     <!-- Application properties config files -->
     <context-param>
@@ -18,7 +18,7 @@
     <!--Application components-->
     <context-param>
         <param-name>appComponents</param-name>
-        <param-value>com.haulmont.cuba com.haulmont.fts</param-value>
+        <param-value>com.haulmont.cuba</param-value>
     </context-param>
     <listener>
         <listener-class>com.vaadin.server.communication.JSR356WebsocketInitializer</listener-class>

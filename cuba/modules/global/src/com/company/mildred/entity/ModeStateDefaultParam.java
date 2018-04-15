@@ -15,7 +15,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "mode_state_default_param")
 @Entity(name = "mildred$ModeStateDefaultParam")
 public class ModeStateDefaultParam extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -5897162208947001833L;
+    private static final long serialVersionUID = 1126576126126158304L;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mode_state_default_id")

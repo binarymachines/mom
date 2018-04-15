@@ -51,53 +51,20 @@
     <class>com.haulmont.cuba.core.entity.JmxInstance</class>
     <class>com.haulmont.cuba.security.entity.RememberMeToken</class>
     <class>com.haulmont.cuba.core.entity.ReferenceToEntity</class>
-    <class>com.company.mildred.entity.Action</class>
-    <class>com.company.mildred.entity.ActionDispatch</class>
-    <class>com.company.mildred.entity.ActionParam</class>
-    <class>com.company.mildred.entity.ActionStatus</class>
-    <class>com.company.mildred.entity.EsSearchFieldSpec</class>
-    <class>com.company.mildred.entity.EsSearchSpec</class>
-    <class>com.company.mildred.entity.MetaAction</class>
-    <class>com.company.mildred.entity.MetaActionParam</class>
-    <class>com.company.mildred.entity.MetaReason</class>
-    <class>com.company.mildred.entity.MetaReasonParam</class>
-    <class>com.company.mildred.entity.Reason</class>
-    <class>com.company.mildred.entity.ReasonParam</class>
-    <class>com.company.mildred.entity.VectorParam</class>
-    <class>com.company.mildred.entity.key.VMActionMReasonsCompKey</class>
-    <class>com.company.mildred.entity.VMActionMReasons</class>
-    <class>com.company.mildred.entity.key.MatchRecordCompKey</class>
-    <class>com.company.mildred.entity.Alias</class>
-    <class>com.company.mildred.entity.DelimitedFileData</class>
-    <class>com.company.mildred.entity.DelimitedFileInfo</class>
-    <class>com.company.mildred.entity.Directory</class>
-    <class>com.company.mildred.entity.DirectoryAmelioration</class>
-    <class>com.company.mildred.entity.DirectoryAttribute</class>
-    <class>com.company.mildred.entity.DirectoryConstant</class>
-    <class>com.company.mildred.entity.DirectoryType</class>
-    <class>com.company.mildred.entity.Document</class>
-    <class>com.company.mildred.entity.DocumentAttribute</class>
-    <class>com.company.mildred.entity.DocumentCategory</class>
-    <class>com.company.mildred.entity.FileHandler</class>
-    <class>com.company.mildred.entity.FileHandlerRegistration</class>
-    <class>com.company.mildred.entity.FileType</class>
-    <class>com.company.mildred.entity.MatchRecord</class>
-    <class>com.company.mildred.entity.Matcher</class>
-    <class>com.company.mildred.entity.MatcherField</class>
-    <class>com.company.mildred.entity.TransitionRule</class>
     <class>com.company.mildred.entity.Mode</class>
-    <class>com.company.mildred.entity.ServiceDispatch</class>
-    <class>com.company.mildred.entity.State</class>
-    <class>com.company.mildred.entity.SwitchRule</class>
-    <class>com.company.mildred.entity.ServiceProfile</class>
-    <class>com.company.mildred.entity.ModeStateDefaultParam</class>
-    <class>com.company.mildred.entity.ModeStateDefault</class>
-    <class>com.company.mildred.entity.ModeState</class>
     <class>com.company.mildred.entity.ModeDefault</class>
-    <class>com.company.mildred.entity.ExecRec</class>
+    <class>com.company.mildred.entity.ModeState</class>
+    <class>com.company.mildred.entity.ModeStateDefault</class>
+    <class>com.company.mildred.entity.ModeStateDefaultParam</class>
     <class>com.company.mildred.entity.OpRecord</class>
     <class>com.company.mildred.entity.OpRecordParam</class>
     <class>com.company.mildred.entity.OpRecordParamType</class>
+    <class>com.company.mildred.entity.ServiceDispatch</class>
+    <class>com.company.mildred.entity.ServiceExec</class>
+    <class>com.company.mildred.entity.ServiceProfile</class>
+    <class>com.company.mildred.entity.State</class>
+    <class>com.company.mildred.entity.SwitchRule</class>
+    <class>com.company.mildred.entity.TransitionRule</class>
     <class>com.haulmont.cuba.core.entity.EmbeddableEntity</class>
     <properties>
       <property name="eclipselink.weaving" value="static"/>

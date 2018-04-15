@@ -15,7 +15,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "op_record_param")
 @Entity(name = "mildred$OpRecordParam")
 public class OpRecordParam extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -1462243213422332705L;
+    private static final long serialVersionUID = -2208099498356813569L;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "param_type_id")

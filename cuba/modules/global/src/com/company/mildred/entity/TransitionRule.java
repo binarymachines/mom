@@ -15,7 +15,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "transition_rule")
 @Entity(name = "mildred$TransitionRule")
 public class TransitionRule extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = 3380803147497908144L;
+    private static final long serialVersionUID = 1173582074798187391L;
 
     @Column(name = "name", nullable = false, length = 128)
     protected String name;

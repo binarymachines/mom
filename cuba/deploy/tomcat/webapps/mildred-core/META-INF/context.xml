@@ -30,6 +30,16 @@
           type="javax.sql.DataSource"
           url="jdbc:hsqldb:hsql://localhost/mildred"
           username="sa"/>-->
+    <!--Data store 'elastic' connection-->
+    <Resource driverClassName="com.mysql.jdbc.Driver"
+              maxIdle="2"
+              maxTotal="20"
+              maxWaitMillis="5000"
+              name="jdbc/elastic"
+              password="cuba"
+              type="javax.sql.DataSource"
+              url="jdbc:mysql://localhost/elastic?useSSL=false&amp;allowMultiQueries=true"
+              username="cuba"/>
     <!--Data store 'media' connection-->
     <Resource driverClassName="com.mysql.jdbc.Driver"
               maxIdle="2"
@@ -49,5 +59,15 @@
               password="cuba"
               type="javax.sql.DataSource"
               url="jdbc:mysql://localhost/service?useSSL=false&amp;allowMultiQueries=true"
+              username="cuba"/>
+    <!--Data store 'suggestion' connection-->
+    <Resource driverClassName="com.mysql.jdbc.Driver"
+              maxIdle="2"
+              maxTotal="20"
+              maxWaitMillis="5000"
+              name="jdbc/suggestion"
+              password="cuba"
+              type="javax.sql.DataSource"
+              url="jdbc:mysql://localhost/suggestion?useSSL=false&amp;allowMultiQueries=true"
               username="cuba"/>
 </Context>

@@ -20,7 +20,9 @@ from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam,
 from db.generated.sqla_media import Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, \
     FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
 
-from db.generated.sqla_service import ServiceExec, OpRecord, ModeDefault, ModeStateDefault, ModeStateDefaultParam
+from db.generated.sqla_service import ServiceExec, ServiceProfile, OpRecord, ModeDefault, ModeStateDefault, \
+    ModeStateDefaultParam, SwitchRule, t_v_mode_default_dispatch
+
 from db.generated.sqla_service import Mode as AlchemyMode, State as AlchemyState, ModeState as AlchemyModeState
 
 import config
@@ -396,6 +398,20 @@ class SQLServiceExec(ServiceExec):
         except IntegrityError, err:
             raise SQLAlchemyIntegrityError(err, sessions[SERVICE], message=err.message)
 
+class SQLServiceProfile(ServiceProfile):
+
+    @staticmethod
+    def retrieve(name):
+        result = ()
+        for instance in sessions[SERVICE].query(SQLServiceProfile).\
+            filter(SQLServiceProfile.name == name):
+            result += (instance,)
+
+        if len(result) == 1:
+            return result[0]
+
+
+SQLServiceProfile.switch_rules = relationship(u'SwitchRule', secondary='service_profile_switch_rule_jn')
 
 class SQLFileHandler(FileHandler):
 
@@ -483,7 +499,6 @@ class SQLMatch(MatchRecord):
     #         result += (instance,)
 
     #     return result
-
 
 class SQLMode(AlchemyMode):
 

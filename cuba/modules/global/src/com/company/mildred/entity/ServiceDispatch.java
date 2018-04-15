@@ -8,11 +8,11 @@ import javax.persistence.Column;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 
 @DesignSupport("{'imported':true}")
-@NamePattern("%s|name")
+@NamePattern("%s %s %s|moduleName,className,funcName")
 @Table(name = "service_dispatch")
 @Entity(name = "mildred$ServiceDispatch")
 public class ServiceDispatch extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -1154596567044809186L;
+    private static final long serialVersionUID = -1832387731977744103L;
 
     @Column(name = "name", length = 128)
     protected String name;

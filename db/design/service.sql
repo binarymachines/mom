@@ -50,12 +50,6 @@ CREATE TABLE IF NOT EXISTS `op_record_param` (
     REFERENCES `op_record` (`id`)
 );
 
-CREATE TABLE `service_profile` (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-);
-
 CREATE TABLE `service_dispatch` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(128) DEFAULT NULL,
@@ -66,7 +60,6 @@ CREATE TABLE `service_dispatch` (
   `func_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
-
 
 # service process
 INSERT INTO service_dispatch (name, category, module_name, func_name) VALUES ('create_service_process', 'process', 'docserv', 'create_service_process');
@@ -124,8 +117,6 @@ CREATE TABLE `mode` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
   `stateful_flag` boolean NOT NULL DEFAULT False,
---   `effective_dt` datetime DEFAULT now(),
---   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_mode_name` (`name`)
 );
@@ -751,3 +742,34 @@ COMMIT;
 -- INSERT INTO operation (name) VALUES ('report');
 -- INSERT INTO operation (name) VALUES ('requests');
 
+CREATE TABLE `service_profile` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `startup_service_dispatch_id` int(11) UNSIGNED NOT NULL,
+  `name` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+    CONSTRAINT `fk_startup_service_dispatch_id`
+    FOREIGN KEY (`startup_service_dispatch_id`)
+    REFERENCES `service_dispatch` (`id`)
+);
+
+INSERT INTO service_profile (id, name, startup_service_dispatch_id) VALUES (1, 'media_hound', 1);
+
+CREATE TABLE IF NOT EXISTS `service_profile_switch_rule_jn` (
+  `service_profile_id` INT(11) UNSIGNED NOT NULL,
+  `switch_rule_id` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`switch_rule_id`, `service_profile_id`),
+  INDEX `service_profile_id_idx` (`service_profile_id` ASC),
+  INDEX `switch_rule_id_idx` (`switch_rule_id` ASC),
+  CONSTRAINT `fk_service_profile_id`
+    FOREIGN KEY (`service_profile_id`)
+    REFERENCES `service_profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_switch_rule_id`
+    FOREIGN KEY (`switch_rule_id`)
+    REFERENCES `switch_rule` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+insert into service_profile_switch_rule_jn (select 1, id from switch_rule);

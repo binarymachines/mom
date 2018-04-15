@@ -31,6 +31,32 @@
         <qualifier type="org.springframework.beans.factory.annotation.Qualifier"
                    value="analysis"/>
     </bean>
+    <bean id="cubaDataSource_elastic"
+          class="com.haulmont.cuba.core.sys.CubaJndiObjectFactoryBean">
+        <property name="jndiNameAppProperty"
+                  value="cuba.dataSourceJndiName_elastic"/>
+        <property name="resourceRef"
+                  value="true"/>
+    </bean>
+    <bean id="entityManagerFactory_elastic"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+          lazy-init="false">
+        <property name="persistenceXmlLocation"
+                  value="file:${cuba.dataDir}/elastic-persistence.xml"/>
+        <property name="dataSource"
+                  ref="cubaDataSource_elastic"/>
+        <property name="jpaVendorAdapter"
+                  ref="jpaVendorAdapter"/>
+    </bean>
+    <bean id="transactionManager_elastic"
+          class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory"
+                  ref="entityManagerFactory_elastic"/>
+        <property name="dataSource"
+                  ref="cubaDataSource_elastic"/>
+        <qualifier type="org.springframework.beans.factory.annotation.Qualifier"
+                   value="elastic"/>
+    </bean>
     <bean id="cubaDataSource_media"
           class="com.haulmont.cuba.core.sys.CubaJndiObjectFactoryBean">
         <property name="jndiNameAppProperty"
@@ -82,5 +108,31 @@
                   ref="cubaDataSource_service"/>
         <qualifier type="org.springframework.beans.factory.annotation.Qualifier"
                    value="service"/>
+    </bean>
+    <bean id="cubaDataSource_suggestion"
+          class="com.haulmont.cuba.core.sys.CubaJndiObjectFactoryBean">
+        <property name="jndiNameAppProperty"
+                  value="cuba.dataSourceJndiName_suggestion"/>
+        <property name="resourceRef"
+                  value="true"/>
+    </bean>
+    <bean id="entityManagerFactory_suggestion"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+          lazy-init="false">
+        <property name="persistenceXmlLocation"
+                  value="file:${cuba.dataDir}/suggestion-persistence.xml"/>
+        <property name="dataSource"
+                  ref="cubaDataSource_suggestion"/>
+        <property name="jpaVendorAdapter"
+                  ref="jpaVendorAdapter"/>
+    </bean>
+    <bean id="transactionManager_suggestion"
+          class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory"
+                  ref="entityManagerFactory_suggestion"/>
+        <property name="dataSource"
+                  ref="cubaDataSource_suggestion"/>
+        <qualifier type="org.springframework.beans.factory.annotation.Qualifier"
+                   value="suggestion"/>
     </bean>
 </beans>

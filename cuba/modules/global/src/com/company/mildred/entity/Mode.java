@@ -12,7 +12,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "mode")
 @Entity(name = "mildred$Mode")
 public class Mode extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -3631970106778061584L;
+    private static final long serialVersionUID = -7971260186944160376L;
 
     @Column(name = "name", nullable = false, length = 128)
     protected String name;

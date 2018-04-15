@@ -4,9 +4,12 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.global.DesignSupport;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 
@@ -15,7 +18,13 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "switch_rule")
 @Entity(name = "mildred$SwitchRule")
 public class SwitchRule extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = 8674233003220527213L;
+    private static final long serialVersionUID = -7408491746513687676L;
+
+    @JoinTable(name = "service_profile_switch_rule_jn",
+        joinColumns = @JoinColumn(name = "switch_rule_id"),
+        inverseJoinColumns = @JoinColumn(name = "service_profile_id"))
+    @ManyToMany
+    protected List<ServiceProfile> serviceProfile;
 
     @Column(name = "name", nullable = false, length = 128)
     protected String name;
@@ -39,6 +48,14 @@ public class SwitchRule extends BaseIntIdentityIdEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "condition_dispatch_id")
     protected ServiceDispatch conditionDispatch;
+
+    public void setServiceProfile(List<ServiceProfile> serviceProfile) {
+        this.serviceProfile = serviceProfile;
+    }
+
+    public List<ServiceProfile> getServiceProfile() {
+        return serviceProfile;
+    }
 
     public void setName(String name) {
         this.name = name;

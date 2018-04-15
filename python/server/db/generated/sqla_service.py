@@ -146,7 +146,18 @@ class ServiceProfile(Base):
     __tablename__ = 'service_profile'
 
     id = Column(Integer, primary_key=True)
+    startup_service_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), nullable=False, index=True)
     name = Column(String(128))
+
+    startup_service_dispatch = relationship(u'ServiceDispatch')
+    switch_rules = relationship(u'SwitchRule', secondary='service_profile_switch_rule_jn')
+
+
+t_service_profile_switch_rule_jn = Table(
+    'service_profile_switch_rule_jn', metadata,
+    Column('service_profile_id', ForeignKey(u'service_profile.id'), primary_key=True, nullable=False, index=True),
+    Column('switch_rule_id', ForeignKey(u'switch_rule.id'), primary_key=True, nullable=False, index=True)
+)
 
 
 class State(Base):

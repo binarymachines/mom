@@ -8,7 +8,7 @@
     <dsContext>
         <groupDatasource id="serviceProfilesDs"
                          class="com.company.mildred.entity.ServiceProfile"
-                         view="_local">
+                         view="ServiceProfile-screen-view">
             <query>
                 <![CDATA[select e from mildred$ServiceProfile e]]>
             </query>
@@ -31,6 +31,7 @@
                 <action id="remove"/>
             </actions>
             <columns>
+                <column id="startupServiceDispatch"/>
                 <column id="name"/>
             </columns>
             <rows datasource="serviceProfilesDs"/>

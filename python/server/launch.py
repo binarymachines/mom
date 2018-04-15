@@ -27,12 +27,12 @@ from core import util
 
 from shallow import get_locations
 
-def get_process_create_func():
-    proc_name = core.var.service_create_func.split('.')
-    module_name =  proc_name[0]
+from alchemy import SQLServiceProfile
+
+def get_process_create_func(profile):
+    module_name =  profile.startup_service_dispatch.module_name
     module = __import__(module_name)
-    func = proc_name[1]
-    create_func = getattr(module, func)
+    create_func = getattr(module, profile.startup_service_dispatch.func_name)
 
     return create_func
 
@@ -47,7 +47,8 @@ def launch(args, run=True):
             service = Service()
 
             if run:
-                create_func = get_process_create_func()
+                profile = SQLServiceProfile.retrieve(core.var.profile)
+                create_func = get_process_create_func(profile)
 
                 if args['--scan-path']:
                     paths = [args['<scanpath>']]
@@ -67,7 +68,7 @@ def launch(args, run=True):
                     vector.set_param('all', 'map-paths', True)
                     vector.set_param('all', 'start-path', args['<startpath>'])
 
-                process = create_func('Media Hound', vector, service, before=before, after=after)    
+                process = create_func(profile.name, vector, service, before=before, after=after)    
                 service.queue([process])
                 # TODO: a call to service.handle_services() should NOT be required here or anywhere else outside of the service process
                 service.handle_services()

@@ -45,3 +45,38 @@ CREATE TABLE IF NOT EXISTS `elastic`.`doc_query_field_jn` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 );
+
+INSERT INTO `doc_query` (`id`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `applies_to_file_type`) VALUES (1, 'filename_match_query', 'match',75,1, '*');
+INSERT INTO `doc_query` (`id`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `applies_to_file_type`) VALUES (2, 'tag_term_query_artist_album_song', 'term',0,0, '*');
+INSERT INTO `doc_query` (`id`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `applies_to_file_type`) VALUES (3, 'filesize_term_query', 'term',0,0, 'flac');
+INSERT INTO `doc_query` (`id`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `applies_to_file_type`) VALUES (4, 'artist_query', 'term',0,0, '*');
+INSERT INTO `doc_query` (`id`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `applies_to_file_type`) VALUES (5, 'artist_album_song_query', 'match',75,1, '*');
+
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (1, 'attributes.TPE1',5,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (2, 'attributes.TIT2',7,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (3, 'attributes.TALB',3,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (4, 'file_name',0, NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (5, 'deleted',0, NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (6, 'file_size',3,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (7, 'attributes.TPE1',3,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (8, 'attributes.TPE1',0, NULL,NULL,0, NULL, 'must',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (9, 'attributes.TIT2',5,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (10, 'attributes.TALB',0, NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (11, 'deleted',0, NULL,NULL,0, NULL, 'must_not', 'true');
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (12, 'attributes.TRCK',0, NULL,NULL,0, NULL, 'should', '');
+INSERT INTO `doc_query_field` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (13, 'attributes.TPE2',0, NULL,NULL,0, NULL, '', 'should');
+
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (1, 4);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (2, 1);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (2, 2);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (2, 3);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (3, 6);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (4, 7);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (5, 8);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (5, 9);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (5, 10);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (5, 11);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (5, 12);
+INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (5, 13);
+-- INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (1, 1);
+-- INSERT INTO `doc_query_field_jn` (`doc_query_id`, `doc_query_field_id`) VALUES (1, 1);

@@ -9,7 +9,7 @@ import ops
 
 import sql
 import assets 
-import os
+import os, sys
 
 from core import log
 
@@ -18,11 +18,14 @@ from core.modestate import StatefulMode, ModeStateChangeHandler, DefaultModeHand
 
 from core.states import State
 from core.serv import ServiceHost
+from core import var
 
+from alchemy import SQLServiceProfile
 from alchemy_modestate import AlchemyModeStateReader, AlchemyModeStateWriter
 from core import introspection
 
 from ops import ops_func
+from db.generated.sqla_service import t_v_mode_default_dispatch 
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 
@@ -35,6 +38,7 @@ class ServiceProcess(ServiceHost):
         self.state_change_handler = ModeStateChangeHandler()
         self.mode_state_reader = AlchemyModeStateReader()
         self.mode_state_writer = AlchemyModeStateWriter()
+        self.profile = SQLServiceProfile.retrieve(var.profile)
 
         # super().__init__() must be called before accessing selector instance
         super(ServiceProcess, self).__init__(name, vector, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
@@ -50,23 +54,19 @@ class ServiceProcess(ServiceHost):
             self.handlers[qname] = clazz(self, qname, self.selector, self.vector)
 
     def _build_instance_registry(self):
-
-        # test = introspection.get_qualified_name(__package__, __module__, self.__class__.__name__)
-        self.switchrules = sql.retrieve_values2('v_mode_switch_rule_dispatch_w_id', ['name', 'begin_mode_id', 'begin_mode', 'end_mode_id', 'end_mode', \
-            'condition_package', 'condition_module', 'condition_class', 'condition_func', \
-            'before_package', 'before_module', 'before_class', 'before_func', \
-            'after_package', 'after_module', 'after_class', 'after_func'], [], schema='service')
-
-        for rule in self.switchrules:
-            qname = introspection.get_qualified_name(rule.condition_package, rule.condition_module, rule.condition_class)
+        for rule in self.profile.switch_rules:
+            qname = introspection.get_qualified_name(rule.condition_dispatch.package_name, rule.condition_dispatch.module_name, \
+                rule.condition_dispatch.class_name)
             if qname: 
                 self._register_handler(qname)
 
-            qname = introspection.get_qualified_name(rule.before_package, rule.before_module, rule.before_class)
+            qname = introspection.get_qualified_name(rule.before_dispatch.package_name, rule.before_dispatch.module_name, \
+                rule.before_dispatch.class_name)
             if qname: 
                 self._register_handler(qname)
 
-            qname = introspection.get_qualified_name(rule.after_package, rule.after_module, rule.after_class)
+            qname = introspection.get_qualified_name(rule.after_dispatch.package_name, rule.after_dispatch.module_name, \
+                rule.after_dispatch.class_name)
             if qname: 
                 self._register_handler(qname)
 
@@ -128,14 +128,19 @@ class ServiceProcess(ServiceHost):
         return result
 
 
-    def _create_switch_rules(self):        
-        for rule in self.switchrules:
-            begin = self.modes[rule.begin_mode] if rule.begin_mode in self.modes else None
-            end = self.modes[rule.end_mode] if rule.end_mode in self.modes else None
-            
-            condition = self._create_func(rule.condition_package, rule.condition_module, rule.condition_class, rule.condition_func)
-            before = self._create_func(rule.before_package, rule.before_module, rule.before_class, rule.before_func)
-            after = self._create_func(rule.after_package, rule.after_module, rule.after_class, rule.after_func)
+    def _create_switch_rules(self):
+        for rule in self.profile.switch_rules:
+            begin = self.modes[rule.begin_mode.name] if rule.begin_mode.name in self.modes else None
+            end = self.modes[rule.end_mode.name] if rule.end_mode.name in self.modes else None
+
+            condition = self._create_func(rule.condition_dispatch.package_name, rule.condition_dispatch.module_name, \
+                rule.condition_dispatch.class_name, rule.condition_dispatch.func_name)
+
+            before = self._create_func(rule.before_dispatch.package_name, rule.before_dispatch.module_name, \
+                rule.before_dispatch.class_name, rule.before_dispatch.func_name)
+
+            after = self._create_func(rule.after_dispatch.package_name, rule.after_dispatch.module_name, \
+                rule.after_dispatch.class_name, rule.after_dispatch.func_name)
 
             name = "%s ::: %s" % (rule.name, end.name) if begin else 'start' 
 
