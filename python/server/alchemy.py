@@ -36,12 +36,12 @@ logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 Base = declarative_base()
 
-MEDIA = 'media'
-SERVICE = 'service'
-ADMIN = 'admin'
-ANALYSIS = 'analysis'
-SCRATCH = 'scratch'
-SUGGESTION = 'suggestion'
+ADMIN = config.db_admin
+ANALYSIS = config.db_analysis
+MEDIA = config.db_media
+SERVICE = config.db_service
+SUGGESTION = config.db_suggestion
+SCRATCH = config.db_scratch
 
 media = (MEDIA, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, MEDIA))
 service = (SERVICE, 'mysql://%s:%s@%s:%i/%s' % (config.mysql_user, config.mysql_pass, config.mysql_host, config.mysql_port, SERVICE))
@@ -93,25 +93,7 @@ def get_session(name):
     return sessions[name]
 
 
-# wrapper classes extend classes found in media.db.generated.xyz
-
-# class SQLAction(Action):
-
-#     @staticmethod
-#     @alchemy_func
-#     def retrieve_all():
-#         result = ()
-#         for instance in sessions[ANALYSIS].query(SQLAction):
-#             result += (instance,)
-
-#         return result
-
-
 class SQLAction(Action):
-    
-    # dispatch = relationship(u'SQLActionDispatch')
-    # meta_reasons = relationship(u'SQLMetaReason', secondary='analysis_reason')
-
     @staticmethod
     @alchemy_func
     def retrieve_all():

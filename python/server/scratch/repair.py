@@ -17,7 +17,7 @@ def clear_bad_entries():
     rows  = sql.retrieve_values('problem_esid', ['distinct esid', 'index_name', 'document_type'], [])
     print("%i rows retrieved" % (len(rows)))
 
-    es = search.connect()
+    es = search.connect(config.es_host, config.es_port)
     for row in rows:
         print(row[0])
         try:

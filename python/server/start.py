@@ -44,7 +44,7 @@ def execute(args):
 
         try:
             LOG.debug('connecting to Elasticsearch...')
-            config.es = search.connect()
+            config.es = search.connect(config.es_host, config.es_port)
             if not config.es.indices.exists(config.es_dir_index):
                 search.create_index(config.es_dir_index)
             if not config.es.indices.exists(config.es_file_index):
@@ -58,7 +58,7 @@ def execute(args):
 
         try:
             LOG.debug('connecting to MySQL...')
-            load_user_info()
+            # load_user_info()
         except Exception, err:
             config.started = False
             ERR.error(err.message)
@@ -93,7 +93,7 @@ def get_paths(args):
     pattern = None if not args['--pattern'] else args['<pattern>']
     if args['--pattern']:
         for p in pattern:
-            for row in sql.run_query_template(GET_PATHS, p, const.DIRECTORY):
+            for row in sql.run_query_template(GET_PATHS, p, const.DIRECTORY, config.db_media):
                 paths.append(row[0])
 
     return paths
@@ -144,7 +144,7 @@ def reset(args):
 
     for table in ['directory', 'match_record', 'document']:
         query = 'delete from %s' % (table)
-        sql.execute_query(query)
+        sql.execute_query(query, schema=config.db_media)
 
     # stores = [] if not args['--reset'] else args['<reset>']
     # for store in stores:
@@ -160,7 +160,7 @@ def reset(args):
 
     for table in ['service_exec', 'op_record', 'mode_state']:
         query = 'delete from %s' % (table)
-        sql.execute_query(query, schema="service")
+        sql.execute_query(query, schema=config.db_service)
 
 
 def show_logo():

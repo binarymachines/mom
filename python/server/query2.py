@@ -35,7 +35,7 @@ def connect(hostname=config.es_host, port_num=config.es_port):
 
 def execute(doc_type, query): 
     try:
-        return connect().search(index=doc_type, doc_type=doc_type, body=query)
+        return connect(config.es_host, config.es_port).search(index=doc_type, doc_type=doc_type, body=query)
     except Exception, err:
         print(err.message)
     

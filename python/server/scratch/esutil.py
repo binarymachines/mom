@@ -4,7 +4,6 @@ import sql
 
 def copy_index(source_index, target_host, target_port, target_index):
 
-    config.es = search.connect()
     target = search.connect(target_host, target_port)
 
     rows = sql.retrieve_values('document', ['index_name', 'id', 'document_type'], [source_index])
@@ -17,6 +16,7 @@ def copy_index(source_index, target_host, target_port, target_index):
 
 
 def main():
+    config.es = search.connect(config.es_host, config.es_port)
     target_host = '54.175.142.35'
     target_port = 9200
     target_index = '?'

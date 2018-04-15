@@ -71,7 +71,7 @@ class ServiceProcess(ServiceHost):
                 self._register_handler(qname)
 
         self.moderecords = sql.retrieve_values2('v_mode_default_dispatch_w_id', ['mode_id', 'mode_name', 'stateful_flag', 'handler_package', 'handler_module', 'handler_class', 'handler_func', \
-            'priority', 'dec_priority_amount', 'inc_priority_amount', 'times_to_complete', 'error_tolerance'], [], schema='service')
+            'priority', 'dec_priority_amount', 'inc_priority_amount', 'times_to_complete', 'error_tolerance'], [], schema=config.db_service)
 
         for record in self.moderecords:
             qname = introspection.get_qualified_name(record.handler_package, record.handler_module, record.handler_class)
@@ -100,7 +100,7 @@ class ServiceProcess(ServiceHost):
                         state_change_handler=self.state_change_handler)
 
                     staterecs = sql.retrieve_values2('v_mode_state_default_dispatch_w_id', ['mode_id', 'state_id', 'state_name', 'package_name', 'module_name', 'class_name', 'func_name'], \
-                        [str(result.id)], schema='service') 
+                        [str(result.id)], schema=config.db_service) 
                         
                     for rec in staterecs:
                         state = result.get_state(rec.state_name)
@@ -109,7 +109,7 @@ class ServiceProcess(ServiceHost):
                             result.set_state(state)
 
                     transrecs = sql.retrieve_values2('v_mode_state_default_transition_rule_dispatch_w_id', ['name', 'mode_id', 'begin_state', 'end_state', \
-                        'condition_package', 'condition_module', 'condition_class', 'condition_func'], [], schema='service') 
+                        'condition_package', 'condition_module', 'condition_class', 'condition_func'], [], schema=config.db_service) 
 
                     for transition in transrecs:
                         if result.id  == transition.mode_id:

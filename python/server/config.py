@@ -14,6 +14,13 @@ username = None
 old_pid = None
 es = None
 
+db_admin = None
+db_analysis = None
+db_media = None
+db_service = None
+db_suggestion = None
+db_scratch = None
+
 config_file = os.path.join(util.get_working_directory(), "config.ini")
 # yaml  = os.path.join(util.get_working_directory(), "media.conf")
 
@@ -37,13 +44,12 @@ if (os.path.isfile(config_file)):
     parser = ConfigParser.ConfigParser()
     parser.read(config_file)
 
+    # service process
     var.profile = read(parser, 'Process')['profile']
 
     # elasticsearch
     es_host = read(parser, "Elasticsearch")['host']
     es_port = int(read(parser, "Elasticsearch")['port'])
-    # es_dir_index = '%s%s' % (read(parser, "Elasticsearch")['index'], '-directory')
-    # es_file_index = '%s%s' % (read(parser, "Elasticsearch")['index'], '-file')
 
     # mysql
     mysql_host = read(parser, "MySQL")['host']
@@ -51,6 +57,13 @@ if (os.path.isfile(config_file)):
     mysql_user = read(parser, "MySQL")['user']
     mysql_pass = read(parser, "MySQL")['pass']
     mysql_port = int(read(parser, "MySQL")['port'])
+
+    db_admin = read(parser, "Databases")['admin']
+    db_analysis = read(parser, "Databases")['analysis']
+    db_media = read(parser, "Databases")['media']
+    db_service = read(parser, "Databases")['service']
+    db_suggestion = read(parser, "Databases")['suggestion']
+    db_scratch = read(parser, "Databases")['scratch']
 
     # status
     status_check_freq= int(read(parser, "Status")['check_frequency'])

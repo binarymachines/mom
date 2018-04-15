@@ -29,7 +29,7 @@ def get_attributes(doc_format, refresh=False):
     items = cache2.get_items(KNOWN, doc_format)
     if len(items) == 0 or refresh:
         cache2.clear_items(KNOWN, doc_format)
-        rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format])
+        rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format], schema='media')
         cache2.add_items(KNOWN, doc_format, [row.attribute_name for row in rows])
         items = cache2.get_items(KNOWN, doc_format)
 

@@ -359,13 +359,13 @@ def wait_and_resubmit_asset(err, data):
     while es_avail is False:
         ERR.error(err.__class__.__name__)
         time.sleep(5)
+        config.es = search.connect(config.es_host, config.es_port)
         if resubmit_asset(data):
             return True 
     
 @ops_func
 def resubmit_asset(data):
     try:
-        config.es = search.connect()
         if config.es.indices.exists(data['document_type']):
             print("resuming...") 
             return create_asset_metadata(data)
@@ -516,7 +516,7 @@ def get_attribute_values(asset, document_format_attribute, *items):
 
 
 def get_aliases(document_format, term):
-    return sql.retrieve_values2('v_alias', ['document_format', 'name', 'attribute_name'], [document_format, term])
+    return sql.retrieve_values2('v_alias', ['document_format', 'name', 'attribute_name'], [document_format, term], schema=config.db_media)
    
 
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later

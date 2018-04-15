@@ -113,8 +113,6 @@ class StartupHandler(DefaultModeHandler):
         if self.owner:
             LOG.debug("%s process is starting" % self.owner.name)
 
-        config.es = search.connect()
-
 
 # shutdown mode
 

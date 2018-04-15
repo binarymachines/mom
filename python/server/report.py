@@ -95,7 +95,7 @@ def get_weights():
 
 def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generate= False, outputfile=None, append_existing=False):
     try:
-        es = search.connect()
+        es = search.connect(config.es_host, config.es_port)
 
         weights = get_weights();
         discounts = get_discounts();
