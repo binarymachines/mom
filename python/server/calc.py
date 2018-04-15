@@ -34,9 +34,9 @@ ERR = log.get_safe_log('errors', logging.WARNING)
 
 def calc(vector, cycle_vector=False):
     
-    sql.execute_query("delete from match_record where 1=1")
-    sql.execute_query("delete from op_record where operation_name = 'calc'")
-    sql.execute_query("delete from op_record where operation_name = 'match'")
+    sql.execute_query("delete from match_record where 1=1", schema=config.db_media)
+    sql.execute_query("delete from op_record where operation_name = 'calc'", schema=config.db_service)
+    sql.execute_query("delete from op_record where operation_name = 'match'", schema=config.db_service)
     sql.execute_query("commit")
 
     # MAX_RECORDS = ...

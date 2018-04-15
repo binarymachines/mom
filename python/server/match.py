@@ -125,12 +125,12 @@ class MediaMatcher(object):
     # TODO: assign weights to various matchers.
     def match_recorded(self, asset_id, match_id):
 
-        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name'], [asset_id, match_id, self.name])
+        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name'], [asset_id, match_id, self.name], schema=config.db_media)
         if len(rows) == 1:
             return True
 
         # check for reverse match
-        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name'], [match_id, asset_id, self.name])
+        rows = sql.retrieve_values('match_record', ['doc_id', 'match_doc_id', 'matcher_name'], [match_id, asset_id, self.name], schema=config.db_media)
         if len(rows) == 1:
             return True
 

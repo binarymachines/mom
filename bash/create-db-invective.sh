@@ -10,6 +10,8 @@ echo 'creating analysis db...'
 mysql -u root < $MILDRED_HOME/db/design/analysis.sql
 echo 'creating media db...'
 mysql -u root  < $MILDRED_HOME/db/design/media.sql
+echo 'creating mildred db...'
+mysql -u root < $MILDRED_HOME/db/design/mildred.sql
 echo 'creating service db...'
 mysql -u root < $MILDRED_HOME/db/design/service.sql
 echo 'creating suggestion db...'

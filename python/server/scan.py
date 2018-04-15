@@ -100,10 +100,10 @@ class Scanner(Walker):
 
             if file_was_read:
                 ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
-                x = os.system('clear')
-                start.show_logo()
-                start.display_redis_status()
-                print('adding %s' % path)
+                # x = os.system('clear')
+                # start.show_logo()
+                # start.display_redis_status()
+                # print('adding %s' % path)
 
 
         except Exception, err:
@@ -356,6 +356,6 @@ def scan(vector):
     if SCANNER not in vector.data:
         vector.data[SCANNER] = Scanner(vector)
     vector.data[SCANNER].scan()
-    x = os.system('clear')
-    start.show_logo()
-    start.display_redis_status()
+    # x = os.system('clear')
+    # start.show_logo()
+    # start.display_redis_status()

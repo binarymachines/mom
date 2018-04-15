@@ -307,3 +307,9 @@
 0:0:0:0:0:0:0:1 - - [15/Apr/2018:13:15:09 -0400] "POST /mildred/HEARTBEAT/?v-uiId=0 HTTP/1.1" 200 -
 0:0:0:0:0:0:0:1 - - [15/Apr/2018:13:25:09 -0400] "POST /mildred/HEARTBEAT/?v-uiId=0 HTTP/1.1" 200 -
 0:0:0:0:0:0:0:1 - - [15/Apr/2018:13:35:09 -0400] "POST /mildred/HEARTBEAT/?v-uiId=0 HTTP/1.1" 200 -
+0:0:0:0:0:0:0:1 - - [15/Apr/2018:13:45:09 -0400] "POST /mildred/HEARTBEAT/?v-uiId=0 HTTP/1.1" 200 -
+0:0:0:0:0:0:0:1 - - [15/Apr/2018:13:55:09 -0400] "POST /mildred/HEARTBEAT/?v-uiId=0 HTTP/1.1" 200 -
+0:0:0:0:0:0:0:1 - - [15/Apr/2018:14:01:38 -0400] "GET /mildred HTTP/1.1" 302 -
+0:0:0:0:0:0:0:1 - - [15/Apr/2018:15:02:25 -0400] "GET /mildred/PUSH?v-uiId=0&v-pushId=cfc58bd9-8602-46b2-83d5-2d32d5246a33&X-Atmosphere-Transport=close&X-Atmosphere-tracking-id=2bcaad7d-e0a7-41e3-9ce0-d90b027d90d6&_=1523815301219 HTTP/1.1" 200 -
+0:0:0:0:0:0:0:1 - - [15/Apr/2018:15:02:25 -0400] "GET /mildred/ HTTP/1.1" 410 1072
+0:0:0:0:0:0:0:1 - - [15/Apr/2018:15:02:25 -0400] "POST /mildred/UIDL/?v-uiId=0 HTTP/1.1" 200 276

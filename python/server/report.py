@@ -278,9 +278,9 @@ def get_matches(esid, reverse=False, union=False):
 
     order_clause = ' ORDER BY matcher_name, absolute_path'
 
-    if reverse: return sql.run_query(query['reverse'] + order_clause)
-    elif union: return sql.run_query(query['union'] + order_clause)
-    else: return sql.run_query(query['match'] + order_clause)
+    if reverse: return sql.run_query(query['reverse'] + order_clause, schema=config.db_media)
+    elif union: return sql.run_query(query['union'] + order_clause, schema=config.db_media)
+    else: return sql.run_query(query['match'] + order_clause, schema=config.db_media)
 
 def get_documents(path, reverse=False, union=False):
 
@@ -296,9 +296,9 @@ def get_documents(path, reverse=False, union=False):
 
     query['union'] = query['match'] + ' union ' + query['reverse']
 
-    if reverse: return sql.run_query(query['reverse'])
-    elif union: return sql.run_query(query['union'])
-    else: return sql.run_query(query['match'])
+    if reverse: return sql.run_query(query['reverse'], schema=config.db_media)
+    elif union: return sql.run_query(query['union'], schema=config.db_media)
+    else: return sql.run_query(query['match'], schema=config.db_media)
 
 
 def get_media_meta_data(es, esid, media_data):
@@ -351,7 +351,7 @@ def get_matches_for(pattern):
               and es2.absolute_path like '%s%s%s'
             order by original""" % ('%', pattern, '%', '%', pattern, '%')
 
-    rows = sql.run_query(q)
+    rows = sql.run_query(q, schema=config.db_media)
     for row in rows:
         if row[1] in ['>', '=']:
             filename = row[0]

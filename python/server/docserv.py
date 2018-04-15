@@ -86,9 +86,8 @@ class DocumentServiceProcessHandler(DecisionHandler):
     # selector callbacks
 
     def after_switch(self, selector, mode):
-        show_logo()
         display_redis_status()
-
+        
     def before_switch(self, selector, mode):
         pass
 
