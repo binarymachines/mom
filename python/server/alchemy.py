@@ -20,7 +20,7 @@ from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam,
 from db.generated.sqla_media import Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, \
     FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
 
-from db.generated.sqla_service import ExecRec, OpRecord, ModeDefault, ModeStateDefault, ModeStateDefaultParam
+from db.generated.sqla_service import ServiceExec, OpRecord, ModeDefault, ModeStateDefault, ModeStateDefaultParam
 from db.generated.sqla_service import Mode as AlchemyMode, State as AlchemyState, ModeState as AlchemyModeState
 
 import config
@@ -355,12 +355,12 @@ class SQLDocumentCategory(DocumentCategory):
 
         return result
     
-class SQLExecutionRecord(ExecRec):
+class SQLServiceExec(ServiceExec):
 
     @staticmethod
     @alchemy_func
     def insert(kwargs):
-        rec_exec = SQLExecutionRecord(pid=config.pid, start_dt=config.start_time, status=kwargs['status'])
+        rec_exec = SQLServiceExec(pid=config.pid, start_dt=config.start_time, status=kwargs['status'])
 
         try:
             sessions[SERVICE].add(rec_exec)
@@ -375,8 +375,8 @@ class SQLExecutionRecord(ExecRec):
         pid=config.pid if pid is None else pid
 
         result = ()
-        for instance in sessions[SERVICE].query(SQLExecutionRecord).\
-            filter(SQLExecutionRecord.pid == pid):
+        for instance in sessions[SERVICE].query(SQLServiceExec).\
+            filter(SQLServiceExec.pid == pid):
             result += (instance,)
 
         if len(result) == 1:
@@ -387,12 +387,12 @@ class SQLExecutionRecord(ExecRec):
     def update(kwargs):
         
         try:
-            exec_rec=SQLExecutionRecord.retrieve()
-            exec_rec.status = 'terminated'
-            exec_rec.expiration_dt = datetime.datetime.now()
-            sessions[SERVICE].add(exec_rec)
+            service_exec=SQLServiceExec.retrieve()
+            service_exec.status = 'terminated'
+            service_exec.expiration_dt = datetime.datetime.now()
+            sessions[SERVICE].add(service_exec)
             sessions[SERVICE].commit()
-            return exec_rec
+            return service_exec
         except IntegrityError, err:
             raise SQLAlchemyIntegrityError(err, sessions[SERVICE], message=err.message)
 
@@ -771,7 +771,7 @@ def exportJSONFile(datatype):
     
 
 def main():
-    for clazz in [SQLAction, SQLState, SQLMode, SQLMatcher, SQLFileHandler, SQLFileHandlerRegistration, SQLFileType]:  #[MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch, ExecRec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
+    for clazz in [SQLAction, SQLState, SQLMode, SQLMatcher, SQLFileHandler, SQLFileHandlerRegistration, SQLFileType]:  #[MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch, ServiceExec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
         try:
             exportJSONFile(clazz)
         except Exception, err:

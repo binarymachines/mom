@@ -10,9 +10,9 @@ import javax.persistence.TemporalType;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 
 @DesignSupport("{'imported':true}")
-@Table(name = "exec_rec")
-@Entity(name = "mildred$ExecRec")
-public class ExecRec extends BaseIntIdentityIdEntity {
+@Table(name = "service_exec")
+@Entity(name = "mildred$ServiceExec")
+public class ServiceExec extends BaseIntIdentityIdEntity {
     private static final long serialVersionUID = -4963147254866962437L;
 
     @Column(name = "pid", nullable = false, length = 32)

@@ -4,7 +4,7 @@ import os
 import subprocess
 import sys
 
-from alchemy import SQLOperationRecord, SQLExecutionRecord
+from alchemy import SQLOperationRecord, SQLServiceExec
 import config
 import sql
 from core import cache2, log
@@ -143,18 +143,18 @@ def pop_operation():
     last_op_key = cache2.lpeek2(stack_key)
 
     if last_op_key is None or last_op_key == 'None':
-        set_exec_record_value('current_operation', None)
-        set_exec_record_value('current_operator', None)
-        set_exec_record_value('operation_status', None)
+        set_service_execord_value('current_operation', None)
+        set_service_execord_value('current_operator', None)
+        set_service_execord_value('operation_status', None)
         update_listeners('', '', '')
     else:
         op_rec = cache2.get_hash2(last_op_key)
-        exec_rec = cache2.get_hash2(get_exec_key())
+        service_exec = cache2.get_hash2(get_exec_key())
         
-        exec_rec['current_operation'] = op_rec['operation_name']
-        exec_rec['current_operator'] = op_rec['operator_name']
-        exec_rec['operation_status'] = op_rec['status']
-        cache2.set_hash2(get_exec_key(), exec_rec)
+        service_exec['current_operation'] = op_rec['operation_name']
+        service_exec['current_operator'] = op_rec['operator_name']
+        service_exec['operation_status'] = op_rec['status']
+        cache2.set_hash2(get_exec_key(), service_exec)
 
         update_listeners(op_rec['operation_name'], op_rec['operator_name'], op_rec['target_path'])
 
@@ -181,11 +181,11 @@ def record_op_begin(path, operation, operator, esid=None):
     op_key = create_op_key(path, operation, operator)
     cache2.set_hash2(op_key, op_record)
 
-    exec_rec = cache2.get_hash2(get_exec_key())
-    exec_rec['current_operation'] = operation
-    exec_rec['current_operator'] = operator
-    exec_rec['operation_status'] = 'ACTIVE'
-    cache2.set_hash2(get_exec_key(), exec_rec)
+    service_exec = cache2.get_hash2(get_exec_key())
+    service_exec['current_operation'] = operation
+    service_exec['current_operator'] = operator
+    service_exec['operation_status'] = 'ACTIVE'
+    cache2.set_hash2(get_exec_key(), service_exec)
 
     push_operation(path, operation, operator)
     update_listeners(operation, operator, path)
@@ -282,16 +282,16 @@ def get_exec_key(no_pid=False):
     return cache2.get_key(NO_PID, OPS, EXEC) if no_pid else cache2.get_key(str(config.pid), OPS, EXEC)
     
 
-def get_exec_record_value(field):
+def get_service_execord_value(field):
     values = cache2.get_hash2(get_exec_key())
     if field in values:
         return  values[field]
 
 
-def insert_exec_record():
+def insert_service_execord():
     values = cache2.get_hash2(get_exec_key())
     try:
-        return SQLExecutionRecord.insert(values)
+        return SQLServiceExec.insert(values)
     except Exception, err:
         ERR.error(err.message) 
 
@@ -300,7 +300,7 @@ def insert_exec_complete_record():
     values = cache2.get_hash2(get_exec_key())
     values['end_time'] = datetime.datetime.now()
     try:
-        return SQLExecutionRecord.update(values)
+        return SQLServiceExec.update(values)
     except Exception, err:
         ERR.error(err.message) 
 
@@ -314,18 +314,18 @@ def record_exec():
     exec_key = get_exec_key()
 
     cache2.set_hash2(exec_key, values)
-    exec_rec = insert_exec_record()
-    values['id'] = exec_rec.id
+    service_exec = insert_service_execord()
+    values['id'] = service_exec.id
     cache2.set_hash2(exec_key, values)
 
     update_listeners(OPS, exec_key, 'starting')
 
 
-def get_exec_record(no_pid=False):
+def get_service_execord(no_pid=False):
     return cache2.get_hash2(get_exec_key(no_pid=no_pid))
 
 
-def set_exec_record_value(field, value):
+def set_service_execord_value(field, value):
     values = cache2.get_hash2(get_exec_key())
     values[field] = value
     cache2.set_hash2(get_exec_key(), values)
@@ -335,9 +335,9 @@ NO_PID = 'NOPID'
 # external commands
 
 def append_command(command, **kwargs):
-    commands = get_exec_record_value('commands')
+    commands = get_service_execord_value('commands')
     commands.append(command, **kwargs)
-    set_exec_record_value(command, **kwargs)
+    set_service_execord_value(command, **kwargs)
 
 
 def check_status(opcount=None):
@@ -383,19 +383,19 @@ def check_status(opcount=None):
 
 @ops_func
 def evaluate(no_pid=False):
-    exec_rec = get_exec_record(no_pid=no_pid)
+    service_exec = get_service_execord(no_pid=no_pid)
 
     if start_requested():
         cache2.set_hash2(get_exec_key(no_pid=True), {'pid': NO_PID, 'start_requested': False, 'stop_requested':False, 'reconfig_requested': False})
         subprocess.call(["$MILDRED_HOME/bin/run.sh"], shell=True)
 
-    commands = get_exec_record_value('commands')
+    commands = get_service_execord_value('commands')
     if commands is not None and len(commands) > 0:
         eval_commands()
 
 
 def eval_commands():
-    commands = get_exec_record_value('commands')
+    commands = get_service_execord_value('commands')
     if commands is not None:
         if 'listen' in commands:
             pass
@@ -405,7 +405,7 @@ def eval_commands():
 
 
 def clear_reconfig_request():
-    set_exec_record_value('reconfig_requested', False)
+    set_service_execord_value('reconfig_requested', False)
 
 
 def reconfig_requested():

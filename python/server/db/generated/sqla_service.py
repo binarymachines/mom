@@ -8,18 +8,6 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class ExecRec(Base):
-    __tablename__ = 'exec_rec'
-
-    id = Column(Integer, primary_key=True)
-    pid = Column(String(32), nullable=False)
-    status = Column(String(128), nullable=False)
-    start_dt = Column(DateTime, nullable=False)
-    end_dt = Column(DateTime)
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
-
-
 class Mode(Base):
     __tablename__ = 'mode'
 
@@ -140,6 +128,18 @@ class ServiceDispatch(Base):
     module_name = Column(String(128), nullable=False)
     class_name = Column(String(128))
     func_name = Column(String(128))
+
+
+class ServiceExec(Base):
+    __tablename__ = 'service_exec'
+
+    id = Column(Integer, primary_key=True)
+    pid = Column(String(32), nullable=False)
+    status = Column(String(128), nullable=False)
+    start_dt = Column(DateTime, nullable=False)
+    end_dt = Column(DateTime)
+    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
 
 
 class ServiceProfile(Base):

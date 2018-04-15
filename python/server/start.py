@@ -158,7 +158,7 @@ def reset(args):
     #     query = 'delete from %s' % (table)
     #     sql.execute_query(query)
 
-    for table in ['exec_rec', 'op_record', 'mode_state']:
+    for table in ['service_exec', 'op_record', 'mode_state']:
         query = 'delete from %s' % (table)
         sql.execute_query(query, schema="service")
 

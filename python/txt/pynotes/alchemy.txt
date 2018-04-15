@@ -37,8 +37,8 @@
 #     session.add(op_rec)
 #     session.commit()
 
-# class ExecRec(Base):
-#     __tablename__ = 'exec_record'
+# class ServiceExec(Base):
+#     __tablename__ = 'service_execord'
 #     id = Column(String(256), primary_key=True)
 #     pid = Column(String(256), nullable=False)
 #     start_time

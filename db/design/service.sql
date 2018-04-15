@@ -1,6 +1,6 @@
 use `service`;
 
-CREATE TABLE `exec_rec` (
+CREATE TABLE `service_exec` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `pid` varchar(32) NOT NULL,
   `status` varchar(128) NOT NULL,

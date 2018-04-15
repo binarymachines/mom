@@ -13,7 +13,7 @@
         <class>com.company.mildred.entity.ModeStateDefault</class>
         <class>com.company.mildred.entity.ModeState</class>
         <class>com.company.mildred.entity.ModeDefault</class>
-        <class>com.company.mildred.entity.ExecRec</class>
+        <class>com.company.mildred.entity.ServiceExec</class>
         <class>com.company.mildred.entity.OpRecord</class>
         <class>com.company.mildred.entity.OpRecordParam</class>
         <class>com.company.mildred.entity.OpRecordParamType</class>

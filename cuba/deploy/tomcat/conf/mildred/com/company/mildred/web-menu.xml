@@ -60,7 +60,7 @@
         </menu>
         <separator/>
         <menu id="operations">
-            <item screen="mildred$ExecRec.browse"/>
+            <item screen="mildred$ServiceExec.browse"/>
             <item screen="mildred$OpRecord.browse"/>
             <item screen="mildred$OpRecordParam.browse"/>
             <item screen="mildred$OpRecordParamType.browse"/>
