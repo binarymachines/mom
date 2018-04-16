@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.documentattribute.DocumentAttributeBrowse"
+        focusComponent="documentAttributesTable"
+        lookupComponent="documentAttributesTable"
+        messagesPack="com.company.mildred.web.documentattribute">
+    <dsContext>
+        <groupDatasource id="documentAttributesDs"
+                         class="com.company.mildred.entity.DocumentAttribute"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$DocumentAttribute e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="documentAttributesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="documentAttributesTable"
+                datasource="documentAttributesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="documentAttributesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="documentFormat"/>
+                <column id="attributeName"/>
+                <column id="activeFlag"/>
+            </columns>
+            <rows datasource="documentAttributesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="documentAttributesTable.create"/>
+                <button id="editBtn"
+                        action="documentAttributesTable.edit"/>
+                <button id="removeBtn"
+                        action="documentAttributesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

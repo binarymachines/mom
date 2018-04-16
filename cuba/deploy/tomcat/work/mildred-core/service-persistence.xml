@@ -27,6 +27,8 @@
     <class>com.company.mildred.entity.State</class>
     <class>com.company.mildred.entity.SwitchRule</class>
     <class>com.company.mildred.entity.TransitionRule</class>
+    <class>com.company.mildred.entity.key.VModeStateCompKey</class>
+    <class>com.company.mildred.entity.VModeState</class>
     <exclude-unlisted-classes/>
     <properties>
       <property name="eclipselink.cache.coordination.propagate-asynchronously" value="false"/>

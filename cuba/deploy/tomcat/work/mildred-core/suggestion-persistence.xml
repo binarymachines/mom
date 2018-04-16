@@ -13,6 +13,10 @@
     <class>com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity</class>
     <class>com.haulmont.cuba.core.entity.StandardEntity</class>
     <class>com.haulmont.cuba.core.entity.EmbeddableEntity</class>
+    <class>com.company.mildred.entity.GeneratedAction</class>
+    <class>com.company.mildred.entity.GeneratedActionParam</class>
+    <class>com.company.mildred.entity.GeneratedReason</class>
+    <class>com.company.mildred.entity.GeneratedReasonParam</class>
     <exclude-unlisted-classes/>
     <properties>
       <property name="eclipselink.cache.coordination.propagate-asynchronously" value="false"/>

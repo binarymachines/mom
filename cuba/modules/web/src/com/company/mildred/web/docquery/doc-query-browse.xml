@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.docquery.DocQueryBrowse"
+        focusComponent="docQueriesTable"
+        lookupComponent="docQueriesTable"
+        messagesPack="com.company.mildred.web.docquery">
+    <dsContext>
+        <groupDatasource id="docQueriesDs"
+                         class="com.company.mildred.entity.DocQuery"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$DocQuery e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="docQueriesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="docQueriesTable"
+                datasource="docQueriesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="docQueriesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="queryType"/>
+                <column id="maxScorePercentage"/>
+                <column id="appliesToFileType"/>
+                <column id="activeFlag"/>
+            </columns>
+            <rows datasource="docQueriesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="docQueriesTable.create"/>
+                <button id="editBtn"
+                        action="docQueriesTable.edit"/>
+                <button id="removeBtn"
+                        action="docQueriesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

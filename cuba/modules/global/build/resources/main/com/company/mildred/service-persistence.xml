@@ -17,5 +17,7 @@
         <class>com.company.mildred.entity.State</class>
         <class>com.company.mildred.entity.SwitchRule</class>
         <class>com.company.mildred.entity.TransitionRule</class>
+        <class>com.company.mildred.entity.key.VModeStateCompKey</class>
+        <class>com.company.mildred.entity.VModeState</class>
     </persistence-unit>
 </persistence>

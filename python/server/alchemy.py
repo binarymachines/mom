@@ -263,7 +263,7 @@ class SQLAsset(Document):
         if file_type is None and document_type == const.DIRECTORY:
             file_type=SQLFileType.retrieve(None) 
 
-        if file_type is None and document_type == const.FILE:
+        if document_type == const.FILE:
             ext = absolute_path.split('.')[-1].lower()
             if ext is not None and len(ext) < 9:
                 file_type=SQLFileType.retrieve(ext) 
@@ -393,7 +393,7 @@ class SQLServiceProfile(ServiceProfile):
             return result[0]
 
 
-SQLServiceProfile.switch_rules = relationship(u'SwitchRule', secondary='service_profile_switch_rule_jn')
+# SQLServiceProfile.switch_rules = relationship(u'SwitchRule', secondary='service_profile_switch_rule_jn')
 
 class SQLFileHandler(FileHandler):
 

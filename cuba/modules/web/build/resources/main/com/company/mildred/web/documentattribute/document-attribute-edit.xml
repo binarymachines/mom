@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.company.mildred.web.documentattribute.DocumentAttributeEdit"
+        datasource="documentAttributeDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.company.mildred.web.documentattribute">
+    <dsContext>
+        <datasource id="documentAttributeDs"
+                    class="com.company.mildred.entity.DocumentAttribute"
+                    view="_local"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="documentAttributeDs">
+            <column width="250px">
+                <field property="documentFormat"/>
+                <field property="attributeName"/>
+                <field property="activeFlag"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

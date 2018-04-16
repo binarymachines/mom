@@ -19,7 +19,8 @@ class AlchemyModeStateWriter(ModeStateWriter):
 
     def save_state(self, mode):
         mode.mode_state_id = SQLModeState.insert(mode)
-
+        SQLModeState.update(mode)
+    
     def update_state(self, mode, expire=False):
         mode.mode_state_id = SQLModeState.update(mode, expire=expire)
 
@@ -81,13 +82,13 @@ class AlchemyModeStateReader(ModeStateReader):
         # initialize mode from default data
 
         alchemy_mode  = SQLMode.retrieve(mode)
-        if mode.get_state() is None: return
-        for default in alchemy_mode.mode_defaults:
-            if mode.get_state().id == default.state_id:
-                LOG.info("[%s] mode is in [%s] state, initializing mode settings from default" % (mode.name, mode.get_state().name))
-                mode.priority = default.priority
-                mode.times_to_complete = default.times_to_complete
-                mode.dec_priority_amount = default.dec_priority_amount
-                mode.inc_priority_amount = default.inc_priority_amount
-                mode.error_tolerance = default.error_tolerance
-                break
+        if mode.get_state():
+            for default in alchemy_mode.mode_defaults:
+                if mode.get_state().id == default.state_id:
+                    LOG.info("[%s] mode is in [%s] state, initializing mode settings from default" % (mode.name, mode.get_state().name))
+                    mode.priority = default.priority
+                    mode.times_to_complete = default.times_to_complete
+                    mode.dec_priority_amount = default.dec_priority_amount
+                    mode.inc_priority_amount = default.inc_priority_amount
+                    mode.error_tolerance = default.error_tolerance
+                    break

@@ -316,8 +316,8 @@ class ScanModeHandler(DefaultModeHandler):
 
     @ops_func
     def do_scan(self):
-        if self.path_to_map():
-            self.do_scan_discover()
+        # if self.path_to_map():
+        #     self.do_scan_discover()
 
         print("update scan starting...\n")
         self.vector.set_param(SCAN, DEEP, False)

@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
+    <menu id="analysis"
+          insertBefore="help">
+        <item screen="mildred$Action.browse"/>
+        <item screen="mildred$ActionDispatch.browse"/>
+        <item screen="mildred$ActionParam.browse"/>
+        <item screen="mildred$ActionStatus.browse"/>
+        <item screen="mildred$Reason.browse"/>
+        <item screen="mildred$ReasonParam.browse"/>
+        <item screen="mildred$VectorParam.browse"/>
+    </menu>
+    <menu id="elastic"
+          insertBefore="help">
+        <item screen="mildred$DocQuery.browse"/>
+        <item screen="mildred$DocQueryField.browse"/>
+    </menu>
+    <menu id="media"
+          insertBefore="help">
+        <item screen="mildred$Alias.browse"/>
+        <item screen="mildred$DelimitedFileData.browse"/>
+        <item screen="mildred$DelimitedFileInfo.browse"/>
+        <item screen="mildred$Directory.browse"/>
+        <item screen="mildred$DirectoryAmelioration.browse"/>
+        <item screen="mildred$DirectoryAttribute.browse"/>
+        <item screen="mildred$DirectoryConstant.browse"/>
+        <item screen="mildred$DirectoryType.browse"/>
+        <item screen="mildred$Document.browse"/>
+        <item screen="mildred$DocumentAttribute.browse"/>
+        <item screen="mildred$DocumentCategory.browse"/>
+        <item screen="mildred$FileHandler.browse"/>
+        <item screen="mildred$FileHandlerRegistration.browse"/>
+        <item screen="mildred$FileType.browse"/>
+        <item screen="mildred$MatchRecord.browse"/>
+        <item screen="mildred$Matcher.browse"/>
+        <item screen="mildred$MatcherField.browse"/>
+        <item screen="mildred$VMatchRecord.browse"/>
+    </menu>
     <menu id="service"
-          insertBefore="administration">
+          insertBefore="help">
         <item screen="mildred$Mode.browse"/>
         <item screen="mildred$ModeDefault.browse"/>
         <item screen="mildred$ModeState.browse"/>
@@ -16,5 +52,13 @@
         <item screen="mildred$State.browse"/>
         <item screen="mildred$SwitchRule.browse"/>
         <item screen="mildred$TransitionRule.browse"/>
+        <item screen="mildred$VModeState.browse"/>
+    </menu>
+    <menu id="suggestion"
+          insertBefore="help">
+        <item screen="mildred$GeneratedAction.browse"/>
+        <item screen="mildred$GeneratedActionParam.browse"/>
+        <item screen="mildred$GeneratedReason.browse"/>
+        <item screen="mildred$GeneratedReasonParam.browse"/>
     </menu>
 </menu-config>

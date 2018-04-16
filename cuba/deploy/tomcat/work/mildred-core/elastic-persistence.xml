@@ -13,6 +13,8 @@
     <class>com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity</class>
     <class>com.haulmont.cuba.core.entity.StandardEntity</class>
     <class>com.haulmont.cuba.core.entity.EmbeddableEntity</class>
+    <class>com.company.mildred.entity.DocQuery</class>
+    <class>com.company.mildred.entity.DocQueryField</class>
     <exclude-unlisted-classes/>
     <properties>
       <property name="eclipselink.cache.coordination.propagate-asynchronously" value="false"/>

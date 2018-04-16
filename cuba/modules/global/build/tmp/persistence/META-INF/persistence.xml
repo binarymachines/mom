@@ -51,6 +51,35 @@
     <class>com.haulmont.cuba.core.entity.JmxInstance</class>
     <class>com.haulmont.cuba.security.entity.RememberMeToken</class>
     <class>com.haulmont.cuba.core.entity.ReferenceToEntity</class>
+    <class>com.company.mildred.entity.Action</class>
+    <class>com.company.mildred.entity.ActionDispatch</class>
+    <class>com.company.mildred.entity.ActionParam</class>
+    <class>com.company.mildred.entity.ActionStatus</class>
+    <class>com.company.mildred.entity.Reason</class>
+    <class>com.company.mildred.entity.ReasonParam</class>
+    <class>com.company.mildred.entity.VectorParam</class>
+    <class>com.company.mildred.entity.DocQuery</class>
+    <class>com.company.mildred.entity.DocQueryField</class>
+    <class>com.company.mildred.entity.key.MatchRecordCompKey</class>
+    <class>com.company.mildred.entity.key.VMatchRecordCompKey</class>
+    <class>com.company.mildred.entity.Alias</class>
+    <class>com.company.mildred.entity.DelimitedFileData</class>
+    <class>com.company.mildred.entity.DelimitedFileInfo</class>
+    <class>com.company.mildred.entity.Directory</class>
+    <class>com.company.mildred.entity.DirectoryAmelioration</class>
+    <class>com.company.mildred.entity.DirectoryAttribute</class>
+    <class>com.company.mildred.entity.DirectoryConstant</class>
+    <class>com.company.mildred.entity.DirectoryType</class>
+    <class>com.company.mildred.entity.Document</class>
+    <class>com.company.mildred.entity.DocumentAttribute</class>
+    <class>com.company.mildred.entity.DocumentCategory</class>
+    <class>com.company.mildred.entity.FileHandler</class>
+    <class>com.company.mildred.entity.FileHandlerRegistration</class>
+    <class>com.company.mildred.entity.FileType</class>
+    <class>com.company.mildred.entity.MatchRecord</class>
+    <class>com.company.mildred.entity.Matcher</class>
+    <class>com.company.mildred.entity.MatcherField</class>
+    <class>com.company.mildred.entity.VMatchRecord</class>
     <class>com.company.mildred.entity.Mode</class>
     <class>com.company.mildred.entity.ModeDefault</class>
     <class>com.company.mildred.entity.ModeState</class>
@@ -65,6 +94,12 @@
     <class>com.company.mildred.entity.State</class>
     <class>com.company.mildred.entity.SwitchRule</class>
     <class>com.company.mildred.entity.TransitionRule</class>
+    <class>com.company.mildred.entity.key.VModeStateCompKey</class>
+    <class>com.company.mildred.entity.VModeState</class>
+    <class>com.company.mildred.entity.GeneratedAction</class>
+    <class>com.company.mildred.entity.GeneratedActionParam</class>
+    <class>com.company.mildred.entity.GeneratedReason</class>
+    <class>com.company.mildred.entity.GeneratedReasonParam</class>
     <class>com.haulmont.cuba.core.entity.EmbeddableEntity</class>
     <properties>
       <property name="eclipselink.weaving" value="static"/>

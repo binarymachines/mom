@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.company.mildred.web.vmodestate.VModeStateBrowse"
+        focusComponent="vModeStatesTable"
+        lookupComponent="vModeStatesTable"
+        messagesPack="com.company.mildred.web.vmodestate">
+    <dsContext>
+        <groupDatasource id="vModeStatesDs"
+                         class="com.company.mildred.entity.VModeState"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$VModeState e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="vModeStatesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="vModeStatesTable"
+                datasource="vModeStatesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="vModeStatesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="status"/>
+                <column id="timesActivated"/>
+                <column id="timesCompleted"/>
+                <column id="lastActivated"/>
+                <column id="lastCompleted"/>
+                <column id="errorCount"/>
+                <column id="cumErrorCount"/>
+                <column id="expirationDt"/>
+                <column id="id.modeName"/>
+                <column id="id.stateName"/>
+                <column id="id.pid"/>
+                <column id="id.effectiveDt"/>
+            </columns>
+            <rows datasource="vModeStatesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="vModeStatesTable.create"/>
+                <button id="editBtn"
+                        action="vModeStatesTable.edit"/>
+                <button id="removeBtn"
+                        action="vModeStatesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>
