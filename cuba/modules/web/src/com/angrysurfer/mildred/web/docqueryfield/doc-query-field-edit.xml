@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.docqueryfield.DocQueryFieldEdit"
+        datasource="docQueryFieldDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.docqueryfield">
+    <dsContext>
+        <datasource id="docQueryFieldDs"
+                    class="com.angrysurfer.mildred.entity.DocQueryField"
+                    view="_local"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="docQueryFieldDs">
+            <column width="250px">
+                <field property="fieldName"/>
+                <field property="boost"/>
+                <field property="bool"/>
+                <field property="operator"/>
+                <field property="minimumShouldMatch"/>
+                <field property="analyzer"/>
+                <field property="querySection"/>
+                <field property="defaultValue"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

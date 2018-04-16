@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
+    <view class="com.angrysurfer.mildred.entity.DocQuery"
+          extends="_local"
+          name="docQuery-view">
+        <property fetch="AUTO"
+                  name="docQueryField"
+                  view="_local"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.Action"
+          extends="_local"
+          name="Action-screen-view">
+        <property name="dispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.ActionParam"
+          extends="_local"
+          name="ActionParam-screen-view">
+        <property name="action"
+                  view="_minimal"/>
+        <property name="vectorParam"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.Reason"
+          extends="_minimal"
+          name="Reason-screen-view">
+        <property name="parentReason"
+                  view="_minimal"/>
+        <property name="dispatch"
+                  view="_minimal"/>
+        <property name="docQuery"
+                  view="_local"/>
+        <property name="action"
+                  view="_local">
+            <property name="dispatch"
+                      view="_local"/>
+        </property>
+        <property name="documentType"/>
+        <property name="weight"/>
+        <property name="expectedResult"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.ReasonParam"
+          extends="_local"
+          name="ReasonParam-screen-view">
+        <property name="reason"
+                  view="_minimal"/>
+        <property name="vectorParam"
+                  view="_minimal"/>
+    </view>
+</views>

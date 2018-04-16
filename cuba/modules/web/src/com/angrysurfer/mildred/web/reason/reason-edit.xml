@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.reason.ReasonEdit"
+        datasource="reasonDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.reason">
+    <dsContext>
+        <datasource id="reasonDs"
+                    class="com.angrysurfer.mildred.entity.Reason"
+                    view="Reason-screen-view">
+            <collectionDatasource id="actionDs"
+                                  property="action"/>
+        </datasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="reasonDs">
+            <column width="250px">
+                <field property="docQuery"/>
+                <field property="name"/>
+                <field property="parentReason"/>
+                <field property="documentType"/>
+                <field property="weight"/>
+                <field property="dispatch"/>
+                <field property="expectedResult"/>
+            </column>
+        </fieldGroup>
+        <groupBox id="actionBox"
+                  caption="msg://com.angrysurfer.mildred.entity/Reason.action">
+            <table id="actionTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="name"/>
+                    <column id="documentType"/>
+                    <column id="priority"/>
+                    <column id="dispatch"/>
+                </columns>
+                <rows datasource="actionDs"/>
+                <buttonsPanel>
+                    <button action="actionTable.add"/>
+                    <button action="actionTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

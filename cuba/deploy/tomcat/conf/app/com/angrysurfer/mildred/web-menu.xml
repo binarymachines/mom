@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
+    <menu id="mildred"
+          insertBefore="help">
+        <item openType="DIALOG"
+              screen="aboutWindow"/>
+        <item screen="printDomain"/>
+        <separator/>
+        <item openType="DIALOG"
+              screen="settings"/>
+    </menu>
+    <menu id="analysis"
+          insertBefore="help">
+        <item screen="mildred$Action.browse"/>
+        <item screen="mildred$ActionDispatch.browse"/>
+        <item screen="mildred$ActionParam.browse"/>
+        <item screen="mildred$ActionStatus.browse"/>
+        <item screen="mildred$Reason.browse"/>
+        <item screen="mildred$ReasonParam.browse"/>
+        <item screen="mildred$VectorParam.browse"/>
+    </menu>
+    <menu id="elastic"
+          insertBefore="help">
+        <item screen="mildred$DocQuery.browse"/>
+        <item screen="mildred$DocQueryField.browse"/>
+    </menu>
+    <menu id="media"
+          insertBefore="help"/>
+    <menu id="service"
+          insertBefore="help"/>
+    <menu id="suggestion"
+          insertBefore="help"/>
+</menu-config>

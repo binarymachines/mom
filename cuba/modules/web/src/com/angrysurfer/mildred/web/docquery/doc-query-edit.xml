@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.docquery.DocQueryEdit"
+        datasource="docQueryDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.docquery">
+    <dsContext>
+        <datasource id="docQueryDs"
+                    class="com.angrysurfer.mildred.entity.DocQuery"
+                    view="docQuery-view">
+            <collectionDatasource id="docQueryFieldDs"
+                                  property="docQueryField"/>
+        </datasource>
+    </dsContext>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="600"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="docQueryDs">
+            <column width="450px">
+                <field property="name"/>
+                <field property="queryType"/>
+                <field property="maxScorePercentage"/>
+                <field property="appliesToFileType"/>
+                <field property="activeFlag"/>
+            </column>
+        </fieldGroup>
+        <groupBox id="docQueryFieldBox"
+                  caption="msg://com.angrysurfer.mildred.entity/DocQuery.docQueryField">
+            <table id="docQueryFieldTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="fieldName"/>
+                    <column id="boost"/>
+                    <column id="bool"/>
+                    <column id="operator"/>
+                    <column id="minimumShouldMatch"/>
+                    <column id="analyzer"/>
+                    <column id="querySection"/>
+                    <column id="defaultValue"/>
+                </columns>
+                <rows datasource="docQueryFieldDs"/>
+                <buttonsPanel>
+                    <button action="docQueryFieldTable.add"/>
+                    <button action="docQueryFieldTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <frame id="windowActions"
+               screen="extendedEditWindowActions"/>
+    </layout>
+</window>
