@@ -3,7 +3,7 @@
              version="2.0">
     <persistence-unit name="elastic"
                       transaction-type="RESOURCE_LOCAL">
-        <class>com.angrysurfer.mildred.entity.DocQuery</class>
-        <class>com.angrysurfer.mildred.entity.DocQueryField</class>
+        <class>com.angrysurfer.mildred.entity.ElasticsearchQuery</class>
+        <class>com.angrysurfer.mildred.entity.ElasticsearchQueryField</class>
     </persistence-unit>
 </persistence>

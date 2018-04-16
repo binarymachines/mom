@@ -11,22 +11,22 @@ CREATE TABLE IF NOT EXISTS `file_type` (
 
 INSERT INTO `media`.`file_type` (`name`) VALUES ("directory");
 INSERT INTO `media`.`file_type` (`name`, `ext`) VALUES ("wildcard", "*");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("aac");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("ape");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("flac");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("ogg");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("oga");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("iso");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("m4a");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("mpc");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("mp3");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("wav");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("pdf");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("txt");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("jpg");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("mp4");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("avi");
-INSERT INTO `media`.`file_type` (`ext`) VALUES ("mkv");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("aac", "aac");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("ape", "ape");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("flac", "flac");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("ogg", "ogg");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("oga", "oga");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("iso", "iso");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("m4a", "m4a");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("mpc", "mpc");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("mp3", "mp3");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("wav", "wav");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("pdf", "pdf");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("txt", "txt");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("jpg", "jpg");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("mp4", "mp4");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("avi", "avi");
+INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("mkv", "mkv");
   
 -- INSERT INTO `media`.`directory_type` (`default`) VALUES ("mkv");
 

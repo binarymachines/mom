@@ -12,7 +12,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "action_param")
 @Entity(name = "mildred$ActionParam")
 public class ActionParam extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -3363982467018967795L;
+    private static final long serialVersionUID = 7753499439841837716L;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "action_id")

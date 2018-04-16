@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.media.filehandler.FileHandlerEdit"
+        datasource="fileHandlerDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.media.filehandler">
+    <dsContext>
+        <datasource id="fileHandlerDs"
+                    class="com.angrysurfer.mildred.entity.FileHandler"
+                    view="_local"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="fileHandlerDs">
+            <column width="250px">
+                <field property="packageName"/>
+                <field property="moduleName"/>
+                <field property="className"/>
+                <field property="activeFlag"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="extendedEditWindowActions"/>
+    </layout>
+</window>

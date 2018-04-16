@@ -35,11 +35,7 @@ cuba {
         isSnapshot = true
     }
     tomcat {
-        dir = "C:/Users/MarkP/workspace//deploy/tomcat/mildred/cuba"
-    }
-    ide {
-         
-        vcs = 'Git'
+        dir = "$project.rootDir/deploy/tomcat"
     }
 }
 

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.media.valias.VAliasBrowse"
+        focusComponent="vAliasesTable"
+        lookupComponent="vAliasesTable"
+        messagesPack="com.angrysurfer.mildred.web.media.valias">
+    <dsContext>
+        <groupDatasource id="vAliasesDs"
+                         class="com.angrysurfer.mildred.entity.VAlias"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$VAlias e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="vAliasesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="vAliasesTable"
+                datasource="vAliasesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="vAliasesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="id.documentFormat"/>
+                <column id="id.name"/>
+                <column id="id.attributeName"/>
+            </columns>
+            <rows datasource="vAliasesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="vAliasesTable.create"/>
+                <button id="editBtn"
+                        action="vAliasesTable.edit"/>
+                <button id="removeBtn"
+                        action="vAliasesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

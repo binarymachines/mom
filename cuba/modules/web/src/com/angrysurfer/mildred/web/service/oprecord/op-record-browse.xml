@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.service.oprecord.OpRecordBrowse"
+        focusComponent="opRecordsTable"
+        lookupComponent="opRecordsTable"
+        messagesPack="com.angrysurfer.mildred.web.service.oprecord">
+    <dsContext>
+        <groupDatasource id="opRecordsDs"
+                         class="com.angrysurfer.mildred.entity.OpRecord"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$OpRecord e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="opRecordsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="opRecordsTable"
+                datasource="opRecordsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="opRecordsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="pid"/>
+                <column id="operatorName"/>
+                <column id="operationName"/>
+                <column id="targetEsid"/>
+                <column id="targetPath"/>
+                <column id="status"/>
+                <column id="startTime"/>
+                <column id="endTime"/>
+                <column id="effectiveDt"/>
+                <column id="expirationDt"/>
+            </columns>
+            <rows datasource="opRecordsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="opRecordsTable.create"/>
+                <button id="editBtn"
+                        action="opRecordsTable.edit"/>
+                <button id="removeBtn"
+                        action="opRecordsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

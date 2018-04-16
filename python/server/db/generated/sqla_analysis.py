@@ -14,23 +14,11 @@ class Action(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     document_type = Column(String(32), nullable=False, server_default=text("'file'"))
-    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), nullable=False, index=True)
+    dispatch_id = Column(ForeignKey(u'dispatch.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
-    dispatch = relationship(u'ActionDispatch')
+    dispatch = relationship(u'Dispatch')
     reasons = relationship(u'Reason', secondary='action_reason')
-
-
-class ActionDispatch(Base):
-    __tablename__ = 'action_dispatch'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(128), nullable=False)
-    category = Column(String(128))
-    package_name = Column(String(128))
-    module_name = Column(String(128), nullable=False)
-    class_name = Column(String(128))
-    func_name = Column(String(128), nullable=False)
 
 
 class ActionParam(Base):
@@ -58,6 +46,18 @@ class ActionStatu(Base):
     name = Column(String(255))
 
 
+class Dispatch(Base):
+    __tablename__ = 'dispatch'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)
+    category = Column(String(128))
+    package_name = Column(String(128))
+    module_name = Column(String(128), nullable=False)
+    class_name = Column(String(128))
+    func_name = Column(String(128), nullable=False)
+
+
 class Reason(Base):
     __tablename__ = 'reason'
 
@@ -66,11 +66,11 @@ class Reason(Base):
     parent_reason_id = Column(ForeignKey(u'reason.id'), index=True)
     document_type = Column(String(32), nullable=False, server_default=text("'file'"))
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
-    dispatch_id = Column(ForeignKey(u'action_dispatch.id'), index=True)
+    dispatch_id = Column(ForeignKey(u'dispatch.id'), index=True)
     expected_result = Column(Integer, nullable=False, server_default=text("'1'"))
     doc_query_id = Column(ForeignKey(u'elastic.doc_query.id'), index=True)
 
-    dispatch = relationship(u'ActionDispatch')
+    dispatch = relationship(u'Dispatch')
     doc_query = relationship(u'DocQuery')
     parent_reason = relationship(u'Reason', remote_side=[id])
 

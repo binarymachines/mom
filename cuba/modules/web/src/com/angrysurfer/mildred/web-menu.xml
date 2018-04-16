@@ -1,33 +1,55 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
-    <menu id="mildred"
-          insertBefore="help">
-        <item openType="DIALOG"
-              screen="aboutWindow"/>
-        <item screen="printDomain"/>
-        <separator/>
-        <item openType="DIALOG"
-              screen="settings"/>
-    </menu>
     <menu id="analysis"
-          insertBefore="help">
+          insertBefore="administration">
         <item screen="mildred$Action.browse"/>
-        <item screen="mildred$ActionDispatch.browse"/>
         <item screen="mildred$ActionParam.browse"/>
         <item screen="mildred$ActionStatus.browse"/>
+        <item screen="mildred$Dispatch.browse"/>
         <item screen="mildred$Reason.browse"/>
         <item screen="mildred$ReasonParam.browse"/>
         <item screen="mildred$VectorParam.browse"/>
+        <item screen="mildred$FileType.browse"/>
     </menu>
-    <menu id="elastic"
-          insertBefore="help">
+    <menu id="elastic">
         <item screen="mildred$DocQuery.browse"/>
         <item screen="mildred$DocQueryField.browse"/>
     </menu>
-    <menu id="media"
-          insertBefore="help"/>
-    <menu id="service"
-          insertBefore="help"/>
-    <menu id="suggestion"
-          insertBefore="help"/>
+    <menu id="media">
+        <item screen="mildred$Alias.browse"/>
+        <item screen="mildred$DelimitedFileData.browse"/>
+        <item screen="mildred$DelimitedFileInfo.browse"/>
+        <item screen="mildred$Directory.browse"/>
+        <item screen="mildred$DirectoryAmelioration.browse"/>
+        <item screen="mildred$DirectoryAttribute.browse"/>
+        <item screen="mildred$DirectoryConstant.browse"/>
+        <item screen="mildred$DirectoryType.browse"/>
+        <item screen="mildred$Document.browse"/>
+        <item screen="mildred$DocumentAttribute.browse"/>
+        <item screen="mildred$DocumentCategory.browse"/>
+        <item screen="mildred$FileHandler.browse"/>
+        <item screen="mildred$FileHandlerRegistration.browse"/>
+        <item screen="mildred$MatchRecord.browse"/>
+        <item screen="mildred$Matcher.browse"/>
+        <item screen="mildred$MatcherField.browse"/>
+        <item screen="mildred$VAlias.browse"/>
+        <item screen="mildred$VMatchRecord.browse"/>
+    </menu>
+    <menu id="service">
+        <item screen="mildred$Mode.browse"/>
+        <item screen="mildred$ModeDefault.browse"/>
+        <item screen="mildred$ModeState.browse"/>
+        <item screen="mildred$ModeStateDefault.browse"/>
+        <item screen="mildred$ModeStateDefaultParam.browse"/>
+        <item screen="mildred$OpRecord.browse"/>
+        <item screen="mildred$OpRecordParam.browse"/>
+        <item screen="mildred$OpRecordParamType.browse"/>
+        <item screen="mildred$ServiceDispatch.browse"/>
+        <item screen="mildred$ServiceExec.browse"/>
+        <item screen="mildred$ServiceProfile.browse"/>
+        <item screen="mildred$State.browse"/>
+        <item screen="mildred$SwitchRule.browse"/>
+        <item screen="mildred$TransitionRule.browse"/>
+    </menu>
+    <menu id="suggestion"/>
 </menu-config>

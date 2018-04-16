@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.media.directoryattribute.DirectoryAttributeBrowse"
+        focusComponent="directoryAttributesTable"
+        lookupComponent="directoryAttributesTable"
+        messagesPack="com.angrysurfer.mildred.web.media.directoryattribute">
+    <dsContext>
+        <groupDatasource id="directoryAttributesDs"
+                         class="com.angrysurfer.mildred.entity.DirectoryAttribute"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$DirectoryAttribute e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="directoryAttributesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="directoryAttributesTable"
+                datasource="directoryAttributesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="directoryAttributesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="directory"/>
+                <column id="attributeName"/>
+                <column id="attributeValue"/>
+            </columns>
+            <rows datasource="directoryAttributesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="directoryAttributesTable.create"/>
+                <button id="editBtn"
+                        action="directoryAttributesTable.edit"/>
+                <button id="removeBtn"
+                        action="directoryAttributesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

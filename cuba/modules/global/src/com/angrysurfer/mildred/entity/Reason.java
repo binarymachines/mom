@@ -21,7 +21,7 @@ import javax.persistence.Transient;
 @Table(name = "reason")
 @Entity(name = "mildred$Reason")
 public class Reason extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -5334542779090445441L;
+    private static final long serialVersionUID = 8070333615524142358L;
 
     @JoinTable(name = "action_reason",
         joinColumns = @JoinColumn(name = "reason_id"),
@@ -31,7 +31,7 @@ public class Reason extends BaseIntIdentityIdEntity {
 
     @Transient
     @MetaProperty(related = "docQueryId")
-    protected DocQuery docQuery;
+    protected ElasticsearchQuery docQuery;
 
     @Column(name = "name", nullable = false)
     protected String name;
@@ -48,7 +48,7 @@ public class Reason extends BaseIntIdentityIdEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dispatch_id")
-    protected ActionDispatch dispatch;
+    protected Dispatch dispatch;
 
     @Column(name = "expected_result", nullable = false)
     protected Boolean expectedResult = false;
@@ -57,11 +57,11 @@ public class Reason extends BaseIntIdentityIdEntity {
     @Column(name = "DOC_QUERY_ID")
     protected Integer docQueryId;
 
-    public void setDocQuery(DocQuery docQuery) {
+    public void setDocQuery(ElasticsearchQuery docQuery) {
         this.docQuery = docQuery;
     }
 
-    public DocQuery getDocQuery() {
+    public ElasticsearchQuery getDocQuery() {
         return docQuery;
     }
 
@@ -114,11 +114,11 @@ public class Reason extends BaseIntIdentityIdEntity {
         return weight;
     }
 
-    public void setDispatch(ActionDispatch dispatch) {
+    public void setDispatch(Dispatch dispatch) {
         this.dispatch = dispatch;
     }
 
-    public ActionDispatch getDispatch() {
+    public Dispatch getDispatch() {
         return dispatch;
     }
 

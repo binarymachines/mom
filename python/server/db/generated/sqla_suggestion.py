@@ -73,14 +73,22 @@ class Action(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     document_type = Column(String(32), nullable=False, server_default=text("'file'"))
-    dispatch_id = Column(ForeignKey(u'analysis.action_dispatch.id'), nullable=False, index=True)
+    dispatch_id = Column(ForeignKey(u'analysis.dispatch.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
-    dispatch = relationship(u'ActionDispatch')
+    dispatch = relationship(u'Dispatch')
 
 
-class ActionDispatch(Base):
-    __tablename__ = 'action_dispatch'
+class ActionStatu(Base):
+    __tablename__ = 'action_status'
+    __table_args__ = {u'schema': 'analysis'}
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
+
+
+class Dispatch(Base):
+    __tablename__ = 'dispatch'
     __table_args__ = {u'schema': 'analysis'}
 
     id = Column(Integer, primary_key=True)
@@ -90,14 +98,6 @@ class ActionDispatch(Base):
     module_name = Column(String(128), nullable=False)
     class_name = Column(String(128))
     func_name = Column(String(128), nullable=False)
-
-
-class ActionStatu(Base):
-    __tablename__ = 'action_status'
-    __table_args__ = {u'schema': 'analysis'}
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(255))
 
 
 class VectorParam(Base):

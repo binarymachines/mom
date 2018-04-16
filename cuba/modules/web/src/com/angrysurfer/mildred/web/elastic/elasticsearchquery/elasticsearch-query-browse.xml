@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.elastic.elasticsearchquery.ElasticsearchQueryBrowse"
+        focusComponent="elasticsearchQueriesTable"
+        lookupComponent="elasticsearchQueriesTable"
+        messagesPack="com.angrysurfer.mildred.web.elastic.elasticsearchquery">
+    <dsContext>
+        <groupDatasource id="elasticsearchQueriesDs"
+                         class="com.angrysurfer.mildred.entity.ElasticsearchQuery"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$DocQuery e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="elasticsearchQueriesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="elasticsearchQueriesTable"
+                datasource="elasticsearchQueriesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="elasticsearchQueriesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="queryType"/>
+                <column id="maxScorePercentage"/>
+                <column id="appliesToFileType"/>
+                <column id="activeFlag"/>
+            </columns>
+            <rows datasource="elasticsearchQueriesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="elasticsearchQueriesTable.create"/>
+                <button id="editBtn"
+                        action="elasticsearchQueriesTable.edit"/>
+                <button id="removeBtn"
+                        action="elasticsearchQueriesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

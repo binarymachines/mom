@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from errors import SQLIntegrityError
 # FileFormat,
 from core import log
-from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam, ActionDispatch
+from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam, Dispatch
 
 from db.generated.sqla_media import Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, \
     FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
@@ -768,7 +768,7 @@ def exportJSONFile(datatype):
     
 
 def main():
-    for clazz in [SQLAction, SQLState, SQLMode, SQLMatcher, SQLFileHandler, SQLFileHandlerRegistration, SQLFileType]:  #[MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, ActionDispatch, ServiceExec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
+    for clazz in [SQLAction, SQLState, SQLMode, SQLMatcher, SQLFileHandler, SQLFileHandlerRegistration, SQLFileType]:  #[MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, Dispatch, ServiceExec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
         try:
             exportJSONFile(clazz)
         except Exception, err:

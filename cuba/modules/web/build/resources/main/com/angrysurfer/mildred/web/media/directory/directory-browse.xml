@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.media.directory.DirectoryBrowse"
+        focusComponent="directoriesTable"
+        lookupComponent="directoriesTable"
+        messagesPack="com.angrysurfer.mildred.web.media.directory">
+    <dsContext>
+        <groupDatasource id="directoriesDs"
+                         class="com.angrysurfer.mildred.entity.Directory"
+                         view="Directory-screen-view">
+            <query>
+                <![CDATA[select e from mildred$Directory e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="directoriesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="directoriesTable"
+                datasource="directoriesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="directoriesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="directoryType"/>
+                <column id="effectiveDt"/>
+                <column id="expirationDt"/>
+                <column id="activeFlag"/>
+            </columns>
+            <rows datasource="directoriesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="directoriesTable.create"/>
+                <button id="editBtn"
+                        action="directoriesTable.edit"/>
+                <button id="removeBtn"
+                        action="directoriesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

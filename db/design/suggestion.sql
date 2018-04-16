@@ -96,15 +96,15 @@ CREATE TABLE IF NOT EXISTS `suggestion`.`generated_action_param` (
 
 
 -- CREATE VIEW `v_m_action_m_reasons_w_ids` AS
---     select at.id action_id, at.name action, at.priority action_priority, ad.id action_dispatch_id, ad.name action_dispatch_name,
---         ad.category action_dispatch_category, ad.module_name action_dispatch_module, ad.class_name action_dispatch_class, ad.func_name action_dispatch_func,
+--     select at.id action_id, at.name action, at.priority action_priority, ad.id dispatch_id, ad.name dispatch_name,
+--         ad.category dispatch_category, ad.module_name dispatch_module, ad.class_name dispatch_class, ad.func_name dispatch_func,
 --         rt.id reason_id, rt.name reason, rt.weight reason_weight,
 --         ad2.id conditional_dispatch_id, ad2.name conditional_dispatch_name, ad2.category conditional_dispatch_category,
 --         ad2.module_name conditional_dispatch_module, ad2.class_name conditional_dispatch_class, ad2.func_name conditional_dispatch_func
 
 --     from action at,
---         action_dispatch ad,
---         action_dispatch ad2,
+--         dispatch ad,
+--         dispatch ad2,
 --         reason rt,
 --         m_action_m_reason ar
 
@@ -118,8 +118,8 @@ CREATE TABLE IF NOT EXISTS `suggestion`.`generated_action_param` (
 -- DROP VIEW IF EXISTS `v_m_action_m_reasons`;
 
 -- CREATE VIEW `v_m_action_m_reasons` AS
---     select action, action_priority, action_dispatch_name,
---         action_dispatch_category, action_dispatch_module, action_dispatch_class, action_dispatch_func,
+--     select action, action_priority, dispatch_name,
+--         dispatch_category, dispatch_module, dispatch_class, dispatch_func,
 --         reason, reason_weight, conditional_dispatch_name, conditional_dispatch_category,
 --         conditional_dispatch_module, conditional_dispatch_class, conditional_dispatch_func
 --     from v_m_action_m_reasons_w_ids

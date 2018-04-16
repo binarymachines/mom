@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.elastic.elasticsearchquery.ElasticsearchQueryEdit"
+        datasource="elasticsearchQueryDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.elastic.elasticsearchquery">
+    <dsContext>
+        <datasource id="elasticsearchQueryDs"
+                    class="com.angrysurfer.mildred.entity.ElasticsearchQuery"
+                    view="elasticsearchQuery-view">
+            <collectionDatasource id="docQueryFieldDs"
+                                  property="docQueryField"/>
+        </datasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="docQueryFieldBox"
+            margin="true"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="elasticsearchQueryDs">
+            <column width="250px">
+                <field property="name"/>
+                <field property="queryType"/>
+                <field property="maxScorePercentage"/>
+                <field property="appliesToFileType"/>
+                <field property="activeFlag"/>
+            </column>
+        </fieldGroup>
+        <groupBox id="docQueryFieldBox"
+                  caption="msg://com.angrysurfer.mildred.entity/ElasticsearchQuery.docQueryField">
+            <tabSheet height="100%">
+                <tab caption="Query Fields"
+                     margin="true,false,false,false"
+                     spacing="true">
+                    <table id="docQueryFieldTable"
+                           height="100%"
+                           width="100%">
+                        <actions>
+                            <action id="add"/>
+                            <action id="remove"/>
+                        </actions>
+                        <columns>
+                            <column id="fieldName"/>
+                            <column id="boost"/>
+                            <column id="bool"/>
+                            <column id="operator"/>
+                            <column id="minimumShouldMatch"/>
+                            <column id="analyzer"/>
+                            <column id="querySection"/>
+                            <column id="defaultValue"/>
+                        </columns>
+                        <rows datasource="docQueryFieldDs"/>
+                        <buttonsPanel>
+                            <button action="docQueryFieldTable.add"/>
+                            <button action="docQueryFieldTable.remove"/>
+                        </buttonsPanel>
+                    </table>
+                </tab>
+                <tab caption="Sample Query"
+                     margin="true,false,false,false"
+                     spacing="true">
+                    <sourceCodeEditor id="sourceCodeEditor"
+                                      width="100%"/>
+                </tab>
+            </tabSheet>
+        </groupBox>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

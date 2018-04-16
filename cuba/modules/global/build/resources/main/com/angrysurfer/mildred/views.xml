@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <views xmlns="http://schemas.haulmont.com/cuba/view.xsd">
-    <view class="com.angrysurfer.mildred.entity.DocQuery"
+    <view class="com.angrysurfer.mildred.entity.ElasticsearchQuery"
           extends="_local"
-          name="docQuery-view">
-        <property fetch="AUTO"
-                  name="docQueryField"
+          name="elasticsearchQuery-view">
+        <property name="docQueryField"
                   view="_local"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.Action"
@@ -22,22 +21,14 @@
                   view="_minimal"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.Reason"
-          extends="_minimal"
+          extends="_local"
           name="Reason-screen-view">
         <property name="parentReason"
                   view="_minimal"/>
         <property name="dispatch"
                   view="_minimal"/>
         <property name="docQuery"
-                  view="_local"/>
-        <property name="action"
-                  view="_local">
-            <property name="dispatch"
-                      view="_local"/>
-        </property>
-        <property name="documentType"/>
-        <property name="weight"/>
-        <property name="expectedResult"/>
+                  view="_minimal"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.ReasonParam"
           extends="_local"
@@ -45,6 +36,118 @@
         <property name="reason"
                   view="_minimal"/>
         <property name="vectorParam"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.Reason"
+          extends="_local"
+          name="reason-edit-view">
+        <property name="action"
+                  view="_local"/>
+        <property name="docQuery"
+                  view="_local"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.DelimitedFileData"
+          extends="_local"
+          name="DelimitedFileData-screen-view">
+        <property name="delimitedFile"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.Directory"
+          extends="_local"
+          name="Directory-screen-view">
+        <property name="directoryType"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.Document"
+          extends="_local"
+          name="Document-screen-view">
+        <property name="fileType"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.FileHandlerRegistration"
+          extends="_local"
+          name="FileHandlerRegistration-screen-view">
+        <property name="fileHandler"
+                  view="_minimal"/>
+        <property name="fileType"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.MatcherField"
+          extends="_local"
+          name="MatcherField-screen-view">
+        <property name="matcher"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.ModeDefault"
+          extends="_local"
+          name="ModeDefault-screen-view">
+        <property name="mode"
+                  view="_minimal"/>
+        <property name="effectDispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.ModeState"
+          extends="_local"
+          name="ModeState-screen-view">
+        <property name="mode"
+                  view="_minimal"/>
+        <property name="state"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.ModeStateDefault"
+          extends="_local"
+          name="ModeStateDefault-screen-view">
+        <property name="mode"
+                  view="_minimal"/>
+        <property name="state"
+                  view="_minimal"/>
+        <property name="effectDispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.ModeStateDefaultParam"
+          extends="_local"
+          name="ModeStateDefaultParam-screen-view">
+        <property name="modeStateDefault"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.OpRecordParam"
+          extends="_local"
+          name="OpRecordParam-screen-view">
+        <property name="paramType"
+                  view="_minimal"/>
+        <property name="opRecord"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.ServiceProfile"
+          extends="_local"
+          name="ServiceProfile-screen-view">
+        <property name="startupServiceDispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.SwitchRule"
+          extends="_local"
+          name="SwitchRule-screen-view">
+        <property name="beginMode"
+                  view="_minimal"/>
+        <property name="endMode"
+                  view="_minimal"/>
+        <property name="beforeDispatch"
+                  view="_minimal"/>
+        <property name="afterDispatch"
+                  view="_minimal"/>
+        <property name="conditionDispatch"
+                  view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.TransitionRule"
+          extends="_local"
+          name="TransitionRule-screen-view">
+        <property name="mode"
+                  view="_minimal"/>
+        <property name="beginState"
+                  view="_minimal"/>
+        <property name="endState"
+                  view="_minimal"/>
+        <property name="conditionDispatch"
                   view="_minimal"/>
     </view>
 </views>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">  
+  <persistence-unit name="media" transaction-type="RESOURCE_LOCAL"> 
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>com.haulmont.cuba.core.entity.BaseGenericIdEntity</class>
+    <class>com.haulmont.cuba.core.entity.BaseUuidEntity</class>
+    <class>com.haulmont.cuba.core.entity.BaseLongIdEntity</class>
+    <class>com.haulmont.cuba.core.entity.BaseIntegerIdEntity</class>
+    <class>com.haulmont.cuba.core.entity.BaseStringIdEntity</class>
+    <class>com.haulmont.cuba.core.entity.BaseDbGeneratedIdEntity</class>
+    <class>com.haulmont.cuba.core.entity.BaseIdentityIdEntity</class>
+    <class>com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity</class>
+    <class>com.haulmont.cuba.core.entity.StandardEntity</class>
+    <class>com.haulmont.cuba.core.entity.EmbeddableEntity</class>
+    <class>com.angrysurfer.mildred.entity.key.MatchRecordCompKey</class>
+    <class>com.angrysurfer.mildred.entity.key.VAliasCompKey</class>
+    <class>com.angrysurfer.mildred.entity.key.VMatchRecordCompKey</class>
+    <class>com.angrysurfer.mildred.entity.Alias</class>
+    <class>com.angrysurfer.mildred.entity.DelimitedFileData</class>
+    <class>com.angrysurfer.mildred.entity.DelimitedFileInfo</class>
+    <class>com.angrysurfer.mildred.entity.Directory</class>
+    <class>com.angrysurfer.mildred.entity.DirectoryAmelioration</class>
+    <class>com.angrysurfer.mildred.entity.DirectoryAttribute</class>
+    <class>com.angrysurfer.mildred.entity.DirectoryConstant</class>
+    <class>com.angrysurfer.mildred.entity.DirectoryType</class>
+    <class>com.angrysurfer.mildred.entity.Document</class>
+    <class>com.angrysurfer.mildred.entity.DocumentAttribute</class>
+    <class>com.angrysurfer.mildred.entity.DocumentCategory</class>
+    <class>com.angrysurfer.mildred.entity.FileHandler</class>
+    <class>com.angrysurfer.mildred.entity.FileHandlerRegistration</class>
+    <class>com.angrysurfer.mildred.entity.FileType</class>
+    <class>com.angrysurfer.mildred.entity.MatchRecord</class>
+    <class>com.angrysurfer.mildred.entity.Matcher</class>
+    <class>com.angrysurfer.mildred.entity.MatcherField</class>
+    <class>com.angrysurfer.mildred.entity.VAlias</class>
+    <class>com.angrysurfer.mildred.entity.VMatchRecord</class>
+    <exclude-unlisted-classes/>
+    <properties>
+      <property name="eclipselink.cache.coordination.propagate-asynchronously" value="false"/>
+      <property name="eclipselink.session-event-listener" value="com.haulmont.cuba.core.sys.persistence.EclipseLinkSessionEventListener"/>
+      <property name="eclipselink.logging.logger" value="com.haulmont.cuba.core.sys.logging.EclipseLinkLog"/>
+      <property name="cuba.storeName" value="media"/>
+      <property name="eclipselink.cache.shared.default" value="false"/>
+      <property name="eclipselink.target-database" value="com.haulmont.cuba.core.sys.persistence.CubaMySQLPlatform"/>
+      <property name="javax.persistence.validation.mode" value="NONE"/>
+      <property name="eclipselink.cache.coordination.protocol" value="com.haulmont.cuba.core.sys.entitycache.EntityCacheTransportManager"/>
+      <property name="eclipselink.weaving" value="static"/>
+    </properties>
+  </persistence-unit> 
+</persistence>

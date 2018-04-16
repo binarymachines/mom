@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.service.transitionrule.TransitionRuleEdit"
+        datasource="transitionRuleDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.service.transitionrule">
+    <dsContext>
+        <datasource id="transitionRuleDs"
+                    class="com.angrysurfer.mildred.entity.TransitionRule"
+                    view="TransitionRule-screen-view"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="transitionRuleDs">
+            <column width="250px">
+                <field property="name"/>
+                <field property="mode"/>
+                <field property="beginState"/>
+                <field property="endState"/>
+                <field property="conditionDispatch"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="extendedEditWindowActions"/>
+    </layout>
+</window>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <studio>
     <settings>
-        <freeDbmsKeywords>action</freeDbmsKeywords>
         <hotDeployMapping>modules/global/src:conf/app-core</hotDeployMapping>
         <hotDeployMapping>modules/core/src:conf/app-core</hotDeployMapping>
         <hotDeployMapping>modules/global/src:conf/app</hotDeployMapping>

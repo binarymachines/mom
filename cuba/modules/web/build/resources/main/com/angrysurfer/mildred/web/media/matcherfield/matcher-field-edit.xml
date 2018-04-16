@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.media.matcherfield.MatcherFieldEdit"
+        datasource="matcherFieldDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.media.matcherfield">
+    <dsContext>
+        <datasource id="matcherFieldDs"
+                    class="com.angrysurfer.mildred.entity.MatcherField"
+                    view="MatcherField-screen-view"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="matcherFieldDs">
+            <column width="250px">
+                <field property="matcher"/>
+                <field property="fieldName"/>
+                <field property="boost"/>
+                <field property="bool"/>
+                <field property="operator"/>
+                <field property="minimumShouldMatch"/>
+                <field property="analyzer"/>
+                <field property="querySection"/>
+                <field property="defaultValue"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="extendedEditWindowActions"/>
+    </layout>
+</window>

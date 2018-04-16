@@ -12,7 +12,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "vector_param")
 @Entity(name = "mildred$VectorParam")
 public class VectorParam extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -7428194054134402592L;
+    private static final long serialVersionUID = 1105958976251276749L;
 
     @Column(name = "name", nullable = false, length = 128)
     protected String name;

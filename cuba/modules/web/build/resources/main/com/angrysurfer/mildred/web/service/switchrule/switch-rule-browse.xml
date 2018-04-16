@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.service.switchrule.SwitchRuleBrowse"
+        focusComponent="switchRulesTable"
+        lookupComponent="switchRulesTable"
+        messagesPack="com.angrysurfer.mildred.web.service.switchrule">
+    <dsContext>
+        <groupDatasource id="switchRulesDs"
+                         class="com.angrysurfer.mildred.entity.SwitchRule"
+                         view="SwitchRule-screen-view">
+            <query>
+                <![CDATA[select e from mildred$SwitchRule e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="switchRulesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="switchRulesTable"
+                datasource="switchRulesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="switchRulesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="beginMode"/>
+                <column id="endMode"/>
+                <column id="beforeDispatch"/>
+                <column id="afterDispatch"/>
+                <column id="conditionDispatch"/>
+            </columns>
+            <rows datasource="switchRulesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="switchRulesTable.create"/>
+                <button id="editBtn"
+                        action="switchRulesTable.edit"/>
+                <button id="removeBtn"
+                        action="switchRulesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

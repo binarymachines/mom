@@ -18,7 +18,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 @Table(name = "action")
 @Entity(name = "mildred$Action")
 public class Action extends BaseIntIdentityIdEntity {
-    private static final long serialVersionUID = -614667434610823461L;
+    private static final long serialVersionUID = 586282876580111031L;
 
     @Column(name = "name", nullable = false)
     protected String name;
@@ -28,7 +28,7 @@ public class Action extends BaseIntIdentityIdEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dispatch_id")
-    protected ActionDispatch dispatch;
+    protected Dispatch dispatch;
 
     @Column(name = "priority", nullable = false)
     protected Integer priority;
@@ -55,11 +55,11 @@ public class Action extends BaseIntIdentityIdEntity {
         return documentType;
     }
 
-    public void setDispatch(ActionDispatch dispatch) {
+    public void setDispatch(Dispatch dispatch) {
         this.dispatch = dispatch;
     }
 
-    public ActionDispatch getDispatch() {
+    public Dispatch getDispatch() {
         return dispatch;
     }
 
