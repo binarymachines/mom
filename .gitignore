@@ -15,3 +15,13 @@ tags
 .vscode/settings.json
 tags
 *.jar
+cuba/modules/core/db/init/mysql/10.create-db.sql
+cuba/modules/core/db/init/mysql/20.create-db.sql
+cuba/.gradle/3.4/taskHistory/fileHashes.bin
+cuba/.gradle/3.4/taskHistory/fileSnapshots.bin
+cuba/.gradle/3.4/taskHistory/jvmClassSignatures.bin
+cuba/.gradle/3.4/taskHistory/taskHistory.bin
+cuba/.gradle/3.4/taskHistory/taskHistory.lock
+cuba/.gradle/3.4/fileContent/fileContent.lock
+cuba/.gradle/3.4/fileContent/annotation-processors.bin
+.gitignore
