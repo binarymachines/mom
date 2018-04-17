@@ -6,6 +6,8 @@ import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.global.DesignSupport;
 import javax.persistence.Column;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import java.util.List;
+import javax.persistence.OneToMany;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -19,6 +21,29 @@ public class Mode extends BaseIntIdentityIdEntity {
 
     @Column(name = "stateful_flag", nullable = false)
     protected Boolean statefulFlag = false;
+
+    @OneToMany(mappedBy = "mode")
+    protected List<ModeDefault> defaults;
+
+    @OneToMany(mappedBy = "mode")
+    protected List<ModeStateDefault> stateDefaults;
+
+    public void setDefaults(List<ModeDefault> defaults) {
+        this.defaults = defaults;
+    }
+
+    public List<ModeDefault> getDefaults() {
+        return defaults;
+    }
+
+    public void setStateDefaults(List<ModeStateDefault> stateDefaults) {
+        this.stateDefaults = stateDefaults;
+    }
+
+    public List<ModeStateDefault> getStateDefaults() {
+        return stateDefaults;
+    }
+
 
     public void setName(String name) {
         this.name = name;

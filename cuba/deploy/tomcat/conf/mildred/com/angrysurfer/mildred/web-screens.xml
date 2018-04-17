@@ -169,8 +169,6 @@
             template="com/angrysurfer/mildred/web/suggestion/generatedreasonparam/generated-reason-param-edit.xml"/>
     <screen id="mildred$GeneratedReasonParam.browse"
             template="com/angrysurfer/mildred/web/suggestion/generatedreasonparam/generated-reason-param-browse.xml"/>
-    <screen id="mildred$Mode.browse"
-            template="com/angrysurfer/mildred/web/mode/mode-browse.xml"/>
     <screen id="mildred$OpRecord.edit"
             template="com/angrysurfer/mildred/web/service/oprecord/op-record-edit.xml"/>
     <screen id="mildred$VServiceSwitchRule.edit"
@@ -187,4 +185,6 @@
             template="com/angrysurfer/mildred/web/service/serviceprofile/service-profile-browse.xml"/>
     <screen id="mainWindow"
             template="com/angrysurfer/mildred/web/screens/ext-mainwindow.xml"/>
+    <screen id="mildred$Mode.browse"
+            template="com/angrysurfer/mildred/web/service/mode/mode-browse.xml"/>
 </screen-config>

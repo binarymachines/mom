@@ -19,7 +19,7 @@
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="windowActions"
+    <layout expand="serviceDispatchesBox"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="serviceProfileDs">
@@ -30,19 +30,25 @@
         <groupBox id="serviceDispatchesBox"
                   caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.serviceProfileDispatches">
             <table id="serviceDispatchesTable"
-                   height="200px"
+                   height="100%"
                    width="100%">
                 <actions>
                     <action id="add"/>
                     <action id="remove"/>
                 </actions>
                 <columns>
-                    <column id="moduleName"/>
-                    <column id="funcName"/>
-                    <column id="name"/>
-                    <column id="category"/>
-                    <column id="packageName"/>
-                    <column id="className"/>
+                    <column id="name"
+                            caption="Name"/>
+                    <column id="category"
+                            caption="Category"/>
+                    <column id="packageName"
+                            caption="Package"/>
+                    <column id="moduleName"
+                            caption="Module"/>
+                    <column id="className"
+                            caption="Class"/>
+                    <column id="funcName"
+                            caption="Function"/>
                 </columns>
                 <rows datasource="serviceDispatchesDs"/>
                 <buttonsPanel>
@@ -61,8 +67,10 @@
                     <action id="remove"/>
                 </actions>
                 <columns>
-                    <column id="name"/>
-                    <column id="statefulFlag"/>
+                    <column id="name"
+                            caption="Mode"/>
+                    <column id="statefulFlag"
+                            caption="Stateful"/>
                 </columns>
                 <rows datasource="modesDs"/>
                 <buttonsPanel>

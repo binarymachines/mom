@@ -200,4 +200,12 @@
             <property name="className"/>
         </property>
     </view>
+    <view class="com.angrysurfer.mildred.entity.service.Mode"
+          extends="_local"
+          name="mode-view">
+        <property name="defaults"
+                  view="_local"/>
+        <property name="stateDefaults"
+                  view="_local"/>
+    </view>
 </views>

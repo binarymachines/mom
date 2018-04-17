@@ -24,18 +24,24 @@
             <properties include=".*"/>
         </filter>
         <groupTable id="directoriesTable"
+                    multiselect="true"
                     width="100%">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="name"/>
-                <column id="directoryType"/>
-                <column id="effectiveDt"/>
-                <column id="expirationDt"/>
-                <column id="activeFlag"/>
+                <column id="name"
+                        caption="name"/>
+                <column id="directoryType"
+                        caption="type"
+                        width="100"/>
+                <column id="activeFlag"
+                        caption="active"
+                        width="75"/>
             </columns>
             <rows datasource="directoriesDs"/>
             <rowsCount/>

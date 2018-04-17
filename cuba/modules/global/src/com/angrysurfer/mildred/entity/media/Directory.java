@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -23,6 +25,7 @@ public class Directory extends BaseIntIdentityIdEntity {
     @Column(name = "name", nullable = false, length = 767)
     protected String name;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "directory_type_id")
     protected DirectoryType directoryType;
@@ -36,7 +39,16 @@ public class Directory extends BaseIntIdentityIdEntity {
     protected Date expirationDt;
 
     @Column(name = "active_flag", nullable = false)
-    protected Integer activeFlag;
+    protected Boolean activeFlag = false;
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
+    }
+
 
     public void setName(String name) {
         this.name = name;
@@ -68,14 +80,6 @@ public class Directory extends BaseIntIdentityIdEntity {
 
     public Date getExpirationDt() {
         return expirationDt;
-    }
-
-    public void setActiveFlag(Integer activeFlag) {
-        this.activeFlag = activeFlag;
-    }
-
-    public Integer getActiveFlag() {
-        return activeFlag;
     }
 
 

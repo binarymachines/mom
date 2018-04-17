@@ -47,7 +47,6 @@
     <menu id="service">
         <menu id="service-config"
               description="Config for Modes and States">
-            <item screen="mildred$Mode.browse"/>
             <item screen="mildred$ModeDefault.browse"/>
             <item screen="mildred$SwitchRule.browse"/>
             <item screen="mildred$ModeStateDefault.browse"/>
@@ -56,6 +55,7 @@
             <item screen="mildred$TransitionRule.browse"/>
             <separator/>
             <item screen="mildred$OpRecordParamType.browse"/>
+            <item screen="mildred$Mode.browse"/>
         </menu>
         <menu id="service-data">
             <item screen="mildred$OpRecord.browse"/>

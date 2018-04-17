@@ -8,7 +8,7 @@
     <dsContext>
         <datasource id="modeDs"
                     class="com.angrysurfer.mildred.entity.service.Mode"
-                    view="_local"/>
+                    view="mode-view"/>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>

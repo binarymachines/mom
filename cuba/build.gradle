@@ -21,6 +21,7 @@ def globalModule = project(':mildred-global')
 def coreModule = project(':mildred-core')
 def guiModule = project(':mildred-gui')
 def webModule = project(':mildred-web')
+def webThemesModule = project(':mildred-web-themes')
 
 def servletApi = 'org.apache.tomcat:tomcat-servlet-api:8.0.26'
 
@@ -190,6 +191,30 @@ configure(webModule) {
     task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
         appName = 'mildred'
         appJars('mildred-global', 'mildred-gui', 'mildred-web')
+    }
+    task buildScssThemes(type: CubaWebScssThemeCreation)
+    task deployThemes(type: CubaDeployThemeTask, dependsOn: buildScssThemes)
+    assemble.dependsOn buildScssThemes
+}
+
+configure(webThemesModule) {
+    apply(plugin: 'java')
+    apply(plugin: 'maven')
+    apply(plugin: 'cuba')
+
+    appModuleType = 'web-themes'
+
+    buildDir = file('../build/scss-themes')
+
+    sourceSets {
+        main {
+            java {
+                srcDir '.'
+            }
+            resources {
+                srcDir '.'
+            }
+        }
     }
 }
 

@@ -6,17 +6,17 @@
   -->
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://caption"
-        class="com.angrysurfer.mildred.web.mode.ModeBrowse"
+        class="com.angrysurfer.mildred.web.service.mode.ModeBrowse"
         focusComponent="table"
         lookupComponent="table"
-        messagesPack="com.angrysurfer.mildred.web.mode">
+        messagesPack="com.angrysurfer.mildred.web.service.mode">
     <dsContext>
         <datasource id="modeDs"
                     class="com.angrysurfer.mildred.entity.service.Mode"
-                    view="_local"/>
+                    view="mode-view"/>
         <groupDatasource id="modesDs"
                          class="com.angrysurfer.mildred.entity.service.Mode"
-                         view="_local">
+                         view="mode-view">
             <query>
                 <![CDATA[select e from mildred$Mode e]]>
             </query>

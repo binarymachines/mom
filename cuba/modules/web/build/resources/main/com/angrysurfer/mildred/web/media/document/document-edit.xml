@@ -10,22 +10,37 @@
                     class="com.angrysurfer.mildred.entity.media.Document"
                     view="Document-screen-view"/>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
-    <layout expand="windowActions"
+    <dialogMode height="300"
+                width="750"/>
+    <layout expand="fieldGroup"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="documentDs">
-            <column width="250px">
-                <field property="fileType"/>
-                <field property="documentType"/>
-                <field property="absolutePath"/>
-                <field property="effectiveDt"/>
-                <field property="expirationDt"/>
-                <field property="id"/>
+                    datasource="documentDs"
+                    width="1200px">
+            <column width="650px">
+                <field caption="id"
+                       property="id"
+                       width="200px"/>
+                <field caption="path"
+                       property="absolutePath"
+                       rows="3"/>
+                <field caption="file type"
+                       property="fileType"
+                       width="200px"/>
+                <field caption="doc type"
+                       property="documentType"
+                       width="200px"/>
+                <field caption="as of"
+                       property="effectiveDt"
+                       width="200px"/>
+                <field caption="until"
+                       property="expirationDt"
+                       width="200px"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="MIDDLE_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

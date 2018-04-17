@@ -1,6 +1,7 @@
 rootProject.name = 'mildred'
-include(':mildred-global', ':mildred-core', ':mildred-gui', ':mildred-web')
+include(':mildred-global', ':mildred-core', ':mildred-gui', ':mildred-web', ':mildred-web-themes')
 project(':mildred-global').projectDir = new File(settingsDir, 'modules/global')
 project(':mildred-core').projectDir = new File(settingsDir, 'modules/core')
 project(':mildred-gui').projectDir = new File(settingsDir, 'modules/gui')
 project(':mildred-web').projectDir = new File(settingsDir, 'modules/web')
+project(':mildred-web-themes').projectDir = new File(settingsDir, 'modules/web/themes')

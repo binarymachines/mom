@@ -31,12 +31,18 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="name"/>
-                <column id="category"/>
-                <column id="packageName"/>
-                <column id="moduleName"/>
-                <column id="className"/>
-                <column id="funcName"/>
+                <column id="name"
+                        caption="msg://name"/>
+                <column id="category"
+                        caption="msg://category"/>
+                <column id="packageName"
+                        caption="msg://packageName"/>
+                <column id="moduleName"
+                        caption="msg://moduleName"/>
+                <column id="className"
+                        caption="msg://moduleName"/>
+                <column id="funcName"
+                        caption="msg://funcName"/>
             </columns>
             <rows datasource="serviceDispatchesDs"/>
             <rowsCount/>
