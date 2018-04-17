@@ -104,19 +104,6 @@
         <property name="opRecord"
                   view="_minimal"/>
     </view>
-    <view class="com.angrysurfer.mildred.entity.service.ServiceProfile"
-          extends="_local"
-          name="ServiceProfile-screen-view">
-        <property name="startupServiceDispatch"
-                  view="_minimal"/>
-        <property name="switchRule"
-                  view="_local"/>
-        <property name="modes"
-                  view="_local">
-            <property name="mode"
-                      view="_minimal"/>
-        </property>
-    </view>
     <view class="com.angrysurfer.mildred.entity.service.SwitchRule"
           extends="_local"
           name="SwitchRule-screen-view">
@@ -197,5 +184,20 @@
                   view="_minimal"/>
         <property name="conditionDispatch"
                   view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.service.ServiceProfile"
+          extends="_local"
+          name="serviceProfile-view">
+        <property name="modes"
+                  view="_local"/>
+        <property name="switchRules"
+                  view="_local"/>
+        <property name="serviceDispatches"
+                  view="_minimal">
+            <property name="name"/>
+            <property name="category"/>
+            <property name="packageName"/>
+            <property name="className"/>
+        </property>
     </view>
 </views>

@@ -28,23 +28,23 @@ public class ServiceProfile extends BaseIntIdentityIdEntity {
     @Column(name = "name", length = 128)
     protected String name;
 
+    @JoinTable(name = "service_profile_service_dispatch_jn",
+        joinColumns = @JoinColumn(name = "service_profile_id"),
+        inverseJoinColumns = @JoinColumn(name = "service_dispatch_id"))
+    @ManyToMany
+    protected List<ServiceDispatch> serviceDispatches;
+
+    @JoinTable(name = "service_profile_mode_jn",
+        joinColumns = @JoinColumn(name = "service_profile_id"),
+        inverseJoinColumns = @JoinColumn(name = "mode_id"))
+    @ManyToMany
+    protected List<Mode> modes;
+
     @JoinTable(name = "service_profile_switch_rule_jn",
         joinColumns = @JoinColumn(name = "service_profile_id"),
         inverseJoinColumns = @JoinColumn(name = "switch_rule_id"))
     @ManyToMany
-    protected List<SwitchRule> switchRule;
-
-    @OneToMany(mappedBy = "serviceProfile")
-    protected List<VServiceMode> modes;
-
-    public void setModes(List<VServiceMode> modes) {
-        this.modes = modes;
-    }
-
-    public List<VServiceMode> getModes() {
-        return modes;
-    }
-
+    protected List<SwitchRule> switchRules;
 
     public void setStartupServiceDispatch(ServiceDispatch startupServiceDispatch) {
         this.startupServiceDispatch = startupServiceDispatch;
@@ -62,12 +62,28 @@ public class ServiceProfile extends BaseIntIdentityIdEntity {
         return name;
     }
 
-    public void setSwitchRule(List<SwitchRule> switchRule) {
-        this.switchRule = switchRule;
+    public void setServiceDispatches(List<ServiceDispatch> serviceDispatches) {
+        this.serviceDispatches = serviceDispatches;
     }
 
-    public List<SwitchRule> getSwitchRule() {
-        return switchRule;
+    public List<ServiceDispatch> getServiceDispatches() {
+        return serviceDispatches;
+    }
+
+    public void setModes(List<Mode> modes) {
+        this.modes = modes;
+    }
+
+    public List<Mode> getModes() {
+        return modes;
+    }
+
+    public void setSwitchRules(List<SwitchRule> switchRules) {
+        this.switchRules = switchRules;
+    }
+
+    public List<SwitchRule> getSwitchRules() {
+        return switchRules;
     }
 
 

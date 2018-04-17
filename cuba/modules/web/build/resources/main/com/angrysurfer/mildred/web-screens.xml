@@ -141,8 +141,6 @@
             template="com/angrysurfer/mildred/web/service/serviceexec/service-exec-edit.xml"/>
     <screen id="mildred$ServiceExec.browse"
             template="com/angrysurfer/mildred/web/service/serviceexec/service-exec-browse.xml"/>
-    <screen id="mildred$ServiceProfile.browse"
-            template="com/angrysurfer/mildred/web/service/serviceprofile/service-profile-browse.xml"/>
     <screen id="mildred$State.edit"
             template="com/angrysurfer/mildred/web/service/state/state-edit.xml"/>
     <screen id="mildred$State.browse"
@@ -179,10 +177,12 @@
             template="com/angrysurfer/mildred/web/service/vserviceswitchrule/v-service-switch-rule-edit.xml"/>
     <screen id="mildred$VServiceSwitchRule.browse"
             template="com/angrysurfer/mildred/web/service/vserviceswitchrule/v-service-switch-rule-browse.xml"/>
-    <screen id="mildred$ServiceProfile.edit"
-            template="com/angrysurfer/mildred/web/service/serviceprofile/service-profile-edit.xml"/>
     <screen id="mildred$VServiceMode.edit"
             template="com/angrysurfer/mildred/web/service/vservicemode/v-service-mode-edit.xml"/>
     <screen id="mildred$VServiceMode.browse"
             template="com/angrysurfer/mildred/web/service/vservicemode/v-service-mode-browse.xml"/>
+    <screen id="mildred$ServiceProfile.browse"
+            template="com/angrysurfer/mildred/web/serviceprofile/service-profile-browse.xml"/>
+    <screen id="mildred$ServiceProfile.edit"
+            template="com/angrysurfer/mildred/web/service/serviceprofile/service-profile-edit.xml"/>
 </screen-config>

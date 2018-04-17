@@ -4,7 +4,6 @@
           insertBefore="administration">
         <item screen="aboutWindow"/>
         <item screen="settings"/>
-        <item screen="mildred$ServiceProfile.browse"/>
     </menu>
     <menu id="admin"
           insertBefore="administration"/>
@@ -64,14 +63,14 @@
         </menu>
         <menu id="service-profiles">
             <item screen="mildred$ServiceProfile.browse"/>
-            <item screen="mildred$ServiceDispatch.browse"/>
             <separator/>
+            <item screen="mildred$VServiceMode.browse"/>
+            <item screen="mildred$ServiceDispatch.browse"/>
+            <item screen="mildred$VServiceSwitchRule.browse"/>
             <separator/>
             <item screen="mildred$ModeState.browse"/>
             <item screen="mildred$ServiceExec.browse"/>
         </menu>
-        <item screen="mildred$VServiceSwitchRule.browse"/>
-        <item screen="mildred$VServiceMode.browse"/>
     </menu>
     <menu id="suggestion">
         <item screen="mildred$GeneratedAction.browse"/>

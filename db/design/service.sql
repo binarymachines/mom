@@ -796,3 +796,43 @@ CREATE TABLE IF NOT EXISTS `service_profile_switch_rule_jn` (
 );
 
 insert into service_profile_switch_rule_jn (select 1, id from switch_rule);
+
+CREATE TABLE IF NOT EXISTS `service_profile_mode_jn` (
+  `service_profile_id` INT(11) UNSIGNED NOT NULL,
+  `mode_id` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`service_profile_id`, `mode_id`),
+  INDEX `spm_service_profile_id_idx` (`service_profile_id` ASC),
+  INDEX `spm_mode_id_idx` (`mode_id` ASC),
+  CONSTRAINT `fk_spm_service_profile_id`
+    FOREIGN KEY (`service_profile_id`)
+    REFERENCES `service_profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_spm_mode_id`
+    FOREIGN KEY (`mode_id`)
+    REFERENCES `mode` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+insert into service_profile_mode_jn (select 1, id from mode);
+
+CREATE TABLE IF NOT EXISTS `service_profile_service_dispatch_jn` (
+  `service_profile_id` INT(11) UNSIGNED NOT NULL,
+  `service_dispatch_id` INT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`service_profile_id`, `service_dispatch_id`),
+  INDEX `spd_service_profile_id_idx` (`service_profile_id` ASC),
+  INDEX `spd_service_dispatch_id_idx` (`service_dispatch_id` ASC),
+  CONSTRAINT `fk_spd_service_profile_id`
+    FOREIGN KEY (`service_profile_id`)
+    REFERENCES `service_profile` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_spd_service_dispatch_id`
+    FOREIGN KEY (`service_dispatch_id`)
+    REFERENCES `service_dispatch` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
+
+insert into service_profile_service_dispatch_jn (select 1, id from service_dispatch);

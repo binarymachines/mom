@@ -2,11 +2,11 @@
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://browseCaption"
         class="com.angrysurfer.mildred.web.analysis.dispatch.DispatchBrowse"
-        focusComponent="dispatchesTable"
-        lookupComponent="dispatchesTable"
+        focusComponent="serviceDispatchesTable"
+        lookupComponent="serviceDispatchesTable"
         messagesPack="com.angrysurfer.mildred.web.analysis.dispatch">
     <dsContext>
-        <groupDatasource id="dispatchesDs"
+        <groupDatasource id="serviceDispatchesDs"
                          class="com.angrysurfer.mildred.entity.analysis.Dispatch"
                          view="_local">
             <query>
@@ -16,14 +16,14 @@
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="dispatchesTable"
+    <layout expand="serviceDispatchesTable"
             spacing="true">
         <filter id="filter"
-                applyTo="dispatchesTable"
-                datasource="dispatchesDs">
+                applyTo="serviceDispatchesTable"
+                datasource="serviceDispatchesDs">
             <properties include=".*"/>
         </filter>
-        <groupTable id="dispatchesTable"
+        <groupTable id="serviceDispatchesTable"
                     width="100%">
             <actions>
                 <action id="create"/>
@@ -38,16 +38,16 @@
                 <column id="className"/>
                 <column id="funcName"/>
             </columns>
-            <rows datasource="dispatchesDs"/>
+            <rows datasource="serviceDispatchesDs"/>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
                           alwaysVisible="true">
                 <button id="createBtn"
-                        action="dispatchesTable.create"/>
+                        action="serviceDispatchesTable.create"/>
                 <button id="editBtn"
-                        action="dispatchesTable.edit"/>
+                        action="serviceDispatchesTable.edit"/>
                 <button id="removeBtn"
-                        action="dispatchesTable.remove"/>
+                        action="serviceDispatchesTable.remove"/>
             </buttonsPanel>
         </groupTable>
     </layout>
