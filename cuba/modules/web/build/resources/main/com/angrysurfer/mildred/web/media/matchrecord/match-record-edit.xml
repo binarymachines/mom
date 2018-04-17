@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.matchrecord">
     <dsContext>
         <datasource id="matchRecordDs"
-                    class="com.angrysurfer.mildred.entity.MatchRecord"
+                    class="com.angrysurfer.mildred.entity.media.MatchRecord"
                     view="_local">
             <datasource id="idDs"
                         property="id"/>
@@ -37,6 +37,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

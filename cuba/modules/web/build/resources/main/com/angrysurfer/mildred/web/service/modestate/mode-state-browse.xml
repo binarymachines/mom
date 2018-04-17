@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.modestate">
     <dsContext>
         <groupDatasource id="modeStatesDs"
-                         class="com.angrysurfer.mildred.entity.ModeState"
+                         class="com.angrysurfer.mildred.entity.service.ModeState"
                          view="ModeState-screen-view">
             <query>
                 <![CDATA[select e from mildred$ModeState e]]>

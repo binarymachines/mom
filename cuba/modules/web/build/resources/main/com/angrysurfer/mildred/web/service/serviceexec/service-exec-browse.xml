@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.serviceexec">
     <dsContext>
         <groupDatasource id="serviceExecsDs"
-                         class="com.angrysurfer.mildred.entity.ServiceExec"
+                         class="com.angrysurfer.mildred.entity.service.ServiceExec"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$ServiceExec e]]>

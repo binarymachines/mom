@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.oprecordparam">
     <dsContext>
         <groupDatasource id="opRecordParamsDs"
-                         class="com.angrysurfer.mildred.entity.OpRecordParam"
+                         class="com.angrysurfer.mildred.entity.service.OpRecordParam"
                          view="OpRecordParam-screen-view">
             <query>
                 <![CDATA[select e from mildred$OpRecordParam e]]>

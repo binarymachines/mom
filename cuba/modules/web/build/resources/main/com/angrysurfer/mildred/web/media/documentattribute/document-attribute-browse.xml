@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.documentattribute">
     <dsContext>
         <groupDatasource id="documentAttributesDs"
-                         class="com.angrysurfer.mildred.entity.DocumentAttribute"
+                         class="com.angrysurfer.mildred.entity.media.DocumentAttribute"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$DocumentAttribute e]]>

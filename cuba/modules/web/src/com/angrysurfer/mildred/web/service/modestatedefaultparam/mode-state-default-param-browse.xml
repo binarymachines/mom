@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.modestatedefaultparam">
     <dsContext>
         <groupDatasource id="modeStateDefaultParamsDs"
-                         class="com.angrysurfer.mildred.entity.ModeStateDefaultParam"
+                         class="com.angrysurfer.mildred.entity.service.ModeStateDefaultParam"
                          view="ModeStateDefaultParam-screen-view">
             <query>
                 <![CDATA[select e from mildred$ModeStateDefaultParam e]]>

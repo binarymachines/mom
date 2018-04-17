@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.analysis.reason">
     <dsContext>
         <groupDatasource id="reasonsDs"
-                         class="com.angrysurfer.mildred.entity.Reason"
+                         class="com.angrysurfer.mildred.entity.analysis.Reason"
                          view="Reason-screen-view">
             <query>
                 <![CDATA[select e from mildred$Reason e]]>
@@ -38,8 +38,7 @@
                 <column id="dispatch"/>
                 <column id="expectedResult"/>
                 <column id="docQuery"/>
-                <column id="docQueryId"
-                        visible="false"/>
+                <column id="docQueryId"/>
             </columns>
             <rows datasource="reasonsDs"/>
             <rowsCount/>

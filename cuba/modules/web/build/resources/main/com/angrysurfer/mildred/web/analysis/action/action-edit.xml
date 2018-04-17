@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.analysis.action">
     <dsContext>
         <datasource id="actionDs"
-                    class="com.angrysurfer.mildred.entity.Action"
+                    class="com.angrysurfer.mildred.entity.analysis.Action"
                     view="Action-screen-view"/>
     </dsContext>
     <dialogMode height="600"

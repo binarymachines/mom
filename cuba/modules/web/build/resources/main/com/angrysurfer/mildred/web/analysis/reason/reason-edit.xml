@@ -7,11 +7,8 @@
         messagesPack="com.angrysurfer.mildred.web.analysis.reason">
     <dsContext>
         <datasource id="reasonDs"
-                    class="com.angrysurfer.mildred.entity.Reason"
-                    view="reason-edit-view">
-            <collectionDatasource id="actionDs"
-                                  property="action"/>
-        </datasource>
+                    class="com.angrysurfer.mildred.entity.analysis.Reason"
+                    view="Reason-screen-view"/>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -19,36 +16,18 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="reasonDs">
-            <column width="350px">
-                <field property="docQuery"/>
+            <column width="250px">
                 <field property="name"/>
+                <field property="parentReason"/>
                 <field property="documentType"/>
                 <field property="weight"/>
+                <field property="dispatch"/>
                 <field property="expectedResult"/>
+                <field property="docQuery"/>
+                <field property="docQueryId"/>
             </column>
         </fieldGroup>
-        <groupBox id="actionBox"
-                  caption="msg://com.angrysurfer.mildred.entity/Reason.action">
-            <table id="actionTable"
-                   height="200px"
-                   width="100%">
-                <actions>
-                    <action id="add"/>
-                    <action id="remove"/>
-                </actions>
-                <columns>
-                    <column id="name"/>
-                    <column id="documentType"/>
-                    <column id="priority"/>
-                </columns>
-                <rows datasource="actionDs"/>
-                <buttonsPanel>
-                    <button action="actionTable.add"/>
-                    <button action="actionTable.remove"/>
-                </buttonsPanel>
-            </table>
-        </groupBox>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.directorytype">
     <dsContext>
         <groupDatasource id="directoryTypesDs"
-                         class="com.angrysurfer.mildred.entity.DirectoryType"
+                         class="com.angrysurfer.mildred.entity.media.DirectoryType"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$DirectoryType e]]>

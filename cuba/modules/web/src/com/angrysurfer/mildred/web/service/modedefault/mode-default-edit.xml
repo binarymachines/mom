@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.modedefault">
     <dsContext>
         <datasource id="modeDefaultDs"
-                    class="com.angrysurfer.mildred.entity.ModeDefault"
+                    class="com.angrysurfer.mildred.entity.service.ModeDefault"
                     view="ModeDefault-screen-view"/>
     </dsContext>
     <dialogMode height="600"
@@ -27,6 +27,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

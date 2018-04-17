@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.directoryconstant">
     <dsContext>
         <groupDatasource id="directoryConstantsDs"
-                         class="com.angrysurfer.mildred.entity.DirectoryConstant"
+                         class="com.angrysurfer.mildred.entity.media.DirectoryConstant"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$DirectoryConstant e]]>

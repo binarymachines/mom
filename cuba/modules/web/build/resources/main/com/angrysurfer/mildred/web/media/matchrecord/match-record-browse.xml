@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.matchrecord">
     <dsContext>
         <groupDatasource id="matchRecordsDs"
-                         class="com.angrysurfer.mildred.entity.MatchRecord"
+                         class="com.angrysurfer.mildred.entity.media.MatchRecord"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$MatchRecord e]]>

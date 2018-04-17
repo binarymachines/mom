@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.transitionrule">
     <dsContext>
         <groupDatasource id="transitionRulesDs"
-                         class="com.angrysurfer.mildred.entity.TransitionRule"
+                         class="com.angrysurfer.mildred.entity.service.TransitionRule"
                          view="TransitionRule-screen-view">
             <query>
                 <![CDATA[select e from mildred$TransitionRule e]]>

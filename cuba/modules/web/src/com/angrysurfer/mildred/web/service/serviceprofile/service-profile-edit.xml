@@ -7,8 +7,11 @@
         messagesPack="com.angrysurfer.mildred.web.service.serviceprofile">
     <dsContext>
         <datasource id="serviceProfileDs"
-                    class="com.angrysurfer.mildred.entity.ServiceProfile"
-                    view="ServiceProfile-screen-view"/>
+                    class="com.angrysurfer.mildred.entity.service.ServiceProfile"
+                    view="ServiceProfile-screen-view">
+            <collectionDatasource id="switchRuleDs"
+                                  property="switchRule"/>
+        </datasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -21,7 +24,26 @@
                 <field property="name"/>
             </column>
         </fieldGroup>
+        <groupBox id="switchRuleBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.switchRule">
+            <table id="switchRuleTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="name"/>
+                </columns>
+                <rows datasource="switchRuleDs"/>
+                <buttonsPanel>
+                    <button action="switchRuleTable.add"/>
+                    <button action="switchRuleTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

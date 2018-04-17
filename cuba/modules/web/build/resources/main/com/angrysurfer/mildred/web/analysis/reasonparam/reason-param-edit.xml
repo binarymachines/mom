@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.analysis.reasonparam">
     <dsContext>
         <datasource id="reasonParamDs"
-                    class="com.angrysurfer.mildred.entity.ReasonParam"
+                    class="com.angrysurfer.mildred.entity.analysis.ReasonParam"
                     view="ReasonParam-screen-view"/>
     </dsContext>
     <dialogMode height="600"

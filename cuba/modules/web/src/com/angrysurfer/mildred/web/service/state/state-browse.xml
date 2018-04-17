@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.state">
     <dsContext>
         <groupDatasource id="statesDs"
-                         class="com.angrysurfer.mildred.entity.State"
+                         class="com.angrysurfer.mildred.entity.service.State"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$State e]]>

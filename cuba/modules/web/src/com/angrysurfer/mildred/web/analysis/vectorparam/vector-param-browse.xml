@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.analysis.vectorparam">
     <dsContext>
         <groupDatasource id="vectorParamsDs"
-                         class="com.angrysurfer.mildred.entity.VectorParam"
+                         class="com.angrysurfer.mildred.entity.analysis.VectorParam"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$VectorParam e]]>

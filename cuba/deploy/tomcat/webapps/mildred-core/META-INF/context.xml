@@ -11,6 +11,25 @@
               username="cuba"/>
     <!-- Switch off session serialization -->
     <Manager pathname=""/>
+    <!--<Resource driverClassName="org.hsqldb.jdbc.JDBCDriver"
+          maxIdle="2"
+          maxTotal="20"
+          maxWaitMillis="5000"
+          name="jdbc/CubaDS"
+          password=""
+          type="javax.sql.DataSource"
+          url="jdbc:hsqldb:hsql://localhost/mildred"
+          username="sa"/>-->
+    <!--Data store 'admin' connection-->
+    <Resource driverClassName="com.mysql.jdbc.Driver"
+              maxIdle="2"
+              maxTotal="20"
+              maxWaitMillis="5000"
+              name="jdbc/admin"
+              password="cuba"
+              type="javax.sql.DataSource"
+              url="jdbc:mysql://localhost/admin?useSSL=false&amp;allowMultiQueries=true"
+              username="cuba"/>
     <!--Data store 'analysis' connection-->
     <Resource driverClassName="com.mysql.jdbc.Driver"
               maxIdle="2"
@@ -31,15 +50,6 @@
               type="javax.sql.DataSource"
               url="jdbc:mysql://localhost/elastic?useSSL=false&amp;allowMultiQueries=true"
               username="cuba"/>
-    <!--<Resource driverClassName="org.hsqldb.jdbc.JDBCDriver"
-          maxIdle="2"
-          maxTotal="20"
-          maxWaitMillis="5000"
-          name="jdbc/CubaDS"
-          password=""
-          type="javax.sql.DataSource"
-          url="jdbc:hsqldb:hsql://localhost/mildred"
-          username="sa"/>-->
     <!--Data store 'media' connection-->
     <Resource driverClassName="com.mysql.jdbc.Driver"
               maxIdle="2"

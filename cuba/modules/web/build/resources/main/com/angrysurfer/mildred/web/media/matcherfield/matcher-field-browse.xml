@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.matcherfield">
     <dsContext>
         <groupDatasource id="matcherFieldsDs"
-                         class="com.angrysurfer.mildred.entity.MatcherField"
+                         class="com.angrysurfer.mildred.entity.media.MatcherField"
                          view="MatcherField-screen-view">
             <query>
                 <![CDATA[select e from mildred$MatcherField e]]>

@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.filehandlerregistration">
     <dsContext>
         <groupDatasource id="fileHandlerRegistrationsDs"
-                         class="com.angrysurfer.mildred.entity.FileHandlerRegistration"
+                         class="com.angrysurfer.mildred.entity.media.FileHandlerRegistration"
                          view="FileHandlerRegistration-screen-view">
             <query>
                 <![CDATA[select e from mildred$FileHandlerRegistration e]]>

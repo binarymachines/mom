@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.analysis.vectorparam">
     <dsContext>
         <datasource id="vectorParamDs"
-                    class="com.angrysurfer.mildred.entity.VectorParam"
+                    class="com.angrysurfer.mildred.entity.analysis.VectorParam"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"

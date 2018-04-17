@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.delimitedfiledata">
     <dsContext>
         <groupDatasource id="delimitedFileDatasDs"
-                         class="com.angrysurfer.mildred.entity.DelimitedFileData"
+                         class="com.angrysurfer.mildred.entity.media.DelimitedFileData"
                          view="DelimitedFileData-screen-view">
             <query>
                 <![CDATA[select e from mildred$DelimitedFileData e]]>

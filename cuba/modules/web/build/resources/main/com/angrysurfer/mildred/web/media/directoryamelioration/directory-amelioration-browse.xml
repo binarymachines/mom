@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.directoryamelioration">
     <dsContext>
         <groupDatasource id="directoryAmeliorationsDs"
-                         class="com.angrysurfer.mildred.entity.DirectoryAmelioration"
+                         class="com.angrysurfer.mildred.entity.media.DirectoryAmelioration"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$DirectoryAmelioration e]]>

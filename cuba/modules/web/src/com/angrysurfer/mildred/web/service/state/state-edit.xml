@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.state">
     <dsContext>
         <datasource id="stateDs"
-                    class="com.angrysurfer.mildred.entity.State"
+                    class="com.angrysurfer.mildred.entity.service.State"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"
@@ -23,6 +23,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

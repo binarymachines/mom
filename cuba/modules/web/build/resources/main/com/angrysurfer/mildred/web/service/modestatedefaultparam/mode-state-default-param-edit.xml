@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.modestatedefaultparam">
     <dsContext>
         <datasource id="modeStateDefaultParamDs"
-                    class="com.angrysurfer.mildred.entity.ModeStateDefaultParam"
+                    class="com.angrysurfer.mildred.entity.service.ModeStateDefaultParam"
                     view="ModeStateDefaultParam-screen-view"/>
     </dsContext>
     <dialogMode height="600"
@@ -23,6 +23,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

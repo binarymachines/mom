@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.elastic.docqueryfield.DocQueryFieldBrowse"
+        focusComponent="docQueryFieldsTable"
+        lookupComponent="docQueryFieldsTable"
+        messagesPack="com.angrysurfer.mildred.web.elastic.docqueryfield">
+    <dsContext>
+        <groupDatasource id="docQueryFieldsDs"
+                         class="com.angrysurfer.mildred.entity.elastic.DocQueryField"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$DocQueryField e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="docQueryFieldsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="docQueryFieldsTable"
+                datasource="docQueryFieldsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="docQueryFieldsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="fieldName"/>
+                <column id="boost"/>
+                <column id="bool"/>
+                <column id="operator"/>
+                <column id="minimumShouldMatch"/>
+                <column id="analyzer"/>
+                <column id="querySection"/>
+                <column id="defaultValue"/>
+            </columns>
+            <rows datasource="docQueryFieldsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="docQueryFieldsTable.create"/>
+                <button id="editBtn"
+                        action="docQueryFieldsTable.edit"/>
+                <button id="removeBtn"
+                        action="docQueryFieldsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

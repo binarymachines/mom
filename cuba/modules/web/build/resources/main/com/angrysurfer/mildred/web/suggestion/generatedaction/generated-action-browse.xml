@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.suggestion.generatedaction.GeneratedActionBrowse"
+        focusComponent="generatedActionsTable"
+        lookupComponent="generatedActionsTable"
+        messagesPack="com.angrysurfer.mildred.web.suggestion.generatedaction">
+    <dsContext>
+        <groupDatasource id="generatedActionsDs"
+                         class="com.angrysurfer.mildred.entity.suggestion.GeneratedAction"
+                         view="GeneratedAction-screen-view">
+            <query>
+                <![CDATA[select e from mildred$GeneratedAction e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="generatedActionsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="generatedActionsTable"
+                datasource="generatedActionsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="generatedActionsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="parent"/>
+            </columns>
+            <rows datasource="generatedActionsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="generatedActionsTable.create"/>
+                <button id="editBtn"
+                        action="generatedActionsTable.edit"/>
+                <button id="removeBtn"
+                        action="generatedActionsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

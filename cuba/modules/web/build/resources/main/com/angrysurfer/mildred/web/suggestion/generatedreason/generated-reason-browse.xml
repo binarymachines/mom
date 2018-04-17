@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.suggestion.generatedreason.GeneratedReasonBrowse"
+        focusComponent="generatedReasonsTable"
+        lookupComponent="generatedReasonsTable"
+        messagesPack="com.angrysurfer.mildred.web.suggestion.generatedreason">
+    <dsContext>
+        <groupDatasource id="generatedReasonsDs"
+                         class="com.angrysurfer.mildred.entity.suggestion.GeneratedReason"
+                         view="GeneratedReason-screen-view">
+            <query>
+                <![CDATA[select e from mildred$GeneratedReason e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="generatedReasonsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="generatedReasonsTable"
+                datasource="generatedReasonsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="generatedReasonsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="parent"/>
+            </columns>
+            <rows datasource="generatedReasonsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="generatedReasonsTable.create"/>
+                <button id="editBtn"
+                        action="generatedReasonsTable.edit"/>
+                <button id="removeBtn"
+                        action="generatedReasonsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

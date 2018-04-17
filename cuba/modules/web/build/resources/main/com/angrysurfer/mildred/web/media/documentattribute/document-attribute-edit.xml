@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.documentattribute">
     <dsContext>
         <datasource id="documentAttributeDs"
-                    class="com.angrysurfer.mildred.entity.DocumentAttribute"
+                    class="com.angrysurfer.mildred.entity.media.DocumentAttribute"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"
@@ -23,6 +23,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

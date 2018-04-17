@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.mode">
     <dsContext>
         <datasource id="modeDs"
-                    class="com.angrysurfer.mildred.entity.Mode"
+                    class="com.angrysurfer.mildred.entity.service.Mode"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"
@@ -22,6 +22,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

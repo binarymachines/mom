@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.serviceprofile">
     <dsContext>
         <groupDatasource id="serviceProfilesDs"
-                         class="com.angrysurfer.mildred.entity.ServiceProfile"
+                         class="com.angrysurfer.mildred.entity.service.ServiceProfile"
                          view="ServiceProfile-screen-view">
             <query>
                 <![CDATA[select e from mildred$ServiceProfile e]]>

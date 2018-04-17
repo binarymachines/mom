@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.filetype">
     <dsContext>
         <datasource id="fileTypeDs"
-                    class="com.angrysurfer.mildred.entity.FileType"
+                    class="com.angrysurfer.mildred.entity.media.FileType"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"
@@ -23,6 +23,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.serviceexec">
     <dsContext>
         <datasource id="serviceExecDs"
-                    class="com.angrysurfer.mildred.entity.ServiceExec"
+                    class="com.angrysurfer.mildred.entity.service.ServiceExec"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"
@@ -26,6 +26,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

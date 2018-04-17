@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.alias">
     <dsContext>
         <groupDatasource id="aliasesDs"
-                         class="com.angrysurfer.mildred.entity.Alias"
+                         class="com.angrysurfer.mildred.entity.media.Alias"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$Alias e]]>

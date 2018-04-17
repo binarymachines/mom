@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.delimitedfileinfo">
     <dsContext>
         <groupDatasource id="delimitedFileInfoesDs"
-                         class="com.angrysurfer.mildred.entity.DelimitedFileInfo"
+                         class="com.angrysurfer.mildred.entity.media.DelimitedFileInfo"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$DelimitedFileInfo e]]>

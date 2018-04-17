@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.oprecordparam">
     <dsContext>
         <datasource id="opRecordParamDs"
-                    class="com.angrysurfer.mildred.entity.OpRecordParam"
+                    class="com.angrysurfer.mildred.entity.service.OpRecordParam"
                     view="OpRecordParam-screen-view"/>
     </dsContext>
     <dialogMode height="600"
@@ -24,6 +24,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

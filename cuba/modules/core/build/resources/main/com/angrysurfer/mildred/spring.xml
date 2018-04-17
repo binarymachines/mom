@@ -5,6 +5,32 @@
        xmlns:context="http://www.springframework.org/schema/context">
     <!-- Annotation-based beans -->
     <context:component-scan base-package="com.angrysurfer.mildred"/>
+    <bean id="cubaDataSource_admin"
+          class="com.haulmont.cuba.core.sys.CubaJndiObjectFactoryBean">
+        <property name="jndiNameAppProperty"
+                  value="cuba.dataSourceJndiName_admin"/>
+        <property name="resourceRef"
+                  value="true"/>
+    </bean>
+    <bean id="entityManagerFactory_admin"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+          lazy-init="false">
+        <property name="persistenceXmlLocation"
+                  value="file:${cuba.dataDir}/admin-persistence.xml"/>
+        <property name="dataSource"
+                  ref="cubaDataSource_admin"/>
+        <property name="jpaVendorAdapter"
+                  ref="jpaVendorAdapter"/>
+    </bean>
+    <bean id="transactionManager_admin"
+          class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory"
+                  ref="entityManagerFactory_admin"/>
+        <property name="dataSource"
+                  ref="cubaDataSource_admin"/>
+        <qualifier type="org.springframework.beans.factory.annotation.Qualifier"
+                   value="admin"/>
+    </bean>
     <bean id="cubaDataSource_analysis"
           class="com.haulmont.cuba.core.sys.CubaJndiObjectFactoryBean">
         <property name="jndiNameAppProperty"

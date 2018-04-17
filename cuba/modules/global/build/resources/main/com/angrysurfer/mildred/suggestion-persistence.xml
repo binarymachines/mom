@@ -3,5 +3,9 @@
              version="2.0">
     <persistence-unit name="suggestion"
                       transaction-type="RESOURCE_LOCAL">
+        <class>com.angrysurfer.mildred.entity.suggestion.GeneratedAction</class>
+        <class>com.angrysurfer.mildred.entity.suggestion.GeneratedActionParam</class>
+        <class>com.angrysurfer.mildred.entity.suggestion.GeneratedReason</class>
+        <class>com.angrysurfer.mildred.entity.suggestion.GeneratedReasonParam</class>
     </persistence-unit>
 </persistence>

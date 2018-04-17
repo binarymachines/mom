@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.switchrule">
     <dsContext>
         <groupDatasource id="switchRulesDs"
-                         class="com.angrysurfer.mildred.entity.SwitchRule"
+                         class="com.angrysurfer.mildred.entity.service.SwitchRule"
                          view="SwitchRule-screen-view">
             <query>
                 <![CDATA[select e from mildred$SwitchRule e]]>

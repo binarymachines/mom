@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.documentcategory">
     <dsContext>
         <groupDatasource id="documentCategoriesDs"
-                         class="com.angrysurfer.mildred.entity.DocumentCategory"
+                         class="com.angrysurfer.mildred.entity.media.DocumentCategory"
                          view="_local">
             <query>
                 <![CDATA[select e from mildred$DocumentCategory e]]>

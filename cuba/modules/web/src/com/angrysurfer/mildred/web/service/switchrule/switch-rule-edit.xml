@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.service.switchrule">
     <dsContext>
         <datasource id="switchRuleDs"
-                    class="com.angrysurfer.mildred.entity.SwitchRule"
+                    class="com.angrysurfer.mildred.entity.service.SwitchRule"
                     view="SwitchRule-screen-view"/>
     </dsContext>
     <dialogMode height="600"
@@ -26,6 +26,6 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>

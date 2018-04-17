@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.analysis.dispatch">
     <dsContext>
         <datasource id="dispatchDs"
-                    class="com.angrysurfer.mildred.entity.Dispatch"
+                    class="com.angrysurfer.mildred.entity.analysis.Dispatch"
                     view="_local"/>
     </dsContext>
     <dialogMode height="600"

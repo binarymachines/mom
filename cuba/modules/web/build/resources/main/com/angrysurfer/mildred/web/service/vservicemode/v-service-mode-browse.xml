@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.service.vservicemode.VServiceModeBrowse"
+        focusComponent="vServiceModesTable"
+        lookupComponent="vServiceModesTable"
+        messagesPack="com.angrysurfer.mildred.web.service.vservicemode">
+    <dsContext>
+        <groupDatasource id="vServiceModesDs"
+                         class="com.angrysurfer.mildred.entity.service.VServiceMode"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$VServiceMode e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="vServiceModesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="vServiceModesTable"
+                datasource="vServiceModesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="vServiceModesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="serviceProfile"/>
+                <column id="mode"/>
+                <column id="id.pkSp"/>
+                <column id="id.pkMode"/>
+            </columns>
+            <rows datasource="vServiceModesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="vServiceModesTable.create"/>
+                <button id="editBtn"
+                        action="vServiceModesTable.edit"/>
+                <button id="removeBtn"
+                        action="vServiceModesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

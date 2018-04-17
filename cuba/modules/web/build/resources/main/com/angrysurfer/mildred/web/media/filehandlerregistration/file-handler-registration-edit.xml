@@ -7,7 +7,7 @@
         messagesPack="com.angrysurfer.mildred.web.media.filehandlerregistration">
     <dsContext>
         <datasource id="fileHandlerRegistrationDs"
-                    class="com.angrysurfer.mildred.entity.FileHandlerRegistration"
+                    class="com.angrysurfer.mildred.entity.media.FileHandlerRegistration"
                     view="FileHandlerRegistration-screen-view"/>
     </dsContext>
     <dialogMode height="600"
@@ -16,13 +16,13 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="fileHandlerRegistrationDs">
-            <column width="250px">
+            <column width="550px">
                 <field property="name"/>
                 <field property="fileHandler"/>
                 <field property="fileType"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               screen="editWindowActions"/>
     </layout>
 </window>
