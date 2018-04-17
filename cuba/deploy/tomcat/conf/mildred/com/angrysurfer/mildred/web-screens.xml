@@ -185,4 +185,6 @@
             template="com/angrysurfer/mildred/web/service/serviceprofile/service-profile-edit.xml"/>
     <screen id="mildred$ServiceProfile.browse"
             template="com/angrysurfer/mildred/web/service/serviceprofile/service-profile-browse.xml"/>
+    <screen id="mainWindow"
+            template="com/angrysurfer/mildred/web/screens/ext-mainwindow.xml"/>
 </screen-config>
