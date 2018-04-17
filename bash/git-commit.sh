@@ -28,8 +28,6 @@ git add $MILDRED_HOME/db/design/*.mwb
 git add $MILDRED_HOME/.vscode/*.json
 git add $MILDRED_HOME/db/orientdb/*.json
 
-echo
-git status
 . $MILDRED_HOME/bash/git-commit-cuba.sh $MILDRED_HOME/cuba/
 
 echo
@@ -44,8 +42,12 @@ fi
 
 echo
 git status
+
 echo "pushing commit..."
 echo
 git push
+git status
+#git diff HEAD $1/build.gradle
+#git diff HEAD $1/modules/core/web/META-INF/context.xml
 
 popd >> /dev/null
