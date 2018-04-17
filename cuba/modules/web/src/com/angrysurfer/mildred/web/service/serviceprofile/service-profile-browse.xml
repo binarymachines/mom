@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://browseCaption"
-        class="com.angrysurfer.mildred.web.serviceprofile.ServiceProfileBrowse"
+        class="com.angrysurfer.mildred.web.service.serviceprofile.ServiceProfileBrowse"
         focusComponent="serviceProfilesTable"
         lookupComponent="serviceProfilesTable"
-        messagesPack="com.angrysurfer.mildred.web.serviceprofile">
+        messagesPack="com.angrysurfer.mildred.web.service.serviceprofile">
     <dsContext>
         <groupDatasource id="serviceProfilesDs"
                          class="com.angrysurfer.mildred.entity.service.ServiceProfile"
