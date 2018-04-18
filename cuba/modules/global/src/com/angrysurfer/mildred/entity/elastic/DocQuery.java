@@ -21,6 +21,12 @@ public class DocQuery extends BaseIntIdentityIdEntity {
     @Column(name = "name", nullable = false, length = 128)
     protected String name;
 
+    @JoinTable(name = "doc_query_field_jn",
+        joinColumns = @JoinColumn(name = "DOC_QUERY_ID"),
+        inverseJoinColumns = @JoinColumn(name = "DOC_QUERY_FIELD_ID"))
+    @ManyToMany
+    protected List<DocQueryField> fields;
+
     @Column(name = "query_type", nullable = false, length = 64)
     protected String queryType;
 
@@ -38,6 +44,15 @@ public class DocQuery extends BaseIntIdentityIdEntity {
         inverseJoinColumns = @JoinColumn(name = "doc_query_field_id"))
     @ManyToMany
     protected List<DocQueryField> docQueryField;
+
+    public void setFields(List<DocQueryField> fields) {
+        this.fields = fields;
+    }
+
+    public List<DocQueryField> getFields() {
+        return fields;
+    }
+
 
     public void setName(String name) {
         this.name = name;

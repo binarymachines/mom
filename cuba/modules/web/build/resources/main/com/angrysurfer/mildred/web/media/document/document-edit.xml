@@ -9,33 +9,40 @@
         <datasource id="documentDs"
                     class="com.angrysurfer.mildred.entity.media.Document"
                     view="Document-screen-view"/>
+        <collectionDatasource id="fileTypesDs"
+                              class="com.angrysurfer.mildred.entity.media.FileType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$FileType e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
     <dialogMode height="300"
-                width="750"/>
+                width="650"/>
     <layout expand="fieldGroup"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="documentDs"
-                    width="1200px">
-            <column width="650px">
+                    datasource="documentDs">
+            <column width="550px">
                 <field caption="id"
                        property="id"
-                       width="200px"/>
+                       width="250px"/>
                 <field caption="path"
                        property="absolutePath"
                        rows="3"/>
-                <field caption="file type"
-                       property="fileType"
-                       width="200px"/>
                 <field caption="doc type"
                        property="documentType"
-                       width="200px"/>
+                       width="250px"/>
+                <field caption="file type"
+                       optionsDatasource="fileTypesDs"
+                       property="fileType"
+                       width="250px"/>
                 <field caption="as of"
                        property="effectiveDt"
-                       width="200px"/>
+                       width="250px"/>
                 <field caption="until"
                        property="expirationDt"
-                       width="200px"/>
+                       width="250px"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

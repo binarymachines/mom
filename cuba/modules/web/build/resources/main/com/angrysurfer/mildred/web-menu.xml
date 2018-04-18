@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
-    <menu id="mildred"
-          insertBefore="administration">
-        <item screen="aboutWindow"/>
-        <item screen="settings"/>
-    </menu>
+    <item insertBefore="administration"
+          screen="aboutWindow"/>
     <menu id="admin"
-          insertBefore="administration"/>
+          insertBefore="administration">
+        <menu id="media-config">
+            <item screen="mildred$Alias.browse"/>
+            <item screen="mildred$Directory.browse"/>
+            <item screen="mildred$DirectoryAmelioration.browse"/>
+            <item screen="mildred$DirectoryConstant.browse"/>
+            <item screen="mildred$DirectoryType.browse"/>
+            <item screen="mildred$DocumentCategory.browse"/>
+            <item screen="mildred$FileHandler.browse"/>
+            <item screen="mildred$FileHandlerRegistration.browse"/>
+            <item screen="mildred$FileType.browse"/>
+            <separator/>
+            <item screen="settings"/>
+        </menu>
+        <item screen="mildred$FileHandlerRegistration.browse"/>
+    </menu>
     <menu id="analysis">
+        <separator/>
         <item screen="mildred$Action.browse"/>
         <item screen="mildred$ActionParam.browse"/>
         <item screen="mildred$ActionStatus.browse"/>
@@ -17,25 +30,12 @@
         <item screen="mildred$VectorParam.browse"/>
     </menu>
     <menu id="elastic">
+        <item screen="mildred$Document.browse"/>
+        <separator/>
         <item screen="mildred$DocQuery.browse"/>
         <item screen="mildred$DocQueryField.browse"/>
     </menu>
     <menu id="media">
-        <item screen="mildred$Directory.browse"/>
-        <item screen="mildred$Document.browse"/>
-        <separator/>
-        <menu id="media-config">
-            <item screen="mildred$Alias.browse"/>
-            <item screen="mildred$DirectoryAmelioration.browse"/>
-            <item screen="mildred$DirectoryConstant.browse"/>
-            <item screen="mildred$DirectoryType.browse"/>
-            <item screen="mildred$DocumentCategory.browse"/>
-            <item screen="mildred$FileHandler.browse"/>
-            <item screen="mildred$FileHandlerRegistration.browse"/>
-            <item screen="mildred$FileType.browse"/>
-            <item screen="mildred$Matcher.browse"/>
-            <item screen="mildred$MatcherField.browse"/>
-        </menu>
         <menu id="media-data">
             <item screen="mildred$DelimitedFileData.browse"/>
             <item screen="mildred$DelimitedFileInfo.browse"/>
@@ -43,19 +43,25 @@
             <item screen="mildred$DocumentAttribute.browse"/>
             <item screen="mildred$MatchRecord.browse"/>
         </menu>
+        <menu id="media-queries">
+            <item screen="mildred$Matcher.browse"/>
+            <item screen="mildred$MatcherField.browse"/>
+        </menu>
     </menu>
     <menu id="service">
         <menu id="service-config"
               description="Config for Modes and States">
+            <item screen="mildred$Mode.browse"/>
             <item screen="mildred$ModeDefault.browse"/>
             <item screen="mildred$SwitchRule.browse"/>
+            <separator/>
             <item screen="mildred$ModeStateDefault.browse"/>
             <item screen="mildred$ModeStateDefaultParam.browse"/>
+            <separator/>
             <item screen="mildred$State.browse"/>
             <item screen="mildred$TransitionRule.browse"/>
             <separator/>
             <item screen="mildred$OpRecordParamType.browse"/>
-            <item screen="mildred$Mode.browse"/>
         </menu>
         <menu id="service-data">
             <item screen="mildred$OpRecord.browse"/>

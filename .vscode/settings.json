@@ -4,5 +4,6 @@
     "python.linting.pylintEnabled": true,
     "java.configuration.updateBuildConfiguration": "interactive",
     "files.autoSave": "onFocusChange",
-    "python.linting.enabled": false
+    "python.linting.enabled": false,
+    "git.ignoreLimitWarning": true
 }

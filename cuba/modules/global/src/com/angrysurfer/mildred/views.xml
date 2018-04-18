@@ -19,12 +19,12 @@
                   view="_minimal"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.media.FileHandlerRegistration"
-          extends="_local"
+          extends="_base"
           name="FileHandlerRegistration-screen-view">
         <property name="fileHandler"
-                  view="_minimal"/>
+                  view="_local"/>
         <property name="fileType"
-                  view="_minimal"/>
+                  view="_local"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.media.MatcherField"
           extends="_local"
@@ -201,11 +201,22 @@
         </property>
     </view>
     <view class="com.angrysurfer.mildred.entity.service.Mode"
-          extends="_local"
+          extends="_base"
           name="mode-view">
         <property name="defaults"
                   view="_local"/>
         <property name="stateDefaults"
+                  view="_local">
+            <property name="state"
+                      view="_local"/>
+            <property name="effectDispatch"
+                      view="_local"/>
+        </property>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.elastic.DocQuery"
+          extends="_local"
+          name="docQuery-view">
+        <property name="docQueryField"
                   view="_local"/>
     </view>
 </views>

@@ -8,11 +8,14 @@
     <dsContext>
         <datasource id="docQueryDs"
                     class="com.angrysurfer.mildred.entity.elastic.DocQuery"
-                    view="_local"/>
+                    view="docQuery-view">
+            <collectionDatasource id="docQueryFieldDs"
+                                  property="docQueryField"/>
+        </datasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="windowActions"
+    <layout expand="docQueryFieldBox"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="docQueryDs">
@@ -24,7 +27,35 @@
                 <field property="activeFlag"/>
             </column>
         </fieldGroup>
+        <groupBox id="docQueryFieldBox"
+                  caption="msg://com.angrysurfer.mildred.entity.elastic/DocQuery.docQueryField">
+            <table id="docQueryFieldTable"
+                   height="100%"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="fieldName"/>
+                    <column id="boost"/>
+                    <column id="bool"/>
+                    <column id="operator"/>
+                    <column id="minimumShouldMatch"/>
+                    <column id="analyzer"/>
+                    <column id="querySection"/>
+                    <column id="defaultValue"/>
+                </columns>
+                <rows datasource="docQueryFieldDs"/>
+                <buttonsPanel>
+                    <button action="docQueryFieldTable.add"/>
+                    <button action="docQueryFieldTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="MIDDLE_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

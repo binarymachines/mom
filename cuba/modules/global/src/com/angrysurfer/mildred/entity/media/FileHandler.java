@@ -5,7 +5,9 @@ import javax.persistence.Table;
 import com.haulmont.cuba.core.global.DesignSupport;
 import javax.persistence.Column;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import com.haulmont.chile.core.annotations.NamePattern;
 
+@NamePattern("%s %s|moduleName,className")
 @DesignSupport("{'imported':true}")
 @Table(name = "file_handler")
 @Entity(name = "mildred$FileHandler")
