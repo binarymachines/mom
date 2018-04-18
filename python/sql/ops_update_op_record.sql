@@ -3,7 +3,7 @@
 --
 
    UPDATE op_record ops
-LEFT JOIN document esd
+LEFT JOIN asset esd
        ON ops.target_path = esd.absolute_path
       SET ops.target_esid = esd.id
     WHERE ops.target_esid = 'None'

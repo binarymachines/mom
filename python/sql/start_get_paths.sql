@@ -1,8 +1,8 @@
--- get_paths: get paths for specified document type matching supplied pattern
--- params: absolute_path, document_type
+-- get_paths: get paths for specified asset type matching supplied pattern
+-- params: absolute_path, asset_type
 --
 SELECT absolute_path
-  FROM document
+  FROM asset
  WHERE absolute_path LIKE '*%s*'
-   AND document_type = '%s'
+   AND asset_type = '%s'
  ORDER BY absolute_path
