@@ -48,12 +48,12 @@ class TestLibrary(unittest.TestCase):
 
     def test_get_cached_esid(self):
         path = '/media/removable/Audio/music/albums/ambient/biosphere/substrata'
-        document_type = const.DIRECTORY
+        asset_type = const.DIRECTORY
 
-        key = cache2.create_key(assets.KEY_GROUP, document_type, path, value=path)
+        key = cache2.create_key(assets.KEY_GROUP, asset_type, path, value=path)
         cache2.set_hash2(key, {'absolute_path':path, 'esid': '0123456789'})
 
-        esid = assets.get_cached_esid(document_type, path)
+        esid = assets.get_cached_esid(asset_type, path)
         self.assertEquals(esid, '0123456789')
 
     if __name__ == '__main__':

@@ -15,11 +15,11 @@ class GeneratedAction(Base):
     action_id = Column(ForeignKey(u'analysis.action.id'), index=True)
     action_status_id = Column(ForeignKey(u'analysis.action_status.id'), index=True)
     parent_id = Column(ForeignKey(u'generated_action.id'), index=True)
-    document_id = Column(ForeignKey(u'media.document.id'), nullable=False, index=True)
+    asset_id = Column(ForeignKey(u'media.asset.id'), nullable=False, index=True)
 
     action = relationship(u'Action')
     action_status = relationship(u'ActionStatu')
-    document = relationship(u'Document')
+    asset = relationship(u'Asset')
     parent = relationship(u'GeneratedAction', remote_side=[id])
     reasons = relationship(u'GeneratedReason', secondary='generated_action_reason')
 
@@ -72,7 +72,7 @@ class Action(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
-    document_type = Column(String(32), nullable=False, server_default=text("'file'"))
+    asset_type = Column(String(32), nullable=False, server_default=text("'file'"))
     dispatch_id = Column(ForeignKey(u'analysis.dispatch.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'10'"))
 
@@ -108,13 +108,13 @@ class VectorParam(Base):
     name = Column(String(128), nullable=False)
 
 
-class Document(Base):
-    __tablename__ = 'document'
+class Asset(Base):
+    __tablename__ = 'asset'
     __table_args__ = {u'schema': 'media'}
 
     id = Column(String(128), primary_key=True)
     file_type_id = Column(ForeignKey(u'media.file_type.id'), index=True)
-    document_type = Column(String(64), nullable=False)
+    asset_type = Column(String(64), nullable=False)
     absolute_path = Column(String(1024), nullable=False, unique=True)
     effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
     expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))

@@ -31,7 +31,7 @@ COMMAND = 'COMMAND'
 
 MAX_DATA_LENGTH = 512
 KNOWN = 'known_fields'
-METADATA = 'document_attribute'
+METADATA = 'file_attribute'
 
 # states
 INITIAL = "initial"

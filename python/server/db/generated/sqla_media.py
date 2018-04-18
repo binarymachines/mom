@@ -14,14 +14,35 @@ class Alia(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(25), nullable=False)
 
-    document_attributes = relationship(u'DocumentAttribute', secondary='alias_document_attribute')
+    file_attributes = relationship(u'FileAttribute', secondary='alias_file_attribute')
 
 
-t_alias_document_attribute = Table(
-    'alias_document_attribute', metadata,
-    Column('document_attribute_id', ForeignKey(u'document_attribute.id'), primary_key=True, nullable=False, index=True),
+t_alias_file_attribute = Table(
+    'alias_file_attribute', metadata,
+    Column('file_attribute_id', ForeignKey(u'file_attribute.id'), primary_key=True, nullable=False, index=True),
     Column('alias_id', ForeignKey(u'alias.id'), primary_key=True, nullable=False, index=True)
 )
+
+
+class Asset(Base):
+    __tablename__ = 'asset'
+
+    id = Column(String(128), primary_key=True)
+    file_type_id = Column(ForeignKey(u'file_type.id'), index=True)
+    asset_type = Column(String(64), nullable=False)
+    absolute_path = Column(String(1024), nullable=False, unique=True)
+    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
+    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
+
+    file_type = relationship(u'FileType')
+
+
+class Category(Base):
+    __tablename__ = 'category'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(256), nullable=False)
+    asset_type = Column(String(128), nullable=False)
 
 
 class DelimitedFileDatum(Base):
@@ -40,7 +61,7 @@ class DelimitedFileInfo(Base):
     __tablename__ = 'delimited_file_info'
 
     id = Column(Integer, primary_key=True)
-    document_id = Column(String(128), nullable=False)
+    asset_id = Column(String(128), nullable=False)
     delimiter = Column(String(1), nullable=False)
     column_count = Column(Integer, nullable=False)
 
@@ -93,37 +114,16 @@ class DirectoryType(Base):
     name = Column(String(25), unique=True)
 
 
-class Document(Base):
-    __tablename__ = 'document'
-
-    id = Column(String(128), primary_key=True)
-    file_type_id = Column(ForeignKey(u'file_type.id'), index=True)
-    document_type = Column(String(64), nullable=False)
-    absolute_path = Column(String(1024), nullable=False, unique=True)
-    effective_dt = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
-    expiration_dt = Column(DateTime, server_default=text("'9999-12-31 23:59:59'"))
-
-    file_type = relationship(u'FileType')
-
-
-class DocumentAttribute(Base):
-    __tablename__ = 'document_attribute'
+class FileAttribute(Base):
+    __tablename__ = 'file_attribute'
     __table_args__ = (
-        Index('uk_document_attribute', 'document_format', 'attribute_name', unique=True),
+        Index('uk_file_attribute', 'file_format', 'attribute_name', unique=True),
     )
 
     id = Column(Integer, primary_key=True)
-    document_format = Column(String(32), nullable=False)
+    file_format = Column(String(32), nullable=False)
     attribute_name = Column(String(128), nullable=False)
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
-
-
-class DocumentCategory(Base):
-    __tablename__ = 'document_category'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(256), nullable=False)
-    document_type = Column(String(128), nullable=False)
 
 
 class FileHandler(Base):
@@ -160,8 +160,8 @@ class FileType(Base):
 class MatchRecord(Base):
     __tablename__ = 'match_record'
 
-    doc_id = Column(ForeignKey(u'document.id'), primary_key=True, nullable=False)
-    match_doc_id = Column(ForeignKey(u'document.id'), primary_key=True, nullable=False, index=True)
+    doc_id = Column(ForeignKey(u'asset.id'), primary_key=True, nullable=False)
+    match_doc_id = Column(ForeignKey(u'asset.id'), primary_key=True, nullable=False, index=True)
     matcher_name = Column(String(128), nullable=False)
     is_ext_match = Column(Integer, nullable=False, server_default=text("'0'"))
     score = Column(Float)
@@ -173,8 +173,8 @@ class MatchRecord(Base):
     match_parent = Column(String(256))
     match_file_name = Column(String(256))
 
-    doc = relationship(u'Document', primaryjoin='MatchRecord.doc_id == Document.id')
-    match_doc = relationship(u'Document', primaryjoin='MatchRecord.match_doc_id == Document.id')
+    doc = relationship(u'Asset', primaryjoin='MatchRecord.doc_id == Asset.id')
+    match_doc = relationship(u'Asset', primaryjoin='MatchRecord.match_doc_id == Asset.id')
 
 
 class Matcher(Base):
@@ -207,7 +207,7 @@ class MatcherField(Base):
 
 t_v_alias = Table(
     'v_alias', metadata,
-    Column('document_format', String(32)),
+    Column('file_format', String(32)),
     Column('name', String(25)),
     Column('attribute_name', String(128))
 )
@@ -215,7 +215,7 @@ t_v_alias = Table(
 
 t_v_match_record = Table(
     'v_match_record', metadata,
-    Column('document_path', Text),
+    Column('asset_path', Text),
     Column('comparison_result', String(1)),
     Column('match_path', Text),
     Column('is_ext_match', Integer, server_default=text("'0'"))

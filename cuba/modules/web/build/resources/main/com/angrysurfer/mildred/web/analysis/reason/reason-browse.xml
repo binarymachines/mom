@@ -33,7 +33,7 @@
             <columns>
                 <column id="name"/>
                 <column id="parentReason"/>
-                <column id="documentType"/>
+                <column id="assetType"/>
                 <column id="weight"/>
                 <column id="dispatch"/>
                 <column id="expectedResult"/>

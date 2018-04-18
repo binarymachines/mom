@@ -18,7 +18,7 @@
                     datasource="actionDs">
             <column width="250px">
                 <field property="name"/>
-                <field property="documentType"/>
+                <field property="assetType"/>
                 <field property="dispatch"/>
                 <field property="priority"/>
             </column>

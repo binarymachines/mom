@@ -28,7 +28,7 @@ from read import Reader
 from walk import Walker
 import sql
 import shallow
-from shallow import get_active_document_formats, get_location_types, add_location, get_locations
+from shallow import get_active_file_formats, get_location_types, add_location, get_locations
 from ops import ops_func
 import assets
 
@@ -43,7 +43,7 @@ class Discover(Walker):
     def __init__(self):
         super(Discover, self).__init__()
         self.folders = []
-        self.formats = get_active_document_formats()
+        self.formats = get_active_file_formats()
         self.types = get_location_types()
 
     @ops_func

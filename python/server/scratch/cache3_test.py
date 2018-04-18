@@ -183,7 +183,7 @@ class TestCache3(unittest.TestCase):
 
         hashes = [
             {'operation': 'scan', 'operator': 'id3v2'},
-            { 'active_directory': '/media/removable/Audio/music/albums/', 'document_type': 'DIRECTORY' }
+            { 'active_directory': '/media/removable/Audio/music/albums/', 'asset_type': 'DIRECTORY' }
         ]
 
         hashkey1 = cache3.DELIM.join([cache3.HASH, KEYGROUP, keyname])

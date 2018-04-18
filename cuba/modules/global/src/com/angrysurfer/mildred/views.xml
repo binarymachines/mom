@@ -12,9 +12,9 @@
         <property name="directoryType"
                   view="_minimal"/>
     </view>
-    <view class="com.angrysurfer.mildred.entity.media.Document"
+    <view class="com.angrysurfer.mildred.entity.media.Asset"
           extends="_local"
-          name="Document-screen-view">
+          name="Asset-screen-view">
         <property name="fileType"
                   view="_minimal"/>
     </view>

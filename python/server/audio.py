@@ -17,7 +17,7 @@ def expunge(asset):
 #  def folder_in_folder_that_contains_media(asset):
 
 def get_category_filed_as(asset):
-    doc = search.get_doc(asset.document_type, asset.esid)
+    doc = search.get_doc(asset.asset_type, asset.esid)
     data = doc['_source']    
     if has_location(asset) and is_filed(asset):
          return data['absolute_path'].split(os.pathsep)[get_path_depth(data['location'])]
@@ -31,7 +31,7 @@ def has_category(asset):
     pass
 
 def has_location(asset):
-    doc = search.get_doc(asset.document_type, asset.esid)
+    doc = search.get_doc(asset.asset_type, asset.esid)
     data = doc['_source']
     return 'location' in data and data['location']
 
@@ -48,18 +48,18 @@ def is_redundant(asset):
     pass
 
 def tags_contain_artist_and_album(asset):
-    data = assets.get_attribute_values(asset, '_document_format', 'artist', 'album')
+    data = assets.get_attribute_values(asset, '_file_format', 'artist', 'album')
     return len(data) == 2
 
 def tags_match_filename(asset):
-    data = assets.get_attribute_values(asset, '_document_format', 'artist', 'album')
+    data = assets.get_attribute_values(asset, '_file_format', 'artist', 'album')
     if len(data) == 2:
         tagdata = os.path.sep.join([data['artist'], data['album']]).lower()
         path_nominal = tagdata in asset.absolute_path.lower()
         return path_nominal == False
 
 def tags_match_path(asset):
-    data = assets.get_attribute_values(asset, '_document_format', 'artist', 'album')
+    data = assets.get_attribute_values(asset, '_file_format', 'artist', 'album')
     if len(data) == 2:
         tagdata = os.path.sep.join([data['artist'], data['album']]).lower()
         return tagdata in asset.absolute_path.lower()

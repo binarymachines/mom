@@ -12,8 +12,8 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 public class DelimitedFileInfo extends BaseIntIdentityIdEntity {
     private static final long serialVersionUID = 2151215700009381102L;
 
-    @Column(name = "document_id", nullable = false, length = 128)
-    protected String document;
+    @Column(name = "asset_id", nullable = false, length = 128)
+    protected String asset;
 
     @Column(name = "delimiter", nullable = false, length = 1)
     protected String delimiter;
@@ -21,12 +21,12 @@ public class DelimitedFileInfo extends BaseIntIdentityIdEntity {
     @Column(name = "column_count", nullable = false)
     protected Integer columnCount;
 
-    public void setDocument(String document) {
-        this.document = document;
+    public void setAsset(String asset) {
+        this.asset = asset;
     }
 
-    public String getDocument() {
-        return document;
+    public String getAsset() {
+        return asset;
     }
 
     public void setDelimiter(String delimiter) {

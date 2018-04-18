@@ -6,13 +6,13 @@ def copy_index(source_index, target_host, target_port, target_index):
 
     target = search.connect(target_host, target_port)
 
-    rows = sql.retrieve_values('document', ['index_name', 'id', 'document_type'], [source_index])
+    rows = sql.retrieve_values('asset', ['index_name', 'id', 'asset_type'], [source_index])
     for row in rows:
         id = row[1]
-        document_type = row[2]
-        doc = search.get_doc(document_type, id)
+        asset_type = row[2]
+        doc = search.get_doc(asset_type, id)
 
-        target.index(target_index, doc_type=document_type, body=doc)
+        target.index(target_index, doc_type=asset_type, body=doc)
 
 
 def main():

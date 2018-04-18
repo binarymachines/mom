@@ -4,7 +4,7 @@ import pyorient
 
 import const
 import alchemy
-from assets import Document, Directory
+from assets import Asset, Directory
 import assets
 import config
 import json
@@ -46,13 +46,13 @@ class Analyzer(object):
         self.generate_reasons(path)
         pass
 
-    def analyze_asset(self, _reasons, document):
-        self.vector.set_param(ANALYZER, ACTIVE_FILE, document.absolute_path)
+    def analyze_asset(self, _reasons, asset):
+        self.vector.set_param(ANALYZER, ACTIVE_FILE, asset.absolute_path)
         for _reason in _reasons:
             dispatch_funcs = _reason['funcs']
             unsatisfied_conditions = len(dispatch_funcs)
             for func in dispatch_funcs:
-                if func(document) == _reason['expected_result']:
+                if func(asset) == _reason['expected_result']:
                     unsatisfied_conditions -= 1
 
             if unsatisfied_conditions == 0:
@@ -123,12 +123,12 @@ class Analyzer(object):
         reasons = self.get__reasons()
 
         for file_ in SQLAsset.retrieve(const.FILE, path, use_like=True):
-            document = Document(file_.absolute_path, esid=file_.id)
-            # esdoc = search.get_doc(const.FILE, document.esid)
-            # document.data = document.to_dictionary()Glob
+            asset = Asset(file_.absolute_path, esid=file_.id)
+            # esdoc = search.get_doc(const.FILE, asset.esid)
+            # asset.data = asset.to_dictionary()Glob
 
             # if no op record exists
-            self.analyze_asset(reasons, document)
+            self.analyze_asset(reasons, asset)
 
         # for folder in SQLAsset.retrieve(const.DIRECTORY, path, use_like=True):
         #     directory = Directory(folder.absolute_path, esid=folder.id)

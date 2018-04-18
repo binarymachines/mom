@@ -9,8 +9,8 @@ class AssetException(MildredException):
 
 
 class ElasticDataIntegrityException(AssetException):
-    def __init__(self, document_type, attribute, value):
-        self.document_type = document_type
+    def __init__(self, asset_type, attribute, value):
+        self.asset_type = asset_type
         self.attribute = attribute
         # self.data = value
 
@@ -19,7 +19,7 @@ class ElasticDataIntegrityException(AssetException):
         if attribute == 'absolute_path':
             data = value
 
-        super(ElasticDataIntegrityException, self).__init__('multiple documents found for %s' % data, value)
+        super(ElasticDataIntegrityException, self).__init__('multiple assets found for %s' % data, value)
 
 
 # network and local resources

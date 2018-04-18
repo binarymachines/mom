@@ -23,8 +23,8 @@ public class Action extends BaseIntIdentityIdEntity {
     @Column(name = "name", nullable = false)
     protected String name;
 
-    @Column(name = "document_type", nullable = false, length = 32)
-    protected String documentType;
+    @Column(name = "asset_type", nullable = false, length = 32)
+    protected String assetType;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dispatch_id")
@@ -47,12 +47,12 @@ public class Action extends BaseIntIdentityIdEntity {
         return name;
     }
 
-    public void setDocumentType(String documentType) {
-        this.documentType = documentType;
+    public void setAssetType(String assetType) {
+        this.assetType = assetType;
     }
 
-    public String getDocumentType() {
-        return documentType;
+    public String getAssetType() {
+        return assetType;
     }
 
     public void setDispatch(Dispatch dispatch) {

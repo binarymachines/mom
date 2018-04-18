@@ -21,11 +21,11 @@ public class Alias extends BaseIntIdentityIdEntity {
     @Column(name = "name", nullable = false, length = 25)
     protected String name;
 
-    @JoinTable(name = "alias_document_attribute",
+    @JoinTable(name = "alias_file_attribute",
         joinColumns = @JoinColumn(name = "alias_id"),
-        inverseJoinColumns = @JoinColumn(name = "document_attribute_id"))
+        inverseJoinColumns = @JoinColumn(name = "file_attribute_id"))
     @ManyToMany
-    protected List<DocumentAttribute> documentAttribute;
+    protected List<FileAttribute> FileAttribute;
 
     public void setName(String name) {
         this.name = name;
@@ -35,12 +35,12 @@ public class Alias extends BaseIntIdentityIdEntity {
         return name;
     }
 
-    public void setDocumentAttribute(List<DocumentAttribute> documentAttribute) {
-        this.documentAttribute = documentAttribute;
+    public void setFileAttribute(List<FileAttribute> FileAttribute) {
+        this.FileAttribute = FileAttribute;
     }
 
-    public List<DocumentAttribute> getDocumentAttribute() {
-        return documentAttribute;
+    public List<FileAttribute> getFileAttribute() {
+        return FileAttribute;
     }
 
 

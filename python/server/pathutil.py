@@ -1,7 +1,7 @@
 import logging
 import os
 
-from shallow import get_locations, get_document_category_names
+from shallow import get_locations, get_category_names
 
 from core import log
 
@@ -22,7 +22,7 @@ def file_type_recognized(path, extensions, recursive=False):
 
 def folder_is_media_root(path, formats, types):
 
-    categories = get_document_category_names()
+    categories = get_category_names()
     if os.path.isdir(path):
         found = []
         for f in os.listdir(path):

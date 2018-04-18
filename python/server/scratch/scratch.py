@@ -14,11 +14,11 @@ import sys, os
 
 # ensured paths
 
-# def ensure(document_type, esid, path):
-#     esidforpath = get_cached_esid(document_type, path)
+# def ensure(asset_type, esid, path):
+#     esidforpath = get_cached_esid(asset_type, path)
 #     if esidforpath is None:
 #         key = DELIM.join(['ensure', esid])
-#         values = { 'document_type': document_type, 'absolute_path': path, 'esid': esid }
+#         values = { 'asset_type': asset_type, 'absolute_path': path, 'esid': esid }
 #         config.redis.hmset(key, values)
 #
 #
@@ -50,12 +50,12 @@ import sys, os
 #
 #             # esids = []
 #             paths = [{ 'esid': value['esid'], 'absolute_path': value['absolute_path'],
-#                         'index_name': value['index_name'], 'document_type': value['document_type'] }
+#                         'index_name': value['index_name'], 'asset_type': value['asset_type'] }
 #                      for value in esids]
 #
 #             clause = ', '.join([sql.quote_if_string(value['esid']) for value in paths])
 #             if clause != '':
-#                 # q = """SELECT id FROM document WHERE index_name ="%s" AND id in (%s)""" % (config.es_index, clause)
+#                 # q = """SELECT id FROM asset WHERE index_name ="%s" AND id in (%s)""" % (config.es_index, clause)
 #                 # rows = sql.run_query(q)
 #                 rows = sql.run_query_template('doc_select_esid_in', config.es_index, clause)
 #                 if len(rows) != len(paths):
@@ -64,7 +64,7 @@ import sys, os
 #                         if path['esid'] not in cached_paths:
 #                             # if config.sql_debug: print('Updating MySQL...')
 #                             try:
-#                                 assets.insert_asset(path['document_type'], path['esid'], path['absolute_path'])
+#                                 assets.insert_asset(path['asset_type'], path['esid'], path['absolute_path'])
 #                             except Exception, e:
 #                                 print e.message
 #
@@ -76,14 +76,14 @@ def test_func():
 
 def main():
     # index = 'media'
-    # rows = sql.retrieve_values('document', ['id', 'absolute_path', 'document_type'], [])
+    # rows = sql.retrieve_values('asset', ['id', 'absolute_path', 'asset_type'], [])
     # for row in rows:
     #     id = row[0]
     #     path = row[1]
-    #     document_type = row[2]
+    #     asset_type = row[2]
     #     hex = path.encode('hex')
     #     try:
-    #         sql.insert_values('document2', ['id', 'index_name', 'document_type', 'absolute_path', 'hex_key'], [id, index, document_type, path, hex])
+    #         sql.insert_values('asset2', ['id', 'index_name', 'asset_type', 'absolute_path', 'hex_key'], [id, index, asset_type, path, hex])
     #     except Exception, err:
     #         print err.message
 

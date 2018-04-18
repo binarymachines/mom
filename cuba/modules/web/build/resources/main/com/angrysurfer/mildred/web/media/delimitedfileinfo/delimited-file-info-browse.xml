@@ -31,7 +31,7 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="document"/>
+                <column id="asset"/>
                 <column id="delimiter"/>
                 <column id="columnCount"/>
             </columns>

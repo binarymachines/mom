@@ -30,18 +30,18 @@ INSERT INTO `media`.`file_type` (`ext`, `name`) VALUES ("mkv", "mkv");
   
 -- INSERT INTO `media`.`directory_type` (`default`) VALUES ("mkv");
 
-CREATE TABLE `document` (
+CREATE TABLE `asset` (
   `id` varchar(128) NOT NULL,
   `file_type_id` int(11) unsigned,
-  `document_type` varchar(64) NOT NULL,
+  `asset_type` varchar(64) NOT NULL,
   `absolute_path` varchar(1024) NOT NULL,
   `effective_dt` datetime DEFAULT now(),
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  CONSTRAINT `fk_document_file_type`
+  CONSTRAINT `fk_asset_file_type`
     FOREIGN KEY (`file_type_id`)
     REFERENCES `media`.`file_type` (`id`),
   PRIMARY KEY (`id`), 
-  UNIQUE KEY `uk_document_absolute_path` (`absolute_path`)
+  UNIQUE KEY `uk_asset_absolute_path` (`absolute_path`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS `directory_type` (
@@ -160,7 +160,7 @@ CREATE TABLE `directory` (
 
 CREATE TABLE `delimited_file_info` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `document_id` varchar(128) NOT NULL,
+  `asset_id` varchar(128) NOT NULL,
   `delimiter` varchar(1) NOT NULL,
   `column_count` int(3) NOT NULL,
   PRIMARY KEY (`id`)
@@ -179,12 +179,12 @@ CREATE TABLE `delimited_file_data` (
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `document_attribute` (
+CREATE TABLE `file_attribute` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `document_format` varchar(32) NOT NULL,
+  `file_format` varchar(32) NOT NULL,
   `attribute_name` varchar(128) NOT NULL,
   `active_flag` tinyint(1) NOT NULL DEFAULT '0',
-  UNIQUE INDEX `uk_document_attribute` (`document_format` ASC, `attribute_name` ASC),
+  UNIQUE INDEX `uk_file_attribute` (`file_format` ASC, `attribute_name` ASC),
   PRIMARY KEY (`id`)
 );
 
@@ -273,10 +273,10 @@ CREATE TABLE `directory_constant` (
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `document_category` (
+CREATE TABLE `category` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(256) NOT NULL,
-  `document_type` varchar(128) CHARACTER SET utf8 NOT NULL,
+  `asset_type` varchar(128) CHARACTER SET utf8 NOT NULL,
   -- `effective_dt` datetime DEFAULT now(),
   -- `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
@@ -326,12 +326,12 @@ create table `match_record` (
   `is_ext_match` tinyint(1) NOT NULL DEFAULT '0',
   -- `effective_dt` datetime DEFAULT now(),
   -- `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
-  CONSTRAINT `fk_doc_document`
+  CONSTRAINT `fk_doc_asset`
     FOREIGN KEY (`doc_id`)
-    REFERENCES `document` (`id`),
-  CONSTRAINT `fk_match_doc_document`
+    REFERENCES `asset` (`id`),
+  CONSTRAINT `fk_match_doc_asset`
     FOREIGN KEY (`match_doc_id`)
-    REFERENCES `document` (`id`),
+    REFERENCES `asset` (`id`),
   PRIMARY KEY (`doc_id`,`match_doc_id`)
 );
 
@@ -349,13 +349,13 @@ drop view if exists `v_match_record`;
 
 create view `v_match_record` as
 
-select d1.absolute_path document_path, m.comparison_result, d2.absolute_path match_path, m.is_ext_match
-from document d1, document d2, match_record m
+select d1.absolute_path asset_path, m.comparison_result, d2.absolute_path match_path, m.is_ext_match
+from asset d1, asset d2, match_record m
 where m.doc_id = d1.id and
     m.match_doc_id = d2.id
 union
-select d2.absolute_path document_path, m.comparison_result, d1.absolute_path match_path, m.is_ext_match
-from document d1, document d2, match_record m
+select d2.absolute_path asset_path, m.comparison_result, d1.absolute_path match_path, m.is_ext_match
+from asset d1, asset d2, match_record m
 where m.doc_id = d2.id and
     m.match_doc_id = d1.id;
 
@@ -419,77 +419,77 @@ insert into file_handler_registration (file_handler_id, file_type_id, name) valu
   (select id from file_handler where class_name = 'PyPDF2FileHandler'), (select id from file_type where ext = 'pdf'), 'pypdf2');
 
 
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe1',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit1',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'talb',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe1',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe2',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit1',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit2',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'talb',1);
 
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tpe1',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tpe2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tit1',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tit2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'talb',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tpe1',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tpe2',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tit1',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'tit2',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.4.0', 'talb',1);
 
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'comm',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'mcdi',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'priv',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tcom',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tcon',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tdrc',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tlen',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpub',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'trck',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tdor',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tmed',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpos',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tso2',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tsop',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'ufid',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'apic',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tipl',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tenc',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tlan',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit3',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe3',1);
-INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe4',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (14, 'ID3v2.3.0', 'POPM',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (20, 'ID3v2.3.0', 'TXXX',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (39, 'ID3v2.3.0', 'TDRL',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (27, 'ID3v2.3.0', 'TSRC',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (28, 'ID3v2.3.0', 'GEOB',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (29, 'ID3v2.3.0', 'TFLT',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (30, 'ID3v2.3.0', 'TSSE',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (31, 'ID3v2.3.0', 'WXXX',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (32, 'ID3v2.3.0', 'TCOP',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (33, 'ID3v2.3.0', 'TBPM',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (34, 'ID3v2.3.0', 'TOPE',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (35, 'ID3v2.3.0', 'TYER',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (36, 'ID3v2.3.0', 'PCNT',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (37, 'ID3v2.3.0', 'TKEY',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (38, 'ID3v2.3.0', 'USER',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (41, 'ID3v2.3.0', 'TOFN',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (42, 'ID3v2.3.0', 'TSOA',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (43, 'ID3v2.3.0', 'WOAR',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (44, 'ID3v2.3.0', 'TSOT',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (62, 'ID3v2.3.0', 'WCOM',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (68, 'ID3v2.3.0', 'RVA2',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (69, 'ID3v2.3.0', 'WOAF',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (70, 'ID3v2.3.0', 'WOAS',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (90, 'ID3v2.3.0', 'TDTG',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (91, 'ID3v2.3.0', 'USLT',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (92, 'ID3v2.3.0', 'TCMP',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (132, 'ID3v2.3.0', 'TOAL',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (149, 'ID3v2.3.0', 'TDEN',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (168, 'ID3v2.3.0', 'WCOP',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (256, 'ID3v2.3.0', 'TEXT',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (257, 'ID3v2.3.0', 'TSST',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (258, 'ID3v2.3.0', 'WORS',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (259, 'ID3v2.3.0', 'WPAY',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (260, 'ID3v2.3.0', 'WPUB',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (261, 'ID3v2.3.0', 'LINK',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (263, 'ID3v2.3.0', 'TOLY',1);
--- INSERT INTO `document_attribute` (`document_format`, `attribute_name`, `active_flag`) VALUES (264, 'ID3v2.3.0', 'TRSN',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'comm',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'mcdi',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'priv',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tcom',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tcon',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tdrc',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tlen',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpub',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'trck',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tdor',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tmed',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpos',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tso2',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tsop',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'ufid',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'apic',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tipl',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tenc',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tlan',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tit3',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe3',1);
+INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES ('ID3v2.3.0', 'tpe4',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (14, 'ID3v2.3.0', 'POPM',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (20, 'ID3v2.3.0', 'TXXX',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (39, 'ID3v2.3.0', 'TDRL',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (27, 'ID3v2.3.0', 'TSRC',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (28, 'ID3v2.3.0', 'GEOB',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (29, 'ID3v2.3.0', 'TFLT',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (30, 'ID3v2.3.0', 'TSSE',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (31, 'ID3v2.3.0', 'WXXX',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (32, 'ID3v2.3.0', 'TCOP',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (33, 'ID3v2.3.0', 'TBPM',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (34, 'ID3v2.3.0', 'TOPE',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (35, 'ID3v2.3.0', 'TYER',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (36, 'ID3v2.3.0', 'PCNT',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (37, 'ID3v2.3.0', 'TKEY',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (38, 'ID3v2.3.0', 'USER',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (41, 'ID3v2.3.0', 'TOFN',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (42, 'ID3v2.3.0', 'TSOA',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (43, 'ID3v2.3.0', 'WOAR',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (44, 'ID3v2.3.0', 'TSOT',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (62, 'ID3v2.3.0', 'WCOM',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (68, 'ID3v2.3.0', 'RVA2',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (69, 'ID3v2.3.0', 'WOAF',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (70, 'ID3v2.3.0', 'WOAS',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (90, 'ID3v2.3.0', 'TDTG',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (91, 'ID3v2.3.0', 'USLT',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (92, 'ID3v2.3.0', 'TCMP',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (132, 'ID3v2.3.0', 'TOAL',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (149, 'ID3v2.3.0', 'TDEN',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (168, 'ID3v2.3.0', 'WCOP',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (256, 'ID3v2.3.0', 'TEXT',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (257, 'ID3v2.3.0', 'TSST',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (258, 'ID3v2.3.0', 'WORS',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (259, 'ID3v2.3.0', 'WPAY',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (260, 'ID3v2.3.0', 'WPUB',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (261, 'ID3v2.3.0', 'LINK',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (263, 'ID3v2.3.0', 'TOLY',1);
+-- INSERT INTO `file_attribute` (`file_format`, `attribute_name`, `active_flag`) VALUES (264, 'ID3v2.3.0', 'TRSN',1);
 
 
 INSERT INTO `directory_amelioration` (`id`, `name`, `use_tag`, `replacement_tag`, `use_parent_folder_flag`) VALUES (1, 'cd1', 0, NULL,1);
@@ -609,191 +609,191 @@ INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (16, 
 INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (14, 'albums', 'album');
 INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (15, 'noscan', 'no_scan');
 
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (1, 'dark classical', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (2, 'funk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (3, 'mash-ups', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (4, 'rap', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (5, 'acid jazz', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (6, 'afro-beat', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (7, 'ambi-sonic', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (8, 'ambient', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (9, 'ambient noise', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (10, 'ambient soundscapes', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (11, 'art punk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (12, 'art rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (13, 'avant-garde', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (14, 'black metal', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (15, 'blues', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (16, 'chamber goth', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (17, 'classic rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (18, 'classical', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (19, 'classics', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (20, 'contemporary classical', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (21, 'country', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (22, 'dark ambient', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (23, 'deathrock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (24, 'deep ambient', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (25, 'disco', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (26, 'doom jazz', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (27, 'drum & bass', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (28, 'dubstep', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (29, 'electroclash', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (30, 'electronic', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (31, 'electronic [abstract hip-hop, illbient]', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (32, 'electronic [ambient groove]', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (33, 'electronic [armchair techno, emo-glitch]', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (34, 'electronic [minimal]', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (35, 'ethnoambient', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (36, 'experimental', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (37, 'folk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (38, 'folk-horror', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (39, 'garage rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (40, 'goth metal', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (41, 'gothic', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (42, 'grime', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (43, 'gun rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (44, 'hardcore', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (45, 'hip-hop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (46, 'hip-hop (old school)', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (47, 'hip-hop [chopped & screwed]', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (48, 'house', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (49, 'idm', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (50, 'incidental', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (51, 'indie', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (52, 'industrial', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (53, 'industrial rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (54, 'industrial [soundscapes]', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (55, 'jazz', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (56, 'krautrock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (57, 'martial ambient', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (58, 'martial folk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (59, 'martial industrial', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (60, 'modern rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (61, 'neo-folk, neo-classical', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (62, 'new age', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (63, 'new soul', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (64, 'new wave, synthpop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (65, 'noise, powernoise', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (66, 'oldies', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (67, 'pop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (68, 'post-pop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (69, 'post-rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (70, 'powernoise', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (71, 'psychedelic rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (72, 'punk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (73, 'punk [american]', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (74, 'rap (chopped & screwed)', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (75, 'rap (old school)', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (76, 'reggae', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (77, 'ritual ambient', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (78, 'ritual industrial', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (79, 'rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (80, 'roots rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (81, 'russian hip-hop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (82, 'ska', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (83, 'soul', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (84, 'soundtracks', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (85, 'surf rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (86, 'synthpunk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (87, 'trip-hop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (88, 'urban', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (89, 'visual kei', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (90, 'world fusion', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (91, 'world musics', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (92, 'alternative', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (93, 'atmospheric', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (94, 'new wave', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (95, 'noise', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (96, 'synthpop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (97, 'unsorted', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (98, 'coldwave', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (99, 'film music', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (100, 'garage punk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (101, 'goth', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (102, 'mash-up', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (103, 'minimal techno', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (104, 'mixed', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (105, 'nu jazz', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (106, 'post-punk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (107, 'psytrance', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (108, 'ragga soca', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (109, 'reggaeton', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (110, 'ritual', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (111, 'rockabilly', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (112, 'smooth jazz', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (113, 'techno', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (114, 'tributes', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (115, 'various', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (116, 'celebrational', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (117, 'classic ambient', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (118, 'electronic rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (119, 'electrosoul', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (120, 'fusion', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (121, 'glitch', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (122, 'go-go', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (123, 'hellbilly', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (124, 'illbient', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (125, 'industrial [rare]', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (126, 'jpop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (127, 'mashup', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (128, 'minimal', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (129, 'modern soul', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (130, 'neo soul', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (131, 'neo-folk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (132, 'new beat', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (133, 'satire', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (134, 'dark jazz', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (135, 'classic hip-hop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (136, 'electronic dance', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (137, 'minimal house', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (138, 'minimal wave', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (139, 'afrobeat', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (140, 'heavy metal', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (141, 'new wave, goth, synthpop, alternative', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (142, 'ska, reggae', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (143, 'soul & funk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (144, 'psychedelia', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (145, 'americana', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (146, 'dance', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (147, 'glam', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (148, 'gothic & new wave', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (149, 'punk & new wave', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (150, 'random', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (151, 'rock, metal, pop', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (152, 'sound track', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (153, 'soundtrack', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (154, 'spacerock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (155, 'tribute', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (156, 'unclassifiable', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (157, 'unknown', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (158, 'weird', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (159, 'darkwave', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (160, 'experimental-noise', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (161, 'general alternative', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (162, 'girl group', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (163, 'gospel & religious', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (164, 'alternative & punk', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (165, 'bass', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (166, 'beat', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (167, 'black rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (168, 'classic', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (169, 'japanese', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (170, 'kanine', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (171, 'metal', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (172, 'moderne', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (173, 'noise rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (174, 'other', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (175, 'post-punk & minimal wave', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (176, 'progressive rock', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (177, 'psychic tv', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (178, 'punk & oi', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (179, 'radio', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (180, 'rock\'n\'soul', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (181, 'spoken word', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (182, 'temp', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (183, 'trance', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (184, 'vocal', 'directory');
-INSERT INTO `document_category` (`id`, `name`, `document_type`) VALUES (185, 'world', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (1, 'dark classical', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (2, 'funk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (3, 'mash-ups', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (4, 'rap', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (5, 'acid jazz', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (6, 'afro-beat', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (7, 'ambi-sonic', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (8, 'ambient', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (9, 'ambient noise', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (10, 'ambient soundscapes', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (11, 'art punk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (12, 'art rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (13, 'avant-garde', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (14, 'black metal', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (15, 'blues', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (16, 'chamber goth', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (17, 'classic rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (18, 'classical', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (19, 'classics', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (20, 'contemporary classical', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (21, 'country', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (22, 'dark ambient', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (23, 'deathrock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (24, 'deep ambient', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (25, 'disco', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (26, 'doom jazz', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (27, 'drum & bass', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (28, 'dubstep', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (29, 'electroclash', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (30, 'electronic', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (31, 'electronic [abstract hip-hop, illbient]', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (32, 'electronic [ambient groove]', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (33, 'electronic [armchair techno, emo-glitch]', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (34, 'electronic [minimal]', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (35, 'ethnoambient', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (36, 'experimental', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (37, 'folk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (38, 'folk-horror', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (39, 'garage rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (40, 'goth metal', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (41, 'gothic', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (42, 'grime', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (43, 'gun rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (44, 'hardcore', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (45, 'hip-hop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (46, 'hip-hop (old school)', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (47, 'hip-hop [chopped & screwed]', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (48, 'house', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (49, 'idm', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (50, 'incidental', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (51, 'indie', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (52, 'industrial', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (53, 'industrial rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (54, 'industrial [soundscapes]', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (55, 'jazz', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (56, 'krautrock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (57, 'martial ambient', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (58, 'martial folk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (59, 'martial industrial', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (60, 'modern rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (61, 'neo-folk, neo-classical', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (62, 'new age', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (63, 'new soul', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (64, 'new wave, synthpop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (65, 'noise, powernoise', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (66, 'oldies', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (67, 'pop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (68, 'post-pop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (69, 'post-rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (70, 'powernoise', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (71, 'psychedelic rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (72, 'punk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (73, 'punk [american]', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (74, 'rap (chopped & screwed)', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (75, 'rap (old school)', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (76, 'reggae', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (77, 'ritual ambient', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (78, 'ritual industrial', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (79, 'rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (80, 'roots rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (81, 'russian hip-hop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (82, 'ska', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (83, 'soul', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (84, 'soundtracks', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (85, 'surf rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (86, 'synthpunk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (87, 'trip-hop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (88, 'urban', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (89, 'visual kei', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (90, 'world fusion', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (91, 'world musics', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (92, 'alternative', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (93, 'atmospheric', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (94, 'new wave', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (95, 'noise', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (96, 'synthpop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (97, 'unsorted', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (98, 'coldwave', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (99, 'film music', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (100, 'garage punk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (101, 'goth', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (102, 'mash-up', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (103, 'minimal techno', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (104, 'mixed', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (105, 'nu jazz', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (106, 'post-punk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (107, 'psytrance', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (108, 'ragga soca', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (109, 'reggaeton', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (110, 'ritual', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (111, 'rockabilly', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (112, 'smooth jazz', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (113, 'techno', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (114, 'tributes', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (115, 'various', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (116, 'celebrational', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (117, 'classic ambient', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (118, 'electronic rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (119, 'electrosoul', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (120, 'fusion', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (121, 'glitch', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (122, 'go-go', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (123, 'hellbilly', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (124, 'illbient', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (125, 'industrial [rare]', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (126, 'jpop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (127, 'mashup', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (128, 'minimal', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (129, 'modern soul', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (130, 'neo soul', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (131, 'neo-folk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (132, 'new beat', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (133, 'satire', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (134, 'dark jazz', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (135, 'classic hip-hop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (136, 'electronic dance', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (137, 'minimal house', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (138, 'minimal wave', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (139, 'afrobeat', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (140, 'heavy metal', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (141, 'new wave, goth, synthpop, alternative', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (142, 'ska, reggae', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (143, 'soul & funk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (144, 'psychedelia', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (145, 'americana', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (146, 'dance', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (147, 'glam', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (148, 'gothic & new wave', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (149, 'punk & new wave', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (150, 'random', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (151, 'rock, metal, pop', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (152, 'sound track', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (153, 'soundtrack', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (154, 'spacerock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (155, 'tribute', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (156, 'unclassifiable', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (157, 'unknown', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (158, 'weird', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (159, 'darkwave', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (160, 'experimental-noise', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (161, 'general alternative', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (162, 'girl group', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (163, 'gospel & religious', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (164, 'alternative & punk', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (165, 'bass', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (166, 'beat', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (167, 'black rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (168, 'classic', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (169, 'japanese', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (170, 'kanine', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (171, 'metal', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (172, 'moderne', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (173, 'noise rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (174, 'other', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (175, 'post-punk & minimal wave', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (176, 'progressive rock', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (177, 'psychic tv', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (178, 'punk & oi', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (179, 'radio', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (180, 'rock\'n\'soul', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (181, 'spoken word', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (182, 'temp', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (183, 'trance', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (184, 'vocal', 'directory');
+INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (185, 'world', 'directory');
 
 
 CREATE TABLE IF NOT EXISTS `media`.`alias` (
@@ -802,34 +802,34 @@ CREATE TABLE IF NOT EXISTS `media`.`alias` (
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `media`.`alias_document_attribute` (
-  `document_attribute_id` INT(11) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `media`.`alias_file_attribute` (
+  `file_attribute_id` INT(11) UNSIGNED NOT NULL,
   `alias_id` INT(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (`document_attribute_id`, `alias_id`),
-  INDEX `fk_alias_document_attribute_document_attribute1_idx` (`document_attribute_id` ASC),
-  INDEX `fk_alias_document_attribute_alias1_idx` (`alias_id` ASC),
-  CONSTRAINT `fk_alias_document_attribute_document_attribute1`
-    FOREIGN KEY (`document_attribute_id`)
-    REFERENCES `media`.`document_attribute` (`id`)
+  PRIMARY KEY (`file_attribute_id`, `alias_id`),
+  INDEX `fk_alias_file_attribute_file_attribute1_idx` (`file_attribute_id` ASC),
+  INDEX `fk_alias_file_attribute_alias1_idx` (`alias_id` ASC),
+  CONSTRAINT `fk_alias_file_attribute_file_attribute1`
+    FOREIGN KEY (`file_attribute_id`)
+    REFERENCES `media`.`file_attribute` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_alias_document_attribute_alias`
+  CONSTRAINT `fk_alias_file_attribute_alias`
     FOREIGN KEY (`alias_id`)
     REFERENCES `media`.`alias` (`id`)
 );
 
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'talb' and document_format = 'ID3v2.3.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe1' and document_format = 'ID3v2.3.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe2' and document_format = 'ID3v2.3.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit1' and document_format = 'ID3v2.3.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit2' and document_format = 'ID3v2.3.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `document_attribute` where attribute_name = 'tcon' and document_format = 'ID3v2.3.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `file_attribute` where attribute_name = 'talb' and file_format = 'ID3v2.3.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `file_attribute` where attribute_name = 'tpe1' and file_format = 'ID3v2.3.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `file_attribute` where attribute_name = 'tpe2' and file_format = 'ID3v2.3.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `file_attribute` where attribute_name = 'tit1' and file_format = 'ID3v2.3.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `file_attribute` where attribute_name = 'tit2' and file_format = 'ID3v2.3.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `file_attribute` where attribute_name = 'tcon' and file_format = 'ID3v2.3.0'));
 
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'talb' and document_format = 'ID3v2.4.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe1' and document_format = 'ID3v2.4.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe2' and document_format = 'ID3v2.4.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit1' and document_format = 'ID3v2.4.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit2' and document_format = 'ID3v2.4.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `file_attribute` where attribute_name = 'talb' and file_format = 'ID3v2.4.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `file_attribute` where attribute_name = 'tpe1' and file_format = 'ID3v2.4.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `file_attribute` where attribute_name = 'tpe2' and file_format = 'ID3v2.4.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `file_attribute` where attribute_name = 'tit1' and file_format = 'ID3v2.4.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `file_attribute` where attribute_name = 'tit2' and file_format = 'ID3v2.4.0'));
 --     ON DELETE NO ACTION
 --     ON UPDATE NO ACTION
 -- );
@@ -837,24 +837,24 @@ CREATE TABLE IF NOT EXISTS `media`.`alias_document_attribute` (
 drop view if exists `v_alias`;
 
 create view `v_alias` as
-	SELECT attr.document_format, syn.name, attr.attribute_name FROM media.alias syn, media.alias_document_attribute sda, media.document_attribute attr
+	SELECT attr.file_format, syn.name, attr.attribute_name FROM media.alias syn, media.alias_file_attribute sda, media.file_attribute attr
 	where syn.id = sda.alias_id
-	  and attr.id = sda.document_attribute_id
-	order by document_format, name, attribute_name;
+	  and attr.id = sda.file_attribute_id
+	order by file_format, name, attribute_name;
   
 insert into `alias` (name) values ('artist'), ('album'), ('song'), ('track_id'), ('genre');
 
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'talb' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe1' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe2' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit1' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit2' and document_format = 'ID3v2.3.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `document_attribute` where attribute_name = 'tcon' and document_format = 'ID3v2.3.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `file_attribute` where attribute_name = 'talb' and file_format = 'ID3v2.3.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `file_attribute` where attribute_name = 'tpe1' and file_format = 'ID3v2.3.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `file_attribute` where attribute_name = 'tpe2' and file_format = 'ID3v2.3.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `file_attribute` where attribute_name = 'tit1' and file_format = 'ID3v2.3.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `file_attribute` where attribute_name = 'tit2' and file_format = 'ID3v2.3.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `file_attribute` where attribute_name = 'tcon' and file_format = 'ID3v2.3.0'));
 
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `document_attribute` where attribute_name = 'talb' and document_format = 'ID3v2.4.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe1' and document_format = 'ID3v2.4.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `document_attribute` where attribute_name = 'tpe2' and document_format = 'ID3v2.4.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit1' and document_format = 'ID3v2.4.0'));
-insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `document_attribute` where attribute_name = 'tit2' and document_format = 'ID3v2.4.0'));
--- insert into `alias_document_attribute` (`alias_id`, `document_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `document_attribute` where attribute_name = 'TCON' and document_format = 'ID3v2.4.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'album'), (select id from `file_attribute` where attribute_name = 'talb' and file_format = 'ID3v2.4.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `file_attribute` where attribute_name = 'tpe1' and file_format = 'ID3v2.4.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'artist'), (select id from `file_attribute` where attribute_name = 'tpe2' and file_format = 'ID3v2.4.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `file_attribute` where attribute_name = 'tit1' and file_format = 'ID3v2.4.0'));
+insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'song'), (select id from `file_attribute` where attribute_name = 'tit2' and file_format = 'ID3v2.4.0'));
+-- insert into `alias_file_attribute` (`alias_id`, `file_attribute_id`) values ((select id from `alias` where name = 'genre'), (select id from `file_attribute` where attribute_name = 'TCON' and file_format = 'ID3v2.4.0'));
 

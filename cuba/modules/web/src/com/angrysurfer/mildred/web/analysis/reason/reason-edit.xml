@@ -19,7 +19,7 @@
             <column width="250px">
                 <field property="name"/>
                 <field property="parentReason"/>
-                <field property="documentType"/>
+                <field property="assetType"/>
                 <field property="weight"/>
                 <field property="dispatch"/>
                 <field property="expectedResult"/>

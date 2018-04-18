@@ -12,6 +12,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -29,22 +31,27 @@ public class SwitchRule extends BaseIntIdentityIdEntity {
     @Column(name = "name", nullable = false, length = 128)
     protected String name;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "begin_mode_id")
     protected Mode beginMode;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "end_mode_id")
     protected Mode endMode;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "before_dispatch_id")
     protected ServiceDispatch beforeDispatch;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "after_dispatch_id")
     protected ServiceDispatch afterDispatch;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "condition_dispatch_id")
     protected ServiceDispatch conditionDispatch;

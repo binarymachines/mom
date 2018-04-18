@@ -20,8 +20,8 @@ echo "copying tables..."
 ./bash/copy-table-data.sh media directory_attribute
 ./bash/copy-table-data.sh media directory_constant
 
-./bash/copy-table-data.sh media document_category
-./bash/copy-table-data.sh media document_attribute
+./bash/copy-table-data.sh media category
+./bash/copy-table-data.sh media file_attribute
 
 ./bash/copy-table-data.sh media file_format
 ./bash/copy-table-data.sh media file_type

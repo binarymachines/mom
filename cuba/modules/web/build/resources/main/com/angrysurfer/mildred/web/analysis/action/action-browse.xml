@@ -32,7 +32,7 @@
             </actions>
             <columns>
                 <column id="name"/>
-                <column id="documentType"/>
+                <column id="assetType"/>
                 <column id="dispatch"/>
                 <column id="priority"/>
             </columns>

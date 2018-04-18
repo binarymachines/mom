@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.media.asset.AssetBrowse"
+        focusComponent="documentsTable"
+        lookupComponent="documentsTable"
+        messagesPack="com.angrysurfer.mildred.web.media.asset">
+    <dsContext>
+        <groupDatasource id="documentsDs"
+                         class="com.angrysurfer.mildred.entity.media.Asset"
+                         view="Asset-screen-view">
+            <query>
+                <![CDATA[select e from mildred$Asset e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="documentsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="documentsTable"
+                datasource="documentsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="documentsTable"
+                    width="100%">
+            <actions>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="fileType"/>
+                <column id="assetType"/>
+                <column id="absolutePath"/>
+                <column id="effectiveDt"/>
+                <column id="expirationDt"/>
+                <column id="id"/>
+            </columns>
+            <rows datasource="documentsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="documentsTable.create"/>
+                <button id="editBtn"
+                        action="documentsTable.edit"/>
+                <button id="removeBtn"
+                        action="documentsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

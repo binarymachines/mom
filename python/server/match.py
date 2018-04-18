@@ -64,7 +64,7 @@ def path_expands(path, vector):
 def do_match_op(esid, absolute_path, matchers):
     
     asset = assets.retrieve_asset(absolute_path, esid=esid)
-    doc = search.get_doc(asset.document_type, asset.esid)
+    doc = search.get_doc(asset.asset_type, asset.esid)
 
     if doc and all_matchers_have_run(matchers, asset):
         LOG.debug('calc: skipping all match operations on %s, %s' % (asset.esid, asset.absolute_path))
@@ -105,7 +105,7 @@ def get_matchers():
                          'analyzer': field.analyzer, 'operator': field.operator, 'minimum_should_match': field.minimum_should_match, \
                          'query_section': field.query_section}
 
-        matcher = ElasticSearchMatcher(sqlmatcher.name, comparison_fields, document_type=FILE, id=sqlmatcher.id, query_type=sqlmatcher.query_type, \
+        matcher = ElasticSearchMatcher(sqlmatcher.name, comparison_fields, asset_type=FILE, id=sqlmatcher.id, query_type=sqlmatcher.query_type, \
                                        max_score_percentage=float(sqlmatcher.max_score_percentage))
         matchers.append(matcher)
 
@@ -113,9 +113,9 @@ def get_matchers():
 
 
 class MediaMatcher(object):
-    def __init__(self, name, document_type, id=None):
+    def __init__(self, name, asset_type, id=None):
         self.comparison_fields = {}
-        self.document_type = document_type
+        self.asset_type = asset_type
         self.name = name
         self.id = id
 
@@ -147,8 +147,8 @@ class MediaMatcher(object):
 TOP = 'top'
 
 class ElasticSearchMatcher(MediaMatcher):
-    def __init__(self, name, comparison_fields, document_type=None, query_type=None, id=None, max_score_percentage=None):
-        super(ElasticSearchMatcher, self).__init__(name, document_type=document_type, id=id)
+    def __init__(self, name, comparison_fields, asset_type=None, query_type=None, id=None, max_score_percentage=None):
+        super(ElasticSearchMatcher, self).__init__(name, asset_type=asset_type, id=id)
         self.query_type = query_type
         self.max_score_percentage = max_score_percentage
         self.comparison_fields = comparison_fields
@@ -192,7 +192,7 @@ class ElasticSearchMatcher(MediaMatcher):
             must_not = comparison['query_section'] == 'must_not'
             should = comparison['query_section'] == 'should'
 
-            doc = search.get_doc(asset.document_type, asset.esid)
+            doc = search.get_doc(asset.asset_type, asset.esid)
 
             if self.field_in_doc(matcher_field, doc['_source']):
                 value = self.value_from_doc(matcher_field, doc['_source'])

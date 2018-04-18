@@ -112,7 +112,7 @@ def generate_match_doc(exclude_ignore, show_in_subl, source_path, always_generat
             directory_data = { DIRECTORY: [1], DIRECTORY_ESID: [0], RESULTS: {FILE_LIST: []} }
 
             # print 'retrieving matches for: "%s"' % (_data[DIRECTORY])
-            mediafiles = get_documents(directory_data[DIRECTORY])
+            mediafiles = get_assets(directory_data[DIRECTORY])
             for media in mediafiles:
                 match__data, parent_data = {}, {}
                 file_data = { FILE_ESID: media[0], FILE: media[1].split(os.path.sep)[-1], DIRECTORY: directory_data[DIRECTORY],
@@ -255,8 +255,8 @@ def post_process__data(data, exclude_ignore, records):
 def get_directories(path):
     print('retrieving s matching pattern: "%s"' % (path))
 
-    q = """SELECT id, absolute_path FROM document
-            WHERE index_name = '%s' and document_type = 'media_'
+    q = """SELECT id, absolute_path FROM asset
+            WHERE index_name = '%s' and asset_type = 'media_'
               and absolute_path like '%s%s' ORDER BY absolute_path""" % ('%', path, '%')
 
     return sql.run_query(q)
@@ -264,13 +264,13 @@ def get_directories(path):
 def get_matches(esid, reverse=False, union=False):
 
     query = {'match': """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result
-                           FROM match_record m, document es
+                           FROM match_record m, asset es
                          WHERE es.id = m.match_doc_id and m.doc_id = '%s'
                          """ % (esid) }
 
 
     query['reverse'] = """SELECT DISTINCT m.matcher_name matcher_name, m.match_score, m.match_doc_id, es.absolute_path absolute_path, m.comparison_result
-                                  FROM match_record m, document es
+                                  FROM match_record m, asset es
                                 WHERE es.id = m.doc_id and m.match_doc_id = '%s'
                                 """ % (esid)
 
@@ -282,15 +282,15 @@ def get_matches(esid, reverse=False, union=False):
     elif union: return sql.run_query(query['union'] + order_clause, schema=config.db_media)
     else: return sql.run_query(query['match'] + order_clause, schema=config.db_media)
 
-def get_documents(path, reverse=False, union=False):
+def get_assets(path, reverse=False, union=False):
 
     print('retrieving mediafiles for path: "%s"' % (path))
 
-    query = {'match':  """SELECT es.id, es.absolute_path FROM document es
+    query = {'match':  """SELECT es.id, es.absolute_path FROM asset es
                         WHERE es.absolute_path LIKE "%s%s"
                             and es.id IN (SELECT doc_id FROM match_record) ORDER BY es.absolute_path""" % (path, '%') }
 
-    query['reverse'] = """SELECT es.id, es.absolute_path FROM document es
+    query['reverse'] = """SELECT es.id, es.absolute_path FROM asset es
                 WHERE es.absolute_path LIKE "%s%s"
                     and es.id IN (SELECT match_doc_id FROM match_record) ORDER BY es.absolute_path""" % (path, '%')
 
@@ -307,7 +307,7 @@ def get_media_meta_data(es, esid, media_data):
 
     # mediaFile = Document()
     # mediaFile.esid = esid
-    # mediaFile.document_type = config.FILE
+    # mediaFile.asset_type = config.FILE
     try:
         doc = search.get_doc(const.FILE, esid)
 
@@ -335,7 +335,7 @@ def get_matches_for(pattern):
 
     directories = []
     q = """select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match'
-             from match_record m, document es1, document es2
+             from match_record m, asset es1, asset es2
             where m.is_ext_match = 1
               and m.matcher_name = 'match_artist_album_song'
               and es1.id = m.doc_id
@@ -343,7 +343,7 @@ def get_matches_for(pattern):
               and es1.absolute_path like '%s%s%s'
            UNION
            select distinct es1.absolute_path 'original', m.comparison_result, es2.absolute_path 'match'
-             from match_record m, document es1, document es2
+             from match_record m, asset es1, asset es2
             where m.is_ext_match = 1
               and m.matcher_name = 'match_artist_album_song'
               and es2.id = m.doc_id

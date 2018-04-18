@@ -129,8 +129,8 @@ class MutagenMP4(Pathogen):
         super(MutagenMP4, self).__init__('mutagen-mp4')
 
     def read_tags(self, path, data):
-        document = MP4(path)
-        for item in document.items():
+        file = MP4(path)
+        for item in file.items():
             if len(item) < 2: 
                 continue
 
@@ -156,7 +156,7 @@ class MutagenMP4(Pathogen):
             self.tags[key] = util.uu_str(value)
 
         if len(self.tags) > 0:
-            self.tags['_document_format'] = 'm4a'
+            self.tags['_file_format'] = 'm4a'
             self.tags['_reader'] = self.name
             #TODO: store read_date in same format as file ctime and mtime
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
@@ -173,17 +173,17 @@ class MutagenAPEv2(Pathogen):
         super(MutagenAPEv2, self).__init__('mutagen-apev2')
 
     def read_tags(self, path, data):
-        document = APEv2(path)
-        for item in document.items():
+        file = APEv2(path)
+        for item in file.items():
             if len(item) < 2: 
                 continue
 
             key = util.uu_str(item[0].lower())
-            if self.key_is_invalid(key): 
+            if self.key_is_invalid(key):
                 continue
 
             self.handle_attribute('apev2', key)
-                    
+
             value = util.uu_str(item[1].value)
             if len(value) > MAX_DATA_LENGTH:
                 # filehandler.report_invalid_attribute(path, key, value)
@@ -192,7 +192,7 @@ class MutagenAPEv2(Pathogen):
             self.tags[key] = value
 
         if len(self.tags) > 0:
-            self.tags['_document_format'] = 'apev2'
+            self.tags['_file_format'] = 'apev2'
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
@@ -203,16 +203,16 @@ class MutagenFLAC(Pathogen):
         super(MutagenFLAC, self).__init__('mutagen-flac')
 
     def read_tags(self, path, data):
-        document = FLAC(path)
-        for tag in document.tags:
+        file = FLAC(path)
+        for tag in file.tags:
             if len(tag) < 2: continue
-            
+
             key = tag[0].lower()  #util.uu_str(tag[0])
-            if self.key_is_invalid(key): 
+            if self.key_is_invalid(key):
                 continue
-            
+
             self.handle_attribute('flac', key)
-                
+
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
                 # filehandler.report_invalid_attribute(path, key, value)
@@ -220,9 +220,9 @@ class MutagenFLAC(Pathogen):
             self.tags[key] = value
 
 
-        for tag in document.vc:
+        for tag in file.vc:
             key = util.uu_str(tag[0].lower())
-            if self.key_is_invalid(key): 
+            if self.key_is_invalid(key):
                 continue
 
             self.handle_attribute('flac', key)
@@ -236,7 +236,7 @@ class MutagenFLAC(Pathogen):
                 self.tags[key] = value
 
         if len(self.tags) > 0:
-            self.tags['_document_format'] = 'flac'
+            self.tags['_file_format'] = 'flac'
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
@@ -247,11 +247,11 @@ class MutagenID3(Pathogen):
         super(MutagenID3, self).__init__('mutagen-id3')
 
     def read_tags(self, path, data):
-        document = ID3(path)
-        version = '.'.join([str(value) for value in document.version])
-        document_format = 'ID3v%s' % version
+        file = ID3(path)
+        version = '.'.join([str(value) for value in file.version])
+        file_format = 'ID3v%s' % version
 
-        metadata = document.pprint() # gets all metadata
+        metadata = file.pprint() # gets all metadata
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
 
         for tag in tags:
@@ -263,7 +263,7 @@ class MutagenID3(Pathogen):
                 continue
 
             if len(key) == 4 and key != "TXXX":
-                self.handle_attribute(document_format, key)
+                self.handle_attribute(file_format, key)
 
             value = util.uu_str(tag[1])
             if value is None:
@@ -271,7 +271,6 @@ class MutagenID3(Pathogen):
 
             if len(value) > MAX_DATA_LENGTH:
                 # filehandler.report_invalid_attribute(path, key, value)
-                # LOG.info(value)
                 continue
             
             if key == u"TXXX":
@@ -285,15 +284,15 @@ class MutagenID3(Pathogen):
                     continue
                 
                 txxkey = '.'.join([key, subkey]).lower()
-                self.handle_attribute(document_format, txxkey)
+                self.handle_attribute(file_format, txxkey)
                 self.tags[key][subkey] = util.uu_str(subtags[1])
 
             else:
-                # if key in filehandler.get_attributes(document_format):
+                # if key in filehandler.get_attributes(file_format):
                 self.tags[key] = util.uu_str(value)
 
         if len(self.tags) > 0:
-            self.tags['_document_format'] = document_format
+            self.tags['_file_format'] = file_format
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
@@ -304,8 +303,8 @@ class MutagenOggVorbis(Pathogen):
         super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis')
 
     def read_tags(self, path, data):
-        document = OggVorbis(path)
-        tags = document.tags.as_dict()
+        file = OggVorbis(path)
+        tags = file.tags.as_dict()
         for tag in tags:
             if len(tag) < 2:
                 continue
@@ -324,7 +323,7 @@ class MutagenOggVorbis(Pathogen):
             self.tags[key] = value[0]
 
         if len(self.tags) > 0:
-            self.tags['_document_format'] = 'ogg'
+            self.tags['_file_format'] = 'ogg'
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)

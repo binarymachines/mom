@@ -16,9 +16,9 @@ def get_sorted_items(keygroup, identifier):
     return result
 
 
-def get_active_document_formats(refresh=False):
+def get_active_file_formats(refresh=False):
     keygroup = FILE
-    identifier = 'document_formats'
+    identifier = 'file_formats'
 
     items = cache2.get_items(keygroup, identifier)
     if len(items) == 0 or refresh:
@@ -30,7 +30,7 @@ def get_active_document_formats(refresh=False):
     return get_sorted_items(keygroup, identifier)
 
 
-def get_document_category_names(refresh=False):
+def get_category_names(refresh=False):
     keygroup = FILE
     identifier = 'category_names'
 
@@ -38,7 +38,7 @@ def get_document_category_names(refresh=False):
     if len(items) == 0 or refresh:
         cache2.clear_items(keygroup, identifier)
         key = cache2.get_key(keygroup, identifier)
-        rows = alchemy.SQLDocumentCategory.retrieve_all()
+        rows = alchemy.SQLCategory.retrieve_all()
         cache2.add_items2(key, [category.name for category in rows])
 
     return get_sorted_items(keygroup, identifier)

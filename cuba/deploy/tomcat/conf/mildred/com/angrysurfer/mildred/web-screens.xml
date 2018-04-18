@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <screen-config xmlns="http://schemas.haulmont.com/cuba/screens.xsd">
     <include file="com/angrysurfer/mildred/screens.xml"/>
-    <screen id="mildred$DocQuery.edit"
-            template="com/angrysurfer/mildred/web/elastic/docquery/doc-query-edit.xml"/>
     <screen id="mildred$DocQuery.browse"
             template="com/angrysurfer/mildred/web/elastic/docquery/doc-query-browse.xml"/>
     <screen id="mildred$DocQueryField.edit"
@@ -41,18 +39,10 @@
             template="com/angrysurfer/mildred/web/media/directorytype/directory-type-edit.xml"/>
     <screen id="mildred$DirectoryType.browse"
             template="com/angrysurfer/mildred/web/media/directorytype/directory-type-browse.xml"/>
-    <screen id="mildred$Document.edit"
-            template="com/angrysurfer/mildred/web/media/document/document-edit.xml"/>
-    <screen id="mildred$Document.browse"
-            template="com/angrysurfer/mildred/web/media/document/document-browse.xml"/>
-    <screen id="mildred$DocumentAttribute.edit"
-            template="com/angrysurfer/mildred/web/media/documentattribute/document-attribute-edit.xml"/>
-    <screen id="mildred$DocumentAttribute.browse"
-            template="com/angrysurfer/mildred/web/media/documentattribute/document-attribute-browse.xml"/>
-    <screen id="mildred$DocumentCategory.edit"
-            template="com/angrysurfer/mildred/web/media/documentcategory/document-category-edit.xml"/>
-    <screen id="mildred$DocumentCategory.browse"
-            template="com/angrysurfer/mildred/web/media/documentcategory/document-category-browse.xml"/>
+    <screen id="mildred$Asset.edit"
+            template="com/angrysurfer/mildred/web/media/asset/asset-edit.xml"/>
+    <screen id="mildred$Asset.browse"
+            template="com/angrysurfer/mildred/web/media/asset/asset-browse.xml"/>
     <screen id="mildred$FileHandler.edit"
             template="com/angrysurfer/mildred/web/media/filehandler/file-handler-edit.xml"/>
     <screen id="mildred$FileHandler.browse"
@@ -105,8 +95,6 @@
             template="com/angrysurfer/mildred/web/analysis/vectorparam/vector-param-edit.xml"/>
     <screen id="mildred$VectorParam.browse"
             template="com/angrysurfer/mildred/web/analysis/vectorparam/vector-param-browse.xml"/>
-    <screen id="mildred$Mode.edit"
-            template="com/angrysurfer/mildred/web/service/mode/mode-edit.xml"/>
     <screen id="mildred$ModeDefault.edit"
             template="com/angrysurfer/mildred/web/service/modedefault/mode-default-edit.xml"/>
     <screen id="mildred$ModeDefault.browse"
@@ -145,8 +133,6 @@
             template="com/angrysurfer/mildred/web/service/state/state-edit.xml"/>
     <screen id="mildred$State.browse"
             template="com/angrysurfer/mildred/web/service/state/state-browse.xml"/>
-    <screen id="mildred$SwitchRule.edit"
-            template="com/angrysurfer/mildred/web/service/switchrule/switch-rule-edit.xml"/>
     <screen id="mildred$SwitchRule.browse"
             template="com/angrysurfer/mildred/web/service/switchrule/switch-rule-browse.xml"/>
     <screen id="mildred$TransitionRule.edit"
@@ -185,6 +171,18 @@
             template="com/angrysurfer/mildred/web/service/serviceprofile/service-profile-browse.xml"/>
     <screen id="mainWindow"
             template="com/angrysurfer/mildred/web/screens/ext-mainwindow.xml"/>
+    <screen id="mildred$DocQuery.edit"
+            template="com/angrysurfer/mildred/web/elastic/docquery/doc-query-edit.xml"/>
     <screen id="mildred$Mode.browse"
             template="com/angrysurfer/mildred/web/service/mode/mode-browse.xml"/>
+    <screen id="mildred$Mode.edit"
+            template="com/angrysurfer/mildred/web/service/mode/mode-edit.xml"/>
+    <screen id="mildred$SwitchRule.edit"
+            template="com/angrysurfer/mildred/web/service/switchrule/switch-rule-edit.xml"/>
+    <screen id="mildred$Category.browse"
+            template="com/angrysurfer/mildred/web/media/category/category-browse.xml"/>
+    <screen id="mildred$FileAttribute.browse"
+            template="com/angrysurfer/mildred/web/media/fileattribute/file-attribute-browse.xml"/>
+    <screen id="mildred$FileAttribute.edit"
+            template="com/angrysurfer/mildred/web/media/fileattribute/file-attribute-edit.xml"/>
 </screen-config>

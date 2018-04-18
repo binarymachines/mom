@@ -17,7 +17,7 @@ from errors import SQLIntegrityError
 from core import log
 from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam, Dispatch
 
-from db.generated.sqla_media import Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, \
+from db.generated.sqla_media import Asset, FileAttribute, Category, Directory, DirectoryConstant, \
     FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
 
 from db.generated.sqla_service import ServiceExec, ServiceProfile, OpRecord, ModeDefault, ModeStateDefault, \
@@ -250,25 +250,25 @@ class SQLFileType(FileType):
         return result[0] if len(result) == 1 else None
 
 
-class SQLAsset(Document):
+class SQLAsset(Asset):
 
     file_type = relationship(u'SQLFileType', enable_typechecks=True)
 
     def __repr__(self):
-        return "<SQLAsset(document_type='%s', absolute_path='%s')>" % (self.document_type, self.absolute_path)
+        return "<SQLAsset(asset_type='%s', absolute_path='%s')>" % (self.asset_type, self.absolute_path)
 
     @staticmethod
     @alchemy_func
-    def insert(document_type, id, absolute_path, file_type):
-        if file_type is None and document_type == const.DIRECTORY:
+    def insert(asset_type, id, absolute_path, file_type):
+        if file_type is None and asset_type == const.DIRECTORY:
             file_type=SQLFileType.retrieve(None) 
 
-        if document_type == const.FILE:
+        if asset_type == const.FILE:
             ext = absolute_path.split('.')[-1].lower()
             if ext is not None and len(ext) < 9:
                 file_type=SQLFileType.retrieve(ext) 
         
-        asset = SQLAsset(id=id, document_type=document_type, absolute_path=absolute_path, file_type=file_type)
+        asset = SQLAsset(id=id, asset_type=asset_type, absolute_path=absolute_path, file_type=file_type)
 
         try:
             sessions[MEDIA].add(asset)
@@ -278,20 +278,20 @@ class SQLAsset(Document):
 
     @staticmethod
     @alchemy_func
-    def retrieve(document_type, absolute_path=None, use_like=False):
+    def retrieve(asset_type, absolute_path=None, use_like=False):
         path = '%s%s' % (absolute_path, '%')
 
         result = ()
         if absolute_path is None:
             for instance in sessions[MEDIA].query(SQLAsset). \
-                filter(SQLAsset.document_type == document_type). \
+                filter(SQLAsset.asset_type == asset_type). \
                 filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
                 filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
                 result += (instance,)
 
         elif use_like:
             for instance in sessions[MEDIA].query(SQLAsset). \
-                filter(SQLAsset.document_type == document_type). \
+                filter(SQLAsset.asset_type == asset_type). \
                 filter(SQLAsset.absolute_path.like(path)). \
                 filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
                 filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
@@ -299,7 +299,7 @@ class SQLAsset(Document):
 
         else:
             for instance in sessions[MEDIA].query(SQLAsset). \
-                filter(SQLAsset.document_type == document_type). \
+                filter(SQLAsset.asset_type == asset_type). \
                 filter(SQLAsset.absolute_path == path). \
                 filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
                 filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
@@ -307,12 +307,12 @@ class SQLAsset(Document):
 
         return result
 
-class SQLDocumentAttribute(DocumentAttribute):
+class SQLFileAttribute(FileAttribute):
     @staticmethod
     @alchemy_func
     def retrieve_all():
         result = ()
-        for instance in sessions[MEDIA].query(SQLDocumentAttribute):
+        for instance in sessions[MEDIA].query(SQLFileAttribute):
             result += (instance,)
 
         return result
@@ -320,8 +320,8 @@ class SQLDocumentAttribute(DocumentAttribute):
 
     @staticmethod
     @alchemy_func
-    def insert(document_format, attribute_name):
-        attribute = SQLDocumentAttribute(document_format=document_format, attribute_name=attribute_name) 
+    def insert(file_format, attribute_name):
+        attribute = SQLFileAttribute(file_format=file_format, attribute_name=attribute_name) 
         try:
             sessions[MEDIA].add(attribute)
             sessions[MEDIA].commit()
@@ -329,12 +329,12 @@ class SQLDocumentAttribute(DocumentAttribute):
             raise SQLAlchemyIntegrityError(err, sessions[MEDIA], message=err.message)
 
 
-class SQLDocumentCategory(DocumentCategory):
+class SQLCategory(Category):
     @staticmethod
     @alchemy_func
     def retrieve_all():
         result = ()
-        for instance in sessions[MEDIA].query(SQLDocumentCategory):
+        for instance in sessions[MEDIA].query(SQLCategory):
             result += (instance,)
 
         return result
@@ -768,7 +768,7 @@ def exportJSONFile(datatype):
     
 
 def main():
-    for clazz in [SQLAction, SQLState, SQLMode, SQLMatcher, SQLFileHandler, SQLFileHandlerRegistration, SQLFileType]:  #[MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, Dispatch, ServiceExec, OpRecord, Document, DocumentAttribute, DocumentCategory, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
+    for clazz in [SQLAction, SQLState, SQLMode, SQLMatcher, SQLFileHandler, SQLFileHandlerRegistration, SQLFileType]:  #[MetaAction, MetaActionParam, MetaReason, MetaReasonParam, Action, Reason, ActionParam, ReasonParam, Dispatch, ServiceExec, OpRecord, Asset, FileAttribute, Category, Directory, DirectoryConstant, FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord]:
         try:
             exportJSONFile(clazz)
         except Exception, err:

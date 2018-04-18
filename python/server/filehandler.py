@@ -8,35 +8,34 @@ from core import cache2, util
 import sql
 import config
 
-from alchemy import SQLDocumentAttribute
+from alchemy import SQLFileAttribute
 DELIM = ','
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
 
-def add_attribute(doc_format, attribute):
-    """add an attribute to document_attribute for the specified document_type"""
+def add_attribute(file_format, attribute):
+    """add an attribute to file_attribute for the specified file_type"""
     try: 
-        SQLDocumentAttribute.insert(doc_format, attribute)
+        SQLFileAttribute.insert(file_format, attribute)
     except Exception, err:
         pass
 
 
+def get_attributes(file_format, refresh=False):
+    """retrieve all attributes, including unused ones, from file_attribute for the specified file_type"""
 
-def get_attributes(doc_format, refresh=False):
-    """retrieve all attributes, including unused ones, from document_attribute for the specified document_type"""
-
-    items = cache2.get_items(KNOWN, doc_format)
+    items = cache2.get_items(KNOWN, file_format)
     if len(items) == 0 or refresh:
-        cache2.clear_items(KNOWN, doc_format)
-        rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format], schema='media')
-        cache2.add_items(KNOWN, doc_format, [row.attribute_name for row in rows])
-        items = cache2.get_items(KNOWN, doc_format)
+        cache2.clear_items(KNOWN, file_format)
+        rows = sql.retrieve_values2('file_attribute', ['file_format', 'attribute_name'], [file_format], schema='media')
+        cache2.add_items(KNOWN, file_format, [row.attribute_name for row in rows])
+        items = cache2.get_items(KNOWN, file_format)
 
-    # LOG.debug('get_attributes(doc_format=%s) returns: %s' % (doc_format, str(items)))
+    # LOG.debug('get_attributes(file_format=%s) returns: %s' % (file_format, str(items)))
     return items
 
-    # rows = sql.retrieve_values2('document_attribute', ['document_format', 'attribute_name'], [doc_format])
+    # rows = sql.retrieve_values2('file_attribute', ['file_format', 'attribute_name'], [file_format])
     # return rows
 
 def report_invalid_attribute(path, key, value):
@@ -51,12 +50,12 @@ class FileHandler(object):
         self.name = name
         self.extensions = ()
 
-    def handle_attribute(self, doc_format, attribute):
+    def handle_attribute(self, file_format, attribute):
         if attribute is not None and attribute != "":
-            attribs = get_attributes(doc_format)
+            attribs = get_attributes(file_format)
             if attribute.lower() not in attribs:
-                cache2.add_item(KNOWN, doc_format, attribute.lower())
-                add_attribute(doc_format, attribute.lower())
+                cache2.add_item(KNOWN, file_format, attribute.lower())
+                add_attribute(file_format, attribute.lower())
 
     def handle_exception(self, exception, path, data):
         raise Exception

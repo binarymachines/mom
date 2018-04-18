@@ -47,12 +47,12 @@ ALBUM = 'album'
 NO_SCAN = 'no_scan'
 
 class Asset(object):
-    def __init__(self, absolute_path, document_type, esid=None):
+    def __init__(self, absolute_path, asset_type, esid=None):
         # self.active = True
         self.absolute_path = absolute_path
         self.available = os.access(absolute_path, os.R_OK)
         self.deleted = False
-        self.document_type = document_type
+        self.asset_type = asset_type
         self.errors = []
         self.esid = esid
         self.has_changed = False
@@ -88,7 +88,7 @@ class Asset(object):
 
 class Document(Asset):
     def __init__(self, absolute_path, esid=None):
-        super(Document, self).__init__(absolute_path, document_type=const.FILE, esid=esid)
+        super(Document, self).__init__(absolute_path, asset_type=const.FILE, esid=esid)
         self.available = self.available and os.path.isfile(absolute_path)       
         self.ext = None
         self.file_name = None
@@ -112,7 +112,7 @@ class Document(Asset):
 
 class Directory(Asset):
     def __init__(self, absolute_path, esid=None):
-        super(Directory, self).__init__(absolute_path, document_type=const.DIRECTORY, esid=esid)
+        super(Directory, self).__init__(absolute_path, asset_type=const.DIRECTORY, esid=esid)
         self.available = self.available and os.path.isdir(absolute_path)
 
     # TODO: call Asset.to_dictionary and append values
@@ -216,63 +216,63 @@ def set_active_directory(path):
         cache_directory(directory)
 
 
-# document cache
+# asset cache
 
 @ops_func
-def cache_docs(document_type, path, flush=True):
+def cache_docs(asset_type, path, flush=True):
     if flush: 
-        clear_docs(document_type, os.path.sep)
+        clear_docs(asset_type, os.path.sep)
 
-    ops.update_listeners('retrieving documents', 'assets', path)
-    LOG.debug('retrieving %s records for %s...' % (document_type, path))
-    rows = SQLAsset.retrieve(document_type, path, use_like=True)
+    ops.update_listeners('retrieving assets', 'assets', path)
+    LOG.debug('retrieving %s records for %s...' % (asset_type, path))
+    rows = SQLAsset.retrieve(asset_type, path, use_like=True)
 
     count = len(rows)
     cached_count = 0
 
     for sql_asset in rows:
-        ops.update_listeners('caching %i of %i %s records...' % (cached_count, count, sql_asset.document_type), 'assets', sql_asset.absolute_path)
+        ops.update_listeners('caching %i of %i %s records...' % (cached_count, count, sql_asset.asset_type), 'assets', sql_asset.absolute_path)
         cache_sql_asset(sql_asset)
         cached_count += 1
 
 @ops_func
 def cache_sql_asset(sql_asset):
-    key = cache2.create_key(KEY_GROUP, sql_asset.document_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
+    key = cache2.create_key(KEY_GROUP, sql_asset.asset_type, sql_asset.absolute_path, value=sql_asset.absolute_path)
     cache2.set_hash2(key, {'absolute_path': sql_asset.absolute_path, 'esid': sql_asset.id})
 
 
-def clear_docs(document_type, path):
-    LOG.info('clearing %s document cache' % path)
-    keys = cache2.get_keys(KEY_GROUP, document_type, path)
+def clear_docs(asset_type, path):
+    LOG.info('clearing %s asset cache' % path)
+    keys = cache2.get_keys(KEY_GROUP, asset_type, path)
     for key in keys:
         cache2.delete_key(key)
 
 
-def get_cached_esid(document_type, path):
-    key = cache2.get_key(KEY_GROUP, document_type, path)
+def get_cached_esid(asset_type, path):
+    key = cache2.get_key(KEY_GROUP, asset_type, path)
     values = cache2.get_hash2(key)
     if 'esid' in values:
         return values['esid']
 
 
-def get_doc_keys(document_type):
-    keys = cache2.get_keys(KEY_GROUP, document_type)
+def get_doc_keys(asset_type):
+    keys = cache2.get_keys(KEY_GROUP, asset_type)
     return keys
     
 
-def retrieve_docs(document_type, path):
-    return sql.run_query_template(RETRIEVE_DOCS, document_type, path)
+def retrieve_docs(asset_type, path):
+    return sql.run_query_template(RETRIEVE_DOCS, asset_type, path)
 
 # assets
 
 
-def doc_exists_for_path(document_type, path):
-    return search.unique_doc_exists(document_type, 'absolute_path', path, except_on_multiples=True) if retrieve_esid(document_type, path) is None \
+def doc_exists_for_path(asset_type, path):
+    return search.unique_doc_exists(asset_type, 'absolute_path', path, except_on_multiples=True) if retrieve_esid(asset_type, path) is None \
         else True
 
 
 def retrieve_asset(absolute_path, esid=None, check_cache=True, check_db=True):
-    """return a document instance"""
+    """return a asset instance"""
     
     asset = Document(util.uu_str(absolute_path), esid=esid)
     filename = os.path.split(absolute_path)[1]
@@ -286,18 +286,18 @@ def retrieve_asset(absolute_path, esid=None, check_cache=True, check_db=True):
     asset.location = get_library_location(absolute_path)
 
     # check cache for esid
-    if check_cache and asset.esid is None and path_in_cache(absolute_path, asset.document_type):
-        asset.esid = get_cached_esid(asset.document_type, absolute_path)
+    if check_cache and asset.esid is None and path_in_cache(absolute_path, asset.asset_type):
+        asset.esid = get_cached_esid(asset.asset_type, absolute_path)
 
     # check db for esid
-    if check_db and asset.esid is None and path_in_db(absolute_path, asset.document_type):
-        asset.esid = retrieve_esid(asset.document_type, absolute_path)
+    if check_db and asset.esid is None and path_in_db(absolute_path, asset.asset_type):
+        asset.esid = retrieve_esid(asset.asset_type, absolute_path)
 
     return asset
 
 
 def index_asset(data):
-    res = config.es.index(index=data['document_type'], doc_type=data['document_type'], body=json.dumps(strip_esid(data)))
+    res = config.es.index(index=data['asset_type'], doc_type=data['asset_type'], body=json.dumps(strip_esid(data)))
     if res['_shards']['successful'] == 1:
         return res['_id']
 
@@ -306,11 +306,11 @@ FAILED_TO_PARSE = 'failed to parse'
 
 def create_asset_metadata(data, file_type=None):
     try:
-        # LOG.debug("indexing %s: %s" % (asset.document_type, asset.absolute_path))
+        # LOG.debug("indexing %s: %s" % (asset.asset_type, asset.absolute_path))
         esid = index_asset(data)
         if esid:
-            # LOG.debug("inserting %s: %s into MySQL" % (asset.document_type, asset.absolute_path))
-            SQLAsset.insert(data['document_type'], esid, data['absolute_path'], file_type)
+            # LOG.debug("inserting %s: %s into MySQL" % (asset.asset_type, asset.absolute_path))
+            SQLAsset.insert(data['asset_type'], esid, data['absolute_path'], file_type)
         return esid
     except RequestError, err:
         ERR.error(err.__class__.__name__)
@@ -345,7 +345,7 @@ def create_asset_metadata(data, file_type=None):
         raise err
 
     except Exception, err:
-        config.es.delete(data['document_type'], data['document_type'], data['esid'])
+        config.es.delete(data['asset_type'], data['asset_type'], data['esid'])
         ERR.error(': '.join([err.__class__.__name__, err.message]))
         raise err
                 
@@ -366,25 +366,25 @@ def wait_and_resubmit_asset(err, data):
 @ops_func
 def resubmit_asset(data):
     try:
-        if config.es.indices.exists(data['document_type']):
+        if config.es.indices.exists(data['asset_type']):
             print("resuming...") 
             return create_asset_metadata(data)
     # except RequestError
     except ConnectionError, err:
         print("Elasticsearch connectivity error, retrying in 5 seconds...")
 
-def retrieve_esid(document_type, absolute_path):
-    cached = get_cached_esid(document_type, absolute_path)
+def retrieve_esid(asset_type, absolute_path):
+    cached = get_cached_esid(asset_type, absolute_path)
     if cached: 
         return cached
 
-    rows = SQLAsset.retrieve(document_type, absolute_path)
+    rows = SQLAsset.retrieve(asset_type, absolute_path)
     if len(rows) == 0: 
         return None
     if len(rows) == 1: 
         return rows[0].id
     elif len(rows) >1: 
-        raise ElasticDataIntegrityException(document_type, 'absolute_path', absolute_path)
+        raise ElasticDataIntegrityException(asset_type, 'absolute_path', absolute_path)
     # AssetException("Multiple Ids for '" + absolute_path + "' returned", rows)
 
 
@@ -401,7 +401,7 @@ def strip_esid(values):
 def update_asset(data):
     try:
         if data['esid']:
-            old_doc = search.get_doc(data['document_type'], data['esid'])
+            old_doc = search.get_doc(data['asset_type'], data['esid'])
             old_data = old_doc['_source']['attributes']
 
             updated_reads = []
@@ -413,7 +413,7 @@ def update_asset(data):
                     data['attributes'].append(old_data[index])
 
             try:
-                res = config.es.update(index=data['document_type'], doc_type=data['document_type'], id=data['esid'], body=json.dumps({'doc': strip_esid(data)}))
+                res = config.es.update(index=data['asset_type'], doc_type=data['asset_type'], id=data['esid'], body=json.dumps({'doc': strip_esid(data)}))
                 if res['_shards']['successful'] == 1:
                     return res['_id']
             except RequestError, err:
@@ -484,18 +484,18 @@ def get_library_location(path):
     return result
 
 
-def path_in_cache(path, document_type):
-    return get_cached_esid(document_type, path)
+def path_in_cache(path, asset_type):
+    return get_cached_esid(asset_type, path)
 
 
-def path_in_db(path, document_type):
-    rows = SQLAsset.retrieve(document_type, absolute_path=path)
+def path_in_db(path, asset_type):
+    rows = SQLAsset.retrieve(asset_type, absolute_path=path)
     return len(rows) > 0
 
     
-def get_attribute_values(asset, document_format_attribute, *items):
+def get_attribute_values(asset, file_format_attribute, *items):
     result = {}
-    doc = search.get_doc(asset.document_type, asset.esid)
+    doc = search.get_doc(asset.asset_type, asset.esid)
     data = doc['_source']
     attributes = {}
     if 'attributes' in data:
@@ -506,7 +506,7 @@ def get_attribute_values(asset, document_format_attribute, *items):
                 attributes[attribute] = attribute_group[attribute]
               
     for item in items:
-        aliases = get_aliases(attributes[document_format_attribute], item)
+        aliases = get_aliases(attributes[file_format_attribute], item)
         for alias in aliases:
             if alias.attribute_name in attributes:
                 result[item] = attributes[alias.attribute_name]
@@ -515,17 +515,17 @@ def get_attribute_values(asset, document_format_attribute, *items):
     return result
 
 
-def get_aliases(document_format, term):
-    return sql.retrieve_values2('v_alias', ['document_format', 'name', 'attribute_name'], [document_format, term], schema=config.db_media)
+def get_aliases(file_format, term):
+    return sql.retrieve_values2('v_alias', ['file_format', 'name', 'attribute_name'], [file_format, term], schema=config.db_media)
    
 
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later
 
 def handle_asset_exception(error, path):
     if isinstance(error, ElasticDataIntegrityException):
-        if error.message.lower().startswith('multiple documents found for'):
-            docs = search.find_docs(error.document_type, error.attribute, error.data)
-            #TODO: preserve most recent document version
+        if error.message.lower().startswith('multiple assets found for'):
+            docs = search.find_docs(error.asset_type, error.attribute, error.data)
+            #TODO: preserve most recent asset version
             keepdoc = docs[0]
             for doc in docs:
                 if doc is not keepdoc:
@@ -537,18 +537,18 @@ def handle_asset_exception(error, path):
 # def backup_assets():
 #     ops.update_listeners('querying...', 'assets', '')
 
-#     docs = sql.retrieve_values2('document', ['id', 'document_type', 'absolute_path'], []) 
+#     docs = sql.retrieve_values2('asset', ['id', 'asset_type', 'absolute_path'], []) 
 #     count = len(docs)
 #     for doc in docs:
 #         try:
-#             es_doc = search.get_doc(doc.document_type, doc.id)
+#             es_doc = search.get_doc(doc.asset_type, doc.id)
 #             if search.backup_exists(es_doc):
 #                 ops.update_listeners('backup exists, skipping file %i/%i' % (doc.rownum, count), 'assets', doc.absolute_path)
 #                 continue
 #             ops.update_listeners('copying file %i/%i to backup folder' % (doc.rownum, count), 'assets', doc.absolute_path)
 #             search.backup_doc(es_doc)
 #         except ElasticDataIntegrityException, err:
-#             LOG.info('Duplicate documents found for %s' % doc.absolute_path)
+#             LOG.info('Duplicate assets found for %s' % doc.absolute_path)
 #             handle_asset_exception(err, doc.absolute_path)
 #         except Exception, err:
 #             ERR.error(err.message)

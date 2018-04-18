@@ -41,8 +41,8 @@ public class Reason extends BaseIntIdentityIdEntity {
     @JoinColumn(name = "parent_reason_id")
     protected Reason parentReason;
 
-    @Column(name = "document_type", nullable = false, length = 32)
-    protected String documentType;
+    @Column(name = "asset_type", nullable = false, length = 32)
+    protected String assetType;
 
     @Column(name = "weight", nullable = false)
     protected Integer weight;
@@ -99,12 +99,12 @@ public class Reason extends BaseIntIdentityIdEntity {
         return parentReason;
     }
 
-    public void setDocumentType(String documentType) {
-        this.documentType = documentType;
+    public void setAssetType(String assetType) {
+        this.assetType = assetType;
     }
 
-    public String getDocumentType() {
-        return documentType;
+    public String getAssetType() {
+        return assetType;
     }
 
     public void setWeight(Integer weight) {

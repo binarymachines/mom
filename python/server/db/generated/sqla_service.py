@@ -15,6 +15,8 @@ class Mode(Base):
     name = Column(String(128), nullable=False, unique=True)
     stateful_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
+    service_profiles = relationship(u'ServiceProfile', secondary='service_profile_mode_jn')
+
 
 class ModeDefault(Base):
     __tablename__ = 'mode_default'
@@ -129,6 +131,8 @@ class ServiceDispatch(Base):
     class_name = Column(String(128))
     func_name = Column(String(128))
 
+    service_profiles = relationship(u'ServiceProfile', secondary='service_profile_service_dispatch_jn')
+
 
 class ServiceExec(Base):
     __tablename__ = 'service_exec'
@@ -151,6 +155,20 @@ class ServiceProfile(Base):
 
     startup_service_dispatch = relationship(u'ServiceDispatch')
     switch_rules = relationship(u'SwitchRule', secondary='service_profile_switch_rule_jn')
+
+
+t_service_profile_mode_jn = Table(
+    'service_profile_mode_jn', metadata,
+    Column('service_profile_id', ForeignKey(u'service_profile.id'), primary_key=True, nullable=False, index=True),
+    Column('mode_id', ForeignKey(u'mode.id'), primary_key=True, nullable=False, index=True)
+)
+
+
+t_service_profile_service_dispatch_jn = Table(
+    'service_profile_service_dispatch_jn', metadata,
+    Column('service_profile_id', ForeignKey(u'service_profile.id'), primary_key=True, nullable=False, index=True),
+    Column('service_dispatch_id', ForeignKey(u'service_dispatch.id'), primary_key=True, nullable=False, index=True)
+)
 
 
 t_service_profile_switch_rule_jn = Table(
@@ -364,4 +382,28 @@ t_v_mode_switch_rule_dispatch_w_id = Table(
     Column('after_module', String(128)),
     Column('after_class', String(128)),
     Column('after_func', String(128))
+)
+
+
+t_v_service_dispatch_profile = Table(
+    'v_service_dispatch_profile', metadata,
+    Column('service_profile_id', Integer, server_default=text("'0'")),
+    Column('name', String(128)),
+    Column('startup_dispatch_id', Integer),
+    Column('mode_id', Integer, server_default=text("'0'")),
+    Column('switch_rule_id', Integer, server_default=text("'0'")),
+    Column('before_dispatch_id', Integer),
+    Column('after_dispatch_id', Integer),
+    Column('begin_mode_id', Integer),
+    Column('end_mode_id', Integer),
+    Column('condition_dispatch_id', Integer)
+)
+
+
+t_v_service_mode = Table(
+    'v_service_mode', metadata,
+    Column('pk_sp_id', Integer, server_default=text("'0'")),
+    Column('pk_mode_id', Integer, server_default=text("'0'")),
+    Column('service_profile_id', Integer, server_default=text("'0'")),
+    Column('mode_id', Integer, server_default=text("'0'"))
 )

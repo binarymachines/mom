@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `suggestion`.`generated_action` (
     `action_id` int(11) UNSIGNED,
     `action_status_id` int(11) UNSIGNED,
     `parent_id` int(11) UNSIGNED,
-    `document_id` varchar(128) NOT NULL,
+    `asset_id` varchar(128) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`parent_id`)
         REFERENCES `generated_action` (`id`) 
@@ -16,8 +16,8 @@ ADD foreign key fk_action(`action_id`)
 REFERENCES analysis.action(`id`);
 
 ALTER TABLE `generated_action` 
-ADD foreign key fk_action_document(`document_id`)
-REFERENCES media.document(`id`);
+ADD foreign key fk_action_asset(`asset_id`)
+REFERENCES media.asset(`id`);
 
 ALTER TABLE `generated_action` 
 ADD foreign key fk_action_status(`action_status_id`)
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `suggestion`.`generated_reason` (
     `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `reason_id` int(11) UNSIGNED,
     `parent_id` int(11) UNSIGNED,
-    -- `document_id` varchar(128) NOT NULL,
+    -- `asset_id` varchar(128) NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`parent_id`)
         REFERENCES `generated_reason` (`id`)
@@ -40,8 +40,8 @@ ADD foreign key fk_reason(`reason_id`)
 REFERENCES analysis.action(`id`);
 
 -- ALTER TABLE `generated_reason` 
--- ADD foreign key fk_reason_document(`document_id`)
--- REFERENCES media.document(`id`);
+-- ADD foreign key fk_reason_asset(`asset_id`)
+-- REFERENCES media.asset(`id`);
 
 
 CREATE TABLE IF NOT EXISTS `suggestion`.`generated_action_reason` (

@@ -19,7 +19,7 @@ def clear_dupes_from_es(vector):
 
 @ops_func
 def clear_dupes_for_path(path)
-    rows = sql.retrieve_like_values(FILE, ['absolute_path', 'document_type'], [path])
+    rows = sql.retrieve_like_values(FILE, ['absolute_path', 'asset_type'], [path])
     clear_dupes_for_rows(rows)
 
 @ops_func
@@ -29,7 +29,7 @@ def clear_dupes_for_rows:
             ops.update_listeners('enforcing data integrity', 'elasticsearch cleaner', row[0])
             search.unique_doc_exists(row[1],'absolute_path', row[0], except_on_multiples=True)
         except ElasticDataIntegrityException, err:
-            LOG.info('Duplicate documents found for %s' % row[0])
+            LOG.info('Duplicate assets found for %s' % row[0])
             assets.handle_asset_exception(err, row[0])
         except Exception, err:
             ERR.error(err.message)

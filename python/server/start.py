@@ -142,7 +142,7 @@ def reset(args):
     except Exception, err:
         ERR.WARNING(err.message)
 
-    for table in ['directory', 'match_record', 'document']:
+    for table in ['directory', 'match_record', 'asset']:
         query = 'delete from %s' % (table)
         sql.execute_query(query, schema=config.db_media)
 

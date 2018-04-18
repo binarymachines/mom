@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `analysis`.`dispatch` (
 CREATE TABLE IF NOT EXISTS `analysis`.`action` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL,
-  `document_type` VARCHAR(32) NOT NULL DEFAULT 'file',
+  `asset_type` VARCHAR(32) NOT NULL DEFAULT 'file',
   `dispatch_id` INT(11) UNSIGNED NOT NULL,
   `priority` INT(3) NOT NULL DEFAULT 10,
   PRIMARY KEY (`id`),
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `analysis`.`reason` (
   `name` VARCHAR(255) NOT NULL,
   `parent_reason_id` INT(11) UNSIGNED NULL DEFAULT NULL,
   -- `is_sufficient_solo` TINYINT(1) NOT NULL DEFAULT '0',
-  `document_type` VARCHAR(32) NOT NULL DEFAULT 'file',
+  `asset_type` VARCHAR(32) NOT NULL DEFAULT 'file',
   `weight` INT(3) NOT NULL DEFAULT '10',
   `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
   `expected_result` TINYINT(1) NOT NULL DEFAULT '1',

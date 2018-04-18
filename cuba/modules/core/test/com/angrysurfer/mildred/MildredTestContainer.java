@@ -2,7 +2,7 @@ package com.angrysurfer.mildred;
 
 import com.haulmont.bali.util.Dom4j;
 import com.haulmont.cuba.testsupport.TestContainer;
-import org.dom4j.Document;
+import org.dom4j.Asset;
 import org.dom4j.Element;
 
 import java.io.File;

@@ -27,7 +27,7 @@ def clean_str(string):
 class MediaMatcher(object):
     def __init__(self, name, doc_type):
         self.comparison_fields = []
-        self.document_type = doc_type
+        self.asset_type = doc_type
         self.name = name
         self.max_score_percentage = None
         
@@ -158,9 +158,9 @@ class ElasticSearchMatcher(MediaMatcher):
             self.record_match(media.esid,  match['_id'], self.name, config.es_index, match_record_fields, match['_score'],
                     self.match_comparison_result(media.doc, match), str(self.match_extensions_match(media.doc, match)))
 
-            # scratch.ensure(match['_id'], match['_source']['absolute_path'], self.document_type)
+            # scratch.ensure(match['_id'], match['_source']['absolute_path'], self.asset_type)
             # try:
-            #     thread.start_new_thread(scratch.ensure, (self.document_type, match['_id'], match['_source']['absolute_path'],))
+            #     thread.start_new_thread(scratch.ensure, (self.asset_type, match['_id'], match['_source']['absolute_path'],))
             # except Exception, err:
             #     ERR.error(err.message)
 

@@ -22,9 +22,9 @@
     <class>com.angrysurfer.mildred.entity.media.DirectoryAttribute</class>
     <class>com.angrysurfer.mildred.entity.media.DirectoryConstant</class>
     <class>com.angrysurfer.mildred.entity.media.DirectoryType</class>
-    <class>com.angrysurfer.mildred.entity.media.Document</class>
-    <class>com.angrysurfer.mildred.entity.media.DocumentAttribute</class>
-    <class>com.angrysurfer.mildred.entity.media.DocumentCategory</class>
+    <class>com.angrysurfer.mildred.entity.media.Asset</class>
+    <class>com.angrysurfer.mildred.entity.media.FileAttribute</class>
+    <class>com.angrysurfer.mildred.entity.media.Category</class>
     <class>com.angrysurfer.mildred.entity.media.FileHandler</class>
     <class>com.angrysurfer.mildred.entity.media.FileHandlerRegistration</class>
     <class>com.angrysurfer.mildred.entity.media.FileType</class>

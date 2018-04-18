@@ -102,25 +102,25 @@ def create_index(index):
 
 def delete_doc(doc):
     doc_id = doc['_id']
-    document_type = doc['_type']
+    asset_type = doc['_type']
     if backup_doc(doc, target_folder=var.outqueuedir):
         try:
-            config.es.delete(document_type, document_type, doc_id)
+            config.es.delete(asset_type, asset_type, doc_id)
         except Exception, err:
             LOG.error(err.message)
 
 
-def delete_docs(document_type, attribute, value):
-    docs = find_docs(document_type, attribute, value)
+def delete_docs(asset_type, attribute, value):
+    docs = find_docs(asset_type, attribute, value)
     for doc in docs:
         # save a backup of the doc to local file system
         delete_doc(doc)
 
 
-# find documents with matching top-level attribute, (doc['_source']['attribute'])
-def find_docs(document_type, attribute, value):
+# find assets with matching top-level attribute, (doc['_source']['attribute'])
+def find_docs(asset_type, attribute, value):
     result = ()
-    res = config.es.search(document_type, doc_type=document_type, body={ "query": { "match" : { "%s" % attribute: value }}})
+    res = config.es.search(asset_type, doc_type=asset_type, body={ "query": { "match" : { "%s" % attribute: value }}})
     for doc in res['hits']['hits']:
         try:
             if doc['_source'][attribute] == value:
@@ -131,43 +131,43 @@ def find_docs(document_type, attribute, value):
     return result
 
 
-def find_docs_missing_attribute(document_type, attribute, max_results=1000):
+def find_docs_missing_attribute(asset_type, attribute, max_results=1000):
     query = { "query" : { "bool" : { "must_not" : { "exists" : { "field" : attribute }}}}}
-    return config.es.search(document_type, document_type, query, size=max_results)
+    return config.es.search(asset_type, asset_type, query, size=max_results)
 
 
-def get_doc(document_type, esid):
+def get_doc(asset_type, esid):
     try:
-        return config.es.get(index=document_type, doc_type=document_type, id=esid)
+        return config.es.get(index=asset_type, doc_type=asset_type, id=esid)
     except Exception, err:
         LOG.error(err.message)
         raise Exception('DOC NOT FOUND FOR ID: %s' % esid)
 
 
-def get_doc_id(document_type, attribute, value):
-    docs = find_docs(document_type, attribute, value)
+def get_doc_id(asset_type, attribute, value):
+    docs = find_docs(asset_type, attribute, value)
     if len(docs) is 1:
         return docs[0]['_id']
     # else
-    raise Exception("Attribute %s does not identify a unique document" % attribute)
+    raise Exception("Attribute %s does not identify a unique asset" % attribute)
 
 
-def unique_doc_exists(document_type, attribute, value, except_on_multiples=False):
-    docs = find_docs(document_type, attribute, value)
+def unique_doc_exists(asset_type, attribute, value, except_on_multiples=False):
+    docs = find_docs(asset_type, attribute, value)
     doc_count = len(docs)
 
     if doc_count > 1 and except_on_multiples:
-        # if document_type == const.FILE:
-            # print "multiple documents found for % %s (%s)" % (document_type, attribute, value)
+        # if asset_type == const.FILE:
+            # print "multiple assets found for % %s (%s)" % (asset_type, attribute, value)
             # sys.exit(1)
 
-        raise ElasticDataIntegrityException(document_type, attribute, value)
+        raise ElasticDataIntegrityException(asset_type, attribute, value)
 
     return doc_count is 1
 
 
-def unique_doc_id(document_type, attribute, value):
-    docs = find_docs(document_type, attribute, value)
+def unique_doc_id(asset_type, attribute, value):
+    docs = find_docs(asset_type, attribute, value)
     if len(docs) is 1:
         return docs[0]['_id']
     # else

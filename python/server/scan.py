@@ -39,7 +39,7 @@ class Scanner(Walker):
     def __init__(self, vector):
         super(Scanner, self).__init__()
         self.vector = vector
-        self.document_type = const.FILE
+        self.asset_type = const.FILE
         self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
         self.high_scan = self.vector.get_param(SCAN, HSCAN)
         self.update_scan = self.vector.get_param(SCAN, USCAN)

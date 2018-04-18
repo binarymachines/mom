@@ -11,7 +11,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 
-@DesignSupport("{'imported':true,'unmappedColumns':['action_id','action_status_id','document_id']}")
+@DesignSupport("{'imported':true,'unmappedColumns':['action_id','action_status_id','asset_id']}")
 @Table(name = "generated_action")
 @Entity(name = "mildred$GeneratedAction")
 public class GeneratedAction extends BaseIntIdentityIdEntity {

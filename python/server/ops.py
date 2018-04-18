@@ -265,7 +265,7 @@ def write_ops_data(path, operation=None, operator=None, resuming=False):
         if record['status'] == 'INCOMPLETE':
             record['end_time'] = datetime.datetime.now().isoformat()
 
-        # TODO: if esids were cached after document has been indexed, they COULD be inserted HERE instead of using update_ops_data() post-ipso
+        # TODO: if esids were cached after asset has been indexed, they COULD be inserted HERE instead of using update_ops_data() post-ipso
         update_listeners('writing %s' % record['operation_name'], record['operator_name'], record['target_path'])
 
         SQLOperationRecord.insert(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \

@@ -2,11 +2,11 @@
 
 def setup_genre_directories():
 
-    directories = get_document_category_names()
+    directories = get_category_names()
     for f in directories:
-        rows = sql.retrieve_values('document_category', ['name'], [f.lower()])
+        rows = sql.retrieve_values('category', ['name'], [f.lower()])
         if len(rows) == 0:
-            sql.insert_values('document_category', ['name'], [f.lower()])
+            sql.insert_values('category', ['name'], [f.lower()])
 
 def setup_location__names():
     directories = get_location_names()

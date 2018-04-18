@@ -17,7 +17,7 @@
         <fieldGroup id="fieldGroup"
                     datasource="delimitedFileInfoDs">
             <column width="250px">
-                <field property="document"/>
+                <field property="asset"/>
                 <field property="delimiter"/>
                 <field property="columnCount"/>
             </column>

@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://browseCaption"
-        class="com.angrysurfer.mildred.web.media.documentattribute.DocumentAttributeBrowse"
-        focusComponent="documentAttributesTable"
-        lookupComponent="documentAttributesTable"
-        messagesPack="com.angrysurfer.mildred.web.media.documentattribute">
+        class="com.angrysurfer.mildred.web.media.FileAttribute.FileAttributeBrowse"
+        focusComponent="FileAttributesTable"
+        lookupComponent="FileAttributesTable"
+        messagesPack="com.angrysurfer.mildred.web.media.FileAttribute">
     <dsContext>
-        <groupDatasource id="documentAttributesDs"
-                         class="com.angrysurfer.mildred.entity.media.DocumentAttribute"
+        <groupDatasource id="FileAttributesDs"
+                         class="com.angrysurfer.mildred.entity.media.FileAttribute"
                          view="_local">
             <query>
-                <![CDATA[select e from mildred$DocumentAttribute e]]>
+                <![CDATA[select e from mildred$FileAttribute e]]>
             </query>
         </groupDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="documentAttributesTable"
+    <layout expand="FileAttributesTable"
             spacing="true">
         <filter id="filter"
-                applyTo="documentAttributesTable"
-                datasource="documentAttributesDs">
+                applyTo="FileAttributesTable"
+                datasource="FileAttributesDs">
             <properties include=".*"/>
         </filter>
-        <groupTable id="documentAttributesTable"
+        <groupTable id="FileAttributesTable"
                     width="100%">
             <actions>
                 <action id="create"/>
@@ -31,20 +31,20 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="documentFormat"/>
+                <column id="fileFormat"/>
                 <column id="attributeName"/>
                 <column id="activeFlag"/>
             </columns>
-            <rows datasource="documentAttributesDs"/>
+            <rows datasource="FileAttributesDs"/>
             <rowsCount/>
             <buttonsPanel id="buttonsPanel"
                           alwaysVisible="true">
                 <button id="createBtn"
-                        action="documentAttributesTable.create"/>
+                        action="FileAttributesTable.create"/>
                 <button id="editBtn"
-                        action="documentAttributesTable.edit"/>
+                        action="FileAttributesTable.edit"/>
                 <button id="removeBtn"
-                        action="documentAttributesTable.remove"/>
+                        action="FileAttributesTable.remove"/>
             </buttonsPanel>
         </groupTable>
     </layout>

@@ -204,27 +204,6 @@ CREATE TABLE `switch_rule` (
   UNIQUE KEY `uk_switch_rule_name` (`name`)
 );
 
-create view `v_service_dispatch_profile` as
-	SELECT p.id as service_profile_id, p.name, p.startup_service_dispatch_id as startup_dispatch_id,
-		m.id as mode_id, sr.id as switch_rule_id,
-		sr.before_dispatch_id, sr.after_dispatch_id, 
-        sr.begin_mode_id begin_mode_id, sr.end_mode_id, 
-		sr.condition_dispatch_id
-	 FROM service.service_profile p, service.mode m, service.switch_rule sr, 
-		service.service_profile_switch_rule_jn spswj
-	  where p.id = spswj.service_profile_id 
-		and m.id in (sr.begin_mode_id, sr.end_mode_id)
-		and spswj.switch_rule_id = sr.id;
-
- create view `v_service_mode` as
-	SELECT distinct p.id as pk_sp_id, m.id as pk_mode_id, 
-		p.id as service_profile_id, 
-        m.id as mode_id
-	 FROM service.service_profile p, service.mode m, service.switch_rule sr, 
-		service.service_profile_switch_rule_jn spswj
-	  where p.id = spswj.service_profile_id 
-		and m.id in (sr.begin_mode_id, sr.end_mode_id)
-		and spswj.switch_rule_id = sr.id;
 
 
 create view `v_mode_switch_rule_dispatch` as
@@ -836,3 +815,25 @@ CREATE TABLE IF NOT EXISTS `service_profile_service_dispatch_jn` (
 );
 
 insert into service_profile_service_dispatch_jn (select 1, id from service_dispatch);
+
+create view `v_service_dispatch_profile` as
+	SELECT p.id as service_profile_id, p.name, p.startup_service_dispatch_id as startup_dispatch_id,
+		m.id as mode_id, sr.id as switch_rule_id,
+		sr.before_dispatch_id, sr.after_dispatch_id, 
+        sr.begin_mode_id begin_mode_id, sr.end_mode_id, 
+		sr.condition_dispatch_id
+	 FROM service.service_profile p, service.mode m, service.switch_rule sr, 
+		service.service_profile_switch_rule_jn spswj
+	  where p.id = spswj.service_profile_id 
+		and m.id in (sr.begin_mode_id, sr.end_mode_id)
+		and spswj.switch_rule_id = sr.id;
+
+ create view `v_service_mode` as
+	SELECT distinct p.id as pk_sp_id, m.id as pk_mode_id, 
+		p.id as service_profile_id, 
+        m.id as mode_id
+	 FROM service.service_profile p, service.mode m, service.switch_rule sr, 
+		service.service_profile_switch_rule_jn spswj
+	  where p.id = spswj.service_profile_id 
+		and m.id in (sr.begin_mode_id, sr.end_mode_id)
+		and spswj.switch_rule_id = sr.id;
