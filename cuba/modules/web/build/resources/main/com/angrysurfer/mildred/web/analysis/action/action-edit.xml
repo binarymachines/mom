@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.analysis.action.ActionEdit"
+        datasource="actionDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.analysis.action">
+    <dsContext>
+        <datasource id="actionDs"
+                    class="com.angrysurfer.mildred.entity.analysis.Action"
+                    view="Action-screen-view"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="actionDs">
+            <column width="250px">
+                <field property="name"/>
+                <field property="assetType"/>
+                <field property="dispatch"/>
+                <field property="priority"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

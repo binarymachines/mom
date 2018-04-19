@@ -8,7 +8,7 @@ import javax.persistence.Column;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 
 @DesignSupport("{'imported':true}")
-@NamePattern("%s %s|moduleName,funcName")
+@NamePattern("%s %s %s|moduleName,className,funcName")
 @Table(name = "service_dispatch")
 @Entity(name = "mildred$ServiceDispatch")
 public class ServiceDispatch extends BaseIntIdentityIdEntity {

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.service.vserviceswitchrule.VServiceSwitchRuleEdit"
+        datasource="vServiceSwitchRuleDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.service.vserviceswitchrule">
+    <dsContext>
+        <datasource id="vServiceSwitchRuleDs"
+                    class="com.angrysurfer.mildred.entity.service.VServiceSwitchRule"
+                    view="vServiceSwitchRule-view">
+            <datasource id="idDs"
+                        property="id"/>
+        </datasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="vServiceSwitchRuleDs">
+            <column width="250px">
+                <field property="serviceProfile"/>
+                <field property="startupDispatch"/>
+                <field property="mode"/>
+                <field property="switchRule"/>
+                <field property="beforeDispatch"/>
+                <field property="afterDispatch"/>
+                <field property="beginMode"/>
+                <field property="endMode"/>
+                <field property="conditionDispatch"/>
+                <field datasource="idDs"
+                       property="pkSp"/>
+                <field datasource="idDs"
+                       property="pkSd"/>
+                <field datasource="idDs"
+                       property="pkMode"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>
