@@ -2,5 +2,10 @@
 <studio>
     <settings>
         <freeDbmsKeywords>mode</freeDbmsKeywords>
+        <hotDeployMapping>modules/global/src:conf/mildred-core</hotDeployMapping>
+        <hotDeployMapping>modules/core/src:conf/mildred-core</hotDeployMapping>
+        <hotDeployMapping>modules/global/src:conf/mildred</hotDeployMapping>
+        <hotDeployMapping>modules/web/src:conf/mildred</hotDeployMapping>
+        <hotDeployMapping>modules/gui/src:conf/mildred</hotDeployMapping>
     </settings>
 </studio>
