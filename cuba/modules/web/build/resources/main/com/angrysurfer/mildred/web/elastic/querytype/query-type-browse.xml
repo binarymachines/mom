@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.elastic.querytype.QueryTypeBrowse"
+        focusComponent="queryTypesTable"
+        lookupComponent="queryTypesTable"
+        messagesPack="com.angrysurfer.mildred.web.elastic.querytype">
+    <dsContext>
+        <groupDatasource id="queryTypesDs"
+                         class="com.angrysurfer.mildred.entity.elastic.QueryType"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$QueryType e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="queryTypesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="queryTypesTable"
+                datasource="queryTypesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="queryTypesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="desc"/>
+                <column id="name"/>
+            </columns>
+            <rows datasource="queryTypesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="queryTypesTable.create"/>
+                <button id="editBtn"
+                        action="queryTypesTable.edit"/>
+                <button id="removeBtn"
+                        action="queryTypesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

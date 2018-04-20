@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.service.mode.ModeBrowse"
+        focusComponent="modesTable"
+        lookupComponent="modesTable"
+        messagesPack="com.angrysurfer.mildred.web.service.mode">
+    <dsContext>
+        <collectionDatasource id="modesDs"
+                              class="com.angrysurfer.mildred.entity.service.Mode"
+                              view="mode-view">
+            <query>
+                <![CDATA[select e from mildred$Mode e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="modesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="modesTable"
+                datasource="modesDs">
+            <properties include=".*"/>
+        </filter>
+        <table id="modesTable"
+               multiselect="true"
+               width="100%">
+            <actions>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+                <column id="statefulFlag"/>
+            </columns>
+            <rows datasource="modesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="modesTable.create"/>
+                <button id="editBtn"
+                        action="modesTable.edit"/>
+                <button id="removeBtn"
+                        action="modesTable.remove"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

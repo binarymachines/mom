@@ -58,8 +58,11 @@
     <class>com.angrysurfer.mildred.entity.analysis.Reason</class>
     <class>com.angrysurfer.mildred.entity.analysis.ReasonParam</class>
     <class>com.angrysurfer.mildred.entity.analysis.VectorParam</class>
-    <class>com.angrysurfer.mildred.entity.elastic.DocQuery</class>
-    <class>com.angrysurfer.mildred.entity.elastic.DocQueryField</class>
+    <class>com.angrysurfer.mildred.entity.elastic.Clause</class>
+    <class>com.angrysurfer.mildred.entity.elastic.Document</class>
+    <class>com.angrysurfer.mildred.entity.elastic.DocumentType</class>
+    <class>com.angrysurfer.mildred.entity.elastic.Query</class>
+    <class>com.angrysurfer.mildred.entity.elastic.QueryType</class>
     <class>com.angrysurfer.mildred.entity.media.key.MatchRecordCompKey</class>
     <class>com.angrysurfer.mildred.entity.media.Alias</class>
     <class>com.angrysurfer.mildred.entity.media.DelimitedFileData</class>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.media.directory.DirectoryEdit"
+        datasource="directoryDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.media.directory">
+    <dsContext>
+        <datasource id="directoryDs"
+                    class="com.angrysurfer.mildred.entity.media.Directory"
+                    view="Directory-screen-view"/>
+        <collectionDatasource id="directoryTypesDs"
+                              class="com.angrysurfer.mildred.entity.media.DirectoryType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$DirectoryType e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="275"
+                width="625"/>
+    <layout expand="fieldGroup"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="directoryDs"
+                    width="100%">
+            <column width="550px">
+                <field caption="Name"
+                       property="name"/>
+                <field caption="Type"
+                       optionsDatasource="directoryTypesDs"
+                       property="directoryType"
+                       width="250px"/>
+                <field caption="as of"
+                       property="effectiveDt"
+                       width="250px"/>
+                <field caption="until"
+                       property="expirationDt"
+                       width="250px"/>
+                <field caption="active"
+                       property="activeFlag"
+                       width="25px"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               align="MIDDLE_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
+    </layout>
+</window>

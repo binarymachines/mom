@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.elastic.query.QueryEdit"
+        datasource="queryDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.elastic.query">
+    <dsContext>
+        <datasource id="queryDs"
+                    class="com.angrysurfer.mildred.entity.elastic.Query"
+                    view="Query-screen-view"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="queryDs">
+            <column width="250px">
+                <field property="name"/>
+                <field property="queryType"/>
+                <field property="documentType"/>
+                <field property="maxScorePercentage"/>
+                <field property="activeFlag"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

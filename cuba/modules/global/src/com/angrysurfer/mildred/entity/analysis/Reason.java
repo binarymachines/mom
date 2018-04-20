@@ -12,7 +12,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
-import com.angrysurfer.mildred.entity.elastic.DocQuery;
+import com.angrysurfer.mildred.entity.elastic.Query;
 import com.haulmont.chile.core.annotations.MetaProperty;
 import com.haulmont.cuba.core.entity.annotation.SystemLevel;
 import javax.persistence.Transient;
@@ -29,10 +29,6 @@ public class Reason extends BaseIntIdentityIdEntity {
         inverseJoinColumns = @JoinColumn(name = "action_id"))
     @ManyToMany
     protected List<Action> action;
-
-    @Transient
-    @MetaProperty(related = "docQueryId")
-    protected DocQuery docQuery;
 
     @Column(name = "name", nullable = false)
     protected String name;
@@ -58,19 +54,11 @@ public class Reason extends BaseIntIdentityIdEntity {
     @Column(name = "DOC_QUERY_ID")
     protected Integer docQueryId;
 
-    public void setDocQuery(DocQuery docQuery) {
-        this.docQuery = docQuery;
-    }
-
-    public DocQuery getDocQuery() {
-        return docQuery;
-    }
-
-    public void setDocQueryId(Integer docQueryId) {
+    public void setQueryId(Integer docQueryId) {
         this.docQueryId = docQueryId;
     }
 
-    public Integer getDocQueryId() {
+    public Integer getQueryId() {
         return docQueryId;
     }
 
