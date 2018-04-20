@@ -1,6 +1,6 @@
 use `analysis`;
 
--- CREATE TABLE `doc_query` (
+-- CREATE TABLE `query` (
 --   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
 --   -- `index_name` varchar(128) NOT NULL,
 --   `name` varchar(128) NOT NULL,
@@ -11,7 +11,7 @@ use `analysis`;
 --   PRIMARY KEY (`id`)
 -- );
 
--- CREATE TABLE `doc_query_field` (
+-- CREATE TABLE `query_field` (
 --   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
 --   -- `es_clause_id` int(11) unsigned NOT NULL,
 --   `field_name` varchar(128) NOT NULL,
@@ -29,19 +29,19 @@ use `analysis`;
 -- );
 
 
--- CREATE TABLE IF NOT EXISTS `analysis`.`doc_query_field_jn` (
---   `doc_query_id` INT(11) UNSIGNED NOT NULL,
---   `doc_query_field_id` INT(11) UNSIGNED NOT NULL,
---   PRIMARY KEY (`doc_query_id`, `doc_query_field_id`),
+-- CREATE TABLE IF NOT EXISTS `analysis`.`query_field_jn` (
+--   `query_id` INT(11) UNSIGNED NOT NULL,
+--   `query_field_id` INT(11) UNSIGNED NOT NULL,
+--   PRIMARY KEY (`query_id`, `query_field_id`),
 --   -- INDEX `fk_action_reason_reason_idx` (`reason_id` ASC),
---   CONSTRAINT `fk_doc_query_id`
---     FOREIGN KEY (`doc_query_id`)
---     REFERENCES `analysis`.`doc_query` (`id`)
+--   CONSTRAINT `fk_query_id`
+--     FOREIGN KEY (`query_id`)
+--     REFERENCES `analysis`.`query` (`id`)
 --     ON DELETE NO ACTION
 --     ON UPDATE NO ACTION,
---   CONSTRAINT `fk_doc_query_field_id`
---     FOREIGN KEY (`doc_query_field_id`)
---     REFERENCES `analysis`.`doc_query_field` (`id`)
+--   CONSTRAINT `fk_query_field_id`
+--     FOREIGN KEY (`query_field_id`)
+--     REFERENCES `analysis`.`query_field` (`id`)
 --     ON DELETE NO ACTION
 --     ON UPDATE NO ACTION
 -- );
@@ -114,11 +114,11 @@ CREATE TABLE IF NOT EXISTS `analysis`.`reason` (
   `weight` INT(3) NOT NULL DEFAULT '10',
   `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
   `expected_result` TINYINT(1) NOT NULL DEFAULT '1',
-   `doc_query_id` INT(11) UNSIGNED NULL DEFAULT NULL,
+   `query_id` INT(11) UNSIGNED NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_reason_dispatch_idx` (`dispatch_id` ASC),
   INDEX `parent_reason_id` (`parent_reason_id` ASC),
-   INDEX `fk_reason_doc_query1_idx` (`doc_query_id` ASC),
+   INDEX `fk_reason_query1_idx` (`query_id` ASC),
   CONSTRAINT `fk_reason_dispatch`
     FOREIGN KEY (`dispatch_id`)
     REFERENCES `analysis`.`dispatch` (`id`)
@@ -128,17 +128,17 @@ CREATE TABLE IF NOT EXISTS `analysis`.`reason` (
     FOREIGN KEY (`parent_reason_id`)
     REFERENCES `analysis`.`reason` (`id`)
     -- ,
---   CONSTRAINT `fk_reason_doc_query1`
---     FOREIGN KEY (`doc_query_id`)
---     REFERENCES `analysis`.`doc_query` (`id`)
+--   CONSTRAINT `fk_reason_query1`
+--     FOREIGN KEY (`query_id`)
+--     REFERENCES `analysis`.`query` (`id`)
     -- ON DELETE NO ACTION
     -- ON UPDATE NO ACTION
 );
 
 
 ALTER TABLE `reason` 
-ADD foreign key fk_reason_doc_query_idx(`doc_query_id`)
-REFERENCES elastic.doc_query(`id`);
+ADD foreign key fk_reason_query_idx(`query_id`)
+REFERENCES elastic.query(`id`);
 
 CREATE TABLE IF NOT EXISTS `analysis`.`action_reason` (
   `action_id` INT(11) UNSIGNED NOT NULL,

@@ -68,11 +68,11 @@ class Reason(Base):
     weight = Column(Integer, nullable=False, server_default=text("'10'"))
     dispatch_id = Column(ForeignKey(u'dispatch.id'), index=True)
     expected_result = Column(Integer, nullable=False, server_default=text("'1'"))
-    doc_query_id = Column(ForeignKey(u'elastic.doc_query.id'), index=True)
+    query_id = Column(ForeignKey(u'elastic.query.id'), index=True)
 
     dispatch = relationship(u'Dispatch')
-    doc_query = relationship(u'DocQuery')
     parent_reason = relationship(u'Reason', remote_side=[id])
+    query = relationship(u'Query')
 
 
 class ReasonParam(Base):
@@ -93,13 +93,35 @@ class VectorParam(Base):
     name = Column(String(128), nullable=False)
 
 
-class DocQuery(Base):
-    __tablename__ = 'doc_query'
+class DocumentType(Base):
+    __tablename__ = 'document_type'
+    __table_args__ = {u'schema': 'elastic'}
+
+    id = Column(Integer, primary_key=True)
+    desc = Column(String(255))
+    ext = Column(String(11))
+    name = Column(String(25), unique=True)
+
+
+class Query(Base):
+    __tablename__ = 'query'
     __table_args__ = {u'schema': 'elastic'}
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False)
-    query_type = Column(String(64), nullable=False)
+    query_type_id = Column(ForeignKey(u'elastic.query_type.id'), nullable=False, index=True)
+    document_type_id = Column(ForeignKey(u'elastic.document_type.id'), nullable=False, index=True)
     max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
-    applies_to_file_type = Column(String(6), nullable=False, server_default=text("'*'"))
     active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
+
+    document_type = relationship(u'DocumentType')
+    query_type = relationship(u'QueryType')
+
+
+class QueryType(Base):
+    __tablename__ = 'query_type'
+    __table_args__ = {u'schema': 'elastic'}
+
+    id = Column(Integer, primary_key=True)
+    desc = Column(String(255))
+    name = Column(String(25), unique=True)
