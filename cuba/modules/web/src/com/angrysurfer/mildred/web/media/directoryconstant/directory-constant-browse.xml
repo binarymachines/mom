@@ -32,7 +32,7 @@
             </actions>
             <columns>
                 <column id="pattern"/>
-                <column id="locationType"/>
+                <column id="directoryType"/>
             </columns>
             <rows datasource="directoryConstantsDs"/>
             <rowsCount/>

@@ -14,8 +14,6 @@ import config
 import const
 import assets
 import ops
-import pathutil
-from shallow import get_locations
 import search
 from const import SCANNER, SCAN, HSCAN, READ, USCAN, DEEP
 from core import cache2
@@ -26,8 +24,9 @@ from read import Reader
 from walk import Walker
 from alchemy import SQLFileType
 from ops import ops_func
-
+import shallow
 import start
+from assets import Directory
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
@@ -69,6 +68,7 @@ class Scanner(Walker):
 
         except Exception, err:
             ERR.warning(err.message)
+
 
     @ops_func
     def process_file(self, path):
@@ -132,9 +132,34 @@ class Scanner(Walker):
             return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if pathutil.file_type_recognized(root, self.reader.extensions):
+            if file_type_recognized(root, self.reader.extensions):
                 try:
-                    assets.set_active_directory(root)
+                    directory = Directory(root)
+                    data = assets.directory_attribs(directory)
+                    if data['album']:
+                        LOG.info("adding %s to media paths." % (root))
+                        shallow.add_directory(root, 'album')
+                        assets.set_active_directory(root)
+                        # self.folders.append(root)
+
+                    elif data['compilation']:
+                        LOG.info("adding %s to media paths." % (root))
+                        shallow.add_directory(root, 'compilation')
+                        assets.set_active_directory(root)
+                        # self.folders.append(root)
+
+                    elif data['recent']:
+                        LOG.info("adding %s to media paths." % (root))
+                        shallow.add_directory(root, 'recent')
+                        assets.set_active_directory(root)
+
+                    elif data['random']:
+                        LOG.info("adding %s to media paths." % (root))
+                        shallow.add_directory(root, 'random')
+                    else: 
+                        assets.set_active_directory(root)
+                        shallow.add_directory(root, 'random')
+
                 except ElasticDataIntegrityException, err:
                     ERR.warning(': '.join([err.__class__.__name__, err.message]))
                     assets.handle_asset_exception(err, root)
@@ -185,7 +210,7 @@ class Scanner(Walker):
         expanded = False
         do_expand = False
 
-        if path in get_locations():
+        if path in shallow.get_directories():
             do_expand = True
         
         if path in self.vector.paths:
@@ -323,34 +348,29 @@ class Scanner(Walker):
                 ERR.warning("%s isn't currently available." % (path))
                 print("%s isn't currently available." % (path))
 
-    # TODO: use _handle_dir and handle_file instead of whatever the hell it is that you're doing above
-    # def walk(self, start):
-    #     for root, dirs, files in os.walk(start, topdown=True, followlinks=False):
-    #         try:
-    #             self.before_handle_root(root)
-    #             self.current_root = root
-    #             self.handle_root(root)
-    #             self.after_handle_root(root)
-    #         except Exception, err:
-    #             self.handle_root_error(err, root)
+# TODO: use _handle_dir and handle_file instead of whatever the hell it is that you're doing above
 
-    #         try:
-    #             for directory in dirs:
-    #                 self.before_handle_dir(directory)
-    #                 self.current_dir = directory
-    #                 self.handle_dir(directory)
-    #                 self.after_handle_dir(directory)
-    #         except Exception, err:
-    #             self.handle_dir_error(err, directory)
+# TODO: Offline mode - query MySQL and ES before looking at the file system
+def file_type_recognized(path, extensions, recursive=False):
+    if os.path.isdir(path):
+        for f in os.listdir(path):
+            for ext in extensions:
+                if f.lower().endswith('.' + ext.lower()):
+                    return True
 
-    #         try:
-    #             for filename in files:
-    #                 self.before_handle_file(filename)
-    #                 self.current_filename = filename
-    #                 self.handle_file(filename)
-    #                 self.after_handle_file(filename)
-    #         except Exception, err:
-    #             self.handle_file_error(err, filename)
+
+# TODO: Offline mode - query MySQL and ES before looking at the file system
+def multiple_file_types_recognized(path, extensions):
+    if os.path.isdir(path):
+        found = []
+        for f in os.listdir(path):
+            if os.path.isfile(os.path.join(path, f)):
+                for ext in extensions:
+                    if f.lower().endswith('.' + ext):
+                        if ext not in found:
+                            found.append(ext)
+
+        return len(found) > 1
 
 def scan(vector):
     if SCANNER not in vector.data:

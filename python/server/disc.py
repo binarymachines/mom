@@ -16,7 +16,6 @@ import config
 import const
 import assets
 import ops
-import pathutil
 import shallow
 import search
 # from const import Discover, SCAN, HSCAN, READ, USCAN, DEEP
@@ -44,46 +43,37 @@ class Discover(Walker):
     def __init__(self):
         super(Discover, self).__init__()
         self.folders = []
-        self.formats = shallow.get_file_types()
-        self.types = shallow.get_location_types()
+        self.file_types = shallow.get_file_types()
+        self.categories = shallow.get_categories()
+        self.types = shallow.get_directory_types()
 
     @ops_func
     def handle_root(self, root):
         LOG.debug("Considering %s" % root)
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if root not in shallow.get_locations():
-                if shallow.folder_is_media_root(root, shallow.get_category_names()):
+            
+            name = root.split(os.path.sep)[-1]
+
+            if root not in shallow.get_directories():
+                if shallow.path_is_media_root(root, self.file_types):
                     LOG.info("adding %s to media paths." % (root))
-                    shallow.add_location(root, 'category')
-                    self.folders.append(root)
-    
-                if shallow.folder_is_media_root(root, shallow.get_file_types()):
-                    LOG.info("adding %s to media paths." % (root))
-                    shallow.add_location(root, 'format')
+                    shallow.add_directory(root, 'location')
                     self.folders.append(root)
 
-                directory = Directory(root)
-                data = assets.directory_attribs(directory)
-                if data['album']:
+                elif name in self.file_types:
                     LOG.info("adding %s to media paths." % (root))
-                    shallow.add_location(root, 'album')
-                    assets.set_active_directory(root)
-                    # self.folders.append(root)
+                    shallow.add_directory(root, 'format')
+                    self.folders.append(root)
 
-                if data['compilation']:
+                elif name in self.categories:
                     LOG.info("adding %s to media paths." % (root))
-                    shallow.add_location(root, 'compilation')
-                    assets.set_active_directory(root)
-                    # self.folders.append(root)
+                    shallow.add_directory(root, 'category')
+                    self.folders.append(root)
 
-                if data['recent']:
+                elif shallow.path_is_media_root(root, self.categories):
                     LOG.info("adding %s to media paths." % (root))
-                    shallow.add_location(root, 'recent')
-                    assets.set_active_directory(root)
-
-                if data['random']:
-                    LOG.info("adding %s to media paths." % (root))
-                    shallow.add_location(root, 'random')
+                    shallow.add_directory(root, 'collection')
+                    self.folders.append(root)
 
     def handle_root_error(self, err, root):
         assets.set_active_directory(None)
@@ -101,7 +91,7 @@ class Discover(Walker):
 
 def discover(startpath):
     d = Discover()
-    if startpath not in shallow.get_locations():
-        shallow.add_location(startpath, 'path')
+    if startpath not in shallow.get_directories():
+        shallow.add_directory(startpath, 'path')
     d.walk(startpath)
     return d.folders

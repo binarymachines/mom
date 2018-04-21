@@ -15,8 +15,8 @@ public class DirectoryConstant extends BaseIntIdentityIdEntity {
     @Column(name = "pattern", nullable = false, length = 256)
     protected String pattern;
 
-    @Column(name = "location_type", nullable = false, length = 64)
-    protected String locationType;
+    @Column(name = "directory_type", nullable = false, length = 64)
+    protected String directoryType;
 
     public void setPattern(String pattern) {
         this.pattern = pattern;
@@ -26,12 +26,12 @@ public class DirectoryConstant extends BaseIntIdentityIdEntity {
         return pattern;
     }
 
-    public void setLocationType(String locationType) {
-        this.locationType = locationType;
+    public void setDirectoryType(String directoryType) {
+        this.directoryType = directoryType;
     }
 
-    public String getLocationType() {
-        return locationType;
+    public String getDirectoryType() {
+        return directoryType;
     }
 
 

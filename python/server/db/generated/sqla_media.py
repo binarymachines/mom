@@ -103,7 +103,7 @@ class DirectoryConstant(Base):
 
     id = Column(Integer, primary_key=True)
     pattern = Column(String(256), nullable=False)
-    location_type = Column(String(64), nullable=False)
+    directory_type = Column(String(64), nullable=False)
 
 
 class DirectoryType(Base):

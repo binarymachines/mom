@@ -12,7 +12,7 @@ Changes to be committed:
 	modified:   python/server/launch.py
 	modified:   python/server/ops.py
 	modified:   python/server/pathogen.py
-	modified:   python/server/pathutil.py
+	modified:   python/server/shallow.py
 	modified:   python/server/scan.py
 	modified:   python/server/start.py
 

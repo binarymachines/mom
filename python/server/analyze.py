@@ -9,7 +9,6 @@ import assets
 import config
 import json
 import ops
-import pathutil
 import search
 import sql
 from alchemy import SQLAsset, get_session

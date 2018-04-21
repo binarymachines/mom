@@ -13,7 +13,7 @@ def main(args):
             create_func = get_process_create_func()
 
             path_args = start.get_paths(args)
-            paths = pathutil.get_locations() if path_args is None else path_args
+            paths = shallow.get_directories() if path_args is None else path_args
 
             context = DirectoryContext('path context', paths)
             if args['--expand-all']:

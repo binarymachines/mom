@@ -278,7 +278,7 @@ CREATE TABLE `directory_attribute` (
 CREATE TABLE `directory_constant` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `pattern` varchar(256) NOT NULL,
-  `location_type` varchar(64) NOT NULL,
+  `directory_type` varchar(64) NOT NULL,
   -- `effective_dt` datetime DEFAULT now(),
   -- `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
@@ -603,22 +603,22 @@ INSERT INTO `directory_amelioration` (`id`, `name`, `use_tag`, `replacement_tag`
 INSERT INTO `directory_amelioration` (`id`, `name`, `use_tag`, `replacement_tag`, `use_parent_folder_flag`) VALUES (98, 'disk 08', 0, NULL,1);
 INSERT INTO `directory_amelioration` (`id`, `name`, `use_tag`, `replacement_tag`, `use_parent_folder_flag`) VALUES (99, 'disk 09', 0, NULL,1);
 
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (1, '/compilations', 'compilation');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (2, 'compilations/', 'compilation');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (3, '/various', 'compilation');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (4, '/bak/', 'ignore');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (5, '/webcasts and custom mixes', 'extended');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (6, '/downloading', 'incomplete');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (7, '/live', 'live_recording');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (8, '/slsk/', 'new');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (9, '/incoming/', 'new');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (10, '/random', 'random');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (11, '/recently', 'recent');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (12, '/unsorted', 'unsorted');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (13, '[...]', 'side_project');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (16, '[...]', 'side_project');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (14, 'albums', 'album');
-INSERT INTO `directory_constant` (`id`, `pattern`, `location_type`) VALUES (15, 'noscan', 'no_scan');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (1, '/compilations', 'compilation');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (2, 'compilations/', 'compilation');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (3, '/various', 'compilation');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (4, '/bak/', 'ignore');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (5, '/webcasts and custom mixes', 'extended');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (6, '/downloading', 'incomplete');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (7, '/live', 'live_recording');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (8, '/slsk/', 'new');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (9, '/incoming/', 'new');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (10, '/random', 'random');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (11, '/recently', 'recent');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (12, '/unsorted', 'unsorted');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (13, '[...]', 'side_project');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (16, '[...]', 'side_project');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (14, 'albums', 'album');
+INSERT INTO `directory_constant` (`id`, `pattern`, `directory_type`) VALUES (15, 'noscan', 'no_scan');
 
 INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (1, 'dark classical', 'directory');
 INSERT INTO `category` (`id`, `name`, `asset_type`) VALUES (2, 'funk', 'directory');

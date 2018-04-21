@@ -16,7 +16,6 @@ from docopt import docopt
 import config
 import core.var
 import ops
-import pathutil
 import shallow
 import start
 import disc
@@ -25,7 +24,7 @@ from core.vector import PathVector, CachedPathVector
 from core.serv import Service
 from core import util
 
-from shallow import get_locations
+from shallow import get_directories
 
 from alchemy import SQLServiceProfile
 
@@ -54,7 +53,7 @@ def launch(args, run=True):
                     paths = [args['<scanpath>']]
                 else:
                     path_args = start.get_paths(args)
-                    paths = get_locations() if path_args == [] else path_args
+                    paths = get_directories() if path_args == [] else path_args
 
                 # if paths == []:
                 #     sys.exit("ERROR: No paths have been configured. Restart with --map-paths option")                   

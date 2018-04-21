@@ -18,7 +18,7 @@
                     datasource="directoryConstantDs">
             <column width="250px">
                 <field property="pattern"/>
-                <field property="locationType"/>
+                <field property="directoryType"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

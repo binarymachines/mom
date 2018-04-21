@@ -191,13 +191,32 @@ class SQLDirectory(Directory):
 
     @staticmethod
     @alchemy_func
-    def retrieve_all():
-
+    def retrieve(name):
         result = ()
         for instance in sessions[MEDIA].query(SQLDirectory). \
-            filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
-            filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
+            filter(SQLDirectory.name == name):
             result += (instance,)
+    
+        return result[0] if len(result) == 1 else None
+
+    @staticmethod
+    @alchemy_func
+    def retrieve_all(directory_type=None):
+
+        result = ()
+        if directory_type is None:
+            for instance in sessions[MEDIA].query(SQLDirectory). \
+                filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
+                filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
+                result += (instance,)
+
+        else:
+            for instance in sessions[MEDIA].query(SQLDirectory). \
+                filter(SQLDirectory.directory_type.name == directory_type.name). \
+                filter(SQLDirectory.effective_dt < datetime.datetime.now()). \
+                filter(SQLDirectory.expiration_dt > datetime.datetime.now()):
+                result += (instance,)
+ 
 
         return result
 
@@ -210,8 +229,8 @@ class SQLDirectoryConstant(DirectoryConstant):
 
     @staticmethod
     @alchemy_func
-    def insert(pattern, location_type):
-        directory_constant = SQLDirectoryConstant(pattern=pattern, location_type=location_type)
+    def insert(pattern, directory_type):
+        directory_constant = SQLDirectoryConstant(pattern=pattern, directory_type=directory_type)
 
         try:
             sessions[MEDIA].add(directory_constant)
@@ -242,11 +261,11 @@ class SQLDirectoryConstant(DirectoryConstant):
 
     @staticmethod
     @alchemy_func
-    def retrieve_for_location_type(location_type):
+    def retrieve_for_directory_type(directory_type):
 
         result = ()
         for instance in sessions[MEDIA].query(SQLDirectoryConstant). \
-            filter(SQLDirectoryConstant.location_type == location_type):
+            filter(SQLDirectoryConstant.directory_type == directory_type):
             result += (instance,)
 
         return result

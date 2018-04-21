@@ -17,7 +17,7 @@ class DirectoryWalker(Walker):
         self.album_checkers = []
         self.artist_checkers = []
         self.genre_checkers = []
-        self.location_checkers = []
+        self.directory_checkers = []
 
     def check_album_dir(self, path):
         for checker in self.album_checkers:
@@ -27,14 +27,14 @@ class DirectoryWalker(Walker):
         for checker in self.genre_checkers:
             checker.check_dir(path)
 
-    def check_location_dir(self, path):
-        for checker in self.location_checkers:
+    def check_directory_dir(self, path):
+        for checker in self.directory_checkers:
             checker.check_dir(path)
 
     def handle_dir(self, directory):
         super(DirectoryWalker, self).handle_dir(directory)
         path = os.path.join(self.current_root, directory)
-        if directory in pathutil.get_category_names():
+        if directory in shallow.get_categories():
             self.check_genre_dir(path)
         else: self.check_album_dir(path)
 
@@ -81,9 +81,9 @@ class IsInMediaTypePath(DirectoryHandler):
 
 class IsInGenrePath(DirectoryHandler):
     def check_dir(self, path):
-        if pathutil.file_type_recognized(path, pathutil.get_file_types()):
+        if shallow.file_type_recognized(path, shallow.get_file_types()):
             filed = False
-            for name in pathutil.get_category_names():
+            for name in shallow.get_categories():
                 if name in path: filed = True
             if filed is False:
                 #TODO: add this directory to work queue
