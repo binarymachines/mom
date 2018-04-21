@@ -46,13 +46,14 @@
         </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
-                height="400"
-                width="500"/>
+                height="300"
+                width="AUTO"/>
     <layout expand="fieldGroup"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="switchRuleDs">
-            <column width="400px">
+                    datasource="switchRuleDs"
+                    height="300px">
+            <column width="450px">
                 <field caption="name"
                        property="name"
                        width="250px"/>

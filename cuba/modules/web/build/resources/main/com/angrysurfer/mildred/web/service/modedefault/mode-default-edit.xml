@@ -24,38 +24,32 @@
             </query>
         </collectionDatasource>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode height="AUTO"
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="modeDefaultDs">
-            <column width="450px">
-                <field caption="mode"
-                       optionsDatasource="modesDs"
-                       property="mode"
-                       width="250px"/>
-                <field caption="effect"
-                       optionsDatasource="effectDispatchesDs"
+            <column width="400px">
+                <field optionsDatasource="modesDs"
+                       property="mode"/>
+                <field optionsDatasource="effectDispatchesDs"
                        property="effectDispatch"/>
-                <field caption="priority"
-                       property="priority"
-                       width="45px"/>
-                <field caption="priority dec amt"
-                       property="decPriorityAmount"
-                       width="45px"/>
-                <field caption="priority inc amt"
-                       property="incPriorityAmount"
-                       width="45px"/>
-                <field caption="error tolerance"
-                       property="errorTolerance"
-                       width="45px"/>
-                <field caption="times to complete"
-                       property="timesToComplete"
-                       width="45px"/>
+                <field property="priority"
+                       width="50px"/>
+                <field property="timesToComplete"
+                       width="50px"/>
+                <field property="decPriorityAmount"
+                       width="50px"/>
+                <field property="incPriorityAmount"
+                       width="50px"/>
+                <field property="errorTolerance"
+                       width="50px"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

@@ -9,6 +9,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -17,6 +19,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 public class ModeStateDefaultParam extends BaseIntIdentityIdEntity {
     private static final long serialVersionUID = -6689667622145156952L;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mode_state_default_id")
     protected ModeStateDefault modeStateDefault;

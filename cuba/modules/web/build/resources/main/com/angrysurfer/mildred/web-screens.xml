@@ -89,8 +89,6 @@
             template="com/angrysurfer/mildred/web/service/modestate/mode-state-edit.xml"/>
     <screen id="mildred$ModeState.browse"
             template="com/angrysurfer/mildred/web/service/modestate/mode-state-browse.xml"/>
-    <screen id="mildred$ModeStateDefault.edit"
-            template="com/angrysurfer/mildred/web/service/modestatedefault/mode-state-default-edit.xml"/>
     <screen id="mildred$ModeStateDefault.browse"
             template="com/angrysurfer/mildred/web/service/modestatedefault/mode-state-default-browse.xml"/>
     <screen id="mildred$ModeStateDefaultParam.edit"
@@ -201,4 +199,6 @@
             template="com/angrysurfer/mildred/web/media/directorypattern/directory-pattern-browse.xml"/>
     <screen id="mildred$DirectoryPattern.edit"
             template="com/angrysurfer/mildred/web/media/directorypattern/directory-pattern-edit.xml"/>
+    <screen id="mildred$ModeStateDefault.edit"
+            template="com/angrysurfer/mildred/web/service/modestatedefault/mode-state-default-edit.xml"/>
 </screen-config>

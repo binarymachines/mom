@@ -12,8 +12,7 @@
     </dsContext>
     <dialogMode forceDialog="true"
                 height="AUTO"
-                modal="true"
-                width="600"/>
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
@@ -24,6 +23,8 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="extendedEditWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

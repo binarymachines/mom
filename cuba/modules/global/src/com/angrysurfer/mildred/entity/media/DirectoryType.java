@@ -14,11 +14,11 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 public class DirectoryType extends BaseIntIdentityIdEntity {
     private static final long serialVersionUID = 3553221533869704315L;
 
+    @Column(name = "name", unique = true, length = 25)
+    protected String name;
+
     @Column(name = "`desc`")
     protected String desc;
-
-    @Column(name = "name", length = 25)
-    protected String name;
 
     public void setDesc(String desc) {
         this.desc = desc;

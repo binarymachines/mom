@@ -22,13 +22,13 @@ public class ModeDefault extends BaseIntIdentityIdEntity {
     @JoinColumn(name = "mode_id")
     protected Mode mode;
 
-    @Column(name = "priority", nullable = false)
-    protected Integer priority;
-
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "effect_dispatch_id")
     protected ServiceDispatch effectDispatch;
+
+    @Column(name = "priority", nullable = false)
+    protected Integer priority;
 
     @Column(name = "times_to_complete", nullable = false)
     protected Integer timesToComplete;

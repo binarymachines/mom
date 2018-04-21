@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 import java.util.List;
 import javax.persistence.OneToMany;
+import com.haulmont.chile.core.annotations.Composition;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -22,9 +23,11 @@ public class Mode extends BaseIntIdentityIdEntity {
     @Column(name = "stateful_flag", nullable = false)
     protected Boolean statefulFlag = false;
 
+    @Composition
     @OneToMany(mappedBy = "mode")
     protected List<ModeDefault> defaults;
 
+    @Composition
     @OneToMany(mappedBy = "mode")
     protected List<ModeStateDefault> stateDefaults;
 
