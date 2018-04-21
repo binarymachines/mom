@@ -8,7 +8,7 @@ echo 'Backing up Mildred Databases'
 echo '----------------------------'
 echo
 
-mysqldump admin > $MILDRED_HOME/db/design/admin.sql --add-drop-table --complete-insert --add-drop-database
+# mysqldump admin > $MILDRED_HOME/db/design/admin.sql --add-drop-table --complete-insert --add-drop-database
 mysqldump analysis > $MILDRED_HOME/db/design/analysis.sql --add-drop-table --complete-insert --add-drop-database
 mysqldump elastic > $MILDRED_HOME/db/design/elastic.sql --add-drop-table --complete-insert --add-drop-database
 mysqldump media > $MILDRED_HOME/db/design/media.sql --add-drop-table --complete-insert --add-drop-database

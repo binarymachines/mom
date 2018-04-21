@@ -290,9 +290,8 @@ class ScanModeHandler(DefaultModeHandler):
 
     def path_to_map(self):
         return self.vector.get_param('all', 'start-path')
-        
-    @ops_func
-    def do_scan_discover(self):
+
+    def map_new_paths(self):
         startpath = self.path_to_map()
         if startpath and self.vector.get_param('all', 'map-paths').lower() == 'true':
             print("discover scan starting in %s...\n" % startpath)
@@ -305,10 +304,14 @@ class ScanModeHandler(DefaultModeHandler):
                 self.vector.paths.extend(paths)
                 # self.vector.set_param('all', 'map-paths', False)
                 # self.vector.clear_param('all', 'start-path')
-
+        
+    @ops_func
+    def do_scan_discover(self):
+        self.map_new_paths()
 
     @ops_func
     def do_scan_monitor(self):
+        self.map_new_paths()
         print("monitor scan starting...\n")
         self.vector.reset(SCAN)
         scan.scan(self.vector)
@@ -316,9 +319,7 @@ class ScanModeHandler(DefaultModeHandler):
 
     @ops_func
     def do_scan(self):
-        # if self.path_to_map():
-        #     self.do_scan_discover()
-
+        self.map_new_paths()
         print("update scan starting...\n")
         self.vector.set_param(SCAN, DEEP, False)
         if self.vector.has_next(SCAN, use_fifo=True):

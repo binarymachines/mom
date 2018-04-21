@@ -1,126 +1,174 @@
-use suggestion;
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
+--
+-- Host: localhost    Database: suggestion
+-- ------------------------------------------------------
+-- Server version	5.7.21-0ubuntu0.16.04.1
 
-CREATE TABLE IF NOT EXISTS `suggestion`.`generated_action` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `action_id` int(11) UNSIGNED,
-    `action_status_id` int(11) UNSIGNED,
-    `parent_id` int(11) UNSIGNED,
-    `asset_id` varchar(128) NOT NULL,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`parent_id`)
-        REFERENCES `generated_action` (`id`) 
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-ALTER TABLE `generated_action` 
-ADD foreign key fk_action(`action_id`)
-REFERENCES analysis.action(`id`);
+--
+-- Table structure for table `generated_action`
+--
 
-ALTER TABLE `generated_action` 
-ADD foreign key fk_action_asset(`asset_id`)
-REFERENCES media.asset(`id`);
+DROP TABLE IF EXISTS `generated_action`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `generated_action` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `action_id` int(11) unsigned DEFAULT NULL,
+  `action_status_id` int(11) unsigned DEFAULT NULL,
+  `parent_id` int(11) unsigned DEFAULT NULL,
+  `asset_id` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `parent_id` (`parent_id`),
+  KEY `fk_action` (`action_id`),
+  KEY `fk_action_asset` (`asset_id`),
+  KEY `fk_action_status` (`action_status_id`),
+  CONSTRAINT `generated_action_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `generated_action` (`id`),
+  CONSTRAINT `generated_action_ibfk_2` FOREIGN KEY (`action_id`) REFERENCES `analysis`.`action` (`id`),
+  CONSTRAINT `generated_action_ibfk_3` FOREIGN KEY (`asset_id`) REFERENCES `media`.`asset` (`id`),
+  CONSTRAINT `generated_action_ibfk_4` FOREIGN KEY (`action_status_id`) REFERENCES `analysis`.`action_status` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-ALTER TABLE `generated_action` 
-ADD foreign key fk_action_status(`action_status_id`)
-REFERENCES analysis.action_status(`id`);
+--
+-- Dumping data for table `generated_action`
+--
 
+LOCK TABLES `generated_action` WRITE;
+/*!40000 ALTER TABLE `generated_action` DISABLE KEYS */;
+/*!40000 ALTER TABLE `generated_action` ENABLE KEYS */;
+UNLOCK TABLES;
 
-CREATE TABLE IF NOT EXISTS `suggestion`.`generated_reason` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `reason_id` int(11) UNSIGNED,
-    `parent_id` int(11) UNSIGNED,
-    -- `asset_id` varchar(128) NOT NULL,
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`parent_id`)
-        REFERENCES `generated_reason` (`id`)
-);
+--
+-- Table structure for table `generated_action_param`
+--
 
+DROP TABLE IF EXISTS `generated_action_param`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `generated_action_param` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `action_id` int(11) unsigned DEFAULT NULL,
+  `vector_param_id` int(11) unsigned NOT NULL,
+  `value` varchar(1024) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `action_id` (`action_id`),
+  KEY `vector_param_id` (`vector_param_id`),
+  CONSTRAINT `generated_action_param_ibfk_1` FOREIGN KEY (`action_id`) REFERENCES `generated_action` (`id`),
+  CONSTRAINT `generated_action_param_ibfk_2` FOREIGN KEY (`vector_param_id`) REFERENCES `analysis`.`vector_param` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-ALTER TABLE `generated_reason` 
-ADD foreign key fk_reason(`reason_id`)
-REFERENCES analysis.action(`id`);
+--
+-- Dumping data for table `generated_action_param`
+--
 
--- ALTER TABLE `generated_reason` 
--- ADD foreign key fk_reason_asset(`asset_id`)
--- REFERENCES media.asset(`id`);
+LOCK TABLES `generated_action_param` WRITE;
+/*!40000 ALTER TABLE `generated_action_param` DISABLE KEYS */;
+/*!40000 ALTER TABLE `generated_action_param` ENABLE KEYS */;
+UNLOCK TABLES;
 
+--
+-- Table structure for table `generated_action_reason`
+--
 
-CREATE TABLE IF NOT EXISTS `suggestion`.`generated_action_reason` (
-  `action_id` INT(11) UNSIGNED NOT NULL,
-  `reason_id` INT(11) UNSIGNED NOT NULL,
---    `is_sufficient_solo` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`action_id`, `reason_id`),
-  INDEX `fk_action_reason_reason_idx` (`reason_id` ASC),
-  INDEX `fk_action_reason_action_idx` (`action_id` ASC),
-  CONSTRAINT `fk_action_reason_action`
-    FOREIGN KEY (`action_id`)
-    REFERENCES `suggestion`.`generated_action` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_action_reason_reason`
-    FOREIGN KEY (`reason_id`)
-    REFERENCES `suggestion`.`generated_reason` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
+DROP TABLE IF EXISTS `generated_action_reason`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `generated_action_reason` (
+  `action_id` int(11) unsigned NOT NULL,
+  `reason_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`action_id`,`reason_id`),
+  KEY `fk_action_reason_reason_idx` (`reason_id`),
+  KEY `fk_action_reason_action_idx` (`action_id`),
+  CONSTRAINT `fk_action_reason_action` FOREIGN KEY (`action_id`) REFERENCES `generated_action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_action_reason_reason` FOREIGN KEY (`reason_id`) REFERENCES `generated_reason` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE IF NOT EXISTS `suggestion`.`generated_reason_param` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    -- `action_id` int(11) UNSIGNED NOT NULL,
-    `reason_id` int(11) UNSIGNED NOT NULL,
-    `vector_param_id` INT(11) UNSIGNED NOT NULL,
-    -- `reason_param_id` int(11) UNSIGNED NOT NULL,
-    `value` varchar(1024),
-    PRIMARY KEY (`id`),
-    -- FOREIGN KEY (`action_id`)
-    --     REFERENCES `action` (`id`),
-    FOREIGN KEY (`reason_id`)
-        REFERENCES `generated_reason` (`id`)
-);
+--
+-- Dumping data for table `generated_action_reason`
+--
 
-ALTER TABLE `generated_reason_param` 
-ADD foreign key fk_reason_vector_param(`vector_param_id`)
-REFERENCES analysis.vector_param(`id`);
+LOCK TABLES `generated_action_reason` WRITE;
+/*!40000 ALTER TABLE `generated_action_reason` DISABLE KEYS */;
+/*!40000 ALTER TABLE `generated_action_reason` ENABLE KEYS */;
+UNLOCK TABLES;
 
-CREATE TABLE IF NOT EXISTS `suggestion`.`generated_action_param` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `action_id` int(11) UNSIGNED,
-    `vector_param_id` INT(11) UNSIGNED NOT NULL,
-    -- `action_param_id` int(11) UNSIGNED,
-    `value` varchar(1024),
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`action_id`)
-        REFERENCES `generated_action` (`id`),
-    FOREIGN KEY (`vector_param_id`)
-        REFERENCES `analysis`.`vector_param` (`id`)
-);
+--
+-- Table structure for table `generated_reason`
+--
 
+DROP TABLE IF EXISTS `generated_reason`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `generated_reason` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `reason_id` int(11) unsigned DEFAULT NULL,
+  `parent_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `parent_id` (`parent_id`),
+  KEY `fk_reason` (`reason_id`),
+  CONSTRAINT `generated_reason_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `generated_reason` (`id`),
+  CONSTRAINT `generated_reason_ibfk_2` FOREIGN KEY (`reason_id`) REFERENCES `analysis`.`action` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- CREATE VIEW `v_m_action_m_reasons_w_ids` AS
---     select at.id action_id, at.name action, at.priority action_priority, ad.id dispatch_id, ad.name dispatch_name,
---         ad.category dispatch_category, ad.module_name dispatch_module, ad.class_name dispatch_class, ad.func_name dispatch_func,
---         rt.id reason_id, rt.name reason, rt.weight reason_weight,
---         ad2.id conditional_dispatch_id, ad2.name conditional_dispatch_name, ad2.category conditional_dispatch_category,
---         ad2.module_name conditional_dispatch_module, ad2.class_name conditional_dispatch_class, ad2.func_name conditional_dispatch_func
+--
+-- Dumping data for table `generated_reason`
+--
 
---     from action at,
---         dispatch ad,
---         dispatch ad2,
---         reason rt,
---         m_action_m_reason ar
+LOCK TABLES `generated_reason` WRITE;
+/*!40000 ALTER TABLE `generated_reason` DISABLE KEYS */;
+/*!40000 ALTER TABLE `generated_reason` ENABLE KEYS */;
+UNLOCK TABLES;
 
---     where at.dispatch_id = ad.id
---         and rt.dispatch_id = ad2.id
---         and at.id = ar.action_id
---         and rt.id = ar.reason_id
+--
+-- Table structure for table `generated_reason_param`
+--
 
---     order by action;
+DROP TABLE IF EXISTS `generated_reason_param`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `generated_reason_param` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `reason_id` int(11) unsigned NOT NULL,
+  `vector_param_id` int(11) unsigned NOT NULL,
+  `value` varchar(1024) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `reason_id` (`reason_id`),
+  KEY `fk_reason_vector_param` (`vector_param_id`),
+  CONSTRAINT `generated_reason_param_ibfk_1` FOREIGN KEY (`reason_id`) REFERENCES `generated_reason` (`id`),
+  CONSTRAINT `generated_reason_param_ibfk_2` FOREIGN KEY (`vector_param_id`) REFERENCES `analysis`.`vector_param` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- DROP VIEW IF EXISTS `v_m_action_m_reasons`;
+--
+-- Dumping data for table `generated_reason_param`
+--
 
--- CREATE VIEW `v_m_action_m_reasons` AS
---     select action, action_priority, dispatch_name,
---         dispatch_category, dispatch_module, dispatch_class, dispatch_func,
---         reason, reason_weight, conditional_dispatch_name, conditional_dispatch_category,
---         conditional_dispatch_module, conditional_dispatch_class, conditional_dispatch_func
---     from v_m_action_m_reasons_w_ids
---     order by action;
+LOCK TABLES `generated_reason_param` WRITE;
+/*!40000 ALTER TABLE `generated_reason_param` DISABLE KEYS */;
+/*!40000 ALTER TABLE `generated_reason_param` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2018-04-21 11:41:34

@@ -1,192 +1,250 @@
-use `analysis`;
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
+--
+-- Host: localhost    Database: analysis
+-- ------------------------------------------------------
+-- Server version	5.7.21-0ubuntu0.16.04.1
 
-CREATE TABLE IF NOT EXISTS `analysis`.`dispatch` (
-    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(128) NOT NULL,
-    `category` VARCHAR(128) NULL DEFAULT NULL,
-    `package_name` VARCHAR(128) NULL DEFAULT NULL,
-    `module_name` VARCHAR(128) NOT NULL,
-    `class_name` VARCHAR(128) NULL DEFAULT NULL,
-    `func_name` VARCHAR(128) NOT NULL,
-    PRIMARY KEY (`id`)
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+--
+-- Table structure for table `action`
+--
 
-CREATE TABLE IF NOT EXISTS `analysis`.`action` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `asset_type` VARCHAR(32) NOT NULL DEFAULT 'file',
-  `dispatch_id` INT(11) UNSIGNED NOT NULL,
-  `priority` INT(3) NOT NULL DEFAULT 10,
+DROP TABLE IF EXISTS `action`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `action` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `asset_type` varchar(32) NOT NULL DEFAULT 'file',
+  `dispatch_id` int(11) unsigned NOT NULL,
+  `priority` int(3) NOT NULL DEFAULT '10',
   PRIMARY KEY (`id`),
-  INDEX `fk_dispatch_idx` (`dispatch_id` ASC),
-  CONSTRAINT `fk_dispatch`
-    FOREIGN KEY (`dispatch_id`)
-    REFERENCES `dispatch` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
+  KEY `fk_dispatch_idx` (`dispatch_id`),
+  CONSTRAINT `fk_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `action`
+--
 
-CREATE TABLE IF NOT EXISTS `action_status` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name` varchar(255),
-    PRIMARY KEY (`id`)
-);
+LOCK TABLES `action` WRITE;
+/*!40000 ALTER TABLE `action` DISABLE KEYS */;
+INSERT INTO `action` (`id`, `name`, `asset_type`, `dispatch_id`, `priority`) VALUES (1,'rename.file.apply.tags','file',1,95),(2,'expunge.file','file',4,95),(3,'deprecate.file','file',6,95),(4,'categorize.file','file',8,35);
+/*!40000 ALTER TABLE `action` ENABLE KEYS */;
+UNLOCK TABLES;
 
-CREATE TABLE IF NOT EXISTS `analysis`.`vector_param` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(128) NOT NULL,
+--
+-- Table structure for table `action_param`
+--
+
+DROP TABLE IF EXISTS `action_param`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `action_param` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `action_id` int(11) unsigned NOT NULL,
+  `vector_param_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_action_param_vector_idx` (`vector_param_id`),
+  KEY `fk_action_param_action_idx` (`action_id`),
+  CONSTRAINT `fk_action_param_action` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_action_param_vector` FOREIGN KEY (`vector_param_id`) REFERENCES `vector_param` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `action_param`
+--
+
+LOCK TABLES `action_param` WRITE;
+/*!40000 ALTER TABLE `action_param` DISABLE KEYS */;
+/*!40000 ALTER TABLE `action_param` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `action_reason`
+--
+
+DROP TABLE IF EXISTS `action_reason`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `action_reason` (
+  `action_id` int(11) unsigned NOT NULL,
+  `reason_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`action_id`,`reason_id`),
+  KEY `fk_action_reason_reason_idx` (`reason_id`),
+  CONSTRAINT `fk_action_reason_action` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_action_reason_reason` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `action_reason`
+--
+
+LOCK TABLES `action_reason` WRITE;
+/*!40000 ALTER TABLE `action_reason` DISABLE KEYS */;
+INSERT INTO `action_reason` (`action_id`, `reason_id`) VALUES (1,1),(2,2),(3,3),(4,4),(4,5);
+/*!40000 ALTER TABLE `action_reason` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `action_status`
+--
+
+DROP TABLE IF EXISTS `action_status`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `action_status` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE IF NOT EXISTS `analysis`.`action_param` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `action_id` INT(11) UNSIGNED NOT NULL,
-  `vector_param_id` INT(11) UNSIGNED NOT NULL,
+--
+-- Dumping data for table `action_status`
+--
+
+LOCK TABLES `action_status` WRITE;
+/*!40000 ALTER TABLE `action_status` DISABLE KEYS */;
+/*!40000 ALTER TABLE `action_status` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `dispatch`
+--
+
+DROP TABLE IF EXISTS `dispatch`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dispatch` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `category` varchar(128) DEFAULT NULL,
+  `package_name` varchar(128) DEFAULT NULL,
+  `module_name` varchar(128) NOT NULL,
+  `class_name` varchar(128) DEFAULT NULL,
+  `func_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `dispatch`
+--
+
+LOCK TABLES `dispatch` WRITE;
+/*!40000 ALTER TABLE `dispatch` DISABLE KEYS */;
+INSERT INTO `dispatch` (`id`, `name`, `category`, `package_name`, `module_name`, `class_name`, `func_name`) VALUES (1,'rename.file.apply.tags','action',NULL,'audio',NULL,'apply_tags_to_filename'),(2,'tags.match.path','condition',NULL,'audio',NULL,'tags_match_path'),(3,'tags.contain.artist.album','condition',NULL,'audio',NULL,'tags_contain_artist_and_album'),(4,'expunge.file','action',NULL,'audio',NULL,'expunge'),(5,'file.is.redundant','condition',NULL,'audio',NULL,'is_redundant'),(6,'deprecate.file','action',NULL,'audio',NULL,'deprecate'),(7,'file.has.lossless.duplicate','condition',NULL,'audio',NULL,'has_lossless_dupe'),(8,'categorize.file','action',NULL,'audio',NULL,'move_to_category'),(9,'file.category.recognized','condition',NULL,'audio',NULL,'has_category'),(10,'file.not.categorized','condition',NULL,'audio',NULL,'not_in_category');
+/*!40000 ALTER TABLE `dispatch` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reason`
+--
+
+DROP TABLE IF EXISTS `reason`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reason` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `parent_reason_id` int(11) unsigned DEFAULT NULL,
+  `asset_type` varchar(32) NOT NULL DEFAULT 'file',
+  `weight` int(3) NOT NULL DEFAULT '10',
+  `dispatch_id` int(11) unsigned DEFAULT NULL,
+  `expected_result` tinyint(1) NOT NULL DEFAULT '1',
+  `query_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_action_param_vector_idx` (`vector_param_id` ASC),
-  CONSTRAINT `fk_action_param_vector`
-    FOREIGN KEY (`vector_param_id`)
-    REFERENCES `analysis`.`vector_param` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  INDEX `fk_action_param_action_idx` (`action_id` ASC),
-  CONSTRAINT `fk_action_param_action`
-    FOREIGN KEY (`action_id`)
-    REFERENCES `analysis`.`action` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
+  KEY `fk_reason_dispatch_idx` (`dispatch_id`),
+  KEY `parent_reason_id` (`parent_reason_id`),
+  KEY `fk_reason_query1_idx` (`query_id`),
+  CONSTRAINT `fk_reason_dispatch` FOREIGN KEY (`dispatch_id`) REFERENCES `dispatch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `reason_ibfk_1` FOREIGN KEY (`parent_reason_id`) REFERENCES `reason` (`id`),
+  CONSTRAINT `reason_ibfk_2` FOREIGN KEY (`query_id`) REFERENCES `elastic`.`query` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE IF NOT EXISTS `analysis`.`reason` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `parent_reason_id` INT(11) UNSIGNED NULL DEFAULT NULL,
-  -- `is_sufficient_solo` TINYINT(1) NOT NULL DEFAULT '0',
-  `asset_type` VARCHAR(32) NOT NULL DEFAULT 'file',
-  `weight` INT(3) NOT NULL DEFAULT '10',
-  `dispatch_id` INT(11) UNSIGNED NULL DEFAULT NULL,
-  `expected_result` TINYINT(1) NOT NULL DEFAULT '1',
-   `query_id` INT(11) UNSIGNED NULL DEFAULT NULL,
+--
+-- Dumping data for table `reason`
+--
+
+LOCK TABLES `reason` WRITE;
+/*!40000 ALTER TABLE `reason` DISABLE KEYS */;
+INSERT INTO `reason` (`id`, `name`, `parent_reason_id`, `asset_type`, `weight`, `dispatch_id`, `expected_result`, `query_id`) VALUES (1,'path.tags.mismatch',NULL,'file',10,2,0,NULL),(2,'file.is.redundant',NULL,'file',10,5,1,NULL),(3,'file.has.lossless.duplicate',NULL,'file',10,7,1,NULL),(4,'file.category.recognized',NULL,'file',10,9,1,NULL),(5,'file.not.categorized',NULL,'file',10,10,1,NULL);
+/*!40000 ALTER TABLE `reason` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `reason_param`
+--
+
+DROP TABLE IF EXISTS `reason_param`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reason_param` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `reason_id` int(11) unsigned DEFAULT NULL,
+  `vector_param_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_reason_dispatch_idx` (`dispatch_id` ASC),
-  INDEX `parent_reason_id` (`parent_reason_id` ASC),
-   INDEX `fk_reason_query1_idx` (`query_id` ASC),
-  CONSTRAINT `fk_reason_dispatch`
-    FOREIGN KEY (`dispatch_id`)
-    REFERENCES `analysis`.`dispatch` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `reason_ibfk_1`
-    FOREIGN KEY (`parent_reason_id`)
-    REFERENCES `analysis`.`reason` (`id`)
-    -- ,
---   CONSTRAINT `fk_reason_query1`
---     FOREIGN KEY (`query_id`)
---     REFERENCES `analysis`.`query` (`id`)
-    -- ON DELETE NO ACTION
-    -- ON UPDATE NO ACTION
-);
+  KEY `fk_m_action_reason_param_reason` (`reason_id`),
+  KEY `fk_reason_param_vector_idx` (`vector_param_id`),
+  CONSTRAINT `fk_m_action_reason_param_reason` FOREIGN KEY (`reason_id`) REFERENCES `reason` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_reason_param_vector` FOREIGN KEY (`vector_param_id`) REFERENCES `vector_param` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `reason_param`
+--
 
-ALTER TABLE `reason` 
-ADD foreign key fk_reason_query_idx(`query_id`)
-REFERENCES elastic.query(`id`);
+LOCK TABLES `reason_param` WRITE;
+/*!40000 ALTER TABLE `reason_param` DISABLE KEYS */;
+/*!40000 ALTER TABLE `reason_param` ENABLE KEYS */;
+UNLOCK TABLES;
 
-CREATE TABLE IF NOT EXISTS `analysis`.`action_reason` (
-  `action_id` INT(11) UNSIGNED NOT NULL,
-  `reason_id` INT(11) UNSIGNED NOT NULL,
-  PRIMARY KEY (`action_id`, `reason_id`),
-  INDEX `fk_action_reason_reason_idx` (`reason_id` ASC),
-  CONSTRAINT `fk_action_reason_action`
-    FOREIGN KEY (`action_id`)
-    REFERENCES `analysis`.`action` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_action_reason_reason`
-    FOREIGN KEY (`reason_id`)
-    REFERENCES `analysis`.`reason` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-);
+--
+-- Table structure for table `vector_param`
+--
 
+DROP TABLE IF EXISTS `vector_param`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vector_param` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE IF NOT EXISTS `analysis`.`reason_param` (
-    `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `reason_id` int(11) UNSIGNED,
-    `vector_param_id` INT(11) UNSIGNED NOT NULL,
-    PRIMARY KEY (`id`),
-    CONSTRAINT `fk_m_action_reason_param_reason`
-    FOREIGN KEY (`reason_id`)
-    REFERENCES `analysis`.`reason` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-    INDEX `fk_reason_param_vector_idx` (`vector_param_id` ASC),
-    CONSTRAINT `fk_reason_param_vector`
-      FOREIGN KEY (`vector_param_id`)
-      REFERENCES `analysis`.`vector_param` (`id`)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION
-);
+--
+-- Dumping data for table `vector_param`
+--
 
+LOCK TABLES `vector_param` WRITE;
+/*!40000 ALTER TABLE `vector_param` DISABLE KEYS */;
+/*!40000 ALTER TABLE `vector_param` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-
-set @ACTION_RENAME_FILE_APPLY_TAGS="rename.file.apply.tags";
-set @REASON_PATH_TAGS_MISMATCH="path.tags.mismatch";
-set @CONDITION_TAGS_MATCH_PATH="tags.match.path";
-
-set @REASON_TAGS_CONTAIN_ARTIST_ALBUM="tags.contain.artist.album";
-set @CONDITION_TAGS_CONTAIN_ARTIST_ALBUM="tags.contain.artist.album";
-
-insert into dispatch (name, category, module_name, func_name) values (@ACTION_RENAME_FILE_APPLY_TAGS, "action", "audio", "apply_tags_to_filename");
-insert into dispatch (name, category, module_name, func_name) values (@CONDITION_TAGS_MATCH_PATH,"condition", "audio", "tags_match_path");
-insert into dispatch (name, category, module_name, func_name) values (@CONDITION_TAGS_CONTAIN_ARTIST_ALBUM,"condition", "audio", "tags_contain_artist_and_album");
-insert into action (name, priority, dispatch_id) values (@ACTION_RENAME_FILE_APPLY_TAGS, 95, (select id from dispatch where name = @ACTION_RENAME_FILE_APPLY_TAGS));
--- insert into action_param(action_id, vector_param_name) values ((select id from action where name = @ACTION_RENAME_FILE_APPLY_TAGS), "active.scan.path");
-insert into reason (name, dispatch_id, expected_result) values (@REASON_PATH_TAGS_MISMATCH, (select id from dispatch where name = @CONDITION_TAGS_MATCH_PATH), 0);
--- insert into reason_param(reason_id, vector_param_name) values ((select id from reason where name = @REASON_PATH_TAGS_MISMATCH), "active.path");
-insert into action_reason (action_id, reason_id) values ((select id from action where name = @ACTION_RENAME_FILE_APPLY_TAGS), (select id from reason where name = @REASON_PATH_TAGS_MISMATCH));
-
--- insert into reason (name, dispatch_id) values (@REASON_TAGS_CONTAIN_ARTIST_ALBUM, (select id from dispatch where name = @CONDITION_TAGS_CONTAIN_ARTIST_ALBUM));
--- insert into action_reason (action_id, reason_id) values ((select id from action where name = @ACTION_RENAME_FILE_APPLY_TAGS), (select id from reason where name = @REASON_TAGS_CONTAIN_ARTIST_ALBUM));
-
-set @EXPUNGE_FILE="expunge.file";
-set @IS_REDUNDANT="file.is.redundant";
-
-insert into dispatch (name, category, module_name, func_name) values (@EXPUNGE_FILE, "action", "audio", "expunge");
-insert into dispatch (name, category, module_name, func_name) values (@IS_REDUNDANT,"condition", "audio", "is_redundant");
-insert into action (name, priority, dispatch_id) values (@EXPUNGE_FILE, 95, (select id from dispatch where name = @EXPUNGE_FILE));
--- insert into action_param(action_id, vector_param_name) values ((select id from action where name = @EXPUNGE_FILE), "active.scan.path");
-insert into reason (name, dispatch_id) values (@IS_REDUNDANT, (select id from dispatch where name = @IS_REDUNDANT));
-insert into action_reason (action_id, reason_id) values ((select id from action where name = @EXPUNGE_FILE), (select id from reason where name = @IS_REDUNDANT));
-
-set @DEPRECATE_FILE="deprecate.file";
-set @HAS_LOSSLESS_DUPE="file.has.lossless.duplicate";
-
-insert into dispatch (name, category, module_name, func_name) values (@DEPRECATE_FILE, "action", "audio", "deprecate");
-insert into dispatch (name, category, module_name, func_name) values (@HAS_LOSSLESS_DUPE,"condition", "audio", "has_lossless_dupe");
-insert into action (name, priority, dispatch_id) values (@DEPRECATE_FILE, 95, (select id from dispatch where name = @DEPRECATE_FILE));
--- insert into action_param(action_id, vector_param_name) values ((select id from action where name = @DEPRECATE_FILE), "active.scan.path");
-insert into reason (name, dispatch_id) values (@HAS_LOSSLESS_DUPE, (select id from dispatch where name = @HAS_LOSSLESS_DUPE));
-insert into action_reason (action_id, reason_id) values ((select id from action where name = @DEPRECATE_FILE), (select id from reason where name = @HAS_LOSSLESS_DUPE));
-
-set @MOVE_TO_CATEGORY="categorize.file";
-set @HAS_CATEGORY="file.category.recognized";
-set @NOT_IN_CATEGORY="file.not.categorized";
-
-insert into dispatch (name, category, module_name, func_name) values (@MOVE_TO_CATEGORY, "action", "audio", "move_to_category");
-insert into dispatch (name, category, module_name, func_name) values (@HAS_CATEGORY,"condition", "audio", "has_category");
-insert into dispatch (name, category, module_name, func_name) values (@NOT_IN_CATEGORY,"condition", "audio", "not_in_category");
-insert into action (name, priority, dispatch_id) values (@MOVE_TO_CATEGORY, 35, (select id from dispatch where name = @MOVE_TO_CATEGORY));
--- insert into action_param(action_id, vector_param_name) values ((select id from action where name = @MOVE_TO_CATEGORY), "active.scan.path");
-insert into reason (name, dispatch_id) values (@HAS_CATEGORY, (select id from dispatch where name = @HAS_CATEGORY));
-insert into action_reason (action_id, reason_id) values ((select id from action where name = @MOVE_TO_CATEGORY), (select id from reason where name = @HAS_CATEGORY));
-insert into reason (name, dispatch_id) values (@NOT_IN_CATEGORY, (select id from dispatch where name = @NOT_IN_CATEGORY));
-insert into action_reason (action_id, reason_id) values ((select id from action where name = @MOVE_TO_CATEGORY), (select id from reason where name = @NOT_IN_CATEGORY));
-
--- insert into reason(action_id, name) values ((select id from action where name = "file_remove"), "duplicate.exists");
--- insert into reason(action_id, name) values ((select id from action where name = "file_remove"), "is.lower.quality");
-
-commit;
+-- Dump completed on 2018-04-21 11:41:33
