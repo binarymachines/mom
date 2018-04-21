@@ -93,6 +93,18 @@ def get_directory_constants(directory_type, refresh=False):
 
     return get_sorted_items(PATTERN, directory_type)
 
+def get_directory_patterns(refresh=False):
+    keygroup = DIRECTORY
+    identifier = 'patterns'
+    # if directory_type is None:
+    items = cache2.get_items(keygroup, identifier)
+    if len(items) == 0 or refresh:
+        cache2.clear_items(keygroup, identifier)
+        key = cache2.get_key(keygroup, identifier)
+        rows = alchemy.SQLDirectoryPattern.retrieve_all()
+        cache2.add_items2(key, [directory_pattern.pattern for directory_pattern in rows])
+
+    return get_sorted_items(keygroup, identifier)
 
 def path_is_media_root(path, patterns):
 

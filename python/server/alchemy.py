@@ -18,7 +18,7 @@ from core import log
 from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam, Dispatch
 
 from db.generated.sqla_media import Asset, FileAttribute, Category, Directory, DirectoryConstant, DirectoryType, \
-    FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
+    FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord, DirectoryPattern
 
 from db.generated.sqla_service import ServiceExec, ServiceProfile, OpRecord, ModeDefault, ModeStateDefault, \
     ModeStateDefaultParam, SwitchRule, t_v_mode_default_dispatch
@@ -221,6 +221,42 @@ class SQLDirectory(Directory):
         return result
 
 
+class SQLDirectoryPattern(DirectoryPattern):
+    
+    def __repr__(self):
+        return "<SQLDirectoryPattern(name='%s')>" % (self.name)
+
+    @staticmethod
+    @alchemy_func
+    def insert(pattern, directory_type):
+        directory_pattern = SQLDirectoryPattern(pattern=pattern, directory_type=directory_type)
+
+        try:
+            sessions[MEDIA].add(directory_pattern)
+            sessions[MEDIA].commit()
+        except IntegrityError, err:
+            raise SQLAlchemyIntegrityError(err, sessions[MEDIA], message=err.message)
+
+    @staticmethod
+    @alchemy_func
+    def retrieve_all():
+
+        result = ()
+        for instance in sessions[MEDIA].query(SQLDirectoryPattern):
+            result += (instance,)
+
+        return result
+
+    @staticmethod
+    @alchemy_func
+    def retrieve_for_pattern(pattern):
+
+        result = ()
+        for instance in sessions[MEDIA].query(SQLDirectoryPattern). \
+            filter(SQLDirectoryPattern.pattern == pattern):
+            result += (instance,)
+
+        return result
 
 class SQLDirectoryConstant(DirectoryConstant):
     

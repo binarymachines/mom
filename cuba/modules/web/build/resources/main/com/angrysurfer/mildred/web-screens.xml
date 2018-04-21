@@ -197,4 +197,8 @@
             template="com/angrysurfer/mildred/web/media/matcherfield/matcher-field-edit.xml"/>
     <screen id="mildred$DocumentType.browse"
             template="com/angrysurfer/mildred/web/elastic/documenttype/document-type-browse.xml"/>
+    <screen id="mildred$DirectoryPattern.browse"
+            template="com/angrysurfer/mildred/web/media/directorypattern/directory-pattern-browse.xml"/>
+    <screen id="mildred$DirectoryPattern.edit"
+            template="com/angrysurfer/mildred/web/media/directorypattern/directory-pattern-edit.xml"/>
 </screen-config>

@@ -44,6 +44,7 @@
             <separator/>
             <item screen="mildred$DirectoryAmelioration.browse"/>
             <item screen="mildred$DirectoryConstant.browse"/>
+            <item screen="mildred$DirectoryPattern.browse"/>
             <item screen="mildred$DirectoryType.browse"/>
             <separator/>
             <item screen="mildred$FileType.browse"/>

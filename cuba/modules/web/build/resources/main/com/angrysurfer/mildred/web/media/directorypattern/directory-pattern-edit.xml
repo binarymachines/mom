@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.media.directorypattern.DirectoryPatternEdit"
+        datasource="directoryPatternDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.media.directorypattern">
+    <dsContext>
+        <datasource id="directoryPatternDs"
+                    class="com.angrysurfer.mildred.entity.media.DirectoryPattern"
+                    view="directoryPattern-view"/>
+        <collectionDatasource id="directoryTypesDs"
+                              class="com.angrysurfer.mildred.entity.media.DirectoryType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$DirectoryType e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode height="AUTO"
+                width="AUTO"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="directoryPatternDs">
+            <column width="250px">
+                <field property="pattern"/>
+                <field optionsDatasource="directoryTypesDs"
+                       property="directoryType"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
+    </layout>
+</window>

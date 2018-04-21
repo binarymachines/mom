@@ -81,6 +81,7 @@
     <class>com.angrysurfer.mildred.entity.media.MatchRecord</class>
     <class>com.angrysurfer.mildred.entity.media.Matcher</class>
     <class>com.angrysurfer.mildred.entity.media.MatcherField</class>
+    <class>com.angrysurfer.mildred.entity.media.DirectoryPattern</class>
     <class>com.angrysurfer.mildred.entity.service.Mode</class>
     <class>com.angrysurfer.mildred.entity.service.ModeDefault</class>
     <class>com.angrysurfer.mildred.entity.service.ModeState</class>

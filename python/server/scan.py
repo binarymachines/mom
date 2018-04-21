@@ -136,26 +136,26 @@ class Scanner(Walker):
                 try:
                     directory = Directory(root)
                     data = assets.directory_attribs(directory)
-                    if data['album']:
+                    if data['attributes']['album']:
                         LOG.info("adding %s to media paths." % (root))
                         shallow.add_directory(root, 'album')
                         assets.set_active_directory(root)
                         # self.folders.append(root)
 
-                    elif data['compilation']:
+                    elif data['attributes']['compilation']:
                         LOG.info("adding %s to media paths." % (root))
                         shallow.add_directory(root, 'compilation')
                         assets.set_active_directory(root)
                         # self.folders.append(root)
 
-                    elif data['recent']:
+                    elif data['attributes']['recent']:
                         LOG.info("adding %s to media paths." % (root))
                         shallow.add_directory(root, 'recent')
                         assets.set_active_directory(root)
 
-                    elif data['random']:
-                        LOG.info("adding %s to media paths." % (root))
-                        shallow.add_directory(root, 'random')
+                    # elif data['attributes']['random']:
+                    #     LOG.info("adding %s to media paths." % (root))
+                    #     shallow.add_directory(root, 'random')
                     else: 
                         assets.set_active_directory(root)
                         shallow.add_directory(root, 'random')

@@ -31,6 +31,7 @@
     <class>com.angrysurfer.mildred.entity.media.MatchRecord</class>
     <class>com.angrysurfer.mildred.entity.media.Matcher</class>
     <class>com.angrysurfer.mildred.entity.media.MatcherField</class>
+    <class>com.angrysurfer.mildred.entity.media.DirectoryPattern</class>
     <exclude-unlisted-classes/>
     <properties>
       <property name="eclipselink.cache.coordination.propagate-asynchronously" value="false"/>

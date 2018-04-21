@@ -15,7 +15,7 @@ import config
 import ops
 import search
 import sql
-from alchemy import SQLAsset, SQLDirectoryType
+from alchemy import SQLAsset, SQLDirectoryType, SQLDirectoryPattern
 from const import DIRECTORY, MATCH
 from core import cache2, log, util
 from errors import AssetException, ElasticDataIntegrityException
@@ -146,17 +146,19 @@ class Directory(Asset):
 
 def directory_attribs(directory):
     data = directory.to_dictionary()
-    data['no_scan'] = pattern_in_path(NO_SCAN, directory.absolute_path)
-    data['album'] = pattern_in_path(ALBUM, directory.absolute_path) and ALBUM not in os.path.split(directory.absolute_path)[1] 
-    data['compilation'] = pattern_in_path(COMPILATION, directory.absolute_path) and COMPILATION not in os.path.split(directory.absolute_path)[1] 
-    data['extended'] = pattern_in_path(EXTENDED, directory.absolute_path)
-    data['incomplete'] = pattern_in_path(INCOMPLETE, directory.absolute_path)
-    data['live'] = pattern_in_path(LIVE, directory.absolute_path)
-    data['new'] = pattern_in_path(NEW, directory.absolute_path)
-    data['random'] = pattern_in_path(RANDOM, directory.absolute_path) and RANDOM not in os.path.split(directory.absolute_path)[1] 
-    data['recent'] = pattern_in_path(RECENT, directory.absolute_path)
-    # data['side_project'] = pattern_in_path(SIDE_PROJECT, directory.absolute_path)
-    data['unsorted'] = pattern_in_path(UNSORTED, directory.absolute_path)
+    data['attributes'] = {}
+
+    sql_patterns = SQLDirectoryPattern.retrieve_all()
+    for pattern in sql_patterns:
+        data['attributes'][pattern.directory_type.name] = False 
+
+    patterns = shallow.get_directory_patterns()
+    for term in patterns:
+        if term in directory.absolute_path and term not in os.path.split(directory.absolute_path)[1]:
+            for pattern in sql_patterns:
+                if pattern.pattern == term:
+                        data['attributes'][pattern.directory_type.name] = True  
+
 
     return data
 

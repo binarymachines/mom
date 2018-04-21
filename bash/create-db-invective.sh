@@ -12,6 +12,18 @@ echo 'creating media db...'
 mysql -u root  < $MILDRED_HOME/db/design/media.sql
 echo 'creating mildred db...'
 mysql -u root < $MILDRED_HOME/db/design/mildred.sql
+mysql -u root < $MILDRED_HOME/db/load/media-category.sql
+mysql -u root < $MILDRED_HOME/db/load/media-directory_amelioration.sql
+mysql -u root < $MILDRED_HOME/db/load/media-directory_pattern.sql
+mysql -u root < $MILDRED_HOME/db/load/media-directory_type.sql
+mysql -u root < $MILDRED_HOME/db/load/media-file_attribute.sql
+mysql -u root < $MILDRED_HOME/db/load/media-file_type.sql
+mysql -u root < $MILDRED_HOME/db/load/media-matcher.sql
+mysql -u root < $MILDRED_HOME/db/load/media-matcher_field.sql
+mysql -u root < $MILDRED_HOME/db/load/media-file_handler.sql
+mysql -u root < $MILDRED_HOME/db/load/media-file_handler_registration.sql
+
+
 echo 'creating service db...'
 mysql -u root < $MILDRED_HOME/db/design/service.sql
 echo 'creating suggestion db...'

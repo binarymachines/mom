@@ -106,6 +106,16 @@ class DirectoryConstant(Base):
     directory_type = Column(String(64), nullable=False)
 
 
+class DirectoryPattern(Base):
+    __tablename__ = 'directory_pattern'
+
+    id = Column(Integer, primary_key=True)
+    pattern = Column(String(256), nullable=False)
+    directory_type_id = Column(ForeignKey(u'directory_type.id'), index=True, server_default=text("'1'"))
+
+    directory_type = relationship(u'DirectoryType')
+
+
 class DirectoryType(Base):
     __tablename__ = 'directory_type'
 
