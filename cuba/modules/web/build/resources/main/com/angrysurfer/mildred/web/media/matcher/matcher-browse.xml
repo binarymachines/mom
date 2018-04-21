@@ -8,7 +8,7 @@
     <dsContext>
         <groupDatasource id="matchersDs"
                          class="com.angrysurfer.mildred.entity.media.Matcher"
-                         view="_local">
+                         view="matcher-view">
             <query>
                 <![CDATA[select e from mildred$Matcher e]]>
             </query>
@@ -26,16 +26,23 @@
         <groupTable id="matchersTable"
                     width="100%">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="name"/>
-                <column id="queryType"/>
-                <column id="maxScorePercentage"/>
-                <column id="appliesToFileType"/>
-                <column id="activeFlag"/>
+                <column id="name"
+                        caption="name"/>
+                <column id="queryType"
+                        caption="query type"/>
+                <column id="maxScorePercentage"
+                        caption="max score"/>
+                <column id="appliesToFileType"
+                        caption="file type"/>
+                <column id="activeFlag"
+                        caption="active"/>
             </columns>
             <rows datasource="matchersDs"/>
             <rowsCount/>

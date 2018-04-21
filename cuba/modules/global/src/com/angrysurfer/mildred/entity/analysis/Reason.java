@@ -51,15 +51,15 @@ public class Reason extends BaseIntIdentityIdEntity {
     protected Boolean expectedResult = false;
 
     @SystemLevel
-    @Column(name = "DOC_QUERY_ID")
-    protected Integer docQueryId;
+    @Column(name = "QUERY_ID")
+    protected Integer queryId;
 
-    public void setQueryId(Integer docQueryId) {
-        this.docQueryId = docQueryId;
+    public void setQueryId(Integer queryId) {
+        this.queryId = queryId;
     }
 
     public Integer getQueryId() {
-        return docQueryId;
+        return queryId;
     }
 
 

@@ -8,22 +8,73 @@
     <dsContext>
         <datasource id="queryDs"
                     class="com.angrysurfer.mildred.entity.elastic.Query"
-                    view="Query-screen-view"/>
+                    view="Query-screen-view">
+            <collectionDatasource id="clauseDs"
+                                  property="clause"/>
+        </datasource>
+        <collectionDatasource id="queryTypesDs"
+                              class="com.angrysurfer.mildred.entity.elastic.QueryType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$QueryType e]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="documentTypesDs"
+                              class="com.angrysurfer.mildred.entity.elastic.DocumentType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$DocumentType e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="600"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="queryDs">
             <column width="250px">
-                <field property="name"/>
-                <field property="queryType"/>
-                <field property="documentType"/>
-                <field property="maxScorePercentage"/>
-                <field property="activeFlag"/>
+                <field caption="msg://name"
+                       property="name"/>
+                <field caption="msg://queryType"
+                       optionsDatasource="queryTypesDs"
+                       property="queryType"/>
+                <field caption="msg://documentType"
+                       optionsDatasource="documentTypesDs"
+                       property="documentType"/>
+                <field caption="msg://maxScorePercentage"
+                       property="maxScorePercentage"/>
+                <field caption="msg://activeFlag"
+                       property="activeFlag"/>
             </column>
         </fieldGroup>
+        <groupBox id="clauseBox"
+                  caption="msg://com.angrysurfer.mildred.entity.elastic/Query.clause">
+            <table id="clauseTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="fieldName"/>
+                    <column id="boost"/>
+                    <column id="bool"/>
+                    <column id="operator"/>
+                    <column id="minimumShouldMatch"/>
+                    <column id="analyzer"/>
+                    <column id="querySection"/>
+                    <column id="defaultValue"/>
+                </columns>
+                <rows datasource="clauseDs"/>
+                <buttonsPanel>
+                    <button action="clauseTable.add"/>
+                    <button action="clauseTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <frame id="windowActions"
                screen="editWindowActions"/>
     </layout>

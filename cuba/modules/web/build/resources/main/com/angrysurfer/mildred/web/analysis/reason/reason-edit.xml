@@ -23,8 +23,8 @@
                 <field property="weight"/>
                 <field property="dispatch"/>
                 <field property="expectedResult"/>
-                <field property="docQuery"/>
-                <field property="docQueryId"/>
+                <field property="query"/>
+                <field property="queryId"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

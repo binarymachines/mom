@@ -22,24 +22,20 @@
             <item screen="mildred$ServiceDispatch.browse"/>
             <item screen="mildred$ServiceProfile.browse"/>
         </menu>
-        <menu id="service-data">
+        <menu id="elastic">
+            <item screen="mildred$Document.browse"/>
+            <item screen="mildred$DocumentType.browse"/>
+            <separator/>
+            <item screen="mildred$Clause.browse"/>
+            <item screen="mildred$Query.browse"/>
+        </menu>
+        <menu id="service-log">
             <item screen="mildred$ModeState.browse"/>
             <separator/>
             <item screen="mildred$OpRecord.browse"/>
             <item screen="mildred$OpRecordParam.browse"/>
             <separator/>
             <item screen="mildred$ServiceExec.browse"/>
-        </menu>
-        <menu id="service-profiles">
-            <item screen="mildred$VServiceMode.browse"/>
-            <item screen="mildred$VServiceSwitchRule.browse"/>
-        </menu>
-        <menu id="elastic">
-            <item screen="mildred$Clause.browse"/>
-            <item screen="mildred$Document.browse"/>
-            <item screen="mildred$DocumentType.browse"/>
-            <item screen="mildred$Query.browse"/>
-            <item screen="mildred$QueryType.browse"/>
         </menu>
     </menu>
     <menu id="media">
@@ -63,27 +59,28 @@
             <item screen="mildred$DelimitedFileInfo.browse"/>
             <item screen="mildred$DirectoryAttribute.browse"/>
             <item screen="mildred$FileAttribute.browse"/>
-        </menu>
-        <menu id="media-queries">
-            <item screen="mildred$Matcher.browse"/>
-            <item screen="mildred$MatcherField.browse"/>
-            <separator/>
             <item screen="mildred$MatchRecord.browse"/>
         </menu>
-    </menu>
-    <menu id="analysis">
-        <item screen="mildred$Action.browse"/>
-        <item screen="mildred$ActionParam.browse"/>
-        <item screen="mildred$ActionStatus.browse"/>
-        <item screen="mildred$Dispatch.browse"/>
-        <item screen="mildred$Reason.browse"/>
-        <item screen="mildred$ReasonParam.browse"/>
-        <item screen="mildred$VectorParam.browse"/>
-    </menu>
-    <menu id="suggestion">
-        <item screen="mildred$GeneratedAction.browse"/>
-        <item screen="mildred$GeneratedActionParam.browse"/>
-        <item screen="mildred$GeneratedReason.browse"/>
-        <item screen="mildred$GeneratedReasonParam.browse"/>
+        <menu id="media-duplicates">
+            <item id="matchers"
+                  screen="mildred$Matcher.browse"/>
+            <item id="match-fields"
+                  screen="mildred$MatcherField.browse"/>
+        </menu>
+        <menu id="analysis">
+            <item screen="mildred$Action.browse"/>
+            <item screen="mildred$ActionParam.browse"/>
+            <item screen="mildred$ActionStatus.browse"/>
+            <item screen="mildred$Dispatch.browse"/>
+            <item screen="mildred$Reason.browse"/>
+            <item screen="mildred$ReasonParam.browse"/>
+            <item screen="mildred$VectorParam.browse"/>
+        </menu>
+        <menu id="suggestion">
+            <item screen="mildred$GeneratedAction.browse"/>
+            <item screen="mildred$GeneratedActionParam.browse"/>
+            <item screen="mildred$GeneratedReason.browse"/>
+            <item screen="mildred$GeneratedReasonParam.browse"/>
+        </menu>
     </menu>
 </menu-config>

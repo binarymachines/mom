@@ -12,6 +12,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -23,10 +25,12 @@ public class Query extends BaseIntIdentityIdEntity {
     @Column(name = "name", nullable = false, length = 128)
     protected String name;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "query_type_id")
     protected QueryType queryType;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "document_type_id")
     protected DocumentType documentType;

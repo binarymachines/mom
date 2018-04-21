@@ -8,6 +8,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "matcher_field")
@@ -15,6 +17,7 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 public class MatcherField extends BaseIntIdentityIdEntity {
     private static final long serialVersionUID = 6549471899406108525L;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "matcher_id")
     protected Matcher matcher;

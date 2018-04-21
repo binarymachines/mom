@@ -37,8 +37,8 @@
                 <column id="weight"/>
                 <column id="dispatch"/>
                 <column id="expectedResult"/>
-                <column id="docQuery"/>
-                <column id="docQueryId"/>
+                <column id="query"/>
+                <column id="queryId"/>
             </columns>
             <rows datasource="reasonsDs"/>
             <rowsCount/>

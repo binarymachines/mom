@@ -112,7 +112,7 @@ class Query(Base):
     query_type_id = Column(ForeignKey(u'elastic.query_type.id'), nullable=False, index=True)
     document_type_id = Column(ForeignKey(u'elastic.document_type.id'), nullable=False, index=True)
     max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
-    active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
+    active_flag = Column(Integer, nullable=False, server_default=text("'1'"))
 
     document_type = relationship(u'DocumentType')
     query_type = relationship(u'QueryType')

@@ -32,7 +32,7 @@ from shallow import get_active_file_formats, get_location_types, add_location, g
 from ops import ops_func
 import assets
 
-LOG = log.get_safe_log(__name__, logging.DEBUG)
+LOG = log.get_safe_log(__name__, logging.INFO)
 ERR = log.get_safe_log('errors', logging.WARNING)
 
 # PERSIST = 'scan.persist'
@@ -48,12 +48,12 @@ class Discover(Walker):
 
     @ops_func
     def handle_root(self, root):
-        LOG.info("Considering %s" % root)
+        LOG.debug("Considering %s" % root)
         if os.path.isdir(root) and os.access(root, os.R_OK):
             if root not in shallow.get_locations():
                 self.process(root);
                 if pathutil.folder_is_media_root(root, self.formats, self.types):
-                    print("adding %s to media paths." % (root))
+                    LOG.info("adding %s to media paths." % (root))
                     add_location(root)
                     self.folders.append(root)
     

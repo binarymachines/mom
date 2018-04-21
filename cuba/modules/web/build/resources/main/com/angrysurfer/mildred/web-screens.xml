@@ -53,12 +53,8 @@
             template="com/angrysurfer/mildred/web/media/matchrecord/match-record-edit.xml"/>
     <screen id="mildred$MatchRecord.browse"
             template="com/angrysurfer/mildred/web/media/matchrecord/match-record-browse.xml"/>
-    <screen id="mildred$Matcher.edit"
-            template="com/angrysurfer/mildred/web/media/matcher/matcher-edit.xml"/>
     <screen id="mildred$Matcher.browse"
             template="com/angrysurfer/mildred/web/media/matcher/matcher-browse.xml"/>
-    <screen id="mildred$MatcherField.edit"
-            template="com/angrysurfer/mildred/web/media/matcherfield/matcher-field-edit.xml"/>
     <screen id="mildred$MatcherField.browse"
             template="com/angrysurfer/mildred/web/media/matcherfield/matcher-field-browse.xml"/>
     <screen id="mildred$Action.edit"
@@ -191,10 +187,14 @@
             template="com/angrysurfer/mildred/web/elastic/documenttype/document-type-edit.xml"/>
     <screen id="mildred$Query.browse"
             template="com/angrysurfer/mildred/web/elastic/query/query-browse.xml"/>
-    <screen id="mildred$Query.edit"
-            template="com/angrysurfer/mildred/web/elastic/query/query-edit.xml"/>
-    <screen id="mildred$QueryType.browse"
-            template="com/angrysurfer/mildred/web/elastic/querytype/query-type-browse.xml"/>
     <screen id="mildred$QueryType.edit"
             template="com/angrysurfer/mildred/web/elastic/querytype/query-type-edit.xml"/>
+    <screen id="mildred$Query.edit"
+            template="com/angrysurfer/mildred/web/elastic/query/query-edit.xml"/>
+    <screen id="mildred$Matcher.edit"
+            template="com/angrysurfer/mildred/web/media/matcher/matcher-edit.xml"/>
+    <screen id="mildred$QueryType.browse"
+            template="com/angrysurfer/mildred/web/elastic/querytype/query-type-browse.xml"/>
+    <screen id="mildred$MatcherField.edit"
+            template="com/angrysurfer/mildred/web/media/matcherfield/matcher-field-edit.xml"/>
 </screen-config>

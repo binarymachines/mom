@@ -10,24 +10,35 @@
                     class="com.angrysurfer.mildred.entity.elastic.Clause"
                     view="_local"/>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="clauseDs">
             <column width="250px">
-                <field property="fieldName"/>
-                <field property="boost"/>
-                <field property="bool"/>
-                <field property="operator"/>
-                <field property="minimumShouldMatch"/>
-                <field property="analyzer"/>
-                <field property="querySection"/>
-                <field property="defaultValue"/>
+                <field caption="field"
+                       property="fieldName"/>
+                <field caption="boost"
+                       property="boost"/>
+                <field caption="boost"
+                       property="bool"/>
+                <field caption="operator"
+                       property="operator"/>
+                <field caption="minimum"
+                       property="minimumShouldMatch"/>
+                <field caption="analyzer"
+                       property="analyzer"/>
+                <field caption="section"
+                       property="querySection"/>
+                <field caption="default"
+                       property="defaultValue"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

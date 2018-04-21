@@ -34,7 +34,7 @@ public class Clause extends BaseIntIdentityIdEntity {
     @Column(name = "analyzer", length = 64)
     protected String analyzer;
 
-    @Column(name = "query_section", length = 128)
+    @Column(name = "section", length = 128)
     protected String querySection;
 
     @Column(name = "default_value", length = 128)

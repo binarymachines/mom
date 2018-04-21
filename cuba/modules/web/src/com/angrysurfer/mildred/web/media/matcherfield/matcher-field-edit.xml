@@ -9,26 +9,46 @@
         <datasource id="matcherFieldDs"
                     class="com.angrysurfer.mildred.entity.media.MatcherField"
                     view="MatcherField-screen-view"/>
+        <collectionDatasource id="matchersDs"
+                              class="com.angrysurfer.mildred.entity.media.Matcher"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$Matcher e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="matcherFieldDs">
-            <column width="250px">
-                <field property="matcher"/>
-                <field property="fieldName"/>
-                <field property="boost"/>
-                <field property="bool"/>
-                <field property="operator"/>
-                <field property="minimumShouldMatch"/>
-                <field property="analyzer"/>
-                <field property="querySection"/>
-                <field property="defaultValue"/>
+            <column width="400px">
+                <field caption="matcher"
+                       optionsDatasource="matchersDs"
+                       property="matcher"/>
+                <field caption="field"
+                       property="fieldName"/>
+                <field caption="boost"
+                       property="boost"/>
+                <field caption="bool"
+                       property="bool"/>
+                <field caption="operator"
+                       property="operator"/>
+                <field caption="minimum"
+                       property="minimumShouldMatch"/>
+                <field caption="analyzer"
+                       property="analyzer"/>
+                <field caption="section"
+                       property="querySection"/>
+                <field caption="default"
+                       property="defaultValue"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="MIDDLE_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

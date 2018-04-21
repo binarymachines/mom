@@ -56,7 +56,7 @@ class Clause(object):
         self._value = value
         self._boost = boost
         self._operator = operator
-        self._minimum_should_match=minimum_should_match
+        self._minimum_should_match = minimum_should_match
         self.must = must
         self.must_not = must_not
         self.should = should
@@ -88,33 +88,34 @@ class Clause(object):
 
 
 class BooleanClause(Clause):
-    
+
     def __init__(self, *clauses, **kwargs):
-        super(BooleanClause, self).__init__(self, BOOL, must=kwarg_bool('must', kwargs), must_not=kwarg_bool('must_not', kwargs), should=kwarg_bool('should', kwargs))
+        super(BooleanClause, self).__init__(self, BOOL, must=kwarg_bool('must', kwargs), \
+            must_not=kwarg_bool('must_not', kwargs), should=kwarg_bool('should', kwargs))
 
         self.must_clauses = [clause for clause in clauses if clause.must]
         self.must_not_clauses = [clause for clause in clauses if clause.must_not]
-        self.should_clauses = [clause for clause in clauses if clause.should]        
+        self.should_clauses = [clause for clause in clauses if clause.should]
 
-    def get_clause(self):        
+    def get_clause(self):
         subclauses = {}
-        
+
         self.set_subclause_if_section_in_clauses(subclauses, MUST, self.must_clauses)
         self.set_subclause_if_section_in_clauses(subclauses, MUST_NOT, self.must_not_clauses)
         self.set_subclause_if_section_in_clauses(subclauses, SHOULD, self.should_clauses)
-                
+
         return {BOOL : subclauses}
 
     def get_sub_clause(self, section, criteria):
         return criteria[0].get_clause() if len(criteria) == 1 else [crit.get_clause() for crit in criteria]
-        
+
     # def is_valid(self):
     #     return (len(self.should_clauses) + len(self.must_clauses) + len(self.must_not_clauses)) > 1
 
     def set_subclause_if_section_in_clauses(self, subclauses, section, clauses):
         if len(clauses) > 0:
-            subclauses[section] = self.get_sub_clause(section, clauses) 
-        
+            subclauses[section] = self.get_sub_clause(section, clauses)
+
 
 
 class NestedClause(Clause):
@@ -180,7 +181,8 @@ def main():
     artist = Clause(MATCH, field="attributes.TPE1", value="skinny puppy", should=True)
     album = Clause(MATCH, field="attributes.TIT2", value="first aid", should=True, boost=5.0, minimum_should_match=10)
     filepath = Clause(MATCH, field="absolute_path", value="intercourse", must=True)
-    req = Request("file", BooleanClause(NestedClause('attributes', BooleanClause(artist, album), should=True), filepath))
+    body = BooleanClause(NestedClause('attributes', BooleanClause(artist, album), should=True), filepath)
+    req = Request("file", body)
 
     response = req.submit(QUERY)
     pp.pprint(response.body)  

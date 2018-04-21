@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import com.haulmont.cuba.core.entity.BaseStringIdEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "document")
@@ -19,12 +21,10 @@ import com.haulmont.cuba.core.entity.BaseStringIdEntity;
 public class Document extends BaseStringIdEntity {
     private static final long serialVersionUID = 6268974233147975405L;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "document_type_id")
     protected DocumentType documentType;
-
-    @Column(name = "document_type", nullable = false, length = 64)
-    protected String documentType1;
 
     @Column(name = "absolute_path", nullable = false, length = 1024)
     protected String absolutePath;
@@ -47,14 +47,6 @@ public class Document extends BaseStringIdEntity {
 
     public DocumentType getDocumentType() {
         return documentType;
-    }
-
-    public void setDocumentType1(String documentType1) {
-        this.documentType1 = documentType1;
-    }
-
-    public String getDocumentType1() {
-        return documentType1;
     }
 
     public void setAbsolutePath(String absolutePath) {

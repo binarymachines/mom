@@ -224,5 +224,13 @@
                   view="_minimal"/>
         <property name="documentType"
                   view="_minimal"/>
+        <property name="clause"
+                  view="_local"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.media.Matcher"
+          extends="_base"
+          name="matcher-view">
+        <property name="fields"
+                  view="_local"/>
     </view>
 </views>

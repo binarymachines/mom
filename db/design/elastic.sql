@@ -2,9 +2,8 @@ use `elastic`;
 
 CREATE TABLE IF NOT EXISTS `document_type` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `desc`varchar(255),
-  `ext`varchar(11),
   `name` varchar(25),
+  `desc`varchar(255),
   PRIMARY KEY (`id`), 
   UNIQUE KEY `uk_document_type` (`name`)
 );
@@ -34,6 +33,8 @@ CREATE TABLE IF NOT EXISTS `query_type` (
   UNIQUE KEY `uk_query_type` (`name`)
 );
 
+-- INSERT INTO `query_type` (`name`) VALUES ("QUERY");
+-- INSERT INTO `query_type` (`name`) VALUES ("FILTER");
 INSERT INTO `query_type` (`name`) VALUES ("TERM");
 INSERT INTO `query_type` (`name`) VALUES ("MATCH");
 
@@ -45,7 +46,7 @@ CREATE TABLE `query` (
   `query_type_id` int(11) unsigned NOT NULL,
   `document_type_id` int(11) unsigned NOT NULL,
   `max_score_percentage` float NOT NULL DEFAULT '0',
-  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
+  `active_flag` tinyint(1) NOT NULL DEFAULT '1',
   CONSTRAINT `fk_query_query_type`
     FOREIGN KEY (`query_type_id`)
     REFERENCES `query_type` (`id`),
@@ -64,7 +65,7 @@ CREATE TABLE `clause` (
   `operator` varchar(16) DEFAULT NULL,
   `minimum_should_match` float NOT NULL DEFAULT '0',
   `analyzer` varchar(64) DEFAULT NULL,
-  `query_section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
+  `section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
   `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
   -- `parent_id` int(11) UNSIGNED,
     PRIMARY KEY (`id`)
@@ -97,19 +98,19 @@ CREATE TABLE IF NOT EXISTS `query_clause_jn` (
 -- INSERT INTO `query` (`id`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `document_type_id`) VALUES (4, 'artist_query', 'term', 0, 0, 1);
 -- INSERT INTO `query` (`id`, `name`, `query_type`, `max_score_percentage`, `active_flag`, `document_type_id`) VALUES (5, 'artist_album_song_query', 'match',75,1, 1);
 
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (1, 'attributes.TPE1',5,NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (2, 'attributes.TIT2',7,NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (3, 'attributes.TALB',3,NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (4, 'document_name',0, NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (5, 'deleted',0, NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (6, 'document_size',3,NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (7, 'attributes.TPE1',3,NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (8, 'attributes.TPE1',0, NULL,NULL,0, NULL, 'must',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (9, 'attributes.TIT2',5,NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (10, 'attributes.TALB',0, NULL,NULL,0, NULL, 'should',NULL);
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (11, 'deleted',0, NULL,NULL,0, NULL, 'must_not', 'true');
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (12, 'attributes.TRCK',0, NULL,NULL,0, NULL, 'should', '');
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `query_section`, `default_value`) VALUES (13, 'attributes.TPE2',0, NULL,NULL,0, NULL, '', 'should');
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (1, 'attributes.TPE1',5,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (2, 'attributes.TIT2',7,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (3, 'attributes.TALB',3,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (4, 'document_name',0, NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (5, 'deleted',0, NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (6, 'document_size',3,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (7, 'attributes.TPE1',3,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (8, 'attributes.TPE1',0, NULL,NULL,0, NULL, 'must',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (9, 'attributes.TIT2',5,NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (10, 'attributes.TALB',0, NULL,NULL,0, NULL, 'should',NULL);
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (11, 'deleted',0, NULL,NULL,0, NULL, 'must_not', 'true');
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (12, 'attributes.TRCK',0, NULL,NULL,0, NULL, 'should', '');
+INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (13, 'attributes.TPE2',0, NULL,NULL,0, NULL, '', 'should');
 
 -- INSERT INTO `query_clause_jn` (`query_id`, `clause_id`) VALUES (1, 4);
 -- INSERT INTO `query_clause_jn` (`query_id`, `clause_id`) VALUES (2, 1);

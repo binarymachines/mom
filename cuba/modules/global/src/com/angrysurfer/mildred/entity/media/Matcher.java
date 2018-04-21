@@ -6,6 +6,9 @@ import com.haulmont.chile.core.annotations.NamePattern;
 import com.haulmont.cuba.core.global.DesignSupport;
 import javax.persistence.Column;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import java.util.List;
+import javax.persistence.OneToMany;
+import com.haulmont.chile.core.annotations.Composition;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -20,6 +23,10 @@ public class Matcher extends BaseIntIdentityIdEntity {
     @Column(name = "query_type", nullable = false, length = 64)
     protected String queryType;
 
+    @Composition
+    @OneToMany(mappedBy = "matcher")
+    protected List<MatcherField> fields;
+
     @Column(name = "max_score_percentage", nullable = false)
     protected Double maxScorePercentage;
 
@@ -28,6 +35,15 @@ public class Matcher extends BaseIntIdentityIdEntity {
 
     @Column(name = "active_flag", nullable = false)
     protected Boolean activeFlag = false;
+
+    public void setFields(List<MatcherField> fields) {
+        this.fields = fields;
+    }
+
+    public List<MatcherField> getFields() {
+        return fields;
+    }
+
 
     public void setName(String name) {
         this.name = name;

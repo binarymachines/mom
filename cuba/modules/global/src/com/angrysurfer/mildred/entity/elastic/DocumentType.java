@@ -14,14 +14,11 @@ import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 public class DocumentType extends BaseIntIdentityIdEntity {
     private static final long serialVersionUID = -6700526953316539739L;
 
-    @Column(name = "`desc`")
-    protected String desc;
-
-    @Column(name = "ext", length = 11)
-    protected String ext;
-
     @Column(name = "name", length = 25)
     protected String name;
+
+    @Column(name = "`desc`")
+    protected String desc;
 
     public void setDesc(String desc) {
         this.desc = desc;
@@ -29,14 +26,6 @@ public class DocumentType extends BaseIntIdentityIdEntity {
 
     public String getDesc() {
         return desc;
-    }
-
-    public void setExt(String ext) {
-        this.ext = ext;
-    }
-
-    public String getExt() {
-        return ext;
     }
 
     public void setName(String name) {
