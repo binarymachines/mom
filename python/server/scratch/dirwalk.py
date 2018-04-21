@@ -81,7 +81,7 @@ class IsInMediaTypePath(DirectoryHandler):
 
 class IsInGenrePath(DirectoryHandler):
     def check_dir(self, path):
-        if pathutil.file_type_recognized(path, pathutil.get_active_file_formats()):
+        if pathutil.file_type_recognized(path, pathutil.get_file_types()):
             filed = False
             for name in pathutil.get_category_names():
                 if name in path: filed = True

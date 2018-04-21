@@ -20,19 +20,19 @@ def file_type_recognized(path, extensions, recursive=False):
     # else: raise Exception('Path does not exist: "' + path + '"')
 
 
-def folder_is_media_root(path, formats, types):
+# def folder_is_media_root(path, formats, types):
 
-    categories = get_category_names()
-    if os.path.isdir(path):
-        found = []
-        for f in os.listdir(path):
-            if os.path.isdir(os.path.join(path, f)):
-                for name in categories:
-                    if f.lower() == name.lower():
-                        if name not in found:
-                            found.append(name)
+#     categories = get_category_names()
+#     if os.path.isdir(path):
+#         found = []
+#         for f in os.listdir(path):
+#             if os.path.isdir(os.path.join(path, f)):
+#                 for name in categories:
+#                     if f.lower() == name.lower():
+#                         if name not in found:
+#                             found.append(name)
 
-        return len(found) > 0
+#         return len(found) > 1
 
 
 # TODO: Offline mode - query MySQL and ES before looking at the file system
@@ -49,18 +49,3 @@ def multiple_file_types_recognized(path, extensions):
         return len(found) > 1
 
 
-# TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_has_location_name(path, names):
-    # if path.endswith(os.path.sep):
-    for name in get_locations():
-        if path.endswith(name):
-            return True
-
-
-# TODO: Offline mode - query MySQL and ES before looking at the file system
-def path_in_album_directory(path):
-    # if self.debug: print path
-    if os.path.isdir(path) is False:
-        raise Exception('Path does not exist: "' + path + '"')
-
-    raise Exception('not implemented!')

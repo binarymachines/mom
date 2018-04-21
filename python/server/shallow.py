@@ -1,5 +1,5 @@
 from core import cache2
-
+import os
 import config, alchemy
 
 from const import DIRECTORY, FILE
@@ -7,6 +7,18 @@ from core import cache2
 
 from assets import PATTERN
 
+def folder_is_media_root(path, patterns):
+
+    if os.path.isdir(path):
+        found = []
+        for f in os.listdir(path):
+            if os.path.isdir(os.path.join(path, f)):
+                for name in patterns:
+                    if f.lower() == name.lower():
+                        if name not in found:
+                            found.append(name)
+
+        return len(found) > 0
 
 def get_sorted_items(keygroup, identifier):
     key = cache2.get_key(keygroup, identifier)
@@ -16,9 +28,9 @@ def get_sorted_items(keygroup, identifier):
     return result
 
 
-def get_active_file_formats(refresh=False):
+def get_file_types(refresh=False):
     keygroup = FILE
-    identifier = 'file_formats'
+    identifier = 'file_types'
 
     items = cache2.get_items(keygroup, identifier)
     if len(items) == 0 or refresh:
@@ -44,6 +56,11 @@ def get_category_names(refresh=False):
     return get_sorted_items(keygroup, identifier)
 
 
+def add_location(path, type=None):
+    alchemy.SQLDirectory.insert(path, type)
+    get_locations(True)
+
+
 def get_locations(refresh=False):
     keygroup = DIRECTORY
     identifier = 'location'
@@ -56,11 +73,6 @@ def get_locations(refresh=False):
         cache2.add_items2(key, [directory.name for directory in rows])
 
     return get_sorted_items(keygroup, identifier)
-
-
-def add_location(path):
-    alchemy.SQLDirectory.insert(path)
-    get_locations(True)
 
 
 def get_location_types(refresh=False):
@@ -88,3 +100,19 @@ def get_location_patterns(location_type, refresh=False):
         items = cache2.get_items(PATTERN, location_type)
 
     return get_sorted_items(PATTERN, location_type)
+
+# TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_has_location_name(path, names):
+    # if path.endswith(os.path.sep):
+    for name in get_locations():
+        if path.endswith(name):
+            return True
+
+
+# TODO: Offline mode - query MySQL and ES before looking at the file system
+def path_in_album_directory(path):
+    # if self.debug: print path
+    if os.path.isdir(path) is False:
+        raise Exception('Path does not exist: "' + path + '"')
+
+    raise Exception('not implemented!')

@@ -18,7 +18,6 @@
                     datasource="documentTypeDs">
             <column width="250px">
                 <field property="desc"/>
-                <field property="ext"/>
                 <field property="name"/>
             </column>
         </fieldGroup>

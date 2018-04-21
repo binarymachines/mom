@@ -181,8 +181,6 @@
             template="com/angrysurfer/mildred/web/elastic/document/document-browse.xml"/>
     <screen id="mildred$Document.edit"
             template="com/angrysurfer/mildred/web/elastic/document/document-edit.xml"/>
-    <screen id="mildred$DocumentType.browse"
-            template="com/angrysurfer/mildred/web/elastic/documenttype/document-type-browse.xml"/>
     <screen id="mildred$DocumentType.edit"
             template="com/angrysurfer/mildred/web/elastic/documenttype/document-type-edit.xml"/>
     <screen id="mildred$Query.browse"
@@ -197,4 +195,6 @@
             template="com/angrysurfer/mildred/web/elastic/querytype/query-type-browse.xml"/>
     <screen id="mildred$MatcherField.edit"
             template="com/angrysurfer/mildred/web/media/matcherfield/matcher-field-edit.xml"/>
+    <screen id="mildred$DocumentType.browse"
+            template="com/angrysurfer/mildred/web/elastic/documenttype/document-type-browse.xml"/>
 </screen-config>

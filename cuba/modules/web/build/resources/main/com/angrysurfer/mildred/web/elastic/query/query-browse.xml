@@ -31,11 +31,16 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="name"/>
-                <column id="queryType"/>
-                <column id="documentType"/>
-                <column id="maxScorePercentage"/>
-                <column id="activeFlag"/>
+                <column id="name"
+                        caption="msg://name"/>
+                <column id="queryType"
+                        caption="msg://queryType"/>
+                <column id="documentType"
+                        caption="msg://documentType"/>
+                <column id="maxScorePercentage"
+                        caption="msg://maxScorePercentage"/>
+                <column id="activeFlag"
+                        caption="msg://activeFlag"/>
             </columns>
             <rows datasource="queriesDs"/>
             <rowsCount/>

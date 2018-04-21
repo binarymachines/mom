@@ -24,15 +24,17 @@
             <properties include=".*"/>
         </filter>
         <groupTable id="documentsTable"
+                    multiselect="true"
                     width="100%">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
                 <action id="remove"/>
             </actions>
             <columns>
                 <column id="documentType"/>
-                <column id="documentType1"/>
                 <column id="absolutePath"/>
                 <column id="effectiveDt"/>
                 <column id="expirationDt"/>

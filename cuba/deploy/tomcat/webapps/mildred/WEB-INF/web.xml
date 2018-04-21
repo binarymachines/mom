@@ -6,7 +6,7 @@
     <context-param>
         <description>Web resources version for correct caching in browser</description>
         <param-name>webResourcesTs</param-name>
-        <param-value>2018_04_20_19_14</param-value>
+        <param-value>2018_04_20_22_23</param-value>
     </context-param>
     <!-- Application properties config files -->
     <context-param>

@@ -17,7 +17,7 @@ from errors import SQLIntegrityError
 from core import log
 from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam, Dispatch
 
-from db.generated.sqla_media import Asset, FileAttribute, Category, Directory, DirectoryConstant, \
+from db.generated.sqla_media import Asset, FileAttribute, Category, Directory, DirectoryConstant, DirectoryType, \
     FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord
 
 from db.generated.sqla_service import ServiceExec, ServiceProfile, OpRecord, ModeDefault, ModeStateDefault, \
@@ -139,16 +139,49 @@ SQLReason.params = relationship("SQLReasonParam", order_by=SQLReasonParam.id, ba
     
 # SQLReason.params = relationship("SQLReasonParam", order_by=SQLReasonParam.id, back_populates="reason")
 
+class SQLDirectoryType(DirectoryType):
+    
+    def __repr__(self):
+        return "<SQLDirectoryType(name='%s')>" % (
+                                self.name)
+
+    @staticmethod
+    @alchemy_func
+    def retrieve_all():
+
+        result = ()
+        for instance in sessions[MEDIA].query(SQLDirectoryType). \
+            filter(SQLDirectoryType.effective_dt < datetime.datetime.now()). \
+            filter(SQLDirectoryType.expiration_dt > datetime.datetime.now()):
+            result += (instance,)
+
+        return result
+
+    @staticmethod
+    @alchemy_func
+    def retrieve(name):
+        result = ()
+        for instance in sessions[MEDIA].query(SQLDirectoryType). \
+            filter(SQLDirectoryType.name == name):
+            result += (instance,)
+    
+        return result[0] if len(result) == 1 else None
+
 class SQLDirectory(Directory):
     
+    directory_type = relationship(u'SQLDirectoryType', enable_typechecks=True)
+
     def __repr__(self):
         return "<SQLDirectory(name='%s')>" % (
                                 self.name)
 
     @staticmethod
     @alchemy_func
-    def insert(absolute_path):
+    def insert(absolute_path, type=None):
         directory = SQLDirectory(name=absolute_path)
+        if type is not None:
+            directory_type = SQLDirectoryType.retrieve(type)
+            directory.directory_type = directory_type
 
         try:
             sessions[MEDIA].add(directory)
@@ -167,6 +200,8 @@ class SQLDirectory(Directory):
             result += (instance,)
 
         return result
+
+
 
 class SQLDirectoryConstant(DirectoryConstant):
     
@@ -625,7 +660,6 @@ class SQLModeState(AlchemyModeState):
         if mode.mode_state_id:
 
             mode_state_rec = SQLModeState.retrieve_active(mode)
-
             mode_state_rec.times_activated = mode.times_activated
             mode_state_rec.times_completed = mode.times_completed
             mode_state_rec.last_activated = mode.last_activated

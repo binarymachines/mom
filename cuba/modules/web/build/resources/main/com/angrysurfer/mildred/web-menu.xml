@@ -24,10 +24,10 @@
         </menu>
         <menu id="elastic">
             <item screen="mildred$Document.browse"/>
-            <item screen="mildred$DocumentType.browse"/>
             <separator/>
             <item screen="mildred$Clause.browse"/>
             <item screen="mildred$Query.browse"/>
+            <item screen="mildred$DocumentType.browse"/>
         </menu>
         <menu id="service-log">
             <item screen="mildred$ModeState.browse"/>

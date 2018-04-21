@@ -9,16 +9,23 @@
         <datasource id="documentDs"
                     class="com.angrysurfer.mildred.entity.elastic.Document"
                     view="Document-screen-view"/>
+        <collectionDatasource id="documentTypesDs"
+                              class="com.angrysurfer.mildred.entity.elastic.DocumentType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$DocumentType e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode height="AUTO"
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="documentDs">
             <column width="250px">
-                <field property="documentType"/>
-                <field property="documentType1"/>
+                <field optionsDatasource="documentTypesDs"
+                       property="documentType"/>
                 <field property="absolutePath"/>
                 <field property="effectiveDt"/>
                 <field property="expirationDt"/>
@@ -26,6 +33,8 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

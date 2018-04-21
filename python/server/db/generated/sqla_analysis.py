@@ -98,9 +98,8 @@ class DocumentType(Base):
     __table_args__ = {u'schema': 'elastic'}
 
     id = Column(Integer, primary_key=True)
-    desc = Column(String(255))
-    ext = Column(String(11))
     name = Column(String(25), unique=True)
+    desc = Column(String(255))
 
 
 class Query(Base):

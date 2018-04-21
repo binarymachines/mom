@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2017 Haulmont Technology Ltd. All Rights Reserved.
+  ~ Haulmont Technology proprietary and confidential.
+  ~ Use is subject to license terms.
+  -->
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
-        caption="msg://browseCaption"
+        caption="msg://caption"
         class="com.angrysurfer.mildred.web.elastic.documenttype.DocumentTypeBrowse"
-        focusComponent="documentTypesTable"
-        lookupComponent="documentTypesTable"
+        focusComponent="table"
+        lookupComponent="table"
         messagesPack="com.angrysurfer.mildred.web.elastic.documenttype">
     <dsContext>
+        <datasource id="documentTypeDs"
+                    class="com.angrysurfer.mildred.entity.elastic.DocumentType"
+                    view="_local"/>
         <groupDatasource id="documentTypesDs"
                          class="com.angrysurfer.mildred.entity.elastic.DocumentType"
                          view="_local">
@@ -14,38 +22,83 @@
             </query>
         </groupDatasource>
     </dsContext>
+    <actions>
+        <action id="save"
+                caption="mainMsg://actions.Ok"
+                icon="icons/ok.png"
+                invoke="save"
+                shortcut="CTRL-ENTER"/>
+        <action id="cancel"
+                caption="mainMsg://actions.Cancel"
+                description="Esc"
+                icon="icons/cancel.png"
+                invoke="cancel"/>
+    </actions>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="documentTypesTable"
-            spacing="true">
-        <filter id="filter"
-                applyTo="documentTypesTable"
-                datasource="documentTypesDs">
-            <properties include=".*"/>
-        </filter>
-        <groupTable id="documentTypesTable"
-                    width="100%">
-            <actions>
-                <action id="create"/>
-                <action id="edit"/>
-                <action id="remove"/>
-            </actions>
-            <columns>
-                <column id="desc"/>
-                <column id="ext"/>
-                <column id="name"/>
-            </columns>
-            <rows datasource="documentTypesDs"/>
-            <rowsCount/>
-            <buttonsPanel id="buttonsPanel"
-                          alwaysVisible="true">
-                <button id="createBtn"
-                        action="documentTypesTable.create"/>
-                <button id="editBtn"
-                        action="documentTypesTable.edit"/>
-                <button id="removeBtn"
-                        action="documentTypesTable.remove"/>
-            </buttonsPanel>
-        </groupTable>
+    <layout>
+        <split id="split"
+               height="100%"
+               orientation="horizontal"
+               reversePosition="true"
+               width="100%">
+            <vbox id="lookupBox"
+                  expand="table"
+                  height="100%"
+                  margin="false,true,false,false"
+                  spacing="true">
+                <filter id="filter"
+                        applyTo="table"
+                        datasource="documentTypesDs">
+                    <properties include=".*"/>
+                </filter>
+                <groupTable id="table"
+                            width="100%">
+                    <actions>
+                        <action id="create"/>
+                        <action id="edit"/>
+                        <action id="remove"/>
+                    </actions>
+                    <columns>
+                        <column id="name"/>
+                        <column id="desc"/>
+                    </columns>
+                    <rows datasource="documentTypesDs"/>
+                    <rowsCount/>
+                    <buttonsPanel id="buttonsPanel"
+                                  alwaysVisible="true">
+                        <button id="createBtn"
+                                action="table.create"/>
+                        <button id="editBtn"
+                                action="table.edit"/>
+                        <button id="removeBtn"
+                                action="table.remove"/>
+                    </buttonsPanel>
+                </groupTable>
+            </vbox>
+            <vbox id="editBox"
+                  expand="fieldGroupBox"
+                  height="100%"
+                  margin="false,false,false,true"
+                  spacing="true">
+                <vbox id="fieldGroupBox">
+                    <fieldGroup id="fieldGroup"
+                                datasource="documentTypeDs">
+                        <column width="250px">
+                            <field property="name"/>
+                            <field property="desc"/>
+                        </column>
+                    </fieldGroup>
+                </vbox>
+                <hbox id="actionsPane"
+                      spacing="true"
+                      visible="false">
+                    <button id="saveBtn"
+                            action="save"/>
+                    <button id="cancelBtn"
+                            action="cancel"/>
+                </hbox>
+            </vbox>
+        </split>
     </layout>
 </window>

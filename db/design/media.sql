@@ -77,6 +77,17 @@ INSERT INTO `media`.`directory_type` (`name`) VALUES ("speaker");
 INSERT INTO `media`.`directory_type` (`name`) VALUES ("presentation");
 INSERT INTO `media`.`directory_type` (`name`) VALUES ("radio");
 INSERT INTO `media`.`directory_type` (`name`) VALUES ("broadcast");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("incoming");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("video");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("audio");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("expunged");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("path");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("unsorted");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("discography");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("recent");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("vintage");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("current");
+INSERT INTO `media`.`directory_type` (`name`) VALUES ("temp");
 
 CREATE TABLE `directory` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
