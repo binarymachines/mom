@@ -18,12 +18,18 @@
         <fieldGroup id="fieldGroup"
                     datasource="serviceDispatchDs">
             <column width="250px">
-                <field property="name"/>
-                <field property="category"/>
-                <field property="packageName"/>
-                <field property="moduleName"/>
-                <field property="className"/>
-                <field property="funcName"/>
+                <field caption="name"
+                       property="name"/>
+                <field caption="category"
+                       property="category"/>
+                <field caption="package"
+                       property="packageName"/>
+                <field caption="module"
+                       property="moduleName"/>
+                <field caption="class"
+                       property="className"/>
+                <field caption="function"
+                       property="funcName"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

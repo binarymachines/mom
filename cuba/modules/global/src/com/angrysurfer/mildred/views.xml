@@ -160,12 +160,24 @@
           extends="_base"
           name="mode-view">
         <property name="defaults"
-                  view="_local"/>
+                  view="_local">
+            <property name="effectDispatch"
+                      view="_minimal"/>
+        </property>
         <property name="stateDefaults"
                   view="_local">
             <property name="state"
                       view="_local"/>
             <property name="effectDispatch"
+                      view="_local"/>
+        </property>
+        <property name="transitionRules"
+                  view="_local">
+            <property name="beginState"
+                      view="_local"/>
+            <property name="endState"
+                      view="_local"/>
+            <property name="conditionDispatch"
                       view="_local"/>
         </property>
     </view>

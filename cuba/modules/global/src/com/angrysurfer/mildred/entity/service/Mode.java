@@ -31,6 +31,19 @@ public class Mode extends BaseIntIdentityIdEntity {
     @OneToMany(mappedBy = "mode")
     protected List<ModeStateDefault> stateDefaults;
 
+    @Composition
+    @OneToMany(mappedBy = "mode")
+    protected List<TransitionRule> transitionRules;
+
+    public void setTransitionRules(List<TransitionRule> transitionRules) {
+        this.transitionRules = transitionRules;
+    }
+
+    public List<TransitionRule> getTransitionRules() {
+        return transitionRules;
+    }
+
+
     public void setDefaults(List<ModeDefault> defaults) {
         this.defaults = defaults;
     }

@@ -24,7 +24,7 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="modeStateDefaultParamDs">
-            <column width="450px">
+            <column width="250px">
                 <field caption="ModeState Default"
                        optionsDatasource="modeStateDefaultsDs"
                        property="modeStateDefault"/>

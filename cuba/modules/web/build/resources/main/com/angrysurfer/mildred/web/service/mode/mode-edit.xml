@@ -13,20 +13,20 @@
                                   property="defaults"/>
             <collectionDatasource id="stateDefaultsDs"
                                   property="stateDefaults"/>
+            <collectionDatasource id="transitionRulesDs"
+                                  property="transitionRules"/>
         </datasource>
     </dsContext>
     <dialogMode forceDialog="true"
                 height="AUTO"
-                width="600"/>
+                width="800"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="modeDs">
             <column width="250px">
-                <field caption="name"
-                       property="name"/>
-                <field caption="stateful"
-                       property="statefulFlag"/>
+                <field property="name"/>
+                <field property="statefulFlag"/>
             </column>
         </fieldGroup>
         <groupBox id="defaultsBox"
@@ -55,6 +55,8 @@
                     <column id="errorTolerance"
                             caption="error tolerance"
                             maxTextLength="80"/>
+                    <column id="effectDispatch"
+                            caption="effect"/>
                 </columns>
                 <rows datasource="defaultsDs"/>
                 <buttonsPanel>
@@ -99,6 +101,34 @@
                     <button action="stateDefaultsTable.create"/>
                     <button action="stateDefaultsTable.edit"/>
                     <button action="stateDefaultsTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <groupBox id="transitionRulesBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/Mode.transitionRules">
+            <table id="transitionRulesTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="create"/>
+                    <action id="edit"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="name"
+                            caption="name"/>
+                    <column id="beginState"
+                            caption="begin"/>
+                    <column id="endState"
+                            caption="end"/>
+                    <column id="conditionDispatch"
+                            caption="condition"/>
+                </columns>
+                <rows datasource="transitionRulesDs"/>
+                <buttonsPanel>
+                    <button action="transitionRulesTable.create"/>
+                    <button action="transitionRulesTable.edit"/>
+                    <button action="transitionRulesTable.remove"/>
                 </buttonsPanel>
             </table>
         </groupBox>

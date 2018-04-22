@@ -46,14 +46,19 @@
         <fieldGroup id="fieldGroup"
                     datasource="transitionRuleDs">
             <column width="450px">
-                <field property="name"/>
-                <field optionsDatasource="modesDs"
+                <field caption="name"
+                       property="name"/>
+                <field caption="mode"
+                       optionsDatasource="modesDs"
                        property="mode"/>
-                <field optionsDatasource="beginStatesDs"
+                <field caption="begin"
+                       optionsDatasource="beginStatesDs"
                        property="beginState"/>
-                <field optionsDatasource="endStatesDs"
+                <field caption="end"
+                       optionsDatasource="endStatesDs"
                        property="endState"/>
-                <field optionsDatasource="conditionDispatchesDs"
+                <field caption="condition"
+                       optionsDatasource="conditionDispatchesDs"
                        property="conditionDispatch"/>
             </column>
         </fieldGroup>

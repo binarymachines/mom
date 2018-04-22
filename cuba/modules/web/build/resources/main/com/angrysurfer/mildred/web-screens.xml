@@ -155,14 +155,10 @@
             template="com/angrysurfer/mildred/web/elastic/documenttype/document-type-browse.xml"/>
     <screen id="mildred$DirectoryPattern.edit"
             template="com/angrysurfer/mildred/web/media/directorypattern/directory-pattern-edit.xml"/>
-    <screen id="mildred$ModeStateDefault.edit"
-            template="com/angrysurfer/mildred/web/service/modestatedefault/mode-state-default-edit.xml"/>
     <screen id="mildred$TransitionRule.edit"
             template="com/angrysurfer/mildred/web/service/transitionrule/transition-rule-edit.xml"/>
     <screen id="mildred$ModeStateDefaultParam.edit"
             template="com/angrysurfer/mildred/web/service/modestatedefaultparam/mode-state-default-param-edit.xml"/>
-    <screen id="mildred$Mode.edit"
-            template="com/angrysurfer/mildred/web/service/mode/mode-edit.xml"/>
     <screen id="mildred$DirectoryType.browse"
             template="com/angrysurfer/mildred/web/media/directorytype/directory-type-browse.xml"/>
     <screen id="mildred$DirectoryPattern.browse"
@@ -185,4 +181,8 @@
             template="com/angrysurfer/mildred/web/elastic/clause/clause-edit.xml"/>
     <screen id="mildred$Clause.browse"
             template="com/angrysurfer/mildred/web/elastic/clause/clause-browse.xml"/>
+    <screen id="mildred$ModeStateDefault.edit"
+            template="com/angrysurfer/mildred/web/service/modestatedefault/mode-state-default-edit.xml"/>
+    <screen id="mildred$Mode.edit"
+            template="com/angrysurfer/mildred/web/service/mode/mode-edit.xml"/>
 </screen-config>
