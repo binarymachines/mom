@@ -20,7 +20,6 @@
     <class>com.angrysurfer.mildred.entity.media.Directory</class>
     <class>com.angrysurfer.mildred.entity.media.DirectoryAmelioration</class>
     <class>com.angrysurfer.mildred.entity.media.DirectoryAttribute</class>
-    <class>com.angrysurfer.mildred.entity.media.DirectoryConstant</class>
     <class>com.angrysurfer.mildred.entity.media.DirectoryType</class>
     <class>com.angrysurfer.mildred.entity.media.Asset</class>
     <class>com.angrysurfer.mildred.entity.media.FileAttribute</class>

@@ -43,7 +43,6 @@
             <item screen="mildred$Category.browse"/>
             <separator/>
             <item screen="mildred$DirectoryAmelioration.browse"/>
-            <item screen="mildred$DirectoryConstant.browse"/>
             <item screen="mildred$DirectoryPattern.browse"/>
             <item screen="mildred$DirectoryType.browse"/>
             <separator/>
@@ -78,10 +77,8 @@
             <item screen="mildred$VectorParam.browse"/>
         </menu>
         <menu id="suggestion">
-            <item screen="mildred$GeneratedAction.browse"/>
-            <item screen="mildred$GeneratedActionParam.browse"/>
-            <item screen="mildred$GeneratedReason.browse"/>
-            <item screen="mildred$GeneratedReasonParam.browse"/>
+            <item screen="mildred$Cause.browse"/>
+            <item screen="mildred$Task.browse"/>
         </menu>
     </menu>
 </menu-config>

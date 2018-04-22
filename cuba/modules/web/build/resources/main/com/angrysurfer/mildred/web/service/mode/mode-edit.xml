@@ -8,20 +8,77 @@
     <dsContext>
         <datasource id="modeDs"
                     class="com.angrysurfer.mildred.entity.service.Mode"
-                    view="mode-view"/>
+                    view="mode-view">
+            <collectionDatasource id="defaultsDs"
+                                  property="defaults"/>
+            <collectionDatasource id="stateDefaultsDs"
+                                  property="stateDefaults"/>
+        </datasource>
     </dsContext>
     <dialogMode forceDialog="true"
                 height="AUTO"
-                width="AUTO"/>
+                width="600"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="modeDs">
-            <column width="250px">
+            <column width="450px">
                 <field property="name"/>
                 <field property="statefulFlag"/>
             </column>
         </fieldGroup>
+        <groupBox id="defaultsBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/Mode.defaults">
+            <table id="defaultsTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="create"/>
+                    <action id="edit"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="priority"/>
+                    <column id="timesToComplete"/>
+                    <column id="decPriorityAmount"/>
+                    <column id="incPriorityAmount"/>
+                    <column id="errorTolerance"/>
+                </columns>
+                <rows datasource="defaultsDs"/>
+                <buttonsPanel>
+                    <button action="defaultsTable.create"/>
+                    <button action="defaultsTable.edit"/>
+                    <button action="defaultsTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <groupBox id="stateDefaultsBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/Mode.stateDefaults">
+            <table id="stateDefaultsTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="create"/>
+                    <action id="edit"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="priority"/>
+                    <column id="timesToComplete"/>
+                    <column id="decPriorityAmount"/>
+                    <column id="incPriorityAmount"/>
+                    <column id="errorTolerance"/>
+                    <column id="state"/>
+                    <column id="effectDispatch"/>
+                </columns>
+                <rows datasource="stateDefaultsDs"/>
+                <buttonsPanel>
+                    <button action="stateDefaultsTable.create"/>
+                    <button action="stateDefaultsTable.edit"/>
+                    <button action="stateDefaultsTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <frame id="windowActions"
                align="BOTTOM_RIGHT"
                screen="editWindowActions"

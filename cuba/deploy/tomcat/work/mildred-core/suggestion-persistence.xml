@@ -13,10 +13,10 @@
     <class>com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity</class>
     <class>com.haulmont.cuba.core.entity.StandardEntity</class>
     <class>com.haulmont.cuba.core.entity.EmbeddableEntity</class>
-    <class>com.angrysurfer.mildred.entity.suggestion.GeneratedAction</class>
-    <class>com.angrysurfer.mildred.entity.suggestion.GeneratedActionParam</class>
-    <class>com.angrysurfer.mildred.entity.suggestion.GeneratedReason</class>
-    <class>com.angrysurfer.mildred.entity.suggestion.GeneratedReasonParam</class>
+    <class>com.angrysurfer.mildred.entity.suggestion.Cause</class>
+    <class>com.angrysurfer.mildred.entity.suggestion.CauseParam</class>
+    <class>com.angrysurfer.mildred.entity.suggestion.Task</class>
+    <class>com.angrysurfer.mildred.entity.suggestion.TaskParam</class>
     <exclude-unlisted-classes/>
     <properties>
       <property name="eclipselink.cache.coordination.propagate-asynchronously" value="false"/>

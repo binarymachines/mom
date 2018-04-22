@@ -18,9 +18,7 @@
         <class>com.angrysurfer.mildred.entity.service.SwitchRule</class>
         <class>com.angrysurfer.mildred.entity.service.TransitionRule</class>
         <class>com.angrysurfer.mildred.entity.service.key.VServiceSwitchRuleCompKey</class>
-        <class>com.angrysurfer.mildred.entity.service.VServiceSwitchRule</class>
         <class>com.angrysurfer.mildred.entity.service.key.VServiceModesCompKey</class>
         <class>com.angrysurfer.mildred.entity.service.key.VServiceModeCompKey</class>
-        <class>com.angrysurfer.mildred.entity.service.VServiceMode</class>
     </persistence-unit>
 </persistence>

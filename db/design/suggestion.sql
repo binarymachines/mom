@@ -4,6 +4,11 @@
 -- ------------------------------------------------------
 -- Server version	5.7.21-0ubuntu0.16.04.1
 
+drop schema if exists suggestion;
+create schema suggestion;
+use suggestion;
+
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -16,150 +21,153 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `generated_action`
+-- Table structure for table `task`
 --
 
-DROP TABLE IF EXISTS `generated_action`;
+DROP TABLE IF EXISTS `task`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `generated_action` (
+CREATE TABLE `task` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `action_id` int(11) unsigned DEFAULT NULL,
-  `action_status_id` int(11) unsigned DEFAULT NULL,
+  `task_status_id` int(11) unsigned DEFAULT NULL,
   `parent_id` int(11) unsigned DEFAULT NULL,
   `asset_id` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
-  KEY `fk_action` (`action_id`),
-  KEY `fk_action_asset` (`asset_id`),
-  KEY `fk_action_status` (`action_status_id`),
-  CONSTRAINT `generated_action_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `generated_action` (`id`),
-  CONSTRAINT `generated_action_ibfk_2` FOREIGN KEY (`action_id`) REFERENCES `analysis`.`action` (`id`),
-  CONSTRAINT `generated_action_ibfk_3` FOREIGN KEY (`asset_id`) REFERENCES `media`.`asset` (`id`),
-  CONSTRAINT `generated_action_ibfk_4` FOREIGN KEY (`action_status_id`) REFERENCES `analysis`.`action_status` (`id`)
+  KEY `fk_task_action` (`action_id`),
+  KEY `fk_task_asset` (`asset_id`),
+  KEY `fk_task_status` (`task_status_id`),
+  CONSTRAINT `task_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `task` (`id`),
+  CONSTRAINT `task_ibfk_2` FOREIGN KEY (`action_id`) REFERENCES `analysis`.`action` (`id`),
+  CONSTRAINT `task_ibfk_3` FOREIGN KEY (`asset_id`) REFERENCES `media`.`asset` (`id`),
+  CONSTRAINT `task_ibfk_4` FOREIGN KEY (`task_status_id`) REFERENCES `analysis`.`action_status` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
+  
 --
--- Dumping data for table `generated_action`
+-- Dumping data for table `task`
 --
 
-LOCK TABLES `generated_action` WRITE;
-/*!40000 ALTER TABLE `generated_action` DISABLE KEYS */;
-/*!40000 ALTER TABLE `generated_action` ENABLE KEYS */;
+LOCK TABLES `task` WRITE;
+/*!40000 ALTER TABLE `task` DISABLE KEYS */;
+/*!40000 ALTER TABLE `task` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `generated_action_param`
+-- Table structure for table `task_param`
 --
 
-DROP TABLE IF EXISTS `generated_action_param`;
+DROP TABLE IF EXISTS `task_param`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `generated_action_param` (
+CREATE TABLE `task_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `action_id` int(11) unsigned DEFAULT NULL,
+  `task_id` int(11) unsigned NOT NULL,
   `vector_param_id` int(11) unsigned NOT NULL,
   `value` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `action_id` (`action_id`),
+  KEY `task_param_cause_id` (`task_id`),
   KEY `vector_param_id` (`vector_param_id`),
-  CONSTRAINT `generated_action_param_ibfk_1` FOREIGN KEY (`action_id`) REFERENCES `generated_action` (`id`),
-  CONSTRAINT `generated_action_param_ibfk_2` FOREIGN KEY (`vector_param_id`) REFERENCES `analysis`.`vector_param` (`id`)
+  CONSTRAINT `task_param_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `task` (`id`),
+  CONSTRAINT `task_param_ibfk_2` FOREIGN KEY (`vector_param_id`) REFERENCES `analysis`.`vector_param` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `generated_action_param`
+-- Dumping data for table `task_param`
 --
 
-LOCK TABLES `generated_action_param` WRITE;
-/*!40000 ALTER TABLE `generated_action_param` DISABLE KEYS */;
-/*!40000 ALTER TABLE `generated_action_param` ENABLE KEYS */;
+LOCK TABLES `task_param` WRITE;
+/*!40000 ALTER TABLE `task_param` DISABLE KEYS */;
+/*!40000 ALTER TABLE `task_param` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `generated_action_reason`
+-- Table structure for table `task_cause_jn`
 --
 
-DROP TABLE IF EXISTS `generated_action_reason`;
+DROP TABLE IF EXISTS `task_cause_jn`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `generated_action_reason` (
-  `action_id` int(11) unsigned NOT NULL,
-  `reason_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`action_id`,`reason_id`),
-  KEY `fk_action_reason_reason_idx` (`reason_id`),
-  KEY `fk_action_reason_action_idx` (`action_id`),
-  CONSTRAINT `fk_action_reason_action` FOREIGN KEY (`action_id`) REFERENCES `generated_action` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_action_reason_reason` FOREIGN KEY (`reason_id`) REFERENCES `generated_reason` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE `task_cause_jn` (
+  `task_id` int(11) unsigned NOT NULL,
+  `cause_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`task_id`,`cause_id`),
+  KEY `fk_task_cause_jn_cause_idx` (`cause_id`),
+  KEY `fk_task_cause_jn_task_idx` (`task_id`),
+  CONSTRAINT `fk_task_cause_jn_task` FOREIGN KEY (`task_id`) REFERENCES `task` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_task_cause_jn_cause` FOREIGN KEY (`cause_id`) REFERENCES `cause` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `generated_action_reason`
+-- Dumping data for table `task_cause_jn`
 --
 
-LOCK TABLES `generated_action_reason` WRITE;
-/*!40000 ALTER TABLE `generated_action_reason` DISABLE KEYS */;
-/*!40000 ALTER TABLE `generated_action_reason` ENABLE KEYS */;
+LOCK TABLES `task_cause_jn` WRITE;
+/*!40000 ALTER TABLE `task_cause_jn` DISABLE KEYS */;
+/*!40000 ALTER TABLE `task_cause_jn` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `generated_reason`
+-- Table structure for table `cause`
 --
 
-DROP TABLE IF EXISTS `generated_reason`;
+DROP TABLE IF EXISTS `cause`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `generated_reason` (
+CREATE TABLE `cause` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `reason_id` int(11) unsigned DEFAULT NULL,
   `parent_id` int(11) unsigned DEFAULT NULL,
+  `asset_id` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `parent_id` (`parent_id`),
   KEY `fk_reason` (`reason_id`),
-  CONSTRAINT `generated_reason_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `generated_reason` (`id`),
-  CONSTRAINT `generated_reason_ibfk_2` FOREIGN KEY (`reason_id`) REFERENCES `analysis`.`action` (`id`)
+  KEY `fk_cause_asset` (`asset_id`),
+  CONSTRAINT `cause_ibfk_3` FOREIGN KEY (`asset_id`) REFERENCES `media`.`asset` (`id`),
+  CONSTRAINT `cause_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `cause` (`id`),
+  CONSTRAINT `cause_ibfk_2` FOREIGN KEY (`reason_id`) REFERENCES `analysis`.`reason` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `generated_reason`
+-- Dumping data for table `cause`
 --
 
-LOCK TABLES `generated_reason` WRITE;
-/*!40000 ALTER TABLE `generated_reason` DISABLE KEYS */;
-/*!40000 ALTER TABLE `generated_reason` ENABLE KEYS */;
+LOCK TABLES `cause` WRITE;
+/*!40000 ALTER TABLE `cause` DISABLE KEYS */;
+/*!40000 ALTER TABLE `cause` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `generated_reason_param`
+-- Table structure for table `cause_param`
 --
 
-DROP TABLE IF EXISTS `generated_reason_param`;
+DROP TABLE IF EXISTS `cause_param`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `generated_reason_param` (
+CREATE TABLE `cause_param` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `reason_id` int(11) unsigned NOT NULL,
+  `cause_id` int(11) unsigned NOT NULL,
   `vector_param_id` int(11) unsigned NOT NULL,
   `value` varchar(1024) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `reason_id` (`reason_id`),
-  KEY `fk_reason_vector_param` (`vector_param_id`),
-  CONSTRAINT `generated_reason_param_ibfk_1` FOREIGN KEY (`reason_id`) REFERENCES `generated_reason` (`id`),
-  CONSTRAINT `generated_reason_param_ibfk_2` FOREIGN KEY (`vector_param_id`) REFERENCES `analysis`.`vector_param` (`id`)
+  KEY `cause_id` (`cause_id`),
+  KEY `fk_cause_vector_param` (`vector_param_id`),
+  CONSTRAINT `cause_param_ibfk_1` FOREIGN KEY (`cause_id`) REFERENCES `cause` (`id`),
+  CONSTRAINT `cause_param_ibfk_2` FOREIGN KEY (`vector_param_id`) REFERENCES `analysis`.`vector_param` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `generated_reason_param`
+-- Dumping data for table `cause_param`
 --
 
-LOCK TABLES `generated_reason_param` WRITE;
-/*!40000 ALTER TABLE `generated_reason_param` DISABLE KEYS */;
-/*!40000 ALTER TABLE `generated_reason_param` ENABLE KEYS */;
+LOCK TABLES `cause_param` WRITE;
+/*!40000 ALTER TABLE `cause_param` DISABLE KEYS */;
+/*!40000 ALTER TABLE `cause_param` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

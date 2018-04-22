@@ -9,20 +9,31 @@
         <datasource id="modeStateDefaultParamDs"
                     class="com.angrysurfer.mildred.entity.service.ModeStateDefaultParam"
                     view="ModeStateDefaultParam-screen-view"/>
+        <collectionDatasource id="modeStateDefaultsDs"
+                              class="com.angrysurfer.mildred.entity.service.ModeStateDefault"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$ModeStateDefault e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="modeStateDefaultParamDs">
-            <column width="250px">
-                <field property="modeStateDefault"/>
+            <column width="450px">
+                <field optionsDatasource="modeStateDefaultsDs"
+                       property="modeStateDefault"/>
                 <field property="name"/>
                 <field property="value"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

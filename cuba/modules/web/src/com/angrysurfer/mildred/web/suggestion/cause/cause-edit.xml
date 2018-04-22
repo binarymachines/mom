@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.suggestion.cause.CauseEdit"
+        datasource="causeDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.suggestion.cause">
+    <dsContext>
+        <datasource id="causeDs"
+                    class="com.angrysurfer.mildred.entity.suggestion.Cause"
+                    view="Cause-screen-view">
+            <collectionDatasource id="paramsDs"
+                                  property="params"/>
+            <collectionDatasource id="taskDs"
+                                  property="task"/>
+        </datasource>
+        <collectionDatasource id="parentsDs"
+                              class="com.angrysurfer.mildred.entity.suggestion.Cause"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$Cause e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="600"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="causeDs">
+            <column width="450px">
+                <field optionsDatasource="parentsDs"
+                       property="parent"/>
+                <field property="asset"/>
+                <field property="reason"/>
+            </column>
+        </fieldGroup>
+        <groupBox id="paramsBox"
+                  caption="msg://com.angrysurfer.mildred.entity.suggestion/Cause.params">
+            <table id="paramsTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="create"/>
+                    <action id="edit"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="value"/>
+                </columns>
+                <rows datasource="paramsDs"/>
+                <buttonsPanel>
+                    <button action="paramsTable.create"/>
+                    <button action="paramsTable.edit"/>
+                    <button action="paramsTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <groupBox id="taskBox"
+                  caption="msg://com.angrysurfer.mildred.entity.suggestion/Cause.task">
+            <table id="taskTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="asset"/>
+                    <column id="assetId"/>
+                    <column id="action"/>
+                    <column id="actionId"/>
+                    <column id="status"/>
+                    <column id="statusId"/>
+                </columns>
+                <rows datasource="taskDs"/>
+                <buttonsPanel>
+                    <button action="taskTable.add"/>
+                    <button action="taskTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>
