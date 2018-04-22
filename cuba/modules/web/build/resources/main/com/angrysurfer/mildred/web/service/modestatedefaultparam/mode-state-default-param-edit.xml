@@ -11,7 +11,7 @@
                     view="ModeStateDefaultParam-screen-view"/>
         <collectionDatasource id="modeStateDefaultsDs"
                               class="com.angrysurfer.mildred.entity.service.ModeStateDefault"
-                              view="_minimal">
+                              view="ModeStateDefault-screen-view">
             <query>
                 <![CDATA[select e from mildred$ModeStateDefault e]]>
             </query>
@@ -25,10 +25,13 @@
         <fieldGroup id="fieldGroup"
                     datasource="modeStateDefaultParamDs">
             <column width="450px">
-                <field optionsDatasource="modeStateDefaultsDs"
+                <field caption="ModeState Default"
+                       optionsDatasource="modeStateDefaultsDs"
                        property="modeStateDefault"/>
-                <field property="name"/>
-                <field property="value"/>
+                <field caption="name"
+                       property="name"/>
+                <field caption="value"
+                       property="value"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

@@ -22,9 +22,11 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="modeDs">
-            <column width="450px">
-                <field property="name"/>
-                <field property="statefulFlag"/>
+            <column width="250px">
+                <field caption="name"
+                       property="name"/>
+                <field caption="stateful"
+                       property="statefulFlag"/>
             </column>
         </fieldGroup>
         <groupBox id="defaultsBox"

@@ -8,7 +8,10 @@
     <dsContext>
         <datasource id="modeStateDefaultDs"
                     class="com.angrysurfer.mildred.entity.service.ModeStateDefault"
-                    view="ModeStateDefault-screen-view"/>
+                    view="ModeStateDefault-screen-view">
+            <collectionDatasource id="paramsDs"
+                                  property="params"/>
+        </datasource>
         <collectionDatasource id="modesDs"
                               class="com.angrysurfer.mildred.entity.service.Mode"
                               view="_minimal">
@@ -33,7 +36,7 @@
     </dsContext>
     <dialogMode forceDialog="true"
                 height="AUTO"
-                width="AUTO"/>
+                width="600"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
@@ -77,6 +80,28 @@
                        width="50px"/>
             </column>
         </fieldGroup>
+        <groupBox id="paramsBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/ModeStateDefault.params">
+            <table id="paramsTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="create"/>
+                    <action id="edit"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="name"/>
+                    <column id="value"/>
+                </columns>
+                <rows datasource="paramsDs"/>
+                <buttonsPanel>
+                    <button action="paramsTable.create"/>
+                    <button action="paramsTable.edit"/>
+                    <button action="paramsTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <frame id="windowActions"
                align="BOTTOM_RIGHT"
                screen="editWindowActions"

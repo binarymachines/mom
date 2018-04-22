@@ -37,27 +37,44 @@
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="modeStateDefaultDs">
+                    datasource="modeStateDefaultDs"
+                    fieldCaptionWidth="100">
             <column width="450px">
                 <field caption="mode"
                        optionsDatasource="modesDs"
-                       property="mode"/>
+                       property="mode"
+                       width="250px"/>
                 <field caption="state"
                        optionsDatasource="statesDs"
-                       property="state"/>
-                <field caption="priority"
-                       property="priority"/>
+                       property="state"
+                       width="250px"/>
                 <field caption="effect"
                        optionsDatasource="effectDispatchesDs"
                        property="effectDispatch"/>
-                <field caption="decrement"
-                       property="decPriorityAmount"/>
-                <field caption="increment"
-                       property="incPriorityAmount"/>
+            </column>
+        </fieldGroup>
+        <fieldGroup id="fieldgroup_1"
+                    datasource="modeStateDefaultDs">
+            <column width="450px">
+                <field caption="priority"
+                       property="priority"
+                       width="50px"/>
                 <field caption="complete after"
-                       property="timesToComplete"/>
+                       property="timesToComplete"
+                       width="50px"/>
                 <field caption="error tolerance"
-                       property="errorTolerance"/>
+                       property="errorTolerance"
+                       width="50px"/>
+            </column>
+            <column>
+                <field caption="decrement"
+                       property="decPriorityAmount"
+                       width="50px"/>
+            </column>
+            <column>
+                <field caption="increment"
+                       property="incPriorityAmount"
+                       width="50px"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

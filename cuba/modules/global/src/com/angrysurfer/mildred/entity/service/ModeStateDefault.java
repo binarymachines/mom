@@ -10,6 +10,9 @@ import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
+import java.util.List;
+import javax.persistence.OneToMany;
+import com.haulmont.chile.core.annotations.Composition;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "mode_state_default")
@@ -21,6 +24,10 @@ public class ModeStateDefault extends BaseIntIdentityIdEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mode_id")
     protected Mode mode;
+
+    @Composition
+    @OneToMany(mappedBy = "modeStateDefault")
+    protected List<ModeStateDefaultParam> params;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -46,6 +53,15 @@ public class ModeStateDefault extends BaseIntIdentityIdEntity {
 
     @Column(name = "error_tolerance", nullable = false)
     protected Integer errorTolerance;
+
+    public void setParams(List<ModeStateDefaultParam> params) {
+        this.params = params;
+    }
+
+    public List<ModeStateDefaultParam> getParams() {
+        return params;
+    }
+
 
     public void setMode(Mode mode) {
         this.mode = mode;

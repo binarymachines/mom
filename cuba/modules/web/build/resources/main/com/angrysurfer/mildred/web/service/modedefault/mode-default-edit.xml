@@ -29,7 +29,8 @@
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="modeDefaultDs">
+                    datasource="modeDefaultDs"
+                    fieldCaptionWidth="100">
             <column width="400px">
                 <field caption="mode"
                        optionsDatasource="modesDs"
@@ -37,20 +38,29 @@
                 <field caption="effect"
                        optionsDatasource="effectDispatchesDs"
                        property="effectDispatch"/>
+            </column>
+        </fieldGroup>
+        <fieldGroup id="fieldgroup_1"
+                    datasource="modeDefaultDs">
+            <column width="400px">
                 <field caption="priority"
                        property="priority"
-                       width="50px"/>
-                <field caption="decrement"
-                       property="decPriorityAmount"
-                       width="50px"/>
-                <field caption="increment"
-                       property="incPriorityAmount"
                        width="50px"/>
                 <field caption="complete after"
                        property="timesToComplete"
                        width="50px"/>
                 <field caption="error tolerance"
                        property="errorTolerance"
+                       width="50px"/>
+            </column>
+            <column>
+                <field caption="increment"
+                       property="incPriorityAmount"
+                       width="50px"/>
+            </column>
+            <column>
+                <field caption="decrement"
+                       property="decPriorityAmount"
                        width="50px"/>
             </column>
         </fieldGroup>
