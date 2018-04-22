@@ -9,6 +9,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "clause")
@@ -18,6 +22,11 @@ public class Clause extends BaseIntIdentityIdEntity {
 
     @Column(name = "field_name", nullable = false, length = 128)
     protected String fieldName;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "document_type_id")
+    protected DocumentType documentType;
 
     @Column(name = "boost", nullable = false)
     protected Double boost;
@@ -45,6 +54,15 @@ public class Clause extends BaseIntIdentityIdEntity {
         inverseJoinColumns = @JoinColumn(name = "query_id"))
     @ManyToMany
     protected List<Query> query;
+
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
+    }
+
 
     public void setFieldName(String fieldName) {
         this.fieldName = fieldName;

@@ -57,6 +57,8 @@
                 <actions>
                     <action id="add"/>
                     <action id="remove"/>
+                    <action id="create"/>
+                    <action id="edit"/>
                 </actions>
                 <columns>
                     <column id="fieldName"/>
@@ -67,15 +69,20 @@
                     <column id="analyzer"/>
                     <column id="querySection"/>
                     <column id="defaultValue"/>
+                    <column id="documentType"/>
                 </columns>
                 <rows datasource="clauseDs"/>
                 <buttonsPanel>
                     <button action="clauseTable.add"/>
                     <button action="clauseTable.remove"/>
+                    <button action="clauseTable.create"/>
+                    <button action="clauseTable.edit"/>
                 </buttonsPanel>
             </table>
         </groupBox>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

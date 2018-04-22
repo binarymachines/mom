@@ -1,13 +1,12 @@
+drop schema if exists suggestion;
+create schema suggestion;
+use suggestion;
+
 -- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: suggestion
 -- ------------------------------------------------------
 -- Server version	5.7.21-0ubuntu0.16.04.1
-
-drop schema if exists suggestion;
-create schema suggestion;
-use suggestion;
-
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;

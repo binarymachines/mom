@@ -47,52 +47,49 @@ class DecisionHandler(object):
         return count > 3
 
 
-class DocumentServiceProcessHandler(DecisionHandler):
-    def __init__(self, owner, name, selector, vector):
-        super(DocumentServiceProcessHandler, self).__init__()
-        self.vector = vector
-        self.owner = owner
-        self.name = name
-        self.selector = selector
+# class DocumentServiceProcessHandler(DecisionHandler):
+#     def __init__(self, owner, name, selector, vector):
+#         super(DocumentServiceProcessHandler, self).__init__()
+#         self.vector = vector
+#         self.owner = owner
+#         self.name = name
+#         self.selector = selector
 
-        random.seed()
+#         random.seed()
 
-    # selector callbacks
+#     # selector callbacks
 
-    def after_switch(self, selector, mode):
-        pass
+#     def after_switch(self, selector, mode):
+#         pass
 
-    def before_switch(self, selector, mode):
-        pass
+#     def before_switch(self, selector, mode):
+#         pass
 
-    # generic rule callbacks
+#     # generic rule callbacks
 
-    @ops_func
-    def after(self):
-        mode = self.selector.active
-        LOG.debug("%s after '%s'" % (self.name, mode.name))
+#     @ops_func
+#     def after(self):
+#         mode = self.selector.active
+#         LOG.debug("%s after '%s'" % (self.name, mode.name))
     
 
-    @ops_func
-    def before(self):
-        mode = self.selector.next
-        LOG.debug("%s before '%s'" % (self.name, mode.name))
-        if mode.active_rule is not None:
-            LOG.debug("%s: %s follows '%s', because of '%s'" % \
-                (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
+#     @ops_func
+#     def before(self):
+#         mode = self.selector.next
+#         LOG.debug("%s before '%s'" % (self.name, mode.name))
+#         if mode.active_rule is not None:
+#             LOG.debug("%s: %s follows '%s', because of '%s'" % \
+#                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
-    #TODO: move this mode-specific stuff into docservmodes in preparation for docservmodes to be paramaterized
-    @ops_func
-    def mode_is_available(self, selector, active, possible):
-        initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
+#     @ops_func
+#     def mode_is_available(self, selector, active, possible):
+#         initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
 
-        if initial_and_update_scan_complete:
-            if possible is self.owner.match:
-                if self.vector.has_next(MATCH):
-                    return config.match
-                    
+#         if initial_and_update_scan_complete:
+#             if possible is self.owner.match:
+#                 return self.vector.has_next(MATCH)
 
-        return initial_and_update_scan_complete or config.scan == False
+#         return initial_and_update_scan_complete
 
 #startup mode
 class StartupHandler(DefaultModeHandler):
@@ -257,6 +254,9 @@ class ScanModeHandler(DefaultModeHandler):
     def __init__(self, owner, name, selector, vector):
         super(ScanModeHandler, self).__init__(owner, vector)
         self.scan_complete = False
+        self.update_complete = False
+        self.monitor_complete = False
+        self.discover_complete = False
 
     @ops_func
     def before_scan(self):
@@ -282,11 +282,11 @@ class ScanModeHandler(DefaultModeHandler):
 
     @ops_func
     def can_scan(self, selector, active, possible):
-        if self.scan_complete == False:
-            if self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector):
-                return config.scan
+        # if self.scan_complete == False:
+        #     return self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector)
+                
 
-        return True    
+        return self.scan_complete == self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector)
 
     def path_to_map(self):
         return self.vector.get_param('all', 'start-path')
@@ -308,29 +308,39 @@ class ScanModeHandler(DefaultModeHandler):
     @ops_func
     def do_scan_discover(self):
         self.map_new_paths()
+        self.discover_complete = True
 
     @ops_func
     def do_scan_monitor(self):
         self.map_new_paths()
         print("monitor scan starting...\n")
         self.vector.reset(SCAN)
-        scan.scan(self.vector)
+        if self.vector.has_next(SCAN, use_fifo=True):
+            scan.scan(self.vector)
+
+        self.monitor_complete = True
 
 
     @ops_func
     def do_scan(self):
-        self.map_new_paths()
+        # self.map_new_paths()
         print("update scan starting...\n")
-        self.vector.set_param(SCAN, DEEP, False)
+        # self.vector.set_param(SCAN, DEEP, False)
         if self.vector.has_next(SCAN, use_fifo=True):
             scan.scan(self.vector)
-        elif self.path_to_map(): 
-            self.vector.paths.append(self.path_to_map())
-            scan.scan(self.vector)
+        # elif self.path_to_map(): 
+        #     self.vector.paths.append(self.path_to_map())
+        #     scan.scan(self.vector)
+        
+        self.update_complete = True
 
+    def should_discover(self, selector=None, active=None, possible=None):
+        return self.discover_complete == False
+   
+    
     def should_monitor(self, selector=None, active=None, possible=None):
-        return True
-
+        return self.monitor_complete == False
 
     def should_update(self, selector=None, active=None, possible=None):
-        return True
+        return self.update_complete == False
+

@@ -1,3 +1,7 @@
+drop schema if exists elastic;
+create schema elastic;
+use elastic;
+
 -- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: elastic
@@ -24,6 +28,7 @@ DROP TABLE IF EXISTS `clause`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `clause` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `document_type_id` int(11) unsigned DEFAULT NULL,
   `field_name` varchar(128) NOT NULL,
   `boost` float NOT NULL DEFAULT '0',
   `bool_` varchar(16) DEFAULT NULL,
@@ -32,7 +37,9 @@ CREATE TABLE `clause` (
   `analyzer` varchar(64) DEFAULT NULL,
   `section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
   `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  KEY `fk_clause_document_type` (`document_type_id`),
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_clause_document_type` FOREIGN KEY (`document_type_id`) REFERENCES `document_type` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

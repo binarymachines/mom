@@ -26,9 +26,12 @@
         <groupTable id="opRecordParamsTable"
                     width="100%">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
-                <action id="remove"/>
+                <action id="create"
+                        enable="false"/>
+                <action id="edit"
+                        enable="false"/>
+                <action id="remove"
+                        enable="false"/>
             </actions>
             <columns>
                 <column id="paramType"/>
@@ -38,15 +41,6 @@
             </columns>
             <rows datasource="opRecordParamsDs"/>
             <rowsCount/>
-            <buttonsPanel id="buttonsPanel"
-                          alwaysVisible="true">
-                <button id="createBtn"
-                        action="opRecordParamsTable.create"/>
-                <button id="editBtn"
-                        action="opRecordParamsTable.edit"/>
-                <button id="removeBtn"
-                        action="opRecordParamsTable.remove"/>
-            </buttonsPanel>
         </groupTable>
     </layout>
 </window>

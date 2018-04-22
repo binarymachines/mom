@@ -8,11 +8,18 @@
     <dsContext>
         <datasource id="clauseDs"
                     class="com.angrysurfer.mildred.entity.elastic.Clause"
-                    view="_local"/>
+                    view="clause-view"/>
+        <collectionDatasource id="documentTypesDs"
+                              class="com.angrysurfer.mildred.entity.elastic.DocumentType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$DocumentType e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
                 height="AUTO"
-                width="AUTO"/>
+                width="600"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
@@ -20,9 +27,12 @@
             <column width="250px">
                 <field caption="field"
                        property="fieldName"/>
+                <field caption="document type"
+                       optionsDatasource="documentTypesDs"
+                       property="documentType"/>
                 <field caption="boost"
                        property="boost"/>
-                <field caption="boost"
+                <field caption="bool"
                        property="bool"/>
                 <field caption="operator"
                        property="operator"/>

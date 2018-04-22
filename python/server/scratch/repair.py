@@ -60,7 +60,7 @@ def purge_problem_esids():
 
                 query = "delete from asset where id = %s" % (sql.quote_if_string(esid))
                 sql.execute_query(query)
-                query = "delete from op_record where target_esid = %s" % (sql.quote_if_string(esid))
+                query = "delete from op_record where asset_id = %s" % (sql.quote_if_string(esid))
                 sql.execute_query(query)
                 query = "delete from problem_esid where esid = %s" % (sql.quote_if_string(esid))
                 sql.execute_query(query)

@@ -91,7 +91,7 @@ class OpRecord(Base):
     pid = Column(String(32), nullable=False)
     operator_name = Column(String(64), nullable=False)
     operation_name = Column(String(64), nullable=False)
-    target_esid = Column(String(64), nullable=False)
+    asset_id = Column(String(64), nullable=False)
     target_path = Column(String(1024), nullable=False)
     status = Column(String(64), nullable=False)
     start_time = Column(DateTime, nullable=False)

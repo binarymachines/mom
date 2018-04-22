@@ -1,42 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
-    <item insertBefore="administration"
-          screen="aboutWindow"/>
-    <item id="top-level-assets"
-          screen="mildred$Asset.browse"/>
-    <menu id="service">
-        <menu id="service-config"
-              description="Config for Modes and States">
-            <item screen="mildred$Mode.browse"/>
-            <item screen="mildred$ModeDefault.browse"/>
-            <item screen="mildred$SwitchRule.browse"/>
-            <separator/>
-            <item screen="mildred$ModeStateDefault.browse"/>
-            <item screen="mildred$ModeStateDefaultParam.browse"/>
-            <separator/>
-            <item screen="mildred$State.browse"/>
-            <item screen="mildred$TransitionRule.browse"/>
-            <separator/>
-            <item screen="mildred$OpRecordParamType.browse"/>
-            <separator/>
-            <item screen="mildred$ServiceDispatch.browse"/>
-            <item screen="mildred$ServiceProfile.browse"/>
-        </menu>
-        <menu id="elastic">
-            <item screen="mildred$Document.browse"/>
-            <item screen="mildred$DocumentType.browse"/>
-            <separator/>
-            <item screen="mildred$Clause.browse"/>
-            <item screen="mildred$Query.browse"/>
-        </menu>
-        <menu id="service-log">
-            <item screen="mildred$ModeState.browse"/>
-            <separator/>
-            <item screen="mildred$OpRecord.browse"/>
-            <item screen="mildred$OpRecordParam.browse"/>
-            <separator/>
-            <item screen="mildred$ServiceExec.browse"/>
-        </menu>
+    <menu id="mildred"
+          insertBefore="administration">
+        <item id="top-level-assets"
+              screen="mildred$Asset.browse"/>
+        <separator/>
+        <item screen="aboutWindow"/>
+        <item id="settings"
+              screen="settings"/>
     </menu>
     <menu id="media">
         <menu id="media-config">
@@ -79,6 +50,40 @@
         <menu id="suggestion">
             <item screen="mildred$Cause.browse"/>
             <item screen="mildred$Task.browse"/>
+        </menu>
+    </menu>
+    <menu id="service">
+        <menu id="service-config"
+              description="Config for Modes and States">
+            <item screen="mildred$Mode.browse"/>
+            <item screen="mildred$ModeDefault.browse"/>
+            <item screen="mildred$SwitchRule.browse"/>
+            <separator/>
+            <item screen="mildred$ModeStateDefault.browse"/>
+            <item screen="mildred$ModeStateDefaultParam.browse"/>
+            <separator/>
+            <item screen="mildred$State.browse"/>
+            <item screen="mildred$TransitionRule.browse"/>
+            <separator/>
+            <item screen="mildred$OpRecordParamType.browse"/>
+            <separator/>
+            <item screen="mildred$ServiceDispatch.browse"/>
+            <item screen="mildred$ServiceProfile.browse"/>
+        </menu>
+        <menu id="elastic">
+            <item screen="mildred$Document.browse"/>
+            <item screen="mildred$DocumentType.browse"/>
+            <separator/>
+            <item screen="mildred$Query.browse"/>
+            <item screen="mildred$Clause.browse"/>
+        </menu>
+        <menu id="service-log">
+            <item screen="mildred$ModeState.browse"/>
+            <separator/>
+            <item screen="mildred$OpRecord.browse"/>
+            <item screen="mildred$OpRecordParam.browse"/>
+            <separator/>
+            <item screen="mildred$ServiceExec.browse"/>
         </menu>
     </menu>
 </menu-config>

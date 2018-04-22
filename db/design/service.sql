@@ -1,3 +1,7 @@
+drop schema if exists service;
+create schema service;
+use service;
+
 -- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: service
@@ -190,7 +194,7 @@ CREATE TABLE `op_record` (
   `pid` varchar(32) NOT NULL,
   `operator_name` varchar(64) NOT NULL,
   `operation_name` varchar(64) NOT NULL,
-  `target_esid` varchar(64) NOT NULL,
+  `asset_id` varchar(64) NOT NULL,
   `target_path` varchar(1024) NOT NULL,
   `status` varchar(64) NOT NULL,
   `start_time` datetime NOT NULL,

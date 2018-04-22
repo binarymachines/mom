@@ -75,6 +75,7 @@
                     <button action="switchRulesTable.add"/>
                     <button action="switchRulesTable.remove"/>
                     <button action="switchRulesTable.create"/>
+                    <button action="switchRulesTable.edit"/>
                 </buttonsPanel>
             </table>
         </groupBox>

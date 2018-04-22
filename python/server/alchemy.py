@@ -550,7 +550,7 @@ class SQLMatch(MatchRecord):
     @staticmethod
     @alchemy_func
     def insert(doc_id, match_doc_id, matcher_name, score, min_score, max_score, comparison_result, is_ext_match):
-        # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time, end_time, status))
+        # LOG.debug('inserting match record: %s, %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, asset_id, target_path, start_time, end_time, status))
         match_rec = SQLMatch(doc_id=doc_id, match_doc_id=match_doc_id, \
                              matcher_name=matcher_name, score=score, min_score=min_score, max_score=max_score, comparison_result=comparison_result, is_ext_match=is_ext_match)
 
@@ -756,14 +756,14 @@ class SQLOperationRecord(OpRecord):
 
     @staticmethod
     @alchemy_func
-    def insert(operation_name, operator_name, target_esid, target_path, start_time, end_time, status):
+    def insert(operation_name, operator_name, asset_id, target_path, start_time, end_time, status):
         LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name,  target_path, start_time, end_time, status))
         if end_time is None or end_time == 'None':
             op_rec = SQLOperationRecord(pid=config.pid, operation_name=operation_name, operator_name=operator_name, \
-                                        target_esid=target_esid, target_path=target_path, start_time=start_time, status=status)
+                                        asset_id=asset_id, target_path=target_path, start_time=start_time, status=status)
         else:
             op_rec = SQLOperationRecord(pid=config.pid, operation_name=operation_name, operator_name=operator_name, \
-                                    target_esid=target_esid, target_path=target_path, start_time=start_time, end_time=end_time, status=status)
+                                    asset_id=asset_id, target_path=target_path, start_time=start_time, end_time=end_time, status=status)
 
         try:
             sessions[SERVICE].add(op_rec)

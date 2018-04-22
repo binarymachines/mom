@@ -38,11 +38,21 @@
                     <action id="remove"/>
                 </actions>
                 <columns>
-                    <column id="priority"/>
-                    <column id="timesToComplete"/>
-                    <column id="decPriorityAmount"/>
-                    <column id="incPriorityAmount"/>
-                    <column id="errorTolerance"/>
+                    <column id="priority"
+                            caption="priority"
+                            maxTextLength="80"/>
+                    <column id="decPriorityAmount"
+                            caption="decrement"
+                            maxTextLength="80"/>
+                    <column id="incPriorityAmount"
+                            caption="increment"
+                            maxTextLength="80"/>
+                    <column id="timesToComplete"
+                            caption="complete after"
+                            maxTextLength="80"/>
+                    <column id="errorTolerance"
+                            caption="error tolerance"
+                            maxTextLength="80"/>
                 </columns>
                 <rows datasource="defaultsDs"/>
                 <buttonsPanel>
@@ -63,13 +73,24 @@
                     <action id="remove"/>
                 </actions>
                 <columns>
-                    <column id="priority"/>
-                    <column id="timesToComplete"/>
-                    <column id="decPriorityAmount"/>
-                    <column id="incPriorityAmount"/>
-                    <column id="errorTolerance"/>
-                    <column id="state"/>
-                    <column id="effectDispatch"/>
+                    <column id="priority"
+                            caption="priority"
+                            maxTextLength="100"/>
+                    <column id="decPriorityAmount"
+                            caption="decrement"
+                            maxTextLength="100"/>
+                    <column id="incPriorityAmount"
+                            caption="increment"
+                            maxTextLength="100"/>
+                    <column id="timesToComplete"
+                            caption="complete after"
+                            maxTextLength="100"/>
+                    <column id="errorTolerance"
+                            caption="error tolerance"/>
+                    <column id="state"
+                            caption="state"/>
+                    <column id="effectDispatch"
+                            caption="effect"/>
                 </columns>
                 <rows datasource="stateDefaultsDs"/>
                 <buttonsPanel>

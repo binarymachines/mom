@@ -40,17 +40,19 @@ def execute(doc_type, query):
         print(err.message)
     
 
+
+def kwarg_bool(kw, kwargs):
+    return kw in kwargs and kwargs[kw]
+    
+    
 def set_key_if_value(values, key, value):
     if value:
         values[key] = value
 
 
-def kwarg_bool(kw, kwargs):
-    return kw in kwargs and kwargs[kw]
-
-
 class Clause(object):
-    def __init__(self, clause_type, field=None, value=None, operator=None, minimum_should_match=None, boost=None, must=False, must_not=False, should=False):
+    def __init__(self, clause_type, field=None, value=None, operator=None, minimum_should_match=None, \
+            boost=None, must=False, must_not=False, should=False):
         self._clause_type = clause_type
         self._field = field
         self._value = value

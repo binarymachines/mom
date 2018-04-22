@@ -10,6 +10,9 @@ import javax.persistence.TemporalType;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 import java.util.List;
 import javax.persistence.OneToMany;
+import com.angrysurfer.mildred.entity.media.Asset;
+import com.haulmont.chile.core.annotations.MetaProperty;
+import javax.persistence.Transient;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "op_record")
@@ -20,6 +23,10 @@ public class OpRecord extends BaseIntIdentityIdEntity {
     @Column(name = "pid", nullable = false, length = 32)
     protected String pid;
 
+    @Transient
+    @MetaProperty(related = "assetId")
+    protected Asset asset;
+
     @OneToMany(mappedBy = "opRecord")
     protected List<OpRecordParam> params;
 
@@ -29,8 +36,8 @@ public class OpRecord extends BaseIntIdentityIdEntity {
     @Column(name = "operation_name", nullable = false, length = 64)
     protected String operationName;
 
-    @Column(name = "target_esid", nullable = false, length = 64)
-    protected String targetEsid;
+    @Column(name = "asset_id", nullable = false, length = 64)
+    protected String assetId;
 
     @Column(name = "target_path", nullable = false, length = 1024)
     protected String targetPath;
@@ -53,6 +60,15 @@ public class OpRecord extends BaseIntIdentityIdEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expiration_dt", nullable = false)
     protected Date expirationDt;
+
+    public void setAsset(Asset asset) {
+        this.asset = asset;
+    }
+
+    public Asset getAsset() {
+        return asset;
+    }
+
 
     public void setParams(List<OpRecordParam> params) {
         this.params = params;
@@ -87,12 +103,12 @@ public class OpRecord extends BaseIntIdentityIdEntity {
         return operationName;
     }
 
-    public void setTargetEsid(String targetEsid) {
-        this.targetEsid = targetEsid;
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
     }
 
-    public String getTargetEsid() {
-        return targetEsid;
+    public String getAssetId() {
+        return assetId;
     }
 
     public void setTargetPath(String targetPath) {

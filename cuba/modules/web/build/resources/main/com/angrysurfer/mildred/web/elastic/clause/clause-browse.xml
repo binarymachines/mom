@@ -8,7 +8,7 @@
     <dsContext>
         <groupDatasource id="clausesDs"
                          class="com.angrysurfer.mildred.entity.elastic.Clause"
-                         view="_local">
+                         view="clause-view">
             <query>
                 <![CDATA[select e from mildred$Clause e]]>
             </query>
@@ -26,27 +26,22 @@
         <groupTable id="clausesTable"
                     width="100%">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="fieldName"
-                        caption="field"/>
-                <column id="boost"
-                        caption="boost"/>
-                <column id="bool"
-                        caption="bool"/>
-                <column id="operator"
-                        caption="operator"/>
-                <column id="minimumShouldMatch"
-                        caption="minimum"/>
-                <column id="analyzer"
-                        caption="analyzer"/>
-                <column id="querySection"
-                        caption="section"/>
-                <column id="defaultValue"
-                        caption="default"/>
+                <column id="fieldName"/>
+                <column id="documentType"/>
+                <column id="boost"/>
+                <column id="bool"/>
+                <column id="operator"/>
+                <column id="minimumShouldMatch"/>
+                <column id="analyzer"/>
+                <column id="querySection"/>
+                <column id="defaultValue"/>
             </columns>
             <rows datasource="clausesDs"/>
             <rowsCount/>

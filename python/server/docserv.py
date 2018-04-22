@@ -45,7 +45,7 @@ class DocumentServiceProcess(ServiceProcess):
    # process callbacks
 
     def setup(self):
-        self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.vector)
+        self.process_handler = DocumentServiceProcessHandler(self, '<process_handler>', self.selector, self.vector)
 
 
 def create_service_process(identifier, vector, owner=None, before=None, after=None, alternative=None):
@@ -87,7 +87,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
 
     def after_switch(self, selector, mode):
         display_redis_status()
-        
+
     def before_switch(self, selector, mode):
         pass
 
@@ -97,7 +97,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
     def after(self):
         mode = self.selector.active
         LOG.debug("%s after '%s'" % (self.name, mode.name))
-    
+
 
     @ops_func
     def before(self):
@@ -116,6 +116,6 @@ class DocumentServiceProcessHandler(DecisionHandler):
             if possible is self.owner.match:
                 if self.vector.has_next(MATCH):
                     return config.match
-                    
+
 
         return initial_and_update_scan_complete or config.scan == False

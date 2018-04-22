@@ -4,6 +4,7 @@
         <freeDbmsKeywords>mode</freeDbmsKeywords>
         <freeDbmsKeywords>value</freeDbmsKeywords>
         <freeDbmsKeywords>task</freeDbmsKeywords>
+        <freeDbmsKeywords>section</freeDbmsKeywords>
         <hotDeployMapping>modules/global/src:conf/mildred-core</hotDeployMapping>
         <hotDeployMapping>modules/core/src:conf/mildred-core</hotDeployMapping>
         <hotDeployMapping>modules/global/src:conf/mildred</hotDeployMapping>

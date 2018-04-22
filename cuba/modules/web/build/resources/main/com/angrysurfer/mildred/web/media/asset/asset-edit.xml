@@ -20,8 +20,7 @@
     <dialogMode forceDialog="true"
                 height="AUTO"
                 width="AUTO"/>
-    <layout expand="fieldGroup"
-            spacing="true">
+    <layout spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="assetDs">
             <column width="550px">

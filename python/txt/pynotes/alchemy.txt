@@ -23,16 +23,16 @@
 #     pid = Column('pid', String(32), nullable=False)
 #     operator_name = Column('operator_name', String(64), nullable=False)
 #     operation_name = Column('operation_name', String(64), nullable=False)
-#     target_esid = Column('target_esid', String(64), nullable=False)
+#     asset_id = Column('asset_id', String(64), nullable=False)
 #     target_path = Column('target_path', String(1024), nullable=False)
 #     status = Column('status', String(64), nullable=False)
 #     start_time = Column('start_time', DateTime, nullable=False)
 #     effective_dt = Column('effective_dt', DateTime, nullable=False)
 
-# def insert_interupted_operation_record(operation_name, operator_name, target_esid, target_path, start_time, status):
-#     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, target_esid, target_path, start_time,status))
+# def insert_interupted_operation_record(operation_name, operator_name, asset_id, target_path, start_time, status):
+#     LOG.debug('inserting op record: %s, %s, %s, %s, %s, %s' % (operation_name, operator_name, asset_id, target_path, start_time,status))
 #     op_rec = SQLInterruptedOperationRecord(pid=os.getpid(), index_name=config.es_index, operation_name=operation_name, operator_name=operator_name, \
-#         target_esid=target_esid, target_path=target_path, start_time=start_time, status=status, effective_dt=datetime.datetime.now())
+#         asset_id=asset_id, target_path=target_path, start_time=start_time, status=status, effective_dt=datetime.datetime.now())
 
 #     session.add(op_rec)
 #     session.commit()

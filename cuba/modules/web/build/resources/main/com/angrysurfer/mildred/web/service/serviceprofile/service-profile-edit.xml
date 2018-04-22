@@ -27,6 +27,58 @@
                 <field property="name"/>
             </column>
         </fieldGroup>
+        <groupBox id="modesBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.modes">
+            <table id="modesTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                    <action id="create"
+                            openType="DIALOG"/>
+                    <action id="edit"/>
+                </actions>
+                <columns>
+                    <column id="name"
+                            caption="Mode"/>
+                    <column id="statefulFlag"
+                            caption="Stateful"/>
+                </columns>
+                <rows datasource="modesDs"/>
+                <buttonsPanel>
+                    <button action="modesTable.add"/>
+                    <button action="modesTable.remove"/>
+                    <button action="modesTable.create"/>
+                    <button action="modesTable.edit"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <groupBox id="switchRulesBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.switchRules">
+            <table id="switchRulesTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="add"/>
+                    <action id="remove"/>
+                    <action id="create"
+                            openType="DIALOG"/>
+                    <action id="edit"
+                            openType="DIALOG"/>
+                </actions>
+                <columns>
+                    <column id="name"/>
+                </columns>
+                <rows datasource="switchRulesDs"/>
+                <buttonsPanel>
+                    <button action="switchRulesTable.add"/>
+                    <button action="switchRulesTable.remove"/>
+                    <button action="switchRulesTable.create"/>
+                    <button action="switchRulesTable.edit"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
         <groupBox id="serviceDispatchesBox"
                   caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.serviceProfileDispatches">
             <table id="serviceDispatchesTable"
@@ -35,6 +87,9 @@
                 <actions>
                     <action id="add"/>
                     <action id="remove"/>
+                    <action id="create"
+                            openType="DIALOG"/>
+                    <action id="edit"/>
                 </actions>
                 <columns>
                     <column id="name"
@@ -54,51 +109,14 @@
                 <buttonsPanel>
                     <button action="serviceDispatchesTable.add"/>
                     <button action="serviceDispatchesTable.remove"/>
-                </buttonsPanel>
-            </table>
-        </groupBox>
-        <groupBox id="modesBox"
-                  caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.modes">
-            <table id="modesTable"
-                   height="200px"
-                   width="100%">
-                <actions>
-                    <action id="add"/>
-                    <action id="remove"/>
-                </actions>
-                <columns>
-                    <column id="name"
-                            caption="Mode"/>
-                    <column id="statefulFlag"
-                            caption="Stateful"/>
-                </columns>
-                <rows datasource="modesDs"/>
-                <buttonsPanel>
-                    <button action="modesTable.add"/>
-                    <button action="modesTable.remove"/>
-                </buttonsPanel>
-            </table>
-        </groupBox>
-        <groupBox id="switchRulesBox"
-                  caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.switchRules">
-            <table id="switchRulesTable"
-                   height="200px"
-                   width="100%">
-                <actions>
-                    <action id="add"/>
-                    <action id="remove"/>
-                </actions>
-                <columns>
-                    <column id="name"/>
-                </columns>
-                <rows datasource="switchRulesDs"/>
-                <buttonsPanel>
-                    <button action="switchRulesTable.add"/>
-                    <button action="switchRulesTable.remove"/>
+                    <button action="serviceDispatchesTable.create"/>
+                    <button action="serviceDispatchesTable.edit"/>
                 </buttonsPanel>
             </table>
         </groupBox>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

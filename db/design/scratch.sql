@@ -1,3 +1,7 @@
+drop schema if exists scratch;
+create schema scratch;
+use scratch;
+
 -- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: scratch

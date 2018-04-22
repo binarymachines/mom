@@ -22,13 +22,14 @@
                     <field property="pid"/>
                     <field property="operatorName"/>
                     <field property="operationName"/>
-                    <field property="targetEsid"/>
+                    <field property="assetId"/>
                     <field property="targetPath"/>
                     <field property="status"/>
                     <field property="startTime"/>
                     <field property="endTime"/>
                     <field property="effectiveDt"/>
                     <field property="expirationDt"/>
+                    <field property="asset"/>
                 </column>
             </fieldGroup>
         </scrollBox>

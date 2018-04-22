@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, text
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -8,61 +8,63 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class GeneratedAction(Base):
-    __tablename__ = 'generated_action'
+class Cause(Base):
+    __tablename__ = 'cause'
 
     id = Column(Integer, primary_key=True)
-    action_id = Column(ForeignKey(u'analysis.action.id'), index=True)
-    action_status_id = Column(ForeignKey(u'analysis.action_status.id'), index=True)
-    parent_id = Column(ForeignKey(u'generated_action.id'), index=True)
+    reason_id = Column(ForeignKey(u'analysis.reason.id'), index=True)
+    parent_id = Column(ForeignKey(u'cause.id'), index=True)
     asset_id = Column(ForeignKey(u'media.asset.id'), nullable=False, index=True)
 
-    action = relationship(u'Action')
-    action_status = relationship(u'ActionStatu')
     asset = relationship(u'Asset')
-    parent = relationship(u'GeneratedAction', remote_side=[id])
-    reasons = relationship(u'GeneratedReason', secondary='generated_action_reason')
+    parent = relationship(u'Cause', remote_side=[id])
+    reason = relationship(u'Reason')
+    tasks = relationship(u'Task', secondary='task_cause_jn')
 
 
-class GeneratedActionParam(Base):
-    __tablename__ = 'generated_action_param'
+class CauseParam(Base):
+    __tablename__ = 'cause_param'
 
     id = Column(Integer, primary_key=True)
-    action_id = Column(ForeignKey(u'generated_action.id'), index=True)
+    cause_id = Column(ForeignKey(u'cause.id'), nullable=False, index=True)
     vector_param_id = Column(ForeignKey(u'analysis.vector_param.id'), nullable=False, index=True)
     value = Column(String(1024))
 
-    action = relationship(u'GeneratedAction')
+    cause = relationship(u'Cause')
     vector_param = relationship(u'VectorParam')
 
 
-t_generated_action_reason = Table(
-    'generated_action_reason', metadata,
-    Column('action_id', ForeignKey(u'generated_action.id'), primary_key=True, nullable=False, index=True),
-    Column('reason_id', ForeignKey(u'generated_reason.id'), primary_key=True, nullable=False, index=True)
+class Task(Base):
+    __tablename__ = 'task'
+
+    id = Column(Integer, primary_key=True)
+    action_id = Column(ForeignKey(u'analysis.action.id'), index=True)
+    task_status_id = Column(ForeignKey(u'analysis.action_status.id'), index=True)
+    parent_id = Column(ForeignKey(u'task.id'), index=True)
+    asset_id = Column(ForeignKey(u'media.asset.id'), nullable=False, index=True)
+
+    action = relationship(u'Action')
+    asset = relationship(u'Asset')
+    parent = relationship(u'Task', remote_side=[id])
+    task_status = relationship(u'ActionStatu')
+
+
+t_task_cause_jn = Table(
+    'task_cause_jn', metadata,
+    Column('task_id', ForeignKey(u'task.id'), primary_key=True, nullable=False, index=True),
+    Column('cause_id', ForeignKey(u'cause.id'), primary_key=True, nullable=False, index=True)
 )
 
 
-class GeneratedReason(Base):
-    __tablename__ = 'generated_reason'
+class TaskParam(Base):
+    __tablename__ = 'task_param'
 
     id = Column(Integer, primary_key=True)
-    reason_id = Column(ForeignKey(u'analysis.action.id'), index=True)
-    parent_id = Column(ForeignKey(u'generated_reason.id'), index=True)
-
-    parent = relationship(u'GeneratedReason', remote_side=[id])
-    reason = relationship(u'Action')
-
-
-class GeneratedReasonParam(Base):
-    __tablename__ = 'generated_reason_param'
-
-    id = Column(Integer, primary_key=True)
-    reason_id = Column(ForeignKey(u'generated_reason.id'), nullable=False, index=True)
+    task_id = Column(ForeignKey(u'task.id'), nullable=False, index=True)
     vector_param_id = Column(ForeignKey(u'analysis.vector_param.id'), nullable=False, index=True)
     value = Column(String(1024))
 
-    reason = relationship(u'GeneratedReason')
+    task = relationship(u'Task')
     vector_param = relationship(u'VectorParam')
 
 
@@ -100,12 +102,63 @@ class Dispatch(Base):
     func_name = Column(String(128), nullable=False)
 
 
+class Reason(Base):
+    __tablename__ = 'reason'
+    __table_args__ = {u'schema': 'analysis'}
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    parent_reason_id = Column(ForeignKey(u'analysis.reason.id'), index=True)
+    asset_type = Column(String(32), nullable=False, server_default=text("'file'"))
+    weight = Column(Integer, nullable=False, server_default=text("'10'"))
+    dispatch_id = Column(ForeignKey(u'analysis.dispatch.id'), index=True)
+    expected_result = Column(Integer, nullable=False, server_default=text("'1'"))
+    query_id = Column(ForeignKey(u'elastic.query.id'), index=True)
+
+    dispatch = relationship(u'Dispatch')
+    parent_reason = relationship(u'Reason', remote_side=[id])
+    query = relationship(u'Query')
+
+
 class VectorParam(Base):
     __tablename__ = 'vector_param'
     __table_args__ = {u'schema': 'analysis'}
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), nullable=False)
+
+
+class DocumentType(Base):
+    __tablename__ = 'document_type'
+    __table_args__ = {u'schema': 'elastic'}
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(25), unique=True)
+    desc = Column(String(255))
+
+
+class Query(Base):
+    __tablename__ = 'query'
+    __table_args__ = {u'schema': 'elastic'}
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128), nullable=False)
+    query_type_id = Column(ForeignKey(u'elastic.query_type.id'), nullable=False, index=True)
+    document_type_id = Column(ForeignKey(u'elastic.document_type.id'), nullable=False, index=True)
+    max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
+    active_flag = Column(Integer, nullable=False, server_default=text("'1'"))
+
+    document_type = relationship(u'DocumentType')
+    query_type = relationship(u'QueryType')
+
+
+class QueryType(Base):
+    __tablename__ = 'query_type'
+    __table_args__ = {u'schema': 'elastic'}
+
+    id = Column(Integer, primary_key=True)
+    desc = Column(String(255))
+    name = Column(String(25), unique=True)
 
 
 class Asset(Base):

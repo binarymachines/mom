@@ -18,7 +18,7 @@ OPS = 'ops'
 EXEC = 'exec'
 
 OP_RECORD = {'pid': str(config.pid), 'operation_name': None, 'start_time': config.start_time, 'end_time': None, \
-    'target_esid': None, 'target_path': None, 'status': None, 'persisted': False}
+    'asset_id': None, 'target_path': None, 'status': None, 'persisted': False}
 
 EXEC_RECORD = {'id': None, 'pid': str(config.pid), 'start_time': config.start_time, 'end_time': None, \
     'effective_dt': datetime.datetime.now(), 'expiration_dt': None, 'halt_requested':False, \
@@ -175,7 +175,7 @@ def record_op_begin(path, operation, operator, esid=None):
     op_record['operator_name'] = operator
     op_record['start_time'] = datetime.datetime.now().isoformat()
     if esid:
-        op_record['target_esid'] = esid
+        op_record['asset_id'] = esid
     op_record['target_path'] = path
     op_record['status'] = 'ACTIVE'
     op_key = create_op_key(path, operation, operator)
@@ -268,7 +268,7 @@ def write_ops_data(path, operation=None, operator=None, resuming=False):
         # TODO: if esids were cached after asset has been indexed, they COULD be inserted HERE instead of using update_ops_data() post-ipso
         update_listeners('writing %s' % record['operation_name'], record['operator_name'], record['target_path'])
 
-        SQLOperationRecord.insert(operation_name=record['operation_name'], operator_name=record['operator_name'], target_esid=record['target_esid'], \
+        SQLOperationRecord.insert(operation_name=record['operation_name'], operator_name=record['operator_name'], asset_id=record['asset_id'], \
             target_path=record['target_path'], start_time=record['start_time'], end_time=record['end_time'], status=record['status'])
 
         cache2.delete_key(key)

@@ -39,7 +39,7 @@ class Scanner(Walker):
         super(Scanner, self).__init__()
         self.vector = vector
         self.asset_type = const.FILE
-        self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
+        self.deep_scan = self.vector.get_param(SCAN, DEEP)
         self.high_scan = self.vector.get_param(SCAN, HSCAN)
         self.update_scan = self.vector.get_param(SCAN, USCAN)
         
@@ -99,7 +99,7 @@ class Scanner(Walker):
             # ordering dependencies end
 
             if file_was_read:
-                ops.update_ops_data(path, 'target_esid', asset.esid, const.READ) 
+                ops.update_ops_data(path, 'asset_id', asset.esid, const.READ) 
                 # x = os.system('clear')
                 # start.show_logo()
                 # start.display_redis_status()
@@ -282,7 +282,7 @@ class Scanner(Walker):
     @ops_func
     def scan(self):
 
-        self.deep_scan = config.deep or self.vector.get_param(SCAN, DEEP)
+        self.deep_scan = self.vector.get_param(SCAN, DEEP)
         self.high_scan = self.vector.get_param(SCAN, HSCAN)
         self.update_scan = self.vector.get_param(SCAN, USCAN)
 

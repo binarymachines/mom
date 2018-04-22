@@ -133,10 +133,6 @@
             template="com/angrysurfer/mildred/web/service/modedefault/mode-default-browse.xml"/>
     <screen id="mildred$ModeDefault.edit"
             template="com/angrysurfer/mildred/web/service/modedefault/mode-default-edit.xml"/>
-    <screen id="mildred$Clause.browse"
-            template="com/angrysurfer/mildred/web/elastic/clause/clause-browse.xml"/>
-    <screen id="mildred$Clause.edit"
-            template="com/angrysurfer/mildred/web/elastic/clause/clause-edit.xml"/>
     <screen id="mildred$Document.browse"
             template="com/angrysurfer/mildred/web/elastic/document/document-browse.xml"/>
     <screen id="mildred$Document.edit"
@@ -185,4 +181,8 @@
             template="com/angrysurfer/mildred/web/suggestion/cause/cause-edit.xml"/>
     <screen id="mildred$Task.edit"
             template="com/angrysurfer/mildred/web/suggestion/task/task-edit.xml"/>
+    <screen id="mildred$Clause.edit"
+            template="com/angrysurfer/mildred/web/elastic/clause/clause-edit.xml"/>
+    <screen id="mildred$Clause.browse"
+            template="com/angrysurfer/mildred/web/elastic/clause/clause-browse.xml"/>
 </screen-config>

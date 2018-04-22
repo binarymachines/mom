@@ -34,13 +34,14 @@
                 <column id="pid"/>
                 <column id="operatorName"/>
                 <column id="operationName"/>
-                <column id="targetEsid"/>
+                <column id="assetId"/>
                 <column id="targetPath"/>
                 <column id="status"/>
                 <column id="startTime"/>
                 <column id="endTime"/>
                 <column id="effectiveDt"/>
                 <column id="expirationDt"/>
+                <column id="asset"/>
             </columns>
             <rows datasource="opRecordsDs"/>
             <rowsCount/>

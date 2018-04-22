@@ -39,17 +39,25 @@
         <fieldGroup id="fieldGroup"
                     datasource="modeStateDefaultDs">
             <column width="450px">
-                <field optionsDatasource="modesDs"
+                <field caption="mode"
+                       optionsDatasource="modesDs"
                        property="mode"/>
-                <field optionsDatasource="statesDs"
+                <field caption="state"
+                       optionsDatasource="statesDs"
                        property="state"/>
-                <field property="priority"/>
-                <field optionsDatasource="effectDispatchesDs"
+                <field caption="priority"
+                       property="priority"/>
+                <field caption="effect"
+                       optionsDatasource="effectDispatchesDs"
                        property="effectDispatch"/>
-                <field property="timesToComplete"/>
-                <field property="decPriorityAmount"/>
-                <field property="incPriorityAmount"/>
-                <field property="errorTolerance"/>
+                <field caption="decrement"
+                       property="decPriorityAmount"/>
+                <field caption="increment"
+                       property="incPriorityAmount"/>
+                <field caption="complete after"
+                       property="timesToComplete"/>
+                <field caption="error tolerance"
+                       property="errorTolerance"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

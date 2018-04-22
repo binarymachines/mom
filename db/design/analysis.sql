@@ -1,3 +1,7 @@
+drop schema if exists analysis;
+create schema analysis;
+use analysis;
+
 -- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: analysis

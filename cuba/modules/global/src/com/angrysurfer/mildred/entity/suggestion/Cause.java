@@ -21,6 +21,7 @@ import com.haulmont.cuba.core.entity.annotation.SystemLevel;
 import javax.persistence.Column;
 import javax.persistence.Lob;
 import javax.persistence.Transient;
+import com.angrysurfer.mildred.entity.elastic.DocumentType;
 
 @DesignSupport("{'imported':true,'unmappedColumns':['reason_id','asset_id']}")
 @Table(name = "cause")
@@ -60,6 +61,7 @@ public class Cause extends BaseIntIdentityIdEntity {
     @SystemLevel
     @Column(name = "REASON_ID", nullable = false)
     protected Integer reasonId;
+
 
     public void setAsset(Asset asset) {
         this.asset = asset;

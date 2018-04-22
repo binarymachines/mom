@@ -136,6 +136,8 @@
             <property name="paramType"
                       view="_local"/>
         </property>
+        <property name="asset"
+                  view="_local"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.service.ServiceProfile"
           extends="_local"
@@ -237,5 +239,11 @@
           name="TaskParam-screen-view">
         <property name="task"
                   view="_minimal"/>
+    </view>
+    <view class="com.angrysurfer.mildred.entity.elastic.Clause"
+          extends="_local"
+          name="clause-view">
+        <property name="documentType"
+                  view="_local"/>
     </view>
 </views>

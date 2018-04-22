@@ -31,19 +31,26 @@
         <fieldGroup id="fieldGroup"
                     datasource="modeDefaultDs">
             <column width="400px">
-                <field optionsDatasource="modesDs"
+                <field caption="mode"
+                       optionsDatasource="modesDs"
                        property="mode"/>
-                <field optionsDatasource="effectDispatchesDs"
+                <field caption="effect"
+                       optionsDatasource="effectDispatchesDs"
                        property="effectDispatch"/>
-                <field property="priority"
+                <field caption="priority"
+                       property="priority"
                        width="50px"/>
-                <field property="timesToComplete"
+                <field caption="decrement"
+                       property="decPriorityAmount"
                        width="50px"/>
-                <field property="decPriorityAmount"
+                <field caption="increment"
+                       property="incPriorityAmount"
                        width="50px"/>
-                <field property="incPriorityAmount"
+                <field caption="complete after"
+                       property="timesToComplete"
                        width="50px"/>
-                <field property="errorTolerance"
+                <field caption="error tolerance"
+                       property="errorTolerance"
                        width="50px"/>
             </column>
         </fieldGroup>
