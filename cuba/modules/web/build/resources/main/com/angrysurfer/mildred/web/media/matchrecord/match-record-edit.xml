@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.media.matchrecord.MatchRecordEdit"
+        datasource="matchRecordDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.media.matchrecord">
+    <dsContext>
+        <datasource id="matchRecordDs"
+                    class="com.angrysurfer.mildred.entity.media.MatchRecord"
+                    view="_local">
+            <datasource id="idDs"
+                        property="id"/>
+        </datasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="matchRecordDs">
+            <column width="250px">
+                <field property="matcherName"/>
+                <field property="isExtMatch"/>
+                <field property="score"/>
+                <field property="maxScore"/>
+                <field property="minScore"/>
+                <field property="comparisonResult"/>
+                <field property="fileParent"/>
+                <field property="fileName"/>
+                <field property="matchParent"/>
+                <field property="matchFileName"/>
+                <field datasource="idDs"
+                       property="doc"/>
+                <field datasource="idDs"
+                       property="matchDoc"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               screen="editWindowActions"/>
+    </layout>
+</window>

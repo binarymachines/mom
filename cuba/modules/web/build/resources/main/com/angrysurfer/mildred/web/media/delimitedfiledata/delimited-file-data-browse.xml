@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.media.delimitedfiledata.DelimitedFileDataBrowse"
+        focusComponent="delimitedFileDatasTable"
+        lookupComponent="delimitedFileDatasTable"
+        messagesPack="com.angrysurfer.mildred.web.media.delimitedfiledata">
+    <dsContext>
+        <groupDatasource id="delimitedFileDatasDs"
+                         class="com.angrysurfer.mildred.entity.media.DelimitedFileData"
+                         view="DelimitedFileData-screen-view">
+            <query>
+                <![CDATA[select e from mildred$DelimitedFileData e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="delimitedFileDatasTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="delimitedFileDatasTable"
+                datasource="delimitedFileDatasDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="delimitedFileDatasTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="delimitedFile"/>
+                <column id="columnNum"/>
+                <column id="rowNum"/>
+                <column id="value"/>
+            </columns>
+            <rows datasource="delimitedFileDatasDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="delimitedFileDatasTable.create"/>
+                <button id="editBtn"
+                        action="delimitedFileDatasTable.edit"/>
+                <button id="removeBtn"
+                        action="delimitedFileDatasTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>
