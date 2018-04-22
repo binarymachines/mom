@@ -6,15 +6,15 @@ DROP TABLE IF EXISTS op_record_temp;
 
 CREATE TEMPORARY TABLE op_record_temp (
   id int(11) unsigned NOT NULL,
-  target_esid varchar(64) NOT NULL,
+  asset_id varchar(64) NOT NULL,
   target_path varchar(1024) NOT NULL,
   PRIMARY KEY (id)
 );
 
-INSERT INTO op_record_temp (id, target_esid, target_path)
-SELECT id, target_esid, target_path 
+INSERT INTO op_record_temp (id, asset_id, target_path)
+SELECT id, asset_id, target_path 
   FROM op_record opr
- WHERE opr.target_esid = "None";
+ WHERE opr.asset_id = "None";
  
 DROP TABLE IF EXISTS asset_temp;
 
@@ -32,12 +32,12 @@ SELECT id, absolute_path
    UPDATE op_record_temp ops
 LEFT JOIN asset_temp esd
        ON ops.target_path = esd.absolute_path
-      SET ops.target_esid = esd.id;
+      SET ops.asset_id = esd.id;
       
    UPDATE op_record ops
 LEFT JOIN op_record_temp opt
        ON ops.target_path = opt.target_path
-      SET ops.target_esid = opt.id;
+      SET ops.asset_id = opt.id;
 
 --DROP TABLE IF EXISTS op_record_temp;
 --DROP TABLE IF EXISTS asset_temp;
