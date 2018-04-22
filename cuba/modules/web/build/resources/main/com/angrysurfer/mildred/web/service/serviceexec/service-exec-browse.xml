@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.service.serviceexec.ServiceExecBrowse"
+        focusComponent="serviceExecsTable"
+        lookupComponent="serviceExecsTable"
+        messagesPack="com.angrysurfer.mildred.web.service.serviceexec">
+    <dsContext>
+        <groupDatasource id="serviceExecsDs"
+                         class="com.angrysurfer.mildred.entity.service.ServiceExec"
+                         view="_local">
+            <query>
+                <![CDATA[select e from mildred$ServiceExec e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="serviceExecsTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="serviceExecsTable"
+                datasource="serviceExecsDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="serviceExecsTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="pid"/>
+                <column id="status"/>
+                <column id="startDt"/>
+                <column id="endDt"/>
+                <column id="effectiveDt"/>
+                <column id="expirationDt"/>
+            </columns>
+            <rows datasource="serviceExecsDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="serviceExecsTable.create"/>
+                <button id="editBtn"
+                        action="serviceExecsTable.edit"/>
+                <button id="removeBtn"
+                        action="serviceExecsTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

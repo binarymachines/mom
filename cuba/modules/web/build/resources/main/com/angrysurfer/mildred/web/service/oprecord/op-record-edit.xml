@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.service.oprecord.OpRecordEdit"
+        datasource="opRecordDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.service.oprecord">
+    <dsContext>
+        <datasource id="opRecordDs"
+                    class="com.angrysurfer.mildred.entity.service.OpRecord"
+                    view="opRecord-view"/>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="scrollBox"
+            spacing="true">
+        <scrollBox id="scrollBox"
+                   spacing="true">
+            <fieldGroup id="fieldGroup"
+                        datasource="opRecordDs">
+                <column width="450px">
+                    <field property="pid"/>
+                    <field property="operatorName"/>
+                    <field property="operationName"/>
+                    <field property="assetId"/>
+                    <field property="targetPath"/>
+                    <field property="status"/>
+                    <field property="startTime"/>
+                    <field property="endTime"/>
+                    <field property="effectiveDt"/>
+                    <field property="expirationDt"/>
+                    <field property="asset"/>
+                </column>
+            </fieldGroup>
+        </scrollBox>
+        <frame id="windowActions"
+               screen="extendedEditWindowActions"/>
+    </layout>
+</window>

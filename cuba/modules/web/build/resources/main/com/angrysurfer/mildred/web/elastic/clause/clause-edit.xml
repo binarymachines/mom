@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.elastic.clause.ClauseEdit"
+        datasource="clauseDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.elastic.clause">
+    <dsContext>
+        <datasource id="clauseDs"
+                    class="com.angrysurfer.mildred.entity.elastic.Clause"
+                    view="clause-view"/>
+        <collectionDatasource id="documentTypesDs"
+                              class="com.angrysurfer.mildred.entity.elastic.DocumentType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$DocumentType e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="600"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="clauseDs">
+            <column width="250px">
+                <field caption="field"
+                       property="fieldName"/>
+                <field caption="document type"
+                       optionsDatasource="documentTypesDs"
+                       property="documentType"/>
+                <field caption="boost"
+                       property="boost"/>
+                <field caption="bool"
+                       property="bool"/>
+                <field caption="operator"
+                       property="operator"/>
+                <field caption="minimum"
+                       property="minimumShouldMatch"/>
+                <field caption="analyzer"
+                       property="analyzer"/>
+                <field caption="section"
+                       property="querySection"/>
+                <field caption="default"
+                       property="defaultValue"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
+    </layout>
+</window>

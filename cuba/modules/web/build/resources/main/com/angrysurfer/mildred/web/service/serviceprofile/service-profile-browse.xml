@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://browseCaption"
+        class="com.angrysurfer.mildred.web.service.serviceprofile.ServiceProfileBrowse"
+        focusComponent="serviceProfilesTable"
+        lookupComponent="serviceProfilesTable"
+        messagesPack="com.angrysurfer.mildred.web.service.serviceprofile">
+    <dsContext>
+        <groupDatasource id="serviceProfilesDs"
+                         class="com.angrysurfer.mildred.entity.service.ServiceProfile"
+                         view="serviceProfile-view">
+            <query>
+                <![CDATA[select e from mildred$ServiceProfile e]]>
+            </query>
+        </groupDatasource>
+    </dsContext>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="serviceProfilesTable"
+            spacing="true">
+        <filter id="filter"
+                applyTo="serviceProfilesTable"
+                datasource="serviceProfilesDs">
+            <properties include=".*"/>
+        </filter>
+        <groupTable id="serviceProfilesTable"
+                    width="100%">
+            <actions>
+                <action id="create"/>
+                <action id="edit"/>
+                <action id="remove"/>
+            </actions>
+            <columns>
+                <column id="name"/>
+            </columns>
+            <rows datasource="serviceProfilesDs"/>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="createBtn"
+                        action="serviceProfilesTable.create"/>
+                <button id="editBtn"
+                        action="serviceProfilesTable.edit"/>
+                <button id="removeBtn"
+                        action="serviceProfilesTable.remove"/>
+            </buttonsPanel>
+        </groupTable>
+    </layout>
+</window>

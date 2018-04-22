@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.service.mode.ModeEdit"
+        datasource="modeDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.service.mode">
+    <dsContext>
+        <datasource id="modeDs"
+                    class="com.angrysurfer.mildred.entity.service.Mode"
+                    view="mode-view">
+            <collectionDatasource id="defaultsDs"
+                                  property="defaults"/>
+            <collectionDatasource id="stateDefaultsDs"
+                                  property="stateDefaults"/>
+        </datasource>
+    </dsContext>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="600"/>
+    <layout expand="windowActions"
+            spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="modeDs">
+            <column width="450px">
+                <field property="name"/>
+                <field property="statefulFlag"/>
+            </column>
+        </fieldGroup>
+        <groupBox id="defaultsBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/Mode.defaults">
+            <table id="defaultsTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="create"/>
+                    <action id="edit"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="priority"
+                            caption="priority"
+                            maxTextLength="80"/>
+                    <column id="decPriorityAmount"
+                            caption="decrement"
+                            maxTextLength="80"/>
+                    <column id="incPriorityAmount"
+                            caption="increment"
+                            maxTextLength="80"/>
+                    <column id="timesToComplete"
+                            caption="complete after"
+                            maxTextLength="80"/>
+                    <column id="errorTolerance"
+                            caption="error tolerance"
+                            maxTextLength="80"/>
+                </columns>
+                <rows datasource="defaultsDs"/>
+                <buttonsPanel>
+                    <button action="defaultsTable.create"/>
+                    <button action="defaultsTable.edit"/>
+                    <button action="defaultsTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <groupBox id="stateDefaultsBox"
+                  caption="msg://com.angrysurfer.mildred.entity.service/Mode.stateDefaults">
+            <table id="stateDefaultsTable"
+                   height="200px"
+                   width="100%">
+                <actions>
+                    <action id="create"/>
+                    <action id="edit"/>
+                    <action id="remove"/>
+                </actions>
+                <columns>
+                    <column id="priority"
+                            caption="priority"
+                            maxTextLength="100"/>
+                    <column id="decPriorityAmount"
+                            caption="decrement"
+                            maxTextLength="100"/>
+                    <column id="incPriorityAmount"
+                            caption="increment"
+                            maxTextLength="100"/>
+                    <column id="timesToComplete"
+                            caption="complete after"
+                            maxTextLength="100"/>
+                    <column id="errorTolerance"
+                            caption="error tolerance"/>
+                    <column id="state"
+                            caption="state"/>
+                    <column id="effectDispatch"
+                            caption="effect"/>
+                </columns>
+                <rows datasource="stateDefaultsDs"/>
+                <buttonsPanel>
+                    <button action="stateDefaultsTable.create"/>
+                    <button action="stateDefaultsTable.edit"/>
+                    <button action="stateDefaultsTable.remove"/>
+                </buttonsPanel>
+            </table>
+        </groupBox>
+        <frame id="windowActions"
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
+    </layout>
+</window>

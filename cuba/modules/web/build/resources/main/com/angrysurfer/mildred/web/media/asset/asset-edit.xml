@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
+        caption="msg://editorCaption"
+        class="com.angrysurfer.mildred.web.media.asset.AssetEdit"
+        datasource="assetDs"
+        focusComponent="fieldGroup"
+        messagesPack="com.angrysurfer.mildred.web.media.asset">
+    <dsContext>
+        <datasource id="assetDs"
+                    class="com.angrysurfer.mildred.entity.media.Asset"
+                    view="Asset-screen-view"/>
+        <collectionDatasource id="fileTypesDs"
+                              class="com.angrysurfer.mildred.entity.media.FileType"
+                              view="_minimal">
+            <query>
+                <![CDATA[select e from mildred$FileType e]]>
+            </query>
+        </collectionDatasource>
+    </dsContext>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="AUTO"/>
+    <layout spacing="true">
+        <fieldGroup id="fieldGroup"
+                    datasource="assetDs">
+            <column width="550px">
+                <field caption="id"
+                       property="id"
+                       width="250px"/>
+                <field caption="path"
+                       property="absolutePath"
+                       rows="3"/>
+                <field caption="doc type"
+                       property="assetType"
+                       width="250px"/>
+                <field caption="file type"
+                       optionsDatasource="fileTypesDs"
+                       property="fileType"
+                       width="250px"/>
+                <field caption="as of"
+                       property="effectiveDt"
+                       width="250px"/>
+                <field caption="until"
+                       property="expirationDt"
+                       width="250px"/>
+            </column>
+        </fieldGroup>
+        <frame id="windowActions"
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
+    </layout>
+</window>

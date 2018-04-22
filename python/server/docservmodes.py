@@ -146,7 +146,7 @@ class CleaningModeHandler(DefaultModeHandler):
         LOG.debug('%s preparing to clean'  % self.owner.name)
 
     def do_clean(self):
-        print("clean mode starting...\n")
+        print("clean mode starting...")
         LOG.debug('%s clean' % self.owner.name)
         time.sleep(1)
         # clean.clean(self.vector)
@@ -161,7 +161,7 @@ class AnalyzeModeHandler(DefaultModeHandler):
         return True
 
     def do_analyze(self):
-        print("entering analysis mode...\n")
+        print("entering analysis mode...")
         LOG.debug('%s evaluating' % self.owner.name)
         analyze.analyze(self.vector)
 
@@ -181,7 +181,7 @@ class FixModeHandler(DefaultModeHandler):
         LOG.debug('%s preparing to fix'  % self.owner.name)
 
     def do_fix(self): 
-        print("fix mode starting...\n")
+        print("fix mode starting...")
         LOG.debug('%s fixing' % self.owner.name)
         time.sleep(1)
 
@@ -207,7 +207,7 @@ class MatchModeHandler(DefaultModeHandler):
 
 
     def do_match(self):
-        print("match mode starting...\n")
+        print("match mode starting...")
         # dir = self.vector.get_active (MATCH)
         # LOG.debug('%s matching in %s...' % (self.owner.name, dir))
         try:
@@ -242,7 +242,7 @@ class RequestsModeHandler(DefaultModeHandler):
 
 
     def do_reqs(self):
-        print("handling requests...\n")
+        print("handling requests...")
         LOG.debug('%s handling requests...' % self.owner.name)
         time.sleep(1)
 
@@ -286,7 +286,7 @@ class ScanModeHandler(DefaultModeHandler):
         #     return self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector)
                 
 
-        return self.scan_complete == self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector)
+        return self.scan_complete == False    
 
     def path_to_map(self):
         return self.vector.get_param('all', 'start-path')
@@ -294,10 +294,10 @@ class ScanModeHandler(DefaultModeHandler):
     def map_new_paths(self):
         startpath = self.path_to_map()
         if startpath and self.vector.get_param('all', 'map-paths').lower() == 'true':
-            print("discover scan starting in %s...\n" % startpath)
+            print("discover scan starting in %s..." % startpath)
             paths = disc.discover(startpath)
             if paths is None or len(paths) == 0:
-                print('No media folders were found in discovery scan.\n')
+                print('No media folders were found in discovery scan.')
                 # self.vector.set_param('all', 'map-paths', False)
                 # self.vector.clear_param('all', 'start-path')
             else:
@@ -313,7 +313,7 @@ class ScanModeHandler(DefaultModeHandler):
     @ops_func
     def do_scan_monitor(self):
         self.map_new_paths()
-        print("monitor scan starting...\n")
+        print("monitor scan starting...")
         self.vector.reset(SCAN)
         if self.vector.has_next(SCAN, use_fifo=True):
             scan.scan(self.vector)
@@ -324,7 +324,7 @@ class ScanModeHandler(DefaultModeHandler):
     @ops_func
     def do_scan(self):
         # self.map_new_paths()
-        print("update scan starting...\n")
+        print("update scan starting...")
         # self.vector.set_param(SCAN, DEEP, False)
         if self.vector.has_next(SCAN, use_fifo=True):
             scan.scan(self.vector)
