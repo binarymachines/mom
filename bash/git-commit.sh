@@ -8,13 +8,16 @@ find $MILDRED_HOME -name "*.pyc"  -exec rm {} \;
 echo "adding files..."
 echo
 
-find $MILDRED_HOME -name "*.sh"  -exec git add -f {} \;
+find $MILDRED_HOME/bash -name "*.sh"  -exec git add -f {} \;
+find $MILDRED_HOME/java -name "*.sh"  -exec git add -f {} \;
+find $MILDRED_HOME/python -name "*.sh"  -exec git add -f {} \;
 # find $MILDRED_HOME -name "*.properties"  -exec git add -f {} \;
 # find $MILDRED_HOME -name "*.java"  -exec git add -f {} \;
 # find $MILDRED_HOME -name "*.xml"  -exec git add -f {} \;
 # find $MILDRED_HOME -name "*.groovy"  -exec git add -f {} \;
 # find $MILDRED_HOME -name "*.gradle"  -exec git add -f {} \;
-find $MILDRED_HOME -name "*.txt"  -exec git add -f {} \;
+find $MILDRED_HOME/python -name "*.txt"  -exec git add -f {} \;
+find $MILDRED_HOME/java -name "*.txt"  -exec git add -f {} \;
 find $MILDRED_HOME -name "*.py"  -exec git add -f {} \;
 find $MILDRED_HOME -name "*.oqsl"  -exec git add -f {} \;
 find $MILDRED_HOME -name "*.mwb"  -exec git add -f {} \;
@@ -27,9 +30,9 @@ find $MILDRED_HOME/java -name "*.xml"  -exec git add -f {} \;
 # find $MILDRED_HOME/java -name "*.fxml"  -exec git add -f {} \;
 
 git add $MILDRED_HOME/bash/*.sh
-git add $MILDRED_HOME/db/bak/*.sql
+# git add $MILDRED_HOME/db/bak/*.sql
 git add $MILDRED_HOME/db/design/*.sql
-git add $MILDRED_HOME/db/setup/*.sql
+# git add $MILDRED_HOME/db/setup/*.sql
 git add $MILDRED_HOME/db/design/*.mwb
 git add $MILDRED_HOME/.vscode/*.json
 git add $MILDRED_HOME/db/orientdb/*.json
