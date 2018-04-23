@@ -62,6 +62,7 @@ git add $MILDRED_HOME/cuba/modules/*/themes/*/*.ico
 # git add $MILDRED_HOME/cuba/modules/*/themes/*/*.properties
 
 echo
+git status
 if [ "$#" -ne 1 ];
 then
     echo "commiting snapshot"
