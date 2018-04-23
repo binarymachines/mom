@@ -60,8 +60,10 @@
                         <action id="remove"/>
                     </actions>
                     <columns>
-                        <column id="name"/>
-                        <column id="assetType"/>
+                        <column id="name"
+                                caption="msg://name"/>
+                        <column id="assetType"
+                                caption="msg://assetType"/>
                     </columns>
                     <rows datasource="categoriesDs"/>
                     <rowsCount/>
@@ -85,8 +87,10 @@
                     <fieldGroup id="fieldGroup"
                                 datasource="categoryDs">
                         <column width="250px">
-                            <field property="name"/>
-                            <field property="assetType"/>
+                            <field caption="msg://name"
+                                   property="name"/>
+                            <field caption="msg://assetType"
+                                   property="assetType"/>
                         </column>
                     </fieldGroup>
                 </vbox>

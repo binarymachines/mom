@@ -36,10 +36,15 @@ class DocumentServiceProcess(ServiceProcess):
         super(DocumentServiceProcess, self).__init__(name, vector, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
     
     #TODO: change these selector callbacks in the database to point directly at the process handler  
+ 
     def after_switch(self, selector, mode):
+        print "after switch %s" % mode.name
+        sys.exit(0)
         self.process_handler.after_switch(selector, mode)
-
+        
     def before_switch(self, selector, mode):
+        print "before switch %s" % mode.name
+        sys.exit(0)
         self.process_handler.before_switch(selector, mode)
 
    # process callbacks

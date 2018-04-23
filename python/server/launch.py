@@ -65,8 +65,6 @@ def launch(args, run=True):
 
                 if args['--map-paths']:
                     vector.set_param('all', 'map-paths', True)
-
-                if args['start-path']:
                     vector.set_param('all', 'start-path', args['<startpath>'])
 
                 process = create_func(profile.name, vector, service, before=before, after=after)    

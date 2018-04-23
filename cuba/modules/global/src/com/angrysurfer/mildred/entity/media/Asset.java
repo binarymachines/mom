@@ -14,7 +14,9 @@ import javax.persistence.TemporalType;
 import com.haulmont.cuba.core.entity.BaseStringIdEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
+import com.haulmont.chile.core.annotations.NamePattern;
 
+@NamePattern("%s|id")
 @DesignSupport("{'imported':true}")
 @Table(name = "asset")
 @Entity(name = "mildred$Asset")

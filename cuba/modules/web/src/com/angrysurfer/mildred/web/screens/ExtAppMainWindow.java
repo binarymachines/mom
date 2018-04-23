@@ -7,7 +7,6 @@ import com.haulmont.cuba.gui.components.mainwindow.FtsField;
 import javax.inject.Inject;
 import java.util.Map;
 
-
 public class ExtAppMainWindow extends AbstractMainWindow {
     @Inject
     private FtsField ftsField;

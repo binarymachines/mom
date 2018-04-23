@@ -31,17 +31,29 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="pid"/>
-                <column id="operatorName"/>
-                <column id="operationName"/>
-                <column id="assetId"/>
-                <column id="targetPath"/>
-                <column id="status"/>
-                <column id="startTime"/>
-                <column id="endTime"/>
-                <column id="effectiveDt"/>
-                <column id="expirationDt"/>
-                <column id="asset"/>
+                <column id="pid"
+                        caption="msg://pid"/>
+                <column id="operatorName"
+                        caption="msg://operator"/>
+                <column id="operationName"
+                        caption="msg://operation"/>
+                <column id="asset"
+                        caption="msg://asset"/>
+                <column id="assetId"
+                        caption="msg://assetId"
+                        visible="false"/>
+                <column id="status"
+                        caption="msg://status"/>
+                <column id="startTime"
+                        caption="msg://startTime"/>
+                <column id="endTime"
+                        caption="msg://endTime"/>
+                <column id="targetPath"
+                        caption="msg://targetPath"/>
+                <column id="effectiveDt"
+                        visible="false"/>
+                <column id="expirationDt"
+                        visible="false"/>
             </columns>
             <rows datasource="opRecordsDs"/>
             <rowsCount/>

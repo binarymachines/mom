@@ -28,24 +28,43 @@ git add $MILDRED_HOME/db/design/*.mwb
 git add $MILDRED_HOME/.vscode/*.json
 git add $MILDRED_HOME/db/orientdb/*.json
 
-. $MILDRED_HOME/bash/git-commit-cuba.sh $MILDRED_HOME/cuba/
+# git add $MILDRED_HOME/cuba/*.sh
+git add $MILDRED_HOME/cuba/modules/*/src/*/*.xml 
+git add $MILDRED_HOME/cuba/modules/*/src/*/*.java
+git add $MILDRED_HOME/cuba/modules/*/src/*/*.groovy
+git add $MILDRED_HOME/cuba/modules/*/src/*/*.properties
 
-echo
-if [ "$#" -ne 1 ];
-then
-    echo "commiting snapshot"
-    git commit -m snapshot
-else    
-    echo "commiting changes: $1"
-    git commit -m $1
-fi
+# git add $MILDRED_HOME/cuba/modules/*/test/*/*.xml 
+# git add $MILDRED_HOME/cuba/modules/*/test/*/*.java
+# git add $MILDRED_HOME/cuba/modules/*/test/*/*.groovy
+# git add $MILDRED_HOME/cuba/modules/*/test/*/*.properties
 
-echo
-git status
+# git add $MILDRED_HOME/cuba/modules/*/web/*/*.xml 
+# git add $MILDRED_HOME/cuba/modules/*/web/*/*.java
+# git add $MILDRED_HOME/cuba/modules/*/web/*/*.groovy
+# git add $MILDRED_HOME/cuba/modules/*/web/*/*.properties
 
-echo "pushing commit..."
-echo
-git push
+git add $MILDRED_HOME/cuba/modules/*/themes/*/*.scss 
+git add $MILDRED_HOME/cuba/modules/*/themes/*/*.png
+git add $MILDRED_HOME/cuba/modules/*/themes/*/*.ico
+git add $MILDRED_HOME/cuba/modules/*/themes/*/*.properties
+
+# echo
+# if [ "$#" -ne 1 ];
+# then
+#     echo "commiting snapshot"
+#     git commit -m snapshot
+# else    
+#     echo "commiting changes: $1"
+#     git commit -m $1
+# fi
+
+# echo
+# git status
+
+# echo "pushing commit..."
+# echo
+# git push
 git status
 #git diff HEAD $1/build.gradle
 #git diff HEAD $1/modules/core/web/META-INF/context.xml

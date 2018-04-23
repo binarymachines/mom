@@ -3,11 +3,11 @@
         caption="mainMsg://application.caption"
         class="com.angrysurfer.mildred.web.screens.ExtAppMainWindow"
         xmlns:main="http://schemas.haulmont.com/cuba/mainwindow.xsd">
-    <layout expand="horizontalWrap"
-            responsive="true"
+    <layout responsive="true"
             stylename="c-sidemenu-responsive">
         <hbox id="horizontalWrap"
               expand="workArea"
+              height="100%"
               stylename="c-sidemenu-layout"
               width="100%">
             <cssLayout id="sideMenuPanel"
@@ -65,8 +65,10 @@
                                     spacing="true">
                     <label id="welcomeLabel"
                            align="MIDDLE_CENTER"
+                           height="20px"
                            stylename="c-welcome-text"
                            value="mainMsg://application.welcomeText"
+                           visible="false"
                            width="100%"/>
                 </main:initialLayout>
             </main:workArea>
