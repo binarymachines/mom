@@ -59,24 +59,24 @@ git add $MILDRED_HOME/cuba/modules/web/web/*/*.xml
 git add $MILDRED_HOME/cuba/modules/*/themes/*/*.scss 
 git add $MILDRED_HOME/cuba/modules/*/themes/*/*.png
 git add $MILDRED_HOME/cuba/modules/*/themes/*/*.ico
-git add $MILDRED_HOME/cuba/modules/*/themes/*/*.properties
+# git add $MILDRED_HOME/cuba/modules/*/themes/*/*.properties
 
-# echo
-# if [ "$#" -ne 1 ];
-# then
-#     echo "commiting snapshot"
-#     git commit -m snapshot
-# else    
-#     echo "commiting changes: $1"
-#     git commit -m $1
-# fi
+echo
+if [ "$#" -ne 1 ];
+then
+    echo "commiting snapshot"
+    git commit -m snapshot
+else    
+    echo "commiting changes: $1"
+    git commit -m $1
+fi
 
-# echo
-# git status
+echo
+git status
 
-# echo "pushing commit..."
-# echo
-# git push
+echo "pushing commit..."
+echo
+git push
 git status
 #git diff HEAD $1/build.gradle
 #git diff HEAD $1/modules/core/web/META-INF/context.xml
