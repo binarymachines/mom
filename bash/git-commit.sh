@@ -21,6 +21,7 @@ find $MILDRED_HOME -name "*.oqsl"  -exec git add -f {} \;
 find $MILDRED_HOME -name "*.mwb"  -exec git add -f {} \;
 find $MILDRED_HOME -name "*.ods"  -exec git add -f {} \;
 
+git add $MILDRED_HOME/bash/*.sh
 git add $MILDRED_HOME/db/bak/*.sql
 git add $MILDRED_HOME/db/design/*.sql
 git add $MILDRED_HOME/db/setup/*.sql
@@ -33,6 +34,9 @@ git add $MILDRED_HOME/cuba/modules/*/src/*/*.xml
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.java
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.groovy
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.properties
+
+git add $MILDRED_HOME/cuba/modules/core/web/*/*.xml
+git add $MILDRED_HOME/cuba/modules/web/web/*/*.xml
 
 # git add $MILDRED_HOME/cuba/modules/*/test/*/*.xml 
 # git add $MILDRED_HOME/cuba/modules/*/test/*/*.java
