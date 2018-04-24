@@ -42,6 +42,7 @@ git add $MILDRED_HOME/cuba/*.xml
 git add $MILDRED_HOME/cuba/*.gradle
 git add $MILDRED_HOME/cuba/*.bat
 git add $MILDRED_HOME/cuba/gradlew
+git add $MILDRED_HOME/cuba/gradle/*/*.properties
 
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.xml 
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.java
