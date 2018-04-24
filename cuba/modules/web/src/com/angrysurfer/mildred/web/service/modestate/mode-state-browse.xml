@@ -31,18 +31,30 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="pid"/>
-                <column id="mode"/>
-                <column id="state"/>
-                <column id="timesActivated"/>
-                <column id="timesCompleted"/>
-                <column id="errorCount"/>
-                <column id="cumErrorCount"/>
-                <column id="status"/>
-                <column id="lastActivated"/>
-                <column id="lastCompleted"/>
-                <column id="effectiveDt"/>
-                <column id="expirationDt"/>
+                <column id="pid"
+                        caption="msg://pid"/>
+                <column id="mode"
+                        caption="msg://mode"/>
+                <column id="state"
+                        caption="msg://state"/>
+                <column id="timesActivated"
+                        caption="msg://timesActivated"/>
+                <column id="timesCompleted"
+                        caption="msg://timesCompleted"/>
+                <column id="errorCount"
+                        caption="msg://errorCount"/>
+                <column id="cumErrorCount"
+                        caption="msg://cumErrorCount"/>
+                <column id="status"
+                        caption="msg://status"/>
+                <column id="lastActivated"
+                        caption="msg://lastActivated"/>
+                <column id="lastCompleted"
+                        caption="msg://lastCompleted"/>
+                <column id="effectiveDt"
+                        caption="msg://effectiveDt"/>
+                <column id="expirationDt"
+                        caption="msg://expirationDt"/>
             </columns>
             <rows datasource="modeStatesDs"/>
             <rowsCount/>
