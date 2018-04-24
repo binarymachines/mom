@@ -38,6 +38,11 @@ git add $MILDRED_HOME/.vscode/*.json
 git add $MILDRED_HOME/db/orientdb/*.json
 
 # git add $MILDRED_HOME/cuba/*.sh
+git add $MILDRED_HOME/cuba/*.xml
+git add $MILDRED_HOME/cuba/*.gradle
+git add $MILDRED_HOME/cuba/*.bat
+git add $MILDRED_HOME/cuba/gradlew
+
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.xml 
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.java
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.groovy

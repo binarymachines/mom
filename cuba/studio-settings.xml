@@ -11,4 +11,8 @@
         <hotDeployMapping>modules/web/src:conf/mildred</hotDeployMapping>
         <hotDeployMapping>modules/gui/src:conf/mildred</hotDeployMapping>
     </settings>
+    <functionalitySettings>
+        <functionality id="oneToOneIndex"
+                       state="ENABLE"/>
+    </functionalitySettings>
 </studio>
