@@ -31,12 +31,18 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="pid"/>
-                <column id="status"/>
-                <column id="startDt"/>
-                <column id="endDt"/>
-                <column id="effectiveDt"/>
-                <column id="expirationDt"/>
+                <column id="pid"
+                        caption="msg://pid"/>
+                <column id="status"
+                        caption="msg://status"/>
+                <column id="startDt"
+                        caption="msg://startDt"/>
+                <column id="endDt"
+                        caption="msg://endDt"/>
+                <column id="effectiveDt"
+                        caption="msg://effectiveDt"/>
+                <column id="expirationDt"
+                        caption="msg://expirationDt"/>
             </columns>
             <rows datasource="serviceExecsDs"/>
             <rowsCount/>

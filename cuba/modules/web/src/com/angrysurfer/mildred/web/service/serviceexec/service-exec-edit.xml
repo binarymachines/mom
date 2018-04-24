@@ -10,22 +10,32 @@
                     class="com.angrysurfer.mildred.entity.service.ServiceExec"
                     view="_local"/>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="serviceExecDs">
+                    datasource="serviceExecDs"
+                    editable="false">
             <column width="250px">
-                <field property="pid"/>
-                <field property="status"/>
-                <field property="startDt"/>
-                <field property="endDt"/>
-                <field property="effectiveDt"/>
-                <field property="expirationDt"/>
+                <field caption="msg://pid"
+                       property="pid"/>
+                <field caption="msg://status"
+                       property="status"/>
+                <field caption="msg://startDt"
+                       property="startDt"/>
+                <field caption="msg://endDt"
+                       property="endDt"/>
+                <field caption="msg://effectiveDt"
+                       property="effectiveDt"/>
+                <field caption="msg://expirationDt"
+                       property="expirationDt"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>
