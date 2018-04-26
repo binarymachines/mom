@@ -319,7 +319,7 @@ class Scanner(Walker):
                     continue
 
                 if self.path_expands(path):
-                    LOG.debug('expanded %s...' % path)
+                    # LOG.debug('expanded %s...' % path)
                     ops.update_listeners('expanded', SCANNER, path)
                     # self.vector.clear_active(SCAN)
                     last_expanded_path = path
@@ -330,8 +330,8 @@ class Scanner(Walker):
                 try:
                     self._pre_scan(path)
                     start_read_cache_size = len(cache2.get_keys(ops.OPS, READ))
-                    print('scanning %s' % path)
-                    LOG.debug("scanning %s..." % path)
+                    # print('scanning %s' % path)
+                    LOG.info("scanning %s..." % path)
                     ops.update_listeners('scanning', SCANNER, path)
                     self.walk(path)
                     end_read_cache_size = len(cache2.get_keys(ops.OPS, READ))

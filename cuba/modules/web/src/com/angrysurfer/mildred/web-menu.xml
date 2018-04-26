@@ -17,6 +17,7 @@
             <item screen="mildred$DirectoryPattern.browse"/>
             <item screen="mildred$DirectoryType.browse"/>
             <separator/>
+            <item screen="mildred$FileAttribute.browse"/>
             <item screen="mildred$Alias.browse"/>
             <item screen="mildred$FileHandler.browse"/>
             <item screen="mildred$FileHandlerRegistration.browse"/>
@@ -29,7 +30,6 @@
             <item screen="mildred$DelimitedFileData.browse"/>
             <item screen="mildred$DelimitedFileInfo.browse"/>
             <item screen="mildred$DirectoryAttribute.browse"/>
-            <item screen="mildred$FileAttribute.browse"/>
             <item screen="mildred$MatchRecord.browse"/>
         </menu>
         <menu id="media-duplicates">

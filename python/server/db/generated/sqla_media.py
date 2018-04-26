@@ -133,7 +133,6 @@ class FileAttribute(Base):
     id = Column(Integer, primary_key=True)
     file_format = Column(String(32), nullable=False)
     attribute_name = Column(String(128), nullable=False)
-    active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
 
 
 class FileHandler(Base):
@@ -195,7 +194,7 @@ class Matcher(Base):
     query_type = Column(String(64), nullable=False)
     max_score_percentage = Column(Float, nullable=False, server_default=text("'0'"))
     applies_to_file_type = Column(String(6), nullable=False, server_default=text("'*'"))
-    active_flag = Column(Integer, nullable=False, server_default=text("'0'"))
+    active_flag = Column(Integer, nullable=False, server_default=text("'1'"))
 
 
 class MatcherField(Base):

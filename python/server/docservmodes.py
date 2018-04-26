@@ -297,9 +297,7 @@ class ScanModeHandler(DefaultModeHandler):
             print("discover scan starting in %s..." % startpath)
             paths = disc.discover(startpath)
             if paths is None or len(paths) == 0:
-                print('No media folders were found in discovery scan.')
-                # self.vector.set_param('all', 'map-paths', False)
-                # self.vector.clear_param('all', 'start-path')
+                print('No new media folders were found in discovery scan.')
             else:
                 self.vector.paths.extend(paths)
                 # self.vector.set_param('all', 'map-paths', False)

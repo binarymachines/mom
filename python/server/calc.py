@@ -37,7 +37,7 @@ def calc(vector, cycle_vector=False):
     sql.execute_query("delete from match_record where 1=1", schema=config.db_media)
     sql.execute_query("delete from op_record where operation_name = 'calc'", schema=config.db_service)
     sql.execute_query("delete from op_record where operation_name = 'match'", schema=config.db_service)
-    sql.execute_query("commit")
+    # sql.execute_query("commit", schema=config.db_service)
 
     # MAX_RECORDS = ...
     matchers = match.get_matchers()

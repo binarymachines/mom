@@ -1,29 +1,28 @@
 #!/usr/bin/env bash
-pushd $MILDRED_HOME
 
-clear
+function generate {
 
-echo '----------------------------'
-echo 'Backing up Mildred Databases'
-echo '----------------------------'
-echo
+  usage="generate [database]..."
 
-# mysqldump admin > $MILDRED_HOME/db/design/admin.sql --add-drop-table --complete-insert --add-drop-database
-mysqldump analysis > $MILDRED_HOME/db/design/analysis.sql --add-drop-table --complete-insert --add-drop-database
-mysqldump elastic > $MILDRED_HOME/db/design/elastic.sql --add-drop-table --complete-insert --add-drop-database
-mysqldump media > $MILDRED_HOME/db/design/media.sql --add-drop-table --complete-insert --add-drop-database
-mysqldump service > $MILDRED_HOME/db/design/service.sql --add-drop-table --complete-insert --add-drop-database
-mysqldump suggestion > $MILDRED_HOME/db/design/suggestion.sql --add-drop-table --complete-insert --add-drop-database
-mysqldump scratch > $MILDRED_HOME/db/design/scratch.sql --add-drop-table --complete-insert --add-drop-database
+  [ -z "$1" ] && echo $usage && return
 
+  [[ -e $MILDRED_HOME/db/design/$1.sql ]] && rm -v $MILDRED_HOME/db/design/$1.sql
 
-echo '----------------------------'
-echo 'Database backup is complete!'
-echo '----------------------------'
-echo
+  echo "drop schema if exists $1;" > $MILDRED_HOME/db/design/$1.sql
+  echo "create schema $1;" >> $MILDRED_HOME/db/design/$1.sql
+  echo "use $1;" >> $MILDRED_HOME/db/design/$1.sql
+  echo >> $MILDRED_HOME/db/design/$1.sql
 
-# git status
-# git commit -m 'db snapshot'
-# git push
+  mysqldump $1 >> $MILDRED_HOME/db/design/$1.sql --add-drop-table --complete-insert
+  [[ -e $MILDRED_HOME/db/design/$1.sql ]] && echo "created '$MILDRED_HOME/db/design/$1.sql'"
+}
 
-popd
+generate admin
+generate analysis
+generate elastic
+generate media
+generate mildred
+generate service
+generate scratch
+generate suggestion
+

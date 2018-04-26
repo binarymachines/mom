@@ -28,9 +28,6 @@ public class FileAttribute extends BaseIntIdentityIdEntity {
     @Column(name = "attribute_name", nullable = false, length = 128)
     protected String attributeName;
 
-    @Column(name = "active_flag", nullable = false)
-    protected Boolean activeFlag = false;
-
     public void setAlias(List<Alias> alias) {
         this.alias = alias;
     }
@@ -53,14 +50,6 @@ public class FileAttribute extends BaseIntIdentityIdEntity {
 
     public String getAttributeName() {
         return attributeName;
-    }
-
-    public void setActiveFlag(Boolean activeFlag) {
-        this.activeFlag = activeFlag;
-    }
-
-    public Boolean getActiveFlag() {
-        return activeFlag;
     }
 
 

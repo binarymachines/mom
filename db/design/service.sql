@@ -105,7 +105,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -114,6 +114,7 @@ CREATE TABLE `mode_state` (
 
 LOCK TABLES `mode_state` WRITE;
 /*!40000 ALTER TABLE `mode_state` DISABLE KEYS */;
+INSERT INTO `mode_state` (`id`, `pid`, `mode_id`, `state_id`, `times_activated`, `times_completed`, `error_count`, `cum_error_count`, `status`, `last_activated`, `last_completed`, `effective_dt`, `expiration_dt`) VALUES (7,'1457',3,2,1,1,0,0,'discover','2018-04-26 12:17:08','2018-04-26 12:17:08','2018-04-26 12:17:08','2018-04-26 12:17:08'),(8,'1457',3,3,2,2,0,0,'update','2018-04-26 12:17:09','2018-04-26 12:17:09','2018-04-26 12:17:08','2018-04-26 12:17:09'),(9,'1457',3,4,3,3,0,0,'monitor','2018-04-26 12:17:09','2018-04-26 12:17:09','2018-04-26 12:17:08','2018-04-26 12:17:09');
 /*!40000 ALTER TABLE `mode_state` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -202,7 +203,7 @@ CREATE TABLE `op_record` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=25887 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -312,7 +313,7 @@ CREATE TABLE `service_exec` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -321,6 +322,7 @@ CREATE TABLE `service_exec` (
 
 LOCK TABLES `service_exec` WRITE;
 /*!40000 ALTER TABLE `service_exec` DISABLE KEYS */;
+INSERT INTO `service_exec` (`id`, `pid`, `status`, `start_dt`, `end_dt`, `effective_dt`, `expiration_dt`) VALUES (5,'1457','initializing','2018-04-26 12:17:06',NULL,'2018-04-26 12:17:08','9999-12-31 23:59:59');
 /*!40000 ALTER TABLE `service_exec` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1023,4 +1025,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-21 11:41:34
+-- Dump completed on 2018-04-26 12:17:54

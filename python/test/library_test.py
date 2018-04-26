@@ -24,7 +24,8 @@ class TestLibrary(unittest.TestCase):
         path = '/media/removable/Audio/music/albums/ambient/biosphere/substrata'
         assets.cache_docs(const.FILE, path)
 
-        rows = sql.run_query_template(RETRIEVE_DOCS, config.es_index, const.FILE, path)
+        rows = sql.run_query_template(RETRIEVE_DOCS, config.es_index, const.FILE, path, 
+            schema=config.db_media)
         keys = cache2.get_keys(cache2.DELIM.join([assets.KEY_GROUP, const.FILE, path]))
         self.assertEqual(len(rows), len(keys))
 

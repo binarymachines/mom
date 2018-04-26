@@ -195,7 +195,7 @@ CREATE TABLE `directory` (
   UNIQUE KEY `uk_directory_name` (`name`),
   KEY `fk_directory_directory_type` (`directory_type_id`),
   CONSTRAINT `fk_directory_directory_type` FOREIGN KEY (`directory_type_id`) REFERENCES `directory_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=792 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -347,10 +347,9 @@ CREATE TABLE `file_attribute` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `file_format` varchar(32) NOT NULL,
   `attribute_name` varchar(128) NOT NULL,
-  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_attribute` (`file_format`,`attribute_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=187 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -359,7 +358,6 @@ CREATE TABLE `file_attribute` (
 
 LOCK TABLES `file_attribute` WRITE;
 /*!40000 ALTER TABLE `file_attribute` DISABLE KEYS */;
-INSERT INTO `file_attribute` (`id`, `file_format`, `attribute_name`, `active_flag`) VALUES (1,'ID3v2.3.0','tpe1',1),(2,'ID3v2.3.0','tpe2',1),(3,'ID3v2.3.0','tit1',1),(4,'ID3v2.3.0','tit2',1),(5,'ID3v2.3.0','talb',1),(6,'ID3v2.4.0','tpe1',1),(7,'ID3v2.4.0','tpe2',1),(8,'ID3v2.4.0','tit1',1),(9,'ID3v2.4.0','tit2',1),(10,'ID3v2.4.0','talb',1),(11,'ID3v2.3.0','comm',1),(12,'ID3v2.3.0','mcdi',1),(13,'ID3v2.3.0','priv',1),(14,'ID3v2.3.0','tcom',1),(15,'ID3v2.3.0','tcon',1),(16,'ID3v2.3.0','tdrc',1),(17,'ID3v2.3.0','tlen',1),(18,'ID3v2.3.0','tpub',1),(19,'ID3v2.3.0','trck',1),(20,'ID3v2.3.0','tdor',1),(21,'ID3v2.3.0','tmed',1),(22,'ID3v2.3.0','tpos',1),(23,'ID3v2.3.0','tso2',1),(24,'ID3v2.3.0','tsop',1),(25,'ID3v2.3.0','ufid',1),(26,'ID3v2.3.0','apic',1),(27,'ID3v2.3.0','tipl',1),(28,'ID3v2.3.0','tenc',1),(29,'ID3v2.3.0','tlan',1),(30,'ID3v2.3.0','tit3',1),(31,'ID3v2.3.0','tpe3',1),(32,'ID3v2.3.0','tpe4',1),(33,'flac','title',0),(34,'flac','artist',0),(35,'flac','album',0),(36,'flac','genre',0),(37,'flac','comment',0),(38,'flac','organization',0),(39,'flac','composer',0),(40,'flac','ensemble',0),(41,'flac','tracknumber',0),(42,'flac','date',0),(43,'flac','album artist',0),(44,'ID3v2.3.0','txxx',0),(45,'ID3v2.3.0','tbpm',0),(46,'ID3v2.3.0','tcop',0),(47,'ID3v2.3.0','tcmp',0),(48,'ID3v2.3.0','uslt',0),(49,'ID3v2.3.0','wxxx',0),(50,'ID3v2.3.0','tope',0),(51,'flac','copyright',0),(52,'flac','bpm',0),(53,'flac','original year',0),(54,'flac','tracktotal',0),(55,'flac','encoder',0),(56,'flac','encoding',0),(57,'flac','discnumber',0),(58,'flac','disctotal',0),(59,'ID3v2.3.0','popm',0),(60,'flac','replaygain_track_peak',0),(61,'flac','replaygain_track_gain',0),(62,'flac','replaygain_album_gain',0),(63,'flac','publisher',0),(64,'ogg','album',0),(65,'ogg','genre',0),(66,'ogg','artist',0),(67,'ogg','comment',0),(68,'ogg','title',0),(69,'ogg','rating',0),(70,'ogg','album artist',0),(71,'ogg','ensemble',0),(72,'ID3v2.3.0','tyer',0),(73,'ID3v2.4.0','tcmp',0),(74,'ID3v2.4.0','tdrc',0),(75,'ID3v2.4.0','tenc',0),(76,'ID3v2.4.0','trck',0),(77,'ID3v2.4.0','txxx',0),(78,'ID3v2.4.0','comm',0),(79,'ID3v2.4.0','priv',0),(80,'ID3v2.4.0','tbpm',0),(81,'ID3v2.4.0','tcon',0),(82,'ID3v2.4.0','wxxx',0),(83,'ID3v2.4.0','popm',0),(84,'ID3v2.4.0','tsse',0),(85,'ID3v2.3.0','geob',0),(86,'pdf','moddate',0),(87,'pdf','creationdate',0),(88,'pdf','title',0),(89,'pdf','producer',0),(90,'pdf','creator',0),(91,'pdf','author',0),(92,'ID3v2.3.0','tsse',0),(93,'ID3v2.3.0','tkey',0),(94,'ID3v2.4.0','tpos',0),(95,'ID3v1.1','comm',0),(96,'ID3v1.1','talb',0),(97,'ID3v1.1','tit2',0),(98,'ID3v1.1','tpe1',0),(99,'ID3v1.1','tcon',0),(100,'ID3v2.2.0','comm',0),(101,'ID3v2.2.0','tenc',0),(102,'ID3v2.2.0','tit2',0),(103,'ID3v2.2.0','trck',0),(104,'ID3v2.2.0','talb',0),(105,'ID3v2.2.0','tpe1',0),(106,'ID3v2.3.0','tsoc',0),(107,'ID3v2.3.0','tsot',0),(108,'ID3v2.3.0','tsrc',0),(109,'ID3v2.3.0','woar',0),(110,'ID3v2.3.0','tdrl',0),(111,'ID3v2.3.0','text',0),(112,'ID3v2.3.0','rva2',0),(113,'ID3v2.3.0','tflt',0),(114,'ID3v2.3.0','user',0),(115,'ID3v2.3.0','town',0),(116,'ID3v2.3.0','tpro',0),(117,'ID3v2.3.0','woaf',0),(118,'ID3v2.3.0','wpub',0),(119,'ID3v2.3.0','wcom',0),(120,'ID3v2.3.0','woas',0),(121,'ID3v2.3.0','toal',0),(122,'ID3v2.3.0','toly',0),(123,'ID3v2.4.0','tlen',0),(124,'ID3v2.4.0','tpub',0),(125,'ID3v2.4.0','geob',0),(126,'ID3v2.4.0','uslt',0),(127,'ID3v2.4.0','mcdi',0),(128,'ID3v2.4.0','tcop',0),(129,'ID3v2.4.0','tit3',0),(130,'ID3v2.4.0','tope',0),(131,'ID3v2.4.0','tsrc',0),(132,'ID3v2.4.0','woar',0),(133,'ID3v2.4.0','tden',0),(134,'ID3v2.4.0','tdtg',0),(135,'ID3v2.4.0','tdor',0),(136,'ID3v2.4.0','tdrl',0),(137,'ID3v2.4.0','tflt',0),(138,'ID3v2.4.0','tkey',0),(139,'ID3v2.4.0','tpe4',0),(140,'ID3v2.4.0','tso2',0),(141,'ID3v2.4.0','tsop',0),(142,'ID3v2.4.0','wcom',0),(143,'ID3v2.4.0','text',0),(144,'ID3v2.4.0','tipl',0),(145,'ID3v2.4.0','tlan',0),(146,'ID3v2.4.0','tsoa',0),(147,'ID3v2.4.0','tsoc',0),(148,'ID3v2.4.0','tsot',0),(149,'ID3v2.4.0','town',0),(150,'ID3v2.4.0','user',0),(151,'ID3v2.4.0','rva2',0),(152,'ID3v2.4.0','ufid',0),(153,'ID3v2.3.0','tofn',0),(154,'ID3v2.3.0','wcop',0),(155,'ID3v2.3.0','wors',0),(156,'ID3v2.3.0','wpay',0),(157,'ID3v2.2.0','apic',0),(158,'ID3v2.2.0','tcom',0),(159,'ID3v2.2.0','tcon',0),(160,'ID3v2.2.0','tdrc',0),(161,'ID3v2.2.0','tit1',0),(162,'ID3v2.2.0','tpe2',0),(163,'ID3v2.3.0','link',0),(164,'ID3v2.4.0','apic',0),(165,'ID3v2.4.0','tcom',0),(166,'ID3v2.3.0','tsoa',0),(167,'ogg','encoder',0),(168,'ogg','tracknumber',0),(169,'ID3v1.1','trck',0),(170,'ogg','replaygain_album_gain',0),(171,'ogg','url',0),(172,'ogg','replaygain_track_gain',0),(173,'ogg','thanks',0),(174,'ogg','email',0),(175,'ogg','year',0),(176,'ogg','date',0),(177,'ogg','replaygain_track_peak',0),(178,'pdf','trapped',0),(179,'ID3v2.3.0','pcnt',0),(180,'ID3v2.3.0','tden',0),(181,'ogg','coverartcount',0),(182,'ogg','coverartfilelink',0),(183,'ogg','coverarttype',0),(184,'ID3v2.3.0','tmoo',0);
 /*!40000 ALTER TABLE `file_attribute` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -434,7 +432,7 @@ CREATE TABLE `file_type` (
   `name` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_type` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -443,7 +441,7 @@ CREATE TABLE `file_type` (
 
 LOCK TABLES `file_type` WRITE;
 /*!40000 ALTER TABLE `file_type` DISABLE KEYS */;
-INSERT INTO `file_type` (`id`, `desc`, `ext`, `name`) VALUES (1,NULL,NULL,'directory'),(2,NULL,'*','wildcard'),(3,NULL,'aac','aac'),(4,NULL,'ape','ape'),(5,NULL,'flac','flac'),(6,NULL,'ogg','ogg'),(7,NULL,'oga','oga'),(8,NULL,'iso','iso'),(9,NULL,'m4a','m4a'),(10,NULL,'mpc','mpc'),(11,NULL,'mp3','mp3'),(12,NULL,'wav','wav'),(13,NULL,'pdf','pdf'),(14,NULL,'txt','txt'),(15,NULL,'jpg','jpg'),(16,NULL,'mp4','mp4'),(17,NULL,'avi','avi'),(18,NULL,'mkv','mkv'),(19,NULL,'url','url'),(20,NULL,'tif','tif'),(21,NULL,'png','png'),(22,NULL,'sls','sls'),(23,NULL,'nfo','nfo'),(24,NULL,'ewyu8s','ewyu8s'),(25,NULL,'mxm','mxm'),(26,NULL,'jpeg','jpeg'),(27,NULL,'ini','ini'),(28,NULL,'gif','gif'),(29,NULL,'xspf','xspf'),(30,NULL,'xml','xml'),(31,NULL,'conf','conf');
+INSERT INTO `file_type` (`id`, `desc`, `ext`, `name`) VALUES (1,NULL,NULL,'directory'),(2,NULL,'*','wildcard'),(3,NULL,'aac','aac'),(4,NULL,'ape','ape'),(5,NULL,'flac','flac'),(6,NULL,'ogg','ogg'),(7,NULL,'oga','oga'),(8,NULL,'iso','iso'),(9,NULL,'m4a','m4a'),(10,NULL,'mpc','mpc'),(11,NULL,'mp3','mp3'),(12,NULL,'wav','wav'),(13,NULL,'pdf','pdf'),(14,NULL,'txt','txt'),(15,NULL,'jpg','jpg'),(16,NULL,'mp4','mp4'),(17,NULL,'avi','avi'),(18,NULL,'mkv','mkv'),(19,NULL,'url','url'),(20,NULL,'tif','tif'),(21,NULL,'png','png'),(22,NULL,'sls','sls'),(23,NULL,'nfo','nfo'),(24,NULL,'ewyu8s','ewyu8s'),(25,NULL,'mxm','mxm'),(26,NULL,'jpeg','jpeg'),(27,NULL,'ini','ini'),(28,NULL,'gif','gif'),(29,NULL,'xspf','xspf'),(30,NULL,'xml','xml'),(31,NULL,'conf','conf'),(32,NULL,'bmp','bmp');
 /*!40000 ALTER TABLE `file_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -496,7 +494,7 @@ CREATE TABLE `matcher` (
   `query_type` varchar(64) NOT NULL,
   `max_score_percentage` float NOT NULL DEFAULT '0',
   `applies_to_file_type` varchar(6) CHARACTER SET utf8 NOT NULL DEFAULT '*',
-  `active_flag` tinyint(1) NOT NULL DEFAULT '0',
+  `active_flag` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -619,4 +617,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-21 11:41:33
+-- Dump completed on 2018-04-26 12:17:54

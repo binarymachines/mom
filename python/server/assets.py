@@ -261,7 +261,7 @@ def get_doc_keys(asset_type):
     
 
 def retrieve_docs(asset_type, path):
-    return sql.run_query_template(RETRIEVE_DOCS, asset_type, path)
+    return sql.run_query_template(RETRIEVE_DOCS, asset_type, path, schema=config.db_media)
 
 # assets
 
@@ -435,7 +435,7 @@ def update_asset(data):
 @ops_func
 def cache_matches(path):
     LOG.debug('caching matches for %s...' % path)
-    rows = sql.run_query_template(CACHE_MATCHES, path, path)
+    rows = sql.run_query_template(CACHE_MATCHES, path, path, schema=config.db_media)
     for row in rows:
         cache_match(row)
 

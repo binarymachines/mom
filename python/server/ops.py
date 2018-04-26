@@ -208,14 +208,18 @@ def retrieve_ops__data(path, operation, operator=None, apply_lifespan=False):
     if apply_lifespan:
         start_time = datetime.date.today() + datetime.timedelta(0 - config.op_life)
         if operator is None:
-            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start_time, path)
+            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operation, start_time, path, \
+                schema=config.db_service)
         else:
-            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start_time, path)
+            return sql.run_query_template('ops_retrieve_complete_ops_apply_lifespan', operator, operation, start_time, path, \
+                schema=config.db_service)
     else:
         if operator is None:
-            return sql.run_query_template('ops_retrieve_complete_ops', operation, path)
+            return sql.run_query_template('ops_retrieve_complete_ops', operation, path, \
+                schema=config.db_service)
         else:
-            return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path)
+            return sql.run_query_template('ops_retrieve_complete_ops_operator', operator, operation, path, \
+                schema=config.db_service)
 
 
 def update_ops_data(path, key, value, operation=None, operator=None):

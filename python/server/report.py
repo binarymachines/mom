@@ -252,14 +252,6 @@ def post_process__data(data, exclude_ignore, records):
 
                 # data[RESULTS][FILE_LIST].remove(files)
 
-def get_directories(path):
-    print('retrieving s matching pattern: "%s"' % (path))
-
-    q = """SELECT id, absolute_path FROM asset
-            WHERE index_name = '%s' and asset_type = 'media_'
-              and absolute_path like '%s%s' ORDER BY absolute_path""" % ('%', path, '%')
-
-    return sql.run_query(q)
 
 def get_matches(esid, reverse=False, union=False):
 

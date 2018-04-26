@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://editorCaption"
-        class="com.angrysurfer.mildred.web.elastic.query.QueryEdit"
+        class="com.angrysurfer.mildred.web.service.query.QueryEdit"
         datasource="queryDs"
         focusComponent="fieldGroup"
-        messagesPack="com.angrysurfer.mildred.web.elastic.query">
+        messagesPack="com.angrysurfer.mildred.web.service.query">
     <dsContext>
         <datasource id="queryDs"
                     class="com.angrysurfer.mildred.entity.elastic.Query"
@@ -35,18 +35,12 @@
         <fieldGroup id="fieldGroup"
                     datasource="queryDs">
             <column width="250px">
-                <field caption="msg://name"
-                       property="name"/>
-                <field caption="msg://queryType"
-                       optionsDatasource="queryTypesDs"
+                <field property="name"/>
+                <field optionsDatasource="queryTypesDs"
                        property="queryType"/>
-                <field caption="msg://documentType"
-                       optionsDatasource="documentTypesDs"
+                <field optionsDatasource="documentTypesDs"
                        property="documentType"/>
-                <field caption="msg://maxScorePercentage"
-                       property="maxScorePercentage"/>
-                <field caption="msg://activeFlag"
-                       property="activeFlag"/>
+                <field property="maxScorePercentage"/>
             </column>
         </fieldGroup>
         <groupBox id="clauseBox"
@@ -57,8 +51,6 @@
                 <actions>
                     <action id="add"/>
                     <action id="remove"/>
-                    <action id="create"/>
-                    <action id="edit"/>
                 </actions>
                 <columns>
                     <column id="fieldName"/>
@@ -69,14 +61,11 @@
                     <column id="analyzer"/>
                     <column id="querySection"/>
                     <column id="defaultValue"/>
-                    <column id="documentType"/>
                 </columns>
                 <rows datasource="clauseDs"/>
                 <buttonsPanel>
                     <button action="clauseTable.add"/>
                     <button action="clauseTable.remove"/>
-                    <button action="clauseTable.create"/>
-                    <button action="clauseTable.edit"/>
                 </buttonsPanel>
             </table>
         </groupBox>

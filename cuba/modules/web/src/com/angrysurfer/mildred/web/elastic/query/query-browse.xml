@@ -39,8 +39,6 @@
                         caption="msg://documentType"/>
                 <column id="maxScorePercentage"
                         caption="msg://maxScorePercentage"/>
-                <column id="activeFlag"
-                        caption="msg://activeFlag"/>
             </columns>
             <rows datasource="queriesDs"/>
             <rowsCount/>

@@ -38,9 +38,6 @@ public class Query extends BaseIntIdentityIdEntity {
     @Column(name = "max_score_percentage", nullable = false)
     protected Double maxScorePercentage;
 
-    @Column(name = "active_flag", nullable = false)
-    protected Boolean activeFlag = false;
-
     @JoinTable(name = "query_clause_jn",
         joinColumns = @JoinColumn(name = "query_id"),
         inverseJoinColumns = @JoinColumn(name = "clause_id"))
@@ -77,14 +74,6 @@ public class Query extends BaseIntIdentityIdEntity {
 
     public Double getMaxScorePercentage() {
         return maxScorePercentage;
-    }
-
-    public void setActiveFlag(Boolean activeFlag) {
-        this.activeFlag = activeFlag;
-    }
-
-    public Boolean getActiveFlag() {
-        return activeFlag;
     }
 
     public void setClause(List<Clause> clause) {

@@ -19,7 +19,6 @@
             <column width="250px">
                 <field property="fileFormat"/>
                 <field property="attributeName"/>
-                <field property="activeFlag"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

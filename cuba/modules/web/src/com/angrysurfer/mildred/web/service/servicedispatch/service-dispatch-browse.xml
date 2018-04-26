@@ -40,7 +40,7 @@
                 <column id="moduleName"
                         caption="msg://moduleName"/>
                 <column id="className"
-                        caption="msg://moduleName"/>
+                        caption="msg://className"/>
                 <column id="funcName"
                         caption="msg://funcName"/>
             </columns>

@@ -37,8 +37,8 @@ CREATE TABLE `clause` (
   `analyzer` varchar(64) DEFAULT NULL,
   `section` varchar(128) CHARACTER SET utf8 DEFAULT 'should',
   `default_value` varchar(128) CHARACTER SET utf8 DEFAULT NULL,
-  KEY `fk_clause_document_type` (`document_type_id`),
   PRIMARY KEY (`id`),
+  KEY `fk_clause_document_type` (`document_type_id`),
   CONSTRAINT `fk_clause_document_type` FOREIGN KEY (`document_type_id`) REFERENCES `document_type` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -49,7 +49,7 @@ CREATE TABLE `clause` (
 
 LOCK TABLES `clause` WRITE;
 /*!40000 ALTER TABLE `clause` DISABLE KEYS */;
-INSERT INTO `clause` (`id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (1,'attributes.TPE1',5,NULL,NULL,0,NULL,'should',NULL),(2,'attributes.TIT2',7,NULL,NULL,0,NULL,'should',NULL),(3,'attributes.TALB',3,NULL,NULL,0,NULL,'should',NULL),(4,'document_name',0,NULL,NULL,0,NULL,'should',NULL),(5,'deleted',0,NULL,NULL,0,NULL,'should',NULL),(6,'document_size',3,NULL,NULL,0,NULL,'should',NULL),(7,'attributes.TPE1',3,NULL,NULL,0,NULL,'should',NULL),(8,'attributes.TPE1',0,NULL,NULL,0,NULL,'must',NULL),(9,'attributes.TIT2',5,NULL,NULL,0,NULL,'should',NULL),(10,'attributes.TALB',0,NULL,NULL,0,NULL,'should',NULL),(11,'deleted',0,NULL,NULL,0,NULL,'must_not','true'),(12,'attributes.TRCK',0,NULL,NULL,0,NULL,'should',''),(13,'attributes.TPE2',0,NULL,NULL,0,NULL,'','should');
+INSERT INTO `clause` (`id`, `document_type_id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (1,NULL,'attributes.TPE1',5,NULL,NULL,0,NULL,'should',NULL),(2,NULL,'attributes.TIT2',7,NULL,NULL,0,NULL,'should',NULL),(3,NULL,'attributes.TALB',3,NULL,NULL,0,NULL,'should',NULL),(4,NULL,'document_name',0,NULL,NULL,0,NULL,'should',NULL),(5,NULL,'deleted',0,NULL,NULL,0,NULL,'should',NULL),(6,NULL,'document_size',3,NULL,NULL,0,NULL,'should',NULL),(7,NULL,'attributes.TPE1',3,NULL,NULL,0,NULL,'should',NULL),(8,NULL,'attributes.TPE1',0,NULL,NULL,0,NULL,'must',NULL),(9,NULL,'attributes.TIT2',5,NULL,NULL,0,NULL,'should',NULL),(10,NULL,'attributes.TALB',0,NULL,NULL,0,NULL,'should',NULL),(11,NULL,'deleted',0,NULL,NULL,0,NULL,'must_not','true'),(12,NULL,'attributes.TRCK',0,NULL,NULL,0,NULL,'should',''),(13,NULL,'attributes.TPE2',0,NULL,NULL,0,NULL,'','should');
 /*!40000 ALTER TABLE `clause` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -201,4 +201,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-21 11:41:33
+-- Dump completed on 2018-04-26 12:17:54

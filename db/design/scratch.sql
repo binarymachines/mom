@@ -79,14 +79,11 @@ DROP TABLE IF EXISTS `fact_value`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `fact_value` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `vector_id` int(11) unsigned NOT NULL,
   `fact_id` int(11) unsigned NOT NULL,
   `parent_id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_fact_value_vector` (`vector_id`),
   KEY `fk_fact_value_fact` (`fact_id`),
-  CONSTRAINT `fk_fact_value_fact` FOREIGN KEY (`fact_id`) REFERENCES `fact` (`id`),
-  CONSTRAINT `fk_fact_value_vector` FOREIGN KEY (`vector_id`) REFERENCES `vector` (`id`)
+  CONSTRAINT `fk_fact_value_fact` FOREIGN KEY (`fact_id`) REFERENCES `fact` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -404,31 +401,6 @@ LOCK TABLES `value_varchar_128` WRITE;
 /*!40000 ALTER TABLE `value_varchar_128` DISABLE KEYS */;
 /*!40000 ALTER TABLE `value_varchar_128` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `vector`
---
-
-DROP TABLE IF EXISTS `vector`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `vector` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pid` int(11) unsigned NOT NULL,
-  `effective_dt` datetime DEFAULT NULL,
-  `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vector`
---
-
-LOCK TABLES `vector` WRITE;
-/*!40000 ALTER TABLE `vector` DISABLE KEYS */;
-/*!40000 ALTER TABLE `vector` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -439,4 +411,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-21 11:41:34
+-- Dump completed on 2018-04-26 12:17:54

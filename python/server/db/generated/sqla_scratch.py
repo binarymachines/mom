@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, text
+from sqlalchemy import Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -30,12 +30,10 @@ class FactValue(Base):
     __tablename__ = 'fact_value'
 
     id = Column(Integer, primary_key=True)
-    vector_id = Column(ForeignKey(u'vector.id'), nullable=False, index=True)
     fact_id = Column(ForeignKey(u'fact.id'), nullable=False, index=True)
     parent_id = Column(Integer)
 
     fact = relationship(u'Fact')
-    vector = relationship(u'Vector')
 
 
 class FactValueBoolean(Base):
@@ -144,12 +142,3 @@ class ValueVarchar128(Base):
 
     id = Column(Integer, primary_key=True)
     value = Column(String(128), nullable=False)
-
-
-class Vector(Base):
-    __tablename__ = 'vector'
-
-    id = Column(Integer, primary_key=True)
-    pid = Column(Integer, nullable=False)
-    effective_dt = Column(DateTime)
-    expiration_dt = Column(DateTime, nullable=False, server_default=text("'9999-12-31 23:59:59'"))

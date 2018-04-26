@@ -188,12 +188,12 @@
                   view="_minimal"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.elastic.Query"
-          extends="_local"
+          extends="_base"
           name="Query-screen-view">
         <property name="queryType"
-                  view="_minimal"/>
+                  view="_local"/>
         <property name="documentType"
-                  view="_minimal"/>
+                  view="_local"/>
         <property name="clause"
                   view="_local"/>
     </view>
