@@ -34,6 +34,7 @@ public class Cause extends BaseIntIdentityIdEntity {
     @JoinColumn(name = "parent_id")
     protected Cause parent;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @Transient
     @MetaProperty(mandatory = true, related = "assetId")
     protected Asset asset;

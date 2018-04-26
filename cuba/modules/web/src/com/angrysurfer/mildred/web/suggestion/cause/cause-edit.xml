@@ -24,12 +24,12 @@
     </dsContext>
     <dialogMode forceDialog="true"
                 height="AUTO"
-                width="600"/>
+                width="800"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="causeDs">
-            <column width="450px">
+            <column width="400px">
                 <field optionsDatasource="parentsDs"
                        property="parent"/>
                 <field property="asset"/>
@@ -67,11 +67,8 @@
                     <action id="remove"/>
                 </actions>
                 <columns>
-                    <column id="asset"/>
                     <column id="assetId"/>
-                    <column id="action"/>
                     <column id="actionId"/>
-                    <column id="status"/>
                     <column id="statusId"/>
                 </columns>
                 <rows datasource="taskDs"/>
@@ -82,6 +79,8 @@
             </table>
         </groupBox>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

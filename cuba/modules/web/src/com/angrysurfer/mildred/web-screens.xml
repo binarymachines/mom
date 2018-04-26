@@ -163,8 +163,6 @@
             template="com/angrysurfer/mildred/web/media/directorypattern/directory-pattern-browse.xml"/>
     <screen id="mildred$FileType.browse"
             template="com/angrysurfer/mildred/web/media/filetype/file-type-browse.xml"/>
-    <screen id="mildred$Cause.browse"
-            template="com/angrysurfer/mildred/web/suggestion/cause/cause-browse.xml"/>
     <screen id="mildred$CauseParam.edit"
             template="com/angrysurfer/mildred/web/suggestion/causeparam/cause-param-edit.xml"/>
     <screen id="mildred$Task.browse"
@@ -185,4 +183,6 @@
             template="com/angrysurfer/mildred/web/service/mode/mode-edit.xml"/>
     <screen id="mildred$Query.edit"
             template="com/angrysurfer/mildred/web/service/query/query-edit.xml"/>
+    <screen id="mildred$Cause.browse"
+            template="com/angrysurfer/mildred/web/suggestion/cause/cause-browse.xml"/>
 </screen-config>

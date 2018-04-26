@@ -48,8 +48,8 @@
             <item screen="mildred$VectorParam.browse"/>
         </menu>
         <menu id="suggestion">
-            <item screen="mildred$Cause.browse"/>
             <item screen="mildred$Task.browse"/>
+            <item screen="mildred$Cause.browse"/>
         </menu>
     </menu>
     <menu id="service">
