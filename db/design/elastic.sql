@@ -128,7 +128,7 @@ CREATE TABLE `query` (
   KEY `fk_query_document_type` (`document_type_id`),
   CONSTRAINT `fk_query_document_type` FOREIGN KEY (`document_type_id`) REFERENCES `document_type` (`id`),
   CONSTRAINT `fk_query_query_type` FOREIGN KEY (`query_type_id`) REFERENCES `query_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,6 +137,7 @@ CREATE TABLE `query` (
 
 LOCK TABLES `query` WRITE;
 /*!40000 ALTER TABLE `query` DISABLE KEYS */;
+INSERT INTO `query` (`id`, `name`, `query_type_id`, `document_type_id`, `max_score_percentage`, `active_flag`) VALUES (1,'artist-title-album',2,2,90,1);
 /*!40000 ALTER TABLE `query` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -163,6 +164,7 @@ CREATE TABLE `query_clause_jn` (
 
 LOCK TABLES `query_clause_jn` WRITE;
 /*!40000 ALTER TABLE `query_clause_jn` DISABLE KEYS */;
+INSERT INTO `query_clause_jn` (`query_id`, `clause_id`) VALUES (1,1),(1,2),(1,3);
 /*!40000 ALTER TABLE `query_clause_jn` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -201,4 +203,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-26 12:17:54
+-- Dump completed on 2018-04-26 12:48:12
