@@ -181,8 +181,8 @@
             template="com/angrysurfer/mildred/web/service/modestatedefault/mode-state-default-edit.xml"/>
     <screen id="mildred$Mode.edit"
             template="com/angrysurfer/mildred/web/service/mode/mode-edit.xml"/>
-    <screen id="mildred$Query.edit"
-            template="com/angrysurfer/mildred/web/service/query/query-edit.xml"/>
     <screen id="mildred$Cause.browse"
             template="com/angrysurfer/mildred/web/suggestion/cause/cause-browse.xml"/>
+    <screen id="mildred$Query.edit"
+            template="com/angrysurfer/mildred/web/elastic/query/query-edit.xml"/>
 </screen-config>

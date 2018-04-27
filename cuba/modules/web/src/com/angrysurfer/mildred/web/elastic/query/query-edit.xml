@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
         caption="msg://editorCaption"
-        class="com.angrysurfer.mildred.web.service.query.QueryEdit"
+        class="com.angrysurfer.mildred.web.elastic.query.QueryEdit"
         datasource="queryDs"
         focusComponent="fieldGroup"
-        messagesPack="com.angrysurfer.mildred.web.service.query">
+        messagesPack="com.angrysurfer.mildred.web.elastic.query">
     <dsContext>
         <datasource id="queryDs"
                     class="com.angrysurfer.mildred.entity.elastic.Query"
