@@ -21,6 +21,7 @@
             <item screen="mildred$FileHandler.browse"/>
             <item screen="mildred$FileHandlerRegistration.browse"/>
             <item screen="mildred$FileType.browse"/>
+            <item screen="mildred$FileEncoding.browse"/>
         </menu>
         <menu id="media-data">
             <item screen="mildred$Asset.browse"/>

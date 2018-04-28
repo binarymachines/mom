@@ -268,4 +268,13 @@
         <property name="matchDoc"
                   view="_local"/>
     </view>
+    <view class="com.angrysurfer.mildred.entity.media.FileEncoding"
+          extends="_local"
+          name="fileEncoding-view"/>
+    <view class="com.angrysurfer.mildred.entity.media.FileAttribute"
+          extends="_local"
+          name="fileAttribute-view">
+        <property name="encoding"
+                  view="_local"/>
+    </view>
 </views>

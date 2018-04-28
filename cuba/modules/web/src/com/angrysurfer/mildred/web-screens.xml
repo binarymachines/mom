@@ -185,4 +185,8 @@
             template="com/angrysurfer/mildred/web/media/matchrecord/match-record-browse.xml"/>
     <screen id="mildred$MatchRecord.edit"
             template="com/angrysurfer/mildred/web/media/matchrecord/match-record-edit.xml"/>
+    <screen id="mildred$FileEncoding.browse"
+            template="com/angrysurfer/mildred/web/media/fileencoding/file-encoding-browse.xml"/>
+    <screen id="mildred$FileEncoding.edit"
+            template="com/angrysurfer/mildred/web/media/fileencoding/file-encoding-edit.xml"/>
 </screen-config>

@@ -131,8 +131,11 @@ class FileAttribute(Base):
     )
 
     id = Column(Integer, primary_key=True)
+    file_encoding_id = Column(ForeignKey(u'file_encoding.id'), index=True)
     file_format = Column(String(32), nullable=False)
     attribute_name = Column(String(128), nullable=False)
+
+    file_encoding = relationship(u'FileEncoding')
 
 
 class FileEncoding(Base):

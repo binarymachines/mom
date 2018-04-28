@@ -8,7 +8,7 @@
     <dsContext>
         <groupDatasource id="fileAttributesDs"
                          class="com.angrysurfer.mildred.entity.media.FileAttribute"
-                         view="_local">
+                         view="fileAttribute-view">
             <query>
                 <![CDATA[select e from mildred$FileAttribute e]]>
             </query>
@@ -20,18 +20,21 @@
             spacing="true">
         <filter id="filter"
                 applyTo="fileAttributesTable"
-                datasource="fileAttributesDs"
-                useMaxResults="false">
+                datasource="fileAttributesDs">
             <properties include=".*"/>
         </filter>
         <groupTable id="fileAttributesTable"
+                    multiselect="true"
                     width="100%">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
                 <action id="remove"/>
             </actions>
             <columns>
+                <column id="encoding"/>
                 <column id="fileFormat"/>
                 <column id="attributeName"/>
             </columns>

@@ -20,5 +20,6 @@
         <class>com.angrysurfer.mildred.entity.media.MatcherField</class>
         <class>com.angrysurfer.mildred.entity.media.DirectoryPattern</class>
         <class>com.angrysurfer.mildred.entity.media.MatchRecord</class>
+        <class>com.angrysurfer.mildred.entity.media.FileEncoding</class>
     </persistence-unit>
 </persistence>
