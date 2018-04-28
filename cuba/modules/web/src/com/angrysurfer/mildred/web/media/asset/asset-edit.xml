@@ -19,9 +19,11 @@
         </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
-                height="AUTO"
+                height="600"
+                resizable="true"
                 width="600"/>
-    <layout spacing="true">
+    <layout expand="assetSourceCodeEditor"
+            spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="assetDs">
             <column width="550px">
@@ -49,8 +51,8 @@
                        visible="false"/>
             </column>
         </fieldGroup>
-        <sourceCodeEditor datasource="assetDs"
-                          height="300px"
+        <sourceCodeEditor id="assetSourceCodeEditor"
+                          datasource="assetDs"
                           mode="JavaScript"
                           property="document"
                           width="100%"/>
