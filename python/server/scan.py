@@ -156,9 +156,9 @@ class Scanner(Walker):
                     # elif data['attributes']['random']:
                     #     LOG.info("adding %s to media paths." % (root))
                     #     shallow.add_directory(root, 'random')
-                    else: 
-                        assets.set_active_directory(root)
-                        shallow.add_directory(root, 'random')
+                    # else: 
+                    #     assets.set_active_directory(root)
+                    #     shallow.add_directory(root, 'random')
 
                 except ElasticDataIntegrityException, err:
                     ERR.warning(': '.join([err.__class__.__name__, err.message]))
