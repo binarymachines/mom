@@ -783,7 +783,7 @@ DROP TABLE IF EXISTS `file_attribute`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `file_attribute` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `file_encoding_id` int(11) unsigned DEFAULT NULL,
+  `file_encoding_id` int(11) unsigned NOT NULL,
 --  `file_format` varchar(32) NULL,
   `attribute_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
