@@ -135,6 +135,13 @@ class FileAttribute(Base):
     attribute_name = Column(String(128), nullable=False)
 
 
+class FileEncoding(Base):
+    __tablename__ = 'file_encoding'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(25), unique=True)
+
+
 class FileHandler(Base):
     __tablename__ = 'file_handler'
 

@@ -363,6 +363,31 @@ INSERT INTO `file_attribute` (`id`, `file_format`, `attribute_name`) VALUES (189
 UNLOCK TABLES;
 
 --
+-- Table structure for table `file_encoding`
+--
+
+DROP TABLE IF EXISTS `file_encoding`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `file_encoding` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(25) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_file_encoding` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `file_encoding`
+--
+
+LOCK TABLES `file_encoding` WRITE;
+/*!40000 ALTER TABLE `file_encoding` DISABLE KEYS */;
+INSERT INTO `file_encoding` (`id`, `name`) VALUES (33,'flac'),(34,'ID3v1.1'),(35,'ID3v2.2.0'),(36,'ID3v2.3.0'),(37,'ID3v2.4.0'),(38,'ogg'),(39,'pdf');
+/*!40000 ALTER TABLE `file_encoding` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `file_handler`
 --
 

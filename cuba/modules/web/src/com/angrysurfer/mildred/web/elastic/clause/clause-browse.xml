@@ -35,15 +35,24 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="fieldName"/>
-                <column id="documentType"/>
-                <column id="boost"/>
-                <column id="bool"/>
-                <column id="operator"/>
-                <column id="minimumShouldMatch"/>
-                <column id="analyzer"/>
-                <column id="querySection"/>
-                <column id="defaultValue"/>
+                <column id="fieldName"
+                        caption="msg://fieldName"/>
+                <column id="documentType"
+                        caption="msg://documentType"/>
+                <column id="boost"
+                        caption="msg://boost"/>
+                <column id="bool"
+                        caption="msg://bool"/>
+                <column id="operator"
+                        caption="msg://operator"/>
+                <column id="minimumShouldMatch"
+                        caption="msg://minimumShouldMatch"/>
+                <column id="analyzer"
+                        caption="msg://analyzer"/>
+                <column id="querySection"
+                        caption="msg://querySection"/>
+                <column id="defaultValue"
+                        caption="msg://defaultValue"/>
             </columns>
             <rows datasource="clausesDs"/>
             <rowsCount/>
