@@ -8,49 +8,98 @@
     <dsContext>
         <datasource id="matchRecordDs"
                     class="com.angrysurfer.mildred.entity.media.MatchRecord"
-                    view="MatchRecord-screen-view"/>
+                    view="MatchRecord-screen-view">
+            <datasource id="docDs"
+                        property="doc"/>
+            <datasource id="matchDocDs"
+                        property="matchDoc"/>
+        </datasource>
         <collectionDatasource id="docsDs"
                               class="com.angrysurfer.mildred.entity.media.Asset"
-                              view="_minimal">
+                              view="_local">
             <query>
                 <![CDATA[select e from mildred$Asset e]]>
             </query>
         </collectionDatasource>
         <collectionDatasource id="matchDocsDs"
                               class="com.angrysurfer.mildred.entity.media.Asset"
-                              view="_minimal">
+                              view="_local">
             <query>
                 <![CDATA[select e from mildred$Asset e]]>
             </query>
         </collectionDatasource>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="AUTO"/>
     <layout expand="scrollBox"
             spacing="true">
         <scrollBox id="scrollBox"
                    spacing="true">
-            <fieldGroup id="fieldGroup"
-                        datasource="matchRecordDs">
-                <column width="250px">
-                    <field optionsDatasource="docsDs"
-                           property="doc"/>
-                    <field optionsDatasource="matchDocsDs"
-                           property="matchDoc"/>
-                    <field property="matcherName"/>
-                    <field property="isExtMatch"/>
-                    <field property="score"/>
-                    <field property="maxScore"/>
-                    <field property="minScore"/>
-                    <field property="comparisonResult"/>
-                    <field property="fileParent"/>
-                    <field property="fileName"/>
-                    <field property="matchParent"/>
-                    <field property="matchFileName"/>
-                </column>
-            </fieldGroup>
+            <grid spacing="true">
+                <columns count="2"/>
+                <rows>
+                    <row>
+                        <fieldGroup id="fieldGroup"
+                                    colspan="2"
+                                    datasource="matchRecordDs">
+                            <column width="250px">
+                                <field optionsDatasource="docsDs"
+                                       property="doc"/>
+                                <field optionsDatasource="matchDocsDs"
+                                       property="matchDoc"/>
+                                <field property="fileName"/>
+                                <field property="fileParent"/>
+                                <field property="matchParent"/>
+                                <field property="matchFileName"/>
+                            </column>
+                            <column>
+                                <field property="matcherName"/>
+                                <field property="isExtMatch"/>
+                                <field property="comparisonResult"/>
+                                <field property="score"/>
+                                <field property="maxScore"/>
+                                <field property="minScore"/>
+                            </column>
+                        </fieldGroup>
+                    </row>
+                    <row>
+                        <label stylename="bold"
+                               value="Original"/>
+                        <label stylename="bold"
+                               value="Match"/>
+                    </row>
+                    <row>
+                        <fieldGroup datasource="docDs"
+                                    fieldCaptionWidth="105">
+                            <column width="250px">
+                                <field caption="msg://id"
+                                       property="id"/>
+                                <field caption="msg://assetType"
+                                       property="assetType"/>
+                                <field caption="msg://absolutePath"
+                                       property="absolutePath"
+                                       rows="4"/>
+                            </column>
+                        </fieldGroup>
+                        <fieldGroup datasource="matchDocDs">
+                            <column width="250px">
+                                <field caption="msg://id"
+                                       property="id"/>
+                                <field caption="msg://assetType"
+                                       property="assetType"/>
+                                <field caption="msg://absolutePath"
+                                       property="absolutePath"
+                                       rows="4"/>
+                            </column>
+                        </fieldGroup>
+                    </row>
+                </rows>
+            </grid>
         </scrollBox>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="BOTTOM_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

@@ -264,8 +264,8 @@
           extends="_local"
           name="MatchRecord-screen-view">
         <property name="doc"
-                  view="_minimal"/>
+                  view="_local"/>
         <property name="matchDoc"
-                  view="_minimal"/>
+                  view="_local"/>
     </view>
 </views>
