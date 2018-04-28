@@ -35,37 +35,51 @@
         <fieldGroup id="fieldGroup"
                     datasource="queryDs">
             <column width="250px">
-                <field property="name"/>
-                <field optionsDatasource="queryTypesDs"
+                <field caption="msg://name"
+                       property="name"/>
+                <field caption="msg://queryType"
+                       optionsDatasource="queryTypesDs"
                        property="queryType"/>
-                <field optionsDatasource="documentTypesDs"
+                <field caption="msg://documentType"
+                       optionsDatasource="documentTypesDs"
                        property="documentType"/>
-                <field property="maxScorePercentage"/>
+                <field caption="msg://maxScorePercentage"
+                       property="maxScorePercentage"/>
             </column>
         </fieldGroup>
         <groupBox id="clauseBox"
                   caption="msg://com.angrysurfer.mildred.entity.elastic/Query.clause">
             <table id="clauseTable"
-                   height="200px"
+                   height="300px"
                    width="100%">
                 <actions>
                     <action id="add"/>
+                    <action id="edit"/>
                     <action id="remove"/>
                 </actions>
                 <columns>
-                    <column id="fieldName"/>
-                    <column id="boost"/>
-                    <column id="bool"/>
-                    <column id="operator"/>
-                    <column id="minimumShouldMatch"/>
-                    <column id="analyzer"/>
-                    <column id="querySection"/>
-                    <column id="defaultValue"/>
+                    <column id="fieldName"
+                            caption="msg://fieldName"/>
+                    <column id="boost"
+                            caption="msg://boost"/>
+                    <column id="bool"
+                            caption="msg://bool"/>
+                    <column id="operator"
+                            caption="msg://operator"/>
+                    <column id="minimumShouldMatch"
+                            caption="msg://minimumShouldMatch"/>
+                    <column id="analyzer"
+                            caption="msg://analyzer"/>
+                    <column id="querySection"
+                            caption="msg://querySection"/>
+                    <column id="defaultValue"
+                            caption="msg://defaultValue"/>
                 </columns>
                 <rows datasource="clauseDs"/>
                 <buttonsPanel>
                     <button action="clauseTable.add"/>
                     <button action="clauseTable.remove"/>
+                    <button action="clauseTable.edit"/>
                 </buttonsPanel>
             </table>
         </groupBox>

@@ -19,7 +19,7 @@
     </dsContext>
     <dialogMode forceDialog="true"
                 height="AUTO"
-                width="600"/>
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
