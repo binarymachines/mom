@@ -12,6 +12,13 @@
             <collectionDatasource id="fieldsDs"
                                   property="fields"/>
         </datasource>
+        <collectionDatasource id="fileTypesDs"
+                              class="com.angrysurfer.mildred.entity.media.FileType"
+                              view="_local">
+            <query>
+                <![CDATA[select e from mildred$FileType e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
                 height="600"
@@ -21,15 +28,19 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="matcherDs">
-            <column width="250px">
+            <column width="350px">
                 <field caption="name"
                        property="name"/>
                 <field caption="query type"
-                       property="queryType"/>
+                       property="queryType"
+                       width="125px"/>
                 <field caption="max score"
-                       property="maxScorePercentage"/>
+                       property="maxScorePercentage"
+                       width="125px"/>
                 <field caption="file type"
-                       property="appliesToFileType"/>
+                       optionsDatasource="fileTypesDs"
+                       property="appliesToFileType"
+                       width="125px"/>
                 <field caption="active"
                        property="activeFlag"/>
             </column>

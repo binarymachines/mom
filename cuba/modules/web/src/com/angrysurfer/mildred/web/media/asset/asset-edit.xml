@@ -19,8 +19,8 @@
         </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
-                height="600"
-                width="AUTO"/>
+                height="AUTO"
+                width="600"/>
     <layout spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="assetDs">
@@ -45,9 +45,15 @@
                        property="expirationDt"
                        width="250px"/>
                 <field property="document"
-                       rows="12"/>
+                       rows="12"
+                       visible="false"/>
             </column>
         </fieldGroup>
+        <sourceCodeEditor datasource="assetDs"
+                          height="300px"
+                          mode="JavaScript"
+                          property="document"
+                          width="100%"/>
         <frame id="windowActions"
                align="BOTTOM_RIGHT"
                screen="editWindowActions"

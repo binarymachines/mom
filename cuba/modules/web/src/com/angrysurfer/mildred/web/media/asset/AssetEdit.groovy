@@ -1,7 +1,9 @@
 package com.angrysurfer.mildred.web.media.asset
 
 
-import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.SourceCodeEditor;
+import com.haulmont.cuba.gui.components.SourceCodeEditor.Mode;
+
 import com.haulmont.cuba.gui.data.DataSupplier;
 import com.haulmont.cuba.gui.data.Datasource;
 
@@ -12,14 +14,14 @@ import javax.inject.Inject;
 
 class AssetEdit extends AbstractEditor<Asset> {
 
-    // @Inject
-    // private SourceCodeEditor sourceCodeEditor;
+    @Inject
+    private SourceCodeEditor codeEditor;
 
     @Override
     protected void postInit() {
         super.postInit();
         if (getItem()) {
-            String doc = "http://localhost:9200/${getItem().assetType}/_search?q=_id:${getItem().id}".toURL().text
+            String doc = "http://localhost:9200/${getItem().assetType}/_search?pretty;q=_id:${getItem().id}".toURL().text
             getItem().setDocument(doc)
         }
     }
