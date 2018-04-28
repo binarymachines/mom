@@ -31,9 +31,6 @@ public class FileAttribute extends BaseIntIdentityIdEntity {
     @JoinColumn(name = "file_encoding_id")
     protected FileEncoding encoding;
 
-    @Column(name = "file_format", nullable = false, length = 32)
-    protected String fileFormat;
-
     @Column(name = "attribute_name", nullable = false, length = 128)
     protected String attributeName;
 
@@ -52,14 +49,6 @@ public class FileAttribute extends BaseIntIdentityIdEntity {
 
     public List<Alias> getAlias() {
         return alias;
-    }
-
-    public void setFileFormat(String fileFormat) {
-        this.fileFormat = fileFormat;
-    }
-
-    public String getFileFormat() {
-        return fileFormat;
     }
 
     public void setAttributeName(String attributeName) {

@@ -127,12 +127,11 @@ class DirectoryType(Base):
 class FileAttribute(Base):
     __tablename__ = 'file_attribute'
     __table_args__ = (
-        Index('uk_file_attribute', 'file_format', 'attribute_name', unique=True),
+        Index('uk_file_attribute', 'file_encoding_id', 'attribute_name', unique=True),
     )
 
     id = Column(Integer, primary_key=True)
     file_encoding_id = Column(ForeignKey(u'file_encoding.id'), index=True)
-    file_format = Column(String(32))
     attribute_name = Column(String(128), nullable=False)
 
     file_encoding = relationship(u'FileEncoding')
@@ -223,14 +222,6 @@ class MatcherField(Base):
     default_value = Column(String(128))
 
     matcher = relationship(u'Matcher')
-
-
-t_v_alias = Table(
-    'v_alias', metadata,
-    Column('file_format', String(32)),
-    Column('name', String(25)),
-    Column('attribute_name', String(128))
-)
 
 
 t_v_match_record = Table(

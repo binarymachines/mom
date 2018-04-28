@@ -35,7 +35,6 @@
             </actions>
             <columns>
                 <column id="encoding"/>
-                <column id="fileFormat"/>
                 <column id="attributeName"/>
             </columns>
             <rows datasource="fileAttributesDs"/>

@@ -463,7 +463,7 @@ class SQLFileAttribute(FileAttribute):
         if file_encoding == None:
             file_encoding = SQLFileEncoding.insert(file_format)
 
-        attribute = SQLFileAttribute(file_format=file_format, attribute_name=attribute_name, file_encoding=file_encoding) 
+        attribute = SQLFileAttribute(attribute_name=attribute_name, file_encoding=file_encoding) 
         try:
             sessions[MEDIA].add(attribute)
             sessions[MEDIA].commit()
