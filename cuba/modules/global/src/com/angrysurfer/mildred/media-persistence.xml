@@ -3,7 +3,6 @@
              version="2.0">
     <persistence-unit name="media"
                       transaction-type="RESOURCE_LOCAL">
-        <class>com.angrysurfer.mildred.entity.media.key.MatchRecordCompKey</class>
         <class>com.angrysurfer.mildred.entity.media.Alias</class>
         <class>com.angrysurfer.mildred.entity.media.DelimitedFileData</class>
         <class>com.angrysurfer.mildred.entity.media.DelimitedFileInfo</class>
@@ -17,9 +16,9 @@
         <class>com.angrysurfer.mildred.entity.media.FileHandler</class>
         <class>com.angrysurfer.mildred.entity.media.FileHandlerRegistration</class>
         <class>com.angrysurfer.mildred.entity.media.FileType</class>
-        <class>com.angrysurfer.mildred.entity.media.MatchRecord</class>
         <class>com.angrysurfer.mildred.entity.media.Matcher</class>
         <class>com.angrysurfer.mildred.entity.media.MatcherField</class>
         <class>com.angrysurfer.mildred.entity.media.DirectoryPattern</class>
+        <class>com.angrysurfer.mildred.entity.media.MatchRecord</class>
     </persistence-unit>
 </persistence>

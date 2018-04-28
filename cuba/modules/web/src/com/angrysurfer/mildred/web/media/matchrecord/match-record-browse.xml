@@ -8,7 +8,7 @@
     <dsContext>
         <groupDatasource id="matchRecordsDs"
                          class="com.angrysurfer.mildred.entity.media.MatchRecord"
-                         view="_local">
+                         view="MatchRecord-screen-view">
             <query>
                 <![CDATA[select e from mildred$MatchRecord e]]>
             </query>
@@ -24,13 +24,18 @@
             <properties include=".*"/>
         </filter>
         <groupTable id="matchRecordsTable"
+                    multiselect="true"
                     width="100%">
             <actions>
-                <action id="create"/>
-                <action id="edit"/>
+                <action id="create"
+                        openType="DIALOG"/>
+                <action id="edit"
+                        openType="DIALOG"/>
                 <action id="remove"/>
             </actions>
             <columns>
+                <column id="doc"/>
+                <column id="matchDoc"/>
                 <column id="matcherName"/>
                 <column id="isExtMatch"/>
                 <column id="score"/>
@@ -41,8 +46,6 @@
                 <column id="fileName"/>
                 <column id="matchParent"/>
                 <column id="matchFileName"/>
-                <column id="id.doc"/>
-                <column id="id.matchDoc"/>
             </columns>
             <rows datasource="matchRecordsDs"/>
             <rowsCount/>

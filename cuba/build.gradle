@@ -3,6 +3,7 @@ buildscript {
     ext.cubaVersion = '6.7-SNAPSHOT'
     repositories {
         
+        mavenLocal()
         maven {
             url 'https://repo.cuba-platform.com/content/groups/work'
             credentials {

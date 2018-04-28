@@ -453,6 +453,7 @@ DROP TABLE IF EXISTS `match_record`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `match_record` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `doc_id` varchar(128) NOT NULL,
   `match_doc_id` varchar(128) NOT NULL,
   `matcher_name` varchar(128) NOT NULL,
@@ -465,7 +466,7 @@ CREATE TABLE `match_record` (
   `file_name` varchar(256) DEFAULT NULL,
   `match_parent` varchar(256) DEFAULT NULL,
   `match_file_name` varchar(256) DEFAULT NULL,
-  PRIMARY KEY (`doc_id`,`match_doc_id`),
+  PRIMARY KEY (`id`),
   KEY `fk_match_doc_asset` (`match_doc_id`),
   CONSTRAINT `fk_doc_asset` FOREIGN KEY (`doc_id`) REFERENCES `asset` (`id`),
   CONSTRAINT `fk_match_doc_asset` FOREIGN KEY (`match_doc_id`) REFERENCES `asset` (`id`)

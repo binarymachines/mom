@@ -260,4 +260,12 @@
         <property name="documentType"
                   view="_local"/>
     </view>
+    <view class="com.angrysurfer.mildred.entity.media.MatchRecord"
+          extends="_local"
+          name="MatchRecord-screen-view">
+        <property name="doc"
+                  view="_minimal"/>
+        <property name="matchDoc"
+                  view="_minimal"/>
+    </view>
 </views>

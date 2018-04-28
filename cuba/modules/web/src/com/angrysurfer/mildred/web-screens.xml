@@ -39,10 +39,6 @@
             template="com/angrysurfer/mildred/web/media/filehandlerregistration/file-handler-registration-browse.xml"/>
     <screen id="mildred$FileType.edit"
             template="com/angrysurfer/mildred/web/media/filetype/file-type-edit.xml"/>
-    <screen id="mildred$MatchRecord.edit"
-            template="com/angrysurfer/mildred/web/media/matchrecord/match-record-edit.xml"/>
-    <screen id="mildred$MatchRecord.browse"
-            template="com/angrysurfer/mildred/web/media/matchrecord/match-record-browse.xml"/>
     <screen id="mildred$Matcher.browse"
             template="com/angrysurfer/mildred/web/media/matcher/matcher-browse.xml"/>
     <screen id="mildred$MatcherField.browse"
@@ -185,4 +181,8 @@
             template="com/angrysurfer/mildred/web/media/filehandlerregistration/file-handler-registration-edit.xml"/>
     <screen id="mildred$SwitchRule.edit"
             template="com/angrysurfer/mildred/web/service/switchrule/switch-rule-edit.xml"/>
+    <screen id="mildred$MatchRecord.browse"
+            template="com/angrysurfer/mildred/web/media/matchrecord/match-record-browse.xml"/>
+    <screen id="mildred$MatchRecord.edit"
+            template="com/angrysurfer/mildred/web/media/matchrecord/match-record-edit.xml"/>
 </screen-config>

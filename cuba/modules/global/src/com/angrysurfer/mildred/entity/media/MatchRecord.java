@@ -3,16 +3,29 @@ package com.angrysurfer.mildred.entity.media;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import com.haulmont.cuba.core.global.DesignSupport;
-import com.angrysurfer.mildred.entity.media.key.MatchRecordCompKey;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import com.haulmont.cuba.core.entity.BaseGenericIdEntity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "match_record")
 @Entity(name = "mildred$MatchRecord")
-public class MatchRecord extends BaseGenericIdEntity<MatchRecordCompKey> {
-    private static final long serialVersionUID = 6482369696115717356L;
+public class MatchRecord extends BaseIntIdentityIdEntity {
+    private static final long serialVersionUID = -8997408960268275356L;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "doc_id")
+    protected Asset doc;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "match_doc_id")
+    protected Asset matchDoc;
 
     @Column(name = "matcher_name", nullable = false, length = 128)
     protected String matcherName;
@@ -44,8 +57,21 @@ public class MatchRecord extends BaseGenericIdEntity<MatchRecordCompKey> {
     @Column(name = "match_file_name", length = 256)
     protected String matchFileName;
 
-    @EmbeddedId
-    protected MatchRecordCompKey id;
+    public void setDoc(Asset doc) {
+        this.doc = doc;
+    }
+
+    public Asset getDoc() {
+        return doc;
+    }
+
+    public void setMatchDoc(Asset matchDoc) {
+        this.matchDoc = matchDoc;
+    }
+
+    public Asset getMatchDoc() {
+        return matchDoc;
+    }
 
     public void setMatcherName(String matcherName) {
         this.matcherName = matcherName;
@@ -125,16 +151,6 @@ public class MatchRecord extends BaseGenericIdEntity<MatchRecordCompKey> {
 
     public String getMatchFileName() {
         return matchFileName;
-    }
-
-    @Override
-    public MatchRecordCompKey getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(MatchRecordCompKey id) {
-        this.id = id;
     }
 
 

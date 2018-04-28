@@ -169,8 +169,9 @@ class FileType(Base):
 class MatchRecord(Base):
     __tablename__ = 'match_record'
 
-    doc_id = Column(ForeignKey(u'asset.id'), primary_key=True, nullable=False)
-    match_doc_id = Column(ForeignKey(u'asset.id'), primary_key=True, nullable=False, index=True)
+    id = Column(Integer, primary_key=True)
+    doc_id = Column(ForeignKey(u'asset.id'), nullable=False, index=True)
+    match_doc_id = Column(ForeignKey(u'asset.id'), nullable=False, index=True)
     matcher_name = Column(String(128), nullable=False)
     is_ext_match = Column(Integer, nullable=False, server_default=text("'0'"))
     score = Column(Float)
