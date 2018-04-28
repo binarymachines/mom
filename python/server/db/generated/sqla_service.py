@@ -194,8 +194,8 @@ class SwitchRule(Base):
     name = Column(String(128), nullable=False, unique=True)
     begin_mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     end_mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
-    before_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), nullable=False, index=True)
-    after_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), nullable=False, index=True)
+    before_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), index=True)
+    after_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), index=True)
     condition_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), index=True)
 
     after_dispatch = relationship(u'ServiceDispatch', primaryjoin='SwitchRule.after_dispatch_id == ServiceDispatch.id')

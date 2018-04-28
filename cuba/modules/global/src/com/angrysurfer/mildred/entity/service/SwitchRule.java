@@ -42,12 +42,12 @@ public class SwitchRule extends BaseIntIdentityIdEntity {
     protected Mode endMode;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "before_dispatch_id")
     protected ServiceDispatch beforeDispatch;
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "after_dispatch_id")
     protected ServiceDispatch afterDispatch;
 
