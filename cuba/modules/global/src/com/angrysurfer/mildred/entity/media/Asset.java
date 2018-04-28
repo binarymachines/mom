@@ -15,6 +15,8 @@ import com.haulmont.cuba.core.entity.BaseStringIdEntity;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
 import com.haulmont.chile.core.annotations.NamePattern;
+import com.haulmont.chile.core.annotations.MetaProperty;
+import javax.persistence.Transient;
 
 @NamePattern("%s|id")
 @DesignSupport("{'imported':true}")
@@ -27,6 +29,10 @@ public class Asset extends BaseStringIdEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_type_id")
     protected FileType fileType;
+
+    @Transient
+    @MetaProperty
+    protected String document;
 
     @Column(name = "asset_type", nullable = false)
     protected String assetType;
@@ -45,6 +51,15 @@ public class Asset extends BaseStringIdEntity {
     @Id
     @Column(name = "id", nullable = false, length = 128)
     protected String id;
+
+    public void setDocument(String document) {
+        this.document = document;
+    }
+
+    public String getDocument() {
+        return document;
+    }
+
 
     public AssetType getAssetType() {
         return assetType == null ? null : AssetType.fromId(assetType);

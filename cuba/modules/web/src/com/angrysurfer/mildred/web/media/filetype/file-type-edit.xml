@@ -17,7 +17,6 @@
         <fieldGroup id="fieldGroup"
                     datasource="fileTypeDs">
             <column width="250px">
-                <field property="desc"/>
                 <field property="ext"/>
                 <field property="name"/>
             </column>

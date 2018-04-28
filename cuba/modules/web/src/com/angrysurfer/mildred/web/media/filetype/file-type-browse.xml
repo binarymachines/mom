@@ -60,7 +60,6 @@
                         <action id="remove"/>
                     </actions>
                     <columns>
-                        <column id="desc"/>
                         <column id="ext"/>
                         <column id="name"/>
                     </columns>
@@ -86,7 +85,6 @@
                     <fieldGroup id="fieldGroup"
                                 datasource="fileTypeDs">
                         <column width="250px">
-                            <field property="desc"/>
                             <field property="ext"/>
                             <field property="name"/>
                         </column>

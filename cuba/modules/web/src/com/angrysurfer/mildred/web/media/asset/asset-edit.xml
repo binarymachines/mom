@@ -18,7 +18,7 @@
         </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
-                height="AUTO"
+                height="600"
                 width="AUTO"/>
     <layout spacing="true">
         <fieldGroup id="fieldGroup"
@@ -43,6 +43,8 @@
                 <field caption="until"
                        property="expirationDt"
                        width="250px"/>
+                <field property="document"
+                       rows="12"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

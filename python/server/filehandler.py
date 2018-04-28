@@ -15,7 +15,7 @@ LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
 
 def add_attribute(file_format, attribute):
-    """add an attribute to file_attribute for the specified file_type"""
+    """add an attribute to file_attribute for the specified file_format"""
     try: 
         SQLFileAttribute.insert(file_format, attribute)
     except Exception, err:
@@ -23,7 +23,7 @@ def add_attribute(file_format, attribute):
 
 
 def get_attributes(file_format, refresh=False):
-    """retrieve all attributes, including unused ones, from file_attribute for the specified file_type"""
+    """retrieve all attributes, including unused ones, from file_attribute for the specified file_format"""
 
     items = cache2.get_items(KNOWN, file_format)
     if len(items) == 0 or refresh:
