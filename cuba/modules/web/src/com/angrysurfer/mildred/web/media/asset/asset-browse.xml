@@ -20,7 +20,8 @@
             spacing="true">
         <filter id="filter"
                 applyTo="documentsTable"
-                datasource="documentsDs">
+                datasource="documentsDs"
+                useMaxResults="false">
             <properties include=".*"/>
         </filter>
         <groupTable id="documentsTable"

@@ -35,8 +35,6 @@
             template="com/angrysurfer/mildred/web/media/filehandler/file-handler-edit.xml"/>
     <screen id="mildred$FileHandler.browse"
             template="com/angrysurfer/mildred/web/media/filehandler/file-handler-browse.xml"/>
-    <screen id="mildred$FileHandlerRegistration.edit"
-            template="com/angrysurfer/mildred/web/media/filehandlerregistration/file-handler-registration-edit.xml"/>
     <screen id="mildred$FileHandlerRegistration.browse"
             template="com/angrysurfer/mildred/web/media/filehandlerregistration/file-handler-registration-browse.xml"/>
     <screen id="mildred$FileType.edit"
@@ -121,8 +119,6 @@
             template="com/angrysurfer/mildred/web/screens/ext-mainwindow.xml"/>
     <screen id="mildred$Mode.browse"
             template="com/angrysurfer/mildred/web/service/mode/mode-browse.xml"/>
-    <screen id="mildred$SwitchRule.edit"
-            template="com/angrysurfer/mildred/web/service/switchrule/switch-rule-edit.xml"/>
     <screen id="mildred$Category.browse"
             template="com/angrysurfer/mildred/web/media/category/category-browse.xml"/>
     <screen id="mildred$FileAttribute.browse"
@@ -185,4 +181,8 @@
             template="com/angrysurfer/mildred/web/suggestion/cause/cause-browse.xml"/>
     <screen id="mildred$Query.edit"
             template="com/angrysurfer/mildred/web/elastic/query/query-edit.xml"/>
+    <screen id="mildred$FileHandlerRegistration.edit"
+            template="com/angrysurfer/mildred/web/media/filehandlerregistration/file-handler-registration-edit.xml"/>
+    <screen id="mildred$SwitchRule.edit"
+            template="com/angrysurfer/mildred/web/service/switchrule/switch-rule-edit.xml"/>
 </screen-config>

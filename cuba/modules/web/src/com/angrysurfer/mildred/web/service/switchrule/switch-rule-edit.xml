@@ -46,38 +46,37 @@
         </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
-                height="300"
+                height="AUTO"
                 width="AUTO"/>
-    <layout expand="fieldGroup"
+    <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="switchRuleDs"
-                    height="300px">
-            <column width="450px">
-                <field caption="name"
+                    datasource="switchRuleDs">
+            <column width="500px">
+                <field caption="msg://name"
                        property="name"
                        width="250px"/>
-                <field caption="begin"
+                <field caption="msg://beginMode"
                        optionsDatasource="beginModesDs"
                        property="beginMode"
                        width="250px"/>
-                <field caption="end"
+                <field caption="msg://endMode"
                        optionsDatasource="endModesDs"
                        property="endMode"
                        width="250px"/>
-                <field caption="before"
+                <field caption="msg://beforeDispatch"
                        optionsDatasource="beforeDispatchesDs"
                        property="beforeDispatch"/>
-                <field caption="after"
+                <field caption="msg://afterDispatch"
                        optionsDatasource="afterDispatchesDs"
                        property="afterDispatch"/>
-                <field caption="condition"
+                <field caption="msg://conditionDispatch"
                        optionsDatasource="conditionDispatchesDs"
                        property="conditionDispatch"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               align="MIDDLE_RIGHT"
+               align="BOTTOM_RIGHT"
                screen="editWindowActions"
                width="AUTO"/>
     </layout>

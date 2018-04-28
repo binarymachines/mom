@@ -193,6 +193,10 @@ LOCK TABLES `query_type` WRITE;
 INSERT INTO `query_type` (`id`, `desc`, `name`) VALUES (1,NULL,'TERM'),(2,NULL,'MATCH');
 /*!40000 ALTER TABLE `query_type` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'elastic'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -203,4 +207,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-26 21:22:10
+-- Dump completed

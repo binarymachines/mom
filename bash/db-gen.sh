@@ -13,7 +13,7 @@ function generate {
   echo "use $1;" >> $MILDRED_HOME/db/design/$1.sql
   echo >> $MILDRED_HOME/db/design/$1.sql
 
-  mysqldump $1 >> $MILDRED_HOME/db/design/$1.sql --add-drop-table --complete-insert
+  mysqldump $1 >> $MILDRED_HOME/db/design/$1.sql --add-drop-table --complete-insert --skip-dump-date --routines
   [[ -e $MILDRED_HOME/db/design/$1.sql ]] && echo "created '$MILDRED_HOME/db/design/$1.sql'"
 }
 
@@ -26,3 +26,4 @@ generate service
 generate scratch
 generate suggestion
 
+mysqldump --routines --databases admin analysis elastic media service suggestion scratch --add-drop-table --complete-insert > $MILDRED_HOME/db/design/all-databases.sql

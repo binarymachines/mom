@@ -96,6 +96,11 @@ class StartupHandler(DefaultModeHandler):
     def __init__(self, owner, name, selector, vector):
         super(StartupHandler, self).__init__(owner, vector)
 
+    def no_op(self):
+        pass
+        # if self.owner:
+        #     LOG.debug("%s process has started" % self.owner.name)
+
     def started(self):
         if self.owner:
             LOG.debug("%s process has started" % self.owner.name)

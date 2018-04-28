@@ -493,20 +493,20 @@ def path_in_db(path, asset_type):
     return len(rows) > 0
 
     
-def get_attribute_values(asset, file_format_attribute, *items):
+def get_attribute_values(asset, file_encoding, *items):
     result = {}
     doc = search.get_doc(asset.asset_type, asset.esid)
     data = doc['_source']
     attributes = {}
     if 'attributes' in data:
-        for attribute_group in data['attributes']:
-            for attribute in attribute_group:
+        for attribute_key in data['attributes']:
+            for attribute in attribute_key:
                 if attribute in attributes:
                     continue  
-                attributes[attribute] = attribute_group[attribute]
+                attributes[attribute] = attribute_key[attribute]
               
     for item in items:
-        aliases = get_aliases(attributes[file_format_attribute], item)
+        aliases = get_aliases(attributes[file_encoding], item)
         for alias in aliases:
             if alias.attribute_name in attributes:
                 result[item] = attributes[alias.attribute_name]

@@ -33,9 +33,13 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="name"/>
-                <column id="fileHandler"/>
-                <column id="fileType"/>
+                <column id="name"
+                        caption="msg://name"
+                        description="msg://nameDesc"/>
+                <column id="fileHandler"
+                        caption="msg://fileHandler"/>
+                <column id="fileType"
+                        caption="msg://fileType"/>
             </columns>
             <rows datasource="fileHandlerRegistrationsDs"/>
             <rowsCount/>

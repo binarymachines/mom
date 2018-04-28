@@ -20,7 +20,8 @@
             spacing="true">
         <filter id="filter"
                 applyTo="directoriesTable"
-                datasource="directoriesDs">
+                datasource="directoriesDs"
+                useMaxResults="false">
             <properties include=".*"/>
         </filter>
         <groupTable id="directoriesTable"

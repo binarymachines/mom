@@ -1,45 +1,54 @@
+function create_schema {
+
+  usage="create_schema [database]..."
+
+  [ -z "$1" ] && echo $usage && return
+
+    echo 'creating $1 db...'
+    mysql -u root < $MILDRED_HOME/db/design/$1.sql
+}
+
+function regenerate_alchemy_classes {
+
+  usage="regenerate_alchemy_classes [database]..."
+
+  [ -z "$1" ] && echo $usage && return
+    # echo 'creating $1 db...'
+    sqlacodegen mysql://root:arecibo@localhost/$1 > $MILDRED_HOME/python/server/db/generated/sqla_$1.py
+}
+
 clear
 
 cd $MILDRED_HOME/bash
 
-echo 'creating cuba db...'
-mysql -u root  < $MILDRED_HOME/db/design/cuba.sql
+echo 'dropping schemas...'
+mysql -u root < $MILDRED_HOME/db/design/drop-all.sql
 
-echo 'creating admin db...'
-mysql -u root < $MILDRED_HOME/db/design/admin.sql
+echo 'creating schemas...'
 
-echo 'creating elastic db...'
-mysql -u root < $MILDRED_HOME/db/design/elastic.sql
+# create_schema admin
+# create_schema elastic
+# create_schema analysis
+# create_schema media
+# create_schema service
+# create_schema suggestion
+# create_schema mildred
+# create_schema scratch
 
-echo 'creating analysis db...'
-mysql -u root < $MILDRED_HOME/db/design/analysis.sql
+mysql -u root < $MILDRED_HOME/db/design/all-databases.sql
 
-echo 'creating media db...'
-mysql -u root  < $MILDRED_HOME/db/design/media.sql
-
-echo 'creating service db...'
-mysql -u root < $MILDRED_HOME/db/design/service.sql
-
-echo 'creating suggestion db...'
-mysql -u root < $MILDRED_HOME/db/design/suggestion.sql
-
-echo 'creating mildred db...'
-mysql -u root < $MILDRED_HOME/db/design/mildred.sql
-
-echo 'creating scratch db...'
-mysql -u root < $MILDRED_HOME/db/design/scratch.sql
 
 echo 'updating SQLAlchemy classes...'
 [[ -f $MILDRED_HOME/python/server/db/generated/*.p* ]] && rm $MILDRED_HOME/python/server/db/generated/*.p*
 touch $MILDRED_HOME/python/server/db/__init__.py
 touch $MILDRED_HOME/python/server/db/generated/__init__.py
 
-sqlacodegen mysql://root:arecibo@localhost/admin > $MILDRED_HOME/python/server/db/generated/sqla_admin.py
-sqlacodegen mysql://root:arecibo@localhost/analysis > $MILDRED_HOME/python/server/db/generated/sqla_analysis.py
-sqlacodegen mysql://root:arecibo@localhost/scratch > $MILDRED_HOME/python/server/db/generated/sqla_scratch.py
-sqlacodegen mysql://root:arecibo@localhost/elastic > $MILDRED_HOME/python/server/db/generated/sqla_elastic.py
-sqlacodegen mysql://root:arecibo@localhost/media > $MILDRED_HOME/python/server/db/generated/sqla_media.py
-sqlacodegen mysql://root:arecibo@localhost/service > $MILDRED_HOME/python/server/db/generated/sqla_service.py
-sqlacodegen mysql://root:arecibo@localhost/suggestion > $MILDRED_HOME/python/server/db/generated/sqla_suggestion.py
+regenerate_alchemy_classes admin
+regenerate_alchemy_classes analysis
+regenerate_alchemy_classes elastic
+regenerate_alchemy_classes media
+regenerate_alchemy_classes service
+regenerate_alchemy_classes suggestion
+regenerate_alchemy_classes scratch
 
 # cat $MILDRED_HOME/python/server/db/generated/*.py

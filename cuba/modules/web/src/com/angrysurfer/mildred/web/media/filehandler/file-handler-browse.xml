@@ -31,10 +31,16 @@
                 <action id="remove"/>
             </actions>
             <columns>
-                <column id="packageName"/>
-                <column id="moduleName"/>
-                <column id="className"/>
-                <column id="activeFlag"/>
+                <column id="packageName"
+                        caption="msg://packageName"/>
+                <column id="moduleName"
+                        caption="msg://moduleName"/>
+                <column id="className"
+                        caption="msg://className"/>
+                <column id="activeFlag"
+                        caption="msg://activeFlag"
+                        maxTextLength="50"
+                        width="50"/>
             </columns>
             <rows datasource="fileHandlersDs"/>
             <rowsCount/>

@@ -20,7 +20,8 @@
             spacing="true">
         <filter id="filter"
                 applyTo="fileAttributesTable"
-                datasource="fileAttributesDs">
+                datasource="fileAttributesDs"
+                useMaxResults="false">
             <properties include=".*"/>
         </filter>
         <groupTable id="fileAttributesTable"

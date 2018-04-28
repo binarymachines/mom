@@ -24,12 +24,13 @@ public class FileHandlerRegistration extends BaseIntIdentityIdEntity {
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "file_handler_id")
-    protected FileHandler fileHandler;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "file_type_id")
     protected FileType fileType;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "file_handler_id")
+    protected FileHandler fileHandler;
 
     public void setName(String name) {
         this.name = name;

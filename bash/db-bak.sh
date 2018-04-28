@@ -17,7 +17,7 @@ mysqldump suggestion > $MILDRED_HOME/db/design/suggestion.sql --add-drop-table -
 mysqldump scratch > $MILDRED_HOME/db/design/scratch.sql --add-drop-table --complete-insert --skip-dump-date
 
 # mysqldump --routines --all-databases --add-drop-table --complete-insert > $MILDRED_HOME/db/design/all.sql
-mysqldump --routines --databases admin analysis elastic media service suggestion scratch --add-drop-table --complete-insert > $MILDRED_HOME/db/design/all.sql
+mysqldump --routines --databases admin analysis elastic media service suggestion scratch --add-drop-table --complete-insert > $MILDRED_HOME/db/design/all-databases.sql
 
 
 echo '----------------------------'
