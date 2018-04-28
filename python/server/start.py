@@ -68,6 +68,8 @@ def execute(args):
         try:
             if 'reset' in options:
                 reset(args)
+                if len(options) == 1:
+                    sys.exit(0)
             
             if 'clearmem' in options:
                 LOG.debug('clearing data from prior execution...')
@@ -111,6 +113,7 @@ def load_user_info():
 def make_options(args):
     options = []
     
+    if '--map-paths' in args and args['--map-paths']: options.append('map-paths')
     if '--clearmem' in args and args['--clearmem']: options.append('clearmem')
     if '--noflush' in args and args['--noflush']: options.append('noflush')
     if '--scan' in args and args['--scan']: options.append('scan')
@@ -131,8 +134,7 @@ def make_options(args):
 def reset(args):
     print(" ********************** RESETTING DATA **********************")
 
-    cache2.keystore.flushall()
-    cache2.datastore.flushall()
+    cache2.flush_all()
 
     try:
         search.clear_index(config.es_dir_index)
@@ -142,7 +144,7 @@ def reset(args):
     except Exception, err:
         ERR.WARNING(err.message)
 
-    for table in ['directory', 'match_record', 'asset']:
+    for table in ['match_record', 'asset', 'directory']:
         query = 'delete from %s' % (table)
         sql.execute_query(query, schema=config.db_media)
 
@@ -158,7 +160,7 @@ def reset(args):
     #     query = 'delete from %s' % (table)
     #     sql.execute_query(query)
 
-    for table in ['service_exec', 'op_record', 'mode_state']:
+    for table in ['op_record', 'mode_state', 'service_exec']:
         query = 'delete from %s' % (table)
         sql.execute_query(query, schema=config.db_service)
 

@@ -633,7 +633,7 @@ CREATE TABLE `directory` (
   UNIQUE KEY `uk_directory_name` (`name`),
   KEY `fk_directory_directory_type` (`directory_type_id`),
   CONSTRAINT `fk_directory_directory_type` FOREIGN KEY (`directory_type_id`) REFERENCES `directory_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=792 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1577 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -787,7 +787,7 @@ CREATE TABLE `file_attribute` (
   `attribute_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_attribute` (`file_format`,`attribute_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=187 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=369 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -796,6 +796,7 @@ CREATE TABLE `file_attribute` (
 
 LOCK TABLES `file_attribute` WRITE;
 /*!40000 ALTER TABLE `file_attribute` DISABLE KEYS */;
+INSERT INTO `file_attribute` (`id`, `file_format`, `attribute_name`) VALUES (189,'flac','album'),(197,'flac','album artist'),(188,'flac','artist'),(221,'flac','bpm'),(191,'flac','comment'),(193,'flac','composer'),(220,'flac','copyright'),(196,'flac','date'),(226,'flac','discnumber'),(227,'flac','disctotal'),(224,'flac','encoder'),(225,'flac','encoding'),(194,'flac','ensemble'),(190,'flac','genre'),(192,'flac','organization'),(222,'flac','original year'),(234,'flac','publisher'),(233,'flac','replaygain_album_gain'),(232,'flac','replaygain_track_gain'),(231,'flac','replaygain_track_peak'),(187,'flac','title'),(195,'flac','tracknumber'),(223,'flac','tracktotal'),(275,'ID3v1.1','comm'),(276,'ID3v1.1','talb'),(279,'ID3v1.1','tcon'),(277,'ID3v1.1','tit2'),(278,'ID3v1.1','tpe1'),(353,'ID3v1.1','trck'),(341,'ID3v2.2.0','apic'),(281,'ID3v2.2.0','comm'),(285,'ID3v2.2.0','talb'),(342,'ID3v2.2.0','tcom'),(343,'ID3v2.2.0','tcon'),(344,'ID3v2.2.0','tdrc'),(282,'ID3v2.2.0','tenc'),(345,'ID3v2.2.0','tit1'),(283,'ID3v2.2.0','tit2'),(286,'ID3v2.2.0','tpe1'),(346,'ID3v2.2.0','tpe2'),(284,'ID3v2.2.0','trck'),(202,'ID3v2.3.0','apic'),(198,'ID3v2.3.0','comm'),(260,'ID3v2.3.0','geob'),(347,'ID3v2.3.0','link'),(280,'ID3v2.3.0','mcdi'),(363,'ID3v2.3.0','pcnt'),(228,'ID3v2.3.0','popm'),(199,'ID3v2.3.0','priv'),(293,'ID3v2.3.0','rva2'),(203,'ID3v2.3.0','talb'),(212,'ID3v2.3.0','tbpm'),(215,'ID3v2.3.0','tcmp'),(211,'ID3v2.3.0','tcom'),(200,'ID3v2.3.0','tcon'),(214,'ID3v2.3.0','tcop'),(364,'ID3v2.3.0','tden'),(267,'ID3v2.3.0','tdor'),(204,'ID3v2.3.0','tdrc'),(291,'ID3v2.3.0','tdrl'),(205,'ID3v2.3.0','tenc'),(292,'ID3v2.3.0','text'),(294,'ID3v2.3.0','tflt'),(216,'ID3v2.3.0','tit1'),(206,'ID3v2.3.0','tit2'),(296,'ID3v2.3.0','tit3'),(272,'ID3v2.3.0','tkey'),(235,'ID3v2.3.0','tlan'),(229,'ID3v2.3.0','tlen'),(269,'ID3v2.3.0','tmed'),(368,'ID3v2.3.0','tmoo'),(304,'ID3v2.3.0','toal'),(337,'ID3v2.3.0','tofn'),(305,'ID3v2.3.0','toly'),(219,'ID3v2.3.0','tope'),(297,'ID3v2.3.0','town'),(207,'ID3v2.3.0','tpe1'),(208,'ID3v2.3.0','tpe2'),(298,'ID3v2.3.0','tpe3'),(209,'ID3v2.3.0','tpos'),(299,'ID3v2.3.0','tpro'),(213,'ID3v2.3.0','tpub'),(210,'ID3v2.3.0','trck'),(270,'ID3v2.3.0','tso2'),(350,'ID3v2.3.0','tsoa'),(287,'ID3v2.3.0','tsoc'),(230,'ID3v2.3.0','tsop'),(288,'ID3v2.3.0','tsot'),(289,'ID3v2.3.0','tsrc'),(271,'ID3v2.3.0','tsse'),(201,'ID3v2.3.0','txxx'),(244,'ID3v2.3.0','tyer'),(268,'ID3v2.3.0','ufid'),(295,'ID3v2.3.0','user'),(217,'ID3v2.3.0','uslt'),(302,'ID3v2.3.0','wcom'),(338,'ID3v2.3.0','wcop'),(300,'ID3v2.3.0','woaf'),(290,'ID3v2.3.0','woar'),(303,'ID3v2.3.0','woas'),(339,'ID3v2.3.0','wors'),(340,'ID3v2.3.0','wpay'),(301,'ID3v2.3.0','wpub'),(218,'ID3v2.3.0','wxxx'),(348,'ID3v2.4.0','apic'),(253,'ID3v2.4.0','comm'),(309,'ID3v2.4.0','geob'),(311,'ID3v2.4.0','mcdi'),(258,'ID3v2.4.0','popm'),(254,'ID3v2.4.0','priv'),(335,'ID3v2.4.0','rva2'),(245,'ID3v2.4.0','talb'),(255,'ID3v2.4.0','tbpm'),(246,'ID3v2.4.0','tcmp'),(349,'ID3v2.4.0','tcom'),(256,'ID3v2.4.0','tcon'),(312,'ID3v2.4.0','tcop'),(317,'ID3v2.4.0','tden'),(319,'ID3v2.4.0','tdor'),(247,'ID3v2.4.0','tdrc'),(320,'ID3v2.4.0','tdrl'),(318,'ID3v2.4.0','tdtg'),(248,'ID3v2.4.0','tenc'),(327,'ID3v2.4.0','text'),(321,'ID3v2.4.0','tflt'),(328,'ID3v2.4.0','tipl'),(307,'ID3v2.4.0','tit1'),(249,'ID3v2.4.0','tit2'),(313,'ID3v2.4.0','tit3'),(322,'ID3v2.4.0','tkey'),(329,'ID3v2.4.0','tlan'),(306,'ID3v2.4.0','tlen'),(314,'ID3v2.4.0','tope'),(333,'ID3v2.4.0','town'),(250,'ID3v2.4.0','tpe1'),(273,'ID3v2.4.0','tpe2'),(323,'ID3v2.4.0','tpe4'),(274,'ID3v2.4.0','tpos'),(308,'ID3v2.4.0','tpub'),(251,'ID3v2.4.0','trck'),(324,'ID3v2.4.0','tso2'),(330,'ID3v2.4.0','tsoa'),(331,'ID3v2.4.0','tsoc'),(325,'ID3v2.4.0','tsop'),(332,'ID3v2.4.0','tsot'),(315,'ID3v2.4.0','tsrc'),(259,'ID3v2.4.0','tsse'),(252,'ID3v2.4.0','txxx'),(336,'ID3v2.4.0','ufid'),(334,'ID3v2.4.0','user'),(310,'ID3v2.4.0','uslt'),(326,'ID3v2.4.0','wcom'),(316,'ID3v2.4.0','woar'),(257,'ID3v2.4.0','wxxx'),(236,'ogg','album'),(242,'ogg','album artist'),(238,'ogg','artist'),(239,'ogg','comment'),(365,'ogg','coverartcount'),(366,'ogg','coverartfilelink'),(367,'ogg','coverarttype'),(360,'ogg','date'),(358,'ogg','email'),(351,'ogg','encoder'),(243,'ogg','ensemble'),(237,'ogg','genre'),(241,'ogg','rating'),(354,'ogg','replaygain_album_gain'),(356,'ogg','replaygain_track_gain'),(361,'ogg','replaygain_track_peak'),(357,'ogg','thanks'),(240,'ogg','title'),(352,'ogg','tracknumber'),(355,'ogg','url'),(359,'ogg','year'),(266,'pdf','author'),(262,'pdf','creationdate'),(265,'pdf','creator'),(261,'pdf','moddate'),(264,'pdf','producer'),(263,'pdf','title'),(362,'pdf','trapped');
 /*!40000 ALTER TABLE `file_attribute` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -906,9 +907,10 @@ CREATE TABLE `match_record` (
   `match_file_name` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_match_doc_asset` (`match_doc_id`),
+  KEY `fk_doc_asset` (`doc_id`),
   CONSTRAINT `fk_doc_asset` FOREIGN KEY (`doc_id`) REFERENCES `asset` (`id`),
   CONSTRAINT `fk_match_doc_asset` FOREIGN KEY (`match_doc_id`) REFERENCES `asset` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=72076 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1109,7 +1111,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1206,7 +1208,7 @@ CREATE TABLE `op_record` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25887 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=53312 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1316,7 +1318,7 @@ CREATE TABLE `service_exec` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2666,4 +2668,4 @@ USE `scratch`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-27 22:32:26
+-- Dump completed on 2018-04-28 11:20:42
