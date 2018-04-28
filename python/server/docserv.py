@@ -50,7 +50,7 @@ class DocumentServiceProcess(ServiceProcess):
    # process callbacks
 
     def setup(self):
-        self.process_handler = DocumentServiceProcessHandler(self, '<process_handler>', self.selector, self.vector)
+        self.process_handler = DocumentService(self, '<process_handler>', self.selector, self.vector)
 
 
 def create_service_process(identifier, vector, owner=None, before=None, after=None, alternative=None):
@@ -78,9 +78,9 @@ class DecisionHandler(object):
                 count += 1
         return count > 3
 
-class DocumentServiceProcessHandler(DecisionHandler):
+class DocumentService(DecisionHandler):
     def __init__(self, owner, name, selector, vector):
-        super(DocumentServiceProcessHandler, self).__init__()
+        super(DocumentService, self).__init__()
         self.vector = vector
         self.owner = owner
         self.name = name
@@ -112,7 +112,7 @@ class DocumentServiceProcessHandler(DecisionHandler):
             LOG.debug("%s: %s follows '%s', because of '%s'" % \
                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
-    #TODO: move this mode-specific stuff into docservmodes in preparation for docservmodes to be paramaterized
+    #TODO: move this mode-specific stuff into demo in preparation for demo to be paramaterized
     @ops_func
     def mode_is_available(self, selector, active, possible):
         initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))

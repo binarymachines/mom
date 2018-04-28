@@ -149,7 +149,7 @@ class ServiceProcess(ServiceHost):
 
     def post_setup(self):
         self.selector.remove_at_error_tolerance = True
-        # self.process_handler = DocumentServiceProcessHandler(self, '_process_handler_', self.selector, self.vector)
+        # self.process_handler = DocumentService(self, '_process_handler_', self.selector, self.vector)
         self.handlers['.'.join([__name__, self.process_handler.__class__.__name__])] = self.process_handler
         self._build_instance_registry()
         for record in self.moderecords:

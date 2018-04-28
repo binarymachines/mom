@@ -52,17 +52,26 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="switchRuleDs">
-            <column width="450px">
-                <field property="name"/>
-                <field optionsDatasource="beginModesDs"
-                       property="beginMode"/>
-                <field optionsDatasource="endModesDs"
-                       property="endMode"/>
-                <field optionsDatasource="beforeDispatchesDs"
+            <column width="500px">
+                <field caption="msg://name"
+                       property="name"
+                       width="250px"/>
+                <field caption="msg://beginMode"
+                       optionsDatasource="beginModesDs"
+                       property="beginMode"
+                       width="250px"/>
+                <field caption="msg://endMode"
+                       optionsDatasource="endModesDs"
+                       property="endMode"
+                       width="250px"/>
+                <field caption="msg://beforeDispatch"
+                       optionsDatasource="beforeDispatchesDs"
                        property="beforeDispatch"/>
-                <field optionsDatasource="afterDispatchesDs"
+                <field caption="msg://afterDispatch"
+                       optionsDatasource="afterDispatchesDs"
                        property="afterDispatch"/>
-                <field optionsDatasource="conditionDispatchesDs"
+                <field caption="msg://conditionDispatch"
+                       optionsDatasource="conditionDispatchesDs"
                        property="conditionDispatch"/>
             </column>
         </fieldGroup>
