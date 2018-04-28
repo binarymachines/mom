@@ -156,7 +156,7 @@ class MutagenMP4(Pathogen):
             self.tags[key] = util.uu_str(value)
 
         if len(self.tags) > 0:
-            self.tags['_file_format'] = 'm4a'
+            self.tags['_file_encoding'] = 'm4a'
             self.tags['_reader'] = self.name
             #TODO: store read_date in same format as file ctime and mtime
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
@@ -192,7 +192,7 @@ class MutagenAPEv2(Pathogen):
             self.tags[key] = value
 
         if len(self.tags) > 0:
-            self.tags['_file_format'] = 'apev2'
+            self.tags['_file_encoding'] = 'apev2'
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
@@ -236,7 +236,7 @@ class MutagenFLAC(Pathogen):
                 self.tags[key] = value
 
         if len(self.tags) > 0:
-            self.tags['_file_format'] = 'flac'
+            self.tags['_file_encoding'] = 'flac'
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
@@ -249,7 +249,7 @@ class MutagenID3(Pathogen):
     def read_tags(self, path, data):
         file = ID3(path)
         version = '.'.join([str(value) for value in file.version])
-        file_format = 'ID3v%s' % version
+        file_encoding = 'ID3v%s' % version
 
         metadata = file.pprint() # gets all metadata
         tags = [x.split('=',1) for x in metadata.split('\n')] # substring[0:] is redundant
@@ -263,7 +263,7 @@ class MutagenID3(Pathogen):
                 continue
 
             if len(key) == 4 and key != "TXXX":
-                self.handle_attribute(file_format, key)
+                self.handle_attribute(file_encoding, key)
 
             value = util.uu_str(tag[1])
             if value is None:
@@ -284,15 +284,15 @@ class MutagenID3(Pathogen):
                     continue
                 
                 txxkey = '.'.join([key, subkey]).lower()
-                self.handle_attribute(file_format, txxkey)
+                self.handle_attribute(file_encoding, txxkey)
                 self.tags[key][subkey] = util.uu_str(subtags[1])
 
             else:
-                # if key in filehandler.get_attributes(file_format):
+                # if key in filehandler.get_attributes(file_encoding):
                 self.tags[key] = util.uu_str(value)
 
         if len(self.tags) > 0:
-            self.tags['_file_format'] = file_format
+            self.tags['_file_encoding'] = file_encoding
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
@@ -323,7 +323,7 @@ class MutagenOggVorbis(Pathogen):
             self.tags[key] = value[0]
 
         if len(self.tags) > 0:
-            self.tags['_file_format'] = 'ogg'
+            self.tags['_file_encoding'] = 'ogg'
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)

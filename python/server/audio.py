@@ -48,18 +48,18 @@ def is_redundant(asset):
     pass
 
 def tags_contain_artist_and_album(asset):
-    data = assets.get_attribute_values(asset, '_file_format', 'artist', 'album')
+    data = assets.get_attribute_values(asset, '_file_encoding', 'artist', 'album')
     return len(data) == 2
 
 def tags_match_filename(asset):
-    data = assets.get_attribute_values(asset, '_file_format', 'artist', 'album')
+    data = assets.get_attribute_values(asset, '_file_encoding', 'artist', 'album')
     if len(data) == 2:
         tagdata = os.path.sep.join([data['artist'], data['album']]).lower()
         path_nominal = tagdata in asset.absolute_path.lower()
         return path_nominal == False
 
 def tags_match_path(asset):
-    data = assets.get_attribute_values(asset, '_file_format', 'artist', 'album')
+    data = assets.get_attribute_values(asset, '_file_encoding', 'artist', 'album')
     if len(data) == 2:
         tagdata = os.path.sep.join([data['artist'], data['album']]).lower()
         return tagdata in asset.absolute_path.lower()

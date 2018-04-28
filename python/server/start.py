@@ -144,7 +144,7 @@ def reset(args):
     except Exception, err:
         ERR.WARNING(err.message)
 
-    for table in ['match_record', 'asset', 'directory', 'file_attribute', 'delimited_file_data']:
+    for table in ['match_record', 'asset', 'directory', 'file_attribute', 'file_encoding', 'delimited_file_data']:
         query = 'delete from %s' % (table)
         sql.execute_query(query, schema=config.db_media)
 

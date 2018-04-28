@@ -28,7 +28,8 @@ def get_attributes(file_format, refresh=False):
     items = cache2.get_items(KNOWN, file_format)
     if len(items) == 0 or refresh:
         cache2.clear_items(KNOWN, file_format)
-        rows = sql.retrieve_values2('file_attribute', ['file_format', 'attribute_name'], [file_format], schema='media')
+        # rows = sql.retrieve_values2('file_attribute', ['file_format', 'attribute_name'], [file_format], schema='media')
+        rows = SQLFileAttribute.retrieve_for_file_format(file_format)
         cache2.add_items(KNOWN, file_format, [row.attribute_name for row in rows])
         items = cache2.get_items(KNOWN, file_format)
 

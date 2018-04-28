@@ -505,18 +505,18 @@ def get_attribute_values(asset, file_encoding, *items):
                     continue  
                 attributes[attribute] = attribute_key[attribute]
               
-    for item in items:
-        aliases = get_aliases(attributes[file_encoding], item)
-        for alias in aliases:
-            if alias.attribute_name in attributes:
-                result[item] = attributes[alias.attribute_name]
-                break
+    # for item in items:
+    #     aliases = get_aliases(attributes[file_encoding], item)
+    #     for alias in aliases:
+    #         if alias.attribute_name in attributes:
+    #             result[item] = attributes[alias.attribute_name]
+    #             break
 
     return result
 
 
-def get_aliases(file_format, term):
-    return sql.retrieve_values2('v_alias', ['file_format', 'name', 'attribute_name'], [file_format, term], schema=config.db_media)
+# def get_aliases(file_format, term):
+#     return sql.retrieve_values2('v_alias', ['file_format', 'name', 'attribute_name'], [file_format, term], schema=config.db_media)
    
 
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later

@@ -18,7 +18,8 @@ from core import log
 from db.generated.sqla_analysis import Action, ActionParam, Reason, ReasonParam, Dispatch
 
 from db.generated.sqla_media import Asset, FileAttribute, Category, Directory, DirectoryConstant, DirectoryType, \
-    FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord, DirectoryPattern
+    FileHandler, FileType, FileHandlerRegistration, Matcher, MatcherField, MatchRecord, DirectoryPattern, \
+    FileEncoding
 
 from db.generated.sqla_service import ServiceExec, ServiceProfile, OpRecord, ModeDefault, ModeStateDefault, \
     ModeStateDefaultParam, SwitchRule, t_v_mode_default_dispatch
@@ -340,6 +341,38 @@ class SQLFileType(FileType):
         return result[0] if len(result) == 1 else None
 
 
+class SQLFileEncoding(FileEncoding):
+
+    @staticmethod
+    @alchemy_func
+    def insert(name):
+        result = SQLFileEncoding(name=name)
+        try:
+            sessions[MEDIA].add(result)
+            return result
+        except IntegrityError, err:
+            raise SQLAlchemyIntegrityError(err, sessions[MEDIA], message=err.message)
+
+
+    @staticmethod
+    @alchemy_func
+    def retrieve_all():
+        result = ()
+        for instance in sessions[MEDIA].query(SQLFileEncoding):
+            result += (instance,)
+    
+        return result
+
+    @staticmethod
+    @alchemy_func
+    def retrieve(name):
+        result = ()
+        for instance in sessions[MEDIA].query(SQLFileEncoding). \
+            filter(SQLFileEncoding.name == name):
+            result += (instance,)
+    
+        return result[0] if len(result) == 1 else None
+
 class SQLAsset(Asset):
 
     file_type = relationship(u'SQLFileType', enable_typechecks=True)
@@ -398,6 +431,9 @@ class SQLAsset(Asset):
         return result
 
 class SQLFileAttribute(FileAttribute):
+
+    file_encoding = relationship("SQLFileEncoding")
+
     @staticmethod
     @alchemy_func
     def retrieve_all():
@@ -407,11 +443,27 @@ class SQLFileAttribute(FileAttribute):
 
         return result
     
+    @staticmethod
+    @alchemy_func
+    def retrieve_for_file_format(file_format):
+
+        file_encoding = SQLFileEncoding.retrieve(file_format)
+
+        result = ()
+        for instance in sessions[MEDIA].query(SQLAsset). \
+            filter(SQLFileAttribute.file_encoding == file_encoding):
+            result += (instance,)
+
+        return result
 
     @staticmethod
     @alchemy_func
     def insert(file_format, attribute_name):
-        attribute = SQLFileAttribute(file_format=file_format, attribute_name=attribute_name) 
+        file_encoding = SQLFileEncoding.retrieve(file_format)
+        if file_encoding == None:
+            file_encoding = SQLFileEncoding.insert(file_format)
+
+        attribute = SQLFileAttribute(file_format=file_format, attribute_name=attribute_name, file_encoding=file_encoding) 
         try:
             sessions[MEDIA].add(attribute)
             sessions[MEDIA].commit()
