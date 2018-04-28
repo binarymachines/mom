@@ -300,7 +300,7 @@ CREATE TABLE `clause` (
 
 LOCK TABLES `clause` WRITE;
 /*!40000 ALTER TABLE `clause` DISABLE KEYS */;
-INSERT INTO `clause` (`id`, `document_type_id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (1,NULL,'attributes.TPE1',5,NULL,NULL,0,NULL,'should',NULL),(2,NULL,'attributes.TIT2',7,NULL,NULL,0,NULL,'should',NULL),(3,NULL,'attributes.TALB',3,NULL,NULL,0,NULL,'should',NULL),(4,NULL,'document_name',0,NULL,NULL,0,NULL,'should',NULL),(5,NULL,'deleted',0,NULL,NULL,0,NULL,'should',NULL),(6,NULL,'document_size',3,NULL,NULL,0,NULL,'should',NULL),(7,NULL,'attributes.TPE1',3,NULL,NULL,0,NULL,'should',NULL),(8,NULL,'attributes.TPE1',0,NULL,NULL,0,NULL,'must',NULL),(9,NULL,'attributes.TIT2',5,NULL,NULL,0,NULL,'should',NULL),(10,NULL,'attributes.TALB',0,NULL,NULL,0,NULL,'should',NULL),(11,NULL,'deleted',0,NULL,NULL,0,NULL,'must_not','true'),(12,NULL,'attributes.TRCK',0,NULL,NULL,0,NULL,'should',''),(13,NULL,'attributes.TPE2',0,NULL,NULL,0,NULL,'','should');
+INSERT INTO `clause` (`id`, `document_type_id`, `field_name`, `boost`, `bool_`, `operator`, `minimum_should_match`, `analyzer`, `section`, `default_value`) VALUES (1,2,'attributes.TPE1',5,NULL,NULL,0,NULL,'should',NULL),(2,2,'attributes.TIT2',7,NULL,NULL,0,NULL,'should',NULL),(3,2,'attributes.TALB',3,NULL,NULL,0,NULL,'should',NULL),(4,2,'document_name',0,NULL,NULL,0,NULL,'should',NULL),(5,2,'deleted',0,NULL,NULL,0,NULL,'should',NULL),(6,2,'document_size',3,NULL,NULL,0,NULL,'should',NULL),(7,2,'attributes.TPE1',3,NULL,NULL,0,NULL,'should',NULL),(8,2,'attributes.TPE1',0,NULL,NULL,0,NULL,'must',NULL),(9,2,'attributes.TIT2',5,NULL,NULL,0,NULL,'should',NULL),(10,2,'attributes.TALB',0,NULL,NULL,0,NULL,'should',NULL),(11,2,'deleted',0,NULL,NULL,0,NULL,'must_not','true'),(12,2,'attributes.TRCK',0,NULL,NULL,0,NULL,'should',''),(13,2,'attributes.TPE2',0,NULL,NULL,0,NULL,'','should');
 /*!40000 ALTER TABLE `clause` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2668,4 +2668,4 @@ USE `scratch`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-04-28 11:20:42
+-- Dump completed on 2018-04-28 11:33:44
