@@ -25,6 +25,11 @@ public class ModeStateDefault extends BaseIntIdentityIdEntity {
     @JoinColumn(name = "mode_id")
     protected Mode mode;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_profile_id")
+    protected ServiceProfile serviceProfile;
+
     @Composition
     @OneToMany(mappedBy = "modeStateDefault")
     protected List<ModeStateDefaultParam> params;
@@ -53,6 +58,15 @@ public class ModeStateDefault extends BaseIntIdentityIdEntity {
 
     @Column(name = "error_tolerance", nullable = false)
     protected Integer errorTolerance;
+
+    public void setServiceProfile(ServiceProfile serviceProfile) {
+        this.serviceProfile = serviceProfile;
+    }
+
+    public ServiceProfile getServiceProfile() {
+        return serviceProfile;
+    }
+
 
     public void setParams(List<ModeStateDefaultParam> params) {
         this.params = params;

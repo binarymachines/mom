@@ -22,6 +22,7 @@ class ModeDefault(Base):
     __tablename__ = 'mode_default'
 
     id = Column(Integer, primary_key=True)
+    service_profile_id = Column(Integer)
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'0'"))
     effect_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), index=True)

@@ -64,11 +64,13 @@
                   view="_minimal"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.service.ModeDefault"
-          extends="_local"
+          extends="_base"
           name="ModeDefault-screen-view">
         <property name="mode"
                   view="_local"/>
         <property name="effectDispatch"
+                  view="_local"/>
+        <property name="serviceProfile"
                   view="_local"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.service.ModeState"
@@ -89,6 +91,8 @@
         <property name="effectDispatch"
                   view="_minimal"/>
         <property name="params"
+                  view="_local"/>
+        <property name="serviceProfile"
                   view="_local"/>
     </view>
     <view class="com.angrysurfer.mildred.entity.service.ModeStateDefaultParam"
@@ -164,12 +168,16 @@
                   view="_local">
             <property name="effectDispatch"
                       view="_minimal"/>
+            <property name="serviceProfile"
+                      view="_local"/>
         </property>
         <property name="stateDefaults"
                   view="_local">
             <property name="state"
                       view="_local"/>
             <property name="effectDispatch"
+                      view="_local"/>
+            <property name="serviceProfile"
                       view="_local"/>
         </property>
         <property name="transitionRules"

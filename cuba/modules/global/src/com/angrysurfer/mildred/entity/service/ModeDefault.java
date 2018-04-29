@@ -24,6 +24,11 @@ public class ModeDefault extends BaseIntIdentityIdEntity {
 
     @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_profile_id")
+    protected ServiceProfile serviceProfile;
+
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "effect_dispatch_id")
     protected ServiceDispatch effectDispatch;
 
@@ -41,6 +46,15 @@ public class ModeDefault extends BaseIntIdentityIdEntity {
 
     @Column(name = "error_tolerance", nullable = false)
     protected Integer errorTolerance;
+
+    public void setServiceProfile(ServiceProfile serviceProfile) {
+        this.serviceProfile = serviceProfile;
+    }
+
+    public ServiceProfile getServiceProfile() {
+        return serviceProfile;
+    }
+
 
     public void setMode(Mode mode) {
         this.mode = mode;

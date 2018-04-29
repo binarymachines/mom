@@ -39,6 +39,7 @@
                 <column id="decPriorityAmount"/>
                 <column id="incPriorityAmount"/>
                 <column id="errorTolerance"/>
+                <column id="serviceProfile"/>
             </columns>
             <rows datasource="modeStateDefaultsDs"/>
             <rowsCount/>

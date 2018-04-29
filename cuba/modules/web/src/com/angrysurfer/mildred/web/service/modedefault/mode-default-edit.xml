@@ -11,16 +11,25 @@
                     view="ModeDefault-screen-view"/>
         <collectionDatasource id="modesDs"
                               class="com.angrysurfer.mildred.entity.service.Mode"
-                              view="_minimal">
+                              view="_local">
             <query>
                 <![CDATA[select e from mildred$Mode e]]>
             </query>
         </collectionDatasource>
         <collectionDatasource id="effectDispatchesDs"
                               class="com.angrysurfer.mildred.entity.service.ServiceDispatch"
-                              view="_minimal">
+                              view="_local">
             <query>
-                <![CDATA[select e from mildred$ServiceDispatch e]]>
+                <![CDATA[select e from mildred$ServiceDispatch e
+ order by e.packageName, e.moduleName, 
+          e.className, e.funcName]]>
+            </query>
+        </collectionDatasource>
+        <collectionDatasource id="serviceProfilesDs"
+                              class="com.angrysurfer.mildred.entity.service.ServiceProfile"
+                              view="serviceProfile-view">
+            <query>
+                <![CDATA[select e from mildred$ServiceProfile e]]>
             </query>
         </collectionDatasource>
     </dsContext>
@@ -32,6 +41,8 @@
                     datasource="modeDefaultDs"
                     fieldCaptionWidth="100">
             <column width="400px">
+                <field optionsDatasource="serviceProfilesDs"
+                       property="serviceProfile"/>
                 <field caption="mode"
                        optionsDatasource="modesDs"
                        property="mode"/>
@@ -42,20 +53,21 @@
         </fieldGroup>
         <fieldGroup id="fieldgroup_1"
                     datasource="modeDefaultDs">
-            <column width="400px">
+            <column fieldCaptionWidth="100"
+                    width="400px">
                 <field caption="priority"
                        property="priority"
                        width="50px"/>
                 <field caption="complete after"
                        property="timesToComplete"
                        width="50px"/>
-                <field caption="error tolerance"
-                       property="errorTolerance"
-                       width="50px"/>
             </column>
             <column>
                 <field caption="increment"
                        property="incPriorityAmount"
+                       width="50px"/>
+                <field caption="error tolerance"
+                       property="errorTolerance"
                        width="50px"/>
             </column>
             <column>

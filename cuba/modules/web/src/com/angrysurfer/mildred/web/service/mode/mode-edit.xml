@@ -59,6 +59,7 @@
                             maxTextLength="80"/>
                     <column id="effectDispatch"
                             caption="effect"/>
+                    <column id="serviceProfile"/>
                 </columns>
                 <rows datasource="defaultsDs"/>
                 <buttonsPanel>
@@ -97,6 +98,7 @@
                             caption="state"/>
                     <column id="effectDispatch"
                             caption="effect"/>
+                    <column id="serviceProfile"/>
                 </columns>
                 <rows datasource="stateDefaultsDs"/>
                 <buttonsPanel>

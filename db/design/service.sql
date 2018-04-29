@@ -54,6 +54,7 @@ DROP TABLE IF EXISTS `mode_default`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mode_default` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `service_profile_id` int(11) unsigned DEFAULT NULL,
   `mode_id` int(11) unsigned NOT NULL,
   `priority` int(3) unsigned NOT NULL DEFAULT '0',
   `effect_dispatch_id` int(11) unsigned DEFAULT NULL,
@@ -62,11 +63,14 @@ CREATE TABLE `mode_default` (
   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
   `error_tolerance` int(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_mode_default` (`service_profile_id`,`mode_id`),
   KEY `fk_mode_default_dispatch` (`effect_dispatch_id`),
   KEY `fk_mode_default_mode` (`mode_id`),
+  KEY `fk_mode_default_service_profile` (`service_profile_id`),
   CONSTRAINT `fk_mode_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `service_dispatch` (`id`),
-  CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+  CONSTRAINT `fk_mode_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
+  CONSTRAINT `fk_mode_default_service_profile` FOREIGN KEY (`service_profile_id`) REFERENCES `service_profile` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -75,7 +79,7 @@ CREATE TABLE `mode_default` (
 
 LOCK TABLES `mode_default` WRITE;
 /*!40000 ALTER TABLE `mode_default` DISABLE KEYS */;
-INSERT INTO `mode_default` (`id`, `mode_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`) VALUES (1,2,0,5,1,1,0,0),(2,5,3,9,1,1,0,0),(3,4,5,22,1,1,0,0),(4,3,5,16,1,1,0,0),(5,6,1,27,1,1,0,0),(6,7,1,NULL,1,1,0,0),(7,9,2,34,1,1,0,0),(8,10,2,31,1,1,0,0),(9,12,0,38,1,1,0,0);
+INSERT INTO `mode_default` (`id`, `service_profile_id`, `mode_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`) VALUES (1,1,2,0,5,1,1,0,0),(2,1,5,3,9,1,1,0,0),(3,1,4,5,22,1,1,0,0),(4,1,3,5,16,1,1,0,0),(5,1,6,1,27,1,1,0,0),(6,1,7,1,NULL,1,1,0,0),(7,1,9,2,34,1,1,0,0),(8,1,10,2,31,1,1,0,0),(9,1,12,0,38,1,1,0,0);
 /*!40000 ALTER TABLE `mode_default` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -128,6 +132,7 @@ CREATE TABLE `mode_state_default` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `mode_id` int(11) unsigned NOT NULL,
   `state_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `service_profile_id` int(11) unsigned DEFAULT NULL,
   `priority` int(3) unsigned NOT NULL DEFAULT '0',
   `effect_dispatch_id` int(11) unsigned DEFAULT NULL,
   `times_to_complete` int(3) unsigned NOT NULL DEFAULT '1',
@@ -135,11 +140,14 @@ CREATE TABLE `mode_state_default` (
   `inc_priority_amount` int(3) unsigned NOT NULL DEFAULT '0',
   `error_tolerance` int(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_mode_state_default` (`service_profile_id`,`mode_id`,`state_id`),
   KEY `fk_mode_state_default_dispatch` (`effect_dispatch_id`),
   KEY `fk_mode_state_default_mode` (`mode_id`),
   KEY `fk_mode_state_default_state` (`state_id`),
+  KEY `fk_mode_state_default_service_profile` (`service_profile_id`),
   CONSTRAINT `fk_mode_state_default_dispatch` FOREIGN KEY (`effect_dispatch_id`) REFERENCES `service_dispatch` (`id`),
   CONSTRAINT `fk_mode_state_default_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
+  CONSTRAINT `fk_mode_state_default_service_profile` FOREIGN KEY (`service_profile_id`) REFERENCES `service_profile` (`id`),
   CONSTRAINT `fk_mode_state_default_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -150,7 +158,7 @@ CREATE TABLE `mode_state_default` (
 
 LOCK TABLES `mode_state_default` WRITE;
 /*!40000 ALTER TABLE `mode_state_default` DISABLE KEYS */;
-INSERT INTO `mode_state_default` (`id`, `mode_id`, `state_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`) VALUES (1,3,2,5,17,1,1,0,0),(2,3,3,5,18,1,1,0,0),(3,3,4,5,19,1,1,0,0);
+INSERT INTO `mode_state_default` (`id`, `mode_id`, `state_id`, `service_profile_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`) VALUES (1,3,2,1,5,17,1,1,0,0),(2,3,3,1,5,18,1,1,0,0),(3,3,4,1,5,19,1,1,0,0);
 /*!40000 ALTER TABLE `mode_state_default` ENABLE KEYS */;
 UNLOCK TABLES;
 
