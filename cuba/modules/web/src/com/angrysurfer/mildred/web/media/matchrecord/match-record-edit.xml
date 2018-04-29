@@ -30,8 +30,8 @@
         </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
-                height="AUTO"
-                width="AUTO"/>
+                height="600"
+                width="600"/>
     <layout expand="scrollBox"
             spacing="true">
         <scrollBox id="scrollBox"
@@ -56,10 +56,14 @@
                             <column>
                                 <field property="matcherName"/>
                                 <field property="isExtMatch"/>
-                                <field property="comparisonResult"/>
-                                <field property="score"/>
-                                <field property="maxScore"/>
-                                <field property="minScore"/>
+                                <field property="comparisonResult"
+                                       width="50px"/>
+                                <field property="score"
+                                       width="100px"/>
+                                <field property="maxScore"
+                                       width="100px"/>
+                                <field property="minScore"
+                                       width="100px"/>
                             </column>
                         </fieldGroup>
                     </row>

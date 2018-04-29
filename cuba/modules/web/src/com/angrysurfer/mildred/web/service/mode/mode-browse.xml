@@ -30,7 +30,7 @@
                 <action id="create"
                         openType="DIALOG"/>
                 <action id="edit"
-                        openType="DIALOG"/>
+                        openType="THIS_TAB"/>
                 <action id="remove"/>
             </actions>
             <columns>

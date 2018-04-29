@@ -17,10 +17,11 @@
                                   property="transitionRules"/>
         </datasource>
     </dsContext>
-    <dialogMode forceDialog="true"
-                height="AUTO"
+    <dialogMode height="900"
+                modal="false"
+                resizable="true"
                 width="800"/>
-    <layout expand="windowActions"
+    <layout expand="transitionRulesBox"
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="modeDs">
@@ -36,7 +37,8 @@
                    width="100%">
                 <actions>
                     <action id="create"/>
-                    <action id="edit"/>
+                    <action id="edit"
+                            openType="DIALOG"/>
                     <action id="remove"/>
                 </actions>
                 <columns>
@@ -107,7 +109,7 @@
         <groupBox id="transitionRulesBox"
                   caption="msg://com.angrysurfer.mildred.entity.service/Mode.transitionRules">
             <table id="transitionRulesTable"
-                   height="200px"
+                   height="100%"
                    width="100%">
                 <actions>
                     <action id="create"/>

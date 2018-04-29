@@ -7,5 +7,6 @@
 
     <!-- Annotation-based beans -->
     <context:component-scan base-package="com.angrysurfer.mildred"/>
-
+    <bean class="com.angrysurfer.mildred.web.App" name="cuba_App" scope="prototype">
+    </bean>
 </beans>

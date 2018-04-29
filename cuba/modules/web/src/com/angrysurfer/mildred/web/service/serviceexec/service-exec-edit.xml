@@ -11,6 +11,7 @@
                     view="_local"/>
     </dsContext>
     <dialogMode forceDialog="true"
+                modal="false"
                 height="AUTO"
                 width="AUTO"/>
     <layout expand="windowActions"

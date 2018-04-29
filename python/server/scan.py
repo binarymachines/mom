@@ -80,7 +80,7 @@ class Scanner(Walker):
                 return
 
             if asset.esid and self.update_scan:
-                LOG.info('skipping %s' % path)
+                LOG.info('asset exists, skipping %s' % path)
                 ops.update_listeners('skipping read', SCANNER, path)
                 return
 

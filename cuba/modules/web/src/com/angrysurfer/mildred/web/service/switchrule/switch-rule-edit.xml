@@ -27,21 +27,27 @@
                               class="com.angrysurfer.mildred.entity.service.ServiceDispatch"
                               view="_minimal">
             <query>
-                <![CDATA[select e from mildred$ServiceDispatch e]]>
+                <![CDATA[select e from mildred$ServiceDispatch e
+ order by e.packageName, e.moduleName, 
+          e.className, e.funcName]]>
             </query>
         </collectionDatasource>
         <collectionDatasource id="afterDispatchesDs"
                               class="com.angrysurfer.mildred.entity.service.ServiceDispatch"
                               view="_minimal">
             <query>
-                <![CDATA[select e from mildred$ServiceDispatch e]]>
+                <![CDATA[select e from mildred$ServiceDispatch e
+ order by e.packageName, e.moduleName, 
+          e.className, e.funcName]]>
             </query>
         </collectionDatasource>
         <collectionDatasource id="conditionDispatchesDs"
                               class="com.angrysurfer.mildred.entity.service.ServiceDispatch"
                               view="_minimal">
             <query>
-                <![CDATA[select e from mildred$ServiceDispatch e]]>
+                <![CDATA[select e from mildred$ServiceDispatch e
+ order by e.packageName, e.moduleName, 
+          e.className, e.funcName]]>
             </query>
         </collectionDatasource>
     </dsContext>

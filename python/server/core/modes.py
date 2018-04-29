@@ -1,7 +1,7 @@
 #! /usr/bin/python
 import datetime
 import logging
-
+import sys
 from introspection import dynamic_func
 
 import log
@@ -281,7 +281,9 @@ class Selector:
             self.switch(available)
 
         elif len(applicable) == 0:
-            raise ModeDestinationException("%s: No valid destination from %s" % (self.name, self.active.name))
+            # raise ModeDestinationException("%s: No valid destination from %s" % (self.name, self.active.name))
+            print("%s: No valid destination from %s" % (self.name, self.active.name))
+            sys.exit(0)
 
 
     def _call_mode_func(self, mode, func):

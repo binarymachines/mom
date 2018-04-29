@@ -37,7 +37,8 @@
                     <action id="remove"/>
                     <action id="create"
                             openType="DIALOG"/>
-                    <action id="edit"/>
+                    <action id="edit"
+                            openType="DIALOG"/>
                 </actions>
                 <columns>
                     <column id="name"
