@@ -25,8 +25,9 @@
     <layout expand="assetSourceCodeEditor"
             spacing="true">
         <fieldGroup id="fieldGroup"
-                    datasource="assetDs">
-            <column width="550px">
+                    datasource="assetDs"
+                    width="100%">
+            <column width="100%">
                 <field caption="id"
                        property="id"
                        width="250px"/>
