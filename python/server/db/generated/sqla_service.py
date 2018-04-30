@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, text
+from sqlalchemy import Column, DateTime, ForeignKey, Index, Integer, String, Table, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -20,9 +20,12 @@ class Mode(Base):
 
 class ModeDefault(Base):
     __tablename__ = 'mode_default'
+    __table_args__ = (
+        Index('uk_mode_default', 'service_profile_id', 'mode_id', unique=True),
+    )
 
     id = Column(Integer, primary_key=True)
-    service_profile_id = Column(Integer)
+    service_profile_id = Column(ForeignKey(u'service_profile.id'), index=True)
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     priority = Column(Integer, nullable=False, server_default=text("'0'"))
     effect_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), index=True)
@@ -33,6 +36,7 @@ class ModeDefault(Base):
 
     effect_dispatch = relationship(u'ServiceDispatch')
     mode = relationship(u'Mode')
+    service_profile = relationship(u'ServiceProfile')
 
 
 class ModeState(Base):
@@ -58,10 +62,14 @@ class ModeState(Base):
 
 class ModeStateDefault(Base):
     __tablename__ = 'mode_state_default'
+    __table_args__ = (
+        Index('uk_mode_state_default', 'service_profile_id', 'mode_id', 'state_id', unique=True),
+    )
 
     id = Column(Integer, primary_key=True)
     mode_id = Column(ForeignKey(u'mode.id'), nullable=False, index=True)
     state_id = Column(ForeignKey(u'state.id'), nullable=False, index=True, server_default=text("'0'"))
+    service_profile_id = Column(ForeignKey(u'service_profile.id'), index=True)
     priority = Column(Integer, nullable=False, server_default=text("'0'"))
     effect_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), index=True)
     times_to_complete = Column(Integer, nullable=False, server_default=text("'1'"))
@@ -71,6 +79,7 @@ class ModeStateDefault(Base):
 
     effect_dispatch = relationship(u'ServiceDispatch')
     mode = relationship(u'Mode')
+    service_profile = relationship(u'ServiceProfile')
     state = relationship(u'State')
 
 
