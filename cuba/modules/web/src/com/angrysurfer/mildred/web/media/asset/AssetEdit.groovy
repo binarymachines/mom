@@ -21,7 +21,7 @@ class AssetEdit extends AbstractEditor<Asset> {
     protected void postInit() {
         super.postInit();
         if (getItem().assetType) {
-            String doc = "http://localhost:9200/${getItem().assetType}/_search?pretty;q=_id:${getItem().id}".toURL().text
+            String doc = "http://localhost:9200/${getItem().assetType}/_search?pretty;q=_id:'${getItem().id}''".toURL().text
             getItem().setDocument(doc)
         }
     }
