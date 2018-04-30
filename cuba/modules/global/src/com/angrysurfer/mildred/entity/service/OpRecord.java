@@ -13,6 +13,8 @@ import javax.persistence.OneToMany;
 import com.angrysurfer.mildred.entity.media.Asset;
 import com.haulmont.chile.core.annotations.MetaProperty;
 import javax.persistence.Transient;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @Table(name = "op_record")
@@ -23,6 +25,7 @@ public class OpRecord extends BaseIntIdentityIdEntity {
     @Column(name = "pid", nullable = false, length = 32)
     protected String pid;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @Transient
     @MetaProperty(related = "assetId")
     protected Asset asset;

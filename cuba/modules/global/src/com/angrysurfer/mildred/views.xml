@@ -152,13 +152,23 @@
         <property name="modes"
                   view="_local"/>
         <property name="switchRules"
-                  view="_local"/>
+                  view="_local">
+            <property name="beginMode"
+                      view="_minimal"/>
+            <property name="endMode"
+                      view="_minimal"/>
+            <property name="beforeDispatch"
+                      view="_minimal"/>
+            <property name="afterDispatch"
+                      view="_minimal"/>
+            <property name="conditionDispatch"
+                      view="_minimal"/>
+        </property>
         <property name="serviceDispatches"
                   view="_minimal">
             <property name="name"/>
             <property name="category"/>
             <property name="packageName"/>
-            <property name="className"/>
         </property>
     </view>
     <view class="com.angrysurfer.mildred.entity.service.Mode"

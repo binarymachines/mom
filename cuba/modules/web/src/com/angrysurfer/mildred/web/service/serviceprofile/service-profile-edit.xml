@@ -29,7 +29,7 @@
         </fieldGroup>
         <grid spacing="true"
               width="100%">
-            <columns count="2"/>
+            <columns count="3"/>
             <rows>
                 <row>
                     <groupBox id="modesBox"
@@ -50,7 +50,8 @@
                                 <column id="name"
                                         caption="Mode"/>
                                 <column id="statefulFlag"
-                                        caption="Stateful"/>
+                                        caption="Stateful"
+                                        visible="false"/>
                             </columns>
                             <rows datasource="modesDs"/>
                             <buttonsPanel>
@@ -62,7 +63,8 @@
                         </table>
                     </groupBox>
                     <groupBox id="switchRulesBox"
-                              caption="Switch Rules">
+                              caption="Switch Rules"
+                              colspan="2">
                         <table id="switchRulesTable"
                                height="400px"
                                width="100%">
@@ -76,6 +78,9 @@
                             </actions>
                             <columns>
                                 <column id="name"/>
+                                <column id="beginMode"/>
+                                <column id="endMode"/>
+                                <column id="conditionDispatch"/>
                             </columns>
                             <rows datasource="switchRulesDs"/>
                             <buttonsPanel>

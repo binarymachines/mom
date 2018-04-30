@@ -8,7 +8,7 @@
     <dsContext>
         <groupDatasource id="opRecordsDs"
                          class="com.angrysurfer.mildred.entity.service.OpRecord"
-                         view="_local">
+                         view="opRecord-view">
             <query>
                 <![CDATA[select e from mildred$OpRecord e]]>
             </query>
