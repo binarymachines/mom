@@ -22,12 +22,12 @@ public class ModeDefault extends BaseIntIdentityIdEntity {
     @JoinColumn(name = "mode_id")
     protected Mode mode;
 
-    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_profile_id")
     protected ServiceProfile serviceProfile;
 
-    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open", "clear"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "effect_dispatch_id")
     protected ServiceDispatch effectDispatch;

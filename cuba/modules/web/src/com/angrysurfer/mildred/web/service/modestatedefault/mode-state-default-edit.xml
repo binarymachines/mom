@@ -46,6 +46,8 @@
                     datasource="modeStateDefaultDs"
                     fieldCaptionWidth="100">
             <column width="450px">
+                <field optionsDatasource="serviceProfilesDs"
+                       property="serviceProfile"/>
                 <field caption="mode"
                        optionsDatasource="modesDs"
                        property="mode"
@@ -57,8 +59,6 @@
                 <field caption="effect"
                        optionsDatasource="effectDispatchesDs"
                        property="effectDispatch"/>
-                <field optionsDatasource="serviceProfilesDs"
-                       property="serviceProfile"/>
             </column>
         </fieldGroup>
         <fieldGroup id="fieldgroup_1"

@@ -27,61 +27,71 @@
                 <field property="name"/>
             </column>
         </fieldGroup>
-        <groupBox id="modesBox"
-                  caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.modes">
-            <table id="modesTable"
-                   height="200px"
-                   width="100%">
-                <actions>
-                    <action id="add"/>
-                    <action id="remove"/>
-                    <action id="create"
-                            openType="DIALOG"/>
-                    <action id="edit"
-                            openType="DIALOG"/>
-                </actions>
-                <columns>
-                    <column id="name"
-                            caption="Mode"/>
-                    <column id="statefulFlag"
-                            caption="Stateful"/>
-                </columns>
-                <rows datasource="modesDs"/>
-                <buttonsPanel>
-                    <button action="modesTable.add"/>
-                    <button action="modesTable.remove"/>
-                    <button action="modesTable.create"/>
-                    <button action="modesTable.edit"/>
-                </buttonsPanel>
-            </table>
-        </groupBox>
-        <groupBox id="switchRulesBox"
-                  caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.switchRules">
-            <table id="switchRulesTable"
-                   height="200px"
-                   width="100%">
-                <actions>
-                    <action id="add"/>
-                    <action id="remove"/>
-                    <action id="create"
-                            openType="DIALOG"/>
-                    <action id="edit"
-                            openType="DIALOG"/>
-                </actions>
-                <columns>
-                    <column id="name"/>
-                </columns>
-                <rows datasource="switchRulesDs"/>
-                <buttonsPanel>
-                    <button action="switchRulesTable.add"/>
-                    <button action="switchRulesTable.remove"/>
-                    <button action="switchRulesTable.create"/>
-                    <button action="switchRulesTable.edit"/>
-                </buttonsPanel>
-            </table>
-        </groupBox>
+        <grid spacing="true"
+              width="100%">
+            <columns count="2"/>
+            <rows>
+                <row>
+                    <groupBox id="modesBox"
+                              caption="Modes">
+                        <table id="modesTable"
+                               height="400px"
+                               width="100%">
+                            <actions>
+                                <action id="add"
+                                        openType="DIALOG"/>
+                                <action id="remove"/>
+                                <action id="create"
+                                        openType="DIALOG"/>
+                                <action id="edit"
+                                        openType="DIALOG"/>
+                            </actions>
+                            <columns>
+                                <column id="name"
+                                        caption="Mode"/>
+                                <column id="statefulFlag"
+                                        caption="Stateful"/>
+                            </columns>
+                            <rows datasource="modesDs"/>
+                            <buttonsPanel>
+                                <button action="modesTable.add"/>
+                                <button action="modesTable.remove"/>
+                                <button action="modesTable.create"/>
+                                <button action="modesTable.edit"/>
+                            </buttonsPanel>
+                        </table>
+                    </groupBox>
+                    <groupBox id="switchRulesBox"
+                              caption="Switch Rules">
+                        <table id="switchRulesTable"
+                               height="400px"
+                               width="100%">
+                            <actions>
+                                <action id="add"/>
+                                <action id="remove"/>
+                                <action id="create"
+                                        openType="DIALOG"/>
+                                <action id="edit"
+                                        openType="DIALOG"/>
+                            </actions>
+                            <columns>
+                                <column id="name"/>
+                            </columns>
+                            <rows datasource="switchRulesDs"/>
+                            <buttonsPanel>
+                                <button action="switchRulesTable.add"/>
+                                <button action="switchRulesTable.remove"/>
+                                <button action="switchRulesTable.create"/>
+                                <button action="switchRulesTable.edit"/>
+                            </buttonsPanel>
+                        </table>
+                    </groupBox>
+                </row>
+                <row/>
+            </rows>
+        </grid>
         <groupBox id="serviceDispatchesBox"
-                  caption="msg://com.angrysurfer.mildred.entity.service/ServiceProfile.serviceProfileDispatches">
+                  caption="Dispatch Table">
             <table id="serviceDispatchesTable"
                    height="100%"
                    width="100%">

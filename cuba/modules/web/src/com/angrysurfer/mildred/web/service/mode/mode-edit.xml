@@ -36,30 +36,32 @@
                    height="200px"
                    width="100%">
                 <actions>
-                    <action id="create"/>
+                    <action id="create"
+                            openType="DIALOG"/>
                     <action id="edit"
                             openType="DIALOG"/>
                     <action id="remove"/>
                 </actions>
                 <columns>
-                    <column id="priority"
-                            caption="priority"
-                            maxTextLength="80"/>
-                    <column id="decPriorityAmount"
-                            caption="decrement"
-                            maxTextLength="80"/>
-                    <column id="incPriorityAmount"
-                            caption="increment"
-                            maxTextLength="80"/>
-                    <column id="timesToComplete"
-                            caption="complete after"
-                            maxTextLength="80"/>
-                    <column id="errorTolerance"
-                            caption="error tolerance"
-                            maxTextLength="80"/>
+                    <column id="serviceProfile"
+                            width="75"/>
                     <column id="effectDispatch"
                             caption="effect"/>
-                    <column id="serviceProfile"/>
+                    <column id="priority"
+                            caption="priority"
+                            width="75"/>
+                    <column id="decPriorityAmount"
+                            caption="decrement"
+                            width="75"/>
+                    <column id="incPriorityAmount"
+                            caption="increment"
+                            width="75"/>
+                    <column id="timesToComplete"
+                            caption="complete after"
+                            width="75"/>
+                    <column id="errorTolerance"
+                            caption="error tolerance"
+                            width="75"/>
                 </columns>
                 <rows datasource="defaultsDs"/>
                 <buttonsPanel>
@@ -75,30 +77,33 @@
                    height="200px"
                    width="100%">
                 <actions>
-                    <action id="create"/>
-                    <action id="edit"/>
+                    <action id="create"
+                            openType="DIALOG"/>
+                    <action id="edit"
+                            openType="DIALOG"/>
                     <action id="remove"/>
                 </actions>
                 <columns>
+                    <column id="serviceProfile"/>
+                    <column id="state"
+                            caption="state"/>
+                    <column id="effectDispatch"
+                            caption="effect"/>
                     <column id="priority"
                             caption="priority"
                             maxTextLength="100"/>
                     <column id="decPriorityAmount"
                             caption="decrement"
-                            maxTextLength="100"/>
+                            width="75"/>
                     <column id="incPriorityAmount"
                             caption="increment"
-                            maxTextLength="100"/>
+                            width="75"/>
                     <column id="timesToComplete"
                             caption="complete after"
-                            maxTextLength="100"/>
+                            width="75"/>
                     <column id="errorTolerance"
-                            caption="error tolerance"/>
-                    <column id="state"
-                            caption="state"/>
-                    <column id="effectDispatch"
-                            caption="effect"/>
-                    <column id="serviceProfile"/>
+                            caption="error tolerance"
+                            width="75"/>
                 </columns>
                 <rows datasource="stateDefaultsDs"/>
                 <buttonsPanel>
@@ -114,8 +119,10 @@
                    height="100%"
                    width="100%">
                 <actions>
-                    <action id="create"/>
-                    <action id="edit"/>
+                    <action id="create"
+                            openType="DIALOG"/>
+                    <action id="edit"
+                            openType="DIALOG"/>
                     <action id="remove"/>
                 </actions>
                 <columns>

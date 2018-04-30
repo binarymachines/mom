@@ -79,7 +79,7 @@ CREATE TABLE `mode_default` (
 
 LOCK TABLES `mode_default` WRITE;
 /*!40000 ALTER TABLE `mode_default` DISABLE KEYS */;
-INSERT INTO `mode_default` (`id`, `service_profile_id`, `mode_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`) VALUES (1,1,2,0,5,1,1,0,0),(2,1,5,3,9,1,1,0,0),(3,1,4,5,22,1,1,0,0),(4,1,3,5,16,1,1,0,0),(5,1,6,1,27,1,1,0,0),(6,1,7,1,NULL,1,1,0,0),(7,1,9,2,34,1,1,0,0),(8,1,10,2,31,1,1,0,0),(9,1,12,0,38,1,1,0,0);
+INSERT INTO `mode_default` (`id`, `service_profile_id`, `mode_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`) VALUES (1,1,2,0,5,1,1,0,0),(2,1,5,3,9,1,1,0,0),(3,1,4,5,22,1,1,0,0),(4,1,3,5,NULL,1,1,0,0),(5,1,6,1,27,1,1,0,0),(6,1,7,1,NULL,1,1,0,0),(7,1,9,2,34,1,1,0,0),(8,1,10,2,31,1,1,0,0),(9,1,12,0,38,1,1,0,0);
 /*!40000 ALTER TABLE `mode_default` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -109,7 +109,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -158,7 +158,7 @@ CREATE TABLE `mode_state_default` (
 
 LOCK TABLES `mode_state_default` WRITE;
 /*!40000 ALTER TABLE `mode_state_default` DISABLE KEYS */;
-INSERT INTO `mode_state_default` (`id`, `mode_id`, `state_id`, `service_profile_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`) VALUES (1,3,2,1,5,17,1,1,0,0),(2,3,3,1,5,18,1,1,0,0),(3,3,4,1,5,19,1,1,0,0);
+INSERT INTO `mode_state_default` (`id`, `mode_id`, `state_id`, `service_profile_id`, `priority`, `effect_dispatch_id`, `times_to_complete`, `dec_priority_amount`, `inc_priority_amount`, `error_tolerance`) VALUES (1,3,2,1,5,17,1,1,0,0),(2,3,3,1,5,43,1,1,0,0),(3,3,4,1,5,19,1,1,0,0);
 /*!40000 ALTER TABLE `mode_state_default` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -210,7 +210,7 @@ CREATE TABLE `op_record` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=53312 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=53768 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -291,7 +291,7 @@ CREATE TABLE `service_dispatch` (
   `class_name` varchar(128) DEFAULT NULL,
   `func_name` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -300,7 +300,7 @@ CREATE TABLE `service_dispatch` (
 
 LOCK TABLES `service_dispatch` WRITE;
 /*!40000 ALTER TABLE `service_dispatch` DISABLE KEYS */;
-INSERT INTO `service_dispatch` (`id`, `name`, `category`, `package_name`, `module_name`, `class_name`, `func_name`) VALUES (1,'create_service_process','process',NULL,'docserv',NULL,'create_service_process'),(2,'handle_service_process','process.handler',NULL,'docserv','DocumentService',NULL),(3,'service_process_before_switch','process.before',NULL,'demo','DocumentService','before_switch'),(4,'service_process_after_switch','process.after',NULL,'demo','DocumentService','after_switch'),(5,'startup','effect',NULL,'demo','Starter','start'),(6,'startup.switch.condition','CONDITION',NULL,'docserv','DocumentService','definitely'),(7,'startup.switch.before','switch',NULL,'demo','Starter','starting'),(8,'startup.switch.after','switch',NULL,'demo','Starter','started'),(9,'analyze','effect',NULL,'demo','Analyzer','do_analyze'),(10,'analyze.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(11,'analyze.switch.before','switch',NULL,'demo','Analyzer','before_analyze'),(12,'analyze.switch.after','switch',NULL,'demo','Analyzer','after_analyze'),(13,'scan.update.condition','CONDITION',NULL,'demo','Scanner','should_update'),(14,'scan.monitor.condition','CONDITION',NULL,'demo','Scanner','should_monitor'),(15,'scan.switch.condition','CONDITION',NULL,'demo','Scanner','can_scan'),(16,'scan','effect',NULL,'demo','Scanner','do_scan'),(17,'scan.discover','ANALYSIS',NULL,'demo','Scanner','do_scan_discover'),(18,'scan.update','ANALYSIS',NULL,'demo','Scanner','do_scan'),(19,'scan.monitor','ANALYSIS',NULL,'demo','Scanner','do_scan_monitor'),(20,'scan.switch.before','switch',NULL,'demo','Scanner','before_scan'),(21,'scan.switch.after','switch',NULL,'demo','Scanner','after_scan'),(22,'match','effect',NULL,'demo','Matcher','do_match'),(23,'match.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(24,'match.switch.before','switch',NULL,'demo','Matcher','before_match'),(25,'match.switch.after','switch',NULL,'demo','Matcher','after_match'),(26,'fix.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(27,'fix','effect',NULL,'demo','Fixer','do_fix'),(28,'fix.switch.before','switch',NULL,'demo','Fixer','before_fix'),(29,'fix.switch.after','switch',NULL,'demo','Fixer','after_fix'),(30,'report.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(31,'report','effect',NULL,'demo','ReportGenerator','do_report'),(32,'report.switch.before','switch',NULL,'docserv','DocumentService','before'),(33,'report.switch.after','switch',NULL,'docserv','DocumentService','after'),(34,'requests','effect',NULL,'demo','RequestHandler','do_reqs'),(35,'requests.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(36,'requests.switch.before','switch',NULL,'docserv','DocumentService','before'),(37,'requests.switch.after','switch',NULL,'docserv','DocumentService','after'),(38,'shutdown','effect',NULL,'demo','Closer','end'),(39,'shutdown.switch.before','switch',NULL,'demo','Closer','ending'),(40,'shutdown.switch.after','switch',NULL,'demo','Closer','ended'),(41,'shutdown.switch.condition','CONDITION',NULL,'docserv','DocumentService','maybe'),(42,'startup.no_op',NULL,NULL,'demo','Starter','no_op');
+INSERT INTO `service_dispatch` (`id`, `name`, `category`, `package_name`, `module_name`, `class_name`, `func_name`) VALUES (1,'create_service_process','process',NULL,'docserv',NULL,'create_service_process'),(2,'handle_service_process','process.handler',NULL,'docserv','DocumentService',NULL),(3,'service_process_before_switch','process.before',NULL,'demo','DocumentService','before_switch'),(4,'service_process_after_switch','process.after',NULL,'demo','DocumentService','after_switch'),(5,'startup','effect',NULL,'demo','Starter','start'),(6,'startup.switch.condition','CONDITION',NULL,'docserv','DocumentService','definitely'),(7,'startup.switch.before','switch',NULL,'demo','Starter','starting'),(8,'startup.switch.after','switch',NULL,'demo','Starter','started'),(9,'analyze','effect',NULL,'demo','Analyzer','do_analyze'),(10,'analyze.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(11,'analyze.switch.before','switch',NULL,'demo','Analyzer','before_analyze'),(12,'analyze.switch.after','switch',NULL,'demo','Analyzer','after_analyze'),(13,'scan.update.condition','CONDITION',NULL,'demo','Scanner','should_update'),(14,'scan.monitor.condition','CONDITION',NULL,'demo','Scanner','should_monitor'),(15,'scan.switch.condition','CONDITION',NULL,'demo','Scanner','can_scan'),(16,'scan','effect',NULL,'demo','Scanner','do_scan'),(17,'scan.discover','ANALYSIS',NULL,'demo','Scanner','do_scan_discover'),(18,'scan.update','ANALYSIS',NULL,'demo','Scanner','do_scan'),(19,'scan.monitor','ANALYSIS',NULL,'demo','Scanner','do_scan_monitor'),(20,'scan.switch.before','switch',NULL,'demo','Scanner','before_scan'),(21,'scan.switch.after','switch',NULL,'demo','Scanner','after_scan'),(22,'match','effect',NULL,'demo','Matcher','do_match'),(23,'match.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(24,'match.switch.before','switch',NULL,'demo','Matcher','before_match'),(25,'match.switch.after','switch',NULL,'demo','Matcher','after_match'),(26,'fix.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(27,'fix','effect',NULL,'demo','Fixer','do_fix'),(28,'fix.switch.before','switch',NULL,'demo','Fixer','before_fix'),(29,'fix.switch.after','switch',NULL,'demo','Fixer','after_fix'),(30,'report.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(31,'report','effect',NULL,'demo','ReportGenerator','do_report'),(32,'report.switch.before','switch',NULL,'docserv','DocumentService','before'),(33,'report.switch.after','switch',NULL,'docserv','DocumentService','after'),(34,'requests','effect',NULL,'demo','RequestHandler','do_reqs'),(35,'requests.switch.condition','CONDITION',NULL,'docserv','DocumentService','mode_is_available'),(36,'requests.switch.before','switch',NULL,'docserv','DocumentService','before'),(37,'requests.switch.after','switch',NULL,'docserv','DocumentService','after'),(38,'shutdown','effect',NULL,'demo','Closer','end'),(39,'shutdown.switch.before','switch',NULL,'demo','Closer','ending'),(40,'shutdown.switch.after','switch',NULL,'demo','Closer','ended'),(41,'shutdown.switch.condition','CONDITION',NULL,'docserv','DocumentService','maybe'),(42,'startup.no_op',NULL,NULL,'demo','Starter','no_op'),(43,'scan.update-scan',NULL,NULL,'demo','Scanner','do_scan_update');
 /*!40000 ALTER TABLE `service_dispatch` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -320,7 +320,7 @@ CREATE TABLE `service_exec` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
