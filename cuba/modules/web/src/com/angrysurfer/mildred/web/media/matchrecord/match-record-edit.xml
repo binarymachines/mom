@@ -30,8 +30,8 @@
         </collectionDatasource>
     </dsContext>
     <dialogMode forceDialog="true"
-                height="600"
-                width="600"/>
+                height="AUTO"
+                width="AUTO"/>
     <layout expand="scrollBox"
             spacing="true">
         <scrollBox id="scrollBox"
@@ -83,7 +83,7 @@
                                        property="assetType"/>
                                 <field caption="msg://absolutePath"
                                        property="absolutePath"
-                                       rows="4"/>
+                                       rows="6"/>
                             </column>
                         </fieldGroup>
                         <fieldGroup datasource="matchDocDs">
@@ -94,7 +94,7 @@
                                        property="assetType"/>
                                 <field caption="msg://absolutePath"
                                        property="absolutePath"
-                                       rows="4"/>
+                                       rows="6"/>
                             </column>
                         </fieldGroup>
                     </row>

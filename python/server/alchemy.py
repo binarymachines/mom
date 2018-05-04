@@ -80,8 +80,9 @@ def alchemy_func(function):
             for c in err.cause:
                 print(c)
             err.session.rollback()
-
+            ERR.error(err.__class__.__name__)
             raise Exception(err.cause)     
+            sys.exit(1)
 
         except Exception, err:
             ERR.error(': '.join([err.__class__.__name__, err.message]))
@@ -93,6 +94,10 @@ def alchemy_func(function):
 def get_session(name):
     return sessions[name]
 
+class SQLSwitchRule(SwitchRule):
+    def __repr__(self):
+        return "<SQLSwitchRule(name='%s', startmode=%s, endmode=%s)>" % (self.name if self.name else "None", \
+            start.name if start else "None", end.name if end else "None")
 
 class SQLAction(Action):
     @staticmethod
@@ -151,9 +156,7 @@ class SQLDirectoryType(DirectoryType):
     def retrieve_all():
 
         result = ()
-        for instance in sessions[MEDIA].query(SQLDirectoryType). \
-            filter(SQLDirectoryType.effective_dt < datetime.datetime.now()). \
-            filter(SQLDirectoryType.expiration_dt > datetime.datetime.now()):
+        for instance in sessions[MEDIA].query(SQLDirectoryType):
             result += (instance,)
 
         return result
@@ -383,6 +386,7 @@ class SQLAsset(Asset):
     @staticmethod
     @alchemy_func
     def insert(asset_type, id, absolute_path, file_type):
+        print('creating sql asset')
         if file_type is None and asset_type == const.DIRECTORY:
             file_type=SQLFileType.retrieve(None) 
 

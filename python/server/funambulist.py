@@ -7,7 +7,7 @@ from third.PyPDF2 import PdfFileReader
 import const, ops
 from const import MAX_DATA_LENGTH
 import filehandler
-from filehandler import FileHandler as MildredFileHandler 
+from filehandler import FileHandler 
 from core import log, util
 from core.errors import BaseClassException
 
@@ -17,7 +17,7 @@ ERR = log.get_safe_log('errors', logging.WARNING)
 
 pp = pprint.PrettyPrinter(indent=4)
 
-class PyPDF2FileHandler(MildredFileHandler):
+class PyPDF2FileHandler(FileHandler):
     def __init__(self):
         super(PyPDF2FileHandler, self).__init__('pypdf2')
 

@@ -17,7 +17,7 @@
             </query>
         </collectionDatasource>
     </dsContext>
-    <dialogMode height="275"
+    <dialogMode height="280"
                 width="625"/>
     <layout expand="fieldGroup"
             spacing="true">
@@ -26,7 +26,8 @@
                     width="100%">
             <column width="550px">
                 <field caption="Name"
-                       property="name"/>
+                       property="name"
+                       rows="4"/>
                 <field caption="Type"
                        optionsDatasource="directoryTypesDs"
                        property="directoryType"

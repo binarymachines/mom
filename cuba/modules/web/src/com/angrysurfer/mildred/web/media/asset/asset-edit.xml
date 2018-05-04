@@ -26,17 +26,18 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="assetDs"
+                    editable="false"
                     width="100%">
             <column width="100%">
                 <field caption="id"
                        property="id"
                        width="250px"/>
-                <field caption="path"
-                       property="absolutePath"
-                       rows="3"/>
                 <field caption="doc type"
                        property="assetType"
                        width="250px"/>
+                <field caption="path"
+                       property="absolutePath"
+                       rows="3"/>
                 <field caption="file type"
                        optionsDatasource="fileTypesDs"
                        property="fileType"
@@ -52,6 +53,11 @@
                        visible="false"/>
             </column>
         </fieldGroup>
+        <hbox spacing="true">
+            <label value="url"
+                   width="50px"/>
+            <label id="documentLabel"/>
+        </hbox>
         <sourceCodeEditor id="assetSourceCodeEditor"
                           datasource="assetDs"
                           mode="JavaScript"

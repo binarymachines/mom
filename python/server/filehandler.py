@@ -1,4 +1,4 @@
-import logging
+import logging, datetime
 
 import assets
 from const import KNOWN, METADATA
@@ -46,6 +46,7 @@ class FileHandler(object):
     def __init__(self, name):
         self.name = name
         self.extensions = ()
+        
 
     def handle_attribute(self, file_format, attribute):
         if attribute is not None and attribute != "":
@@ -72,6 +73,17 @@ class FileHandler(object):
 #     def handle_file(self, path, data):
 #         pass
 
+class DefaultFileHandler(FileHandler):
+    def __init__(self):
+        super(DefaultFileHandler, self).__init__('*')
+        
+    def handle_file(self, path, data):
+        pass
+        # tags = {}
+        # tags['_reader'] = self.name
+        # tags['_read_date'] = datetime.datetime.now().isoformat()
+        # data['attributes'].append(tags)
+
 
 class GenericText(FileHandler):
     def __init__(self):
@@ -81,8 +93,7 @@ class GenericText(FileHandler):
         pass
 
 
-
-class DelimitedText(GenericText):
+class DelimitedText(FileHandler):
     def __init__(self, DELIM_char=DELIM):
         super(DelimitedText, self).__init__('media-delimited', 'csv')
         self.delim = DELIM_char

@@ -497,7 +497,7 @@ class PathVectorScanner(object):
                 if path is None or path == 'None' or self.should_skip(path):
                     continue
 
-                LOG.info('scanning %s' % path) 
+                LOG.info('PathVectorScanner scanning %s' % path) 
 
                 if self.should_cache(path):
                     self.cache(path)

@@ -2,14 +2,16 @@
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
     <menu id="mildred"
           insertBefore="administration">
-        <item id="top-level-assets"
-              screen="mildred$Asset.browse"/>
         <separator/>
         <item screen="aboutWindow"/>
         <item id="settings"
               screen="settings"/>
     </menu>
     <menu id="media">
+        <item id="top-level-assets"
+              screen="mildred$Asset.browse"/>
+        <item id="top-level-directories"
+              screen="mildred$Directory.browse"/>
         <menu id="media-config">
             <item screen="mildred$Category.browse"/>
             <separator/>
@@ -72,13 +74,6 @@
             <separator/>
             <item screen="mildred$ServiceProfile.browse"/>
         </menu>
-        <menu id="elastic">
-            <item screen="mildred$Document.browse"/>
-            <item screen="mildred$DocumentType.browse"/>
-            <separator/>
-            <item screen="mildred$Query.browse"/>
-            <item screen="mildred$Clause.browse"/>
-        </menu>
         <menu id="service-log">
             <item screen="mildred$ModeState.browse"/>
             <separator/>
@@ -87,5 +82,12 @@
             <separator/>
             <item screen="mildred$ServiceExec.browse"/>
         </menu>
+    </menu>
+    <menu id="elastic">
+        <item screen="mildred$Document.browse"/>
+        <item screen="mildred$DocumentType.browse"/>
+        <separator/>
+        <item screen="mildred$Query.browse"/>
+        <item screen="mildred$Clause.browse"/>
     </menu>
 </menu-config>

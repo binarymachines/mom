@@ -8,7 +8,7 @@
 '''
 
 import logging
-import os
+import os, sys
 
 from docopt import docopt
 
@@ -49,34 +49,41 @@ class Discover(Walker):
 
     @ops_func
     def handle_root(self, root):
-        LOG.debug("Considering %s" % root)
+        LOG.info("Considering %s" % root)
         if os.path.isdir(root) and os.access(root, os.R_OK):
             
             name = root.split(os.path.sep)[-1]
 
             if root not in shallow.get_directories():
                 if shallow.path_is_media_root(root, self.file_types):
-                    LOG.info("adding %s to media paths." % (root))
                     shallow.add_directory(root, 'location')
-                    self.folders.append(root)
 
                 elif name in self.file_types:
-                    LOG.info("adding %s to media paths." % (root))
                     shallow.add_directory(root, 'format')
-                    self.folders.append(root)
 
                 elif name in self.categories:
-                    LOG.info("adding %s to media paths." % (root))
                     shallow.add_directory(root, 'category')
-                    self.folders.append(root)
 
                 elif shallow.path_is_media_root(root, self.categories):
-                    LOG.info("adding %s to media paths." % (root))
                     shallow.add_directory(root, 'collection')
+                
+                elif not self.path_contains_files(root):
+                    # shallow.add_directory(root, 'directory')
+                    return
+
+                if root not in self.folders:
                     self.folders.append(root)
+               
+
+    def path_contains_files(self, path):
+        if os.path.isdir(path) and os.access(path, os.R_OK):
+            for f in os.listdir(path):
+                if os.path.isfile(os.path.join(path, f)):
+                    return True
 
     def handle_root_error(self, err, root):
-        assets.set_active_directory(None)
+        pass
+        # assets.set_active_directory(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
     @ops_func
@@ -94,4 +101,8 @@ def discover(startpath):
     if startpath not in shallow.get_directories():
         shallow.add_directory(startpath, 'path')
     d.walk(startpath)
+    print('folders in selection:')
+    for folder in d.folders:
+        print folder
+
     return d.folders

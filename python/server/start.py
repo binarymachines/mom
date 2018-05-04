@@ -148,18 +148,6 @@ def reset(args):
         query = 'delete from %s' % (table)
         sql.execute_query(query, schema=config.db_media)
 
-    # stores = [] if not args['--reset'] else args['<reset>']
-    # for store in stores:
-        # pass
-
-    # for table in ['directory']:
-    #     query = 'delete from %s' % (table)
-    #     sql.execute_query(query)
-
-    # for table in []:
-    #     query = 'delete from %s' % (table)
-    #     sql.execute_query(query)
-
     for table in ['op_record', 'mode_state', 'service_exec']:
         query = 'delete from %s' % (table)
         sql.execute_query(query, schema=config.db_service)

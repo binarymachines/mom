@@ -5,7 +5,7 @@ import config, alchemy
 from const import DIRECTORY, FILE
 from core import cache2
 
-from assets import PATTERN
+from assets import PATTERN, set_active_directory
 
 def get_sorted_items(keygroup, identifier):
     key = cache2.get_key(keygroup, identifier)
@@ -44,11 +44,12 @@ def get_categories(refresh=False):
 
 
 def add_directory(path, type=None):
+    # set_active_directory(path)
+    print('adding %s directory %s' % (type, path))
     directory = alchemy.SQLDirectory.retrieve(path)
     if directory is None:
         alchemy.SQLDirectory.insert(path, type)
         get_directories(True)
-
 
 def get_directories(refresh=False, directory_type=None):
     keygroup = DIRECTORY
@@ -75,8 +76,8 @@ def get_directory_types(refresh=False):
     if len(items) == 0 or refresh:
         cache2.clear_items(keygroup, identifier)
         key = cache2.get_key(keygroup, identifier)
-        rows = alchemy.SQLDirectoryConstant.retrieve_all()
-        cache2.add_items2(key, [dc.directory_type for dc in rows])
+        rows = alchemy.SQLDirectoryType.retrieve_all()
+        cache2.add_items2(key, [dt.name for dt in rows])
 
     return get_sorted_items(keygroup, identifier)
 
