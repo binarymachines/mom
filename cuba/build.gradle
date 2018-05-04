@@ -1,6 +1,6 @@
 
 buildscript {
-    ext.cubaVersion = '6.7-SNAPSHOT'
+    ext.cubaVersion = '6.8-SNAPSHOT'
     repositories {
         
         mavenLocal()
@@ -241,7 +241,7 @@ task restart(dependsOn: ['stop', ':mildred-core:deploy', ':mildred-web:deploy'],
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.4'
+    gradleVersion = '4.3.1'
 }
 
 apply from: 'extra.gradle'
