@@ -48,6 +48,10 @@ git add $MILDRED_HOME/cuba/modules/*/src/*/*.xml
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.java
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.groovy
 git add $MILDRED_HOME/cuba/modules/*/src/*/*.properties
+git add $MILDRED_HOME/cuba/modules/*/src/*/*.prefs
+git add $MILDRED_HOME/cuba/modules/*/src/*/*.project
+git add $MILDRED_HOME/cuba/modules/*/src/*/*.classpath
+
 
 git add $MILDRED_HOME/cuba/modules/core/web/*/*.xml
 git add $MILDRED_HOME/cuba/modules/web/web/*/*.xml

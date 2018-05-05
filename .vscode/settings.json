@@ -2,7 +2,7 @@
 {
     "python.pythonPath": "/media/codex/Home/workspace/venv/m2/bin/python2.7",
     "python.linting.pylintEnabled": true,
-    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.configuration.updateBuildConfiguration": "automatic",
     "files.autoSave": "onFocusChange",
     "python.linting.enabled": false,
     "git.ignoreLimitWarning": true

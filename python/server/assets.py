@@ -15,7 +15,7 @@ import config
 import ops
 import search
 import sql
-from alchemy import SQLAsset, SQLDirectoryType, SQLDirectoryPattern
+from alchemy import SQLAsset, SQLFileType, SQLDirectoryType, SQLDirectoryPattern
 from const import DIRECTORY, MATCH
 from core import cache2, log, util
 from errors import AssetException, ElasticDataIntegrityException
@@ -211,7 +211,8 @@ def set_active_directory(path):
         else:
             directory.location = get_library_location(path)
             data = directory_attribs(directory)
-            directory.esid = create_asset_metadata(data)
+            file_type = SQLFileType.retrieve('directory')
+            directory.esid = create_asset_metadata(data, file_type)
 
         cache_directory(directory)
 
@@ -304,7 +305,7 @@ def index_asset(data):
 ATTRIBUTES = 'attributes'
 FAILED_TO_PARSE = 'failed to parse'
 
-def create_asset_metadata(data, file_type=None):
+def create_asset_metadata(data, file_type):
     try:
         # LOG.debug("indexing %s: %s" % (asset.asset_type, asset.absolute_path))
         esid = index_asset(data)
@@ -332,13 +333,13 @@ def create_asset_metadata(data, file_type=None):
                         props[error_field] = None
                         data[ATTRIBUTES][index] = props
 
-                        return create_asset_metadata(data)
+                        return create_asset_metadata(data, file_type)
             # except Exception, err3:
             #     ERR.error("LOGGING ERROR %s" % err3.args[0])
         raise Exception(err, err.message)
         
     except ConnectionError, err:
-        return wait_and_resubmit_asset(err, data)
+        return wait_and_resubmit_asset(err, data, file_type)
 
     except AssetException, err:
         handle_asset_exception(err, data['absolute_path'])
@@ -352,7 +353,7 @@ def create_asset_metadata(data, file_type=None):
     return True        
 
 @ops_func
-def wait_and_resubmit_asset(err, data):
+def wait_and_resubmit_asset(err, data, file_type):
     # TODO: if ES doesn't become available after alloted time or number of retries, INVALIDATE ALL READ OPERATIONS FOR THIS ASSET
     print("Elasticsearch connectivity error, retrying in 5 seconds...") 
     es_avail = False
@@ -360,15 +361,15 @@ def wait_and_resubmit_asset(err, data):
         ERR.error(err.__class__.__name__)
         time.sleep(5)
         config.es = search.connect(config.es_host, config.es_port)
-        if resubmit_asset(data):
+        if resubmit_asset(data, file_type):
             return True 
     
 @ops_func
-def resubmit_asset(data):
+def resubmit_asset(data, file_type):
     try:
         if config.es.indices.exists(data['asset_type']):
             print("resuming...") 
-            return create_asset_metadata(data)
+            return create_asset_metadata(data, file_type)
     # except RequestError
     except ConnectionError, err:
         print("Elasticsearch connectivity error, retrying in 5 seconds...")

@@ -28,7 +28,7 @@
                 "--reset"
                 //  "mode_state", "service_exec", "op_record", "match_record", "document"
                 //"--scan-path"
-                , "--map-paths", "/media/codex/Media/audio/music/recently downloaded/"
+                , "--map-paths", "/media/codex/Media/audio/music/incoming"
                 // , "--clearmem"
                 // , "--exit"
                 // "--nomatch"

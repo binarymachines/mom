@@ -386,9 +386,8 @@ class SQLAsset(Asset):
     @staticmethod
     @alchemy_func
     def insert(asset_type, id, absolute_path, file_type):
-        print('creating sql asset')
-        if file_type is None and asset_type == const.DIRECTORY:
-            file_type=SQLFileType.retrieve(None) 
+        # if file_type is None and asset_type == const.DIRECTORY:
+        #     file_type=SQLFileType.retrieve(None) 
 
         if asset_type == const.FILE:
             ext = absolute_path.split('.')[-1].lower()

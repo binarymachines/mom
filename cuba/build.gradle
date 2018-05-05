@@ -193,35 +193,7 @@ configure(webModule) {
         appName = 'mildred'
         appJars('mildred-global', 'mildred-gui', 'mildred-web')
     }
-    task buildScssThemes(type: CubaWebScssThemeCreation)
-    task deployThemes(type: CubaDeployThemeTask, dependsOn: buildScssThemes)
-    assemble.dependsOn buildScssThemes
 }
-
-configure(webThemesModule) {
-    apply(plugin: 'java')
-    apply(plugin: 'maven')
-    apply(plugin: 'cuba')
-
-    appModuleType = 'web-themes'
-
-    buildDir = file('../build/scss-themes')
-
-    sourceSets {
-        main {
-            java {
-                srcDir '.'
-            }
-            resources {
-                srcDir '.'
-            }
-        }
-    }
-}
-
-
-
-
 
 task undeploy(type: Delete, dependsOn: ':mildred-web:cleanConf') {
     delete("$cuba.tomcat.dir/shared")

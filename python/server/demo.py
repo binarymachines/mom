@@ -322,8 +322,23 @@ class Scanner(DefaultModeHandler):
     @ops_func
     def do_scan(self):
         # self.map_new_paths()
+        print(" scan starting...")
+        # self.vector.set_param(SCAN, DEEP, False)
+        self.vector.reset(SCAN)
+        if self.vector.has_next(SCAN, use_fifo=True):
+            scan.scan(self.vector)
+        # elif self.path_to_map(): 
+        #     self.vector.paths.append(self.path_to_map())
+        #     scan.scan(self.vector)
+        
+        self.update_complete = True
+
+    @ops_func
+    def do_scan_update(self):
+        # self.map_new_paths()
         print("update scan starting...")
         # self.vector.set_param(SCAN, DEEP, False)
+        self.vector.reset(SCAN)
         if self.vector.has_next(SCAN, use_fifo=True):
             scan.scan(self.vector)
         # elif self.path_to_map(): 

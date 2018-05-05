@@ -53,7 +53,7 @@ class Scanner(Walker):
             else:
                 self.file_types[file_type.ext] = file_type
 
-    def get_file_type(self, path):
+    def get_or_create_file_type(self, path):
         try:
             ext = path.split('.')[-1].lower()
             if ext is None:
@@ -93,7 +93,7 @@ class Scanner(Walker):
 
             if asset.esid is None:
                 data['directory'] = directory['esid']
-                asset.esid = assets.create_asset_metadata(data, self.get_file_type(path))
+                asset.esid = assets.create_asset_metadata(data, self.get_or_create_file_type(path))
             else:
                 assets.update_asset(data)
             # ordering dependencies end
@@ -132,38 +132,38 @@ class Scanner(Walker):
             return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            if file_type_recognized(root, self.reader.extensions):
-                try:
-                    directory = Directory(root)
-                    data = assets.directory_attribs(directory)
-                    if data['attributes']['album']:
-                        LOG.info("adding %s to media paths." % (root))
-                        shallow.add_directory(root, 'album')
-                        assets.set_active_directory(root)
-                        # self.folders.append(root)
+            # if file_type_recognized(root, self.reader.extensions):
+            try:
+                directory = Directory(root)
+                data = assets.directory_attribs(directory)
+                if data['attributes']['album']:
+                    LOG.info("adding %s to media paths." % (root))
+                    shallow.add_directory(root, 'album')
+                    assets.set_active_directory(root)
+                    # self.folders.append(root)
 
-                    elif data['attributes']['compilation']:
-                        LOG.info("adding %s to media paths." % (root))
-                        shallow.add_directory(root, 'compilation')
-                        assets.set_active_directory(root)
-                        # self.folders.append(root)
+                elif data['attributes']['compilation']:
+                    LOG.info("adding %s to media paths." % (root))
+                    shallow.add_directory(root, 'compilation')
+                    assets.set_active_directory(root)
+                    # self.folders.append(root)
 
-                    elif data['attributes']['recent']:
-                        LOG.info("adding %s to media paths." % (root))
-                        shallow.add_directory(root, 'recent')
-                        assets.set_active_directory(root)
+                elif data['attributes']['recent']:
+                    LOG.info("adding %s to media paths." % (root))
+                    shallow.add_directory(root, 'recent')
+                    assets.set_active_directory(root)
 
                     # elif data['attributes']['random']:
                     #     LOG.info("adding %s to media paths." % (root))
                     #     shallow.add_directory(root, 'random')
-                    # else: 
-                    #     assets.set_active_directory(root)
-                    #     shallow.add_directory(root, 'random')
+                else: 
+                    assets.set_active_directory(root)
+                    shallow.add_directory(root, 'directory')
 
-                except ElasticDataIntegrityException, err:
-                    ERR.warning(': '.join([err.__class__.__name__, err.message]))
-                    assets.handle_asset_exception(err, root)
-                    self.vector.rpush_fifo(SCAN, root)
+            except ElasticDataIntegrityException, err:
+                ERR.warning(': '.join([err.__class__.__name__, err.message]))
+                assets.handle_asset_exception(err, root)
+                self.vector.rpush_fifo(SCAN, root)
                     
                 # # except TransportError:
                 # except Exception, err:
