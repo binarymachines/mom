@@ -195,6 +195,17 @@ class SQLDirectory(Directory):
 
     @staticmethod
     @alchemy_func
+    def set_directory_type(directory, directory_type_name):
+        try:
+            directory_type = SQLDirectoryType.retrieve(directory_type_name)
+            directory.directory_type = directory_type
+            sessions[MEDIA].commit()
+        except IntegrityError, err:
+            raise SQLAlchemyIntegrityError(err, sessions[MEDIA], message=err.message)
+
+
+    @staticmethod
+    @alchemy_func
     def retrieve(name):
         result = ()
         for instance in sessions[MEDIA].query(SQLDirectory). \
@@ -386,8 +397,8 @@ class SQLAsset(Asset):
     @staticmethod
     @alchemy_func
     def insert(asset_type, id, absolute_path, file_type):
-        # if file_type is None and asset_type == const.DIRECTORY:
-        #     file_type=SQLFileType.retrieve(None) 
+        if asset_type == const.DIRECTORY:
+            file_type=SQLFileType.retrieve(None) 
 
         if asset_type == const.FILE:
             ext = absolute_path.split('.')[-1].lower()

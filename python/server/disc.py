@@ -47,32 +47,30 @@ class Discover(Walker):
         self.categories = shallow.get_categories()
         self.types = shallow.get_directory_types()
 
-    @ops_func
+    #@ops_func
     def handle_root(self, root):
         LOG.info("Considering %s" % root)
         if os.path.isdir(root) and os.access(root, os.R_OK):
             
             name = root.split(os.path.sep)[-1]
 
-            if root not in shallow.get_directories():
-                if shallow.path_is_media_root(root, self.file_types):
-                    shallow.add_directory(root, 'location')
+            if name in self.categories:
+                shallow.set_directory_type(root, 'category')
 
-                elif name in self.file_types:
-                    shallow.add_directory(root, 'format')
+            elif name in self.file_types:
+                shallow.set_directory_type(root, 'format')
 
-                elif name in self.categories:
-                    shallow.add_directory(root, 'category')
+            elif shallow.path_is_media_root(root, self.categories):
+                shallow.set_directory_type(root, 'collection')
+            
+            elif shallow.path_is_media_root(root, self.categories):
+                shallow.set_directory_type(root, 'location')
+            
+            elif not self.path_contains_files(root):
+                return
 
-                elif shallow.path_is_media_root(root, self.categories):
-                    shallow.add_directory(root, 'collection')
-                
-                elif not self.path_contains_files(root):
-                    # shallow.add_directory(root, 'directory')
-                    return
-
-                if root not in self.folders:
-                    self.folders.append(root)
+            if root not in self.folders:
+                self.folders.append(root)
                
 
     def path_contains_files(self, path):
@@ -86,23 +84,22 @@ class Discover(Walker):
         # assets.set_active_directory(None)
         # TODO: connectivity tests, delete operations on root from cache.
 
-    @ops_func
+    #@ops_func
     def assess(self):
         # apply a set of rules to eliminating redundant media folders.
         pass
 
-    @ops_func
+    #@ops_func
     def process(self, folder):
         pass
         
 
 def discover(startpath):
-    d = Discover()
     if startpath not in shallow.get_directories():
-        shallow.add_directory(startpath, 'path')
+        shallow.set_directory_type(startpath, 'path')
+    d = Discover()
     d.walk(startpath)
-    print('folders in selection:')
+    LOG.info('folders in selection:')
     for folder in d.folders:
-        print folder
-
+        LOG.info(folder)
     return d.folders

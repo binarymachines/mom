@@ -43,13 +43,18 @@ def get_categories(refresh=False):
     return get_sorted_items(keygroup, identifier)
 
 
-def add_directory(path, type=None):
+def set_directory_type(path, directory_type_name):
     # set_active_directory(path)
-    print('adding %s directory %s' % (type, path))
     directory = alchemy.SQLDirectory.retrieve(path)
     if directory is None:
-        alchemy.SQLDirectory.insert(path, type)
+        print('adding %s directory %s' % (directory_type_name, path))
+        alchemy.SQLDirectory.insert(path, directory_type_name)
         get_directories(True)
+    else:
+        print('changing directory type to %s for directory %s' % (directory_type_name, path))
+        directory_type = SQLDirectoryType.retrieve(directory_type_name)
+        if directory_type and directory.directory_type is not directory_type:
+            directory.set_directory_type(directory, directory_type)
 
 def get_directories(refresh=False, directory_type=None):
     keygroup = DIRECTORY
