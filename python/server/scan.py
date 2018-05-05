@@ -132,8 +132,7 @@ class Scanner(Walker):
             return
 
         if os.path.isdir(root) and os.access(root, os.R_OK):
-            # if file_type_recognized(root, self.reader.extensions):
-            try:
+            if file_type_recognized(root, self.reader.extensions):
                 directory = Directory(root)
                 data = assets.directory_attribs(directory)
                 if data['attributes']['album']:
@@ -148,8 +147,8 @@ class Scanner(Walker):
                     LOG.info("adding %s to media paths." % (root))
                     shallow.set_directory_type(root, 'recent')
 
+            try:
                 assets.set_active_directory(root)
-
             except ElasticDataIntegrityException, err:
                 ERR.warning(': '.join([err.__class__.__name__, err.message]))
                 assets.handle_asset_exception(err, root)
