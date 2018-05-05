@@ -211,8 +211,8 @@ class Matcher(DefaultModeHandler):
         # dir = self.vector.get_active (MATCH)
         # LOG.debug('%s matching in %s...' % (self.owner.name, dir))
         try:
-            # pass
-            calc.calc(self.vector)
+            pass
+            # calc.calc(self.vector)
         except Exception, err:
             # self.selector.handle_error(err)
             LOG.debug(err.message)
@@ -298,6 +298,8 @@ class Scanner(DefaultModeHandler):
             paths = disc.discover(startpath)
             if paths is None or len(paths) == 0:
                 print('No new media folders were found in discovery scan.')
+                if startpath not in self.vector.paths: 
+                    self.vector.paths.append(startpath)
             else:
                 self.vector.paths.extend(paths)
                 # self.vector.set_param('all', 'map-paths', False)
@@ -311,9 +313,9 @@ class Scanner(DefaultModeHandler):
     @ops_func
     def do_scan_monitor(self):
         self.map_new_paths()
-        print("monitor scan starting...")
         self.vector.reset(SCAN)
         if self.vector.has_next(SCAN, use_fifo=True):
+            print("monitor scan starting...")
             scan.scan(self.vector)
 
         self.monitor_complete = True
@@ -322,28 +324,20 @@ class Scanner(DefaultModeHandler):
     @ops_func
     def do_scan(self):
         # self.map_new_paths()
-        print(" scan starting...")
-        # self.vector.set_param(SCAN, DEEP, False)
         self.vector.reset(SCAN)
         if self.vector.has_next(SCAN, use_fifo=True):
+            print(" scan starting...")
             scan.scan(self.vector)
-        # elif self.path_to_map(): 
-        #     self.vector.paths.append(self.path_to_map())
-        #     scan.scan(self.vector)
         
         self.update_complete = True
 
     @ops_func
     def do_scan_update(self):
         # self.map_new_paths()
-        print("update scan starting...")
-        # self.vector.set_param(SCAN, DEEP, False)
         self.vector.reset(SCAN)
         if self.vector.has_next(SCAN, use_fifo=True):
+            print("update scan starting...")
             scan.scan(self.vector)
-        # elif self.path_to_map(): 
-        #     self.vector.paths.append(self.path_to_map())
-        #     scan.scan(self.vector)
         
         self.update_complete = True
 

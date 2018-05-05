@@ -7,6 +7,8 @@ from core import cache2
 
 from assets import PATTERN, set_active_directory
 
+from alchemy import SQLDirectoryType
+
 def get_sorted_items(keygroup, identifier):
     key = cache2.get_key(keygroup, identifier)
     result = []

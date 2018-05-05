@@ -138,27 +138,17 @@ class Scanner(Walker):
                 data = assets.directory_attribs(directory)
                 if data['attributes']['album']:
                     LOG.info("adding %s to media paths." % (root))
-                    shallow.add_directory(root, 'album')
-                    assets.set_active_directory(root)
-                    # self.folders.append(root)
+                    shallow.set_directory_type(root, 'album')
 
                 elif data['attributes']['compilation']:
                     LOG.info("adding %s to media paths." % (root))
-                    shallow.add_directory(root, 'compilation')
-                    assets.set_active_directory(root)
-                    # self.folders.append(root)
+                    shallow.set_directory_type(root, 'compilation')
 
                 elif data['attributes']['recent']:
                     LOG.info("adding %s to media paths." % (root))
-                    shallow.add_directory(root, 'recent')
-                    assets.set_active_directory(root)
+                    shallow.set_directory_type(root, 'recent')
 
-                    # elif data['attributes']['random']:
-                    #     LOG.info("adding %s to media paths." % (root))
-                    #     shallow.add_directory(root, 'random')
-                else: 
-                    assets.set_active_directory(root)
-                    shallow.add_directory(root, 'directory')
+                assets.set_active_directory(root)
 
             except ElasticDataIntegrityException, err:
                 ERR.warning(': '.join([err.__class__.__name__, err.message]))
@@ -318,7 +308,7 @@ class Scanner(Walker):
                 if self.scan_should_skip(path): 
                     continue
 
-                if self.path_expands(path):
+                if path is not last_expanded_path and self.path_expands(path):
                     # LOG.debug('expanded %s...' % path)
                     ops.update_listeners('expanded', SCANNER, path)
                     # self.vector.clear_active(SCAN)

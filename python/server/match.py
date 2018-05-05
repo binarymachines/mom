@@ -51,8 +51,8 @@ def path_expands(path, vector):
         if op_record.target_path not in expanded:
             expanded.append(op_record.target_path)
             
-    if path in shallow.get_directories():
-        expanded.extend([os.path.join(path, directory) for directory in os.listdir(path)]) 
+    # if path in shallow.get_directories():
+    #     expanded.extend([os.path.join(path, directory) for directory in os.listdir(path)]) 
         
     for xp in expanded:
         # TODO: count(expath pathsep) == count (path pathsep) + 1

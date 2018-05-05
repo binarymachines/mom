@@ -147,9 +147,9 @@ SQLReason.params = relationship("SQLReasonParam", order_by=SQLReasonParam.id, ba
 
 class SQLDirectoryType(DirectoryType):
     
-    def __repr__(self):
-        return "<SQLDirectoryType(name='%s')>" % (
-                                self.name)
+    # def __repr__(self):
+    #     return "<SQLDirectoryType(name='%s')>" % (
+    #                             self.name)
 
     @staticmethod
     @alchemy_func
@@ -195,9 +195,9 @@ class SQLDirectory(Directory):
 
     @staticmethod
     @alchemy_func
-    def set_directory_type(directory, directory_type_name):
+    def set_directory_type(directory, directory_type):
         try:
-            directory_type = SQLDirectoryType.retrieve(directory_type_name)
+            # directory_type = SQLDirectoryType.retrieve(directory_type_name)
             directory.directory_type = directory_type
             sessions[MEDIA].commit()
         except IntegrityError, err:
