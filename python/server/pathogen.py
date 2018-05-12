@@ -35,7 +35,7 @@ class Pathogen(FileHandler):
     #TODO: decorate this method with error handling that will deal properly with trapping UnicodeDecodeError 
     @ops_func
     def handle_file(self, path, data):
-        # LOG.info("%s reading file: %s" % (self.name, path))
+        LOG.info("%s reading file: %s" % (self.name, path))
         read_failed = False
 
         try:
@@ -129,6 +129,7 @@ class MutagenMP4(Pathogen):
         super(MutagenMP4, self).__init__('mutagen-mp4')
 
     def read_tags(self, path, data):
+        filename, file_extension = os.path.splitext(path)
         file = MP4(path)
         for item in file.items():
             if len(item) < 2: 
@@ -138,7 +139,7 @@ class MutagenMP4(Pathogen):
             if self.key_is_invalid(key): 
                 continue
             
-            self.handle_attribute('m4a', key)
+            self.handle_attribute(file_extension, key)
 
             if isinstance(item[1], bool):
                 value = item[1]
@@ -156,7 +157,7 @@ class MutagenMP4(Pathogen):
             self.tags[key] = util.uu_str(value)
 
         if len(self.tags) > 0:
-            self.tags['_file_encoding'] = 'm4a'
+            self.tags['_file_encoding'] = file_extension
             self.tags['_reader'] = self.name
             #TODO: store read_date in same format as file ctime and mtime
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
@@ -173,6 +174,7 @@ class MutagenAPEv2(Pathogen):
         super(MutagenAPEv2, self).__init__('mutagen-apev2')
 
     def read_tags(self, path, data):
+        filename, file_extension = os.path.splitext(path)
         file = APEv2(path)
         for item in file.items():
             if len(item) < 2: 
@@ -182,7 +184,7 @@ class MutagenAPEv2(Pathogen):
             if self.key_is_invalid(key):
                 continue
 
-            self.handle_attribute('apev2', key)
+            self.handle_attribute(file_extension, key)
 
             value = util.uu_str(item[1].value)
             if len(value) > MAX_DATA_LENGTH:
@@ -192,7 +194,7 @@ class MutagenAPEv2(Pathogen):
             self.tags[key] = value
 
         if len(self.tags) > 0:
-            self.tags['_file_encoding'] = 'apev2'
+            self.tags['_file_encoding'] = file_extension
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
@@ -203,6 +205,7 @@ class MutagenFLAC(Pathogen):
         super(MutagenFLAC, self).__init__('mutagen-flac')
 
     def read_tags(self, path, data):
+        filename, file_extension = os.path.splitext(path)
         file = FLAC(path)
         for tag in file.tags:
             if len(tag) < 2: continue
@@ -211,7 +214,7 @@ class MutagenFLAC(Pathogen):
             if self.key_is_invalid(key):
                 continue
 
-            self.handle_attribute('flac', key)
+            self.handle_attribute(file_extension, key)
 
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
@@ -225,7 +228,7 @@ class MutagenFLAC(Pathogen):
             if self.key_is_invalid(key):
                 continue
 
-            self.handle_attribute('flac', key)
+            self.handle_attribute(file_extension, key)
 
             value = util.uu_str(tag[1])
             if len(value) > MAX_DATA_LENGTH:
@@ -236,7 +239,7 @@ class MutagenFLAC(Pathogen):
                 self.tags[key] = value
 
         if len(self.tags) > 0:
-            self.tags['_file_encoding'] = 'flac'
+            self.tags['_file_encoding'] = file_extension
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
@@ -303,6 +306,7 @@ class MutagenOggVorbis(Pathogen):
         super(MutagenOggVorbis, self).__init__('mutagen-oggvorbis')
 
     def read_tags(self, path, data):
+        filename, file_extension = os.path.splitext(path)
         file = OggVorbis(path)
         tags = file.tags.as_dict()
         for tag in tags:
@@ -313,7 +317,7 @@ class MutagenOggVorbis(Pathogen):
             if self.key_is_invalid(key): 
                 continue
 
-            self.handle_attribute('ogg', key)
+            self.handle_attribute(file_extension, key)
 
             value = util.uu_str(tags[tag])
             if len(value) > MAX_DATA_LENGTH:
@@ -323,7 +327,7 @@ class MutagenOggVorbis(Pathogen):
             self.tags[key] = value[0]
 
         if len(self.tags) > 0:
-            self.tags['_file_encoding'] = 'ogg'
+            self.tags['_file_encoding'] = file_extension
             self.tags['_reader'] = self.name
             self.tags['_read_date'] = datetime.datetime.now().isoformat()
             data['attributes'].append(self.tags)
