@@ -281,10 +281,11 @@ class Scanner(Walker):
 
         assets.clear_docs(const.FILE, os.path.sep)
 
-        while self.vector.has_next(SCAN, use_fifo=True):           
+        # while self.vector.has_next(SCAN, use_fifo=True):
+        for path in self.vector.paths:           
+            # if not path_restored: 
+            #     path = self.vector.get_next(SCAN, True) 
 
-            path = path if path_restored else self.vector.get_next(SCAN, True) 
-            path_restored = False
             self.vector.set_param(PERSIST, ACTIVE, path)
             
             if path is None or path == 'None' or os.path.isfile(path): 
@@ -293,26 +294,27 @@ class Scanner(Walker):
             ops.update_listeners('evaluating', SCANNER, path)
             if os.path.isdir(path) and os.access(path, os.R_OK):
                 # if self.high_scan and self.vector.path_in_fifo(path, SCAN) == False:
-                should_cache = last_expanded_path is None
-                if self.high_scan:
-                    if last_expanded_path:
-                        if not path.startswith(last_expanded_path):
-                            last_expanded_path = None
-                            should_cache = True
+                # should_cache = last_expanded_path is None
+                # if self.high_scan:
+                #     if last_expanded_path:
+                #         if not path.startswith(last_expanded_path):
+                #             last_expanded_path = None
+                #             should_cache = True
+                #             ops.cache_ops(path, HSCAN, SCANNER)
 
-                    if should_cache:
-                        ops.cache_ops(path, HSCAN, SCANNER)
+                # if should_cache:
+                ops.cache_ops(path, SCAN, SCANNER)
 
                 # if self.deep_scan or self.path_has_handlers(path) or self.vector.path_in_fifos(path, SCAN):
                 if self.scan_should_skip(path): 
                     continue
 
-                if path is not last_expanded_path and self.path_expands(path):
-                    # LOG.debug('expanded %s...' % path)
-                    ops.update_listeners('expanded', SCANNER, path)
-                    # self.vector.clear_active(SCAN)
-                    last_expanded_path = path
-                    continue
+                # if path is not last_expanded_path and self.path_expands(path):
+                #     # LOG.debug('expanded %s...' % path)
+                #     ops.update_listeners('expanded', SCANNER, path)
+                #     # self.vector.clear_active(SCAN)
+                #     last_expanded_path = path
+                #     continue
 
                 ops.update_listeners('scanning', SCANNER, path)
                 

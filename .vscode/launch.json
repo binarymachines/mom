@@ -23,12 +23,11 @@
             "cwd": "${workspaceRoot}/python",
             "program": "${workspaceRoot}/python/server/launch.py",
             "args": [
-                // "--clearmem"
-                // , "--exit"
                 "--reset"
+                // , "--exit"
                 //  "mode_state", "service_exec", "op_record", "match_record", "document"
                 //"--scan-path"
-                , "--map-paths", "/media/codex/Media/audio/music/incoming"
+                , "--map-paths", "/media/codex/Media/audio/music/incoming/alternative"
                 // , "--clearmem"
                 // , "--exit"
                 // "--nomatch"

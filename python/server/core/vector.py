@@ -327,8 +327,8 @@ class CachedPathVector(PathVector):
         if len(self.paths) == 0:
             return None
 
-        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
-            return self.pop_fifo(consumer)
+        # if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
+        #     return self.pop_fifo(consumer)
 
         result = None
 
@@ -359,8 +359,8 @@ class CachedPathVector(PathVector):
         if len(self.paths) == 0: 
             return False
 
-        if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
-            return True
+        # if (self.always_peek_fifo or use_fifo) and self.peek_fifo(consumer):
+        #     return True
 
         result = False
 

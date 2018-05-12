@@ -63,8 +63,8 @@ class Discover(Walker):
             elif shallow.path_is_media_root(root, self.categories):
                 shallow.set_directory_type(root, 'collection')
             
-            elif shallow.path_is_media_root(root, self.categories):
-                shallow.set_directory_type(root, 'location')
+            # elif shallow.path_is_media_root(root, self.categories):
+            #     shallow.set_directory_type(root, 'location')
             
             elif not self.path_contains_files(root):
                 return
