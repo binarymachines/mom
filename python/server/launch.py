@@ -21,7 +21,7 @@ import start
 import disc
 
 from core.vector import PathVector, CachedPathVector
-from core.serv import Service
+from core.serv import Server
 from core import util
 
 from shallow import get_directories
@@ -31,51 +31,29 @@ from alchemy import SQLServiceProfile
 from core import serv
 from service import ServiceProcess
 
-def get_process_create_func(profile):
-    module_name =  profile.service_handler_dispatch.module_name
-    module = __import__(module_name)
-    create_func = getattr(module, profile.service_handler_dispatch.func_name)
+def create_service_processes(server, args):
+    start.execute(args)
+    if config.started:
+        profile = SQLServiceProfile.retrieve(core.var.profile)
+        if profile:
+            if args['--scan-path']:
+                paths = [args['<scanpath>']]
+            else:
+                path_args = start.get_paths(args)
+                paths = get_directories() if path_args == [] else path_args
 
-    return create_func
+            vector = CachedPathVector('path vector', paths)
+            vector.peep_fifo = True
+            if args['--expand-all']:
+                vector.set_param('all', 'expand-all', True)
 
+            if args['--map-paths']:
+                vector.set_param('all', 'map-paths', True)
+                vector.set_param('all', 'start-path', args['<startpath>'])
 
-def launch(args, run=True):
-    try:
-        # config.config_file = config.config_file if not args['--config'] else args['<filename>']
-    
-        start.execute(args)
-
-        if config.started:
-            service = Service()
-
-            profile = SQLServiceProfile.retrieve(core.var.profile)
-            if profile and run:
-                if args['--scan-path']:
-                    paths = [args['<scanpath>']]
-                else:
-                    path_args = start.get_paths(args)
-                    paths = get_directories() if path_args == [] else path_args
-
-                vector = CachedPathVector('path vector', paths)
-                vector.peep_fifo = True
-                if args['--expand-all']:
-                    vector.set_param('all', 'expand-all', True)
-
-                if args['--map-paths']:
-                    vector.set_param('all', 'map-paths', True)
-                    vector.set_param('all', 'start-path', args['<startpath>'])
-
-                service_process = ServiceProcess(vector, service, before=before, after=after)    
-                service.queue([service_process])
-                # TODO: a call to service.handle_services() should NOT be required here or anywhere else outside of the service process
-                service.handle_services()
-
-            return service
+            service_process = ServiceProcess(vector, server, before=before, after=after)    
 
         else: raise Exception('unable to initialize with current configuration.')
-    except Exception, err:
-        traceback.print_exc()
-        sys.exit(err.message)
 
 def after(process):
     print('%s has ended.' % process.name)
@@ -88,7 +66,9 @@ def before(process):
 
 def main(args):
     os.chdir(util.get_working_directory())
-    launch(args)
+    server = Server()
+    create_service_processes(server, args)
+    server.handle_services()
 
 
 if __name__ == '__main__':

@@ -104,10 +104,10 @@ class Rule(object):
 
 
     @dynamic_func
-    def applies(self, selector, active, possible):
+    def applies(self):
         try:
             func = _parse_func_info(self.condition)
-            return self.condition(selector, active, possible)
+            return self.condition()
         except Exception, err:
             ERR.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name))
             raise err
@@ -253,7 +253,7 @@ class Selector:
 
             try:
                 self.possible = rule.end
-                if rule.applies(self, self.active, self.possible):
+                if rule.applies():
                     if rule not in results: 
                         results.append(rule)
             except Exception, err:

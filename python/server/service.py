@@ -40,6 +40,7 @@ class ServiceProcess(ServiceHost):
         profile = SQLServiceProfile.retrieve(var.profile)
         # super().__init__() must be called before accessing selector instance
         super(ServiceProcess, self).__init__(profile, vector, owner, stop_on_errors, before, after)
+        owner.queue([self])
 
     def _register_handler(self, qname):
         if qname not in self.handlers:
@@ -48,8 +49,11 @@ class ServiceProcess(ServiceHost):
                 LOG.warning("%s not found." % qname)
                 return
 
-            # self.handlers[qname] = clazz(self, self.vector)
-            self.handlers[qname] = clazz(self, qname, self.selector, self.vector)
+            self.handlers[qname] = clazz()
+            self.handlers[qname].owner = self
+            self.handlers[qname].name = self.name
+            self.handlers[qname].selector = self.selector
+            self.handlers[qname].vector = self.vector
 
     def _build_instance_registry(self):
         for rule in self.profile.switch_rules:
@@ -148,7 +152,6 @@ class ServiceProcess(ServiceHost):
     def setup(self):
         self.selector.remove_at_error_tolerance = True
         self.process_handler = self.create_service_handler()
-        # self.handlers['.'.join([__name__, self.process_handler.__class__.__name__])] = self.process_handler
         self._build_instance_registry()
         for record in self.moderecords:
             self.__dict__[record.mode_name] = self.create_mode(record.mode_name)

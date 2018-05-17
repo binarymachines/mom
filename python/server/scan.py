@@ -34,9 +34,9 @@ ERR = log.get_safe_log('errors', logging.WARNING)
 PERSIST = 'scan.persist'
 ACTIVE = 'active.scan.path'
 
-class Scanner(Walker):
+class FileScanner(Walker):
     def __init__(self, vector):
-        super(Scanner, self).__init__()
+        super(FileScanner, self).__init__()
         self.vector = vector
         self.asset_type = const.FILE
         self.deep_scan = self.vector.get_param(SCAN, DEEP)
@@ -365,7 +365,7 @@ def multiple_file_types_recognized(path, extensions):
 
 def scan(vector):
     if SCANNER not in vector.data:
-        vector.data[SCANNER] = Scanner(vector)
+        vector.data[SCANNER] = FileScanner(vector)
     vector.data[SCANNER].scan()
     # x = os.system('clear')
     # start.show_logo()

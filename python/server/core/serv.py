@@ -102,7 +102,7 @@ class ServiceHost(object):
         mode.priority += mode.inc_priority_amount if inc_amount is None else inc_amount
 
 
-class Service(object):
+class Server(object):
     def __init__(self, name=None):
         self.name = SERVICE_NAME if name is None else name
         LOG.info('%s starting...\n' % self.name)

@@ -19,27 +19,20 @@ import os
 from core import log
 from const import SCAN, MATCH, CLEAN, ANALYZE, FIX, SYNC, STARTUP, SHUTDOWN, REPORT, REQUESTS, INITIAL, SCANNER, SCAN_DISCOVER, SCAN_UPDATE, SCAN_MONITOR, HSCAN, DEEP, USCAN
 
-# from core.modes import Mode
-from core.modestate import DefaultModeHandler
-
-# from core.states import State
-
-# from core import introspection
-
 from ops import ops_func
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 class DecisionHandler(object):
 
-    def definitely(self, selector=None, active=None, possible=None): 
+    def definitely(self): 
         return True
 
-    def maybe(self, selector, active, possible):
+    def maybe(self):
         result = bool(random.getrandbits(1))
         return result
 
-    def possibly(self, selector, active, possible):
+    def possibly(self):
         count = 0
         for mode in selector.modes:
             if bool(random.getrandbits(1)): 
@@ -48,12 +41,8 @@ class DecisionHandler(object):
 
 
 class DocumentService(DecisionHandler):
-    def __init__(self, owner, name, selector, vector):
+    def __init__(self):
         super(DocumentService, self).__init__()
-        self.vector = vector
-        self.owner = owner
-        self.name = name
-        self.selector = selector
 
         random.seed()
 
@@ -74,60 +63,49 @@ class DocumentService(DecisionHandler):
                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
     @ops_func
-    def mode_is_available(self, selector, active, possible):
+    def mode_is_available(self):
         initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
 
         if initial_and_update_scan_complete:
-            if possible is self.owner.match:
+            if self.owner.selector.possible is self.owner.match:
                 return self.vector.has_next(MATCH)
 
         return initial_and_update_scan_complete
 
 #startup mode
-class Starter(DefaultModeHandler):
-    def __init__(self, owner, name, selector, vector):
-        super(Starter, self).__init__(owner, vector)
-
+class Starter():
+    
     def started(self):
-        if self.owner:
-            LOG.debug("%s process has started" % self.owner.name)
+        LOG.debug("%s process has started" % self.owner.name)
 
     def starting(self):
-        if self.owner:
-            LOG.debug("%s process will start" % self.owner.name)
+        LOG.debug("%s process will start" % self.owner.name)
 
         # sql.execute_query('truncate mode_state', schema='service')
 
     def start(self):
-        if self.owner:
-            LOG.debug("%s process is starting" % self.owner.name)
+        LOG.debug("%s process is starting" % self.owner.name)
+
 
 
 # shutdown mode
 
-class Closer(DefaultModeHandler):
-    def __init__(self, owner, name, selector, vector):
-        super(Closer, self).__init__(owner, vector)
+class Closer():
 
     def ended(self):
-        if self.owner:
-            LOG.debug("%s process has ended" % self.owner.name)
+        LOG.debug("%s process has ended" % self.owner.name)
 
     def ending(self):
         print("shutting down...")
-        if self.owner:
-            LOG.debug("%s process will end" % self.owner.name)
+        LOG.debug("%s process will end" % self.owner.name)
 
     def end(self):
-        if self.owner:
-            LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.owner.name)
+        LOG.debug('%s handling shutdown request, clearing caches, writing data' % self.owner.name)
             
             
 # cleaning mode
 
-class CleaningModeHandler(DefaultModeHandler):
-    def __init__(self, owner, name, selector, vector):
-        super(CleaningModeHandler, self).__init__(owner, vector)
+class CleaningModeHandler():
 
     def after_clean(self):
         LOG.debug('%s done cleanining' % self.owner.name)
@@ -145,11 +123,9 @@ class CleaningModeHandler(DefaultModeHandler):
 
 # eval mode
 
-class Analyzer(DefaultModeHandler):
-    def __init__(self, owner, name, selector, vector):
-        super(Analyzer, self).__init__(owner, vector)
+class Analyzer():
 
-    def can_analyze(self, selector, active, possible):
+    def can_analyze(self):
         return True
 
     def do_analyze(self):
@@ -160,10 +136,7 @@ class Analyzer(DefaultModeHandler):
 
 # fix mode
 
-class Fixer(DefaultModeHandler):
-    def __init__(self, owner, name, selector, vector):
-        super(Fixer, self).__init__(owner, vector)
-
+class Fixer():
     def after_fix(self): 
         LOG.debug('%s done fixing' % self.owner.name)
         # self.owner.scan.reset_state()
@@ -180,10 +153,7 @@ class Fixer(DefaultModeHandler):
 
 # match mode
 
-class Matcher(DefaultModeHandler):
-    def __init__(self, owner, name, selector, vector):
-        super(Matcher, self).__init__(owner, vector)
-
+class Matcher():
 
     def before_match(self):
         # self.owner.before()
@@ -212,9 +182,7 @@ class Matcher(DefaultModeHandler):
             
 # report mode
 
-class ReportGenerator(DefaultModeHandler):
-    def __init__(self, owner, name, selector, vector):
-        super(ReportGenerator, self).__init__(owner, vector)
+class ReportGenerator():
 
     def do_report(self):
         print("reporting...")
@@ -227,11 +195,7 @@ class ReportGenerator(DefaultModeHandler):
                 
 #requests mode
 
-class RequestHandler(DefaultModeHandler):
-
-    def __init__(self, owner, name, selector, vector):
-        super(RequestHandler, self).__init__(owner, vector)
-
+class RequestHandler():
 
     def do_reqs(self):
         print("handling requests...")
@@ -241,10 +205,9 @@ class RequestHandler(DefaultModeHandler):
 
 # scan mode
 
-class Scanner(DefaultModeHandler):
+class Scanner():
 
-    def __init__(self, owner, name, selector, vector):
-        super(Scanner, self).__init__(owner, vector)
+    def __init__(self):
         self.scan_complete = False
         self.update_complete = False
         self.monitor_complete = False
@@ -273,7 +236,7 @@ class Scanner(DefaultModeHandler):
 
 
     @ops_func
-    def can_scan(self, selector, active, possible):
+    def can_scan(self):
         # if self.scan_complete == False:
         #     return self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector)
                 
