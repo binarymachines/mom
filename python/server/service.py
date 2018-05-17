@@ -148,7 +148,7 @@ class ServiceProcess(ServiceHost):
     def setup(self):
         self.selector.remove_at_error_tolerance = True
         self.process_handler = self.create_service_handler()
-        self.handlers['.'.join([__name__, self.process_handler.__class__.__name__])] = self.process_handler
+        # self.handlers['.'.join([__name__, self.process_handler.__class__.__name__])] = self.process_handler
         self._build_instance_registry()
         for record in self.moderecords:
             self.__dict__[record.mode_name] = self.create_mode(record.mode_name)
@@ -164,9 +164,8 @@ class ServiceProcess(ServiceHost):
 
         module = __import__(module_name)
         qname = introspection.get_qualified_name(package_name, module_name, class_name)
-        clazz = locate(qname)
-        if clazz:
-            return clazz(self.owner, self.name, self.selector, self.vector)
+
+        self._register_handler(qname)
 
     # def after_switch(self, selector, mode):
     #     print "after switch %s" % mode.name
