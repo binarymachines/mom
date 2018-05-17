@@ -32,6 +32,7 @@ LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 class ServiceProcess(ServiceHost):
     def __init__(self, vector, owner=None, stop_on_errors=True, before=None, after=None):
+        self.process_handler = None
         self.handlers = {'.'.join([__name__, self.__class__.__name__]): self}
         self.modes = {}
         self.state_change_handler = ModeStateChangeHandler()
@@ -49,11 +50,18 @@ class ServiceProcess(ServiceHost):
                 LOG.warning("%s not found." % qname)
                 return
 
-            self.handlers[qname] = clazz()
-            self.handlers[qname].owner = self
-            self.handlers[qname].name = self.name
-            self.handlers[qname].selector = self.selector
-            self.handlers[qname].vector = self.vector
+            instance = clazz()
+            instance.owner = self
+            instance.name = self.name
+            instance.selector = self.selector
+            instance.vector = self.vector
+            instance.handler = self.process_handler
+            
+            self.handlers[qname] = instance
+
+            return clazz
+        else:
+            return self.handlers[qname]
 
     def _build_instance_registry(self):
         for rule in self.profile.switch_rules:
@@ -168,7 +176,7 @@ class ServiceProcess(ServiceHost):
         module = __import__(module_name)
         qname = introspection.get_qualified_name(package_name, module_name, class_name)
 
-        self._register_handler(qname)
+        return self._register_handler(qname)
 
     # def after_switch(self, selector, mode):
     #     print "after switch %s" % mode.name

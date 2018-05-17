@@ -46,8 +46,6 @@ class DocumentService(DecisionHandler):
 
         random.seed()
 
-    # generic rule callbacks
-
     @ops_func
     def after(self):
         mode = self.selector.active

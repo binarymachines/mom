@@ -1,5 +1,5 @@
-drop database if exists mildred;
-create database mildred;
+drop schema if exists mildred;
+create schema mildred;
 use mildred;
 
 -- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)

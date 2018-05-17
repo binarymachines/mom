@@ -21,12 +21,12 @@ import javax.persistence.OneToMany;
 public class ServiceProfile extends BaseIntIdentityIdEntity {
     private static final long serialVersionUID = 121329709169337799L;
 
+    @Column(name = "name", length = 128)
+    protected String name;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "service_handler_dispatch_id")
     protected ServiceDispatch startupServiceDispatch;
-
-    @Column(name = "name", length = 128)
-    protected String name;
 
     @JoinTable(name = "service_profile_service_dispatch_jn",
         joinColumns = @JoinColumn(name = "service_profile_id"),

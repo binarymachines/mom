@@ -130,6 +130,24 @@ class OpRecordParamType(Base):
     vector_param_name = Column(String(128), nullable=False)
 
 
+class Sequence(Base):
+    __tablename__ = 'sequence'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128))
+
+
+class SequenceServiceProfileJn(Base):
+    __tablename__ = 'sequence_service_profile_jn'
+
+    sequence_id = Column(ForeignKey(u'sequence.id'), primary_key=True, nullable=False, index=True)
+    service_profile_id = Column(ForeignKey(u'service_profile.id'), primary_key=True, nullable=False, index=True)
+    position = Column(Integer, primary_key=True, nullable=False)
+
+    sequence = relationship(u'Sequence')
+    service_profile = relationship(u'ServiceProfile')
+
+
 class ServiceDispatch(Base):
     __tablename__ = 'service_dispatch'
 

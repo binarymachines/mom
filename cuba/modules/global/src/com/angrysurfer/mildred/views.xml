@@ -170,6 +170,12 @@
             <property name="category"/>
             <property name="packageName"/>
         </property>
+        <property name="startupServiceDispatch"
+                  view="_minimal">
+            <property name="name"/>
+            <property name="category"/>
+            <property name="packageName"/>
+        </property>
     </view>
     <view class="com.angrysurfer.mildred.entity.service.Mode"
           extends="_base"

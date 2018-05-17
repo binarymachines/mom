@@ -15,18 +15,36 @@
                                   property="modes"/>
             <collectionDatasource id="switchRulesDs"
                                   property="switchRules"/>
+            <datasource id="startupServiceDispatchDs"
+                        property="startupServiceDispatch"/>
         </datasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
     <layout expand="serviceDispatchesBox"
             spacing="true">
-        <fieldGroup id="fieldGroup"
-                    datasource="serviceProfileDs">
-            <column width="450px">
-                <field property="name"/>
-            </column>
-        </fieldGroup>
+        <hbox spacing="true">
+            <fieldGroup id="fieldGroup"
+                        datasource="serviceProfileDs">
+                <column width="250px">
+                    <field property="name"/>
+                </column>
+            </fieldGroup>
+            <fieldGroup datasource="startupServiceDispatchDs">
+                <column width="250px">
+                    <field property="name"/>
+                </column>
+                <column>
+                    <field property="packageName"/>
+                </column>
+                <column>
+                    <field property="moduleName"/>
+                </column>
+                <column>
+                    <field property="className"/>
+                </column>
+            </fieldGroup>
+        </hbox>
         <grid spacing="true"
               width="100%">
             <columns count="3"/>

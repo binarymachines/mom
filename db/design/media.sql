@@ -195,7 +195,7 @@ CREATE TABLE `directory` (
   UNIQUE KEY `uk_directory_name` (`name`),
   KEY `fk_directory_directory_type` (`directory_type_id`),
   CONSTRAINT `fk_directory_directory_type` FOREIGN KEY (`directory_type_id`) REFERENCES `directory_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1675 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -351,7 +351,7 @@ CREATE TABLE `file_attribute` (
   UNIQUE KEY `uk_file_attribute` (`file_encoding_id`,`attribute_name`),
   KEY `fk_file_attribute_file_encoding` (`file_encoding_id`),
   CONSTRAINT `fk_file_attribute_file_encoding` FOREIGN KEY (`file_encoding_id`) REFERENCES `file_encoding` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=412 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=189 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -375,7 +375,7 @@ CREATE TABLE `file_encoding` (
   `name` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_encoding` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -497,7 +497,7 @@ CREATE TABLE `match_record` (
   KEY `fk_doc_asset` (`doc_id`),
   CONSTRAINT `fk_doc_asset` FOREIGN KEY (`doc_id`) REFERENCES `asset` (`id`),
   CONSTRAINT `fk_match_doc_asset` FOREIGN KEY (`match_doc_id`) REFERENCES `asset` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=72546 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

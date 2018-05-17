@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <studio>
     <settings>
+        <repeatEntityPackageForScreen>true</repeatEntityPackageForScreen>
         <freeDbmsKeywords>mode</freeDbmsKeywords>
         <freeDbmsKeywords>value</freeDbmsKeywords>
         <freeDbmsKeywords>task</freeDbmsKeywords>
