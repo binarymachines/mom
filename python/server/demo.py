@@ -47,49 +47,41 @@ class DecisionHandler(object):
         return count > 3
 
 
-# class DocumentService(DecisionHandler):
-#     def __init__(self, owner, name, selector, vector):
-#         super(DocumentService, self).__init__()
-#         self.vector = vector
-#         self.owner = owner
-#         self.name = name
-#         self.selector = selector
+class DocumentService(DecisionHandler):
+    def __init__(self, owner, name, selector, vector):
+        super(DocumentService, self).__init__()
+        self.vector = vector
+        self.owner = owner
+        self.name = name
+        self.selector = selector
 
-#         random.seed()
+        random.seed()
 
-#     # selector callbacks
+    # generic rule callbacks
 
-#     def after_switch(self, selector, mode):
-#         pass
-
-#     def before_switch(self, selector, mode):
-#         pass
-
-#     # generic rule callbacks
-
-#     @ops_func
-#     def after(self):
-#         mode = self.selector.active
-#         LOG.debug("%s after '%s'" % (self.name, mode.name))
+    @ops_func
+    def after(self):
+        mode = self.selector.active
+        LOG.debug("%s after '%s'" % (self.name, mode.name))
     
 
-#     @ops_func
-#     def before(self):
-#         mode = self.selector.next
-#         LOG.debug("%s before '%s'" % (self.name, mode.name))
-#         if mode.active_rule is not None:
-#             LOG.debug("%s: %s follows '%s', because of '%s'" % \
-#                 (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
+    @ops_func
+    def before(self):
+        mode = self.selector.next
+        LOG.debug("%s before '%s'" % (self.name, mode.name))
+        if mode.active_rule is not None:
+            LOG.debug("%s: %s follows '%s', because of '%s'" % \
+                (self.name, mode.active_rule.end.name, mode.active_rule.start.name, mode.active_rule.name if mode.active_rule is not None else '...'))
 
-#     @ops_func
-#     def mode_is_available(self, selector, active, possible):
-#         initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
+    @ops_func
+    def mode_is_available(self, selector, active, possible):
+        initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
 
-#         if initial_and_update_scan_complete:
-#             if possible is self.owner.match:
-#                 return self.vector.has_next(MATCH)
+        if initial_and_update_scan_complete:
+            if possible is self.owner.match:
+                return self.vector.has_next(MATCH)
 
-#         return initial_and_update_scan_complete
+        return initial_and_update_scan_complete
 
 #startup mode
 class Starter(DefaultModeHandler):

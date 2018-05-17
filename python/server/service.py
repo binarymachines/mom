@@ -31,17 +31,15 @@ LOG = log.get_safe_log(__name__, logging.DEBUG)
 
 
 class ServiceProcess(ServiceHost):
-    def __init__(self, name, vector, owner=None, stop_on_errors=True, before=None, after=None):
-        self.process_handler = None
+    def __init__(self, vector, owner=None, stop_on_errors=True, before=None, after=None):
         self.handlers = {'.'.join([__name__, self.__class__.__name__]): self}
         self.modes = {}
         self.state_change_handler = ModeStateChangeHandler()
         self.mode_state_reader = AlchemyModeStateReader()
         self.mode_state_writer = AlchemyModeStateWriter()
-        self.profile = SQLServiceProfile.retrieve(var.profile)
-
+        profile = SQLServiceProfile.retrieve(var.profile)
         # super().__init__() must be called before accessing selector instance
-        super(ServiceProcess, self).__init__(name, vector, owner=owner, stop_on_errors=stop_on_errors, before=before, after=after)
+        super(ServiceProcess, self).__init__(profile, vector, owner, stop_on_errors, before, after)
 
     def _register_handler(self, qname):
         if qname not in self.handlers:
@@ -147,12 +145,35 @@ class ServiceProcess(ServiceHost):
             self.selector.add_rule(name, begin, end, condition, before, after)
 
 
-    def post_setup(self):
+    def setup(self):
         self.selector.remove_at_error_tolerance = True
-        # self.process_handler = DocumentService(self, '_process_handler_', self.selector, self.vector)
+        self.process_handler = self.create_service_handler()
         self.handlers['.'.join([__name__, self.process_handler.__class__.__name__])] = self.process_handler
         self._build_instance_registry()
         for record in self.moderecords:
             self.__dict__[record.mode_name] = self.create_mode(record.mode_name)
 
         self._create_switch_rules()
+
+
+    def create_service_handler(self):
+
+        package_name = self.profile.service_handler_dispatch.package_name
+        module_name =  self.profile.service_handler_dispatch.module_name
+        class_name = self.profile.service_handler_dispatch.class_name
+
+        module = __import__(module_name)
+        qname = introspection.get_qualified_name(package_name, module_name, class_name)
+        clazz = locate(qname)
+        if clazz:
+            return clazz(self.owner, self.name, self.selector, self.vector)
+
+    # def after_switch(self, selector, mode):
+    #     print "after switch %s" % mode.name
+    #     self.process_handler.after_switch(selector, mode)
+        
+    # def before_switch(self, selector, mode):
+    #     print "before switch %s" % mode.name
+    #     self.process_handler.before_switch(selector, mode)
+
+

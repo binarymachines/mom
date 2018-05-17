@@ -27,7 +27,7 @@
                 // , "--exit"
                 //  "mode_state", "service_exec", "op_record", "match_record", "document"
                 //"--scan-path"
-                , "--map-paths", "/media/codex/Media/audio/music/incoming/alternative"
+                , "--map-paths", "/media/codex/Media/audio/music/incoming/ska/fishbone"
                 // , "--clearmem"
                 // , "--exit"
                 // "--nomatch"

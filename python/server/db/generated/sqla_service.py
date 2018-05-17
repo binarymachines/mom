@@ -160,10 +160,10 @@ class ServiceProfile(Base):
     __tablename__ = 'service_profile'
 
     id = Column(Integer, primary_key=True)
-    startup_service_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), nullable=False, index=True)
+    service_handler_dispatch_id = Column(ForeignKey(u'service_dispatch.id'), nullable=False, index=True)
     name = Column(String(128))
 
-    startup_service_dispatch = relationship(u'ServiceDispatch')
+    service_handler_dispatch = relationship(u'ServiceDispatch')
     switch_rules = relationship(u'SwitchRule', secondary='service_profile_switch_rule_jn')
 
 

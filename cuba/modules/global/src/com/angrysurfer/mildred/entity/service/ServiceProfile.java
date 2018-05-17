@@ -22,7 +22,7 @@ public class ServiceProfile extends BaseIntIdentityIdEntity {
     private static final long serialVersionUID = 121329709169337799L;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "startup_service_dispatch_id")
+    @JoinColumn(name = "service_handler_dispatch_id")
     protected ServiceDispatch startupServiceDispatch;
 
     @Column(name = "name", length = 128)

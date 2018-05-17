@@ -11,8 +11,9 @@ ERR = log.get_safe_log('errors', logging.WARNING)
 SERVICE_NAME = 'Media Hound'
 
 class ServiceHost(object):
-    def __init__(self, name, vector, owner=None, stop_on_errors=True, before=None, after=None, restart_on_fail=False, threaded=False):
-        self.name = name
+    def __init__(self, profile, vector, owner=None, stop_on_errors=True, before=None, after=None, restart_on_fail=False, threaded=False):
+        self.profile = profile
+        self.name = profile.name
         self.owner = owner
         self.vector = vector
         self.threaded = threaded
@@ -25,7 +26,6 @@ class ServiceHost(object):
         self.stop_on_errors = stop_on_errors
         self.started = False
         self.completed = False
-
         self.initialize()
 
 
@@ -65,7 +65,6 @@ class ServiceHost(object):
         try:
             LOG.info("setting up...")
             self.setup()
-            self.post_setup()
             self.selector.initialize()
             self.engine.add_selector(self.selector)
             LOG.info("setup complete.")
@@ -73,9 +72,6 @@ class ServiceHost(object):
             sys.exit(err.message)
 
     def setup(self):
-        raise BaseClassException(ServiceHost)
-
-    def post_setup(self):
         raise BaseClassException(ServiceHost)
 
     # selector management
@@ -162,3 +158,7 @@ class Service(object):
     def queue(self, *service):
         for service in service:
             self.active.append(self.create_record(*service))
+
+
+class ServiceModeInitializer(object):
+    pass

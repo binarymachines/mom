@@ -28,10 +28,13 @@ from shallow import get_directories
 
 from alchemy import SQLServiceProfile
 
+from core import serv
+from service import ServiceProcess
+
 def get_process_create_func(profile):
-    module_name =  profile.startup_service_dispatch.module_name
+    module_name =  profile.service_handler_dispatch.module_name
     module = __import__(module_name)
-    create_func = getattr(module, profile.startup_service_dispatch.func_name)
+    create_func = getattr(module, profile.service_handler_dispatch.func_name)
 
     return create_func
 
@@ -45,18 +48,13 @@ def launch(args, run=True):
         if config.started:
             service = Service()
 
-            if run:
-                profile = SQLServiceProfile.retrieve(core.var.profile)
-                create_func = get_process_create_func(profile)
-
+            profile = SQLServiceProfile.retrieve(core.var.profile)
+            if profile and run:
                 if args['--scan-path']:
                     paths = [args['<scanpath>']]
                 else:
                     path_args = start.get_paths(args)
                     paths = get_directories() if path_args == [] else path_args
-
-                # if paths == []:
-                #     sys.exit("ERROR: No paths have been configured. Restart with --map-paths option")                   
 
                 vector = CachedPathVector('path vector', paths)
                 vector.peep_fifo = True
@@ -67,8 +65,8 @@ def launch(args, run=True):
                     vector.set_param('all', 'map-paths', True)
                     vector.set_param('all', 'start-path', args['<startpath>'])
 
-                process = create_func(profile.name, vector, service, before=before, after=after)    
-                service.queue([process])
+                service_process = ServiceProcess(vector, service, before=before, after=after)    
+                service.queue([service_process])
                 # TODO: a call to service.handle_services() should NOT be required here or anywhere else outside of the service process
                 service.handle_services()
 
