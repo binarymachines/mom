@@ -287,7 +287,7 @@ def retrieve_asset(absolute_path, esid=None, check_cache=True, check_db=True):
     asset.location = get_library_location(absolute_path)
 
     # check cache for esid
-    if check_cache and asset.esid is None and path_in_cache(absolute_path, asset.asset_type):
+    if check_cache and asset.esid is None and get_cached_esid(asset.asset_type, absolute_path):
         asset.esid = get_cached_esid(asset.asset_type, absolute_path)
 
     # check db for esid
@@ -485,10 +485,6 @@ def get_library_location(path):
     return result
 
 
-def path_in_cache(path, asset_type):
-    return get_cached_esid(asset_type, path)
-
-
 def path_in_db(path, asset_type):
     rows = SQLAsset.retrieve(asset_type, absolute_path=path)
     return len(rows) > 0
@@ -515,9 +511,6 @@ def get_attribute_values(asset, file_encoding, *items):
 
     return result
 
-
-# def get_aliases(file_format, term):
-#     return sql.retrieve_values2('v_alias', ['file_format', 'name', 'attribute_name'], [file_format, term], schema=config.db_media)
    
 
 # exception handlers: these handlers, for the most part, simply log the error in the database for the system to repair on its own later

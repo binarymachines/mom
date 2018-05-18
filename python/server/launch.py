@@ -52,6 +52,7 @@ def create_service_processes(server, args):
                 vector.set_param('all', 'start-path', args['<startpath>'])
 
             service_process = ServiceProcess(vector, server, before=before, after=after)    
+            service_process2 = ServiceProcess(vector, server, before=before, after=after)    
 
         else: raise Exception('unable to initialize with current configuration.')
 

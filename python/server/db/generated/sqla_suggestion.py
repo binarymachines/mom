@@ -183,3 +183,4 @@ class FileType(Base):
     desc = Column(String(255))
     ext = Column(String(11))
     name = Column(String(25), unique=True)
+    is_binary = Column(Integer, server_default=text("'0'"))

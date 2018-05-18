@@ -894,6 +894,7 @@ CREATE TABLE `file_type` (
   `desc` varchar(255) DEFAULT NULL,
   `ext` varchar(11) DEFAULT NULL,
   `name` varchar(25) DEFAULT NULL,
+  `is_binary` tinyint DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_type` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;

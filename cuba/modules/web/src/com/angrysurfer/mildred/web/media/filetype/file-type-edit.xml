@@ -19,6 +19,7 @@
             <column width="250px">
                 <field property="ext"/>
                 <field property="name"/>
+                <field property="binary"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"

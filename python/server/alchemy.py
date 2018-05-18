@@ -326,8 +326,8 @@ class SQLFileType(FileType):
 
     @staticmethod
     @alchemy_func
-    def insert(name, ext):
-        ft = SQLFileType(name=name, ext=ext)
+    def insert(name, ext, is_binary=False):
+        ft = SQLFileType(name=name, ext=ext, is_binary=is_binary)
         try:
             sessions[MEDIA].add(ft)
             return ft

@@ -26,22 +26,27 @@
         <hbox spacing="true">
             <fieldGroup id="fieldGroup"
                         datasource="serviceProfileDs">
-                <column width="250px">
-                    <field property="name"/>
+                <column>
+                    <field caption="Name"
+                           property="name"/>
                 </column>
             </fieldGroup>
             <fieldGroup datasource="startupServiceDispatchDs">
-                <column width="250px">
-                    <field property="name"/>
+                <column>
+                    <field caption="msg://name"
+                           property="name"/>
                 </column>
                 <column>
-                    <field property="packageName"/>
+                    <field caption="msg://packageName"
+                           property="packageName"/>
                 </column>
                 <column>
-                    <field property="moduleName"/>
+                    <field caption="msg://moduleName"
+                           property="moduleName"/>
                 </column>
                 <column>
-                    <field property="className"/>
+                    <field caption="msg://className"
+                           property="className"/>
                 </column>
             </fieldGroup>
         </hbox>

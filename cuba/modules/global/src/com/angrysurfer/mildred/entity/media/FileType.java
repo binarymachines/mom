@@ -20,6 +20,18 @@ public class FileType extends BaseIntIdentityIdEntity {
     @Column(name = "ext", length = 11)
     protected String ext;
 
+    @Column(name = "is_binary")
+    protected Boolean binary;
+
+    public void setBinary(Boolean binary) {
+        this.binary = binary;
+    }
+
+    public Boolean getBinary() {
+        return binary;
+    }
+
+
     public void setExt(String ext) {
         this.ext = ext;
     }

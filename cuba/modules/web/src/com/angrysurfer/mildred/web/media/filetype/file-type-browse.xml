@@ -53,6 +53,7 @@
                     <properties include=".*"/>
                 </filter>
                 <groupTable id="table"
+                            multiselect="true"
                             width="100%">
                     <actions>
                         <action id="create"/>
@@ -62,6 +63,7 @@
                     <columns>
                         <column id="ext"/>
                         <column id="name"/>
+                        <column id="binary"/>
                     </columns>
                     <rows datasource="fileTypesDs"/>
                     <rowsCount/>
@@ -73,6 +75,9 @@
                                 action="table.edit"/>
                         <button id="removeBtn"
                                 action="table.remove"/>
+                        <bulkEditor for="table"
+                                    openType="DIALOG"
+                                    responsive="true"/>
                     </buttonsPanel>
                 </groupTable>
             </vbox>
@@ -87,6 +92,7 @@
                         <column width="250px">
                             <field property="ext"/>
                             <field property="name"/>
+                            <field property="binary"/>
                         </column>
                     </fieldGroup>
                 </vbox>
