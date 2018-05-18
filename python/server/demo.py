@@ -43,7 +43,7 @@ class DecisionHandler(object):
 class DocumentService(DecisionHandler):
     def __init__(self):
         super(DocumentService, self).__init__()
-
+        self.count = 0
         random.seed()
 
     @ops_func
@@ -62,10 +62,12 @@ class DocumentService(DecisionHandler):
 
     @ops_func
     def mode_is_available(self):
-        initial_and_update_scan_complete = self.owner.scan.in_state(self.owner.scan.get_state(SCAN_MONITOR))
+        scan = self.owner.scan
+        initial_and_update_scan_complete = scan.in_state(scan.get_state(SCAN_MONITOR))
 
         if initial_and_update_scan_complete:
-            if self.owner.selector.possible is self.owner.match:
+            match = self.owner.match
+            if self.selector.possible is match:
                 return self.vector.has_next(MATCH)
 
         return initial_and_update_scan_complete
@@ -78,7 +80,6 @@ class Starter():
 
     def starting(self):
         LOG.debug("%s process will start" % self.owner.name)
-
         # sql.execute_query('truncate mode_state', schema='service')
 
     def start(self):
@@ -185,8 +186,8 @@ class ReportGenerator():
     def do_report(self):
         print("reporting...")
         LOG.debug('%s generating report' % self.owner.name)
-        LOG.debug('%s took %i steps.' % (self.owner.selector.name, self.owner.selector.step_count))
-        for mode in self.owner.selector.modes:
+        LOG.debug('%s took %i steps.' % (self.selector.name, self.selector.step_count))
+        for mode in self.selector.modes:
             if mode not in (self.owner.startup, self.owner.shutdown):
                 LOG.debug('%s: times activated = %i, priority = %i, error count = %i' % (mode.name, mode.times_activated, mode.priority, mode.error_count))                
                 
@@ -235,10 +236,6 @@ class Scanner():
 
     @ops_func
     def can_scan(self):
-        # if self.scan_complete == False:
-        #     return self.vector.has_next(SCAN, use_fifo=True) or self.owner.scan.can_go_next(self.vector)
-                
-
         return self.scan_complete == False    
 
     def path_to_map(self):
@@ -284,6 +281,7 @@ class Scanner():
         
         self.update_complete = True
 
+
     @ops_func
     def do_scan_update(self):
         # self.map_new_paths()
@@ -294,12 +292,14 @@ class Scanner():
         
         self.update_complete = True
 
+
     def should_discover(self, selector=None, active=None, possible=None):
         return self.discover_complete == False
-   
-    
+
+
     def should_monitor(self, selector=None, active=None, possible=None):
         return self.monitor_complete == False
+
 
     def should_update(self, selector=None, active=None, possible=None):
         return self.update_complete == False

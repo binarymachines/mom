@@ -56,10 +56,10 @@ class ServiceProcess(ServiceHost):
             instance.selector = self.selector
             instance.vector = self.vector
             instance.handler = self.process_handler
-            
+
             self.handlers[qname] = instance
 
-            return clazz
+            return instance
         else:
             return self.handlers[qname]
 
