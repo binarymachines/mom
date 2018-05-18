@@ -23,15 +23,21 @@
                 width="800"/>
     <layout expand="serviceDispatchesBox"
             spacing="true">
-        <hbox spacing="true">
+        <groupBox expand="hbox"
+                  orientation="horizontal"
+                  spacing="true"
+                  width="100%">
             <fieldGroup id="fieldGroup"
-                        datasource="serviceProfileDs">
+                        align="MIDDLE_LEFT"
+                        datasource="serviceProfileDs"
+                        width="250px">
                 <column>
                     <field caption="Name"
                            property="name"/>
                 </column>
             </fieldGroup>
-            <fieldGroup datasource="startupServiceDispatchDs">
+            <fieldGroup align="MIDDLE_LEFT"
+                        datasource="startupServiceDispatchDs">
                 <column>
                     <field caption="msg://name"
                            property="name"/>
@@ -49,7 +55,13 @@
                            property="className"/>
                 </column>
             </fieldGroup>
-        </hbox>
+            <hbox id="hbox"
+                  spacing="true"/>
+            <frame id="windowActions"
+                   align="MIDDLE_RIGHT"
+                   screen="editWindowActions"
+                   width="AUTO"/>
+        </groupBox>
         <grid spacing="true"
               width="100%">
             <columns count="3"/>
@@ -153,9 +165,5 @@
                 </buttonsPanel>
             </table>
         </groupBox>
-        <frame id="windowActions"
-               align="BOTTOM_RIGHT"
-               screen="editWindowActions"
-               width="AUTO"/>
     </layout>
 </window>

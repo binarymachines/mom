@@ -21,48 +21,61 @@
     <dialogMode forceDialog="true"
                 height="600"
                 resizable="true"
-                width="600"/>
-    <layout expand="assetSourceCodeEditor"
+                width="530"/>
+    <layout expand="accordion"
             spacing="true">
-        <fieldGroup id="fieldGroup"
-                    datasource="assetDs"
-                    editable="false"
-                    width="100%">
-            <column width="100%">
-                <field caption="id"
-                       property="id"
-                       width="250px"/>
-                <field caption="doc type"
-                       property="assetType"
-                       width="250px"/>
-                <field caption="path"
-                       property="absolutePath"
-                       rows="3"/>
-                <field caption="file type"
-                       optionsDatasource="fileTypesDs"
-                       property="fileType"
-                       width="250px"/>
-                <field caption="as of"
-                       property="effectiveDt"
-                       width="250px"/>
-                <field caption="until"
-                       property="expirationDt"
-                       width="250px"/>
-                <field property="document"
-                       rows="12"
-                       visible="false"/>
-            </column>
-        </fieldGroup>
-        <hbox spacing="true">
-            <label value="url"
-                   width="50px"/>
-            <label id="documentLabel"/>
-        </hbox>
-        <sourceCodeEditor id="assetSourceCodeEditor"
-                          datasource="assetDs"
-                          mode="JavaScript"
-                          property="document"
-                          width="100%"/>
+        <accordion id="accordion">
+            <tab caption="Asset Info"
+                 expand="fieldgroup_1"
+                 margin="true"
+                 spacing="true">
+                <fieldGroup id="fieldGroup"
+                            datasource="assetDs"
+                            editable="false">
+                    <column>
+                        <field caption="id"
+                               property="id"/>
+                        <field property="document"
+                               rows="12"
+                               visible="false"/>
+                        <field caption="as of"
+                               property="effectiveDt"/>
+                    </column>
+                    <column>
+                        <field caption="doc type"
+                               property="assetType"/>
+                        <field caption="file type"
+                               optionsDatasource="fileTypesDs"
+                               property="fileType"/>
+                        <field caption="until"
+                               property="expirationDt"/>
+                    </column>
+                </fieldGroup>
+                <fieldGroup id="fieldgroup_1"
+                            datasource="assetDs"
+                            editable="false"
+                            width="100%">
+                    <column width="100%">
+                        <field caption="path"
+                               property="absolutePath"
+                               rows="5"/>
+                    </column>
+                </fieldGroup>
+            </tab>
+            <tab caption="Elasticsearch Document"
+                 expand="assetSourceCodeEditor"
+                 margin="true"
+                 spacing="true">
+                <hbox spacing="true">
+                    <label id="documentLabel"/>
+                </hbox>
+                <sourceCodeEditor id="assetSourceCodeEditor"
+                                  datasource="assetDs"
+                                  mode="JavaScript"
+                                  property="document"
+                                  width="100%"/>
+            </tab>
+        </accordion>
         <frame id="windowActions"
                align="BOTTOM_RIGHT"
                screen="editWindowActions"

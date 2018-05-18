@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
     <context-param>
-        <description>Web resources version for correct caching in browser</description>
+        <description>Web resources version for correct caching ins</description>
         <param-name>webResourcesTs</param-name>
         <param-value>${webResourcesTs}</param-value>
     </context-param>
