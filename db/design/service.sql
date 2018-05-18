@@ -2,11 +2,11 @@ drop schema if exists service;
 create schema service;
 use service;
 
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: service
 -- ------------------------------------------------------
--- Server version	5.7.22-0ubuntu0.17.10.1
+-- Server version	5.7.21-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -109,7 +109,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -210,7 +210,7 @@ CREATE TABLE `op_record` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=54663 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=54669 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -371,7 +371,7 @@ CREATE TABLE `service_exec` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -406,7 +406,7 @@ CREATE TABLE `service_profile` (
 
 LOCK TABLES `service_profile` WRITE;
 /*!40000 ALTER TABLE `service_profile` DISABLE KEYS */;
-INSERT INTO `service_profile` (`id`, `service_handler_dispatch_id`, `name`) VALUES (1,1,'media_hound');
+INSERT INTO `service_profile` (`id`, `service_handler_dispatch_id`, `name`) VALUES (1,1,'demo');
 /*!40000 ALTER TABLE `service_profile` ENABLE KEYS */;
 UNLOCK TABLES;
 

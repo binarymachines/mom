@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: admin
 -- ------------------------------------------------------
--- Server version	5.7.22-0ubuntu0.17.10.1
+-- Server version	5.7.21-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -633,7 +633,7 @@ CREATE TABLE `directory` (
   UNIQUE KEY `uk_directory_name` (`name`),
   KEY `fk_directory_directory_type` (`directory_type_id`),
   CONSTRAINT `fk_directory_directory_type` FOREIGN KEY (`directory_type_id`) REFERENCES `directory_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -789,7 +789,7 @@ CREATE TABLE `file_attribute` (
   UNIQUE KEY `uk_file_attribute` (`file_encoding_id`,`attribute_name`),
   KEY `fk_file_attribute_file_encoding` (`file_encoding_id`),
   CONSTRAINT `fk_file_attribute_file_encoding` FOREIGN KEY (`file_encoding_id`) REFERENCES `file_encoding` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=189 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -813,7 +813,7 @@ CREATE TABLE `file_encoding` (
   `name` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_encoding` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -894,10 +894,10 @@ CREATE TABLE `file_type` (
   `desc` varchar(255) DEFAULT NULL,
   `ext` varchar(11) DEFAULT NULL,
   `name` varchar(25) DEFAULT NULL,
-  `is_binary` tinyint DEFAULT 0,
+  `is_binary` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_type` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -906,7 +906,7 @@ CREATE TABLE `file_type` (
 
 LOCK TABLES `file_type` WRITE;
 /*!40000 ALTER TABLE `file_type` DISABLE KEYS */;
-INSERT INTO `file_type` (`id`, `desc`, `ext`, `name`) VALUES (1,NULL,NULL,'directory'),(2,NULL,'*','wildcard'),(3,NULL,'aac','aac'),(4,NULL,'ape','ape'),(5,NULL,'flac','flac'),(6,NULL,'ogg','ogg'),(7,NULL,'oga','oga'),(8,NULL,'iso','iso'),(9,NULL,'m4a','m4a'),(10,NULL,'mpc','mpc'),(11,NULL,'mp3','mp3'),(12,NULL,'wav','wav'),(13,NULL,'pdf','pdf'),(14,NULL,'txt','txt'),(15,NULL,'jpg','jpg'),(16,NULL,'mp4','mp4'),(17,NULL,'avi','avi'),(18,NULL,'mkv','mkv'),(19,NULL,'url','url'),(20,NULL,'tif','tif'),(21,NULL,'png','png'),(22,NULL,'sls','sls'),(23,NULL,'nfo','nfo'),(24,NULL,'ewyu8s','ewyu8s'),(25,NULL,'mxm','mxm'),(26,NULL,'jpeg','jpeg'),(27,NULL,'ini','ini'),(28,NULL,'gif','gif'),(29,NULL,'xspf','xspf'),(30,NULL,'xml','xml'),(31,NULL,'conf','conf'),(32,NULL,'bmp','bmp');
+INSERT INTO `file_type` (`id`, `desc`, `ext`, `name`, `is_binary`) VALUES (1,NULL,NULL,'directory',0),(2,NULL,'*','wildcard',0),(3,NULL,'aac','aac',1),(4,NULL,'ape','ape',1),(5,NULL,'flac','flac',1),(6,NULL,'ogg','ogg',1),(7,NULL,'oga','oga',1),(8,NULL,'iso','iso',1),(9,NULL,'m4a','m4a',1),(10,NULL,'mpc','mpc',1),(11,NULL,'mp3','mp3',1),(12,NULL,'wav','wav',1),(13,NULL,'pdf','pdf',1),(14,NULL,'txt','txt',0),(15,NULL,'jpg','jpg',1),(16,NULL,'mp4','mp4',1),(17,NULL,'avi','avi',1),(18,NULL,'mkv','mkv',1),(19,NULL,'url','url',0),(20,NULL,'tif','tif',1),(21,NULL,'png','png',1),(22,NULL,'sls','sls',0),(23,NULL,'nfo','nfo',0),(24,NULL,'ewyu8s','ewyu8s',0),(25,NULL,'mxm','mxm',1),(26,NULL,'jpeg','jpeg',1),(27,NULL,'ini','ini',0),(28,NULL,'gif','gif',1),(29,NULL,'xspf','xspf',0),(30,NULL,'xml','xml',0),(31,NULL,'conf','conf',0),(32,NULL,'bmp','bmp',1),(33,NULL,'lnk','lnk',1),(34,NULL,'docx','docx',1),(35,NULL,'sh','sh',0);
 /*!40000 ALTER TABLE `file_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1127,7 +1127,7 @@ CREATE TABLE `mode_state` (
   KEY `fk_mode_state_state` (`state_id`),
   CONSTRAINT `fk_mode_state_mode` FOREIGN KEY (`mode_id`) REFERENCES `mode` (`id`),
   CONSTRAINT `fk_mode_state_state` FOREIGN KEY (`state_id`) REFERENCES `state` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1228,7 +1228,7 @@ CREATE TABLE `op_record` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime NOT NULL DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=54663 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=54669 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1389,7 +1389,7 @@ CREATE TABLE `service_exec` (
   `effective_dt` datetime DEFAULT CURRENT_TIMESTAMP,
   `expiration_dt` datetime DEFAULT '9999-12-31 23:59:59',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1424,7 +1424,7 @@ CREATE TABLE `service_profile` (
 
 LOCK TABLES `service_profile` WRITE;
 /*!40000 ALTER TABLE `service_profile` DISABLE KEYS */;
-INSERT INTO `service_profile` (`id`, `service_handler_dispatch_id`, `name`) VALUES (1,1,'media_hound');
+INSERT INTO `service_profile` (`id`, `service_handler_dispatch_id`, `name`) VALUES (1,1,'demo');
 /*!40000 ALTER TABLE `service_profile` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2721,4 +2721,4 @@ USE `scratch`;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-17 19:42:50
+-- Dump completed on 2018-05-17 22:18:56
