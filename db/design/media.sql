@@ -195,7 +195,7 @@ CREATE TABLE `directory` (
   UNIQUE KEY `uk_directory_name` (`name`),
   KEY `fk_directory_directory_type` (`directory_type_id`),
   CONSTRAINT `fk_directory_directory_type` FOREIGN KEY (`directory_type_id`) REFERENCES `directory_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=529 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -351,7 +351,7 @@ CREATE TABLE `file_attribute` (
   UNIQUE KEY `uk_file_attribute` (`file_encoding_id`,`attribute_name`),
   KEY `fk_file_attribute_file_encoding` (`file_encoding_id`),
   CONSTRAINT `fk_file_attribute_file_encoding` FOREIGN KEY (`file_encoding_id`) REFERENCES `file_encoding` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=343 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1192 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -375,7 +375,7 @@ CREATE TABLE `file_encoding` (
   `name` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_encoding` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -459,7 +459,7 @@ CREATE TABLE `file_type` (
   `is_binary` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_file_type` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -468,7 +468,7 @@ CREATE TABLE `file_type` (
 
 LOCK TABLES `file_type` WRITE;
 /*!40000 ALTER TABLE `file_type` DISABLE KEYS */;
-INSERT INTO `file_type` (`id`, `desc`, `ext`, `name`, `is_binary`) VALUES (1,NULL,NULL,'directory',0),(2,NULL,'*','wildcard',0),(3,NULL,'aac','aac',1),(4,NULL,'ape','ape',1),(5,NULL,'flac','flac',1),(6,NULL,'ogg','ogg',1),(7,NULL,'oga','oga',1),(8,NULL,'iso','iso',1),(9,NULL,'m4a','m4a',1),(10,NULL,'mpc','mpc',1),(11,NULL,'mp3','mp3',1),(12,NULL,'wav','wav',1),(13,NULL,'pdf','pdf',1),(14,NULL,'txt','txt',0),(15,NULL,'jpg','jpg',1),(16,NULL,'mp4','mp4',1),(17,NULL,'avi','avi',1),(18,NULL,'mkv','mkv',1),(19,NULL,'url','url',0),(20,NULL,'tif','tif',1),(21,NULL,'png','png',1),(22,NULL,'sls','sls',0),(23,NULL,'nfo','nfo',0),(24,NULL,'ewyu8s','ewyu8s',0),(25,NULL,'mxm','mxm',1),(26,NULL,'jpeg','jpeg',1),(27,NULL,'ini','ini',0),(28,NULL,'gif','gif',1),(29,NULL,'xspf','xspf',0),(30,NULL,'xml','xml',0),(31,NULL,'conf','conf',0),(32,NULL,'bmp','bmp',1),(33,NULL,'lnk','lnk',1),(34,NULL,'docx','docx',1),(35,NULL,'sh','sh',0);
+INSERT INTO `file_type` (`id`, `desc`, `ext`, `name`, `is_binary`) VALUES (1,NULL,NULL,'directory',0),(2,NULL,'*','wildcard',0),(3,NULL,'aac','aac',1),(4,NULL,'ape','ape',1),(5,NULL,'flac','flac',1),(6,NULL,'ogg','ogg',1),(7,NULL,'oga','oga',1),(8,NULL,'iso','iso',1),(9,NULL,'m4a','m4a',1),(10,NULL,'mpc','mpc',1),(11,NULL,'mp3','mp3',1),(12,NULL,'wav','wav',1),(13,NULL,'pdf','pdf',1),(14,NULL,'txt','txt',0),(15,NULL,'jpg','jpg',1),(16,NULL,'mp4','mp4',1),(17,NULL,'avi','avi',1),(18,NULL,'mkv','mkv',1),(19,NULL,'url','url',0),(20,NULL,'tif','tif',1),(21,NULL,'png','png',1),(22,NULL,'sls','sls',0),(23,NULL,'nfo','nfo',0),(24,NULL,'ewyu8s','ewyu8s',0),(25,NULL,'mxm','mxm',1),(26,NULL,'jpeg','jpeg',1),(27,NULL,'ini','ini',0),(28,NULL,'gif','gif',1),(29,NULL,'xspf','xspf',0),(30,NULL,'xml','xml',0),(31,NULL,'conf','conf',0),(32,NULL,'bmp','bmp',1),(33,NULL,'lnk','lnk',1),(34,NULL,'docx','docx',1),(35,NULL,'sh','sh',0),(36,NULL,'html','html',0),(37,NULL,'xlsx','xlsx',1),(38,NULL,'rtf','rtf',1),(39,NULL,'mhtml','mhtml',0),(40,NULL,'rdp','rdp',0),(41,NULL,'sql','sql',0),(42,NULL,'css','css',0),(43,NULL,'download','download',0),(44,NULL,'zip','zip',1),(45,NULL,'cshtml','cshtml',0),(46,NULL,'bak','bak',0),(47,NULL,'cs','cs',0),(48,NULL,'old','old',0),(49,NULL,'config','config',0),(50,NULL,'log','log',0),(51,NULL,'xsl','xsl',0),(52,NULL,'htm','htm',0),(53,NULL,'dll','dll',1),(54,NULL,'bin','bin',1),(55,NULL,'ps1xml','ps1xml',0),(56,NULL,'psd1','psd1',0),(57,NULL,'ps1','ps1',0),(58,NULL,'groovy','groovy',0),(59,NULL,'yml','yml',0),(60,NULL,'md','md',0),(61,NULL,'json','json',0),(62,NULL,'sln','sln',0),(63,NULL,'git/head','git/head',0),(64,NULL,'sample','sample',0),(65,NULL,'suo','suo',1),(66,NULL,'ide','ide',1),(67,NULL,'ide-shm','ide-shm',1),(68,NULL,'ide-wal','ide-wal',1),(69,NULL,'csproj','csproj',0),(70,NULL,'pdb','pdb',1),(71,NULL,'cache','cache',0),(72,NULL,'props','props',0),(73,NULL,'targets','targets',0),(74,NULL,'idx','idx',1),(75,NULL,'pack','pack',1),(76,NULL,'lock','lock',0),(77,NULL,'bowerrc','bowerrc',0),(78,NULL,'user','user',0),(79,NULL,'ico','ico',1),(80,NULL,'svg','svg',0),(81,NULL,'eot','eot',1),(82,NULL,'ttf','ttf',1),(83,NULL,'woff','woff',1),(84,NULL,'woff2','woff2',1),(85,NULL,'less','less',0),(86,NULL,'js','js',0),(87,NULL,'map','map',0),(88,NULL,'jshintrc','jshintrc',0),(89,NULL,'jscsrc','jscsrc',0),(90,NULL,'nuspec','nuspec',0),(91,NULL,'ds_store','ds_store',1),(92,NULL,'py','py',0),(93,NULL,'git','git',0),(94,NULL,'project','project',0),(95,NULL,'gradle','gradle',0),(96,NULL,'bat','bat',0),(97,NULL,'prefs','prefs',0),(98,NULL,'jar','jar',1),(99,NULL,'gz','gz',1),(100,NULL,'policy','policy',0),(101,NULL,'xsd','xsd',0),(102,NULL,'java','java',0),(103,NULL,'mf','mf',0),(104,NULL,'class','class',1),(105,NULL,'scss','scss',0),(106,NULL,'oqsl','oqsl',0),(107,NULL,'java~','java~',0),(108,NULL,'fxml','fxml',0),(109,NULL,'in','in',0),(110,NULL,'license','license',0),(111,NULL,'ftl','ftl',0),(112,NULL,'gsp','gsp',0),(113,NULL,'g','g',0),(114,NULL,'tokens','tokens',0),(115,NULL,'bnf','bnf',0),(116,NULL,'yaml','yaml',0),(117,NULL,'version','version',0),(118,NULL,'swf','swf',1),(119,NULL,'script','script',0),(120,NULL,'lib','lib',1),(121,NULL,'pyc','pyc',1),(122,NULL,'iml','iml',0),(123,NULL,'otf','otf',1),(124,NULL,'itdb','itdb',1),(125,NULL,'itl','itl',1),(126,NULL,'itc2','itc2',1),(127,NULL,'plist','plist',0),(128,NULL,'m4v','m4v',1),(129,NULL,'m4p','m4p',1),(130,NULL,'cbr','cbr',1),(131,NULL,'info','info',0),(132,NULL,'m3u','m3u',0),(133,NULL,'cue','cue',0);
 /*!40000 ALTER TABLE `file_type` ENABLE KEYS */;
 UNLOCK TABLES;
 

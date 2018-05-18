@@ -19,12 +19,19 @@ class AssetEdit extends AbstractEditor<Asset> {
     @Override
     protected void postInit() {
         super.postInit();
+        String q = '"'
         if (getItem().assetType) {
-            String q = '"'
             String req = "http://localhost:9200/${getItem().assetType}/_search?pretty;q=_id:$q${getItem().id}$q"
-            String doc = req.toURL().text
             documentLabel.setValue(req)
+            String doc = req.toURL().text
             getItem().setDocument(doc)
         }
+
+//        if (getItem().path) {
+//            String req = "file:///$q${getItem().path}$q"
+//            documentLabel.setValue(req)
+//            String doc = req.toURL().text
+//            getItem().setDocument(doc)
+//        }
     }
 }

@@ -798,7 +798,7 @@ class SQLModeState(AlchemyModeState):
                 raise SQLAlchemyIntegrityError(err, sessions[SERVICE], message=err.message)
 
         # (else):
-        raise Exception('no mode state to save!')
+        raise Exception('no mode state for %s to save!' % mode.name)
 
 
 class SQLModeStateDefault(ModeStateDefault):

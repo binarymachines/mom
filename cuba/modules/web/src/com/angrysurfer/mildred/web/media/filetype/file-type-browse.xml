@@ -53,6 +53,7 @@
                     <properties include=".*"/>
                 </filter>
                 <groupTable id="table"
+                            editable="true"
                             multiselect="true"
                             width="100%">
                     <actions>

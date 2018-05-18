@@ -43,7 +43,7 @@ class DecisionHandler(object):
 class DocumentService(DecisionHandler):
     def __init__(self):
         super(DocumentService, self).__init__()
-        self.count = 0
+        self.scan_complete = False
         random.seed()
 
     @ops_func
@@ -64,6 +64,8 @@ class DocumentService(DecisionHandler):
     def mode_is_available(self):
         scan = self.owner.scan
         initial_and_update_scan_complete = scan.in_state(scan.get_state(SCAN_MONITOR))
+        # if self.selector.possible is scan:
+        #     return initial_and_update_scan_complete
 
         if initial_and_update_scan_complete:
             match = self.owner.match
@@ -123,23 +125,33 @@ class CleaningModeHandler():
 # eval mode
 
 class Analyzer():
+    def __init__(self):
+        self.complete = False
 
     def can_analyze(self):
-        return True
+        print "can analyze?"
+        return self.complete == False
 
     def do_analyze(self):
         print("entering analysis mode...")
         LOG.debug('%s evaluating' % self.owner.name)
         analyze.analyze(self.vector)
-
+        self.complete = True
 
 # fix mode
 
 class Fixer():
+    def __init__(self):
+        self.complete = False
+
+    def can_fix(self):
+        return self.complete == False
+
     def after_fix(self): 
         LOG.debug('%s done fixing' % self.owner.name)
         # self.owner.scan.reset_state()
         # self.vector.
+        self.complete = True
 
     def before_fix(self): 
         LOG.debug('%s preparing to fix'  % self.owner.name)
@@ -153,6 +165,12 @@ class Fixer():
 # match mode
 
 class Matcher():
+    def __init__(self):
+        self.complete = False
+
+    def can_match(self):
+        return self.complete == False
+
 
     def before_match(self):
         # self.owner.before()
@@ -165,6 +183,7 @@ class Matcher():
         dir = self.vector.get_active (MATCH)
         LOG.debug('%s done matching in %s, clearing cache...' % (self.owner.name, dir))
         # self.reportmode.priority += 1
+        self.complete = True
 
 
     def do_match(self):
@@ -207,7 +226,6 @@ class RequestHandler():
 class Scanner():
 
     def __init__(self):
-        self.scan_complete = False
         self.update_complete = False
         self.monitor_complete = False
         self.discover_complete = False
@@ -227,7 +245,7 @@ class Scanner():
 
     @ops_func
     def after_scan(self):
-        self.scan_complete = self.owner.scan.get_state() is self.owner.scan.get_state(SCAN_MONITOR)
+        self.handler.scan_complete = self.owner.scan.get_state() is self.owner.scan.get_state(SCAN_MONITOR)
         self.owner.scan.expire_state()
         self.vector.reset(SCAN, use_fifo=True)
         self.vector.set_param('scan.persist', 'active.scan.path', None)
@@ -236,7 +254,7 @@ class Scanner():
 
     @ops_func
     def can_scan(self):
-        return self.scan_complete == False    
+        return self.handler.scan_complete == False    
 
     def path_to_map(self):
         return self.vector.get_param('all', 'start-path')
@@ -262,7 +280,7 @@ class Scanner():
 
     @ops_func
     def do_scan_monitor(self):
-        self.map_new_paths()
+        # self.map_new_paths()
         self.vector.reset(SCAN)
         if self.vector.has_next(SCAN, use_fifo=True):
             print("monitor scan starting...")
@@ -273,7 +291,6 @@ class Scanner():
 
     @ops_func
     def do_scan(self):
-        # self.map_new_paths()
         self.vector.reset(SCAN)
         if self.vector.has_next(SCAN, use_fifo=True):
             print(" scan starting...")

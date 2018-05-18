@@ -9,12 +9,12 @@
         <datasource id="serviceProfileDs"
                     class="com.angrysurfer.mildred.entity.service.ServiceProfile"
                     view="serviceProfile-view">
-            <collectionDatasource id="serviceDispatchesDs"
-                                  property="serviceDispatches"/>
+            <groupDatasource id="serviceDispatchesDs"
+                             property="serviceDispatches"/>
             <collectionDatasource id="modesDs"
                                   property="modes"/>
-            <collectionDatasource id="switchRulesDs"
-                                  property="switchRules"/>
+            <groupDatasource id="switchRulesDs"
+                             property="switchRules"/>
             <datasource id="startupServiceDispatchDs"
                         property="startupServiceDispatch"/>
         </datasource>
@@ -65,6 +65,7 @@
                               caption="Modes">
                         <table id="modesTable"
                                height="400px"
+                               multiselect="true"
                                width="100%">
                             <actions>
                                 <action id="add"
@@ -94,9 +95,10 @@
                     <groupBox id="switchRulesBox"
                               caption="Switch Rules"
                               colspan="2">
-                        <table id="switchRulesTable"
-                               height="400px"
-                               width="100%">
+                        <groupTable id="switchRulesTable"
+                                    height="400px"
+                                    multiselect="true"
+                                    width="100%">
                             <actions>
                                 <action id="add"/>
                                 <action id="remove"/>
@@ -117,8 +119,9 @@
                                 <button action="switchRulesTable.remove"/>
                                 <button action="switchRulesTable.create"/>
                                 <button action="switchRulesTable.edit"/>
+                                <bulkEditor for="switchRulesTable"/>
                             </buttonsPanel>
-                        </table>
+                        </groupTable>
                     </groupBox>
                 </row>
                 <row/>
@@ -126,9 +129,10 @@
         </grid>
         <groupBox id="serviceDispatchesBox"
                   caption="Dispatch Table">
-            <table id="serviceDispatchesTable"
-                   height="100%"
-                   width="100%">
+            <groupTable id="serviceDispatchesTable"
+                        height="100%"
+                        multiselect="true"
+                        width="100%">
                 <actions>
                     <action id="add"/>
                     <action id="remove"/>
@@ -156,8 +160,9 @@
                     <button action="serviceDispatchesTable.remove"/>
                     <button action="serviceDispatchesTable.create"/>
                     <button action="serviceDispatchesTable.edit"/>
+                    <bulkEditor for="serviceDispatchesTable"/>
                 </buttonsPanel>
-            </table>
+            </groupTable>
         </groupBox>
     </layout>
 </window>

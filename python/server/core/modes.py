@@ -109,7 +109,9 @@ class Rule(object):
             func = _parse_func_info(self.condition)
             return self.condition()
         except Exception, err:
-            ERR.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name))
+            ERR.error(err.message)
+
+            # ERR.error('%s while applying %s -> %s from %s' % (err.message, possible.name, func, active.name))
             raise err
 
 
@@ -257,7 +259,8 @@ class Selector:
                     if rule not in results: 
                         results.append(rule)
             except Exception, err:
-                ERR.error('%s while trying to apply rule %s' % (err.message, rule.name))
+                ERR.error(err.message)
+                # ERR.error('%s while trying to apply rule %s' % (err.message, rule.name))
                 raise err
 
         return results
