@@ -18,6 +18,12 @@
             <datasource id="startupServiceDispatchDs"
                         property="startupServiceDispatch"/>
         </datasource>
+        <collectionDatasource id="serviceDispatchDs2"
+                              class="com.angrysurfer.mildred.entity.service.ServiceDispatch">
+            <query>
+                <![CDATA[select e from mildred$ServiceDispatch e]]>
+            </query>
+        </collectionDatasource>
     </dsContext>
     <dialogMode height="600"
                 width="800"/>
@@ -36,25 +42,11 @@
                            property="name"/>
                 </column>
             </fieldGroup>
-            <fieldGroup align="MIDDLE_LEFT"
-                        datasource="startupServiceDispatchDs">
-                <column>
-                    <field caption="msg://name"
-                           property="name"/>
-                </column>
-                <column>
-                    <field caption="msg://packageName"
-                           property="packageName"/>
-                </column>
-                <column>
-                    <field caption="msg://moduleName"
-                           property="moduleName"/>
-                </column>
-                <column>
-                    <field caption="msg://className"
-                           property="className"/>
-                </column>
-            </fieldGroup>
+            <lookupPickerField id="lookupPickerField"
+                               captionProperty="name"
+                               datasource="serviceProfileDs"
+                               optionsDatasource="serviceDispatchDs2"
+                               property="startupServiceDispatch"/>
             <hbox id="hbox"
                   spacing="true"/>
             <frame id="windowActions"

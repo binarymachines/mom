@@ -13,6 +13,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import com.haulmont.cuba.core.entity.BaseIntIdentityIdEntity;
 import javax.persistence.OneToMany;
+import com.haulmont.cuba.core.entity.annotation.Lookup;
+import com.haulmont.cuba.core.entity.annotation.LookupType;
 
 @DesignSupport("{'imported':true}")
 @NamePattern("%s|name")
@@ -24,6 +26,7 @@ public class ServiceProfile extends BaseIntIdentityIdEntity {
     @Column(name = "name", length = 128)
     protected String name;
 
+    @Lookup(type = LookupType.DROPDOWN, actions = {"lookup", "open"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "service_handler_dispatch_id")
     protected ServiceDispatch startupServiceDispatch;
