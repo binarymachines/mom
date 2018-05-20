@@ -9,8 +9,8 @@
         <datasource id="queryDs"
                     class="com.angrysurfer.mildred.entity.elastic.Query"
                     view="Query-screen-view">
-            <collectionDatasource id="clauseDs"
-                                  property="clause"/>
+            <groupDatasource id="clauseDs"
+                             property="clause"/>
         </datasource>
         <collectionDatasource id="queryTypesDs"
                               class="com.angrysurfer.mildred.entity.elastic.QueryType"
@@ -49,9 +49,10 @@
         </fieldGroup>
         <groupBox id="clauseBox"
                   caption="msg://com.angrysurfer.mildred.entity.elastic/Query.clause">
-            <table id="clauseTable"
-                   height="300px"
-                   width="100%">
+            <groupTable id="clauseTable"
+                        height="400px"
+                        multiselect="true"
+                        width="100%">
                 <actions>
                     <action id="add"/>
                     <action id="edit"/>
@@ -80,11 +81,12 @@
                     <button action="clauseTable.add"/>
                     <button action="clauseTable.remove"/>
                     <button action="clauseTable.edit"/>
+                    <bulkEditor for="clauseTable"/>
                 </buttonsPanel>
-            </table>
+            </groupTable>
         </groupBox>
         <frame id="windowActions"
-               align="BOTTOM_RIGHT"
+               align="TOP_RIGHT"
                screen="editWindowActions"
                width="AUTO"/>
     </layout>

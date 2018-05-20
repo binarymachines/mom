@@ -1,56 +1,190 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) 2017 Haulmont Technology Ltd. All Rights Reserved.
+  ~ Haulmont Technology proprietary and confidential.
+  ~ Use is subject to license terms.
+  -->
 <window xmlns="http://schemas.haulmont.com/cuba/window.xsd"
-        caption="msg://browseCaption"
+        caption="msg://caption"
         class="com.angrysurfer.mildred.web.service.mode.ModeBrowse"
-        focusComponent="modesTable"
-        lookupComponent="modesTable"
+        focusComponent="table"
+        lookupComponent="table"
         messagesPack="com.angrysurfer.mildred.web.service.mode">
     <dsContext>
-        <collectionDatasource id="modesDs"
-                              class="com.angrysurfer.mildred.entity.service.Mode"
-                              view="mode-view">
+        <datasource id="modeDs"
+                    class="com.angrysurfer.mildred.entity.service.Mode"
+                    view="mode-view">
+            <collectionDatasource id="defaultsDs"
+                                  property="defaults"/>
+            <collectionDatasource id="stateDefaultsDs"
+                                  property="stateDefaults"/>
+            <collectionDatasource id="transitionRulesDs"
+                                  property="transitionRules"/>
+        </datasource>
+        <groupDatasource id="modesDs"
+                         class="com.angrysurfer.mildred.entity.service.Mode"
+                         view="mode-view">
             <query>
                 <![CDATA[select e from mildred$Mode e]]>
             </query>
-        </collectionDatasource>
+        </groupDatasource>
     </dsContext>
+    <actions>
+        <action id="save"
+                caption="mainMsg://actions.Ok"
+                icon="icons/ok.png"
+                invoke="save"
+                shortcut="CTRL-ENTER"/>
+        <action id="cancel"
+                caption="mainMsg://actions.Cancel"
+                description="Esc"
+                icon="icons/cancel.png"
+                invoke="cancel"/>
+    </actions>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="modesTable"
-            spacing="true">
-        <filter id="filter"
-                applyTo="modesTable"
-                datasource="modesDs">
-            <properties include=".*"/>
-        </filter>
-        <table id="modesTable"
-               multiselect="true"
+    <layout>
+        <split id="split"
+               height="100%"
+               orientation="horizontal"
+               reversePosition="true"
                width="100%">
-            <actions>
-                <action id="create"
-                        openType="DIALOG"/>
-                <action id="edit"
-                        openType="THIS_TAB"/>
-                <action id="remove"/>
-            </actions>
-            <columns>
-                <column id="name"
-                        caption="name"/>
-                <column id="statefulFlag"
-                        caption="stateful"
-                        width="50"/>
-            </columns>
-            <rows datasource="modesDs"/>
-            <rowsCount/>
-            <buttonsPanel id="buttonsPanel"
-                          alwaysVisible="true">
-                <button id="createBtn"
-                        action="modesTable.create"/>
-                <button id="editBtn"
-                        action="modesTable.edit"/>
-                <button id="removeBtn"
-                        action="modesTable.remove"/>
-            </buttonsPanel>
-        </table>
+            <vbox id="lookupBox"
+                  expand="table"
+                  height="100%"
+                  margin="false,true,false,false"
+                  spacing="true">
+                <filter id="filter"
+                        applyTo="table"
+                        datasource="modesDs">
+                    <properties include=".*"/>
+                </filter>
+                <groupTable id="table"
+                            multiselect="true"
+                            width="100%">
+                    <actions>
+                        <action id="create"/>
+                        <action id="edit"/>
+                        <action id="remove"/>
+                    </actions>
+                    <columns>
+                        <column id="name"/>
+                        <column id="statefulFlag"/>
+                    </columns>
+                    <rows datasource="modesDs"/>
+                    <rowsCount/>
+                    <buttonsPanel id="buttonsPanel"
+                                  alwaysVisible="true">
+                        <button id="createBtn"
+                                action="table.create"/>
+                        <button id="editBtn"
+                                action="table.edit"/>
+                        <button id="removeBtn"
+                                action="table.remove"/>
+                    </buttonsPanel>
+                </groupTable>
+            </vbox>
+            <vbox id="editBox"
+                  margin="true"
+                  spacing="true">
+                <scrollBox id="fieldGroupBox"
+                           height="100%">
+                    <fieldGroup id="fieldGroup"
+                                datasource="modeDs">
+                        <column width="250px">
+                            <field property="name"/>
+                            <field property="statefulFlag"/>
+                        </column>
+                    </fieldGroup>
+                </scrollBox>
+                <groupBox caption="Mode Defaults"
+                          spacing="true">
+                    <table id="defaultsTable"
+                           height="250px"
+                           width="100%">
+                        <actions>
+                            <action id="create"/>
+                            <action id="edit"/>
+                            <action id="remove"/>
+                        </actions>
+                        <columns>
+                            <column id="serviceProfile"/>
+                            <column id="priority"/>
+                            <column id="timesToComplete"/>
+                            <column id="decPriorityAmount"/>
+                            <column id="incPriorityAmount"/>
+                            <column id="errorTolerance"/>
+                            <column id="effectDispatch"/>
+                        </columns>
+                        <rows datasource="defaultsDs"/>
+                        <buttonsPanel>
+                            <button action="defaultsTable.create"/>
+                            <button action="defaultsTable.edit"/>
+                            <button action="defaultsTable.remove"/>
+                        </buttonsPanel>
+                    </table>
+                </groupBox>
+                <groupBox caption="Mode State Defaults"
+                          spacing="true">
+                    <table id="stateDefaultsTable"
+                           height="250px"
+                           width="100%">
+                        <actions>
+                            <action id="create"/>
+                            <action id="edit"/>
+                            <action id="remove"/>
+                        </actions>
+                        <columns>
+                            <column id="priority"/>
+                            <column id="timesToComplete"/>
+                            <column id="decPriorityAmount"/>
+                            <column id="incPriorityAmount"/>
+                            <column id="errorTolerance"/>
+                            <column id="state"/>
+                            <column id="effectDispatch"/>
+                            <column id="serviceProfile"/>
+                        </columns>
+                        <rows datasource="stateDefaultsDs"/>
+                        <buttonsPanel>
+                            <button action="stateDefaultsTable.create"/>
+                            <button action="stateDefaultsTable.edit"/>
+                            <button action="stateDefaultsTable.remove"/>
+                        </buttonsPanel>
+                    </table>
+                </groupBox>
+                <groupBox caption="Mode State Transition Rules"
+                          spacing="true">
+                    <table id="transitionRulesTable"
+                           height="250px"
+                           width="100%">
+                        <actions>
+                            <action id="create"/>
+                            <action id="edit"/>
+                            <action id="remove"/>
+                        </actions>
+                        <columns>
+                            <column id="name"/>
+                            <column id="beginState"/>
+                            <column id="endState"/>
+                            <column id="conditionDispatch"/>
+                        </columns>
+                        <rows datasource="transitionRulesDs"/>
+                        <buttonsPanel>
+                            <button action="transitionRulesTable.create"/>
+                            <button action="transitionRulesTable.edit"/>
+                            <button action="transitionRulesTable.remove"/>
+                        </buttonsPanel>
+                    </table>
+                </groupBox>
+                <hbox id="actionsPane"
+                      spacing="true"
+                      visible="false">
+                    <button id="saveBtn"
+                            action="save"/>
+                    <button id="cancelBtn"
+                            action="cancel"/>
+                </hbox>
+            </vbox>
+        </split>
     </layout>
 </window>

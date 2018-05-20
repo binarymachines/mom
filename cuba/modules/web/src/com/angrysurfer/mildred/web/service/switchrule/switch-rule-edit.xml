@@ -58,7 +58,7 @@
             spacing="true">
         <fieldGroup id="fieldGroup"
                     datasource="switchRuleDs">
-            <column width="500px">
+            <column width="400px">
                 <field caption="msg://name"
                        property="name"
                        width="250px"/>
@@ -82,7 +82,7 @@
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               align="BOTTOM_RIGHT"
+               align="TOP_RIGHT"
                screen="editWindowActions"
                width="AUTO"/>
     </layout>

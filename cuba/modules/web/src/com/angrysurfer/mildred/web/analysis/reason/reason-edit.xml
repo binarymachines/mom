@@ -10,8 +10,9 @@
                     class="com.angrysurfer.mildred.entity.analysis.Reason"
                     view="Reason-screen-view"/>
     </dsContext>
-    <dialogMode height="600"
-                width="800"/>
+    <dialogMode forceDialog="true"
+                height="AUTO"
+                width="AUTO"/>
     <layout expand="windowActions"
             spacing="true">
         <fieldGroup id="fieldGroup"
@@ -23,11 +24,11 @@
                 <field property="weight"/>
                 <field property="dispatch"/>
                 <field property="expectedResult"/>
-                <field property="query"/>
-                <field property="queryId"/>
             </column>
         </fieldGroup>
         <frame id="windowActions"
-               screen="editWindowActions"/>
+               align="TOP_RIGHT"
+               screen="editWindowActions"
+               width="AUTO"/>
     </layout>
 </window>

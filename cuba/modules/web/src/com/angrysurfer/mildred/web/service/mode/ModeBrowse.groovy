@@ -1,6 +1,6 @@
 package com.angrysurfer.mildred.web.service.mode
 
-import com.haulmont.cuba.gui.components.AbstractLookup
+import com.haulmont.cuba.gui.components.EntityCombinedScreen
 
-class ModeBrowse extends AbstractLookup {
+public class ModeBrowse extends EntityCombinedScreen {
 }
