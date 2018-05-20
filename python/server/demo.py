@@ -129,13 +129,20 @@ class Analyzer():
         self.complete = False
 
     def can_analyze(self):
-        print "can analyze?"
+        scan = self.owner.scan
+        initial_and_update_scan_complete = scan.in_state(scan.get_state(SCAN_MONITOR))
+        # if self.selector.possible is scan:
+        #     return initial_and_update_scan_complete
+
+        # return initial_and_update_scan_complete and 
         return self.complete == False
 
     def do_analyze(self):
         print("entering analysis mode...")
         LOG.debug('%s evaluating' % self.owner.name)
+        self.owner.analyze.save_state()
         analyze.analyze(self.vector)
+        self.owner.analyze.expire_state()
         self.complete = True
 
 # fix mode

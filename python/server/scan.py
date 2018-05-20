@@ -27,7 +27,7 @@ from ops import ops_func
 import shallow
 import start
 from assets import Directory
-from binaryornot.check import is_binary
+# from binaryornot.check import is_binary
 
 LOG = log.get_safe_log(__name__, logging.DEBUG)
 ERR = log.get_safe_log('errors', logging.WARNING)
@@ -63,7 +63,7 @@ class FileScanner(Walker):
             file_type = self.file_types[ext] if ext in self.file_types else None
             if file_type is None and len(ext) < 9:
                 
-                file_type = SQLFileType.insert(ext, ext, is_binary(path))
+                file_type = SQLFileType.insert(ext, ext)
                 self.file_types[ext] = file_type
 
             return file_type
