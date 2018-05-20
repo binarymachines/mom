@@ -15,14 +15,14 @@ class AlchemyModeStateWriter(ModeStateWriter):
         super(AlchemyModeStateWriter, self).__init__()
 
     def expire_state(self, mode):
-        mode.mode_state_id = SQLModeState.update(mode, expire=True)
+        SQLModeState.update(mode, expire=True)
 
     def save_state(self, mode):
-        mode.mode_state_id = SQLModeState.insert(mode)
-        SQLModeState.update(mode)
+        SQLModeState.insert(mode)
+        # SQLModeState.update(mode)
     
     def update_state(self, mode, expire=False):
-        mode.mode_state_id = SQLModeState.update(mode, expire=expire)
+        SQLModeState.update(mode, expire=expire)
 
 
 

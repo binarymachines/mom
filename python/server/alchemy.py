@@ -741,8 +741,9 @@ class SQLModeState(AlchemyModeState):
     @alchemy_func
     def retrieve_active(mode):
         result = ()
+        sqlstate = SQLState.retrieve(mode.get_state())
         for instance in sessions[SERVICE].query(SQLModeState).\
-            filter(SQLModeState.id == mode.mode_state_id).\
+            filter(SQLModeState.state == sqlstate).\
             filter(SQLModeState.pid == config.pid):
             result += (instance,)
 
@@ -778,7 +779,7 @@ class SQLModeState(AlchemyModeState):
     @alchemy_func
     def update(mode, expire=False):
 
-        if mode.mode_state_id:
+        if mode.get_state():
 
             mode_state_rec = SQLModeState.retrieve_active(mode)
             mode_state_rec.times_activated = mode.times_activated
