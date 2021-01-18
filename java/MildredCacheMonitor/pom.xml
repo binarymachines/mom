@@ -2,7 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>Mildred</groupId>
   <artifactId>MildredCacheMonitor</artifactId>
+  <packaging>jar</packaging>
   <version>0.0.1-SNAPSHOT</version>
+  <name>MildredCacheMonitor</name>
     <build>
         <plugins>
             <plugin>
@@ -13,8 +15,19 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
+             <plugin>
+              <groupId>org.openjfx</groupId>
+              <artifactId>javafx-maven-plugin</artifactId>
+              <version>0.0.3</version>
+              <configuration>
+                <mainClass>MildredMonitorStage</mainClass>
+              </configuration>
+            </plugin>
+          </plugins>
+           </build>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <dependencies>
 	<!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
     <dependency>
@@ -22,5 +35,10 @@
         <artifactId>jedis</artifactId>
         <version>2.9.0</version>
     </dependency>
-  </dependencies>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-controls</artifactId>
+        <version>13</version>
+      </dependency>
+    </dependencies>
 </project>

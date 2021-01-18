@@ -2,11 +2,11 @@ import unittest
 
 import redis
 
-from media import config
-from media import const
-from media import assets
-from media import sql
-from media.core import cache2
+from ..server import config
+from ..server import const
+from ..server import assets
+from ..server import sql
+from ..server.core import cache2
 
 CACHE_MATCHES = 'cache_cache_matches'
 RETRIEVE_DOCS = 'cache_retrieve_docs'

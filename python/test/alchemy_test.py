@@ -1,6 +1,6 @@
 import unittest
 
-from media import alchemy, sql
+from ..server import alchemy, sql
 
 
 class TestAlchemy(unittest.TestCase):

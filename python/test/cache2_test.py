@@ -1,8 +1,8 @@
 import redis
 import unittest
 
-import start
-from core import cache2
+from ..server import start
+from ..server.core import cache2
 
 
 KEYGROUP = 'tests-suite'
